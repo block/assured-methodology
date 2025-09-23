@@ -1,0 +1,816 @@
+---
+title: "Entity Types and Analysis"
+description: "Deep dive into analyzing different entity types including User Accounts, Endpoints, Applications & Services, and Network Entities."
+slug: "subject/entity-types"
+---
+
+Entity analysis is a foundational pillar of modern cybersecurity, providing a structured lens through which security teams examine the diverse components that make up today's complex digital ecosystems. 
+By focusing on key entity categories, analysts can establish a clear picture of how users, devices, applications, and network elements interact. 
+This holistic understanding is essential for building behavioral baselines, detecting anomalies, and uncovering hidden attack paths that span multiple systems.
+
+Each entity type carries its own risk characteristics and behavioral patterns, but the most valuable insights come from analyzing their relationships and interactions. 
+For instance, a privileged account accessing a sensitive database might not raise concern on its own but when paired with an unusual network route or an untrusted endpoint, it may reveal an early stage of compromise. 
+Entity-centric analysis empowers security teams to connect these dots, prioritize alerts, and drive efficient investigations and response actions.
+
+# Core Entity Categories
+
+<div class="overflow-x-auto mb-6">
+  <table class="w-full border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800">
+    <thead>
+      <tr class="bg-slate-200 dark:bg-slate-700">
+        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-300 dark:border-slate-600">Entity</th>
+        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-100 border-r border-slate-300 dark:border-slate-600">Description</th>
+        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-900 dark:text-slate-100">Examples</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-t border-slate-300 dark:border-slate-600">
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>User Accounts</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>Digital identities that authenticate into systems and represent individual actors or services</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>• Employee Accounts: Standard users with role-based access rights<br/>
+          • Administrative Accounts: High-privilege accounts with elevated permissions<br/>
+          • Service Accounts: Non-human accounts for automated processes<br/>
+          • Contractor & Partner Accounts: Temporary or external identities<br/>
+          • Guest Accounts: Limited-access accounts for short-term use</strong>
+        </td>
+      </tr>
+      <tr class="border-t border-slate-300 dark:border-slate-600">
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>Endpoints</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>The physical and virtual devices through which users and services interact with systems</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>• Workstations and Laptops used by employees<br/>
+          • Servers such as application, database, and file servers<br/>
+          • Mobile Devices including phones and tablets<br/>
+          • IoT Devices like sensors, embedded systems, and smart devices<br/>
+          • Virtual Infrastructure such as cloud-hosted machines and containers</strong>
+        </td>
+      </tr>
+      <tr class="border-t border-slate-300 dark:border-slate-600">
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>Network Identifiers</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>The digital markers that enable communication and traffic analysis across environments</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>• IP Addresses for routing and segmentation<br/>
+          • Domain Names for resource identification<br/>
+          • Protocols and Ports indicating communication types<br/>
+          • MAC Addresses for device-level tracking<br/>
+          • Certificates and Keys for encrypted communication validation</strong>
+        </td>
+      </tr>
+      <tr class="border-t border-slate-300 dark:border-slate-600">
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>Applications and Services</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 border-r border-slate-300 dark:border-slate-600 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>The software components that power business processes and automated operations</strong>
+        </td>
+        <td class="px-6 py-4 text-sm text-slate-800 dark:text-slate-200 align-top bg-slate-50 dark:bg-slate-800">
+          <strong>• Business Applications: ERP, CRM, and productivity suites<br/>
+          • Development Tools: Build pipelines, code repositories, and testing platforms<br/>
+          • APIs and Microservices: Interfaces enabling system-to-system interactions<br/>
+          • Cloud Services: SaaS, PaaS, and IaaS-based services supporting operations<br/>
+          • Automation Utilities: Scheduled jobs, scripts, and orchestration tools</strong>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<br />
+<br />
+
+## Why Entity Context Matters
+
+Effective entity analysis goes beyond isolated examination of accounts, devices, or services. 
+The true investigative power comes from understanding how these entities interact as a system. 
+
+By linking user behavior, endpoint activity, and network relationships, analysts can:
+- Identify anomalies that would be invisible in a single data stream.
+- Trace attack progression through multiple systems and accounts.
+- Prioritize triage by focusing on the entities with the greatest potential impact.
+- Build richer narratives for escalation and incident response.
+
+The following sections will explore each entity type in detail, providing structured frameworks for building profiles, detecting suspicious activity, and correlating behavior across your environment.
+
+---
+
+# User Accounts
+
+User account behavior often provides the earliest and most actionable indicators of compromise during event triage. 
+Analysts should evaluate whether current activity aligns with expected patterns for the account's type: standard user, administrator, service, external, emergency, or shared. 
+Even subtle deviations, such as privilege use outside of business hours or unusual resource access, can reveal credential compromise, misuse, or insider threat activity.
+
+### For example:
+- Service accounts initiating interactive logins are a high-priority red flag.
+- Administrative accounts accessing unfamiliar business systems may indicate lateral movement or privilege escalation.
+- Dormant or terminated accounts exhibiting activity should be escalated immediately.
+
+The triage process begins with a rapid comparison against behavioral baselines, peer group norms, and lifecycle data to distinguish legitimate activity from potential abuse.
+
+<br />
+<br />
+
+## Account Lifecycle Analysis
+
+Understanding where an account sits in its lifecycle provides valuable context for prioritizing alerts and identifying high-severity threats.
+
+<div class="account-lifecycle my-8 p-6 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+  <div class="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0 lg:space-x-4">
+    
+    <div class="lifecycle-stage flex flex-col items-center text-center max-w-52">
+      <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 border-2 border-green-500 rounded-full flex items-center justify-center mb-3">
+        <span class="text-2xl">🆕</span>
+      </div>
+      <h5 class="font-semibold text-green-800 dark:text-green-200 mb-2">Creation & Provisioning</h5>
+      <p class="text-xs text-green-700 dark:text-green-300 mb-2">Detect unauthorized account creation by correlating HR onboarding events</p>
+      <div class="text-xs bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded p-2">
+        <strong>⚡ Real-time validation: ≤30 seconds</strong>
+      </div>
+    </div>
+
+    <div class="hidden lg:block text-slate-400 dark:text-slate-500">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8.59 16.58L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.58Z"/>
+      </svg>
+    </div>
+
+    <div class="lifecycle-stage flex flex-col items-center text-center max-w-52">
+      <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500 rounded-full flex items-center justify-center mb-3">
+        <span class="text-2xl">⚙️</span>
+      </div>
+      <h5 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Modification Events</h5>
+      <p class="text-xs text-blue-700 dark:text-blue-300 mb-2">Prioritize detection of privilege escalations, role changes, and group membership modifications</p>
+      <div class="text-xs bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded p-2">
+        <strong>🎯 Focus: Sensitive data & admin control</strong>
+      </div>
+    </div>
+
+    <div class="hidden lg:block text-slate-400 dark:text-slate-500">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8.59 16.58L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.58Z"/>
+      </svg>
+    </div>
+
+    <div class="lifecycle-stage flex flex-col items-center text-center max-w-52">
+      <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 border-2 border-yellow-500 rounded-full flex items-center justify-center mb-3">
+        <span class="text-2xl">😴</span>
+      </div>
+      <h5 class="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Dormancy Detection</h5>
+      <p class="text-xs text-yellow-700 dark:text-yellow-300 mb-2">Identify accounts inactive for 30+ days but still enabled</p>
+      <div class="text-xs bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded p-2">
+        <strong>⚠️ High takeover risk during blind spots</strong>
+      </div>
+    </div>
+
+    <div class="hidden lg:block text-slate-400 dark:text-slate-500">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8.59 16.58L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.58Z"/>
+      </svg>
+    </div>
+
+    <div class="lifecycle-stage flex flex-col items-center text-center max-w-52">
+      <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 border-2 border-red-500 rounded-full flex items-center justify-center mb-3">
+        <span class="text-2xl">🚫</span>
+      </div>
+      <h5 class="font-semibold text-red-800 dark:text-red-200 mb-2">Termination Procedures</h5>
+      <p class="text-xs text-red-700 dark:text-red-300 mb-2">Validate full deprovisioning within four hours of offboarding</p>
+      <div class="text-xs bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded p-2">
+        <strong>🚨 Any activity = immediate escalation</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 pt-6 border-t border-slate-300 dark:border-slate-600">
+    <div class="flex flex-col items-center text-center">
+      <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500 rounded-full flex items-center justify-center mb-3">
+        <span class="text-2xl">🔑</span>
+      </div>
+      <h5 class="font-semibold text-purple-800 dark:text-purple-200 mb-2">Password Reset Monitoring</h5>
+      <p class="text-sm text-purple-700 dark:text-purple-300 mb-2">Investigate resets occurring outside normal 90-day rotation policies or originating from unusual locations</p>
+      <div class="text-xs bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded p-2 max-w-md">
+        <strong>🎭 May indicate social engineering attacks or compromised self-service recovery workflows</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br />
+<br />
+
+## Account Types and Triage Considerations
+Each account type has distinct behavioral expectations and associated risks. 
+During triage, the account's role and intended function help determine whether an anomaly represents benign variance or an active threat.
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">👤</span>
+      Standard User Accounts
+    </h5>
+    <div class="text-sm text-blue-700 dark:text-blue-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Employees performing routine operational tasks
+      </div>
+      <div>
+        <strong>Normal Behavior:</strong> Consistent usage aligned with business hours, role-based applications, and predictable systems
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Off-hours activity with privileged resources</li>
+          <li> Sudden access to systems outside job function</li>
+          <li> Large-scale data transfers or unusual task frequency</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🤖</span>
+      Service Accounts
+    </h5>
+    <div class="text-sm text-green-700 dark:text-green-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Automation, integrations, and machine-to-machine operations
+      </div>
+      <div>
+        <strong>Normal Behavior:</strong> Highly predictable logins from fixed systems or processes, with narrow and static permissions
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Interactive logins or console access</li>
+          <li> Credential reuse across systems</li>
+          <li> Privilege escalation or group membership changes</li>
+          <li> Sudden geographic or network source anomalies</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🛡️</span>
+      Administrative Accounts
+    </h5>
+    <div class="text-sm text-red-700 dark:text-red-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Elevated permissions for managing systems, infrastructure, and security controls
+      </div>
+      <div>
+        <strong>Normal Behavior:</strong> Access primarily during approved maintenance windows, often brokered through PAM tools
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Logins outside approved change windows</li>
+          <li> MFA or PAM bypass attempts</li>
+          <li> Lateral movement into user-facing systems</li>
+          <li> Concurrent sessions across multiple endpoints</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🌐</span>
+      External Accounts
+    </h5>
+    <div class="text-sm text-orange-700 dark:text-orange-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Contractors, vendors, or partners with limited access to specific systems
+      </div>
+      <div>
+        <strong>Risk Context:</strong> Represent an expanded attack surface with reduced organizational visibility and control
+      </div>
+      <div class="bg-orange-100 dark:bg-orange-800/30 border border-orange-300 dark:border-orange-600 rounded p-2 text-xs">
+        <strong>📊 Data Insight:</strong> In 317 breaches between 2019–2023, 42% originated from compromised external accounts with excessive permissions
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Elevated access beyond contracted scope</li>
+          <li> Logins from non-approved geographies or infrastructure</li>
+          <li> Access to sensitive systems without business justification</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">👥</span>
+      Shared Accounts
+    </h5>
+    <div class="text-sm text-yellow-700 dark:text-yellow-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Legacy or unmanaged environments where multiple users share credentials (discouraged practice)
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Concurrent usage from multiple locations</li>
+          <li> Impossible travel scenarios between logins</li>
+          <li> Mixed authentication patterns (e.g., different MFA methods within the same session)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🚨</span>
+      Break-Glass / Emergency Accounts
+    </h5>
+    <div class="text-sm text-purple-700 dark:text-purple-300 space-y-3">
+      <div>
+        <strong>Purpose:</strong> Rarely used, reserved for emergency access when standard controls (e.g., PAM) are unavailable
+      </div>
+      <div>
+        <strong>Controls:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Must be time-bound, logged, and justified retroactively</li>
+          <li> Require multi-party approval before activation</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Red Flags:</strong>
+        <ul class="mt-1 ml-4 space-y-1">
+          <li> Any unscheduled or undocumented usage</li>
+          <li> Session activity beyond the emergency scope</li>
+          <li> Persistent privileges after the incident resolution</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+# Endpoints
+
+Endpoints are a primary attack vector and propagation surface for many threats, making them a critical focus during triage. 
+Analysts must evaluate endpoint behavior in the context of recent activity, historical events, and baseline configurations, identifying deviations that may indicate compromise, persistence mechanisms, or lateral movement.
+
+## Endpoint Context Assessment
+
+### Key elements to assess during triage:
+
+#### System Configuration:
+- Validate OS version, patch status, and hardware integrity. 
+    >Unusual configurations, outdated patches, or misaligned system settings can increase exposure to exploits and may indicate tampering.
+
+#### Application and Service Inventory:
+- Compare active software and services against known-good baselines. 
+    >Pay attention to unsigned binaries, scripting tools, and remote management utilities, which may signal unauthorized activity.
+
+#### Security Control Status:
+- Confirm the presence and proper functioning of EDR agents, encryption, and policy enforcement. 
+    >Missing or misconfigured controls may suggest pre-exploitation preparation or attacker interference.
+
+#### Network Relationships:
+- Review historical and real-time communications to detect unexpected access paths or cross-segment traffic. 
+    >Flag endpoints initiating connections outside established trust boundaries.
+
+#### Data Exposure Mapping:
+- Determine whether the endpoint has access to sensitive data such as customer records, financial information, or internal IPs. 
+    >Endpoints with sensitive access require higher triage priority if anomalies are detected.
+
+#### Behavioral History:
+- Examine prior security events tied to the endpoint. 
+    >Recurring anomalies or patterns consistent with known attacker TTPs can guide investigation hypotheses.
+
+<br />
+<br />
+
+## Endpoint Categories and Triage Considerations
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">💻</span>
+      Workstations / Laptops
+    </h5>
+    <div class="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Day-to-day user devices targeted by phishing, malware, or drive-by attacks
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> User behavior anomalies, unusual process execution (e.g., PowerShell, scripts), USB activity, off-hours logins, or access from atypical geolocations
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🖥️</span>
+      Servers
+    </h5>
+    <div class="text-sm text-green-700 dark:text-green-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Critical workloads with stable baselines
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Unexpected service starts, privileged account activity, lateral movement attempts, anomalous network traffic
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">📱</span>
+      Mobile Devices
+    </h5>
+    <div class="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Managed or personal devices accessing corporate resources
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Jailbreaking, unauthorized apps, data exfiltration, unusual network connections, or compromised personal device usage
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🌐</span>
+      IoT Devices
+    </h5>
+    <div class="text-sm text-orange-700 dark:text-orange-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Sensors, cameras, and smart controllers with fixed functionality
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Firmware changes, unexpected external communications, anomalous DNS requests, or unusual traffic volume
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-cyan-800 dark:text-cyan-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">☁️</span>
+      Cloud Instances
+    </h5>
+    <div class="text-sm text-cyan-700 dark:text-cyan-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Virtual machines supporting scalable services, often ephemeral
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Suspicious access key usage, audit log anomalies, metadata API abuse, or behavior inconsistent with automated functions or assigned roles
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔧</span>
+      Network Appliances
+    </h5>
+    <div class="text-sm text-red-700 dark:text-red-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Routers, firewalls, VPNs controlling traffic flow and access boundaries
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Unauthorized configuration changes, firmware updates, or unusual CLI/API access outside scheduled windows
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🖱️</span>
+      Virtual Desktops (VDIs)
+    </h5>
+    <div class="text-sm text-indigo-700 dark:text-indigo-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Remote or shared workspaces with attribution challenges
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Suspicious session activity, mapped drives, clipboard transfers, unusual process execution, or off-hours logins
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-teal-800 dark:text-teal-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">⚡</span>
+      Developer Workstations
+    </h5>
+    <div class="text-sm text-teal-700 dark:text-teal-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Endpoints with development tools, compilers, and repository access
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Unauthorized Git operations, misuse of build automation, embedded credentials in code artifacts, or unexpected access to infrastructure management systems
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+# Applications and Services
+
+Applications and services are high-value assets and frequent targets for attackers due to their role in processing data, executing business functions, and providing privileged access pathways. 
+Security analysts must distinguish between legitimate use and malicious misuse, such as privilege escalation, lateral movement, or data exfiltration.
+
+Effective triage starts with baselining normal behavior (transaction volumes, timing, and access patterns) while factoring in business cycles and seasonal variations. 
+Analysts should also map role-based access models, expected workflows, and integration points to quickly detect anomalies. 
+Continuous monitoring of API calls, parameter usage, and authentication events allows for rapid detection of misuse and prioritization of suspicious activity before it escalates into a breach.
+
+## Application Context Assessment
+Key factors to evaluate during application and service triage:
+- **Access Control Models:** Validate that roles and permissions align with business needs and least privilege principles. Watch for unauthorized privilege escalation.
+- **Integration Mapping:** Identify trusted communication paths between applications and external systems to spot unauthorized or anomalous connections.
+- **Behavioral Baselines:** Establish normal usage patterns for workflows, API frequency, and transaction timing to identify outliers.
+- **Data Sensitivity:** Determine which applications handle sensitive or regulated data to appropriately prioritize alerts.
+- **Log Integrity:** Ensure application and service logs are complete, tamper-resistant, and cover authentication, configuration changes, and critical transactions.
+
+## Application Types and Triage Considerations
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">💼</span>
+      Business-Critical Applications
+    </h5>
+    <div class="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Systems that process financial transactions, customer data, or intellectual property
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Sudden spikes in transaction volumes outside business cycles, configuration changes made outside maintenance windows, access attempts from unrecognized locations or devices, unusual patterns of data movement or export
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">⚙️</span>
+      Development Environments
+    </h5>
+    <div class="text-sm text-green-700 dark:text-green-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Build systems, repositories, and CI/CD pipelines vulnerable to supply chain attacks or insider misuse
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Unusual commit patterns or code pushes at odd hours, unexpected changes to build scripts or pipeline configurations, access to repositories from new devices or networks, signs of embedded credentials or secrets in code artifacts
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🗄️</span>
+      Database Management Systems
+    </h5>
+    <div class="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Centralized data stores with highly sensitive records
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Queries with abnormally large result sets or unusual complexity, spikes in administrative activity or schema changes, data exports occurring outside standard workflows, new or unrecognized database accounts being created or elevated
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🛠️</span>
+      Administrative Tools and Consoles
+    </h5>
+    <div class="text-sm text-orange-700 dark:text-orange-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Interfaces used to configure infrastructure, user accounts, and security controls: prime targets for attackers
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Privileged commands executed outside scheduled maintenance, access from accounts not normally associated with administrative tasks, failed login attempts followed by sudden successful logins, scripted API activity inconsistent with standard workflows
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔐</span>
+      Authentication Services
+    </h5>
+    <div class="text-sm text-red-700 dark:text-red-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Identity and access management platforms that serve as gatekeepers for other systems
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Unusual volume of failed or successful MFA challenges, sudden creation of high-privilege accounts, inconsistent geolocation patterns in user authentication events, attempts to disable or bypass MFA enforcement
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-teal-800 dark:text-teal-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">📧</span>
+      Email and Collaboration Platforms
+    </h5>
+    <div class="text-sm text-teal-700 dark:text-teal-300 space-y-2">
+      <div>
+        <strong>Focus:</strong> Tools used for internal and external communications, frequently targeted for phishing, malware delivery, and data exfiltration
+      </div>
+      <div>
+        <strong>Triage Signals:</strong> Forwarding rules created without user action, large volumes of outbound messages with attachments or links, logins from atypical IP ranges or impossible travel scenarios, files shared externally in violation of policy
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+# Network Identifiers
+
+Network identifiers (such as IP addresses, domain names, protocols, ports, and certificate metadata) form the foundation for understanding communications within and beyond an organization’s environment.
+During event triage, these identifiers reveal how devices, users, and services interact across segmented internal networks, partner ecosystems, and the public internet.
+
+By baselining network behavior for directionality, frequency, and temporal consistency, analysts can quickly identify anomalies that indicate malicious activity. 
+Sudden changes (such as spikes in outbound traffic, unusual destination IPs, or unexpected protocol usage) may point to compromised systems attempting command-and-control (C2) communication or data exfiltration.
+
+Deep packet inspection (DPI) and Layer 7 validation are essential to confirm that traffic adheres to expected protocol standards (e.g., HTTP, DNS, SMB). 
+Malicious actors often tunnel payloads through legitimate services, such as DNS or HTTPS, to evade detection. 
+Encrypted traffic also warrants scrutiny; abnormal characteristics like frequent TLS renegotiations, non-standard cipher suites, or very short session durations can indicate obfuscation or beaconing.
+
+Beaconing activity is a high-value signal for triage. 
+By analyzing connection frequency and periodicity (e.g., callbacks occurring exactly every 60 or 900 seconds), analysts can uncover hidden C2 infrastructure. 
+When combined with entropy analysis, JA3 fingerprinting, and DNS behavior monitoring, network identifier analysis becomes a cornerstone of detecting stealthy, covert communications.
+
+<br />
+<br />
+
+## Types of Network Identifiers
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🌐</span>
+      IP Addresses
+    </h5>
+    <div class="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Fundamental locator for networked systems, enabling mapping of connections and peer relationships
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Track geolocation, WHOIS ownership, reputation context, traffic to/from malware infrastructure, detect routing changes
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🏷️</span>
+      Domain Names
+    </h5>
+    <div class="text-sm text-green-700 dark:text-green-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Higher-level abstraction used to mask infrastructure, often leveraged in phishing or C2 operations
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Check domain age and registrar patterns, detect fast-flux DNS techniques or DGAs, leverage passive DNS history
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔌</span>
+      Protocols and Ports
+    </h5>
+    <div class="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Defines the type of communication occurring and the service layer being utilized
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Identify non-standard ports indicating tunneling, validate protocol RFC compliance, cross-reference with segmentation policies
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🏷️</span>
+      MAC Addresses
+    </h5>
+    <div class="text-sm text-orange-700 dark:text-orange-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Provides hardware-level identity for endpoints and aids in verifying asset legitimacy
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Detect MAC spoofing, randomization behavior, OUI mismatches, correlate changes with lateral movement attempts
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🏢</span>
+      BGP ASNs
+    </h5>
+    <div class="text-sm text-red-700 dark:text-red-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Groups IPs by network ownership to identify relationships with upstream providers or suspicious networks
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Watch for high-risk ASNs, detect rapid ASN changes, validate ASN-to-geolocation consistency
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-teal-800 dark:text-teal-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">📡</span>
+      FQDN Patterns
+    </h5>
+    <div class="text-sm text-teal-700 dark:text-teal-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Reveals infrastructure design patterns and staged attack architecture
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Look for high entropy subdomains, flag excessive domain depth, detect wildcard DNS misuse
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔒</span>
+      SSL/TLS Certificates
+    </h5>
+    <div class="text-sm text-indigo-700 dark:text-indigo-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Validates encrypted sessions and uncovers spoofed or malicious services
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Inspect certificate issuer and validity, identify self-signed certificates, monitor compromised authorities
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-pink-800 dark:text-pink-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔍</span>
+      DNS Query Behavior
+    </h5>
+    <div class="text-sm text-pink-700 dark:text-pink-300 space-y-2">
+      <div>
+        <strong>Role:</strong> DNS activity often provides the first signs of compromise
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Watch for excessive queries, detect entropy-heavy domains, investigate recursive failures
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-cyan-800 dark:text-cyan-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔏</span>
+      JA3/JA3S Fingerprints
+    </h5>
+    <div class="text-sm text-cyan-700 dark:text-cyan-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Profiles TLS handshake characteristics to detect malicious client or server behaviors
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Flag rare fingerprints, identify rotating infrastructure, correlate with known attacker signatures
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-amber-800 dark:text-amber-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔗</span>
+      URI/URL Structures
+    </h5>
+    <div class="text-sm text-amber-700 dark:text-amber-300 space-y-2">
+      <div>
+        <strong>Role:</strong> Provides insight into application-level communication patterns and potential data staging
+      </div>
+      <div>
+        <strong>Triage Use:</strong> Flag encoded parameters, investigate unexpected file types, analyze URI depth and randomization
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+# Next Step: 
+
+Continue with [Behavioral Analysis Framework](/docs/subject/behavior) to leverage broad telemetry, contextual enrichment, continuous adaptation, and strict privacy safeguards to detect subtle anomalies and validate threats.

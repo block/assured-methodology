@@ -177,49 +177,310 @@
 
   html {
     @apply scroll-smooth;
+    /* Force background on html element */
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%) !important;
+    min-height: 100vh;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     /* font-feature-settings: "rlig" 1, "calt" 1; */
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
+    
+    /* Professional cybersecurity gradient background - force with !important */
+    background: linear-gradient(135deg, 
+      #1e293b 0%, 
+      #334155 25%, 
+      #475569 50%, 
+      #334155 75%, 
+      #1e293b 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh;
+  }
+
+  /* Light mode - professional blue-gray gradient */
+  body:not(.dark) {
+    background: linear-gradient(135deg, 
+      #e2e8f0 0%, 
+      #cbd5e1 25%, 
+      #94a3b8 50%, 
+      #cbd5e1 75%, 
+      #e2e8f0 100%) !important;
+  }
+
+  /* Dark mode - enhanced cybersecurity theme */
+  .dark body {
+    background: linear-gradient(135deg, 
+      #0f172a 0%, 
+      #1e293b 25%, 
+      #334155 50%, 
+      #1e293b 75%, 
+      #0f172a 100%) !important;
+  }
+
+  /* Add cybersecurity-themed pattern overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      /* Hexagonal pattern for tech feel */
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 20%),
+      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 15%),
+      /* Grid pattern */
+      linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
+    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Light mode overlay */
+  body:not(.dark)::before {
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 20%),
+      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 20%),
+      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 15%),
+      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  }
+
+  /* Dark mode overlay */
+  .dark body::before {
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 20%),
+      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 20%),
+      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.12) 0%, transparent 15%),
+      linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  }
+
+  /* Force cybersecurity background on all main content areas */
+  .bg-background,
+  .bg-white,
+  .bg-slate-50,
+  .bg-gray-50 {
+    background: linear-gradient(135deg, 
+      #1e293b 0%, 
+      #334155 25%, 
+      #475569 50%, 
+      #334155 75%, 
+      #1e293b 100%) !important;
+  }
+
+  /* Light mode overrides */
+  body:not(.dark) .bg-background,
+  body:not(.dark) .bg-white,
+  body:not(.dark) .bg-slate-50,
+  body:not(.dark) .bg-gray-50 {
+    background: linear-gradient(135deg, 
+      #e2e8f0 0%, 
+      #cbd5e1 25%, 
+      #94a3b8 50%, 
+      #cbd5e1 75%, 
+      #e2e8f0 100%) !important;
+  }
+
+  /* Hero component styling */
+  .hero-headline,
+  .hero-description,
+  .hero-cta {
+    color: #f8fafc !important; /* Very light text for maximum contrast */
+  }
+
+  /* Hero content container */
+  .hero-content,
+  .hero-container {
+    background: rgba(248, 250, 252, 0.1) !important; /* Very subtle light overlay */
+    backdrop-filter: blur(4px) !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+  }
+
+  /* Ensure all text in main content areas is visible */
+  .prose,
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6,
+  .prose p,
+  .prose li {
+    color: #f8fafc !important;
+  }
+
+  /* Center all h2 headings in content */
+  .prose h2 {
+    text-align: center !important;
+  }
+
+  /* Feature card styling */
+  .feature-card,
+  .bg-card,
+  .bg-card\/40,
+  .bg-card\/80 {
+    background: rgba(248, 250, 252, 0.95) !important; /* Light semi-transparent background */
+    border: 1px solid rgba(226, 232, 240, 0.5) !important; /* Subtle border */
+  }
+
+  .feature-card h3,
+  .feature-card h4,
+  .feature-card p,
+  .feature-card li,
+  .feature-card * {
+    color: #0f172a !important; /* Very dark text for light cards */
+  }
+
+  /* Header styling */
+  .header-wrapper,
+  .header-container {
+    background: rgba(15, 23, 42, 0.95) !important; /* Dark header background */
+    backdrop-filter: blur(8px) !important;
+  }
+
+  /* Navigation links */
+  .nav-link {
+    color: #e2e8f0 !important; /* Light text for dark header */
+  }
+
+  .nav-link:hover,
+  .nav-link-active {
+    color: #f8fafc !important; /* Very light text on hover/active */
+  }
+
+  /* Brand text */
+  .brand-text {
+    color: #f8fafc !important; /* Light brand text */
+  }
+
+  /* Additional card and content styling */
+  .rounded-lg,
+  .border,
+  .bg-card\/40,
+  .bg-card\/80,
+  .backdrop-blur-sm {
+    background: rgba(248, 250, 252, 0.95) !important; /* Light semi-transparent */
+    border: 1px solid rgba(226, 232, 240, 0.5) !important; /* Subtle border */
+  }
+
+  .rounded-lg *,
+  .border *,
+  .bg-card\/40 *,
+  .bg-card\/80 *,
+  .backdrop-blur-sm * {
+    color: #0f172a !important; /* Very dark text for light cards */
+  }
+
+  /* Checklist and list styling */
+  .checklist,
+  .checklist li {
+    background: rgba(248, 250, 252, 0.95) !important;
+  }
+
+  .checklist *,
+  .checklist li * {
+    color: #0f172a !important; /* Very dark text */
+  }
+
+  /* CTA sections */
+  .cta-section,
+  .cta-container {
+    background: rgba(248, 250, 252, 0.1) !important;
+    backdrop-filter: blur(4px) !important;
+    border: 1px solid rgba(226, 232, 240, 0.2) !important;
+  }
+
+  /* Sidebar and navigation panels */
+  .sidebar,
+  .nav-panel {
+    background: rgba(15, 23, 42, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  }
+
+  /* Force text visibility in all card-like elements */
+  div[class*="bg-card"],
+  div[class*="rounded"],
+  div[class*="border"],
+  div[class*="backdrop"] {
+    background: rgba(248, 250, 252, 0.95) !important;
+    border: 1px solid rgba(226, 232, 240, 0.5) !important;
+  }
+
+  div[class*="bg-card"] *,
+  div[class*="rounded"] *,
+  div[class*="border"] *,
+  div[class*="backdrop"] * {
+    color: #0f172a !important;
+  }
+
+  /* Specific targeting for common card classes */
+  .p-4,
+  .p-6,
+  .px-4,
+  .px-6,
+  .py-4,
+  .py-6 {
+    color: #0f172a !important;
+  }
+
+  .p-4 *,
+  .p-6 *,
+  .px-4 *,
+  .px-6 *,
+  .py-4 *,
+  .py-6 * {
+    color: #0f172a !important;
   }
 
   /* Typography - Block Content Styles */
   h1 {
     @apply font-sans text-5xl font-black leading-none;
     @apply mt-8 mb-6 scroll-m-20 tracking-tight;
+    color: #f8fafc !important; /* Light text for dark backgrounds */
   }
 
   h2 {
     @apply font-sans text-3xl font-semibold leading-relaxed;
     @apply mt-8 mb-6 scroll-m-20 tracking-tight;
+    color: #e2e8f0 !important; /* Light text for dark backgrounds */
   }
 
   h3 {
     @apply font-sans text-2xl font-semibold leading-8;
     @apply mt-8 mb-4 scroll-m-20 tracking-tight;
+    color: #e2e8f0 !important; /* Light text for dark backgrounds */
   }
 
   h4 {
     @apply font-sans text-xl font-semibold leading-7;
     @apply mt-6 mb-4 scroll-m-20 tracking-tight;
+    color: #e2e8f0 !important; /* Light text for dark backgrounds */
   }
 
   h5 {
     @apply font-sans text-lg font-medium leading-7;
     @apply mt-6 mb-4 scroll-m-20 tracking-tight;
+    color: #e2e8f0 !important; /* Light text for dark backgrounds */
   }
 
   h6 {
     @apply font-sans text-base font-semibold leading-6;
     @apply mt-6 mb-4 scroll-m-20 tracking-tight;
+    color: #e2e8f0 !important; /* Light text for dark backgrounds */
   }
 
   p {
     @apply font-sans text-base font-normal leading-6;
     @apply [&:not(:first-child)]:mt-6;
+    color: #cbd5e1 !important; /* Light text for dark backgrounds */
   }
 
   blockquote {
@@ -231,16 +492,15 @@
   ul {
     @apply font-sans text-base font-normal leading-6;
     @apply my-1 ml-6 list-disc [&>li]:mt-2;
-    color: hsl(var(--foreground));
+    color: #cbd5e1 !important; /* Light text for dark backgrounds */
     font-family: var(--font-sans);
     font-size: var(--text-base-font-size, 16px);
     font-style: normal;
     font-weight: var(--font-weight-normal, 400);
     line-height: var(--text-base-line-height, 24px); /* 150% */
-    display: flex;
-    width: 323px;
+    display: block;
+    width: 100%;
     padding: 0px 0px var(--spacing-6, 24px) var(--spacing-6, 24px);
-    flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-2, 8px);
   }
@@ -248,23 +508,22 @@
   ol {
     @apply font-sans text-base font-normal leading-6;
     @apply my-1 ml-6 list-decimal [&>li]:mt-2;
-    color: hsl(var(--foreground));
+    color: #cbd5e1 !important; /* Light text for dark backgrounds */
     font-family: var(--font-sans);
     font-size: var(--text-base-font-size, 16px);
     font-style: normal;
     font-weight: var(--font-weight-normal, 400);
     line-height: var(--text-base-line-height, 24px); /* 150% */
-    display: flex;
-    width: 323px;
+    display: block;
+    width: 100%;
     padding: 0px 0px var(--spacing-6, 24px) var(--spacing-6, 24px);
-    flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-2, 8px);
   }
 
   li {
     @apply mt-2;
-    color: hsl(var(--foreground));
+    color: #cbd5e1 !important; /* Light text for dark backgrounds */
     font-family: var(--font-sans);
     font-size: var(--text-base-font-size, 16px);
     font-style: normal;
@@ -566,4 +825,20 @@
   .group:hover .group-hover\:text-black {
     color: black;
   }
+
+  /* Force gradient effects on all elements */
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+  
+  /* Specific gradient effects for buttons and boxes */
+  .gradient-effect {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+
 }

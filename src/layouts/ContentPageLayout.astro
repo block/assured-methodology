@@ -22,9 +22,8 @@
 
 import BaseLayout from "./BaseLayout.astro";
 import type { MarkdownHeading } from 'astro';
-import TableOfContents from "@/components/docs/TableOfContents.astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
-import { Icon } from 'astro-icon/components';
+import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import "../styles/breadcrumbs.css";
 
 interface Props {
@@ -40,38 +39,24 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
 
 <BaseLayout title={title} description={description}>
   <div class="relative min-h-[calc(100vh-4rem)]">
-    <!-- Background Pattern with White Gradient -->
-    <div class="absolute inset-0 bg-block-pattern" style="mask-image: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 10vh, rgba(255,255,255,1) 85vh, rgba(255,255,255,1) 100%);"></div>
+    <!-- Cybersecurity Background Pattern -->
+    <div class="absolute inset-0 bg-cyber-pattern" style="opacity: 0.1;"></div>
 
-    <!-- Navbar -->
-    <div class={`
-      relative mx-auto min-h-[calc(100vh-64px)] max-w-[1800px] px-6
-      grid gap-6
+    <!-- Main Layout -->
+    <div class="relative mx-auto max-w-[1800px] px-6 flex flex-col lg:flex-row gap-6 max-md:px-4">
       
-      ${Astro.slots.has('navbar') && headings && headings.length > 0
-        ? 'xl:grid-cols-[280px_minmax(0,1fr)_280px] max-xl:grid-cols-[280px_minmax(0,1fr)] max-lg:grid-cols-[minmax(0,1fr)]' 
-        : Astro.slots.has('navbar') && (!headings || headings.length === 0)
-        ? 'grid-cols-[280px_minmax(0,1fr)] max-lg:grid-cols-[minmax(0,1fr)]'
-        : headings && headings.length > 0
-        ? 'xl:grid-cols-[minmax(0,1fr)_280px] max-xl:grid-cols-[minmax(0,1fr)]'
-        : 'grid-cols-[minmax(0,1fr)]'
-      }
-      
-      max-md:px-4
-      
-      2xl:gap-6
-      xl:gap-4
-    `}>
-      {Astro.slots.has('navbar') && (
-        <nav class="relative border-r border-slate-200 dark:border-slate-700 bg-background/80 backdrop-blur-sm hidden lg:block">
-          <div class="sticky top-16 h-[calc(100vh-64px)] overflow-y-auto py-6 px-6 scrollbar-thin scrollbar-thumb-slate-400 hover:scrollbar-thumb-slate-500 scrollbar-track-transparent">
-            <slot name="navbar" />
+      <!-- Left Sidebar: On This Page -->
+      {headings && headings.length > 0 && (
+        <nav class="lg:w-64 flex-shrink-0 order-2 lg:order-1 hidden lg:block">
+          <div class="py-6 px-6 border-r border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm">
+            <SimpleTableOfContents headings={headings} />
           </div>
         </nav>
       )}
 
-      <main class="min-w-0 py-8 px-10 xl:px-6 lg:px-6 md:px-4">
-        <div id="mainContent" class="prose prose-slate dark:prose-invert mx-auto" style="max-width: min(100%, 100ch);">
+      <!-- Main Content -->
+      <main class="flex-1 order-1 lg:order-2 min-w-0 py-8 px-10 xl:px-6 lg:px-6 md:px-4">
+        <div id="mainContent" class="prose prose-slate dark:prose-invert mx-auto" style="max-width: none;">
           
           {/** Breadcrumbs */}
           {showBreadcrumbs && (
@@ -83,9 +68,9 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
                 linkTextFormat="capitalized"
                 excludeCurrentPage={false}
               >
-                <span slot="separator">&nbsp;<Icon name="chevron-right" />&nbsp;</span>
+                <span slot="separator">&nbsp;›&nbsp;</span>
                 <span slot="index">
-                  <Icon name="home" width={20} height={20}/>
+                  🏠
                 </span>
               </Breadcrumbs>
             </div>
@@ -99,26 +84,52 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
         </div>
       </main>
 
-      {headings && headings.length > 0 && (
-        <aside class="relative border-l border-slate-200 dark:border-slate-700 bg-background/80 backdrop-blur-sm hidden xl:block">
-          <div class="sticky top-16 h-fit py-6 px-6">
-            <TableOfContents headings={headings} />
-          </div>
-        </aside>
-      )}
     </div>
   </div>
 </BaseLayout>
 
-<script>
-  document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
-</script>
-
 <style>
-  /* Background block pattern using our custom SVG */
-  .bg-block-pattern {
-    background-image: url('/src/icons/block-background.svg');
-    background-repeat: repeat;
-    background-size: 50px 50px;
+  /* Cybersecurity background pattern */
+  .bg-cyber-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 20%),
+      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 20%),
+      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.2) 0%, transparent 15%),
+      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
+    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
+  }
+
+  /* Improve scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Override prose max-width */
+  .prose {
+    max-width: none !important;
+  }
+
+  /* Ensure list items can span full width */
+  .prose ul, .prose ol {
+    width: 100% !important;
+    display: block !important;
+  }
+  
+  .prose li {
+    width: 100% !important;
+    display: list-item !important;
+    white-space: normal !important;
+  }
+
+  /* Clean, minimal sidebar styling */
+
+  /* Mobile adjustments */
+  @media (max-width: 1024px) {
+    /* Hide sidebar on mobile */
+    nav {
+      display: none !important;
+    }
   }
 </style>

@@ -1,8 +1,6 @@
 ---
 import ContentPageLayout from "@/layouts/ContentPageLayout.astro";
-import DocsNavbar from "@/components/docs/DocsNavbar.astro";
 import { getCollection, render} from 'astro:content';
-import MDXComponents from '@/components/mdx/MDXComponents';
 
 /**
  * Magic required function for dynamic routes; determines the slug
@@ -31,10 +29,13 @@ const { Content, headings, remarkPluginFrontmatter } = await render(doc);
 
 ---
 
-<ContentPageLayout title={title} 
+<ContentPageLayout 
+  title={title} 
   description={description} 
   headings={headings} 
-  maxWidth="wide">
-  <DocsNavbar slot="navbar" />
-  <Content components={MDXComponents} />
+  maxWidth="wide"
+  showTitleAsH1={true}
+  showBreadcrumbs={true}
+>
+  <Content />
 </ContentPageLayout>

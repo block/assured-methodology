@@ -1,33 +1,52 @@
-import type { NavGroup } from "@/components/docs/Navbar.astro";
-
 // Navigation items configuration
+interface NavItem {
+  title: string;
+  href: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
 export const mainNavigation: NavGroup[] = [
   {
     title: "Main Navigation",
-    items: [ 
+    items: [
+      {
+        title: "Intro",
+        href: "/docs/intro"
+      },
+      {
+        title: "Alert",
+        href: "/docs/alert"
+      },
+      {
+        title: "Subject",
+        href: "/docs/subject"
+      },
+      {
+        title: "Scope",
+        href: "/docs/scope"
+      },
+      {
+        title: "Uncover",
+        href: "/docs/uncover"
+      },
+      {
+        title: "Risk",
+        href: "/docs/risk"
+      },
+      {
+        title: "Escalation",
+        href: "/docs/escalation"
+      },
       {
         title: "Documentation",
-        href: "/docs",
-        iconName: "layers",
+        href: "/docs/documentation"
       },
       {
-        title: "Components", 
-        href: "/components",
-        iconName: "blocks"
-      },
-      {
-        title: "Examples",
-        href: "/examples",
-        iconName: "images",
-      },
-      {
-        title: "Blog",
-        href: "/blog",
-        iconName: "newspaper"
-      },
-      {
-        title: "Open Source",
-        href: "/block-open-source",
+        title: "Glossary",
+        href: "/docs/glossaries/bad"
       }
     ],
   }
@@ -39,178 +58,98 @@ export const docsNavigation: NavGroup[] = [
     items: [
       {
         title: "Introduction",
-        href: "/docs",
-      },
-      {
-        title: "Installation",
-        href: "/docs/installation",
-      },
-      {
-        title: "Configuration",
-        href: "/docs/configuration",
-      },
-      {
-        title: "Deploy your Doc Site",
-        href: "/docs/deployment",
+        href: "/docs/intro",
       },
     ],
   },
   {
-    title: "Create Content",
+    title: "Phase 1: Preparation & Contextualization",
     items: [
       {
-        title: "Create a Page",
-        href: "/docs/create-page",
+        title: "A: Alert - Understanding Detection Logic",
+        href: "/docs/alert",
       },
       {
-        title: "Create a Doc Page",
-        href: "/docs/create-doc",
+        title: "  → Detection Mechanisms",
+        href: "/docs/alert/detection-mechanisms",
       },
       {
-        title: "Create a Blog Post",
-        href: "/docs/create-blog",
+        title: "  → Alert Validation",
+        href: "/docs/alert/validation",
+      },
+      {
+        title: "  → Parsing Alerts",
+        href: "/docs/alert/parsing",
+      },
+      {
+        title: "  → Transition to Subject Phase",
+        href: "/docs/alert/transition",
+      },
+      {
+        title: "S: Subject - Identifying Key Entities",
+        href: "/docs/subject",
+      },
+      {
+        title: "  → Four Dimensions of Analysis",
+        href: "/docs/subject/four-dimensions",
+      },
+      {
+        title: "  → Entity Types and Analysis",
+        href: "/docs/subject/entity-types",
+      },
+      {
+        title: "  → Transition to Scope Phase",
+        href: "/docs/subject/transition",
+      },
+      {
+        title: "S: Scope - Defining Investigation Boundaries",
+        href: "/docs/scope",
       },
     ],
   },
   {
-    title: "Layouts",
+    title: "Phase 2: Investigation & Assessment",
     items: [
       {
-        title: "Documentation Layout",
-        href: "/docs/documentation-layout",
+        title: "U: Uncover - The Investigation",
+        href: "/docs/uncover",
       },
       {
-        title: "Tutorial Layout",
-        href: "/docs/tutorial-layout",
-      },
-      {
-        title: "Landing Layout",
-        href: "/docs/landing-layout",
+        title: "R: Risk - Identifying Risk",
+        href: "/docs/risk",
       },
     ],
   },
   {
-    title: "Styling",
+    title: "Phase 3: Resolution & Documentation",
     items: [
       {
-        title: "Typography",
-        href: "/docs/typography-styling",
+        title: "E: Escalation - Triage to Broader Response",
+        href: "/docs/escalation",
       },
       {
-        title: "Icons",
-        href: "/docs/icons-styling",
+        title: "D: Documentation - Consistency",
+        href: "/docs/documentation",
+      },
+    ],
+  },
+  {
+    title: "Reference Materials",
+    items: [
+      {
+        title: "B.A.D. Glossary",
+        href: "/docs/glossaries/bad",
       },
       {
-        title: "Theme Customization",
-        href: "/docs/theme-customization",
+        title: "C.A.T. Glossary",
+        href: "/docs/glossaries/cat",
+      },
+      {
+        title: "C.L.E.A.R. Glossary",
+        href: "/docs/glossaries/clear",
       },
     ],
   },
 ];
 
-export const componentsNavigation: NavGroup[] = [
-  {
-    title: "Reusable Components",
-    items: [
-      {
-        title: "Introduction",
-        href: "/components",
-      },
-    ],
-  },
-  {
-    title: "Layout Components",
-    items: [
-      {
-        title: "Bento Grid",
-        href: "/components/bento-grid",
-      },
-      {
-        title: "Header Section",
-        href: "/components/header-section",
-      },
-      {
-        title: "Feature Section",
-        href: "/components/feature-section",
-      },
-      {
-        title: "Footer",
-        href: "/components/footer",
-      },
-      {
-        title: "CTA Section",
-        href: "/components/cta-section",
-      },
-      {
-        title: "Blog Section",
-        href: "/components/blog-section",
-      },
-      {
-        title: "FAQ Section",
-        href: "/components/faq-section",
-      },
-      {
-        title: "Logo Section",
-        href: "/components/logo-section",
-      },
-    ],
-  },
-  {
-    title: "Block Components",
-    items: [
-      {
-        title: "Accordion",
-        href: "/components/accordion",
-      },
-      {
-        title: "Tabs",
-        href: "/components/tabs",
-      },
-      {
-        title: "Hero",
-        href: "/components/hero",
-      },
-      {
-        title: "Checklist",
-        href: "/components/checklist",
-      },
-      {
-        title: "GitHub Stats",
-        href: "/components/github-stats",
-      },
-    ],
-  },
-  {
-    title: "UI Components",
-    items: [
-      {
-        title: "Button",
-        href: "/components/button",
-      },
-      {
-        title: "Card Group",
-        href: "/components/card-group",
-      },
-      {
-        title: "Code Snippet",
-        href: "/components/code-snippet",
-      },
-      {
-        title: "Divider",
-        href: "/components/divider",
-      },
-      {
-        title: "Inline Code",
-        href: "/components/inline-code",
-      },
-      {
-        title: "Sidebar",
-        href: "/components/sidebar",
-      },
-      {
-        title: "Table",
-        href: "/components/table",
-      },
-    ],
-  },
-];
+

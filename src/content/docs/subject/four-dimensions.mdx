@@ -1,0 +1,518 @@
+---
+title: "The Four Dimensions of Subject Analysis"
+description: "A comprehensive framework for analyzing entities across Authentication, Authorization, Behavior, and Relationships."
+slug: "subject/four-dimensions"
+---
+
+The subject analysis framework is a core component of the ASSURED methodology, providing security professionals with a structured approach to identify, evaluate, and monitor the digital entities interacting with an organization's systems. 
+By examining four key dimensions  [authentication, authorization, behavior, and relationships] this framework empowers teams to build comprehensive profiles that enable accurate threat detection and mitigation.
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+    <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🔐</span>
+      Authentication
+    </h4>
+    <p class="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+      This dimension evaluates the strength, integrity, and trustworthiness of the credentials used by an entity to access systems. 
+      It considers factors such as password complexity, multi-factor authentication enforcement, and signals of potential credential compromise. 
+      Weak or reused credentials often serve as the initial foothold for attackers, making authentication analysis critical for detecting account takeovers and unauthorized access.
+    </p>
+  </div>
+  
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+    <h4 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🛡️</span>
+      Authorization
+    </h4>
+    <p class="text-sm text-green-700 dark:text-green-300 leading-relaxed">
+      Authorization focuses on the permissions and privileges granted to each entity, ensuring they align with the entity's role, responsibilities, and business context. 
+      Overprivileged accounts increase the blast radius of potential compromises and are a common target for privilege escalation attacks. 
+      This dimension helps identify excessive entitlements and access misconfigurations that elevate organizational risk.
+    </p>
+  </div>
+  
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-6">
+    <h4 class="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">📊</span>
+      Behavior
+    </h4>
+    <p class="text-sm text-purple-700 dark:text-purple-300 leading-relaxed">
+      Behavioral analysis establishes baselines for normal activity by examining historical patterns such as login frequency, resource usage, and interaction timing. 
+      Deviations from these baselines can reveal compromised accounts or malicious insiders. 
+      Even subtle anomalies (like unusual geographic access or atypical command execution) can be early warning signs of a developing threat.
+    </p>
+  </div>
+  
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-6">
+    <h4 class="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🔗</span>
+      Relationships
+    </h4>
+    <p class="text-sm text-orange-700 dark:text-orange-300 leading-relaxed">
+      This dimension maps the connections and dependencies between entities, uncovering indirect indicators of compromise through their interactions. 
+      By analyzing how users, systems, and services relate to one another, security teams can identify lateral movement, shadow IT, and anomalous trust relationships that traditional monitoring might miss.
+    </p>
+  </div>
+</div>
+
+Together, these four dimensions form the foundation of subject analysis, offering a structured lens through which analysts can interpret security events in context. 
+While this overview introduces the purpose of each dimension, the following sections will explore them in greater detail. 
+By examining authentication, authorization, behavior, and relationships individually, security teams gain the insight needed to distinguish between normal business activity and malicious intent, ultimately strengthening both detection and response capabilities.
+
+---
+
+# 1. Authentication: Verifying Identity Integrity
+The authentication dimension of the subject analysis framework is a critical starting point for investigating potential security incidents. 
+By closely examining the credentials and login patterns associated with each entity, security teams can detect and respond to identity-based threats like credential theft, account compromise, and unauthorized access attempts. 
+The key to effective authentication-focused event triage is to quickly identify anomalies, validate identities, and thoroughly investigate the root cause of any suspicious activity.
+
+Strong authentication practices form the foundation of organizational security. 
+Weak or compromised authentication controls can allow attackers to masquerade as trusted users, bypassing defenses and escalating privileges undetected. 
+
+> This dimension ensures that investigations start by asking a fundamental question: Is the entity really who they claim to be?
+
+<br />
+
+### Step 1: Detect Anomalies
+
+The first step in authentication-based event triage is to analyze login data, geolocation, and device fingerprints to identify any suspicious patterns or outliers.
+
+Common anomalies include:
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2 my-8">
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Impossible Travel
+    Impossible travel occurs when a user account authenticates from two geographically distant locations within a timeframe that makes physical travel between them impossible.
+    This indicates potential credential compromise, use of proxy/VPN services, or malicious automation.
+    > For example, a successful login from New York followed by another from Tokyo two minutes later suggests either stolen credentials or a misconfigured geolocation system.
+    <br />
+    ##### Key Analyst Considerations:
+    - Is the account using a corporate VPN or known proxy that may explain location discrepancies?
+    - Are there supporting signals such as MFA failures or abnormal device fingerprints?
+    - Did the subsequent login trigger sensitive actions like privilege escalation?
+  </div>
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Velocity Anomalies
+    Velocity anomalies detect unusually rapid sequences of successful authentication attempts by a single user or service, often indicative of brute-force attacks, scripted logins, or automated processes masquerading as human behavior.
+    > The "velocity" refers to time-based frequency, such as a user successfully logging into five different systems in seconds—a pattern atypical for manual activity.
+    ##### Key Analyst Considerations:
+    - Compare against the user's baseline behavior (e.g., normal login cadence).
+    - Determine whether the activity involves high-value systems or privileged accounts.
+    - Look for corresponding failed attempts prior to the spike, suggesting credential stuffing or brute force.
+  </div>
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Unusual Networks
+    Unusual networks represent authentication activity originating from networks not commonly associated with the account or organization, such as residential ISPs, foreign countries, anonymous VPNs, or Tor exit nodes.
+    These often signal unauthorized access or attempts to obscure attacker identity.
+    ##### Key Analyst Considerations:
+    - Map IP addresses to known corporate ranges, partner networks, or approved vendor locations.
+    - Check for presence on blocklists, known threat intelligence feeds, or anonymizing services.
+    - Combine with device and geolocation data to determine if the access is legitimate remote work or malicious activity.
+  </div>
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Failed Login Spikes
+    Failed login spikes occur when there is a sudden surge in failed authentication attempts, typically signaling brute-force activity, misconfigured systems, or an attacker testing credentials.
+    While occasional failures are normal, significant clustering within a short window indicates a targeted attack or mass credential spray.
+    ##### Key Analyst Considerations:
+    - Identify whether failures come from a single source, multiple sources, or a distributed botnet.
+    - Correlate with subsequent successful logins that may indicate compromise.
+    - Determine if the spike aligns with known credential dumps or external breach events.
+  </div>
+</div>
+
+> By leveraging IP geolocation, device fingerprinting, and threat intelligence feeds, security teams can quickly detect these types of anomalies and trigger alerts for further investigation. 
+Analyzing login velocity and failed attempt data can also help identify potential brute force or password spraying attacks targeting user credentials.
+
+<br />
+
+### Step 2: Validate Identities
+
+Once anomalous activity has been detected, the next step is to validate the legitimacy of the user accounts involved.
+
+This involves:
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2 my-8">
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Cross-Referencing HR Systems
+    Cross-referencing authentication activity with Human Resources (HR) systems ensures the identity belongs to an active, legitimate employee or contractor.
+    By comparing directory service data (e.g., Active Directory, IAM roles) with HR records, analysts can detect orphaned accounts, terminated employees still active, or privilege discrepancies.
+    ##### Key Analyst Considerations:
+    - Is the user still employed or recently offboarded?
+    - Does the HR record match the directory metadata (name, department, manager)?
+    - Are there multiple accounts linked to the same individual, indicating shadow identities?
+  </div>
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Role Alignment
+    Role alignment verifies that a user’s access privileges match their current job responsibilities and are appropriate for their position.
+    It focuses on least privilege enforcement and detecting privilege creep, where access accumulates over time without review.
+    ##### Key Analyst Considerations:
+    - Does the user's group membership match their HR-defined role or department?
+    - Are there sensitive permissions (e.g., domain admin, production cloud access) that don’t fit the user's duties?
+    - Was there a recent role change (promotion, transfer) that might explain new access?
+    - Are there temporary privilege grants (e.g., Just-In-Time access) that were never revoked?
+  </div>
+  <div class="bg-slate-50 rounded-lg p-5">
+    ##### Authentication Hardening
+    Authentication hardening ensures that login mechanisms protecting the identity are robust and resistant to modern attack techniques.
+    This focuses on enforcing strong authentication controls, identifying weaknesses, and correlating them with suspicious activity.
+    ##### Key Analyst Considerations:
+    - Is Multi-Factor Authentication (MFA) enabled and enforced for the account?
+    - Are there logins using legacy or insecure protocols (e.g., IMAP, NTLM, Basic Auth)?
+    - Are password policies sufficient, and are there signs of shared credentials?
+    - Are there token or session anomalies, such as refresh tokens used from unexpected locations?
+  </div>
+</div>
+
+> By taking these steps to verify user identities, organizations can quickly rule out false positives and focus their investigation efforts on potential credential compromise or account misuse incidents.
+
+<br />
+
+### Key Investigative Techniques
+
+<div>
+  <table class="w-full border rounded-lg">
+    <thead>
+      <tr>
+        <th class="px-6 py-3 text-center font-semibold">Technique</th>
+        <th class="px-6 py-3 text-center font-semibold">Purpose</th>
+        <th class="px-6 py-3 text-center font-semibold">Example Indicators</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Geolocation and Device Analysis</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Detect access from unrecognized locations or devices</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Login from a foreign country followed by a privileged action</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Login Pattern Review</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Identify brute force or spraying attacks</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>50 failed logins followed by a success</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Network Source Inspection</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Spot logins from anonymizing services or compromised hosts</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Rapid IP switching during session</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Identity Change Correlation</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Detect insider risk or misuse after role changes</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Elevated permissions granted hours before suspicious login</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Session Behavior Review</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Uncover token hijacking or session abuse</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Active session reused across two geographies</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>SSO Movement Detection</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Identify lateral movement via federated logins</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Unauthorized cross-application access through SSO</strong>
+        </td>
+      </tr>
+      <tr>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>MFA Event Auditing</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Detect phishing or MFA bypass attempts</strong>
+        </td>
+        <td class="px-6 py-4 align-top bg-slate-50">
+          <strong>Repeated MFA prompts declined, then approved</strong>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<br />
+---
+
+# 2. Authorization: Validating Role Alignment and Privilege Boundaries
+
+This dimension evaluates whether an entity's actions align with their defined role privileges and access rights. 
+It requires mapping user and service account activity against a comprehensive entitlement matrix that accurately reflects job responsibilities, system boundaries, and least-privilege principles. 
+By comparing observed behavior against established baselines, analysts can identify access misuse, policy violations, and privilege escalation attempts that might otherwise appear legitimate.
+
+Effective authorization analysis relies on mapping user and service account activity against a centralized entitlement matrix, ensuring access accurately reflects job responsibilities, system boundaries, and least privilege principles. 
+By comparing observed behavior with established baselines, analysts can identify policy violations, detect privilege escalation, and prevent unauthorized lateral movement before it evolves into a broader incident.
+
+<br />
+<br />
+
+### Why Authorization Analysis Matters
+Access violations are a frequent vector for both external compromise and internal abuse.
+- Example 1: A contractor with legitimate access to a payment processing system attempted to deploy unauthorized code to extract transaction data. 
+Their system presence was valid, but their behavior (modifying core financial logic) violated role boundaries and triggered containment protocols.
+
+- Example 2: A junior IT administrator attempted to export sensitive patient data through an unapproved channel. 
+Authorization analysis revealed the activity was outside their role scope, allowing the organization to act before sensitive information was exposed.
+
+These examples highlight a key truth: <strong>legitimate access does not equal legitimate activity.</strong>
+
+Authorization analysis provides the visibility needed to make that distinction.
+
+<br />
+<br />
+
+### Permission Mapping
+Permission mapping is the process of enumerating and visualizing all permissions granted to an identity, including direct assignments, group memberships, and inherited roles.
+It establishes a clear picture of the account’s capabilities and highlights unexpected or dangerous entitlements.
+
+#### Key Analyst Considerations:
+- What groups, roles, or policies grant this user their permissions?
+- Are there nested group memberships or inherited permissions creating hidden risk?
+- Does the mapping match the principle of least privilege?
+- Are there temporary or emergency access grants still lingering?
+
+<br />
+
+## Privilege Management
+During triage and investigation, analysts must evaluate whether a user's actions exceed their assigned privilege level or deviate from established baselines for their role and system interactions.
+Effective privilege management focuses on detecting abuse or exploitation before attackers achieve persistence or lateral movement.
+
+### Focus Areas Include: 
+
+**Privilege Escalation Attempts:**
+Identify suspicious patterns such as users invoking administrative tools, modifying security policies, or exploiting misconfigurations to elevate their access.
+    >Example: A non-admin account running commands associated with domain controller replication or registry modification.
+
+**Excessive Grants:**
+Detect users with permissions far beyond what is necessary for their role.
+This often occurs due to legacy accounts, incomplete offboarding, or temporary permissions that were never revoked.
+
+**Privilege Chaining:**
+Spot when an attacker leverages multiple low-level privileges in combination to create a powerful, unauthorized capability.
+    >Example: Combining read-only database access with write permissions on an API to extract sensitive data.
+
+**Enforcing Least Privilege Through:**
+- Routine access audits to continually validate role-to-permission alignment.
+- Short-lived access tokens for elevated permissions, automatically expiring after a set window to minimize misuse opportunities.
+- Clear escalation protocols for requesting and granting temporary administrative rights, with detailed tracking and justification.
+
+<br />
+<br />
+
+## Access Control Integrity
+This step evaluates the overall integrity of permission structures across the environment, focusing on how individual rights combine into risky or exploitable patterns.
+Even well-intentioned role assignments can inadvertently create toxic permission pairings or broad access surfaces that violate compliance mandates and internal policies.
+
+### Key Checks Include:
+- Monitoring temporary or emergency access to ensure elevated rights are revoked promptly after use.
+Emergency access should always generate audit events and be tied to incident tickets.
+- Detecting role sprawl, where a user slowly accumulates permissions across unrelated systems or domains.
+    >Example: A developer account also gaining finance system privileges over time without explicit approval.
+- Identifying cross-functional access that enables malicious actions like data exfiltration, fraud, or operational sabotage.
+    >Example: A user with both development permissions and unrestricted production deployment rights.
+
+### Why This Matters:
+Improper access integrity opens the door to both insider threats and external attackers, who exploit weak access control enforcement to hide their tracks and gain persistence.
+
+<br />
+<br />
+
+## Administrative Oversight
+Administrative and privileged accounts require the highest level of monitoring and control, as they have the potential to impact entire systems, workflows, and datasets.
+
+### Analysts Should:
+- Flag administrative activity that occurs outside approved maintenance windows or workflows.
+Unexpected off-hours activity is a common indicator of compromise or insider abuse.
+- Investigate shared accounts or service accounts performing interactive logins, as these obscure individual accountability and increase the difficulty of attribution.
+- Require peer validation or secondary approvals for high-impact actions such as schema changes, production deployments, or large-scale data exports.
+This reduces the risk of both intentional and accidental destructive actions.
+- Monitor for attempts to bypass change management or approval processes, such as direct edits to production systems or manipulation of audit logs.
+These activities often indicate malicious intent or policy violations.
+
+---
+
+# 3. Historical Behavior Analysis: Establishing Baselines for Anomaly Detection
+
+Historical behavior analysis within the Subject phase focuses on determining whether current activity aligns with an entity's established behavioral norms. 
+This involves creating a detailed behavioral profile through sustained observation—typically over a 90-day period or longer—that captures patterns such as access frequency to systems, peer group comparisons, and interaction habits with critical assets.
+
+The baseline must account for role-specific expectations, team workflows, and seasonal fluctuations to reduce false positives caused by predictable organizational changes (e.g., quarterly reporting or end-of-year audit activity).
+
+Once this baseline is established, deviations become valuable indicators during triage. 
+Sudden changes, such as accessing sensitive systems outside normal hours, may point to compromised credentials or insider misuse. 
+Gradual shifts, like a slow increase in access scope or exploratory system probing, can reveal long-term reconnaissance or staged escalation. 
+Analysts must evaluate these anomalies in context—considering the user's role, privileges, and recent organizational changes—to distinguish legitimate evolution from potential threats. 
+Tracking the persistence and trajectory of these deviations enables early detection of insider threats or account compromise before they escalate.
+
+## Key Focus Areas:
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">📊</span>
+      Baseline Comparison
+    </h5>
+    <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+      <li> Continuously compare current actions against a historical activity baseline</li>
+      <li> Identify abrupt or subtle deviations that may signal abnormal behavior</li>
+    </ul>
+  </div>
+  
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">⚠️</span>
+      Privilege Misuse
+    </h5>
+    <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
+      <li> Detect actions suggesting privilege abuse or escalation</li>
+      <li> Watch for configuration changes, dependency modifications, or unauthorized administrative activities</li>
+    </ul>
+  </div>
+  
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">⏱️</span>
+      Task Frequency
+    </h5>
+    <ul class="text-sm text-green-700 dark:text-green-300 space-y-1">
+      <li> Monitor for increases in repetitive actions, execution speed, or irregular operational cadence</li>
+      <li> Highlight behaviors that deviate significantly from past activity levels</li>
+    </ul>
+  </div>
+  
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🎯</span>
+      Access Scope Drift
+    </h5>
+    <ul class="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+      <li> Identify gradual expansion into new systems, tools, or sensitive data categories</li>
+      <li> Watch for creeping privilege growth that may signal staged privilege escalation</li>
+    </ul>
+  </div>
+  
+  <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-orange-800 dark:text-orange-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🔒</span>
+      Sensitive Resource Targeting
+    </h5>
+    <ul class="text-sm text-orange-700 dark:text-orange-300 space-y-1">
+      <li> Track progressive access to high-value or protected resources</li>
+      <li> Use time-based patterns to identify deliberate targeting of critical systems</li>
+    </ul>
+  </div>
+  
+  <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+    <h5 class="text-md font-semibold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+      <span class="text-xl mr-2">🎭</span>
+      Behavioral Staging
+    </h5>
+    <div class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+      <p>• Look for methodical, low-profile activity that escalates over time</p>
+      <blockquote class="mt-2 pl-3 border-l-2 border-yellow-400 dark:border-yellow-600 text-xs italic">
+        Example: sequentially probing low-risk systems before engaging with mission-critical assets
+      </blockquote>
+    </div>
+  </div>
+</div>
+
+---
+
+# 4. Relationship Mapping: Uncovering Hidden Connections and Lateral Movement
+
+Relationship mapping within the Subject phase focuses on uncovering and analyzing the connections between users, systems, and data to reveal unusual interactions that may indicate compromise or misuse. 
+By modeling these relationships as dynamic graphs, analysts can detect lateral movement, unauthorized access paths, and data exfiltration routes that traditional signature-based detections might miss.
+
+The goal is to understand how entities normally interact, creating a relational baseline of communication and access patterns. 
+When deviations occur (such as a user suddenly connecting to systems outside their usual scope or data moving through unexpected channels) analysts gain early warning of potential threats. 
+This context-driven view supports faster triage and a more targeted response to complex security events.
+
+Relationship mapping requires continuous monitoring of communication and activity across platforms like email systems, collaboration tools, endpoint telemetry, and identity systems. 
+Over time, these connections form a living map of interactions, highlighting insider threats, compromised accounts, and hidden attack paths.
+
+## Key Focus Areas:
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+  <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🔗</span>
+      Analyze Connections
+    </h5>
+    <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+      <li> Build a detailed relationship graph linking users, systems, and data</li>
+      <li> Establish baselines of normal communication and access patterns</li>
+      <li> Identify key nodes that represent critical assets or highly connected accounts</li>
+    </ul>
+  </div>
+  
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-red-800 dark:text-red-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🚨</span>
+      Identify Deviations
+    </h5>
+    <ul class="text-sm text-red-700 dark:text-red-300 space-y-2">
+      <li> Compare current interactions to peer groups and historical patterns</li>
+      <li> Detect new, rare, or suspicious connections that violate established norms</li>
+      <li> Watch for unauthorized access attempts or unusual resource usage</li>
+    </ul>
+  </div>
+  
+  <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-green-800 dark:text-green-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">📈</span>
+      Measure Changes
+    </h5>
+    <ul class="text-sm text-green-700 dark:text-green-300 space-y-2">
+      <li> Monitor shifts in communication frequency, volume, or direction</li>
+      <li> Identify sudden or gradual variations that may indicate reconnaissance or insider activity</li>
+      <li> Highlight changes that align with known attack progression stages</li>
+    </ul>
+  </div>
+  
+  <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-6">
+    <h5 class="text-lg font-semibold text-purple-800 dark:text-purple-200 mb-3 flex items-center">
+      <span class="text-2xl mr-3">🛤️</span>
+      Access Path Analysis
+    </h5>
+    <ul class="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+      <li> Examine the order and timing of interactions to detect coordinated actions</li>
+      <li> Correlate activity across systems to uncover lateral movement or staged escalation</li>
+      <li> Connect seemingly isolated alerts into a broader, cohesive incident view</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+# Next Step: 
+Continue with [Entity Types and Analysis](/docs/subject/entity-types) to dive deep into analyzing specific entity categories like User Accounts, Endpoints, Applications & Services, and Network Entities.

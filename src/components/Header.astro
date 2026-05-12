@@ -23,6 +23,53 @@ const currentPath = Astro.url.pathname;
               </span>
             );
           }
+          if (item.children && item.children.length > 0) {
+            return (
+              <div class="header__menu-item">
+                <a
+                  href={getUrlRelativeToBase(item.href)}
+                  class={`header__link header__link--has-menu ${isActive ? "is-active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-haspopup="true"
+                >
+                  {item.title}
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </a>
+                <div class="header__dropdown" role="menu">
+                  <a
+                    href={getUrlRelativeToBase(item.href)}
+                    class="header__dropdown-link header__dropdown-link--overview"
+                    role="menuitem"
+                  >
+                    <span class="header__dropdown-title">{item.title} overview</span>
+                    <span class="header__dropdown-sub">Chapter intro and outcomes</span>
+                  </a>
+                  {item.children.map((child) => {
+                    if (child.status === "soon") {
+                      return (
+                        <span class="header__dropdown-link header__dropdown-link--soon" role="menuitem" aria-disabled="true">
+                          <span class="header__dropdown-title">{child.title}</span>
+                          <span class="assured-soon">Soon</span>
+                        </span>
+                      );
+                    }
+                    const childActive = currentPath === child.href || currentPath === child.href + "/";
+                    return (
+                      <a
+                        href={getUrlRelativeToBase(child.href)}
+                        class={`header__dropdown-link ${childActive ? "is-active" : ""}`}
+                        role="menuitem"
+                      >
+                        <span class="header__dropdown-title">{child.title}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
           return (
             <a
               href={getUrlRelativeToBase(item.href)}
@@ -167,6 +214,104 @@ const currentPath = Astro.url.pathname;
     border-radius: 9999px;
     background: #f59e0b;
     box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  }
+
+  /* Dropdown menus for nav items with children */
+  .header__menu-item {
+    position: relative;
+  }
+
+  .header__link--has-menu svg {
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .header__menu-item:hover .header__link--has-menu svg,
+  .header__menu-item:focus-within .header__link--has-menu svg {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+
+  .header__dropdown {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    min-width: 16rem;
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.6rem;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 100;
+  }
+
+  .header__menu-item:hover .header__dropdown,
+  .header__menu-item:focus-within .header__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .header__dropdown-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.4rem;
+    color: #e2e8f0;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .header__dropdown-link:hover,
+  .header__dropdown-link:focus-visible {
+    background: rgba(20, 184, 166, 0.14);
+    color: #f8fafc;
+    outline: none;
+  }
+
+  .header__dropdown-link.is-active {
+    background: rgba(20, 184, 166, 0.18);
+    color: #5eead4;
+  }
+
+  .header__dropdown-link--overview {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .header__dropdown-link--overview .header__dropdown-title {
+    color: #5eead4;
+  }
+
+  .header__dropdown-link--soon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  .header__dropdown-title {
+    font-weight: 600;
+  }
+
+  .header__dropdown-sub {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    font-weight: 400;
   }
 
   .header__right {

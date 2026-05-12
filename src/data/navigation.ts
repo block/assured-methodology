@@ -11,6 +11,7 @@ export interface NavItem {
   title: string;
   href: string;
   status?: NavStatus;
+  children?: NavItem[];
 }
 
 export interface NavGroup {
@@ -24,7 +25,18 @@ export const mainNavigation: NavGroup[] = [
     items: [
       { title: "Home",          href: "/",                   status: "live" },
       { title: "Introduction",  href: "/docs/intro",         status: "live" },
-      { title: "Alert",         href: "/docs/alert",         status: "live" },
+      {
+        title: "Alert",
+        href: "/docs/alert",
+        status: "live",
+        children: [
+          { title: "Detection mechanisms",  href: "/docs/alert/detection-mechanisms", status: "live" },
+          { title: "Alert validation",      href: "/docs/alert/validation",            status: "live" },
+          { title: "Parsing alerts",        href: "/docs/alert/parsing",               status: "live" },
+          { title: "Transition to Subject", href: "/docs/alert/transition",            status: "live" },
+          { title: "Chapter quiz",          href: "/docs/alert/quiz",                  status: "live" },
+        ],
+      },
       { title: "Subject",       href: "/docs/subject",       status: "soon" },
       { title: "Scope",         href: "/docs/scope",         status: "soon" },
       { title: "Uncover",       href: "/docs/uncover",       status: "soon" },

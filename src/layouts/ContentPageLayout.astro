@@ -11,9 +11,11 @@ interface Props {
   headings?: MarkdownHeading[];
   showTitleAsH1?: boolean;
   showBreadcrumbs?: boolean;
+  /** When true, removes the narrow prose constraint so the page can host wider visual sections. */
+  wide?: boolean;
 }
 
-const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true } = Astro.props;
+const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true, wide = false } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -28,7 +30,7 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
       )}
 
       <main class="content-page__main">
-        <div class="content-page__main-inner prose">
+        <div class={`content-page__main-inner prose ${wide ? "is-wide" : ""}`}>
           {showBreadcrumbs && (
             <div class="content-page__breadcrumbs">
               <Breadcrumbs
@@ -98,6 +100,19 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
   .content-page__main-inner {
     max-width: 50rem;
     margin: 0 auto;
+  }
+
+  /* Wide mode for overview pages with rich visual sections (intro, chapter overviews) */
+  .content-page__main-inner.is-wide {
+    max-width: 88rem;
+  }
+
+  /* Keep paragraph text from stretching too wide on the wide pages so reading stays comfortable */
+  .content-page__main-inner.is-wide > p,
+  .content-page__main-inner.is-wide > ul,
+  .content-page__main-inner.is-wide > ol,
+  .content-page__main-inner.is-wide > blockquote {
+    max-width: 60rem;
   }
 
   .content-page__breadcrumbs {

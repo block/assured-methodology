@@ -2,35 +2,36 @@
 title: "The methodology"
 description: "An introduction to ASSURED, a structured, repeatable methodology for security event triage."
 slug: "intro"
+wide: true
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import Stat from "@/components/assured/Stat.astro";
 import LetterChip from "@/components/assured/LetterChip.astro";
 import AnimatedPhaseDiagram from "@/components/assured/AnimatedPhaseDiagram.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
 
-A security alert is a question the detection engine is asking. The analyst's job is to answer it: is this real, is it malicious, how serious is it, and what should happen next? Event triage is the work of answering those questions with confidence, and it is a distinct skill from broader incident response. ASSURED is a structured, repeatable methodology for doing that work consistently.
+<div class="intro-lede">
+  <div class="intro-lede__primary">
+    A security alert is a question the detection engine is asking the analyst. <em>Is this real, is it malicious, how serious is it, and what should happen next?</em>
+  </div>
 
-The methodology gets its name from the seven components an analyst moves through: **A**lert, **S**ubject, **S**cope, **U**ncover, **R**isk, **E**scalation, and **D**ocumentation. Each component has an *anchor* question that frames the work, plus a structured set of supporting questions an analyst should be able to answer before moving on. Together they cover the full arc of a triage investigation, from the moment an alert fires to the moment the analyst hands off (or closes) the case.
-
-<div class="intro-stats">
-  <Stat value="7" label="Components" />
-  <Stat value="3" label="Phases" />
-  <Stat value="∞" label="Questions answered" />
+  <div class="intro-lede__secondary">
+    Event triage is the work of answering those questions with confidence, and it is a distinct skill from broader incident response. ASSURED is a structured, repeatable methodology for doing that work consistently. The seven letters of <strong>A</strong>lert, <strong>S</strong>ubject, <strong>S</strong>cope, <strong>U</strong>ncover, <strong>R</strong>isk, <strong>E</strong>scalation, and <strong>D</strong>ocumentation cover the full arc of a triage investigation from the moment an alert fires to the moment the analyst hands off (or closes) the case.
+  </div>
 </div>
 
 <Callout variant="info" title="Why ASSURED, why now">
 Incident response frameworks like NIST 800-61, SANS PICERL, and MITRE ATT&CK describe what to do once you already know what you are looking at. Event triage is the work before that, and most analysts learn it informally on the job. ASSURED gives that informal craft a structure that scales: scaffolding for newer analysts, a checklist for experienced ones, and a shared vocabulary for handoff and review.
 </Callout>
 
----
-
-# The shape of an investigation
-
-The seven components group into three phases. Each phase answers a question. Each component is a step within its phase. Scroll into the diagram below and the pieces will assemble themselves to show how the flow works.
+<div class="intro-section-head">
+  <span class="section-overline">The shape of an investigation</span>
+  <h2 class="intro-section-title">Seven components grouped into three phases</h2>
+  <div class="intro-section-lede">
+    Scroll into the diagram below and the pieces assemble themselves to show how the flow works. Each component contributes specific evidence to the next.
+  </div>
+</div>
 
 <AnimatedPhaseDiagram />
 
@@ -39,7 +40,7 @@ The seven components group into three phases. Each phase answers a question. Eac
     <div class="intro-phase__num">1</div>
     <div>
       ### Preparation and context
-      *What fired, who is involved, and where are the lines of the investigation?* The first phase establishes the foundation. Without it, every later step is built on a guess.
+      Establishes the foundation for the investigation. What fired, who is involved, where the boundaries are. Without it, every later step is built on a guess.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="A" phase="alert" size="sm" /> Alert</span>
         <span class="intro-phase__chip"><LetterChip letter="S" phase="subject" size="sm" /> Subject</span>
@@ -52,7 +53,7 @@ The seven components group into three phases. Each phase answers a question. Eac
     <div class="intro-phase__num">2</div>
     <div>
       ### Investigation and assessment
-      *What does the evidence say, and how serious is the result?* The second phase pulls in telemetry, correlates it across systems, and decides how to prioritize what was found.
+      Pulls in telemetry, correlates it across systems, and decides how to prioritize what was found. The phase where most of the active investigative work happens.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span>
         <span class="intro-phase__chip"><LetterChip letter="R" phase="risk" size="sm" /> Risk</span>
@@ -64,7 +65,7 @@ The seven components group into three phases. Each phase answers a question. Eac
     <div class="intro-phase__num">3</div>
     <div>
       ### Resolution and documentation
-      *Who needs to know about this, and what should the team learn from it?* The final phase produces the handoff or the closure record so the work survives the analyst who did it.
+      Produces the handoff to the next tier or the closure record that makes the work survive its closure. The phase where institutional memory gets built.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span>
         <span class="intro-phase__chip"><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span>
@@ -77,63 +78,94 @@ The seven components group into three phases. Each phase answers a question. Eac
 Triage is not strictly linear. Risk findings often send the analyst back to Uncover for more evidence. Uncover sometimes reveals new subjects the original alert never mentioned. Discovering a new subject can change the scope of the entire investigation. The dashed feedback arrow in the diagram represents that flow, and embracing it is part of the methodology.
 </Callout>
 
----
-
-# Why event triage deserves its own method
-
-Security analysts at every level of experience face the same recurring problems. ASSURED is shaped by those realities, and each phase is designed to address one or more of them directly. Tap any card below to read the full picture.
-
-<div class="intro-flips">
-  <FlipCard icon="📊" title="Data overload" accent="blue">
-    Modern SOCs see thousands of alerts per day from heterogeneous sources, and a small fraction of them describe real threats. Without a structured way to separate signal from noise, the events that matter get buried in the volume. ASSURED's Alert and Validation steps focus on reducing that noise quickly.
-  </FlipCard>
-
-  <FlipCard icon="⚙️" title="Tooling sprawl" accent="teal">
-    Telemetry lives across multi-cloud environments, hybrid datacenters, container platforms, and serverless functions. The data correlates poorly across tool boundaries by default. ASSURED's Uncover phase makes that cross-tool correlation a deliberate step, not an afterthought.
-  </FlipCard>
-
-  <FlipCard icon="🎯" title="Adversaries adapt" accent="red">
-    Modern intrusions use living-off-the-land techniques, polymorphic payloads, and social engineering. The activity looks like normal operations. ASSURED's behavioral and contextual analysis is designed to catch what static signatures cannot.
-  </FlipCard>
-
-  <FlipCard icon="📋" title="Regulatory pressure" accent="purple">
-    Investigations now carry compliance obligations alongside the security work. GDPR, PCI-DSS, HIPAA, and SOX each impose requirements on documentation, notification, and handling. The Scope and Documentation phases make those obligations explicit at the right step.
-  </FlipCard>
-
-  <FlipCard icon="🧠" title="Cognitive load" accent="orange">
-    Analysts juggle SIEM, SOAR, EDR, identity systems, and cloud consoles, sometimes within a single investigation. Context switching erodes accuracy and accelerates fatigue. ASSURED is designed to reduce mental overhead by giving each step a clear anchor question, with structured sub-questions underneath, so the analyst always knows what to ask next.
-  </FlipCard>
-
-  <FlipCard icon="📝" title="Documentation gaps" accent="indigo">
-    Inconsistent records make post-mortems painful, trend analysis impossible, and audits stressful. The Documentation phase is the final step for a reason: capturing decisions and reasoning is what makes the work survive its closure.
-  </FlipCard>
+<div class="intro-section-head">
+  <span class="section-overline">Why event triage deserves its own method</span>
+  <h2 class="intro-section-title">The six recurring problems ASSURED is shaped by</h2>
+  <p class="intro-section-lede">
+    Security analysts at every level of experience meet these problems regularly. Each phase of ASSURED is designed to address one or more of them directly.
+  </p>
 </div>
 
----
+<div class="intro-feature-grid">
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">📊</div>
+    <h3>Data overload</h3>
+    <p>SOCs see thousands of alerts per day from heterogeneous sources, and a small fraction describe real threats. Without a way to separate signal from noise, the events that matter get buried in volume. <strong>Addressed by:</strong> Alert and Validation.</p>
+  </article>
 
-# Goals of the methodology
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">⚙️</div>
+    <h3>Tooling sprawl</h3>
+    <p>Telemetry lives across multi-cloud environments, hybrid datacenters, container platforms, and serverless functions. Cross-tool correlation does not happen by default. <strong>Addressed by:</strong> Uncover.</p>
+  </article>
 
-<div class="intro-flips">
-  <FlipCard icon="🤖" title="Strategic automation" accent="teal">
-    Each phase highlights what is safe to automate and what requires human judgment. Automation handles the repetitive work (enrichment, correlation, scoring) so analysts can spend their time on the decisions that actually need a person.
-  </FlipCard>
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">🎯</div>
+    <h3>Adversaries adapt</h3>
+    <p>Modern intrusions use living-off-the-land techniques, polymorphic payloads, and social engineering. The activity looks like normal operations. <strong>Addressed by:</strong> behavioral analysis throughout the methodology, especially in Subject and Validation.</p>
+  </article>
 
-  <FlipCard icon="📐" title="Process consistency" accent="blue">
-    Two analysts working the same alert with the same methodology produce comparable outputs. That makes training easier, escalation cleaner, and audits less stressful. The shared vocabulary is the consistency layer.
-  </FlipCard>
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">📋</div>
+    <h3>Regulatory pressure</h3>
+    <p>Investigations now carry compliance obligations alongside the security work. GDPR, PCI-DSS, HIPAA, SOX each impose requirements on documentation, notification, and handling. <strong>Addressed by:</strong> Scope and Documentation.</p>
+  </article>
 
-  <FlipCard icon="🧭" title="Reduced cognitive load" accent="green">
-    Each component has a clear question to answer. Analysts are not asking "what do I do next" because the methodology tells them, even on an unfamiliar alert type. The structure does the orienting so the analyst can spend their attention on the evidence.
-  </FlipCard>
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">🧠</div>
+    <h3>Cognitive load</h3>
+    <p>Analysts juggle SIEM, SOAR, EDR, identity systems, and cloud consoles within a single investigation. Context switching erodes accuracy and accelerates fatigue. <strong>Addressed by:</strong> the methodology's structure itself, which gives the analyst a clear next step at every moment.</p>
+  </article>
 
-  <FlipCard icon="📈" title="Scales with the team" accent="indigo">
-    ASSURED works for a one-person SOC and for a follow-the-sun team of forty. Feedback loops keep the framework usable as detection logic evolves and as the team grows. The method does not depend on team size or tooling specifics.
-  </FlipCard>
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">📝</div>
+    <h3>Documentation gaps</h3>
+    <p>Inconsistent records make post-mortems painful, trend analysis impossible, and audits stressful. <strong>Addressed by:</strong> Documentation, which is the final phase precisely because capturing decisions is what makes the work durable.</p>
+  </article>
 </div>
 
----
+<div class="intro-section-head">
+  <span class="section-overline">Goals of the methodology</span>
+  <h2 class="intro-section-title">What ASSURED is designed to deliver</h2>
+  <p class="intro-section-lede">
+    Four outcomes the methodology aims for at every step. Together they describe what a SOC running ASSURED looks like when it is working well.
+  </p>
+</div>
 
-# Where to start
+<div class="intro-goal-grid">
+  <article class="intro-goal">
+    <div class="intro-goal__num">01</div>
+    <div class="intro-goal__icon" aria-hidden="true">🤖</div>
+    <h3>Strategic automation</h3>
+    <p>Each phase highlights what is safe to automate and what requires human judgment. Automation handles the repetitive work (enrichment, correlation, scoring) so analysts can spend their time on the decisions that actually need a person.</p>
+  </article>
+
+  <article class="intro-goal">
+    <div class="intro-goal__num">02</div>
+    <div class="intro-goal__icon" aria-hidden="true">📐</div>
+    <h3>Process consistency</h3>
+    <p>Two analysts working the same alert with the same methodology produce comparable outputs. That makes training easier, escalation cleaner, and audits less stressful. The shared vocabulary is the consistency layer.</p>
+  </article>
+
+  <article class="intro-goal">
+    <div class="intro-goal__num">03</div>
+    <div class="intro-goal__icon" aria-hidden="true">🧭</div>
+    <h3>Reduced cognitive load</h3>
+    <p>The methodology gives the analyst a structured set of questions to work through at each step, so they are not asking "what do I do next" even on unfamiliar alert types. The structure does the orienting; attention goes to the evidence.</p>
+  </article>
+
+  <article class="intro-goal">
+    <div class="intro-goal__num">04</div>
+    <div class="intro-goal__icon" aria-hidden="true">📈</div>
+    <h3>Scales with the team</h3>
+    <p>ASSURED works for a one-person SOC and for a follow-the-sun team of forty. Feedback loops keep the framework usable as detection logic evolves and the team grows. The method does not depend on team size or tooling specifics.</p>
+  </article>
+</div>
+
+<div class="intro-section-head">
+  <span class="section-overline">Where to start</span>
+  <h2 class="intro-section-title">Read each letter in order</h2>
+</div>
 
 <KeyTakeaway title="Recommended path">
 Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so each step builds on the previous one. The first chapter, **Alert**, is fully written. The rest are being added.
@@ -164,14 +196,67 @@ Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so
 
 <style>
 {`
-.intro-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin: 2rem 0;
-  max-width: 36rem;
+/* Opening lede */
+.intro-lede {
+  margin: 0 0 2.5rem 0;
+  max-width: 60rem;
 }
 
+.intro-lede__primary {
+  margin: 0 0 1.5rem 0;
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  line-height: 1.45;
+  color: #f8fafc;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.intro-lede__primary > p { margin: 0; }
+
+.intro-lede__primary em {
+  color: #5eead4;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.intro-lede__secondary {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+}
+
+.intro-lede__secondary > p { margin: 0; }
+
+.intro-lede__secondary strong {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+/* Section heads with the unified overline pill */
+.intro-section-head {
+  text-align: center;
+  margin: 3.5rem auto 1.75rem;
+  max-width: 60rem;
+}
+
+.intro-section-title {
+  margin: 0 0 0.85rem 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  color: #f8fafc;
+  line-height: 1.2;
+}
+
+.intro-section-lede {
+  margin: 0 auto;
+  color: #cbd5e1;
+  max-width: 60ch;
+  line-height: 1.65;
+}
+
+.intro-section-lede > p { margin: 0; }
+
+/* Phase cards */
 .intro-phases {
   display: flex;
   flex-direction: column;
@@ -228,15 +313,129 @@ Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so
   font-weight: 600;
 }
 
-.intro-flips {
+/* Always-visible feature cards for "why event triage deserves its own method" */
+.intro-feature-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 2rem 0;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
 }
 
-@media (min-width: 640px)  { .intro-flips { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .intro-flips { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 700px)  { .intro-feature-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .intro-feature-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.intro-feature {
+  position: relative;
+  padding: 1.75rem 1.85rem;
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.intro-feature:hover {
+  transform: translateY(-3px);
+  border-color: rgba(20, 184, 166, 0.5);
+  box-shadow: 0 14px 30px -14px rgba(20, 184, 166, 0.35);
+}
+
+.intro-feature__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(59, 130, 246, 0.2));
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.intro-feature h3 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.intro-feature p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.intro-feature p strong {
+  color: #5eead4;
+  font-weight: 600;
+}
+
+/* Goal cards: numbered, more presence than features */
+.intro-goal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .intro-goal-grid { grid-template-columns: 1fr 1fr; } }
+
+.intro-goal {
+  position: relative;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(20, 184, 166, 0.28);
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.intro-goal:hover {
+  transform: translateY(-3px);
+  border-color: rgba(94, 234, 212, 0.55);
+  box-shadow: 0 18px 36px -16px rgba(20, 184, 166, 0.4);
+}
+
+.intro-goal__num {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(94, 234, 212, 0.65);
+  letter-spacing: 0.08em;
+}
+
+.intro-goal__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(59, 130, 246, 0.25));
+  border: 1px solid rgba(94, 234, 212, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  margin-bottom: 0.85rem;
+}
+
+.intro-goal h3 {
+  margin: 0 0 0.5rem 0;
+  color: #f8fafc;
+  font-size: 1.15rem;
+}
+
+.intro-goal p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
 
 .intro-cta {
   display: flex;

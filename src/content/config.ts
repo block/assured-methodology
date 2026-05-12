@@ -8,6 +8,9 @@ export const collections = {
       title: z.string(),
       description: z.string(),
       slug: z.string(),
+      // When true, the page uses the wide layout. Intended for overview /
+      // landing pages that have rich visual sections.
+      wide: z.boolean().optional(),
     }),
   }),
 };

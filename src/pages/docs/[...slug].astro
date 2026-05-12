@@ -25,15 +25,16 @@ export async function getStaticPaths() {
 const doc = Astro.props;
 const title = doc.data.title;
 const description = doc.data.description;
+const wide = doc.data.wide ?? false;
 const { Content, headings, remarkPluginFrontmatter } = await render(doc);
 
 ---
 
-<ContentPageLayout 
-  title={title} 
-  description={description} 
-  headings={headings} 
-  maxWidth="wide"
+<ContentPageLayout
+  title={title}
+  description={description}
+  headings={headings}
+  wide={wide}
   showTitleAsH1={true}
   showBreadcrumbs={true}
 >

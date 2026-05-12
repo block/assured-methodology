@@ -1,0 +1,91 @@
+---
+/**
+ * Quiz. Multiple-choice quiz block. Each question has options. Click an
+ * option to mark it. The selected option turns green if correct, red if
+ * not. The explanation reveals after any answer is selected.
+ *
+ * Usage in MDX:
+ *   <Quiz title="Check what you've learned">
+ *     <QuizItem
+ *       prompt="Which detection family gives you a high-confidence verdict on a known threat?"
+ *       answer="signature"
+ *       explanation="Signature-based detection is deterministic. When it fires on a known IoC, the engine is highly confident."
+ *       options={[
+ *         { value: "signature", label: "Signature-based" },
+ *         { value: "anomaly", label: "Anomaly-based" },
+ *         { value: "rule", label: "Rule-based" },
+ *         { value: "behavioral", label: "Behavioral analytics" },
+ *       ]}
+ *     />
+ *   </Quiz>
+ */
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const { title = "Quiz: check what you've learned", subtitle = "No grades. The point is to push your thinking. Tap an option to see if it lands." } = Astro.props;
+---
+
+<section class="quiz">
+  <header class="quiz__head">
+    <span class="quiz__badge">Quiz</span>
+    <h2 class="quiz__title">{title}</h2>
+    <p class="quiz__subtitle">{subtitle}</p>
+  </header>
+  <div class="quiz__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .quiz {
+    margin: 3rem 0 2rem;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    backdrop-filter: blur(8px);
+  }
+
+  .quiz__head {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .quiz__badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.18);
+    color: #5eead4;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .quiz__title {
+    margin: 0 auto 0.6rem;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    color: #f8fafc;
+    line-height: 1.2;
+    max-width: 30ch;
+  }
+
+  .quiz__subtitle {
+    margin: 0 auto;
+    color: #cbd5e1;
+    max-width: 50ch;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .quiz__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+</style>

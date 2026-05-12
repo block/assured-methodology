@@ -1,0 +1,294 @@
+---
+/**
+ * LetterExplorer, interactive ASSURED letter strip.
+ *
+ * Each letter is a tab. Clicking reveals the phase summary plus a CTA.
+ * Plain vanilla JS, no React/Vue dependency.
+ */
+
+const phases = [
+  {
+    key: "alert",
+    letter: "A",
+    title: "Alert",
+    blurb: "Understand what fired and why. Inspect detection logic, validate the signal, parse the metadata into something actionable.",
+    href: "/docs/alert",
+    status: "live",
+    color: "#3b82f6",
+  },
+  {
+    key: "subject",
+    letter: "S",
+    title: "Subject",
+    blurb: "Identify the who. User, robot account, EC2 instance, cloud role, service, anything that authenticated or acted. Build the entity picture.",
+    href: "/docs/subject",
+    status: "soon",
+    color: "#22c55e",
+  },
+  {
+    key: "scope",
+    letter: "S",
+    title: "Scope",
+    blurb: "Decide where the lines are. Time windows, entities in play, regulatory boundaries. Scope keeps the investigation focused.",
+    href: "/docs/scope",
+    status: "soon",
+    color: "#a855f7",
+  },
+  {
+    key: "uncover",
+    letter: "U",
+    title: "Uncover",
+    blurb: "Pull the evidence. Endpoint, network, identity, cloud, correlate telemetry, map to MITRE ATT&CK, find root cause.",
+    href: "/docs/uncover",
+    status: "soon",
+    color: "#f97316",
+  },
+  {
+    key: "risk",
+    letter: "R",
+    title: "Risk",
+    blurb: "Decide how bad. Asset criticality, attacker sophistication, business impact, likelihood. Risk turns evidence into a priority.",
+    href: "/docs/risk",
+    status: "soon",
+    color: "#ef4444",
+  },
+  {
+    key: "escalation",
+    letter: "E",
+    title: "Escalation",
+    blurb: "Hand it off cleanly. Who, what, when, with what context, the triage analyst's handoff packet is the artifact that matters.",
+    href: "/docs/escalation",
+    status: "soon",
+    color: "#6366f1",
+  },
+  {
+    key: "documentation",
+    letter: "D",
+    title: "Documentation",
+    blurb: "Close the loop. Capture decisions, evidence, and reasoning so the next analyst, and the auditor, can replay your thinking.",
+    href: "/docs/documentation",
+    status: "soon",
+    color: "#14b8a6",
+  },
+];
+---
+
+<div class="letter-explorer" data-letter-explorer>
+  <div class="letter-explorer__tabs" role="tablist" aria-label="ASSURED letters">
+    {phases.map((p, i) => (
+      <button
+        type="button"
+        role="tab"
+        class="letter-explorer__tab"
+        data-target={p.key}
+        data-index={i}
+        aria-selected={i === 0 ? "true" : "false"}
+        tabindex={i === 0 ? 0 : -1}
+        style={`--accent: ${p.color}`}
+      >
+        <span class="letter-explorer__letter">{p.letter}</span>
+        <span class="letter-explorer__caption">{p.title}</span>
+      </button>
+    ))}
+  </div>
+
+  <div class="letter-explorer__panels">
+    {phases.map((p, i) => (
+      <div
+        role="tabpanel"
+        class="letter-explorer__panel"
+        data-panel={p.key}
+        hidden={i !== 0}
+        style={`--accent: ${p.color}`}
+      >
+        <div class="letter-explorer__panel-head">
+          <span class={`assured-letter assured-letter--${p.key} assured-letter--lg`}>{p.letter}</span>
+          <div>
+            <h3 class="letter-explorer__panel-title">
+              {p.title}
+              {p.status === "soon" && (
+                <span class="assured-soon" aria-label="Coming soon">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7v5l3 2"></path>
+                  </svg>
+                  Coming soon
+                </span>
+              )}
+            </h3>
+            <p class="letter-explorer__panel-blurb">{p.blurb}</p>
+          </div>
+        </div>
+
+        {p.status === "live" ? (
+          <a href={p.href} class="assured-cta">
+            Read the {p.title} chapter
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="M13 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        ) : (
+          <span class="letter-explorer__pending">
+            Being written, track progress on
+            <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer"> GitHub</a>.
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .letter-explorer {
+    margin: 2.5rem 0;
+  }
+
+  .letter-explorer__tabs {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .letter-explorer__tabs {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .letter-explorer__tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.85rem 0.5rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.75rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+
+  .letter-explorer__tab:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: rgba(15, 23, 42, 0.7);
+  }
+
+  .letter-explorer__tab[aria-selected="true"] {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 12px 24px -12px var(--accent);
+  }
+
+  .letter-explorer__letter {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .letter-explorer__caption {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+
+  .letter-explorer__panel {
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.06), rgba(15, 23, 42, 0.55));
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 1rem;
+    backdrop-filter: blur(8px);
+    animation: panel-fade 0.3s ease;
+  }
+
+  @keyframes panel-fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter-explorer__panel-head {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .letter-explorer__panel-title {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .letter-explorer__panel-blurb {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.65;
+    max-width: 60ch;
+  }
+
+  .letter-explorer__pending {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    border: 1px dashed rgba(148, 163, 184, 0.3);
+  }
+
+  .letter-explorer__pending a {
+    color: #5eead4;
+    text-decoration: underline;
+    margin-left: 0.2rem;
+  }
+</style>
+
+<script>
+  const groups = document.querySelectorAll<HTMLElement>("[data-letter-explorer]");
+  groups.forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".letter-explorer__tab"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>(".letter-explorer__panel"));
+
+    function activate(target: string) {
+      tabs.forEach((t) => {
+        const isActive = t.dataset.target === target;
+        t.setAttribute("aria-selected", isActive ? "true" : "false");
+        t.tabIndex = isActive ? 0 : -1;
+      });
+      panels.forEach((p) => {
+        const isActive = p.dataset.panel === target;
+        if (isActive) {
+          p.removeAttribute("hidden");
+        } else {
+          p.setAttribute("hidden", "");
+        }
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.target;
+        if (target) activate(target);
+      });
+      tab.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        const idx = Number(tab.dataset.index ?? 0);
+        const next = e.key === "ArrowRight" ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+        const nextTab = tabs[next];
+        nextTab.focus();
+        const target = nextTab.dataset.target;
+        if (target) activate(target);
+      });
+    });
+  });
+</script>

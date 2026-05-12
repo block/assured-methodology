@@ -1,0 +1,224 @@
+---
+/**
+ * AnimatedPhaseDiagram. The three-phase methodology flowchart with a
+ * scroll-triggered reveal. Phase headers fade up first, then each component
+ * piece slides into place, then the connecting arrows draw in, then the
+ * feedback loop arc fades in last.
+ *
+ * Uses an IntersectionObserver to trigger animation when the diagram enters
+ * the viewport. Respects prefers-reduced-motion.
+ */
+---
+
+<figure class="anim-diagram" data-anim-diagram>
+  <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="anim-diagram-title anim-diagram-desc">
+    <title id="anim-diagram-title">ASSURED three-phase flow</title>
+    <desc id="anim-diagram-desc">Phase one (Preparation and Context) feeds phase two (Investigation and Assessment), which feeds phase three (Resolution and Documentation). A feedback loop returns insight to the earlier phases.</desc>
+
+    <defs>
+      <linearGradient id="anim-phase1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#22c55e"/>
+        <stop offset="100%" stop-color="#15803d"/>
+      </linearGradient>
+      <linearGradient id="anim-phase2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#1d4ed8"/>
+      </linearGradient>
+      <linearGradient id="anim-phase3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f59e0b"/>
+        <stop offset="100%" stop-color="#b45309"/>
+      </linearGradient>
+      <marker id="anim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#cbd5e1"/>
+      </marker>
+    </defs>
+
+    <!-- Phase header band -->
+    <g class="anim-row" data-reveal="phase-headers">
+      <g class="anim-item" style="--delay: 0ms;">
+        <rect x="20"  y="20" width="240" height="70" rx="14" fill="url(#anim-phase1)"/>
+        <text x="140" y="50" text-anchor="middle" class="anim-label">Preparation</text>
+        <text x="140" y="72" text-anchor="middle" class="anim-label">&amp; Context</text>
+      </g>
+      <path class="anim-arrow-h" style="--delay: 280ms;" d="M 265 55 L 285 55" stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      <g class="anim-item" style="--delay: 220ms;">
+        <rect x="290" y="20" width="240" height="70" rx="14" fill="url(#anim-phase2)"/>
+        <text x="410" y="50" text-anchor="middle" class="anim-label">Investigation</text>
+        <text x="410" y="72" text-anchor="middle" class="anim-label">&amp; Assessment</text>
+      </g>
+      <path class="anim-arrow-h" style="--delay: 480ms;" d="M 535 55 L 555 55" stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      <g class="anim-item" style="--delay: 440ms;">
+        <rect x="560" y="20" width="240" height="70" rx="14" fill="url(#anim-phase3)"/>
+        <text x="680" y="50" text-anchor="middle" class="anim-label">Resolution</text>
+        <text x="680" y="72" text-anchor="middle" class="anim-label">&amp; Documentation</text>
+      </g>
+    </g>
+
+    <!-- Component pieces -->
+    <g class="anim-components">
+      <g class="anim-item" style="--delay: 620ms;">
+        <rect x="20" y="130" width="110" height="55" rx="10" fill="#22c55e"/>
+        <text x="75" y="163" text-anchor="middle" class="anim-cell">A · Alert</text>
+      </g>
+      <g class="anim-item" style="--delay: 720ms;">
+        <rect x="140" y="130" width="120" height="55" rx="10" fill="#22c55e"/>
+        <text x="200" y="163" text-anchor="middle" class="anim-cell">S · Subject</text>
+      </g>
+      <g class="anim-item" style="--delay: 820ms;">
+        <rect x="80" y="200" width="120" height="55" rx="10" fill="#22c55e"/>
+        <text x="140" y="232" text-anchor="middle" class="anim-cell">S · Scope</text>
+      </g>
+
+      <path class="anim-line" style="--delay: 900ms;" d="M 75 187 L 75 220 L 78 220" stroke="#94a3b8" stroke-width="2" fill="none"/>
+      <path class="anim-line" style="--delay: 920ms;" d="M 200 187 L 200 220 L 197 220" stroke="#94a3b8" stroke-width="2" fill="none"/>
+      <path class="anim-line" style="--delay: 980ms;" d="M 202 228 L 285 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+
+      <g class="anim-item" style="--delay: 1060ms;">
+        <rect x="290" y="200" width="120" height="55" rx="10" fill="#3b82f6"/>
+        <text x="350" y="232" text-anchor="middle" class="anim-cell">U · Uncover</text>
+      </g>
+      <g class="anim-item" style="--delay: 1160ms;">
+        <rect x="420" y="200" width="120" height="55" rx="10" fill="#3b82f6"/>
+        <text x="480" y="232" text-anchor="middle" class="anim-cell">R · Risk</text>
+      </g>
+
+      <path class="anim-line" style="--delay: 1220ms;" d="M 412 228 L 418 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      <path class="anim-line" style="--delay: 1260ms;" d="M 542 228 L 548 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+
+      <g class="anim-item" style="--delay: 1320ms;">
+        <rect x="550" y="200" width="120" height="55" rx="10" fill="#f59e0b"/>
+        <text x="610" y="232" text-anchor="middle" class="anim-cell">E · Escalation</text>
+      </g>
+      <g class="anim-item" style="--delay: 1420ms;">
+        <rect x="680" y="200" width="125" height="55" rx="10" fill="#f59e0b"/>
+        <text x="742" y="232" text-anchor="middle" class="anim-cell">D · Documentation</text>
+      </g>
+
+      <path class="anim-line" style="--delay: 1480ms;" d="M 670 228 L 678 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+    </g>
+
+    <!-- Feedback loop -->
+    <g class="anim-loop" data-feedback>
+      <path class="anim-feedback-path" style="--delay: 1600ms;" d="M 480 270 Q 480 320 280 320 Q 140 320 140 270" stroke="#14b8a6" stroke-width="2" stroke-dasharray="6 6" fill="none" marker-end="url(#anim-arrow)"/>
+      <text class="anim-feedback-text" style="--delay: 1900ms;" x="310" y="340" text-anchor="middle">↻ Feedback loop — refine scope, re-uncover, re-validate</text>
+    </g>
+  </svg>
+</figure>
+
+<style>
+  .anim-diagram {
+    margin: 2rem auto;
+    padding: 1.75rem;
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    backdrop-filter: blur(8px);
+    max-width: 920px;
+  }
+
+  .anim-diagram svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .anim-label {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    fill: white;
+  }
+
+  .anim-cell {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    fill: white;
+  }
+
+  .anim-feedback-text {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 13px;
+    fill: #5eead4;
+    font-weight: 500;
+  }
+
+  /* Pre-animation state */
+  .anim-item {
+    opacity: 0;
+    transform: translateY(14px) scale(0.95);
+    transform-origin: center;
+    transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition-delay: var(--delay, 0ms);
+  }
+
+  .anim-arrow-h,
+  .anim-line {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    transition-delay: var(--delay, 0ms);
+  }
+
+  .anim-feedback-path {
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    opacity: 1;
+    transition: stroke-dashoffset 1s ease;
+    transition-delay: var(--delay, 0ms);
+  }
+
+  .anim-feedback-text {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    transition-delay: var(--delay, 0ms);
+  }
+
+  /* Once .is-revealed is applied, run animations */
+  .anim-diagram.is-revealed .anim-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .anim-diagram.is-revealed .anim-arrow-h,
+  .anim-diagram.is-revealed .anim-line {
+    opacity: 1;
+  }
+
+  .anim-diagram.is-revealed .anim-feedback-path {
+    stroke-dashoffset: 0;
+  }
+
+  .anim-diagram.is-revealed .anim-feedback-text {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .anim-item,
+    .anim-arrow-h,
+    .anim-line,
+    .anim-feedback-text {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .anim-feedback-path {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
+
+<script>
+  const diagrams = document.querySelectorAll<HTMLElement>("[data-anim-diagram]");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.25 }
+  );
+  diagrams.forEach((d) => observer.observe(d));
+</script>

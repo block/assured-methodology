@@ -1,0 +1,265 @@
+---
+title: "Command line analysis"
+description: "Decode the true intent of process execution. Obfuscation patterns, execution context, and the shapes that signal adversary technique."
+slug: "alert/parsing/command-line"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="03 · 02"
+  pillarLabel="6 surfaces"
+  chapterHref="/docs/alert/parsing"
+  chapterLabel="Parsing"
+  lede="Command lines reveal intent. Adversaries use native scripting environments to do real work while looking like legitimate processes. Effective analysis combines inspection, execution context evaluation, and pattern recognition."
+/>
+
+<PillNav
+  label="Parsing surfaces"
+  current="/docs/alert/parsing/command-line"
+  items={[
+    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
+    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+  ]}
+/>
+
+# What to look for: inspection
+
+Common obfuscation patterns observed in frameworks like PowerShell Empire and Cobalt Strike:
+
+<div class="obfuscation-grid">
+  <div class="obfuscation-card">
+    <h4>Base64 encoding</h4>
+    <code>powershell.exe -EncodedCommand &lt;long-base64-string&gt;</code>
+    <p>The encoded blob hides the actual command from plain-text matching.</p>
+  </div>
+  <div class="obfuscation-card">
+    <h4>String concatenation</h4>
+    <code>cmd.exe /c "e"+"cho" "Hello"</code>
+    <p>Builds commands at runtime to evade signature matching.</p>
+  </div>
+  <div class="obfuscation-card">
+    <h4>Variable expansion</h4>
+    <code>$env:COMSPEC</code>
+    <p>Uses environment variables to mask binary references.</p>
+  </div>
+</div>
+
+Adversaries also abuse trusted system binaries: <DefineTerm term="LOLBin">Living Off the Land Binary. A trusted, signed system binary (regsvr32, mshta, wmic, certutil, rundll32) abused for malicious execution while appearing legitimate.</DefineTerm> such as `certutil.exe` for downloads, `regsvr32.exe` for DLL execution, `bitsadmin.exe` for transfers. These leave minimal forensic footprint because the binary itself is signed and trusted.
+
+<Callout variant="warn" title="Educational, not operational">
+The examples in this chapter are illustrative. We deliberately do not show fully working invocation strings. Analysts need to recognize the *shape* of adversary technique, not have a copy-pasteable cookbook. If you need to test detections, use isolated lab environments and sanctioned red-team tools.
+</Callout>
+
+---
+
+# Execution context
+
+The same command can be benign or malicious depending on context. Four contextual signals matter most:
+
+<div class="context-grid">
+  <div class="context-card">
+    <span class="context-card__label">01 · User context</span>
+    <p><code>NT AUTHORITY\SYSTEM</code> vs. a standard user account. System-level execution from a user-initiated process is rarely legitimate.</p>
+  </div>
+  <div class="context-card">
+    <span class="context-card__label">02 · Timing</span>
+    <p>Outside business hours vs. scheduled maintenance window. Cross-reference with change tickets and the user's known patterns.</p>
+  </div>
+  <div class="context-card">
+    <span class="context-card__label">03 · Parent process</span>
+    <p><code>cmd.exe</code> spawned by <code>outlook.exe</code> is suspicious. The same command from Task Scheduler is usually legitimate.</p>
+  </div>
+  <div class="context-card">
+    <span class="context-card__label">04 · Directory</span>
+    <p><code>C:\Windows\Temp</code> or <code>%APPDATA%</code> is suspicious. <code>C:\Program Files</code> is expected.</p>
+  </div>
+</div>
+
+<Reveal summary="Example: PowerShell from Outlook">
+A PowerShell script launched by Outlook signals likely macro execution from an email attachment. What you would check next:
+
+- The Outlook session's recent attachment activity.
+- The script's command line for download cradle patterns.
+- Outbound network activity from PowerShell in the next 60 seconds.
+- Whether the user's mailbox shows similar emails to other recipients.
+
+The same PowerShell command from Task Scheduler during a maintenance window is almost certainly legitimate. Same command, different parent, different verdict.
+</Reveal>
+
+---
+
+# Pattern recognition
+
+Build mental patterns for atypical use of common binaries. These are the shapes you want to recognize before reading the command in detail.
+
+<div class="pattern-list">
+  <div class="pattern-item">
+    <span class="pattern-item__bullet"></span>
+    <div>
+      <strong>Unusual LOLBin invocations.</strong> <code>rundll32.exe</code>, <code>mshta.exe</code>, <code>wmic.exe</code>, <code>regsvr32.exe</code> invoked outside their normal contexts.
+    </div>
+  </div>
+  <div class="pattern-item">
+    <span class="pattern-item__bullet"></span>
+    <div>
+      <strong>Framework flags.</strong> Command-line flags that suggest framework use: <code>-NoP</code>, <code>-EncodedCommand</code>, <code>-WindowStyle Hidden</code>, <code>-NonInteractive</code>.
+    </div>
+  </div>
+  <div class="pattern-item">
+    <span class="pattern-item__bullet"></span>
+    <div>
+      <strong>Indirect execution.</strong> A trusted binary loading attacker-controlled content from a remote location. The binary is legitimate. The payload is not.
+    </div>
+  </div>
+</div>
+
+<KeyTakeaway>
+Command line analysis is where parsing becomes investigation. Decoding what a process is actually doing, past the obfuscation, past the trust signals, anchors everything downstream.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing/process-relationships"
+  nextLabel="Process relationships"
+  nextDescription="Parent-child chains and lineage reconstruction. Macro execution, persistence, hollowing, token theft."
+  ctaLabel="Read process relationships"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.obfuscation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .obfuscation-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.obfuscation-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.obfuscation-card h4 {
+  margin: 0;
+  color: #fdba74;
+  font-size: 0.95rem;
+}
+
+.obfuscation-card code {
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.35rem;
+  word-break: break-word;
+  display: block;
+}
+
+.obfuscation-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .context-grid { grid-template-columns: 1fr 1fr; } }
+
+.context-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.context-card__label {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+
+.context-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.pattern-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+
+.pattern-item__bullet {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #14b8a6, #3b82f6);
+  margin-top: 0.5rem;
+}
+
+.pattern-item strong {
+  color: #f8fafc;
+}
+
+.pattern-item div {
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+`}
+</style>

@@ -1,0 +1,72 @@
+---
+title: "MITRE ATT&CK"
+description: "Tactics, techniques, procedures. The shared vocabulary for describing what an adversary did."
+slug: "uncover/mitre"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="03"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="MITRE ATT&CK is the public catalog of adversary behavior. Used as a vocabulary, it lets analysts describe what they found with precision, and lets the rest of the team understand exactly what was observed."
+/>
+
+<PillNav label="Uncover chapter" current="/docs/uncover/mitre" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+# The three levels
+
+<div class="mitre-grid">
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Tactics</span>
+    <h3>The why</h3>
+    <p>What the adversary is trying to accomplish at a given step: initial access, persistence, privilege escalation, defense evasion, credential access, discovery, lateral movement, collection, exfiltration, impact. Tactics are the categories.</p>
+  </div>
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Techniques</span>
+    <h3>The how</h3>
+    <p>The specific method the adversary used. "T1566" is the technique for phishing. "T1059.001" is PowerShell as a command and scripting interpreter. Techniques are granular enough to map to detection rules and to teach analysts what to look for.</p>
+  </div>
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Procedures</span>
+    <h3>The exact thing</h3>
+    <p>The actual implementation of a technique as observed in the wild. "PowerShell Empire's <code>-EncodedCommand</code> download cradle" is a procedure. Procedures change rapidly; techniques less so.</p>
+  </div>
+</div>
+
+# How an analyst uses ATT&CK
+
+- **During Uncover.** Map each observed behavior to its ATT&CK technique. The chain of techniques becomes the investigation's narrative.
+- **For hand-off.** Naming techniques lets the IR team start work from a shared model rather than re-reading the analyst's notes.
+- **For detection engineering.** When a technique was observed but not detected automatically, that gap is the feature request for a new rule.
+- **For trend analysis.** Tagging cases with techniques over time shows what the SOC sees most often, which feeds prioritization.
+
+<KeyTakeaway>
+ATT&CK is the vocabulary that makes Uncover findings portable. The chain of techniques is the artifact that survives the analyst and the alert; "T1566 → T1059.001 → T1071" travels better than free-form prose.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/tooling" nextLabel="Tool integration" ctaLabel="Read tool integration" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "soon", escalation: "soon", documentation: "soon" }}/>
+
+<style>
+{`
+.mitre-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .mitre-grid { grid-template-columns: repeat(3, 1fr); } }
+.mitre-card { padding: 1.4rem 1.6rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: 0.85rem; }
+.mitre-card__tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; background: rgba(249, 115, 22, 0.18); color: #fdba74; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.65rem; }
+.mitre-card h3 { margin: 0 0 0.45rem 0; color: #f8fafc; font-size: 1.05rem; }
+.mitre-card p { margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 0.92rem; }
+`}
+</style>

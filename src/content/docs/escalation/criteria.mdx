@@ -1,0 +1,46 @@
+---
+title: "Criteria for escalation"
+description: "The thresholds that should trigger escalation regardless of who is on shift."
+slug: "escalation/criteria"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="01" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Escalation criteria are pre-defined thresholds. When they are met, the case escalates regardless of analyst judgment in the moment. Criteria turn the SOC's collective wisdom into a default that holds up under pressure."/>
+
+<PillNav label="Escalation chapter" current="/docs/escalation/criteria" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+# Five canonical escalation triggers
+
+<div class="trig-grid">
+  <div class="trig"><h4>✅ Confirmed malicious activity</h4><p>Evidence rules out alternative explanations. The case is no longer "possibly an incident"; it is one.</p></div>
+  <div class="trig"><h4>🏢 Business-critical systems affected</h4><p>Production, customer-facing, revenue-generating, or compliance-bound systems are in scope. Even if the evidence is incomplete, the impact trigger applies.</p></div>
+  <div class="trig"><h4>↔️ Lateral movement detected</h4><p>The adversary moved beyond the initial entry point. Containment becomes urgent because the blast radius is growing.</p></div>
+  <div class="trig"><h4>📤 Data exfiltration detected</h4><p>Confirmed or strongly suspected outbound transfer of sensitive data. Regulatory notification timelines often start here.</p></div>
+  <div class="trig"><h4>🌐 Ongoing or widespread campaign</h4><p>Multiple hosts, multiple users, multiple sectors. The case is no longer a single intrusion to investigate.</p></div>
+</div>
+
+<Callout variant="info" title="High impact OR high likelihood, not just both">
+A pre-defined criterion is met when either dimension crosses the threshold. A critical-asset alert with medium likelihood still escalates because the cost of being wrong is too high to absorb on a Tier 1 desk.
+</Callout>
+
+<KeyTakeaway>Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Use them as the default, override only with a documented reason.</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/protocols" nextLabel="Internal and external protocols" ctaLabel="Read protocols" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "soon" }}/>
+
+<style>{`
+.trig-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .trig-grid { grid-template-columns: 1fr 1fr; } }
+.trig { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.55rem; }
+.trig h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
+.trig p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+`}</style>

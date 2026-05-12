@@ -1,0 +1,76 @@
+---
+/**
+ * CaseStudy, frames an illustrative scenario.
+ * The body should describe the situation, indicators, and what an analyst
+ * would do. Use this for sanitised scenarios, no PII or live IPs.
+ */
+
+interface Props {
+  title: string;
+  scenario?: string;
+}
+
+const { title, scenario } = Astro.props;
+---
+
+<section class="case-study">
+  <header class="case-study__head">
+    <span class="case-study__badge">Case study</span>
+    <h4 class="case-study__title">{title}</h4>
+  </header>
+  {scenario && <p class="case-study__scenario">{scenario}</p>}
+  <div class="case-study__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .case-study {
+    margin: 1.75rem 0;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(15, 23, 42, 0.55));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    backdrop-filter: blur(8px);
+  }
+
+  .case-study__head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .case-study__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: 9999px;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+  }
+
+  .case-study__title {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .case-study__scenario {
+    margin: 0 0 0.85rem 0;
+    color: #e2e8f0;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .case-study__body {
+    color: #cbd5e1;
+  }
+</style>

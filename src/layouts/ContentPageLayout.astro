@@ -1,27 +1,6 @@
 ---
-
-/**
- * This is a base layout for all content pages backed by Markdown. It accepts a named 
- * slot "navbar", and the main slot is typically filled with Markdown content. Typical usage 
- * may look like like:
- * 
- * <ContentPageLayout title={title} 
- *   description={description} 
- *   headings={headings} 
- *   maxWidth="wide">
- *   
- *   <ComponentsNavbar slot="navbar" />
- *   <Content components={MDXComponents} />
- * 
- * </ContentPageLayout>
- * 
- * If the "navbar" slot is omitted, the left sidebar will not be present. If the 
- * "headings" are not passed, the right sidebar will not be present.
- */
-
-
 import BaseLayout from "./BaseLayout.astro";
-import type { MarkdownHeading } from 'astro';
+import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
 import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import "../styles/breadcrumbs.css";
@@ -38,30 +17,21 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="relative min-h-[calc(100vh-4rem)]">
-    <!-- Cybersecurity Background Pattern -->
-    <div class="absolute inset-0 bg-cyber-pattern" style="opacity: 0.1;"></div>
-
-    <!-- Main Layout -->
-    <div class="relative mx-auto max-w-[1800px] px-6 flex flex-col lg:flex-row gap-6 max-md:px-4">
-      
-      <!-- Left Sidebar: On This Page -->
+  <div class="content-page">
+    <div class="content-page__shell">
       {headings && headings.length > 0 && (
-        <nav class="lg:w-64 flex-shrink-0 order-2 lg:order-1 hidden lg:block">
-          <div class="py-6 px-6 border-r border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm">
+        <aside class="content-page__toc" aria-label="In-page navigation">
+          <div class="content-page__toc-inner">
             <SimpleTableOfContents headings={headings} />
           </div>
-        </nav>
+        </aside>
       )}
 
-      <!-- Main Content -->
-      <main class="flex-1 order-1 lg:order-2 min-w-0 py-8 px-10 xl:px-6 lg:px-6 md:px-4">
-        <div id="mainContent" class="prose prose-slate dark:prose-invert mx-auto" style="max-width: none;">
-          
-          {/** Breadcrumbs */}
+      <main class="content-page__main">
+        <div class="content-page__main-inner prose">
           {showBreadcrumbs && (
-            <div class="mb-6 mt-2">
-              <Breadcrumbs 
+            <div class="content-page__breadcrumbs">
+              <Breadcrumbs
                 indexText="Home"
                 mainBemClass="c-breadcrumbs"
                 ariaLabel="Breadcrumb navigation"
@@ -69,67 +39,76 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
                 excludeCurrentPage={false}
               >
                 <span slot="separator">&nbsp;›&nbsp;</span>
-                <span slot="index">
-                  🏠
-                </span>
+                <span slot="index">🏠</span>
               </Breadcrumbs>
             </div>
           )}
-          
-          {/** h1 with the page title */}
+
           {showTitleAsH1 && (
-            <h1 class="text-4xl md:text-5xl font-bold mb-8 leading-tight">{title}</h1>
+            <h1 class="content-page__title">{title}</h1>
           )}
+
           <slot />
         </div>
       </main>
-
     </div>
   </div>
 </BaseLayout>
 
 <style>
-  /* Cybersecurity background pattern */
-  .bg-cyber-pattern {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.2) 0%, transparent 15%),
-      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
-    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
+  .content-page {
+    position: relative;
+    min-height: calc(100vh - 4rem);
   }
 
-  /* Improve scroll behavior */
-  html {
-    scroll-behavior: smooth;
+  .content-page__shell {
+    max-width: 88rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    gap: 2.5rem;
   }
 
-  /* Override prose max-width */
-  .prose {
-    max-width: none !important;
+  .content-page__toc {
+    display: none;
+    flex-shrink: 0;
+    width: 16rem;
+    order: 2;
   }
 
-  /* Ensure list items can span full width */
-  .prose ul, .prose ol {
-    width: 100% !important;
-    display: block !important;
-  }
-  
-  .prose li {
-    width: 100% !important;
-    display: list-item !important;
-    white-space: normal !important;
+  @media (min-width: 1024px) {
+    .content-page__toc { display: block; }
   }
 
-  /* Clean, minimal sidebar styling */
+  .content-page__toc-inner {
+    position: sticky;
+    top: 80px;
+    padding: 1.5rem 0;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
 
-  /* Mobile adjustments */
-  @media (max-width: 1024px) {
-    /* Hide sidebar on mobile */
-    nav {
-      display: none !important;
-    }
+  .content-page__main {
+    flex: 1;
+    min-width: 0;
+    order: 1;
+    padding: 2rem 0 4rem;
+  }
+
+  .content-page__main-inner {
+    max-width: 50rem;
+    margin: 0 auto;
+  }
+
+  .content-page__breadcrumbs {
+    margin-bottom: 1.5rem;
+  }
+
+  .content-page__title {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 2rem 0;
   }
 </style>

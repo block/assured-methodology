@@ -1,0 +1,34 @@
+---
+/**
+ * Callout, a semantic highlighted block.
+ *
+ * Variants: info | warn | danger | puzzle | takeaway
+ * Pass an optional `title` and `icon` (emoji or text). Body is the default slot.
+ */
+
+interface Props {
+  variant?: "info" | "warn" | "danger" | "puzzle" | "takeaway";
+  title?: string;
+  icon?: string;
+}
+
+const { variant = "info", title, icon } = Astro.props;
+
+const defaultIcons: Record<string, string> = {
+  info: "💡",
+  warn: "⚠️",
+  danger: "🚨",
+  puzzle: "🧩",
+  takeaway: "✅",
+};
+
+const renderedIcon = icon ?? defaultIcons[variant];
+---
+
+<aside class={`assured-callout assured-callout--${variant}`}>
+  {renderedIcon && <div class="assured-callout__icon" aria-hidden="true">{renderedIcon}</div>}
+  <div class="assured-callout__body">
+    {title && <p class="assured-callout__title">{title}</p>}
+    <slot />
+  </div>
+</aside>

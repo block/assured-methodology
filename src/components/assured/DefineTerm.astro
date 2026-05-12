@@ -1,0 +1,154 @@
+---
+/**
+ * DefineTerm. Inline glossary tooltip.
+ *
+ * Wraps a term in a subtle underline. On hover (desktop) or tap (touch),
+ * a small panel pops up with the definition. Uses the native <details>
+ * element under the hood so it works without JavaScript, then enhances
+ * with CSS for tooltip behavior.
+ *
+ * Usage in MDX:
+ *   <DefineTerm term="LOLBin">
+ *     Living Off the Land Binary. A trusted system binary (regsvr32, mshta,
+ *     wmic) used by an adversary to execute malicious operations under a
+ *     signed, expected identity.
+ *   </DefineTerm>
+ */
+
+interface Props {
+  term: string;
+}
+
+const { term } = Astro.props;
+---
+
+<span class="define-term">
+  <button type="button" class="define-term__trigger" aria-haspopup="true" aria-expanded="false">
+    {term}
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+  </button>
+  <span class="define-term__panel" role="tooltip">
+    <strong class="define-term__title">{term}</strong>
+    <slot />
+  </span>
+</span>
+
+<style>
+  .define-term {
+    position: relative;
+    display: inline-block;
+  }
+
+  .define-term__trigger {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: #5eead4;
+    cursor: help;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: rgba(94, 234, 212, 0.6);
+    text-underline-offset: 3px;
+    transition: color 0.15s ease;
+  }
+
+  .define-term__trigger:hover,
+  .define-term__trigger:focus-visible {
+    color: #99f6e4;
+    outline: none;
+  }
+
+  .define-term__trigger svg {
+    opacity: 0.55;
+    transform: translateY(1px);
+  }
+
+  .define-term__panel {
+    position: absolute;
+    bottom: calc(100% + 0.6rem);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: min(22rem, 80vw);
+    padding: 0.85rem 1rem;
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(94, 234, 212, 0.4);
+    border-radius: 0.6rem;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    font-weight: 400;
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 20;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .define-term__panel::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border: 6px solid transparent;
+    border-top-color: rgba(94, 234, 212, 0.4);
+  }
+
+  .define-term__title {
+    display: block;
+    color: #5eead4;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .define-term__trigger:hover + .define-term__panel,
+  .define-term__trigger:focus-visible + .define-term__panel,
+  .define-term__trigger[aria-expanded="true"] + .define-term__panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+</style>
+
+<script>
+  const triggers = document.querySelectorAll<HTMLButtonElement>(".define-term__trigger");
+  triggers.forEach((trigger) => {
+    trigger.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isOpen = trigger.getAttribute("aria-expanded") === "true";
+      triggers.forEach((other) => {
+        if (other !== trigger) other.setAttribute("aria-expanded", "false");
+      });
+      trigger.setAttribute("aria-expanded", isOpen ? "false" : "true");
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!(e.target as Element).closest(".define-term")) {
+      triggers.forEach((t) => t.setAttribute("aria-expanded", "false"));
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      triggers.forEach((t) => t.setAttribute("aria-expanded", "false"));
+    }
+  });
+</script>

@@ -1,0 +1,91 @@
+---
+title: "Uncover working example"
+description: "The investigation, applied to the same finance-team intrusion. Evidence gathering across endpoint, network, identity, and cloud."
+slug: "uncover/example"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import ChapterExample from "@/components/assured/ChapterExample.astro";
+import ExampleStepper from "@/components/assured/ExampleStepper.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="Example"
+  pillarLabel="Uncover chapter"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="The Uncover phase applied to the bounded investigation Scope handed off. Five steps that pull evidence from the right sources, correlate it, and produce the narrative the next phases need."
+/>
+
+<PillNav label="Uncover chapter" current="/docs/uncover/example" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+<ChapterExample
+  title="Pulling the evidence on the finance-team intrusion"
+  scenario="Scope set the boundary: phishing-driven intrusion, 72-hour primary window with a 4-week look at primary entities, three primary identities, three secondary identities, PCI and GDPR active. Uncover begins."
+>
+
+<ExampleStepper steps={["Endpoint telemetry", "Network correlation", "Identity logs", "Mail and SaaS", "Map to ATT&CK"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Endpoint telemetry</h3>
+    <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566 (Phishing) → T1059.001 (PowerShell) → T1105 (Ingress Tool Transfer).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Network correlation</h3>
+    <p>Proxy logs confirm the HTTPS connection to invoice-records[.]com. DNS history shows the domain registered 4 days ago, low prevalence, no prior queries from the environment. Firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID. Self-signed certificate with generic CN. The destination IP is in a hosting provider's bulletproof range.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Identity logs</h3>
+    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: a second authentication path appears in cloud identity logs about 12 minutes after the alert. The session was federated from the on-premises identity, still using dlin's credentials. Targeted the cloud finance platform. Successful.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1078.004 (Valid Accounts: Cloud Accounts).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Mail and SaaS</h3>
+    <p>Mailbox audit confirms the originating email: vendor-themed subject, attachment that decoded to a macro-laden Word document. Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Map to ATT&CK and finalize the narrative</h3>
+    <p>The complete chain:</p>
+    <pre><code>{`T1566.001  Spearphishing attachment delivered to 4 finance team users
+T1204.002  User execution: 2 users opened the document
+T1059.001  PowerShell execution invoked from macro
+T1105      Ingress tool transfer: second-stage payload pulled from external domain
+T1071.001  Outbound HTTPS to attacker-controlled domain
+T1078.004  Valid accounts: federated login to cloud finance platform`}</code></pre>
+    <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal. Uncover ends with this narrative ready for the Risk phase.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+Uncover combined endpoint, network, identity, and SaaS evidence into one chain. Each source answered a different question; the chain only emerged when all four came together. That is the whole point of the phase.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/quiz" nextLabel="Uncover quiz" ctaLabel="Take the quiz" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "soon", escalation: "soon", documentation: "soon" }}/>
+
+<style>
+{`
+.example-step h3 { margin: 0 0 0.85rem 0; color: #fdba74; font-size: 1.2rem; }
+.example-step p { margin: 0 0 0.85rem 0; color: #cbd5e1; line-height: 1.65; }
+.example-step pre { margin: 0 0 1rem 0; font-size: 0.82rem; }
+.example-step strong { color: #f8fafc; }
+`}
+</style>

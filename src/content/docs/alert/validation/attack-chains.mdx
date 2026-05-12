@@ -1,0 +1,168 @@
+---
+title: "Attack chains and multi-event correlation"
+description: "Link discrete events into sequences that reveal adversary intent across time. The strategy built for the attacks that no single event would catch."
+slug: "alert/validation/attack-chains"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="02 · 02"
+  pillarLabel="03 strategies"
+  chapterHref="/docs/alert/validation"
+  chapterLabel="Validation"
+  lede="Single-event detection misses sophisticated intrusions. Attack-chain correlation links discrete events into sequences that reveal adversary intent across hours or days."
+/>
+
+<PillNav
+  label="Validation strategies"
+  current="/docs/alert/validation/attack-chains"
+  items={[
+    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison", phase: "alert" },
+    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains",       phase: "alert" },
+    { label: "Criticality",         href: "/docs/alert/validation/criticality",         phase: "alert" },
+  ]}
+/>
+
+# How attack-chain correlation works
+
+A correlation engine watches a continuous stream of events from many sources (endpoints, network, identity, cloud) and looks for sequences that match known adversary patterns. The engine maintains a model of how attacks unfold over time and flags combinations of events that together describe one of those patterns, even when each individual event looks benign on its own.
+
+Most attacks are not a single dramatic action. They are a sequence of small actions that together describe a progression: reconnaissance, then initial access, then privilege escalation, then lateral movement, then exfiltration. Multi-event correlation is the validation strategy designed to catch that shape, not just the single suspicious moment in the middle.
+
+# The dimensions of correlation
+
+Correlation engines operate across four dimensions simultaneously. A useful chain typically involves at least two of them.
+
+<div class="correlation-dims">
+  <div class="correlation-dim">
+    <h4>🕐 Time</h4>
+    <p>Events grouped within a window. The window can be minutes for fast attacks like ransomware staging, or hours-to-days for slow-and-low intrusions. The engine maintains state across the window so events arriving late still get linked.</p>
+  </div>
+  <div class="correlation-dim">
+    <h4>📍 Assets</h4>
+    <p>Events that touch the same host, account, segment, or service. The correlation graph is built around entities the events share, so a lateral movement chain shows the host and account hops in order.</p>
+  </div>
+  <div class="correlation-dim">
+    <h4>🛠️ Technique</h4>
+    <p>Events that map to the same MITRE ATT&CK technique or category. Differentiates living-off-the-land behavior from custom malware. Helps attribute a chain to a campaign.</p>
+  </div>
+  <div class="correlation-dim">
+    <h4>🎯 Targeting</h4>
+    <p>Events that focus on a department, a data type, or a class of user. Helps the analyst recognize when a chain is an opportunistic intrusion versus a targeted one.</p>
+  </div>
+</div>
+
+**Representative platforms:** IBM QRadar, Exabeam Fusion, Google Chronicle, Splunk Enterprise Security, Microsoft Sentinel correlation rules.
+
+---
+
+# Example: an Office macro chain reconstructed
+
+<CaseStudy
+  title="A document, a shell, and an outbound connection"
+  scenario="Three alerts fire on the same finance team workstation within four minutes. None of the three is decisive on its own."
+>
+
+The three events the correlation engine links:
+
+```
+08:32:14  Office process spawned a child shell
+          Parent: winword.exe   Child: cmd.exe
+
+08:32:21  Encoded PowerShell invocation
+          cmd.exe spawned powershell.exe with -EncodedCommand
+
+08:33:42  Outbound TLS to an unfamiliar destination
+          Source: powershell.exe   Destination: a domain registered 6 days ago
+```
+
+In isolation, each event is the kind that a SOC sees regularly. Word spawns shells for legitimate add-in installs. PowerShell uses encoded commands for ordinary administrative scripts. New domain destinations appear during normal business as the organization adopts new services.
+
+The chain is what gives them meaning. The same parent-child lineage starting from a Microsoft Office process, encoding immediately, and reaching a fresh domain within minutes maps to the classic <DefineTerm term="phishing-with-macros">An initial-access technique where the adversary delivers a Microsoft Office document containing a malicious macro. Opening the document triggers the macro, which usually executes a download cradle (often via PowerShell) to pull the next-stage payload from attacker-controlled infrastructure.</DefineTerm> initial-access pattern. The correlation engine recognizes the shape and produces a single alert describing the chain.
+
+What the analyst checks next:
+
+- **The originating document.** The user's mailbox in the relevant window will identify the inbound message, the sender, the subject, and other recipients.
+- **The decoded PowerShell payload.** The encoded command is the next investigative artifact. Decoding it (in a safe environment) reveals the download cradle.
+- **The outbound destination.** WHOIS data, DNS prevalence, threat-intelligence overlap, and certificate properties for the destination domain. New domains with low prevalence are a high-confidence signal.
+- **Other recipients.** A phishing campaign rarely targets one user. The mail logs will identify others in the same window.
+
+</CaseStudy>
+
+<Reveal summary="What makes the chain stronger than the parts" variant="deep-dive">
+Each individual event in the example would be tuned out as noise at most SOCs. Office spawns shells thousands of times a day across a large environment, encoded PowerShell is sometimes used by legitimate scripts, and new domains appear all the time. The chain is stronger than the sum of the parts because the *combination* (Office → cmd → encoded PowerShell → new domain within minutes) almost never happens for legitimate reasons. Correlation is the strategy that surfaces these combinations without forcing the analyst to write a hand-crafted rule for every possible permutation.
+</Reveal>
+
+---
+
+# Operational practice
+
+- **Tune and validate correlation rules on a regular cadence.** A correlation rule that worked well last quarter may fire on legitimate activity this quarter as the environment shifts.
+- **Keep long-term retention and consistent normalization** to support multi-step analysis. A four-hour chain requires four hours of consistently shaped data.
+- **Integrate endpoint, network, and identity telemetry.** Correlation lives at the seams between data sources. A chain that crosses three sources is far more informative than one within a single source.
+- **Provide real-time processing capacity.** Batch-only correlation misses the speed window during which response is most effective.
+
+<KeyTakeaway>
+Attack-chain correlation is the strategy that catches the attacks no single event would catch. It is also the most computationally expensive of the three validation strategies, which is why it benefits the most from careful tuning. Used well, it gives the analyst the timeline of an intrusion as the alert itself, not as the output of a manual reconstruction.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/validation/criticality"
+  nextLabel="Asset and user criticality"
+  nextDescription="The third strategy: weigh alerts by what they could affect and who is involved."
+  ctaLabel="Read criticality"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.correlation-dims {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .correlation-dims { grid-template-columns: 1fr 1fr; } }
+
+.correlation-dim {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #6366f1;
+  border-radius: 0.7rem;
+}
+
+.correlation-dim h4 {
+  margin: 0 0 0.4rem 0;
+  color: #a5b4fc;
+  font-size: 1rem;
+}
+
+.correlation-dim p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+`}
+</style>

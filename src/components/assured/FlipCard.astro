@@ -1,0 +1,190 @@
+---
+/**
+ * FlipCard. Front face shows a hook (title + icon). Click or tap to flip
+ * to the back, which reveals the detail.
+ *
+ * Built with a CSS 3D transform. Front and back share the same height
+ * (controlled by the front side) so the layout does not jump on flip.
+ *
+ * Usage in MDX:
+ *   <FlipCard icon="🧩" title="A method for the first 30 minutes" hint="Tap to learn more">
+ *     NIST, SANS PICERL, and ATT&CK describe...
+ *   </FlipCard>
+ */
+
+interface Props {
+  icon?: string;
+  title: string;
+  hint?: string;
+  accent?: "teal" | "blue" | "green" | "purple" | "orange" | "red" | "indigo";
+}
+
+const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
+---
+
+<div class={`flip-card flip-card--${accent}`} data-flip-card>
+  <button type="button" class="flip-card__inner" aria-pressed="false">
+    <div class="flip-card__face flip-card__face--front">
+      {icon && <div class="flip-card__icon" aria-hidden="true">{icon}</div>}
+      <h3 class="flip-card__title">{title}</h3>
+      <span class="flip-card__hint">
+        {hint}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 0 1 9-9 9.74 9.74 0 0 1 6.74 2.74L21 8"></path>
+          <path d="M21 3v5h-5"></path>
+        </svg>
+      </span>
+    </div>
+    <div class="flip-card__face flip-card__face--back">
+      <div class="flip-card__back-body">
+        <slot />
+      </div>
+      <span class="flip-card__hint flip-card__hint--back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 2v6h6"></path>
+          <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+        </svg>
+        Tap to flip back
+      </span>
+    </div>
+  </button>
+</div>
+
+<style>
+  .flip-card {
+    perspective: 1200px;
+    height: 100%;
+    min-height: 14rem;
+  }
+
+  .flip-card__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 14rem;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    border-radius: 1rem;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .flip-card__inner[aria-pressed="true"] {
+    transform: rotateY(180deg);
+  }
+
+  .flip-card__inner:focus-visible {
+    outline: 2px solid var(--accent, #5eead4);
+    outline-offset: 4px;
+  }
+
+  .flip-card__face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .flip-card__face--front {
+    border-color: var(--accent-soft, rgba(20, 184, 166, 0.3));
+  }
+
+  .flip-card__face--back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, var(--accent-bg, rgba(20, 184, 166, 0.12)), rgba(15, 23, 42, 0.7));
+    border-color: var(--accent, #5eead4);
+    color: #e2e8f0;
+  }
+
+  .flip-card--teal   { --accent: #5eead4; --accent-soft: rgba(20, 184, 166, 0.35); --accent-bg: rgba(20, 184, 166, 0.14); }
+  .flip-card--blue   { --accent: #93c5fd; --accent-soft: rgba(59, 130, 246, 0.35); --accent-bg: rgba(59, 130, 246, 0.14); }
+  .flip-card--green  { --accent: #86efac; --accent-soft: rgba(34, 197, 94, 0.35); --accent-bg: rgba(34, 197, 94, 0.14); }
+  .flip-card--purple { --accent: #d8b4fe; --accent-soft: rgba(168, 85, 247, 0.35); --accent-bg: rgba(168, 85, 247, 0.14); }
+  .flip-card--orange { --accent: #fdba74; --accent-soft: rgba(249, 115, 22, 0.35); --accent-bg: rgba(249, 115, 22, 0.14); }
+  .flip-card--red    { --accent: #fca5a5; --accent-soft: rgba(239, 68, 68, 0.35); --accent-bg: rgba(239, 68, 68, 0.14); }
+  .flip-card--indigo { --accent: #a5b4fc; --accent-soft: rgba(99, 102, 241, 0.35); --accent-bg: rgba(99, 102, 241, 0.14); }
+
+  .flip-card:hover .flip-card__face--front {
+    border-color: var(--accent);
+    box-shadow: 0 14px 32px -16px rgba(0, 0, 0, 0.5);
+  }
+
+  .flip-card__icon {
+    font-size: 1.85rem;
+    line-height: 1.2;
+    margin-bottom: 0.85rem;
+  }
+
+  .flip-card__title {
+    margin: 0 0 0.65rem 0;
+    color: #f8fafc;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .flip-card__hint {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+  }
+
+  .flip-card__hint--back {
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+
+  .flip-card__back-body {
+    color: #cbd5e1;
+    line-height: 1.65;
+    font-size: 0.95rem;
+    margin-bottom: 0.85rem;
+    overflow-y: auto;
+  }
+
+  .flip-card__back-body :first-child { margin-top: 0; }
+  .flip-card__back-body :last-child { margin-bottom: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flip-card__inner {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const cards = document.querySelectorAll<HTMLElement>("[data-flip-card]");
+  cards.forEach((card) => {
+    const inner = card.querySelector<HTMLButtonElement>(".flip-card__inner");
+    if (!inner) return;
+
+    inner.addEventListener("click", (e) => {
+      e.preventDefault();
+      const pressed = inner.getAttribute("aria-pressed") === "true";
+      inner.setAttribute("aria-pressed", pressed ? "false" : "true");
+    });
+
+    inner.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        inner.click();
+      }
+    });
+  });
+</script>

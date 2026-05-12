@@ -1,0 +1,73 @@
+---
+/**
+ * ChapterExample. A multi-step interactive walkthrough that ties the
+ * concepts of a whole chapter together. Tabs across the top let the reader
+ * step through the example in order; each step contains the analyst's view
+ * at that stage plus the reasoning a junior would need to follow it.
+ *
+ * Designed to live at the end of every chapter as the capstone.
+ */
+
+interface Props {
+  title?: string;
+  scenario?: string;
+}
+
+const { title = "Working example: from alert to handoff", scenario } = Astro.props;
+---
+
+<section class="chapter-example" data-chapter-example>
+  <header class="chapter-example__head">
+    <span class="chapter-example__badge">Working example</span>
+    <h2 class="chapter-example__title">{title}</h2>
+    {scenario && <p class="chapter-example__scenario">{scenario}</p>}
+  </header>
+
+  <slot />
+</section>
+
+<style>
+  .chapter-example {
+    margin: 3rem 0 2rem;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.10), rgba(15, 23, 42, 0.65));
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    backdrop-filter: blur(8px);
+  }
+
+  .chapter-example__head {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  .chapter-example__badge {
+    display: inline-block;
+    padding: 0.25rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(168, 85, 247, 0.22);
+    color: #d8b4fe;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .chapter-example__title {
+    margin: 0 auto 0.75rem;
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
+    color: #f8fafc;
+    line-height: 1.2;
+    max-width: 32ch;
+  }
+
+  .chapter-example__scenario {
+    margin: 0 auto;
+    color: #e2e8f0;
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 60ch;
+    font-size: 0.95rem;
+  }
+</style>

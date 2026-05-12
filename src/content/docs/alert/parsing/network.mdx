@@ -1,0 +1,390 @@
+---
+title: "Network correlation"
+description: "Tie host activity to outbound traffic. Command-and-control detection through timing, TLS, DNS, and exfiltration patterns."
+slug: "alert/parsing/network"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="03 · 04"
+  pillarLabel="6 surfaces"
+  chapterHref="/docs/alert/parsing"
+  chapterLabel="Parsing"
+  lede="Network correlation links host-level events to network telemetry. Adversaries depend on outbound communication for command-and-control, lateral movement, and data exfiltration. Correlation surfaces that traffic by tying it back to the process that initiated it."
+/>
+
+<PillNav
+  label="Parsing surfaces"
+  current="/docs/alert/parsing/network"
+  items={[
+    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
+    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+  ]}
+/>
+
+A single PowerShell process may look legitimate. A burst of HTTPS traffic may look harmless. Together, they reveal that the PowerShell process is beaconing to a newly registered domain. The picture changes.
+
+# Two perspectives, one picture
+
+<div class="perspective-grid">
+  <div class="perspective-card perspective-card--host">
+    <div class="perspective-card__label">Host perspective</div>
+    <h3>Who initiated the connection?</h3>
+    <ul>
+      <li>Which process opened the socket</li>
+      <li>Under which user context it executed</li>
+      <li>The command-line arguments that produced it</li>
+      <li>What the process did locally before and after</li>
+    </ul>
+  </div>
+  <div class="perspective-card perspective-card--net">
+    <div class="perspective-card__label">Network perspective</div>
+    <h3>Where does the traffic go?</h3>
+    <ul>
+      <li>Destination IP, port, and ASN</li>
+      <li>Frequency and cadence of communication</li>
+      <li>TLS certificate properties and cipher choice</li>
+      <li>How the destination compares to historical traffic</li>
+    </ul>
+  </div>
+</div>
+
+<CaseStudy
+  title="A beacon hiding in HTTPS"
+  scenario="A workstation initiates outbound HTTPS connections from PowerShell at 03:15 local time."
+>
+
+Correlation reveals three signals that, in isolation, are not decisive:
+
+1. The PowerShell process launched outside the user's normal working hours.
+2. Within seconds, the host established encrypted HTTPS sessions to a domain registered 48 hours earlier.
+3. The destination has low prevalence in historical DNS data and an untrusted TLS certificate.
+
+Together they describe initial compromise and command-and-control. The correlation is the alert.
+
+<Reveal summary="Why no single signal was decisive">
+- PowerShell at 03:00 could be a developer working late.
+- HTTPS to a new domain could be a new SaaS tool.
+- Low-prevalence destinations exist legitimately.
+
+Each indicator on its own would be tuned out as noise. The combination crosses the threshold.
+</Reveal>
+
+</CaseStudy>
+
+---
+
+# Telemetry to analyze
+
+Four primary surfaces, each with its own signal patterns:
+
+<div class="telemetry-grid">
+  <div class="telemetry-card">
+    <div class="telemetry-card__icon">🔎</div>
+    <h4>DNS queries</h4>
+    <ul>
+      <li>Algorithmically generated <DefineTerm term="DGA">Domain Generation Algorithm. A technique where malware computes domain names at runtime so command-and-control servers can rotate quickly to avoid blocklists.</DefineTerm> domains detected via entropy scoring</li>
+      <li>Randomized subdomains</li>
+      <li>Extremely short TTLs or fast-flux patterns</li>
+    </ul>
+  </div>
+  <div class="telemetry-card">
+    <div class="telemetry-card__icon">🔗</div>
+    <h4>Network connections</h4>
+    <ul>
+      <li>Traffic to recently observed external destinations</li>
+      <li>Known malicious ranges from threat intelligence</li>
+      <li>Unusual port usage, uncommon protocols</li>
+    </ul>
+  </div>
+  <div class="telemetry-card">
+    <div class="telemetry-card__icon">📊</div>
+    <h4>Data transfer patterns</h4>
+    <ul>
+      <li>Automated beaconing (consistent packet sizes at consistent intervals)</li>
+      <li>Human-driven traffic is irregular and variable</li>
+      <li>Sustained large outbound transfers off-hours</li>
+    </ul>
+  </div>
+  <div class="telemetry-card">
+    <div class="telemetry-card__icon">🛡️</div>
+    <h4>Protocol usage</h4>
+    <ul>
+      <li>Tunneling or obfuscation (DNS over HTTPS bypassing inspection)</li>
+      <li>TLS abuse (malformed certificates, unusual ciphers)</li>
+      <li>Custom encryption layers</li>
+    </ul>
+  </div>
+</div>
+
+A finance workstation that normally talks only to internal ERP systems and then initiates TLS sessions to a low-reputation cloud storage provider outside business hours is a clear data-exfiltration signal.
+
+---
+
+# Correlation strategies
+
+Three dimensions to weigh on every connection:
+
+<div class="strategy-list">
+  <div class="strategy-item">
+    <span class="strategy-item__num">01</span>
+    <div>
+      <h4>Connection metadata</h4>
+      <p>Timestamps, source and destination IPs, ports, session durations, TLS cipher and handshake behavior.</p>
+    </div>
+  </div>
+  <div class="strategy-item">
+    <span class="strategy-item__num">02</span>
+    <div>
+      <h4>Payload characteristics</h4>
+      <p>Fixed packet sizes, repetitive transmission intervals, hallmarks of automated beaconing.</p>
+    </div>
+  </div>
+  <div class="strategy-item">
+    <span class="strategy-item__num">03</span>
+    <div>
+      <h4>Destination reputation</h4>
+      <p>Domain age, threat intelligence overlap, geographic anomalies, certificate provenance.</p>
+    </div>
+  </div>
+</div>
+
+A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern. Without combining process-level context, network metadata, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
+
+---
+
+# Command-and-control indicators
+
+Adversaries hide C2 inside legitimate protocols (HTTPS, DNS). The automation underneath leaves fingerprints.
+
+<div class="c2-grid">
+  <div class="c2-card">
+    <h4>⏱️ Timing patterns</h4>
+    <p>Frameworks often default to precise beacon intervals. Legitimate traffic rarely has that cadence.</p>
+  </div>
+  <div class="c2-card">
+    <h4>🔐 TLS certificates</h4>
+    <p>Mismatched, self-signed, or generic-CN certificates (impersonated vendor names). Rotating cert chains tied to short-lived infrastructure.</p>
+  </div>
+  <div class="c2-card">
+    <h4>🔎 DNS patterns</h4>
+    <p>High-volume queries for random-looking domains (DGA). Rapid IP rotation tied to a single domain (fast-flux). Domains registered in the last 30 days.</p>
+  </div>
+  <div class="c2-card">
+    <h4>📤 Exfiltration indicators</h4>
+    <p>Large compressed transfers outside normal hours. Outbound spikes to low-reputation destinations.</p>
+  </div>
+</div>
+
+An internal database server that suddenly sends gigabytes of zipped data to a generic cloud storage provider at 02:30 is a strong signal of active data theft. Even if the channel is encrypted, the volume, timing, and destination characterize the intent.
+
+<KeyTakeaway>
+Network correlation moves you from isolated alerts to unified adversary visibility. Identify the intrusion before lateral movement. Map the chain from initial execution to external communication. Containment becomes a question of when, not if.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing/file-system"
+  nextLabel="File system activity"
+  nextDescription="Persistence, payload deployment, ransomware staging, exfiltration preparation. Tracking the file lifecycle and its metadata."
+  ctaLabel="Read file system"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.perspective-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .perspective-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.perspective-card {
+  padding: 1.5rem 1.75rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--accent, #14b8a6);
+  border-radius: 0.85rem;
+}
+
+.perspective-card--host { --accent: #f97316; }
+.perspective-card--net  { --accent: #14b8a6; }
+
+.perspective-card__label {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+  border: 1px solid var(--accent);
+}
+
+.perspective-card h3 {
+  margin: 0 0 0.75rem 0;
+  color: #f8fafc;
+  font-size: 1.05rem;
+}
+
+.perspective-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.perspective-card li {
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .telemetry-grid { grid-template-columns: 1fr 1fr; } }
+
+.telemetry-card {
+  padding: 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.telemetry-card__icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.telemetry-card h4 {
+  margin: 0 0 0.6rem 0;
+  color: #5eead4;
+  font-size: 1rem;
+}
+
+.telemetry-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.telemetry-card li {
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.25rem 0;
+}
+
+.strategy-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+
+.strategy-item__num {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #14b8a6, #3b82f6);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.strategy-item h4 {
+  margin: 0 0 0.3rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.strategy-item p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.c2-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .c2-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .c2-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.c2-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #ef4444;
+  border-radius: 0.6rem;
+}
+
+.c2-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #fca5a5;
+  font-size: 0.95rem;
+}
+
+.c2-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+`}
+</style>

@@ -1,0 +1,64 @@
+---
+title: "Data sources for evidence gathering"
+description: "The 15+ telemetry sources an Uncover investigation can pull from, and what each one is best at."
+slug: "uncover/data-sources"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="01"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="Most investigations need evidence from multiple telemetry surfaces. Knowing which source captures which question is the prerequisite to running fast, focused queries."
+/>
+
+<PillNav label="Uncover chapter" current="/docs/uncover/data-sources" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+# The sources that matter
+
+<div class="src-grid">
+  <div class="src"><h4>📋 Security event logs</h4><p>SIEM-collected events from across the environment. The first place most investigations start.</p></div>
+  <div class="src"><h4>💻 EDR logs</h4><p>Process creation, command lines, network connections, file changes at the endpoint level.</p></div>
+  <div class="src"><h4>🌐 Network traffic</h4><p>NetFlow, DNS queries, proxy logs, firewall logs. Where the perimeter sees what endpoints cannot.</p></div>
+  <div class="src"><h4>🔑 Identity and access (IAM)</h4><p>Authentication events, SSO, role assumption, privilege grants.</p></div>
+  <div class="src"><h4>☁️ Cloud activity logs</h4><p>AWS CloudTrail, Azure Activity, GCP audit. API calls and configuration changes.</p></div>
+  <div class="src"><h4>🌐 Threat intelligence feeds</h4><p>IoCs and TTPs from external sources. Useful as enrichment, less useful as primary evidence.</p></div>
+  <div class="src"><h4>🛡️ Vulnerability and patch logs</h4><p>What is exposed and what is patched. Context for prioritization.</p></div>
+  <div class="src"><h4>📁 File integrity monitoring (FIM)</h4><p>Changes to critical files and configurations. Tampering signals.</p></div>
+  <div class="src"><h4>📧 Email security logs</h4><p>Inbound/outbound message metadata, attachment scanning results, URL rewriting outcomes.</p></div>
+  <div class="src"><h4>🗄️ Application and database logs</h4><p>What the app saw. Often the only place to find row-level access events.</p></div>
+  <div class="src"><h4>📚 Configuration management / asset inventory</h4><p>What systems exist, who owns them, what they are for. Context for every other source.</p></div>
+  <div class="src"><h4>🚫 Data loss prevention (DLP)</h4><p>What sensitive data moved where. Especially useful for exfiltration cases.</p></div>
+  <div class="src"><h4>🍯 Deception / honeypot logs</h4><p>If anything touched the honeypot, that is high-confidence adversary behavior.</p></div>
+  <div class="src"><h4>💾 Backup and snapshot metadata</h4><p>When systems were last clean. Important for response planning and timeline anchoring.</p></div>
+  <div class="src"><h4>🏢 Physical security and access control</h4><p>Badge swipes, camera events. Especially relevant in insider cases.</p></div>
+</div>
+
+<KeyTakeaway>
+The skill is not knowing every source by heart. The skill is asking "which source could answer this question?" and reaching for it deliberately. Most investigations need three to five sources in combination.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence" nextLabel="Threat intelligence" ctaLabel="Read threat intelligence" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "soon", escalation: "soon", documentation: "soon" }}/>
+
+<style>
+{`
+.src-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.5rem 0; }
+@media (min-width: 640px)  { .src-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .src-grid { grid-template-columns: repeat(3, 1fr); } }
+.src { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #f97316; border-radius: 0.55rem; }
+.src h4 { margin: 0 0 0.3rem 0; color: #fdba74; font-size: 0.93rem; }
+.src p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.85rem; }
+`}
+</style>

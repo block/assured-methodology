@@ -1,457 +1,247 @@
 ---
-title: "Getting Started"
-description: "An overview of the ASSURED methodology for security event triage and investigation"
+title: "The methodology"
+description: "An introduction to ASSURED, a structured, repeatable methodology for security event triage."
 slug: "intro"
 ---
 
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Stat from "@/components/assured/Stat.astro";
+import LetterChip from "@/components/assured/LetterChip.astro";
+import AnimatedPhaseDiagram from "@/components/assured/AnimatedPhaseDiagram.astro";
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import FlipCard from "@/components/assured/FlipCard.astro";
+
+A security alert is a question the detection engine is asking. The analyst's job is to answer it: is this real, is it malicious, how serious is it, and what should happen next? Event triage is the work of answering those questions with confidence, and it is a distinct skill from broader incident response. ASSURED is a structured, repeatable methodology for doing that work consistently.
+
+The methodology gets its name from the seven components an analyst moves through: **A**lert, **S**ubject, **S**cope, **U**ncover, **R**isk, **E**scalation, and **D**ocumentation. Each one answers a single, specific question. Together they cover the full arc of a triage investigation, from the moment an alert fires to the moment the analyst hands off (or closes) the case.
+
+<div class="intro-stats">
+  <Stat value="7" label="Components" />
+  <Stat value="3" label="Phases" />
+  <Stat value="1" label="Question per letter" />
+</div>
+
+<Callout variant="info" title="Why ASSURED, why now">
+Incident response frameworks like NIST 800-61, SANS PICERL, and MITRE ATT&CK describe what to do once you already know what you are looking at. Event triage is the work before that, and most analysts learn it informally on the job. ASSURED gives that informal craft a structure that scales: scaffolding for newer analysts, a checklist for experienced ones, and a shared vocabulary for handoff and review.
+</Callout>
+
 ---
 
-# ASSURED Methodology Overview
+# The shape of an investigation
 
-The ASSURED methodology provides a structured, comprehensive framework for security analysts to systematically triage, investigate, and resolve security events. 
-By organizing seven essential components across three distinct phases, ASSURED establishes a logical, repeatable progression from initial alert to final documentation. 
-This methodology is designed to address the increasing complexity of modern security environments, enabling analysts to respond to threats effectively while maintaining operational efficiency and consistency.
+The seven components group into three phases. Each phase answers a question. Each component is a step within its phase. Scroll into the diagram below and the pieces will assemble themselves to show how the flow works.
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 mb-8">
-  <div class="text-center p-4 bg-white rounded-lg">
-    📋 <br />
-    <strong>7 Components</strong>
+<AnimatedPhaseDiagram />
+
+<div class="intro-phases">
+  <div class="intro-phase">
+    <div class="intro-phase__num">1</div>
+    <div>
+      ### Preparation and context
+      *What fired, who is involved, and where are the lines of the investigation?* The first phase establishes the foundation. Without it, every later step is built on a guess.
+      <div class="intro-phase__chips">
+        <span class="intro-phase__chip"><LetterChip letter="A" phase="alert" size="sm" /> Alert</span>
+        <span class="intro-phase__chip"><LetterChip letter="S" phase="subject" size="sm" /> Subject</span>
+        <span class="intro-phase__chip"><LetterChip letter="S" phase="scope" size="sm" /> Scope</span>
+      </div>
+    </div>
   </div>
-  <div class="text-center p-4 bg-white rounded-lg">
-    🔄 <br />
-    <strong>3 Phases</strong>
+
+  <div class="intro-phase">
+    <div class="intro-phase__num">2</div>
+    <div>
+      ### Investigation and assessment
+      *What does the evidence say, and how serious is the result?* The second phase pulls in telemetry, correlates it across systems, and decides how to prioritize what was found.
+      <div class="intro-phase__chips">
+        <span class="intro-phase__chip"><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span>
+        <span class="intro-phase__chip"><LetterChip letter="R" phase="risk" size="sm" /> Risk</span>
+      </div>
+    </div>
   </div>
-  <div class="text-center p-4 bg-white rounded-lg">
-    ⚡ <br />
-    <strong>Systematic Approach</strong>
+
+  <div class="intro-phase">
+    <div class="intro-phase__num">3</div>
+    <div>
+      ### Resolution and documentation
+      *Who needs to know about this, and what should the team learn from it?* The final phase produces the handoff or the closure record so the work survives the analyst who did it.
+      <div class="intro-phase__chips">
+        <span class="intro-phase__chip"><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span>
+        <span class="intro-phase__chip"><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span>
+      </div>
+    </div>
   </div>
 </div>
 
-Each component builds on the previous one, ensuring analysts develop a complete understanding of security events before determining appropriate responses. 
-The methodology supports automation, cognitive efficiency, process standardization, and scalability: critical attributes for modern security operations.
+<Callout variant="info" title="The loop is intentional">
+Triage is not strictly linear. Risk findings often send the analyst back to Uncover for more evidence. Uncover sometimes reveals new subjects the original alert never mentioned. Discovering a new subject can change the scope of the entire investigation. The dashed feedback arrow in the diagram represents that flow, and embracing it is part of the methodology.
+</Callout>
 
-<div class="methodology-diagram my-12 p-8 bg-white rounded-xl">
-  <svg width="100%" height="400" viewBox="0 0 800 310" className="max-w-full h-auto">
-    
-    {/* Phase Level Label */}
-    <text x="8" y="60" fill="#1f2937">Phases</text>
-    
-    {/* Phase 1 - Preparation */}
-    <rect x="90" y="20" width="200" height="80" rx="12" fill="#22c55e" stroke="#1f2937"/>
-    <text x="125" y="55" fill="white">Preparation and</text>
-    <text x="100" y="75" fill="white">Contextualization Phase</text>
-    
-    {/* Arrow 1 */}
-    <path d="M 295 60 L 315 60" stroke="#1f2937"/>
-    
-    {/* Phase 2 - Investigation */}
-    <rect x="320" y="20" width="200" height="80" rx="12" fill="#3b82f6" stroke="#1f2937"/>
-    <text x="355" y="55" fill="white">Investigation and</text>
-    <text x="350" y="75" fill="white">Assessment Phase</text>
-    
-    {/* Arrow 2 */}
-    <path d="M 525 60 L 545 60" stroke="#1f2937"/>
-    
-    {/* Phase 3 - Resolution */}
-    <rect x="550" y="20" width="200" height="80" rx="12" fill="#f59e0b" stroke="#1f2937"/>
-    <text x="590" y="55" fill="white">Resolution and</text>
-    <text x="575" y="75" fill="white">Documentation Phase</text>
-    
-    {/* Components Level Label */}
-    <text x="0" y="215" fill="#1f2937">Components</text>
-    
-    {/* Alert */}
-    <rect x="50" y="130" width="110" height="60" rx="8" fill="#22c55e" stroke="#1f2937"/>
-    <text x="85" y="165" fill="white">Alert</text>
-    
-    {/* Subject */}
-    <rect x="50" y="230" width="110" height="60" rx="8" fill="#22c55e" stroke="#1f2937"/>
-    <text x="75" y="265" fill="white">Subject</text>
-    
-    {/* Arrow from Alert/Subject to Scope */}
-    <path d="M 160 160 L 175 160 L 175 210 L 190 210" stroke="#1f2937" fill="none"/>
-    <path d="M 160 260 L 175 260 L 175 210 L 190 210" stroke="#1f2937" fill="none"/>
-    
-    {/* Scope */}
-    <rect x="190" y="180" width="110" height="60" rx="8" fill="#22c55e" stroke="#1f2937"/>
-    <text x="220" y="215" fill="white">Scope</text>
-    
-    {/* Arrow from Scope to Uncover */}
-    <path d="M 300 210 L 312 210" stroke="#1f2937"/>
-    
-    {/* Uncover */}
-    <rect x="312" y="180" width="100" height="60" rx="8" fill="#3b82f6" stroke="#1f2937"/>
-    <text x="332" y="215" fill="white">Uncover</text>
-    
-    {/* Arrow from Uncover to Risk */}
-    <path d="M 412 210 L 424 210" stroke="#1f2937"/>
-    
-    {/* Risk */}
-    <rect x="424" y="180" width="100" height="60" rx="8" fill="#3b82f6" stroke="#1f2937"/>
-    <text x="457" y="215" fill="white">Risk</text>
-    
-    {/* Arrow from Risk to Escalation */}
-    <path d="M 524 210 L 536 210" stroke="#1f2937"/>
-    
-    {/* Escalation */}
-    <rect x="536" y="180" width="100" height="60" rx="8" fill="#f59e0b" stroke="#1f2937" strokeWidth="2"/>
-    <text x="550" y="215" fill="white">Escalation</text>
-    
-    {/* Arrow from Escalation to Documentation */}
-    <path d="M 636 210 L 648 210" stroke="#1f2937"/>
-    
-    {/* Documentation */}
-    <rect x="648" y="180" width="115" height="60" rx="8" fill="#f59e0b" stroke="#1f2937"/>
-    <text x="650" y="215" fill="white">Documentation</text>
-    
-    {/* Feedback Loop */}
-    <path d="M 480 240 Q 480 280 370 280 Q 250 280 250 240" stroke="#1f2937" fill="none"/>
-    <text x="315" y="300" fill="#1f2937">Feedback Loop</text>
-  </svg>
-</div>
-
-<div class="methodology-phases grid gap-6 my-8">
-
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-xl mr-4">1</div>
-      <div>
-        ### Phase 1: Preparation & Context
-        Establishes the foundation for investigation by identifying alert sources, evaluating affected assets, and determining investigation boundaries.
-      </div>
-    </div>
-  
-    <div class="flex flex-wrap justify-center gap-3">
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3"><strong>A</strong></span>
-        <div>
-          <strong>Alert</strong><br />
-          Understand detection logic, validate triggers, and identify alert origins.
-        </div>
-      </div>
-    
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3"><strong>S</strong></span>
-        <div>
-          <strong>Subject</strong><br />
-          Analyze affected entities (users, hosts, applications), including authentication, authorization, and behavioral baselines.
-        </div>
-      </div>
-    
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3"><strong>S</strong></span>
-        <div>
-          <strong>Scope</strong><br />
-          Define investigation boundaries, affected systems, and potential lateral impact.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-xl mr-4">2</div>
-      <div>
-        ### Phase 2: Investigation & Assessment
-        Collects and correlates telemetry from multiple sources, identifies attack patterns, and quantitatively assesses potential impact and threat severity.
-      </div>
-    </div>
-  
-    <div class="flex flex-wrap justify-center gap-3">
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3"><strong>U</strong></span>
-        <div>
-          <strong>Uncover</strong><br />
-          Systematically gather evidence, correlate data, identify anomalies, and determine root causes.
-        </div>
-      </div>
-    
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3"><strong>R</strong></span>
-        <div>
-          <strong>Risk</strong><br />
-          Evaluate threat severity using asset criticality, potential impact, attack sophistication, and likelihood, enabling prioritization of response actions.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-xl mr-4">3</div>
-      <div>
-        ### Phase 3: Resolution & Documentation
-        Determines escalation paths and ensures complete documentation of actions, decisions, and lessons learned.
-      </div>
-    </div>
-  
-    <div class="flex flex-wrap justify-center gap-3">
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3"><strong>E</strong></span>
-        <div>
-          <strong>Escalation</strong><br />
-          Identify when and how to escalate incidents to higher-tier analysts or response teams.
-        </div>
-      </div>
-    
-      <div class="inline-flex items-center p-3 bg-white rounded-lg">
-        <span class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3"><strong>D</strong></span>
-        <div>
-          <strong>Documentation</strong><br />
-          Maintain comprehensive records of investigative steps, evidence, and remediation actions for post-incident analysis, trend identification, and regulatory compliance.
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<br />
 ---
 
-# Current Challenges in Event Triage
+# Why event triage deserves its own method
 
-Security analysts face multiple obstacles that impede timely, accurate event triage:
+Security analysts at every level of experience face the same recurring problems. ASSURED is shaped by those realities, and each phase is designed to address one or more of them directly. Tap any card below to read the full picture.
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-  <div>
-    #### 📊 Data Overload
-    High alert volumes from heterogeneous sources overwhelm analysts, increasing risk of critical events being missed.
-  </div>
-  <div>
-    #### ⚙️ Technological Complexity
-    Multi-cloud environments, hybrid data centers, containerized applications, and serverless architectures complicate data correlation and investigation.
-  </div>
-  <div>
-    #### 🎯 Evolving Threat Landscape
-    Advanced persistent threats, insider threats, polymorphic malware, and social engineering tactics bypass traditional detection.
-  </div>
-  <div>
-    #### 📋 Regulatory Pressures
-    Requirements from GDPR, PCI-DSS, HIPAA, and others demand detailed documentation, timely notifications, and adherence to controls.
-  </div>
-  <div>
-    #### 👥 Operational Burdens
-    Analysts must manage multiple tools (SIEM, SOAR, EDR) while maintaining 24/7 coverage with limited staffing.
-  </div>
-  <div>
-    #### 📈 Scalability Constraints
-    Legacy triage processes cannot keep up with increasing alert volumes, causing delays and quality degradation.
-  </div>
-  <div>
-    #### 🔢 Lack of Prioritization
-    Without systematic risk scoring, critical alerts may not receive timely attention.
-  </div>
-  <div>
-    #### 📝 Documentation Gaps
-    Inconsistent record-keeping hinders post-mortems, trend analysis, and compliance audits.
-  </div>
+<div class="intro-flips">
+  <FlipCard icon="📊" title="Data overload" accent="blue">
+    Modern SOCs see thousands of alerts per day from heterogeneous sources, and a small fraction of them describe real threats. Without a structured way to separate signal from noise, the events that matter get buried in the volume. ASSURED's Alert and Validation steps focus on reducing that noise quickly.
+  </FlipCard>
+
+  <FlipCard icon="⚙️" title="Tooling sprawl" accent="teal">
+    Telemetry lives across multi-cloud environments, hybrid datacenters, container platforms, and serverless functions. The data correlates poorly across tool boundaries by default. ASSURED's Uncover phase makes that cross-tool correlation a deliberate step, not an afterthought.
+  </FlipCard>
+
+  <FlipCard icon="🎯" title="Adversaries adapt" accent="red">
+    Modern intrusions use living-off-the-land techniques, polymorphic payloads, and social engineering. The activity looks like normal operations. ASSURED's behavioral and contextual analysis is designed to catch what static signatures cannot.
+  </FlipCard>
+
+  <FlipCard icon="📋" title="Regulatory pressure" accent="purple">
+    Investigations now carry compliance obligations alongside the security work. GDPR, PCI-DSS, HIPAA, and SOX each impose requirements on documentation, notification, and handling. The Scope and Documentation phases make those obligations explicit at the right step.
+  </FlipCard>
+
+  <FlipCard icon="🧠" title="Cognitive load" accent="orange">
+    Analysts juggle SIEM, SOAR, EDR, identity systems, and cloud consoles, sometimes within a single investigation. Context switching erodes accuracy and accelerates fatigue. ASSURED is designed to reduce mental overhead by giving each step a single question to answer.
+  </FlipCard>
+
+  <FlipCard icon="📝" title="Documentation gaps" accent="indigo">
+    Inconsistent records make post-mortems painful, trend analysis impossible, and audits stressful. The Documentation phase is the final step for a reason: capturing decisions and reasoning is what makes the work survive its closure.
+  </FlipCard>
 </div>
 
-<br />
 ---
 
-# How ASSURED Addresses Current Challenges
+# Goals of the methodology
 
-The ASSURED methodology provides targeted solutions to modern SOC challenges:
+<div class="intro-flips">
+  <FlipCard icon="🤖" title="Strategic automation" accent="teal">
+    Each phase highlights what is safe to automate and what requires human judgment. Automation handles the repetitive work (enrichment, correlation, scoring) so analysts can spend their time on the decisions that actually need a person.
+  </FlipCard>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-  <div>
-    #### ⚙️ Adapts to Technological Complexity 
-    Modular triage steps integrate seamlessly across diverse platforms, maintaining investigative cohesion.
-  </div>
-  <div>
-    #### 📊 Reduces Data Overload
-    Automated alert de-duplication, contextual enrichment, and dynamic prioritization focus analyst attention on high-risk events.
-  </div>
-  <div>
-    #### 🎯 Enhances Threat Response
-    Behavioral analytics and threat intelligence enable early detection of sophisticated attack patterns.
-  </div>
-  <div>
-    #### 📋 Supports Compliance
-    Standardized playbooks and automated documentation ensure adherence to regulatory requirements.
-  </div>
-  <div>
-    #### 👥 Alleviates Operational Burdens
-    Routine tasks are automated, allowing analysts to focus on complex investigative decisions.
-  </div>
-  <div>
-    #### 📈 Scales with Volume
-    Automation combined with human expertise maintains triage quality under rising alert loads.
-  </div>
-  <div>
-    #### 🔢 Improves Prioritization
-    Risk scoring based on asset criticality, threat context, and behavioral anomalies guides action.
-  </div>
-  <div>
-    #### 📝 Ensures Consistent Documentation
-    All investigative decisions, evidence, and remediation steps are recorded for accountability and continuous improvement.
-  </div>
+  <FlipCard icon="📐" title="Process consistency" accent="blue">
+    Two analysts working the same alert with the same methodology produce comparable outputs. That makes training easier, escalation cleaner, and audits less stressful. The shared vocabulary is the consistency layer.
+  </FlipCard>
+
+  <FlipCard icon="🧭" title="Reduced cognitive load" accent="green">
+    Each component has a clear question to answer. Analysts are not asking "what do I do next" because the methodology tells them, even on an unfamiliar alert type. The structure does the orienting so the analyst can spend their attention on the evidence.
+  </FlipCard>
+
+  <FlipCard icon="📈" title="Scales with the team" accent="indigo">
+    ASSURED works for a one-person SOC and for a follow-the-sun team of forty. Feedback loops keep the framework usable as detection logic evolves and as the team grows. The method does not depend on team size or tooling specifics.
+  </FlipCard>
 </div>
 
-<br />
 ---
 
-# Methodology Goals
+# Where to start
 
-ASSURED achieves its impact through four integrated objectives:
+<KeyTakeaway title="Recommended path">
+Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so each step builds on the previous one. The first chapter, **Alert**, is fully written. The rest are being added.
+</KeyTakeaway>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-8">
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center text-xl mr-4">🤖</div>
-      <div>
-        #### Strategic Automation
-      </div>
-    </div>
-    Automates repetitive, low-value tasks to reduce human error and accelerate triage cycles. 
-    Analysts focus on complex judgments, while automated workflows adapt to emerging threat patterns.  
-    <br />
-    <div class="bg-white rounded-lg p-4">
-      <div class="space-y-2">
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Reduces human error</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Accelerates triage cycles</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Maintains consistent execution quality</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<PuzzleProgress
+  current="alert"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
 
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center text-xl mr-4">⚙️</div>
-      <div>
-        #### Process Efficiency and Consistency
-      </div>
-    </div>
-    Standardized workflows and documentation support repeatable, high-quality investigations, institutional knowledge retention, and regulatory compliance.
-    <br />
-    <br />
-    <div class="bg-white rounded-lg p-4">
-      <div class="space-y-2">
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Minimizes process redundancy</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Improves knowledge retention</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Supports trend analysis</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center text-xl mr-4">🧠</div>
-      <div>
-        #### Reducing Cognitive Load and Enhancing Decision-Making
-      </div>
-    </div>
-    Contextual enrichment and intuitive data presentation guide analysts to the most relevant insights, improving decision accuracy and prioritization.
-    <br />
-    <div class="bg-white rounded-lg p-4">
-      <div class="space-y-2">
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Decreases analyst fatigue</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Improves decision accuracy</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Enables effective prioritization</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="flex items-center mb-4">
-      <div class="w-12 h-12 rounded-lg flex items-center justify-center mr-4">📈</div>
-      <div>
-        #### Scalability and Future-Proofing
-      </div>
-    </div>
-    Modular, adaptable workflows ensure effective triage as alert volumes grow. 
-    Feedback loops refine automation, integrate new detection mechanisms, and maintain operational agility.
-    <br />
-    <div class="bg-white rounded-lg p-4">
-      <div class="space-y-2">
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Accommodates growing data volumes</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Integrates new detection mechanisms</span>
-        </div>
-        <div class="flex items-center">
-          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center mr-2">✓</span>
-          <span>Preserves operational agility</span>
-        </div>
-      </div>
-    </div>
-  </div>
+<div class="intro-cta">
+  <a href="/docs/alert" class="assured-cta">
+    Begin with A. Alert
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14"></path>
+      <path d="M13 5l7 7-7 7"></path>
+    </svg>
+  </a>
 </div>
 
-<br />
----
+<style>
+{`
+.intro-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+  max-width: 36rem;
+}
 
-# Ready to Begin?
+.intro-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
 
-<div class="cta-section text-center">
-  <div>
-    <h3 class="text-2xl font-bold mb-4">🚀 Start Your ASSURED Journey</h3>
-    <p class="max-w-2xl mx-auto">
-      Ready to implement a structured approach to security event triage?
-    </p>
-  </div>
-  
-  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">✓</span>
-      <span class = "font-semibold">Systematic Approach</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">✓</span>
-      <span class = "font-semibold">Proven Framework</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">✓</span>
-      <span class = "font-semibold">Scalable Implementation</span>
-    </div>
-  </div>
-  
-  <div class="bg-white rounded-lg p-4 max-w-lg mx-auto mb-6">
-    "A structured approach to triage leads to a stronger, more resilient security team."
-  </div>
-  
-  <div class="mb-8">
-    <p class="font-semibold">Let's begin the journey toward more effective security operations.</p>
-  </div>
-  
-  <div>
-    <a href="/docs/alert" class="inline-flex items-center px-8 py-4 font-semibold rounded-lg">
-      <span class="mr-2">Begin with Phase 1: Alert</span>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-      </svg>
-    </a>
-  </div>
-  
-</div>
+.intro-phase {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.intro-phase__num {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.intro-phase h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.intro-phase__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.intro-phase__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.intro-flips {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+@media (min-width: 640px)  { .intro-flips { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .intro-flips { grid-template-columns: repeat(3, 1fr); } }
+
+.intro-cta {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+`}
+</style>

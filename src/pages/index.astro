@@ -1,524 +1,448 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import FeatureCard from "@/components/block/FeatureCard.astro";
-import Hero from "@/components/block/Hero.astro";
+import HeroPuzzle from "@/components/assured/HeroPuzzle.astro";
+import ChapterCard from "@/components/assured/ChapterCard.astro";
+import FlipCard from "@/components/assured/FlipCard.astro";
+
+const chapterStatus = {
+  alert: "live",
+  subject: "live",
+  scope: "live",
+  uncover: "live",
+  risk: "live",
+  escalation: "live",
+  documentation: "live",
+} as const;
 ---
 
 <BaseLayout
-  title="ASSURED Methodology"
-  description="A Structured Methodology for Event Triage and Investigation."
+  title="ASSURED: Triage with confidence"
+  description="ASSURED is a structured, repeatable methodology for security event triage. Turn raw alerts into clear decisions, fast."
 >
-  <div class="relative min-h-[calc(100vh-4rem)] overflow-hidden" style="background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #475569 50%, #334155 75%, #1e293b 100%) !important;">
-    <!-- Cybersecurity Background Elements -->
-    <div class="absolute inset-0 bg-cyber-pattern" style="opacity: 0.15;"></div>
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="cyber-orb"></div>
+  <!-- HERO -->
+  <section class="home-hero">
+    <div class="home-hero__inner">
+      <span class="home-hero__overline">A · S · S · U · R · E · D</span>
+
+      <h1 class="home-hero__headline">
+        Triage with confidence.
+        <span class="home-hero__accent">Assemble the puzzle.</span>
+      </h1>
+
+      <p class="home-hero__lede">
+        ASSURED is a structured, repeatable methodology for security event
+        triage. Each alert is its own puzzle, and the analyst's job is to
+        assemble just enough of the picture to know what they are looking at
+        and what to do next. Seven components, three phases, one consistent
+        way to work.
+      </p>
+
+      <div class="home-hero__cta-row">
+        <a href="/docs/intro" class="assured-cta">
+          Read the introduction
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="M13 5l7 7-7 7"></path>
+          </svg>
+        </a>
+        <a href="/docs/alert" class="assured-cta assured-cta--ghost">
+          Jump to the Alert chapter
+        </a>
+      </div>
+
+      <HeroPuzzle />
     </div>
 
-    <Hero
-      image="/images/methodology.png"
-      headline="ASSURED Methodology for Event Triage"
-      cta="Explore the Methodology">
+    <div class="home-hero__decor" aria-hidden="true"></div>
+  </section>
 
-      A comprehensive, scalable framework for security analysts to triage, investigate, and document
-      events with clarity, context, and confidence. Transform your incident response with structured,
-      systematic approaches that ensure nothing is missed.
+  <!-- WHY ASSURED -->
+  <section class="home-section home-section--alt">
+    <div class="home-section__inner">
+      <header class="home-section__head">
+        <span class="home-section__overline">Why this exists</span>
+        <h2 class="home-section__title">
+          Most frameworks tell you what to do <em>after</em> you already know
+          what you are looking at.
+        </h2>
+        <p class="home-section__lede">
+          ASSURED is about the step before that. Event triage is a distinct
+          skill, separate from the broader incident response work it feeds
+          into, and until now it did not have a dedicated method that
+          analysts could learn, teach, and refine.
+        </p>
+        <p class="home-section__hint">Tap any card to see the full picture.</p>
+      </header>
 
-    </Hero>
+      <div class="flip-grid">
+        <FlipCard icon="🕒" title="A method for the first 30 minutes" accent="teal">
+          NIST, SANS PICERL, and MITRE ATT&CK describe a complete response
+          once you already have the picture. ASSURED gives you a repeatable
+          way to *build* that picture, alert by alert, in the critical
+          window before an incident is declared.
+        </FlipCard>
 
-    <!-- Steps Section -->
-    <section class="container relative py-20 space-y-32">
-      <!-- Step 1: Alert -->
-      <FeatureCard
-        label="A - Alert"
-        headline="Understanding Detection Logic"
-        description="Thoroughly understand detection mechanisms and trigger conditions behind security notifications to establish investigation foundation."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Alert Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Detection Logic: The Analyst's Priority</li>
-              <li>Detection Mechanisms</li>
-              <li>Alert Validation</li>
-              <li>Parsing Alerts</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Alert/Notification themed floating elements -->
-              <div class="absolute top-8 left-8 w-16 h-16 bg-blue-400/60 rounded-full animate-pulse"></div>
-              <div class="absolute top-16 right-12 w-12 h-12 bg-blue-300/50 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-12 left-16 w-8 h-8 bg-blue-500/70 rounded-full animate-ping"></div>
-              <div class="absolute bottom-8 right-8 w-20 h-20 bg-blue-200/40 rounded-full animate-pulse"></div>
-              <!-- Central alert illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-blue-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Security monitoring dashboard illustration -->
-                  <rect x="10" y="15" width="80" height="50" rx="5" fill="currentColor" opacity="0.4"/>
-                  <rect x="15" y="20" width="70" height="8" rx="2" fill="currentColor"/>
-                  <rect x="15" y="32" width="50" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="15" y="42" width="60" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="15" y="52" width="40" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <!-- Alert indicators -->
-                  <circle cx="75" cy="25" r="3" fill="#ff4444"/>
-                  <circle cx="85" cy="35" r="2" fill="#ffaa44"/>
-                  <circle cx="80" cy="45" r="2" fill="#44ff44"/>
-                  <!-- Signal waves -->
-                  <path d="M20 75 Q30 65 40 75 Q50 85 60 75" stroke="currentColor" stroke-width="2" fill="none" opacity="0.8"/>
-                  <path d="M25 80 Q35 70 45 80 Q55 90 65 80" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.6"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
+        <FlipCard icon="🪜" title="Built for mentees and seasoned analysts" accent="blue">
+          Every chapter pairs a concept with the questions a triage analyst
+          should ask and the artifacts they should leave behind. Junior
+          analysts get scaffolding to lean on while their instincts develop.
+          Senior analysts get a checklist that travels with the handoff.
+        </FlipCard>
 
-      <!-- Step 2: Subject -->
-      <FeatureCard
-        label="S - Subject"
-        headline="Identifying Key Entities"
-        description="Systematically identify and analyze key entities involved in security events through multi-dimensional analysis."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Subject Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>The Four Dimensions of Subject Analysis</li>
-              <li>Entity Types and Analysis</li>
-              <li>Behavioral Analysis Framework</li>
-              <li>Insider Analysis</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- User/Entity themed floating elements -->
-              <div class="absolute top-4 left-12 w-12 h-12 bg-green-400/60 rounded-full animate-pulse"></div>
-              <div class="absolute top-12 right-4 w-16 h-16 bg-green-300/50 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-8 left-4 w-8 h-8 bg-green-500/70 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-4 right-12 w-14 h-14 bg-green-200/40 rounded-full animate-ping"></div>
-              <!-- Central user analysis illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-green-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- User profile with analysis elements -->
-                  <circle cx="50" cy="30" r="12" fill="currentColor" opacity="0.8"/>
-                  <path d="M30 60 Q50 45 70 60 L70 80 Q50 75 30 80 Z" fill="currentColor" opacity="0.8"/>
-                  <!-- Analysis connections -->
-                  <circle cx="20" cy="25" r="4" fill="#44ff44" opacity="0.8"/>
-                  <circle cx="80" cy="35" r="4" fill="#44ff44" opacity="0.8"/>
-                  <circle cx="15" cy="60" r="3" fill="#44ff44" opacity="0.8"/>
-                  <circle cx="85" cy="55" r="3" fill="#44ff44" opacity="0.8"/>
-                  <!-- Connection lines -->
-                  <path d="M20 25 Q35 27 50 30" stroke="#44ff44" stroke-width="2" fill="none" opacity="0.7"/>
-                  <path d="M80 35 Q65 32 50 30" stroke="#44ff44" stroke-width="2" fill="none" opacity="0.7"/>
-                  <path d="M15 60 Q25 55 30 60" stroke="#44ff44" stroke-width="2" fill="none" opacity="0.7"/>
-                  <path d="M85 55 Q75 57 70 60" stroke="#44ff44" stroke-width="2" fill="none" opacity="0.7"/>
-                  <!-- Data points -->
-                  <rect x="10" y="85" width="6" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="20" y="85" width="6" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="30" y="85" width="6" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-
-      <!-- Step 3: Scope -->
-      <FeatureCard
-        label="S - Scope"
-        headline="Defining Investigation Boundaries"
-        description="Establish clear investigation boundaries, regulatory requirements, and parameters to focus investigative efforts effectively."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Scope Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Regulatory Requirements</li>
-              <li>Time-Based Parameters</li>
-              <li>Entity-Based Scopes</li>
-              <li>Tool Integration</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Scope/Boundary themed floating elements -->
-              <div class="absolute top-6 left-6 w-10 h-10 border-2 border-purple-400/60 rounded-full animate-bounce"></div>
-              <div class="absolute top-10 right-6 w-14 h-14 border-2 border-purple-300/50 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-10 left-8 w-6 h-6 border-2 border-purple-500/70 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-6 right-8 w-12 h-12 border-2 border-purple-200/40 rounded-full animate-ping"></div>
-              <!-- Central scope illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-purple-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Investigation scope boundaries -->
-                  <rect x="15" y="20" width="70" height="60" rx="8" fill="none" stroke="currentColor" stroke-width="3" opacity="0.8"/>
-                  <rect x="25" y="30" width="50" height="40" rx="4" fill="currentColor" opacity="0.3"/>
-                  <!-- Scope markers -->
-                  <circle cx="20" cy="25" r="4" fill="#aa44ff" opacity="0.9"/>
-                  <circle cx="80" cy="25" r="4" fill="#aa44ff" opacity="0.9"/>
-                  <circle cx="20" cy="75" r="4" fill="#aa44ff" opacity="0.9"/>
-                  <circle cx="80" cy="75" r="4" fill="#aa44ff" opacity="0.9"/>
-                  <!-- Central investigation area -->
-                  <circle cx="50" cy="50" r="10" fill="currentColor" opacity="0.5"/>
-                  <circle cx="50" cy="50" r="5" fill="#aa44ff" opacity="0.9"/>
-                  <!-- Scope lines -->
-                  <path d="M20 25 L50 50" stroke="#aa44ff" stroke-width="2" opacity="0.7"/>
-                  <path d="M80 25 L50 50" stroke="#aa44ff" stroke-width="2" opacity="0.7"/>
-                  <path d="M20 75 L50 50" stroke="#aa44ff" stroke-width="2" opacity="0.7"/>
-                  <path d="M80 75 L50 50" stroke="#aa44ff" stroke-width="2" opacity="0.7"/>
-                  <!-- Time markers -->
-                  <rect x="10" y="85" width="8" height="4" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="25" y="85" width="8" height="4" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="40" y="85" width="8" height="4" rx="1" fill="currentColor" opacity="0.8"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-      <!-- Step 4: Uncover -->
-      <FeatureCard
-        label="U - Uncover"
-        headline="The Investigation"
-        description="Systematically collect and correlate telemetry from various sources to identify attack patterns and root causes."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Uncover Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Data Sources for Evidence Gathering</li>
-              <li>Leveraging Threat Intelligence</li>
-              <li>MITRE ATT&CK Framework</li>
-              <li>Investigation Methodology</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Investigation/Search themed floating elements -->
-              <div class="absolute top-8 left-10 w-12 h-12 bg-orange-400/60 rounded-full animate-ping"></div>
-              <div class="absolute top-14 right-8 w-8 h-8 bg-orange-300/50 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-12 left-6 w-10 h-10 bg-orange-500/70 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-8 right-10 w-14 h-14 bg-orange-200/40 rounded-full animate-ping"></div>
-              <!-- Central investigation illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-orange-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Investigation magnifying glass -->
-                  <circle cx="35" cy="35" r="15" fill="none" stroke="currentColor" stroke-width="4" opacity="0.9"/>
-                  <path d="M45 45 L60 60" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
-                  <!-- Evidence collection -->
-                  <rect x="65" y="20" width="12" height="8" rx="2" fill="#ff8844" opacity="0.8"/>
-                  <rect x="70" y="35" width="12" height="8" rx="2" fill="#ff8844" opacity="0.8"/>
-                  <rect x="65" y="50" width="12" height="8" rx="2" fill="#ff8844" opacity="0.8"/>
-                  <!-- Data streams -->
-                  <path d="M50 35 Q60 30 70 35" stroke="#ff8844" stroke-width="3" fill="none" opacity="0.8"/>
-                  <path d="M50 45 Q60 40 70 45" stroke="#ff8844" stroke-width="3" fill="none" opacity="0.8"/>
-                  <path d="M50 55 Q60 50 70 55" stroke="#ff8844" stroke-width="3" fill="none" opacity="0.8"/>
-                  <!-- Network connections -->
-                  <circle cx="20" cy="70" r="5" fill="currentColor" opacity="0.8"/>
-                  <circle cx="40" cy="75" r="5" fill="currentColor" opacity="0.8"/>
-                  <circle cx="60" cy="70" r="5" fill="currentColor" opacity="0.8"/>
-                  <path d="M20 70 L40 75 L60 70" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-      <!-- Step 5: Risk -->
-      <FeatureCard
-        label="R - Risk"
-        headline="Identifying Risk"
-        description="Quantitatively assess potential impact and threat severity to enable priority-based response and decision-making."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Risk Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Framework for Risk Assessment</li>
-              <li>Evaluating Impact and Likelihood</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Risk/Warning themed floating elements -->
-              <div class="absolute top-6 left-8 w-10 h-10 bg-red-400/60 rounded-full animate-bounce"></div>
-              <div class="absolute top-12 right-6 w-12 h-12 bg-red-300/50 rounded-full animate-ping"></div>
-              <div class="absolute bottom-10 left-4 w-8 h-8 bg-red-500/70 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-6 right-8 w-14 h-14 bg-red-200/40 rounded-full animate-bounce"></div>
-              <!-- Central risk assessment illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-red-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Risk assessment matrix -->
-                  <rect x="10" y="10" width="80" height="60" rx="5" fill="none" stroke="currentColor" stroke-width="3" opacity="0.8"/>
-                  <!-- Risk levels -->
-                  <rect x="15" y="15" width="20" height="15" fill="#ff4444" opacity="0.9"/>
-                  <rect x="40" y="15" width="20" height="15" fill="#ff8844" opacity="0.8"/>
-                  <rect x="65" y="15" width="20" height="15" fill="#44ff44" opacity="0.7"/>
-                  <rect x="15" y="35" width="20" height="15" fill="#ff8844" opacity="0.8"/>
-                  <rect x="40" y="35" width="20" height="15" fill="#ffff44" opacity="0.7"/>
-                  <rect x="65" y="35" width="20" height="15" fill="#44ff44" opacity="0.6"/>
-                  <rect x="15" y="55" width="20" height="15" fill="#44ff44" opacity="0.7"/>
-                  <rect x="40" y="55" width="20" height="15" fill="#44ff44" opacity="0.6"/>
-                  <rect x="65" y="55" width="20" height="15" fill="#44ff44" opacity="0.5"/>
-                  <!-- Risk indicators -->
-                  <circle cx="25" cy="22" r="3" fill="white" opacity="0.9"/>
-                  <circle cx="50" cy="22" r="3" fill="white" opacity="0.8"/>
-                  <circle cx="75" cy="22" r="3" fill="white" opacity="0.7"/>
-                  <!-- Impact scale -->
-                  <rect x="10" y="75" width="8" height="4" rx="1" fill="#ff4444" opacity="0.9"/>
-                  <rect x="20" y="75" width="8" height="4" rx="1" fill="#ff8844" opacity="0.8"/>
-                  <rect x="30" y="75" width="8" height="4" rx="1" fill="#ffff44" opacity="0.7"/>
-                  <rect x="40" y="75" width="8" height="4" rx="1" fill="#44ff44" opacity="0.6"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-      <!-- Step 6: Escalation -->
-      <FeatureCard
-        label="E - Escalation"
-        headline="Triage to Broader Response"
-        description="Determine when escalation is necessary and establish appropriate escalation paths for comprehensive incident response."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Escalation Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Criteria for Escalation</li>
-              <li>Internal and External Escalation Protocols</li>
-              <li>Event Triage vs Incident Response</li>
-              <li>Incident Command Structure</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Escalation/Lightning themed floating elements -->
-              <div class="absolute top-4 left-10 w-8 h-8 bg-indigo-400/60 rounded-full animate-ping"></div>
-              <div class="absolute top-10 right-4 w-12 h-12 bg-indigo-300/50 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-8 left-6 w-10 h-10 bg-indigo-500/70 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-4 right-10 w-14 h-14 bg-indigo-200/40 rounded-full animate-ping"></div>
-              <!-- Central escalation illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-indigo-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Escalation pathway -->
-                  <path d="M20 80 Q30 60 40 50 Q50 40 60 30 Q70 20 80 15" stroke="currentColor" stroke-width="4" fill="none" opacity="0.9"/>
-                  <!-- Escalation levels -->
-                  <circle cx="20" cy="80" r="8" fill="#4444ff" opacity="0.9"/>
-                  <circle cx="40" cy="50" r="7" fill="#6666ff" opacity="0.8"/>
-                  <circle cx="60" cy="30" r="6" fill="#8888ff" opacity="0.7"/>
-                  <circle cx="80" cy="15" r="5" fill="#aaaaff" opacity="0.6"/>
-                  <!-- Escalation indicators -->
-                  <path d="M15 75 L25 85" stroke="#4444ff" stroke-width="3" opacity="0.8"/>
-                  <path d="M35 45 L45 55" stroke="#6666ff" stroke-width="3" opacity="0.8"/>
-                  <path d="M55 25 L65 35" stroke="#8888ff" stroke-width="3" opacity="0.8"/>
-                  <path d="M75 10 L85 20" stroke="#aaaaff" stroke-width="3" opacity="0.8"/>
-                  <!-- Response teams -->
-                  <rect x="10" y="85" width="8" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="25" y="85" width="8" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="40" y="85" width="8" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <rect x="55" y="85" width="8" height="6" rx="1" fill="currentColor" opacity="0.8"/>
-                  <!-- Priority arrows -->
-                  <path d="M25 70 L35 60" stroke="#4444ff" stroke-width="3" fill="none" opacity="0.7"/>
-                  <path d="M45 40 L55 30" stroke="#6666ff" stroke-width="3" fill="none" opacity="0.7"/>
-                  <path d="M65 20 L75 10" stroke="#8888ff" stroke-width="3" fill="none" opacity="0.7"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-      <!-- Step 7: Documentation -->
-      <FeatureCard
-        label="D - Documentation"
-        headline="Consistency and Record Keeping"
-        description="Ensure comprehensive documentation of all actions, decisions, and lessons learned for compliance and continuous improvement."
-      >
-          <div class="rounded-lg p-4 border border-gray-300 text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm">
-            <h4 class="font-semibold mb-3">Documentation Chapter Sections</h4>
-            <ul class="space-y-2 text-sm list-disc list-inside">
-              <li>Standards for Documentation Consistency</li>
-              <li>Templates for Efficient Recording</li>
-              <li>Documentation Pitfalls</li>
-            </ul>
-          </div>
-        <div slot="content">
-          <div class="flex justify-center items-center h-96 w-full">
-            <div class="w-80 h-80 relative">
-              <!-- Documentation themed floating elements -->
-              <div class="absolute top-6 left-8 w-10 h-10 bg-teal-400/60 rounded-full animate-bounce"></div>
-              <div class="absolute top-12 right-6 w-12 h-12 bg-teal-300/50 rounded-full animate-pulse"></div>
-              <div class="absolute bottom-10 left-4 w-8 h-8 bg-teal-500/70 rounded-full animate-bounce"></div>
-              <div class="absolute bottom-6 right-8 w-14 h-14 bg-teal-200/40 rounded-full animate-ping"></div>
-              <!-- Central documentation illustration - much larger and no background -->
-              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center">
-                <svg class="w-56 h-56 text-teal-300" viewBox="0 0 100 100" fill="currentColor">
-                  <!-- Documentation stack -->
-                  <rect x="20" y="15" width="25" height="35" rx="3" fill="currentColor" opacity="0.9"/>
-                  <rect x="25" y="20" width="25" height="35" rx="3" fill="currentColor" opacity="0.7"/>
-                  <rect x="30" y="25" width="25" height="35" rx="3" fill="currentColor" opacity="0.5"/>
-                  <!-- Document content lines -->
-                  <rect x="25" y="30" width="15" height="2" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="25" y="35" width="12" height="2" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="25" y="40" width="18" height="2" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="30" y="35" width="10" height="2" rx="1" fill="#44ffff" opacity="0.6"/>
-                  <rect x="30" y="40" width="14" height="2" rx="1" fill="#44ffff" opacity="0.6"/>
-                  <rect x="30" y="45" width="8" height="2" rx="1" fill="#44ffff" opacity="0.6"/>
-                  <!-- Filing system -->
-                  <rect x="65" y="20" width="20" height="8" rx="2" fill="currentColor" opacity="0.8"/>
-                  <rect x="65" y="32" width="20" height="8" rx="2" fill="currentColor" opacity="0.8"/>
-                  <rect x="65" y="44" width="20" height="8" rx="2" fill="currentColor" opacity="0.8"/>
-                  <rect x="65" y="56" width="20" height="8" rx="2" fill="currentColor" opacity="0.8"/>
-                  <!-- Document labels -->
-                  <rect x="10" y="75" width="12" height="4" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="25" y="75" width="12" height="4" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="40" y="75" width="12" height="4" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <rect x="55" y="75" width="12" height="4" rx="1" fill="#44ffff" opacity="0.8"/>
-                  <!-- Archive connections -->
-                  <path d="M55 35 L65 35" stroke="#44ffff" stroke-width="2" opacity="0.7"/>
-                  <path d="M55 47 L65 47" stroke="#44ffff" stroke-width="2" opacity="0.7"/>
-                  <path d="M55 59 L65 59" stroke="#44ffff" stroke-width="2" opacity="0.7"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FeatureCard>
-
-      <!-- Navigation Section -->
-      <div class="py-16">
-        <div class="max-w-4xl mx-auto text-center">
-          <h2 class="text-3xl font-bold mb-4">Continue Your Journey</h2>
-          <p class="text-lg mb-8 text-muted-foreground">
-            Dive deeper into the ASSURED methodology with comprehensive guides and essential glossaries.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/docs/intro"
-              class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm"
-            >
-              View Methodology
-            </a>
-            <a
-              href="/docs/glossaries/bad"
-              class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm"
-            >
-              B.A.D. Glossary
-            </a>
-            <a
-              href="/docs/glossaries/cat"
-              class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors backdrop-blur-sm"
-            >
-              C.A.T. Glossary
-            </a>
-          </div>
-        </div>
+        <FlipCard icon="🔁" title="Triage is not strictly linear" accent="green">
+          ASSURED's seven components have a default order, but feedback loops
+          back to earlier phases are explicit. Risk findings send you back
+          to Uncover. Uncover surfaces new Subjects. The methodology
+          embraces that flow rather than pretending triage is an assembly
+          line.
+        </FlipCard>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <!-- CHAPTERS GRID -->
+  <section class="home-section">
+    <div class="home-section__inner">
+      <header class="home-section__head">
+        <span class="home-section__overline">Explore the methodology</span>
+        <h2 class="home-section__title">Seven letters. One question per letter.</h2>
+        <p class="home-section__lede">
+          Each phase answers a single, specific question. Only Alert is
+          published right now. The rest are being moved from the source
+          manuscript.
+        </p>
+      </header>
+
+      <div class="assured-phase-grid">
+        <ChapterCard
+          letter="A"
+          phase="alert"
+          title="Alert"
+          description="Understand detection logic, validate the signal, parse alert metadata into something an analyst can act on."
+          href="/docs/alert"
+          status="live"
+          topics={[
+            "Detection mechanisms: signature, anomaly, rule, behavioral",
+            "Validation across technical, environmental, intelligence, and business dimensions",
+            "Parsing command lines, process trees, network activity, file system, schema",
+          ]}
+        />
+
+        <ChapterCard
+          letter="S"
+          phase="subject"
+          title="Subject"
+          description="Identify the who. Any entity that authenticated or acted: user, robot account, EC2 instance, cloud role, service."
+          href="/docs/subject"
+          status={chapterStatus.subject}
+          topics={[
+            "The four dimensions: authentication, authorization, behavior, relationships",
+            "Entity types: users, endpoints, services, identifiers",
+            "Insider analysis and the Insider Threat Matrix",
+          ]}
+        />
+
+        <ChapterCard
+          letter="S"
+          phase="scope"
+          title="Scope"
+          description="Decide where the lines are. Time windows, entities in play, regulatory boundaries. Without scope, investigations sprawl."
+          href="/docs/scope"
+          status={chapterStatus.scope}
+          topics={[
+            "Regulatory requirements: GDPR, CCPA, HIPAA, PCI-DSS, SOX",
+            "Time-based parameters and historical windows",
+            "Entity-based scope and dependency tracing",
+          ]}
+        />
+
+        <ChapterCard
+          letter="U"
+          phase="uncover"
+          title="Uncover"
+          description="Pull the evidence. Correlate endpoint, network, identity, and cloud telemetry to find root cause."
+          href="/docs/uncover"
+          status={chapterStatus.uncover}
+          topics={[
+            "Data sources for evidence gathering",
+            "Threat intelligence: tiers, validation, scoring",
+            "MITRE ATT&CK: tactics, techniques, procedures",
+          ]}
+        />
+
+        <ChapterCard
+          letter="R"
+          phase="risk"
+          title="Risk"
+          description="Decide how bad. Asset criticality, attacker sophistication, business impact, likelihood. Risk turns evidence into priority."
+          href="/docs/risk"
+          status={chapterStatus.risk}
+          topics={[
+            "Risk-based alert triage matrix",
+            "Impact, likelihood, and actor sophistication",
+            "The value of investigating a false positive",
+          ]}
+        />
+
+        <ChapterCard
+          letter="E"
+          phase="escalation"
+          title="Escalation"
+          description="Hand it off cleanly. The triage analyst's deliverable is the handoff packet: context, evidence, and a recommendation."
+          href="/docs/escalation"
+          status={chapterStatus.escalation}
+          topics={[
+            "Criteria for escalation",
+            "Internal and external protocols",
+            "Event triage vs. incident response",
+          ]}
+        />
+
+        <ChapterCard
+          letter="D"
+          phase="documentation"
+          title="Documentation"
+          description="Close the loop. Decisions, evidence, and reasoning so the next analyst and the auditor can replay your thinking."
+          href="/docs/documentation"
+          status={chapterStatus.documentation}
+          topics={[
+            "Standards for consistency",
+            "Templates for efficient recording",
+            "Documentation pitfalls and how to avoid them",
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING CTA -->
+  <section class="home-section home-section--alt">
+    <div class="home-section__inner home-closing">
+      <h2>Ready to begin?</h2>
+      <p>
+        Read the introduction for the full picture, or jump straight into
+        Alert. The first piece of the puzzle.
+      </p>
+      <div class="home-closing__cta-row">
+        <a href="/docs/intro" class="assured-cta">
+          Read the introduction
+        </a>
+        <a href="/docs/alert" class="assured-cta assured-cta--ghost">
+          Start with Alert →
+        </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .bg-grid-slate-200\/20 {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.2)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+  /* Hero */
+  .home-hero {
+    position: relative;
+    padding: clamp(3rem, 8vw, 6rem) 1.5rem clamp(3rem, 6vw, 4rem);
+    overflow: hidden;
   }
 
-  @media (prefers-color-scheme: dark) {
-    .bg-grid-slate-200\/20 {
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.1)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-    }
+  .home-hero__inner {
+    max-width: 64rem;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
   }
 
-  /* Subtle Gradient Orb */
-  .subtle-orb {
+  .home-hero__overline {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.15);
+    border: 1px solid rgba(20, 184, 166, 0.35);
+    color: #5eead4;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.25rem;
+  }
+
+  .home-hero__headline {
+    font-size: clamp(2rem, 5.5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #f8fafc;
+    margin: 0 0 1rem 0;
+  }
+
+  .home-hero__accent {
+    display: block;
+    background: linear-gradient(135deg, #5eead4, #60a5fa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .home-hero__lede {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    color: #cbd5e1;
+    max-width: 56ch;
+    margin: 0 auto 2rem auto;
+    line-height: 1.65;
+  }
+
+  .home-hero__cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+
+  .home-hero__decor {
     position: absolute;
-    width: 800px;
-    height: 800px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, rgba(var(--foreground-rgb), 0.03), rgba(var(--foreground-rgb), 0.01));
-    filter: blur(100px);
-    animation: subtleFloat 30s ease-in-out infinite;
-    opacity: 0.3;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  /* Animations */
-  @keyframes subtleFloat {
-    0%, 100% { transform: translate(-50%, -50%); }
-    50% { transform: translate(-45%, -48%); }
-  }
-
-  /* Dark Mode Support */
-  :root {
-    --foreground-rgb: 0, 0, 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --foreground-rgb: 255, 255, 255;
-    }
-  }
-
-  /* Reduced Motion */
-  @media (prefers-reduced-motion: reduce) {
-    .subtle-orb {
-      animation: none;
-    }
-  }
-</style>
-
-<script>
-  // Intersection Observer for scroll animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, {
-    threshold: 0.1
-  });
-
-  document.querySelectorAll('.animate-on-scroll').forEach((element) => {
-    observer.observe(element);
-  });
-</script>
-
-<style>
-  /* Cybersecurity background pattern */
-  .bg-cyber-pattern {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.4) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.4) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.3) 0%, transparent 15%),
-      linear-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.15) 1px, transparent 1px);
-    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
-    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
-  }
-
-  /* Cybersecurity orb effect */
-  .cyber-orb {
-    position: absolute;
-    top: 20%;
-    right: 10%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
+    top: -10%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    max-width: 700px;
+    max-height: 700px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.12), transparent 60%);
     filter: blur(40px);
-    animation: float 6s ease-in-out infinite;
+    pointer-events: none;
   }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
+  /* Section scaffolding */
+  .home-section {
+    padding: clamp(3rem, 6vw, 5rem) 1.5rem;
+  }
+
+  .home-section--alt {
+    background: rgba(15, 23, 42, 0.45);
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .home-section__inner {
+    max-width: 76rem;
+    margin: 0 auto;
+  }
+
+  .home-section__head {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .home-section__overline {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.14);
+    color: #5eead4;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .home-section__title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    color: #f8fafc;
+    margin: 0 auto 0.85rem;
+    max-width: 38ch;
+    line-height: 1.2;
+  }
+
+  .home-section__lede {
+    color: #cbd5e1;
+    max-width: 60ch;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  .home-section__hint {
+    margin: 0.85rem auto 0;
+    font-size: 0.82rem;
+    color: #5eead4;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  /* Flip grid (for FlipCard rows) */
+  .flip-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .flip-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  /* Why grid (legacy, kept for layout fallback) */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .why-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  .why-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .why-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(20, 184, 166, 0.4);
+  }
+
+  .why-card__icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .why-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #f8fafc;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .why-card p {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  /* Closing */
+  .home-closing {
+    text-align: center;
+  }
+
+  .home-closing h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    color: #f8fafc;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .home-closing p {
+    color: #cbd5e1;
+    max-width: 50ch;
+    margin: 0 auto 1.75rem auto;
+  }
+
+  .home-closing__cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
   }
 </style>

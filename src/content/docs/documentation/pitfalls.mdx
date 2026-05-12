@@ -1,0 +1,55 @@
+---
+title: "Documentation pitfalls"
+description: "The common ways documentation breaks down, and how to avoid them."
+slug: "documentation/pitfalls"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="03" pillarLabel="03" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Documentation does not usually fail at the moment of writing. It fails at the moments around it: when an analyst skips a step, fills the record after the fact, or treats the form as the work."/>
+
+<PillNav label="Documentation chapter" current="/docs/documentation/pitfalls" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+# Five common failure modes
+
+<div class="pit-grid">
+  <div class="pit"><h4>📭 Incomplete records</h4><p>Fields left blank, sections skipped, references not linked. The record exists but does not actually support a future review. Often caused by writing after the case is closed rather than during.</p></div>
+  <div class="pit"><h4>🕰️ Post-hoc rationalization</h4><p>Documentation written days later that records the verdict cleanly but omits the dead ends and alternative theories the analyst considered. The result reads tidy and is less useful for training.</p></div>
+  <div class="pit"><h4>🔗 Missing evidence chains</h4><p>The record states a conclusion but does not say which evidence supports it. The next reader cannot verify the reasoning without redoing the work.</p></div>
+  <div class="pit"><h4>🤐 Sanitization mistakes</h4><p>Records that contain PII, regulated data, or sensitive operational detail that should not be in the system the documentation lives in. The record is complete and unusable for compliance reasons.</p></div>
+  <div class="pit"><h4>📜 Form over substance</h4><p>Long documentation that meets the standard but says nothing useful. The fields are filled; the value is absent. The template was treated as the goal.</p></div>
+</div>
+
+<Callout variant="info" title="The shortest fix">
+The single biggest fix is writing during the investigation rather than after. Five minutes of "this is what I just observed" notes at each step produces a better record than two hours of reconstruction at the end. The methodology asks the analyst to treat documentation as a continuous part of the work.
+</Callout>
+
+# Driving value beyond the closure
+
+Good documentation has uses beyond the single case:
+
+- **Trend analysis.** Multiple records of the same alert type reveal campaigns, infrastructure, and shifts in adversary behavior.
+- **Training.** New analysts learn faster from real, well-documented cases than from synthetic exercises.
+- **Audit readiness.** A regulator's request is a query against the record set, not a fire drill.
+- **Detection engineering.** Closed false positives feed tuning. Confirmed cases feed new detection rules.
+- **Team retention.** Analysts who see their work documented and used stay longer than those whose work disappears the moment a case closes.
+
+<KeyTakeaway>The pitfalls are predictable. Catching them is mostly a matter of writing during the investigation, keeping evidence chains tight, and treating the form as scaffolding rather than the goal.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/example" nextLabel="Documentation working example" ctaLabel="See the example" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.pit-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .pit-grid { grid-template-columns: 1fr 1fr; } }
+.pit { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(20, 184, 166, 0.25); border-left: 3px solid #14b8a6; border-radius: 0.55rem; }
+.pit h4 { margin: 0 0 0.3rem 0; color: #5eead4; font-size: 0.95rem; }
+.pit p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+`}</style>

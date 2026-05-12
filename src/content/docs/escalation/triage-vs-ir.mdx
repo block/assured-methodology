@@ -1,0 +1,65 @@
+---
+title: "Event triage vs. incident response"
+description: "Triage frames the puzzle. IR completes it. The methodology's sharpest piece of original thinking."
+slug: "escalation/triage-vs-ir"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="03" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Triage and incident response do related work for different reasons. Conflating them produces investigations that are either premature or stuck. The distinction is one of the methodology's most useful contributions."/>
+
+<PillNav label="Escalation chapter" current="/docs/escalation/triage-vs-ir" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+# Two different jobs
+
+<div class="vs-grid">
+  <div class="vs-card vs-card--triage">
+    <span class="vs-card__tag">Event triage</span>
+    <h3>🧩 Framing the puzzle</h3>
+    <p>Goal: assemble enough of the picture to know what an alert is and whether it deserves further response. The work ends with a verdict and a handoff packet.</p>
+    <p>Mindset: structured, time-bounded, defaults toward escalating when criteria are met.</p>
+    <p>Output: structured triage record, ATT&CK mapping, recommended priority.</p>
+  </div>
+  <div class="vs-card vs-card--ir">
+    <span class="vs-card__tag">Incident response</span>
+    <h3>🛠️ Completing the puzzle</h3>
+    <p>Goal: contain the incident, eradicate the adversary, recover affected systems, and produce the post-incident report. The work ends with the organization returning to a known-good state.</p>
+    <p>Mindset: deep, sustained, defaults toward maintaining containment until eradication is confirmed.</p>
+    <p>Output: contained incident, restored systems, root cause analysis, lessons learned.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Where the line is">
+The line falls at the point where investigation transitions to coordinated response. Triage decides what is going on. IR decides what to do about it. Both phases require investigation, but the questions, the timelines, and the audiences are different.
+</Callout>
+
+# How to know which work this is
+
+- **If the question is "is this real?"** It is triage.
+- **If the question is "how do we stop it?"** It is incident response.
+- **If both questions are still open**, the case is in the handoff between them, and Escalation is the bridge.
+
+<KeyTakeaway>Triage frames the puzzle. IR completes it. The methodology treats them as related but separate, and the Escalation phase is the deliberate transition between them.</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/handoff" nextLabel="The handoff packet" ctaLabel="Read the packet" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "soon" }}/>
+
+<style>{`
+.vs-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .vs-grid { grid-template-columns: 1fr 1fr; } }
+.vs-card { padding: 1.4rem 1.6rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.85rem; border-top: 4px solid var(--accent); }
+.vs-card--triage { --accent: #14b8a6; }
+.vs-card--ir { --accent: #ef4444; }
+.vs-card__tag { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.65rem; }
+.vs-card h3 { margin: 0 0 0.5rem 0; color: var(--accent); font-size: 1.1rem; }
+.vs-card p { margin: 0 0 0.6rem 0; color: #cbd5e1; line-height: 1.6; font-size: 0.93rem; }
+.vs-card p:last-child { margin-bottom: 0; }
+`}</style>

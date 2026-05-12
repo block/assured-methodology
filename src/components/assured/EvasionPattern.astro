@@ -1,0 +1,475 @@
+---
+/**
+ * EvasionPattern. A clickable card that expands to reveal a short looping
+ * SVG animation demonstrating an adversary evasion technique.
+ *
+ * Built on native <details>/<summary> so it works with no JavaScript and
+ * remains accessible. CSS animations loop while the panel is open, and
+ * `prefers-reduced-motion` shows a static end-state instead.
+ *
+ * Supported patterns: "lolbins" | "hollowing" | "timing" | "fatigue"
+ */
+
+interface Props {
+  pattern: "lolbins" | "hollowing" | "timing" | "fatigue";
+  icon: string;
+  title: string;
+  description: string;
+  caption: string;
+}
+
+const props = Astro.props;
+---
+
+<details class={`evasion evasion--${props.pattern}`}>
+  <summary class="evasion__summary">
+    <div class="evasion__head">
+      <span class="evasion__icon" aria-hidden="true">{props.icon}</span>
+      <h4 class="evasion__title">{props.title}</h4>
+      <span class="evasion__toggle" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+        <span class="evasion__toggle-text evasion__toggle-text--closed">See how it works</span>
+        <span class="evasion__toggle-text evasion__toggle-text--open">Hide</span>
+      </span>
+    </div>
+    <p class="evasion__desc">{props.description}</p>
+  </summary>
+
+  <div class="evasion__demo">
+    {props.pattern === "lolbins" && (
+      <svg viewBox="0 0 420 150" class="demo demo--lolbins" role="img" aria-label="Living off the land animation">
+        <defs>
+          <marker id="lol-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+
+        <g class="binary" style="--delay: 0s;">
+          <rect x="10" y="60" width="100" height="44" rx="8" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="60" y="86" text-anchor="middle" class="demo-label">cmd.exe</text>
+          <g class="check">
+            <circle cx="100" cy="60" r="10" fill="#22c55e"/>
+            <path d="M 95 60 L 99 64 L 105 56" stroke="white" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </g>
+
+        <path class="lol-arrow-anim" style="--delay: 0.7s;" d="M 115 82 L 145 82" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#lol-arrow)"/>
+
+        <g class="binary" style="--delay: 1s;">
+          <rect x="150" y="60" width="120" height="44" rx="8" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="210" y="86" text-anchor="middle" class="demo-label">powershell.exe</text>
+          <g class="check">
+            <circle cx="260" cy="60" r="10" fill="#22c55e"/>
+            <path d="M 255 60 L 259 64 L 265 56" stroke="white" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </g>
+
+        <path class="lol-arrow-anim" style="--delay: 1.7s;" d="M 275 82 L 305 82" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#lol-arrow)"/>
+
+        <g class="binary" style="--delay: 2s;">
+          <rect x="310" y="60" width="100" height="44" rx="8" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="360" y="86" text-anchor="middle" class="demo-label">certutil.exe</text>
+          <g class="check">
+            <circle cx="400" cy="60" r="10" fill="#22c55e"/>
+            <path d="M 395 60 L 399 64 L 405 56" stroke="white" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </g>
+
+        <g class="payload" style="--delay: 2.8s;">
+          <circle cx="370" cy="125" r="11" fill="#ef4444"/>
+          <text x="370" y="130" text-anchor="middle" class="demo-payload-mark">!</text>
+          <path d="M 360 105 L 380 105" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+        </g>
+      </svg>
+    )}
+
+    {props.pattern === "hollowing" && (
+      <svg viewBox="0 0 420 180" class="demo demo--hollowing" role="img" aria-label="Process hollowing animation">
+        <g class="container">
+          <rect x="60" y="30" width="300" height="120" rx="14" fill="rgba(15, 23, 42, 0.7)" stroke="#22c55e" stroke-width="2"/>
+          <text x="210" y="22" text-anchor="middle" class="demo-label">svchost.exe</text>
+          <g class="sig-badge">
+            <rect x="290" y="6" width="78" height="20" rx="10" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" stroke-width="1"/>
+            <text x="329" y="20" text-anchor="middle" class="demo-tag">✓ Microsoft</text>
+          </g>
+        </g>
+
+        <g class="legit-code">
+          <rect x="80"  y="50" width="180" height="6" rx="3" fill="#86efac"/>
+          <rect x="80"  y="62" width="240" height="6" rx="3" fill="#86efac"/>
+          <rect x="80"  y="74" width="200" height="6" rx="3" fill="#86efac"/>
+          <rect x="80"  y="86" width="260" height="6" rx="3" fill="#86efac"/>
+          <rect x="80"  y="98" width="160" height="6" rx="3" fill="#86efac"/>
+          <rect x="80" y="110" width="220" height="6" rx="3" fill="#86efac"/>
+          <rect x="80" y="122" width="180" height="6" rx="3" fill="#86efac"/>
+        </g>
+
+        <g class="mal-code">
+          <rect x="80"  y="50" width="200" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80"  y="62" width="170" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80"  y="74" width="240" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80"  y="86" width="190" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80"  y="98" width="250" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80" y="110" width="180" height="6" rx="3" fill="#fca5a5"/>
+          <rect x="80" y="122" width="220" height="6" rx="3" fill="#fca5a5"/>
+        </g>
+
+      </svg>
+    )}
+
+    {props.pattern === "timing" && (
+      <svg viewBox="0 0 420 160" class="demo demo--timing" role="img" aria-label="Time-based evasion animation">
+        <!-- Timeline base -->
+        <line x1="20" y1="80" x2="400" y2="80" stroke="rgba(148, 163, 184, 0.45)" stroke-width="2"/>
+
+        <!-- Hour ticks every 4 hours -->
+        <g class="ticks">
+          <g><line x1="20"  y1="76" x2="20"  y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="20"  y="100" text-anchor="middle" class="demo-tick">00</text></g>
+          <g><line x1="83"  y1="76" x2="83"  y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="83"  y="100" text-anchor="middle" class="demo-tick">04</text></g>
+          <g><line x1="147" y1="76" x2="147" y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="147" y="100" text-anchor="middle" class="demo-tick">08</text></g>
+          <g><line x1="210" y1="76" x2="210" y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="210" y="100" text-anchor="middle" class="demo-tick">12</text></g>
+          <g><line x1="273" y1="76" x2="273" y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="273" y="100" text-anchor="middle" class="demo-tick">16</text></g>
+          <g><line x1="337" y1="76" x2="337" y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="337" y="100" text-anchor="middle" class="demo-tick">20</text></g>
+          <g><line x1="400" y1="76" x2="400" y2="84" stroke="#94a3b8" stroke-width="1.5"/><text x="400" y="100" text-anchor="middle" class="demo-tick">24</text></g>
+        </g>
+
+        <!-- Business hours band (09:00-17:00, x = 162-289) -->
+        <rect x="162" y="60" width="127" height="40" rx="6" fill="rgba(20, 184, 166, 0.18)" stroke="rgba(20, 184, 166, 0.5)" stroke-width="1"/>
+        <text x="225" y="50" text-anchor="middle" class="demo-tag" fill="#5eead4">analysts watching</text>
+
+        <!-- 👀 eyes during business hours -->
+        <text x="190" y="84" text-anchor="middle" class="eye-icon">👁️</text>
+        <text x="225" y="84" text-anchor="middle" class="eye-icon">👁️</text>
+        <text x="260" y="84" text-anchor="middle" class="eye-icon">👁️</text>
+
+        <!-- Off-hours danger zone (02:00-04:00, x = 51-83) -->
+        <rect class="danger-zone" x="51" y="60" width="32" height="40" rx="6" fill="rgba(239, 68, 68, 0.0)" stroke="rgba(239, 68, 68, 0.0)" stroke-width="1"/>
+
+        <!-- Attacker icon that appears during off-hours -->
+        <g class="attacker">
+          <text x="67" y="84" text-anchor="middle" class="attacker-icon">🦹</text>
+        </g>
+
+      </svg>
+    )}
+
+    {props.pattern === "fatigue" && (
+      <svg viewBox="0 0 420 200" class="demo demo--fatigue" role="img" aria-label="Alert fatigue animation">
+        <!-- Stream of alert dots falling -->
+        <g class="alert-stream">
+          <circle class="dot dot--noise" cx="40"  cy="0" r="6" style="--delay: 0s;"   fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="80"  cy="0" r="6" style="--delay: 0.3s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="120" cy="0" r="6" style="--delay: 0.6s;" fill="#fbbf24"/>
+          <circle class="dot dot--noise" cx="160" cy="0" r="6" style="--delay: 0.9s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="200" cy="0" r="6" style="--delay: 1.2s;" fill="#94a3b8"/>
+          <circle class="dot dot--real"  cx="240" cy="0" r="7" style="--delay: 1.5s;" fill="#ef4444"/>
+          <circle class="dot dot--noise" cx="280" cy="0" r="6" style="--delay: 1.8s;" fill="#fbbf24"/>
+          <circle class="dot dot--noise" cx="320" cy="0" r="6" style="--delay: 2.1s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="360" cy="0" r="6" style="--delay: 2.4s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="40"  cy="0" r="6" style="--delay: 2.7s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="120" cy="0" r="6" style="--delay: 3.0s;" fill="#fbbf24"/>
+          <circle class="dot dot--noise" cx="200" cy="0" r="6" style="--delay: 3.3s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="280" cy="0" r="6" style="--delay: 3.6s;" fill="#94a3b8"/>
+          <circle class="dot dot--noise" cx="360" cy="0" r="6" style="--delay: 3.9s;" fill="#fbbf24"/>
+        </g>
+
+        <!-- Analyst "gate" at the bottom -->
+        <line x1="20" y1="155" x2="400" y2="155" stroke="rgba(148, 163, 184, 0.4)" stroke-width="2"/>
+        <g class="analyst">
+          <text x="210" y="180" text-anchor="middle" class="analyst-eye">😵‍💫</text>
+        </g>
+
+      </svg>
+    )}
+
+    <p class="evasion__caption">{props.caption}</p>
+  </div>
+</details>
+
+<style>
+  .evasion {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: 3px solid var(--accent, #ef4444);
+    border-radius: 0.7rem;
+    overflow: hidden;
+    transition: border-left-width 0.15s ease, border-color 0.15s ease;
+  }
+
+  .evasion:hover {
+    border-left-width: 5px;
+  }
+
+  .evasion[open] {
+    border-color: rgba(239, 68, 68, 0.5);
+    border-left-color: var(--accent, #ef4444);
+  }
+
+  .evasion--lolbins   { --accent: #3b82f6; }
+  .evasion--hollowing { --accent: #a855f7; }
+  .evasion--timing    { --accent: #f59e0b; }
+  .evasion--fatigue   { --accent: #ef4444; }
+
+  .evasion__summary {
+    padding: 1.15rem 1.4rem;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .evasion__summary::-webkit-details-marker { display: none; }
+  .evasion__summary::marker { content: ""; }
+
+  .evasion__summary:hover {
+    background: rgba(248, 250, 252, 0.03);
+  }
+
+  .evasion__head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .evasion__icon {
+    font-size: 1.2rem;
+    line-height: 1.1;
+  }
+
+  .evasion__title {
+    margin: 0;
+    color: #fca5a5;
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  .evasion[open] .evasion__title {
+    color: var(--accent);
+  }
+
+  .evasion__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+
+  .evasion__toggle svg {
+    transition: transform 0.25s ease;
+  }
+
+  .evasion[open] .evasion__toggle svg {
+    transform: rotate(90deg);
+  }
+
+  .evasion__toggle-text--open  { display: none; }
+  .evasion__toggle-text--closed { display: inline; }
+  .evasion[open] .evasion__toggle-text--closed { display: none; }
+  .evasion[open] .evasion__toggle-text--open   { display: inline; }
+
+  .evasion__desc {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.55;
+    font-size: 0.93rem;
+  }
+
+  .evasion__demo {
+    padding: 1.5rem 1.4rem 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.35);
+  }
+
+  .demo {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    display: block;
+    margin: 0 auto 0.85rem;
+  }
+
+  .demo-label {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    fill: #f8fafc;
+  }
+
+  .demo-tick {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 11px;
+    fill: #94a3b8;
+  }
+
+  .demo-tag {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    fill: #cbd5e1;
+  }
+
+  .demo-payload-mark {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    fill: white;
+  }
+
+  .evasion__caption {
+    margin: 0;
+    color: #cbd5e1;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    text-align: center;
+    font-style: italic;
+    max-width: 56ch;
+    margin: 0 auto;
+  }
+
+  /* ===== LOLBins animations ===== */
+  .demo--lolbins .binary,
+  .demo--lolbins .lol-arrow-anim,
+  .demo--lolbins .payload {
+    opacity: 0;
+    animation: lol-sequence 5s ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .demo--lolbins .check {
+    transform-origin: 100px 60px;
+  }
+
+  @keyframes lol-sequence {
+    0%, 56%, 100% { opacity: 0; }
+    8%, 50%       { opacity: 1; }
+  }
+
+  /* ===== Hollowing animations ===== */
+  .demo--hollowing .legit-code {
+    animation: legit-fade 5s ease-in-out infinite;
+  }
+
+  .demo--hollowing .mal-code {
+    opacity: 0;
+    animation: mal-fade 5s ease-in-out infinite;
+  }
+
+  @keyframes legit-fade {
+    0%, 25%   { opacity: 1; }
+    45%, 95%  { opacity: 0; }
+    100%      { opacity: 1; }
+  }
+
+  @keyframes mal-fade {
+    0%, 35%   { opacity: 0; }
+    55%, 85%  { opacity: 1; }
+    100%      { opacity: 0; }
+  }
+
+  .demo--hollowing .container rect {
+    animation: container-pulse 5s ease-in-out infinite;
+  }
+
+  @keyframes container-pulse {
+    0%, 35%   { stroke: #22c55e; }
+    55%, 85%  { stroke: #ef4444; }
+    100%      { stroke: #22c55e; }
+  }
+
+  .demo--hollowing .sig-badge text {
+    animation: badge-pulse 5s ease-in-out infinite;
+  }
+
+  /* Signature badge stays green even when inside is malicious; that is the point */
+  @keyframes badge-pulse {
+    0%, 100% { opacity: 1; }
+    55%, 75% { opacity: 0.85; }
+  }
+
+  /* ===== Timing animations ===== */
+  .demo--timing .attacker {
+    opacity: 0;
+    transform: translateX(0);
+    animation: attacker-creep 6s ease-in-out infinite;
+  }
+
+  .demo--timing .danger-zone {
+    animation: danger-pulse 6s ease-in-out infinite;
+  }
+
+  .demo--timing .eye-icon {
+    font-size: 14px;
+    animation: eye-watch 6s linear infinite;
+  }
+
+  @keyframes attacker-creep {
+    0%, 20%   { opacity: 0; transform: translateY(-3px); }
+    35%, 70%  { opacity: 1; transform: translateY(0); }
+    85%, 100% { opacity: 0; }
+  }
+
+  @keyframes danger-pulse {
+    0%, 20%   { stroke: rgba(239, 68, 68, 0); fill: rgba(239, 68, 68, 0); }
+    35%, 70%  { stroke: rgba(239, 68, 68, 0.55); fill: rgba(239, 68, 68, 0.18); }
+    85%, 100% { stroke: rgba(239, 68, 68, 0); fill: rgba(239, 68, 68, 0); }
+  }
+
+  @keyframes eye-watch {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+  }
+
+  .attacker-icon { font-size: 16px; }
+
+  /* ===== Alert fatigue animations ===== */
+  .demo--fatigue .dot {
+    animation: fall 4s linear infinite;
+    animation-delay: var(--delay, 0s);
+    opacity: 0;
+  }
+
+  @keyframes fall {
+    0%   { transform: translateY(0);    opacity: 0; }
+    10%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(155px); opacity: 0; }
+  }
+
+  .demo--fatigue .dot--real {
+    filter: drop-shadow(0 0 6px #ef4444);
+  }
+
+  .demo--fatigue .analyst-eye {
+    font-size: 22px;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 90%, 100% { opacity: 1; }
+    50%, 55%      { opacity: 0.5; }
+  }
+
+  /* ===== Reduced motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .demo--lolbins .binary,
+    .demo--lolbins .lol-arrow-anim,
+    .demo--lolbins .payload,
+    .demo--hollowing .legit-code,
+    .demo--hollowing .mal-code,
+    .demo--hollowing .container rect,
+    .demo--timing .attacker,
+    .demo--timing .danger-zone,
+    .demo--timing .eye-icon,
+    .demo--fatigue .dot,
+    .demo--fatigue .analyst-eye {
+      animation: none;
+      opacity: 1;
+    }
+    .demo--hollowing .mal-code { opacity: 0; }
+  }
+</style>

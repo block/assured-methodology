@@ -1,0 +1,280 @@
+---
+/**
+ * QuizItem. A single multiple-choice question rendered inside a <Quiz>.
+ * Selecting an option marks correctness, shows the explanation, and
+ * disables further changes for that question.
+ */
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  prompt: string;
+  options: Option[];
+  answer: string;
+  explanation: string;
+  hint?: string;
+}
+
+const { prompt, options, answer, explanation, hint } = Astro.props;
+const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class="quiz-item" data-quiz-item data-answer={answer}>
+  <p class="quiz-item__prompt">{prompt}</p>
+
+  {hint && (
+    <details class="quiz-item__hint">
+      <summary>Need a nudge?</summary>
+      <p>{hint}</p>
+    </details>
+  )}
+
+  <div class="quiz-item__options" role="radiogroup" aria-label={prompt}>
+    {options.map((o, i) => (
+      <button
+        type="button"
+        class="quiz-item__option"
+        data-value={o.value}
+        id={`${idBase}-${i}`}
+      >
+        <span class="quiz-item__option-letter">{String.fromCharCode(65 + i)}</span>
+        <span class="quiz-item__option-label">{o.label}</span>
+        <span class="quiz-item__option-icon" aria-hidden="true"></span>
+      </button>
+    ))}
+  </div>
+
+  <div class="quiz-item__feedback" data-feedback hidden>
+    <div class="quiz-item__feedback-head">
+      <span class="quiz-item__feedback-verdict" data-verdict></span>
+    </div>
+    <p class="quiz-item__feedback-text">{explanation}</p>
+  </div>
+</div>
+
+<style>
+  .quiz-item {
+    padding: 1.5rem 1.75rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.85rem;
+  }
+
+  .quiz-item__prompt {
+    margin: 0 0 1.1rem 0;
+    color: #f8fafc;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+
+  .quiz-item__hint {
+    margin-bottom: 0.85rem;
+    font-size: 0.85rem;
+  }
+
+  .quiz-item__hint summary {
+    color: #5eead4;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  .quiz-item__hint summary::-webkit-details-marker { display: none; }
+
+  .quiz-item__hint p {
+    margin: 0.5rem 0 0 0;
+    color: #cbd5e1;
+    line-height: 1.55;
+    padding: 0.6rem 0.85rem;
+    background: rgba(20, 184, 166, 0.08);
+    border-left: 2px solid rgba(20, 184, 166, 0.5);
+    border-radius: 0.3rem;
+  }
+
+  .quiz-item__options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .quiz-item__option {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1.15rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.6rem;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    color: #e2e8f0;
+    font-family: inherit;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .quiz-item__option:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: rgba(94, 234, 212, 0.5);
+    background: rgba(15, 23, 42, 0.75);
+  }
+
+  .quiz-item__option:disabled {
+    cursor: default;
+  }
+
+  .quiz-item__option-letter {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 0.4rem;
+    background: rgba(148, 163, 184, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+  }
+
+  .quiz-item__option-label {
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .quiz-item__option-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .quiz-item__option.is-correct {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .quiz-item__option.is-correct .quiz-item__option-letter {
+    background: #22c55e;
+    color: white;
+  }
+  .quiz-item__option.is-correct .quiz-item__option-icon::after {
+    content: "✓";
+    color: #22c55e;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .quiz-item__option.is-wrong {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.10);
+  }
+  .quiz-item__option.is-wrong .quiz-item__option-letter {
+    background: #ef4444;
+    color: white;
+  }
+  .quiz-item__option.is-wrong .quiz-item__option-icon::after {
+    content: "✕";
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+
+  .quiz-item__option.is-revealed-correct {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.06);
+  }
+  .quiz-item__option.is-revealed-correct .quiz-item__option-icon::after {
+    content: "←";
+    color: #5eead4;
+    font-weight: 700;
+  }
+
+  .quiz-item__feedback {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.6rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+
+  .quiz-item__feedback.is-correct {
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.06);
+  }
+
+  .quiz-item__feedback.is-wrong {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.06);
+  }
+
+  .quiz-item__feedback-verdict {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .quiz-item__feedback.is-correct .quiz-item__feedback-verdict {
+    background: rgba(34, 197, 94, 0.18);
+    color: #86efac;
+  }
+  .quiz-item__feedback.is-correct .quiz-item__feedback-verdict::before { content: "Correct"; }
+
+  .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+  }
+  .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict::before { content: "Not quite"; }
+
+  .quiz-item__feedback-text {
+    margin: 0;
+    color: #e2e8f0;
+    line-height: 1.6;
+    font-size: 0.93rem;
+  }
+</style>
+
+<script>
+  const items = document.querySelectorAll<HTMLElement>("[data-quiz-item]");
+  items.forEach((item) => {
+    const correctValue = item.dataset.answer;
+    const options = Array.from(item.querySelectorAll<HTMLButtonElement>(".quiz-item__option"));
+    const feedback = item.querySelector<HTMLElement>("[data-feedback]");
+
+    options.forEach((option) => {
+      option.addEventListener("click", () => {
+        if (option.disabled) return;
+
+        const value = option.dataset.value;
+        const isCorrect = value === correctValue;
+
+        // Lock the options
+        options.forEach((o) => {
+          o.disabled = true;
+          if (o.dataset.value === correctValue && o !== option) {
+            o.classList.add("is-revealed-correct");
+          }
+        });
+
+        option.classList.add(isCorrect ? "is-correct" : "is-wrong");
+
+        if (feedback) {
+          feedback.hidden = false;
+          feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
+        }
+      });
+    });
+  });
+</script>

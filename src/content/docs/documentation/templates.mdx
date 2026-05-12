@@ -1,0 +1,50 @@
+---
+title: "Documentation templates"
+description: "Alert reporting, timeline tracking, action logs. Templates make documentation fast and consistent."
+slug: "documentation/templates"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="02" pillarLabel="03" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Templates make documentation possible at speed. The structure already exists; the analyst fills in the substance."/>
+
+<PillNav label="Documentation chapter" current="/docs/documentation/templates" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+# Two templates worth standardizing
+
+<div class="tpl-grid">
+  <div class="tpl">
+    <h4>📋 Alert report template</h4>
+    <p>One template per closed alert. Fields: alert source, detection family, ATT&CK techniques observed, primary entities, validation summary, verdict, response actions, detection feedback. Filled during triage, finalized at closure.</p>
+  </div>
+  <div class="tpl">
+    <h4>📅 Timeline tracker</h4>
+    <p>Sequential record of events with timestamps. Two columns: adversary actions and analyst actions. The two columns side by side reveal cause and response together, which is what most post-mortems want to see.</p>
+  </div>
+</div>
+
+# Why standardized templates matter
+
+- **Speed.** Filling a template is faster than writing from a blank page. The discipline pays off across hundreds of cases.
+- **Consistency.** Templates make two analysts' records look comparable, which is what trend analysis depends on.
+- **Completeness.** Templates surface fields the analyst would otherwise forget. The structure does the remembering.
+- **Tooling integration.** Templates can be encoded into the case-management system, the SOAR playbook, or the SIEM. Manual templates work; automated templates work better.
+
+<KeyTakeaway>A template is not a constraint; it is scaffolding. Templates make documentation faster, more consistent, and more complete. Every minute spent designing the right template saves hours of inconsistent records.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/pitfalls" nextLabel="Pitfalls" ctaLabel="Read pitfalls" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.tpl-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .tpl-grid { grid-template-columns: 1fr 1fr; } }
+.tpl { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(20, 184, 166, 0.25); border-radius: 0.7rem; }
+.tpl h4 { margin: 0 0 0.4rem 0; color: #5eead4; font-size: 1rem; }
+.tpl p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.92rem; }
+`}</style>

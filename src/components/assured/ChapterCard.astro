@@ -1,0 +1,182 @@
+---
+/**
+ * ChapterCard, used on the home page and intro to summarize one phase.
+ *
+ * Marks chapters as live or "coming soon" so the navigation matches reality.
+ */
+
+interface Props {
+  letter: string;
+  phase: "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+  title: string;
+  description: string;
+  href?: string;
+  status?: "live" | "soon";
+  topics?: string[];
+}
+
+const { letter, phase, title, description, href, status = "live", topics = [] } = Astro.props;
+
+const Tag = (status === "live" && href) ? "a" : "div";
+const tagProps = (Tag === "a") ? { href } : {};
+---
+
+<Tag class={`chapter-card chapter-card--${phase} chapter-card--${status}`} {...tagProps}>
+  <div class="chapter-card__head">
+    <span class={`assured-letter assured-letter--${phase}`}>{letter}</span>
+    <div class="chapter-card__title-wrap">
+      <h3 class="chapter-card__title">{title}</h3>
+      {status === "soon" && (
+        <span class="assured-soon" aria-label="Coming soon">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3 2"></path>
+          </svg>
+          Coming soon
+        </span>
+      )}
+    </div>
+  </div>
+
+  <p class="chapter-card__desc">{description}</p>
+
+  {topics.length > 0 && (
+    <ul class="chapter-card__topics">
+      {topics.map((t) => <li>{t}</li>)}
+    </ul>
+  )}
+
+  {status === "live" && href && (
+    <span class="chapter-card__cta">
+      Read chapter
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14"></path>
+        <path d="M13 5l7 7-7 7"></path>
+      </svg>
+    </span>
+  )}
+</Tag>
+
+<style>
+  .chapter-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.5rem;
+    border-radius: 0.85rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    color: #f8fafc;
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .chapter-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent, transparent) 0%, transparent 60%);
+    opacity: 0.08;
+    z-index: -1;
+    transition: opacity 0.25s ease;
+  }
+
+  .chapter-card--live:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent);
+    background: rgba(15, 23, 42, 0.7);
+  }
+
+  .chapter-card--live:hover::before { opacity: 0.18; }
+
+  .chapter-card--soon {
+    opacity: 0.85;
+  }
+
+  .chapter-card--alert         { --accent: #3b82f6; }
+  .chapter-card--subject       { --accent: #22c55e; }
+  .chapter-card--scope         { --accent: #a855f7; }
+  .chapter-card--uncover       { --accent: #f97316; }
+  .chapter-card--risk          { --accent: #ef4444; }
+  .chapter-card--escalation    { --accent: #6366f1; }
+  .chapter-card--documentation { --accent: #14b8a6; }
+
+  .chapter-card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .chapter-card__title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .chapter-card__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #f8fafc;
+  }
+
+  .chapter-card__desc {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  .chapter-card__topics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .chapter-card__topics li {
+    padding-left: 1.1rem;
+    position: relative;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .chapter-card__topics li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 9999px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  .chapter-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: auto;
+    padding-top: 0.4rem;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .chapter-card--live:hover .chapter-card__cta svg {
+    transform: translateX(2px);
+  }
+
+  .chapter-card__cta svg {
+    transition: transform 0.2s ease;
+  }
+</style>

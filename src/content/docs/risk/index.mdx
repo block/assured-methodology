@@ -1,0 +1,125 @@
+---
+title: "Risk: Identifying risk"
+description: "Risk turns the evidence into priority. Asset criticality, attacker sophistication, business impact, likelihood."
+slug: "risk"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import LetterChip from "@/components/assured/LetterChip.astro";
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import FlipCard from "@/components/assured/FlipCard.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<div class="alert-hero">
+  <div class="alert-hero__badge">
+    <LetterChip letter="R" phase="risk" size="lg" />
+    <div>
+      <p class="alert-hero__overline">Phase 2 · piece 5 of 7</p>
+      <p class="alert-hero__question">How bad is it, and how confident are we?</p>
+    </div>
+  </div>
+  <p class="alert-hero__lede">Risk turns Uncover's evidence into a defensible priority. The phase combines impact, likelihood, attacker sophistication, and business context to decide what happens next.</p>
+  <div class="alert-hero__pillars">
+    <a href="/docs/risk/framework" class="alert-hero__pillar"><span class="alert-hero__pillar-num">01</span><span class="alert-hero__pillar-label">Framework</span></a>
+    <a href="/docs/risk/impact-likelihood" class="alert-hero__pillar"><span class="alert-hero__pillar-num">02</span><span class="alert-hero__pillar-label">Impact + likelihood</span></a>
+    <a href="/docs/risk/false-positive" class="alert-hero__pillar"><span class="alert-hero__pillar-num">03</span><span class="alert-hero__pillar-label">The false positive</span></a>
+  </div>
+</div>
+
+<Callout variant="info" title="What Risk is for">
+Uncover answered "what happened." Risk answers "how much does it matter, and how confident are we." The two pieces together drive the escalation decision, the resource allocation, and the documented justification that survives the case.
+</Callout>
+
+---
+
+# What you will get from this chapter
+
+<div class="alert-outcomes">
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">🎚️</span><div><strong>Apply a risk-based triage matrix</strong> to weight impact against likelihood.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📈</span><div><strong>Use CVSS appropriately</strong> as one input among several, not as the verdict.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">🧠</span><div><strong>Recognize when a closed false positive is still valuable</strong> as a feedback signal.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📋</span><div><strong>Produce a Risk verdict that defends itself</strong> in a post-mortem or audit.</div></div>
+</div>
+
+---
+
+# The three pillars
+
+<div class="pillars-grid">
+  <a href="/docs/risk/framework" class="pillar pillar--risk">
+    <div class="pillar__num">01</div><div class="pillar__icon">🎚️</div>
+    <h3>Framework</h3>
+    <p>The risk-based alert triage matrix. Potential impact, actor sophistication, context, escalation criteria, CVSS as input.</p>
+    <span class="pillar__cta">Read →</span>
+  </a>
+  <a href="/docs/risk/impact-likelihood" class="pillar pillar--risk">
+    <div class="pillar__num">02</div><div class="pillar__icon">📊</div>
+    <h3>Impact and likelihood</h3>
+    <p>How to evaluate each dimension separately, and how the combination produces the priority.</p>
+    <span class="pillar__cta">Read →</span>
+  </a>
+  <a href="/docs/risk/false-positive" class="pillar pillar--risk">
+    <div class="pillar__num">03</div><div class="pillar__icon">🪞</div>
+    <h3>The value of a false positive</h3>
+    <p>Closed cases are not wasted cases. Each false positive sharpens the detection logic and the analyst's instinct.</p>
+    <span class="pillar__cta">Read →</span>
+  </a>
+</div>
+
+---
+
+# Why Risk is its own phase
+
+<div class="why-subject-grid">
+  <FlipCard icon="⚖️" title="Evidence and impact are separate questions" accent="red">
+    Uncover answers what happened. Risk answers how much it matters. Skipping Risk means escalating every finding equally, which is the same as not prioritizing at all.
+  </FlipCard>
+  <FlipCard icon="📊" title="Likelihood is a confidence statement" accent="red">
+    A high-impact finding with low confidence in the evidence is a different decision than the same finding with airtight evidence. Risk requires the analyst to state both explicitly.
+  </FlipCard>
+  <FlipCard icon="🎯" title="Context changes the verdict" accent="red">
+    The same intrusion on a sandbox is not the same intrusion on a regulated production system. Risk is the phase that brings that context into the priority decision.
+  </FlipCard>
+  <FlipCard icon="🪞" title="False positives have value" accent="red">
+    A closed false positive is a sharpened detection. The methodology asks the analyst to capture what they learned, even when the verdict is "no incident."
+  </FlipCard>
+</div>
+
+<KeyTakeaway>Risk turns evidence into priority and confidence into a recorded verdict. The output is what the rest of the team acts on.</KeyTakeaway>
+
+<PuzzleProgress current="risk" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "soon", documentation: "soon" }} />
+
+<ContinueCard current="risk" nextHref="/docs/risk/framework" nextLabel="The Risk framework" ctaLabel="Read framework" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "soon", documentation: "soon" }}/>
+
+<style>{`
+.alert-hero { margin: -1rem 0 2rem; padding: 2rem 2.25rem; border-radius: 1.25rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(15, 23, 42, 0.6)); border: 1px solid rgba(239, 68, 68, 0.35); backdrop-filter: blur(12px); }
+.alert-hero__badge { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+.alert-hero__overline { margin: 0; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #fca5a5; font-weight: 700; }
+.alert-hero__question { margin: 0.2rem 0 0; font-size: 1.35rem; color: #f8fafc; font-weight: 700; }
+.alert-hero__lede { margin: 0 0 1.5rem 0; color: #cbd5e1; font-size: 1.05rem; line-height: 1.65; max-width: 62ch; }
+.alert-hero__pillars { display: grid; grid-template-columns: 1fr; gap: 0.6rem; }
+@media (min-width: 768px) { .alert-hero__pillars { grid-template-columns: repeat(3, 1fr); } }
+.alert-hero__pillar { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.6rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.25); color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: transform 0.2s ease, border-color 0.2s ease; }
+.alert-hero__pillar:hover { transform: translateY(-2px); border-color: #f87171; background: rgba(15, 23, 42, 0.75); }
+.alert-hero__pillar-num { font-size: 0.85rem; font-weight: 800; color: #f87171; letter-spacing: 0.05em; }
+
+.alert-outcomes { display: flex; flex-direction: column; gap: 0.6rem; margin: 1.25rem 0 2rem; }
+.alert-outcomes__row { display: flex; align-items: flex-start; gap: 0.85rem; padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; color: #cbd5e1; line-height: 1.55; }
+.alert-outcomes__icon { font-size: 1.3rem; line-height: 1.2; }
+.alert-outcomes__row strong { color: #f8fafc; }
+
+.pillars-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .pillars-grid { grid-template-columns: repeat(3, 1fr); } }
+.pillar--risk { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.85rem; color: #f8fafc; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+.pillar--risk:hover { transform: translateY(-3px); border-color: #ef4444; box-shadow: 0 16px 32px -12px rgba(239, 68, 68, 0.35); }
+.pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(252, 165, 165, 0.7); }
+.pillar__icon { font-size: 1.6rem; }
+.pillar--risk h3 { margin: 0; color: #f8fafc; font-size: 1.1rem; }
+.pillar--risk p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.95rem; }
+.pillar__cta { margin-top: auto; color: #f87171; font-weight: 600; font-size: 0.9rem; }
+
+.why-subject-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .why-subject-grid { grid-template-columns: 1fr 1fr; } }
+`}</style>

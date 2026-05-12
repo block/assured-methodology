@@ -1,0 +1,68 @@
+---
+title: "Tool integration"
+description: "SIEM, EDR, network analysis, deception, forensics, SOAR, CSPM. The tools that make Uncover possible at scale."
+slug: "uncover/tooling"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="04"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="Uncover at scale depends on tools. Each tool category answers a class of question; reaching for the right one at the right moment is part of the craft."
+/>
+
+<PillNav label="Uncover chapter" current="/docs/uncover/tooling" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+# The tool families
+
+<div class="tool-grid">
+  <div class="tool"><h4>🔎 SIEM</h4><p>Centralized event search and correlation. Splunk, QRadar, Sentinel, Chronicle, Elastic. The investigation's primary query window.</p></div>
+  <div class="tool"><h4>💻 EDR</h4><p>Endpoint detection and response. CrowdStrike, SentinelOne, Defender XDR. Process trees, command lines, on-host containment.</p></div>
+  <div class="tool"><h4>🌐 Network analysis</h4><p>Zeek, Suricata, Corelight, Arkime. Wire-level observation. Catches what endpoint telemetry cannot.</p></div>
+  <div class="tool"><h4>🧠 Threat intelligence</h4><p>Mandiant, CrowdStrike, Recorded Future, MISP. Enrichment and hypothesis generation.</p></div>
+  <div class="tool"><h4>🍯 Deception</h4><p>Honeypots, decoy accounts, fake data. Anything that touches deception is, by definition, suspicious.</p></div>
+  <div class="tool"><h4>🔬 Digital forensics</h4><p>FTK, EnCase, Volatility, Sysinternals. Deep host analysis for confirmed cases.</p></div>
+  <div class="tool"><h4>🛡️ Vulnerability scanners</h4><p>Qualys, Tenable, Rapid7. What is exposed and what is patched.</p></div>
+  <div class="tool"><h4>🤖 SOAR</h4><p>Splunk Phantom, Cortex XSOAR, Sentinel Playbooks. Playbook execution and triage automation.</p></div>
+  <div class="tool"><h4>☁️ CSPM</h4><p>Cloud security posture management. Wiz, Lacework, Prisma. Cloud misconfiguration and exposure visibility.</p></div>
+  <div class="tool"><h4>🏞️ Data lakes</h4><p>Snowflake, BigQuery, Databricks. When SIEM retention is too short or queries are too complex.</p></div>
+</div>
+
+# Choosing the right tool
+
+The pattern is always the same:
+
+- Start with the question.
+- Identify which tool category can answer it.
+- If the answer requires multiple sources, plan the query order to minimize re-work.
+- Document what tools were used and what queries were run. The audit trail matters.
+
+<KeyTakeaway>
+Tools serve the question, not the other way around. Strong analysts learn the question-to-tool mapping deliberately and reach for the right one at the right step. Weak analysts run the same SIEM query against every alert and hope.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/example" nextLabel="Uncover working example" ctaLabel="See the example" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "soon", escalation: "soon", documentation: "soon" }}/>
+
+<style>
+{`
+.tool-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.5rem 0; }
+@media (min-width: 640px) { .tool-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .tool-grid { grid-template-columns: repeat(3, 1fr); } }
+.tool { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #f97316; border-radius: 0.55rem; }
+.tool h4 { margin: 0 0 0.3rem 0; color: #fdba74; font-size: 0.93rem; }
+.tool p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.85rem; }
+`}
+</style>

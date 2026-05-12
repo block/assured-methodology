@@ -1,0 +1,100 @@
+---
+title: "Regulatory boundaries"
+description: "GDPR, CCPA, HIPAA, PCI DSS, SOX. The rules that constrain what an investigation can do, with whom, and on what timeline."
+slug: "scope/regulatory"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="01"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="Regulatory boundaries are the rules that limit what an investigation can do with what kinds of data. They are not optional, and they shape Scope decisions as much as the technical signals do."
+/>
+
+<PillNav
+  label="Scope chapter"
+  current="/docs/scope/regulatory"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+# Five frameworks an analyst should recognize
+
+<div class="reg-grid">
+  <div class="reg-card">
+    <h4>🇪🇺 GDPR</h4>
+    <p>The General Data Protection Regulation. Applies to processing of personal data of EU residents regardless of where the processor is located. Key concepts for triage: lawful basis for processing, data minimization, breach-notification timelines (72 hours to supervisory authority).</p>
+  </div>
+  <div class="reg-card">
+    <h4>🐻 CCPA / CPRA</h4>
+    <p>California Consumer Privacy Act and its successor. Similar in spirit to GDPR but California-residents-only. Carries breach-disclosure requirements and right-to-know obligations the investigation may need to plan for.</p>
+  </div>
+  <div class="reg-card">
+    <h4>💳 PCI DSS</h4>
+    <p>Payment Card Industry Data Security Standard. Applies to any system that stores, processes, or transmits cardholder data. Triage in scope of PCI has additional logging, retention, and disclosure rules.</p>
+  </div>
+  <div class="reg-card">
+    <h4>🏥 HIPAA</h4>
+    <p>Health Insurance Portability and Accountability Act. Protected Health Information has the strictest access and disclosure rules in this list. Even reading PHI during an investigation requires authorization the analyst may not have by default.</p>
+  </div>
+  <div class="reg-card">
+    <h4>📊 SOX</h4>
+    <p>Sarbanes-Oxley. Governs financial-reporting controls for public companies. Investigations affecting financial systems trigger SOX implications that the audit and finance teams will care about.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="The pattern across all five">
+Each framework has three triage implications: <strong>(1)</strong> what data the analyst can touch, <strong>(2)</strong> what records the investigation has to leave behind, and <strong>(3)</strong> what timeline notifications follow. Scope is the place those three are made explicit, before Uncover starts touching regulated data.
+</Callout>
+
+---
+
+# When regulatory triggers escalate the investigation
+
+Regulatory exposure is not just a constraint. It can also be a reason to escalate sooner than the technical evidence alone would justify.
+
+- A confirmed compromise of a system processing **PHI** invokes HIPAA breach-notification obligations and an internal disclosure timeline that runs independently of the technical investigation.
+- A compromised account with access to **PCI** systems may require card-brand notification within days, again independently.
+- A breach affecting **EU residents** may trigger the GDPR 72-hour clock, which means delaying escalation has direct financial cost.
+
+<KeyTakeaway>
+Regulatory frameworks are not paperwork after the fact. They are part of the boundary the investigation is conducted within. Scope is where the analyst confirms which frameworks apply and what obligations follow.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/time"
+  nextLabel="Time boundaries"
+  nextDescription="Historical review windows, real-time investigation, retention limits. When the investigation starts and stops."
+  ctaLabel="Read time boundaries"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "soon", risk: "soon", escalation: "soon", documentation: "soon" }}
+/>
+
+<style>
+{`
+.reg-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px)  { .reg-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .reg-grid { grid-template-columns: repeat(3, 1fr); } }
+.reg-card {
+  padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+}
+.reg-card h4 { margin: 0 0 0.4rem 0; color: #d8b4fe; font-size: 1rem; }
+.reg-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+`}
+</style>

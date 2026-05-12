@@ -1,0 +1,58 @@
+---
+title: "Internal and external escalation protocols"
+description: "Tier 1, 2, 3 responsibilities; vendor, legal, law-enforcement paths; communication structure."
+slug: "escalation/protocols"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="02" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Where the case goes matters. Internal tiers define who picks up; external paths exist when the response goes beyond the organization."/>
+
+<PillNav label="Escalation chapter" current="/docs/escalation/protocols" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+# Internal tiers
+
+<div class="tier-list">
+  <div class="tier-row"><span class="tier-row__label">Tier 1</span><h4>Initial detection and triage</h4><p>Receives alerts. Validates the signal. Closes false positives. Escalates anything that meets criteria or that exceeds Tier 1's mandate. The Alert, Subject, Scope work usually lives here.</p></div>
+  <div class="tier-row"><span class="tier-row__label">Tier 2</span><h4>In-depth investigation</h4><p>Picks up escalated cases. Runs Uncover and Risk to completion. Decides whether the case becomes a declared incident. Manages most of the active investigation work.</p></div>
+  <div class="tier-row"><span class="tier-row__label">Tier 3</span><h4>Cross-functional coordination</h4><p>For declared incidents. Coordinates with engineering, legal, compliance, communications, and leadership. Often equivalent to the incident commander role for the incident in question.</p></div>
+</div>
+
+---
+
+# External paths
+
+<div class="ext-grid">
+  <div class="ext"><h4>🧑‍⚖️ Legal counsel</h4><p>Engaged whenever regulatory triggers, customer notifications, or litigation considerations come into play. Often early in the timeline for incidents with regulatory exposure.</p></div>
+  <div class="ext"><h4>🏛️ Compliance</h4><p>Engaged when the case touches a regulated framework. Their clock may run independently from the technical investigation.</p></div>
+  <div class="ext"><h4>🤝 Vendors</h4><p>When the incident involves a vendor's product or platform. Vendor disclosure may be required by contract.</p></div>
+  <div class="ext"><h4>👮 Law enforcement</h4><p>For criminal activity, extortion, or cross-border threats. Engaged through legal counsel, not directly by the SOC.</p></div>
+  <div class="ext"><h4>📢 Communications</h4><p>For incidents that may become public. Press, customer, and partner messaging is its own workstream.</p></div>
+</div>
+
+<KeyTakeaway>Internal tiers handle the technical work. External paths handle the non-technical consequences. Both are part of the escalation map.</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/triage-vs-ir" nextLabel="Triage vs. incident response" ctaLabel="Read the distinction" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "soon" }}/>
+
+<style>{`
+.tier-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.tier-row { padding: 1.1rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.6rem; }
+.tier-row__label { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: #a5b4fc; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.tier-row h4 { margin: 0 0 0.3rem 0; color: #f8fafc; font-size: 1rem; }
+.tier-row p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.92rem; }
+
+.ext-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 640px)  { .ext-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .ext-grid { grid-template-columns: repeat(3, 1fr); } }
+.ext { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; }
+.ext h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.92rem; }
+.ext p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.85rem; }
+`}</style>

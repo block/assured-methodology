@@ -1,0 +1,188 @@
+---
+title: "Anomaly-based detection"
+description: "Statistical deviation from a behavioral baseline. The family designed to catch what signatures cannot have seen before."
+slug: "alert/detection-mechanisms/anomaly"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import StrengthsLimitations from "@/components/assured/StrengthsLimitations.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="01 · 02"
+  pillarLabel="04 families"
+  chapterHref="/docs/alert/detection-mechanisms"
+  chapterLabel="Detection mechanisms"
+  lede="Anomaly-based detection builds a model of what normal looks like in this environment and flags activity that deviates from it. The model does not need to know what the threat is, only what normal is."
+/>
+
+<PillNav
+  label="Detection families"
+  current="/docs/alert/detection-mechanisms/anomaly"
+  items={[
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+  ]}
+/>
+
+# How it works
+
+An anomaly-detection engine observes a stream of telemetry over time and constructs a baseline of typical behavior for the entities it sees. The baseline can be statistical (a distribution of login times, packet sizes, or process counts), machine-learned (clustering, isolation forests, autoencoders), or a hybrid of the two. Once the baseline is stable, the engine flags any observation that falls far enough outside the baseline to be considered an outlier.
+
+The defining property of the family is that it does not need a prior example of the threat. Signature detection needs to have seen the malware before. Anomaly detection only needs to know what your environment usually does. That makes anomaly the strongest family against truly novel attacks, and the noisiest family during periods of organizational change.
+
+<Callout variant="info" title="The trade with anomaly detection">
+Anomaly detection trades precision for breadth. A signature engine fires rarely and confidently. An anomaly engine fires often and with low confidence. The analyst's job with anomaly alerts is to find the corroborating evidence that turns the deviation into a verdict.
+</Callout>
+
+# What anomaly detection catches
+
+<div class="anomaly-examples">
+  <div class="anomaly-example">
+    <h4>🕒 Unusual authentication times</h4>
+    <p>An administrative login at 03:00 from an account that historically logs in between 09:00 and 17:00. The deviation is from <em>this user's</em> historical pattern, not a global rule.</p>
+  </div>
+  <div class="anomaly-example">
+    <h4>📤 Atypical data transfer volumes</h4>
+    <p>A file server moves 2 GB outbound when its baseline is single-digit megabytes per day. The traffic itself is over an allowed channel; the volume is the deviation.</p>
+  </div>
+  <div class="anomaly-example">
+    <h4>⚙️ Abnormal process behavior</h4>
+    <p><code>powershell.exe</code> launching <code>python.exe</code> on an endpoint where that combination has never been observed. Both binaries are legitimate; the relationship is what is new.</p>
+  </div>
+  <div class="anomaly-example">
+    <h4>🚪 Authentication pattern shifts</h4>
+    <p>Rapid lateral authentication attempts across multiple endpoints within seconds. Each attempt is legitimate-looking; the rate and breadth are anomalous.</p>
+  </div>
+</div>
+
+**Representative platforms:** Microsoft Defender XDR (UEBA), Darktrace, Exabeam Advanced Analytics, Elastic Security ML, Securonix.
+
+---
+
+# Example: a 2 AM file transfer
+
+<Reveal summary="Walk through a typical anomaly alert" variant="example" open={true}>
+
+A UEBA platform produces the following alert:
+
+```
+Alert: Data transfer volume deviation
+Severity: Medium
+Confidence: 64%
+Entity: srv-fileshare-01
+Observation: 2.1 GB outbound to ext-archive[.]example over HTTPS
+Baseline: median 6 MB/day, 99th percentile 80 MB/day
+Window: 02:14 - 02:31 UTC
+```
+
+The analyst's first question is which family fired. The "Confidence: 64%" and the baseline statistics make it obvious this is an anomaly engine. The engine is reporting a real deviation, not a verdict on whether the deviation is malicious.
+
+What the analyst checks next:
+
+- **Is the destination legitimate?** Look up <code>ext-archive[.]example</code> in DNS history, threat intel, and asset inventory. A long-standing partner is one story; a recently registered domain is another.
+- **Is there a corresponding business reason?** Check change management, scheduled backup jobs, and ITSM tickets for the 02:14 window. A documented backup window neutralizes the alert.
+- **Is the process source consistent?** The transfer must have been initiated by a process on the file server. Correlating process telemetry from that window will identify whether a known backup agent or an unexpected process started the transfer.
+- **Are there sibling anomalies?** Did the same server also show unusual authentication or process activity in the same window? Multiple anomalies converging on one entity is a stronger signal than any single one.
+
+Anomaly detection is rarely decisive on its own. The job is to gather the corroborating context that either explains the deviation away or escalates it.
+
+</Reveal>
+
+---
+
+# Strengths and limitations
+
+<StrengthsLimitations
+  strengths={[
+    "Catches zero-day attacks and novel techniques the signature world has no name for yet.",
+    "Adapts to environment-specific patterns. Every organization's 'normal' is different, and anomaly engines learn that on the ground.",
+    "Identifies subtle or gradual changes that single-event detection would miss.",
+    "Resilient to evasion tactics that target static signatures or static rules.",
+  ]}
+  limitations={[
+    "High false-positive rate during baseline-learning periods, environment shifts, mergers, migrations, or new tool rollouts.",
+    "Computationally expensive. Sustained ML inference on streaming telemetry has real cost.",
+    "Requires ongoing tuning. A baseline that has not been refreshed in six months starts to lie about what normal is.",
+    "Decision logic can be opaque. ML-driven alerts can be hard to explain to stakeholders or auditors.",
+  ]}
+/>
+
+---
+
+# Operational considerations
+
+- **Allow a meaningful baseline period before trusting alerts.** Several weeks of stable telemetry is a reasonable starting point. Less than that and the baseline is noise.
+- **Monitor for baseline drift during operational change.** A merger, a new SaaS rollout, or a major upgrade will all invalidate prior baselines temporarily.
+- **Tune sensitivity continuously.** Anomaly detection is never "set and forget." Treat the engine like a living asset that needs review.
+- **Pair with corroborating data sources.** Anomaly alerts are most useful when they can be joined to identity, process, and network telemetry inside a single investigation surface.
+
+<Callout variant="puzzle" title="Anomaly vs. behavioral">
+Anomaly detection fires on a single deviation from a baseline. Behavioral analytics fires on a sequence of related events that together suggest a multi-stage attack. Both use machine learning, but they answer different questions. Anomaly asks "is this single observation unusual." Behavioral asks "do these observations together describe an adversary's progression."
+</Callout>
+
+<KeyTakeaway>
+Anomaly detection is the counterweight to signature detection. Signature needs to have seen the threat before; anomaly only needs to know normal. Used well, it surfaces the early signals of novel attacks before signatures exist. Used poorly, it produces noise that erodes trust in the broader detection stack.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/detection-mechanisms/rule"
+  nextLabel="Rule-based detection"
+  nextDescription="The family that encodes institutional knowledge: if-then logic combining multiple indicators into scenarios worth flagging."
+  ctaLabel="Read rule-based"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.anomaly-examples {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .anomaly-examples { grid-template-columns: 1fr 1fr; }
+}
+
+.anomaly-example {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #22c55e;
+  border-radius: 0.7rem;
+}
+
+.anomaly-example h4 {
+  margin: 0 0 0.4rem 0;
+  color: #86efac;
+  font-size: 1rem;
+}
+
+.anomaly-example p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+`}
+</style>

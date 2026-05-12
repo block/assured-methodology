@@ -1,0 +1,132 @@
+---
+title: "Time boundaries"
+description: "Historical review windows, real-time investigation, and retention limits. When the investigation starts and stops."
+slug: "scope/time"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="02"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="The time window an investigation runs over is a decision, not a default. Different threat types deserve different windows, and choosing deliberately keeps the work bounded and the evidence defensible."
+/>
+
+<PillNav
+  label="Scope chapter"
+  current="/docs/scope/time"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+# Two kinds of time
+
+<div class="time-types">
+  <div class="time-card">
+    <h3>🕐 Historical review</h3>
+    <p>Looking backward from the alert. How far back the investigation pulls evidence. Short windows (hours to a day) work for fast-moving attacks like ransomware staging. Longer windows (weeks to months) are needed for slow-burn insider cases or campaigns that establish persistence over time.</p>
+  </div>
+  <div class="time-card">
+    <h3>⏱️ Real-time investigation</h3>
+    <p>The window during which the investigation is happening now. Influences whether containment can happen mid-investigation and how quickly the handoff to incident response needs to be ready.</p>
+  </div>
+</div>
+
+---
+
+# Choosing the historical window
+
+<div class="window-table">
+  <div class="window-row">
+    <span class="window-row__label">Ransomware staging</span>
+    <span class="window-row__value">Last 1 to 24 hours</span>
+    <p>Fast-moving. The attack typically progresses within a single shift, and the relevant evidence is recent.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Phishing-driven intrusion</span>
+    <span class="window-row__value">Last 24 to 72 hours</span>
+    <p>Initial access happened recently; the question is what the adversary did with it after.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Lateral movement</span>
+    <span class="window-row__value">Last 1 to 4 weeks</span>
+    <p>Adversaries dwell for days or weeks before moving. The historical baseline needs enough range to surface the gradual expansion.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Supply-chain compromise</span>
+    <span class="window-row__value">Last 1 to 6 months</span>
+    <p>The compromise may predate the alert by weeks or months. Both the alert and earlier silent activity matter.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Slow-burn insider</span>
+    <span class="window-row__value">Last 3 to 12 months</span>
+    <p>The trajectory is what reveals the case. A short window will not capture the gradual deviation.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Retention is a real constraint">
+The window the analyst chooses is bounded by what the SOC actually retains. If logs are 30 days old and the case calls for a 6-month look, the investigation has to acknowledge that gap rather than pretend it does not exist. Document the retention limit as part of the Scope output.
+</Callout>
+
+---
+
+# Real-time investigation considerations
+
+- **Coverage model.** A 24/7 SOC and an 8/5 SOC handle real-time differently. After-hours alerts have different escalation paths.
+- **Containment timing.** Some actions (isolating a host, disabling an account) can be taken during the investigation. Others have to wait for IR. Scope decides which is which based on the threat type and impact.
+- **Time-boxing.** Open-ended investigations consume resources without producing results. Scope sets a soft deadline at which the investigation either escalates or closes, even if not every thread has been chased.
+
+<KeyTakeaway>
+Time is a boundary, not a default. The right window depends on the threat. Choosing deliberately and documenting why is what makes the result defensible and the work bounded.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/entity"
+  nextLabel="Entity boundaries"
+  nextDescription="Primary and secondary entities, relationship mapping, access modeling, dependency tracing."
+  ctaLabel="Read entity boundaries"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "soon", risk: "soon", escalation: "soon", documentation: "soon" }}
+/>
+
+<style>
+{`
+.time-types { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .time-types { grid-template-columns: 1fr 1fr; } }
+.time-card {
+  padding: 1.4rem 1.6rem; background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 0.85rem;
+}
+.time-card h3 { margin: 0 0 0.5rem 0; color: #d8b4fe; font-size: 1.1rem; }
+.time-card p { margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 0.93rem; }
+
+.window-table { display: flex; flex-direction: column; gap: 0.6rem; margin: 1.25rem 0; }
+.window-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding: 0.95rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.55rem;
+}
+@media (min-width: 768px) { .window-row { grid-template-columns: 1.3fr 1fr; align-items: baseline; } }
+.window-row__label { color: #f8fafc; font-weight: 700; font-size: 0.95rem; }
+.window-row__value { color: #d8b4fe; font-weight: 700; font-size: 0.92rem; }
+.window-row p { grid-column: 1 / -1; margin: 0.15rem 0 0 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+`}
+</style>

@@ -1,0 +1,86 @@
+---
+/**
+ * ContinueCard, end-of-page CTA showing what's next in the methodology.
+ *
+ * Renders puzzle progress at the top of the card so readers feel the
+ * methodology assembling as they advance.
+ */
+
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+
+interface Props {
+  current: "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+  nextHref: string;
+  nextLabel: string;
+  nextDescription?: string;
+  status?: Record<string, "live" | "soon">;
+  ctaLabel?: string;
+}
+
+const {
+  current,
+  nextHref,
+  nextLabel,
+  nextDescription,
+  status = {},
+  ctaLabel = "Continue",
+} = Astro.props;
+---
+
+<section class="continue-card">
+  <div class="continue-card__progress">
+    <PuzzleProgress current={current} status={status} compact={true} />
+  </div>
+
+  <div class="continue-card__body">
+    <p class="continue-card__overline">Next up</p>
+    <h3 class="continue-card__title">{nextLabel}</h3>
+    {nextDescription && <p class="continue-card__desc">{nextDescription}</p>}
+
+    <a href={nextHref} class="assured-cta">
+      {ctaLabel}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14"></path>
+        <path d="M13 5l7 7-7 7"></path>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  .continue-card {
+    margin: 3rem 0 2rem;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    backdrop-filter: blur(8px);
+    text-align: center;
+  }
+
+  .continue-card__progress {
+    margin-bottom: 1.5rem;
+  }
+
+  .continue-card__overline {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #5eead4;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .continue-card__title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+
+  .continue-card__desc {
+    margin: 0 auto 1.5rem auto;
+    color: #cbd5e1;
+    max-width: 56ch;
+  }
+</style>

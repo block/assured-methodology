@@ -1,0 +1,188 @@
+---
+title: "Signature-based detection"
+description: "Deterministic pattern matching against known indicators of compromise. The oldest of the four families, and the most precise when it fires."
+slug: "alert/detection-mechanisms/signature"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import StrengthsLimitations from "@/components/assured/StrengthsLimitations.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="01 · 01"
+  pillarLabel="04 families"
+  chapterHref="/docs/alert/detection-mechanisms"
+  chapterLabel="Detection mechanisms"
+  lede="Signature-based detection is the oldest of the four families. It compares incoming telemetry against a curated library of known-bad indicators and produces a high-confidence alert when something matches."
+/>
+
+<PillNav
+  label="Detection families"
+  current="/docs/alert/detection-mechanisms/signature"
+  items={[
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+  ]}
+/>
+
+# How it works
+
+A signature engine maintains a library of <DefineTerm term="indicators of compromise">An IoC is an artifact that, when observed, suggests intrusion: a specific file hash, a domain name, an IP address, a registry key value, or a byte sequence. IoCs are curated from threat intelligence, reverse engineering, and prior incident response.</DefineTerm> and compares observed telemetry against that library in near-real time. The comparison is deterministic. Either the input matches a signature in the library, or it does not. There is no probability, no learning, no <DefineTerm term="fuzzy match">A match that returns a degree of similarity rather than a yes/no. Fuzzy matching can catch slightly modified malware that an exact-match signature would miss, but it also produces uncertainty about how close a match needs to be before it counts.</DefineTerm>. The simplicity of the model is the source of both its strengths and its blind spots.
+
+Modern signature engines extend the basic pattern-match approach with hierarchical threat classification, metadata enrichment, MITRE ATT&CK mapping, and automated response orchestration. The underlying mechanism is still "compare against the list," but the list is richer, the matching is faster, and the response can be automated.
+
+# What signatures look like
+
+The library is not a single thing. A signature engine typically maintains several kinds of indicators side by side, each useful for catching a different layer of intrusion.
+
+<div class="signature-types">
+  <div class="signature-type">
+    <h4>📄 File hashes</h4>
+    <p>SHA-256 and MD5 fingerprints for known malware samples. Trivially specific. A single byte change produces a different hash and therefore no alert.</p>
+  </div>
+  <div class="signature-type">
+    <h4>🧬 Byte sequences</h4>
+    <p>Shellcode patterns, exploit-specific opcodes, and packer signatures. More robust to trivial changes than hashes because they match patterns inside the file.</p>
+  </div>
+  <div class="signature-type">
+    <h4>🗃️ Registry artifacts</h4>
+    <p>Persistence keys, configuration footprints, and known autorun entries under paths like <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code>.</p>
+  </div>
+  <div class="signature-type">
+    <h4>🌐 Network indicators</h4>
+    <p>Domain names, IP addresses, <DefineTerm term="JA3">A fingerprint of a TLS client hello packet. Used to identify the software making a TLS connection (a specific malware family, for example) without decrypting the traffic.</DefineTerm> hashes, and certificate fingerprints associated with command-and-control infrastructure.</p>
+  </div>
+</div>
+
+**Representative platforms:** CrowdStrike Falcon, Microsoft Defender for Endpoint, SentinelOne Singularity, Snort and Suricata for network IDS, YARA for content-based matching, and most commercial AV products.
+
+---
+
+# Example: a known commodity malware hash
+
+<Reveal summary="Walk through a typical signature hit" variant="example" open={true}>
+
+An EDR endpoint reports the following alert:
+
+```
+Alert: Malicious file detected
+Severity: High
+Detection: Signature match
+Hash (SHA-256): 4f5ee...c8d3 (matches "Win32.Trojan.GenericKD")
+Path: C:\Users\jdoe\Downloads\invoice.exe
+Process: explorer.exe spawned the write
+```
+
+The analyst's first question is which family fired. The "Detection: Signature match" field answers it. This is a deterministic match against a known-bad hash, which means the engine is highly confident the file is what it says it is.
+
+What the analyst checks next:
+
+- **Confirm the hash.** Cross-reference the SHA-256 against threat-intelligence sources (VirusTotal, Mandiant, internal lookup) to see what malware family this hash belongs to and what behavior it typically produces.
+- **Trace the source.** The file is in Downloads, so the user (or something acting as the user) downloaded it. Mail logs, browser history, and proxy logs help reconstruct how it got there.
+- **Check for execution.** A signature hit on a file does not always mean the file ran. Process telemetry (was `invoice.exe` ever executed) decides whether this is a contained problem or an active one.
+- **Look for sibling infections.** A "sibling" here is another host that shows the same file, the same user account, or the same download source. One infected machine is a contained problem. Several with the same signature is a campaign, and the response changes accordingly. The analyst queries the EDR or SIEM for the same hash across the fleet, the same source URL in proxy logs, and the same user across other endpoints.
+
+Notice what signature-based detection did not tell the analyst: it did not say whether the file was actually executed, whether other hosts received the same file, or whether the campaign has a custom payload variant that the library does not yet cover. Those questions belong to the other detection families and to the rest of the investigation.
+
+</Reveal>
+
+---
+
+# Strengths and limitations
+
+<StrengthsLimitations
+  strengths={[
+    "Very low false-positive rate for known threats. When it fires, it is almost always real.",
+    "Lightweight at runtime, with minimal performance impact on endpoints and network sensors.",
+    "Transparent and auditable. The analyst can point at the signature and explain exactly why the alert fired.",
+    "Fast. A signature match gives a high-confidence answer immediately, which is critical during fast-moving incidents.",
+  ]}
+  limitations={[
+    "Blind to novel threats. Zero-day exploits and polymorphic malware slip past until a signature is published.",
+    "Heavily dependent on the cadence and quality of threat-intelligence feeds that populate the signature library.",
+    "Trivially evaded by adversaries who alter their payload. A different hash means a different alert, or no alert at all.",
+    "Narrow by design. Signatures detect known-bad artifacts. They say nothing about behavior, intent, or context.",
+  ]}
+/>
+
+---
+
+# Operational considerations
+
+- **Maintain a robust signature distribution pipeline.** Stale signatures are dead weight, and the pipeline that updates them is part of the security boundary.
+- **Validate signature updates before deployment.** Supply-chain compromise of a signature vendor is a real risk, so updates should be authenticated and tested.
+- **Layer with the other families.** Signature detection alone cannot stop polymorphic or living-off-the-land attacks. The other three families compensate for that.
+- **Track coverage gaps.** <DefineTerm term="Time-to-signature">The time between when a new threat appears in the wild and when a detection signature for it lands in the engine's library. A short time-to-signature means the SOC catches new threats quickly. A long one is exposure.</DefineTerm> for emerging IoCs is a useful operational metric. The longer the gap, the more exposure.
+
+<KeyTakeaway>
+Signature-based detection is the foundation, not the building. It catches known threats with high precision, and that precision is what makes it indispensable. It is not sufficient on its own because the world produces new malware faster than any library can keep up, which is where the other three families come in.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/detection-mechanisms/anomaly"
+  nextLabel="Anomaly-based detection"
+  nextDescription="The opposite of signature-based. Where signature needs to have seen the threat before, anomaly only needs to know what normal looks like in this environment."
+  ctaLabel="Read anomaly-based"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.signature-types {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .signature-types {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+  }
+}
+
+.signature-type {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #3b82f6;
+  border-radius: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  height: 100%;
+}
+
+.signature-type h4 {
+  margin: 0 0 0.4rem 0;
+  color: #93c5fd;
+  font-size: 1rem;
+}
+
+.signature-type p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+`}
+</style>

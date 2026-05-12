@@ -1,0 +1,120 @@
+---
+/**
+ * ChapterStub, placeholder content used for chapters that are still being written.
+ *
+ * Keeps the navigation from 404'ing while making it transparent that the
+ * chapter isn't complete yet. Includes the puzzle progress visual so readers
+ * can see where this phase sits in the methodology.
+ */
+
+import Callout from "@/components/assured/Callout.astro";
+import LetterChip from "@/components/assured/LetterChip.astro";
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+
+type Phase = "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+
+interface Props {
+  letter: string;
+  phase: Phase;
+  pieceNumber: number;
+  question: string;
+  blurb: string;
+  topics: string[];
+}
+
+const { letter, phase, pieceNumber, question, blurb, topics } = Astro.props;
+
+const status = {
+  alert: "live" as const,
+  subject: "soon" as const,
+  scope: "soon" as const,
+  uncover: "soon" as const,
+  risk: "soon" as const,
+  escalation: "soon" as const,
+  documentation: "soon" as const,
+};
+---
+
+<div class={`phase-intro phase-intro--${phase}`}>
+  <LetterChip letter={letter} phase={phase} size="lg" />
+  <div>
+    <p class="phase-intro__overline">Piece {pieceNumber} of 7</p>
+    <p class="phase-intro__question">{question}</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Chapter being written">
+This chapter is being moved from the source manuscript into the site. You're seeing the placeholder; full content is on the way. Track progress on <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">GitHub</a>.
+</Callout>
+
+<h2>What this chapter will cover</h2>
+
+<p>{blurb}</p>
+
+<ul class="stub-topics">
+  {topics.map((t) => <li>{t}</li>)}
+</ul>
+
+<h2>Where this fits</h2>
+
+<PuzzleProgress current={phase} status={status} />
+
+<div class="end-cta">
+  <a href="/docs/alert" class="assured-cta">Read what's published, Alert</a>
+  <a href="https://github.com/block/assured-methodology" class="assured-cta assured-cta--ghost" target="_blank" rel="noopener noreferrer">
+    Follow progress on GitHub
+  </a>
+</div>
+
+<style>
+  .phase-intro {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: -0.5rem 0 1.5rem;
+    padding: 1rem 1.25rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--accent, rgba(148, 163, 184, 0.3));
+    border-radius: 0.85rem;
+  }
+
+  .phase-intro--alert         { --accent: rgba(59, 130, 246, 0.3); }
+  .phase-intro--subject       { --accent: rgba(34, 197, 94, 0.3); }
+  .phase-intro--scope         { --accent: rgba(168, 85, 247, 0.3); }
+  .phase-intro--uncover       { --accent: rgba(249, 115, 22, 0.3); }
+  .phase-intro--risk          { --accent: rgba(239, 68, 68, 0.3); }
+  .phase-intro--escalation    { --accent: rgba(99, 102, 241, 0.3); }
+  .phase-intro--documentation { --accent: rgba(20, 184, 166, 0.3); }
+
+  .phase-intro__overline {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 700;
+  }
+
+  .phase-intro__question {
+    margin: 0.2rem 0 0;
+    font-size: 1.1rem;
+    color: #f8fafc;
+    font-weight: 600;
+  }
+
+  .stub-topics {
+    margin: 1rem 0 2rem;
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .end-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 2rem 0 1rem;
+  }
+</style>

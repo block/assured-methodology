@@ -280,4 +280,4 @@ Today, it serves as both a teaching framework and an operational guide, empoweri
 
 **Built with ❤️ by the cybersecurity community for the cybersecurity community.**
 
-*Last updated: September 2025*
+*Site under active rewrite — currently published: Introduction, Alert chapter. Remaining phases are stubbed with "Coming soon" markers and being moved from the source manuscript.*

@@ -1,0 +1,308 @@
+---
+title: "Entity types and analysis"
+description: "Every kind of identity has its own analysis pattern. Users, endpoints, applications, services, network identifiers."
+slug: "subject/entity-types"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="subject"
+  parentLetter="S"
+  pillarNumber="02"
+  pillarLabel="04"
+  chapterHref="/docs/subject"
+  chapterLabel="Subject"
+  lede="Identity does not mean one thing. A user account is one kind of subject. An EC2 instance is another. A service account that signs API calls on behalf of a deployment is a third. Each type carries its own risk profile and its own investigation pattern."
+/>
+
+<PillNav
+  label="Subject chapter"
+  current="/docs/subject/entity-types"
+  items={[
+    { label: "Four dimensions",      href: "/docs/subject/four-dimensions",     phase: "subject" },
+    { label: "Entity types",         href: "/docs/subject/entity-types",        phase: "subject" },
+    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework",phase: "subject" },
+    { label: "Insider analysis",     href: "/docs/subject/insider-analysis",    phase: "subject" },
+  ]}
+/>
+
+# The four entity types
+
+Modern environments produce four broad categories of identities. Each one has its own normal patterns, its own ways of being abused, and its own analysis priorities.
+
+<div class="entity-grid">
+  <div class="entity-card entity-card--users">
+    <span class="entity-card__tag">01</span>
+    <h3>👤 User accounts</h3>
+    <p>Standard users, administrators, service accounts, external partners. Identity verification and access monitoring drive the analysis.</p>
+  </div>
+  <div class="entity-card entity-card--endpoints">
+    <span class="entity-card__tag">02</span>
+    <h3>💻 Endpoints</h3>
+    <p>Physical and virtual devices: workstations, servers, mobile, IoT, network infrastructure. The host is the address where activity actually happens.</p>
+  </div>
+  <div class="entity-card entity-card--apps">
+    <span class="entity-card__tag">03</span>
+    <h3>⚙️ Applications and services</h3>
+    <p>Business applications, dev tools, automation pipelines, cloud functions. Non-human identities with predictable but consequential behavior.</p>
+  </div>
+  <div class="entity-card entity-card--network">
+    <span class="entity-card__tag">04</span>
+    <h3>🌐 Network identifiers</h3>
+    <p>IPs, domains, protocols, MAC addresses, certificates. Not identities in the strict sense, but the markers the system uses to route trust.</p>
+  </div>
+</div>
+
+---
+
+# 👤 User accounts
+
+User accounts produce the earliest and most actionable indicators of compromise. The analyst's job is to evaluate the activity against the account's expected pattern and lifecycle.
+
+<div class="user-lifecycle">
+  <div class="user-lifecycle__row">
+    <h4>Creation and provisioning</h4>
+    <p>Cross-reference account creation against HR onboarding and approved automation. Accounts that appear without a matching workflow are the classic backdoor pattern.</p>
+  </div>
+  <div class="user-lifecycle__row">
+    <h4>Modification events</h4>
+    <p>Privilege grants, group memberships, role changes. Each is a moment where an attacker could be establishing or expanding their access.</p>
+  </div>
+  <div class="user-lifecycle__row">
+    <h4>Dormancy</h4>
+    <p>Accounts inactive for 30+ days without being deprovisioned are a known soft target. They are credentials with no human watching them.</p>
+  </div>
+  <div class="user-lifecycle__row">
+    <h4>Termination</h4>
+    <p>Off-boarded users should lose access across every integrated system within hours of HR's record being updated. Orphaned credentials are how former employees become external attackers.</p>
+  </div>
+  <div class="user-lifecycle__row">
+    <h4>Password resets</h4>
+    <p>Resets outside the normal rotation policy, especially from unexpected locations, can indicate social engineering or account-recovery abuse.</p>
+  </div>
+</div>
+
+## Subtypes of user accounts
+
+<div class="user-subtypes">
+  <div class="user-subtype">
+    <h4>Standard users</h4>
+    <p>Predictable patterns tied to business hours and job function. Most volume, least permission.</p>
+  </div>
+  <div class="user-subtype">
+    <h4>Service accounts</h4>
+    <p>Non-interactive by design. Highly predictable behavior. Interactive logins from a service account are a near-canonical compromise signal.</p>
+  </div>
+  <div class="user-subtype">
+    <h4>Administrative accounts</h4>
+    <p>High impact if abused. Should be used through privileged access management, not for routine work. Watch for admin accounts doing user-tier activities.</p>
+  </div>
+  <div class="user-subtype">
+    <h4>External accounts</h4>
+    <p>Contractors, partners, vendor logins. Limited organizational visibility, broader attack surface. Compensating controls (time-bound access, narrow scope) are essential.</p>
+  </div>
+  <div class="user-subtype">
+    <h4>Shared accounts</h4>
+    <p>Single credentials used by multiple people. Attribution becomes impossible. Treat any shared-account activity as a documentation risk before treating it as a security one.</p>
+  </div>
+</div>
+
+---
+
+# 💻 Endpoints
+
+Each endpoint is a place where activity happens and a window into the broader environment.
+
+<div class="endpoint-patterns">
+  <div class="endpoint-card">
+    <h4>Workstations</h4>
+    <p>Standard user productivity machines. Compare current activity against the user's historical pattern on this specific device.</p>
+  </div>
+  <div class="endpoint-card">
+    <h4>Servers</h4>
+    <p>Mostly service-account driven, predictable workloads, narrow user-interactive activity. Interactive logins on production servers deserve a closer look.</p>
+  </div>
+  <div class="endpoint-card">
+    <h4>Mobile devices</h4>
+    <p>Personal and managed. MDM telemetry, MAM data, EMM enrollment status. Off-network activity may be invisible to corporate logging.</p>
+  </div>
+  <div class="endpoint-card">
+    <h4>IoT and OT</h4>
+    <p>Limited instrumentation. Often legacy. Trust boundaries depend on segmentation rather than endpoint detection.</p>
+  </div>
+  <div class="endpoint-card">
+    <h4>Cloud workloads</h4>
+    <p>EC2 instances, Kubernetes pods, serverless functions. Short lifetimes mean baselines are statistical, not per-instance.</p>
+  </div>
+  <div class="endpoint-card">
+    <h4>Network infrastructure</h4>
+    <p>Routers, switches, firewalls. Compromise here is rare but high impact. Configuration drift is the most common signal.</p>
+  </div>
+</div>
+
+---
+
+# ⚙️ Applications and services
+
+Applications and services are non-human identities that act on behalf of (or alongside) human users.
+
+<Callout variant="info" title="Why these often hide in plain sight">
+Applications and services often have broad, persistent access and very predictable behavior. That predictability is what makes anomalies stand out. A CI/CD service account that suddenly accesses a database it has never touched before is a louder signal than the same access from a human, precisely because the service account's baseline is tight.
+</Callout>
+
+<div class="app-grid">
+  <div class="app-card">
+    <h4>Business applications</h4>
+    <p>ERP, HR, finance, CRM. Sensitive data, predictable workflows, regulatory exposure.</p>
+  </div>
+  <div class="app-card">
+    <h4>Development tools</h4>
+    <p>Source control, CI/CD pipelines, package registries. Often have credentials that can deploy code into production.</p>
+  </div>
+  <div class="app-card">
+    <h4>System utilities</h4>
+    <p>Backup agents, monitoring tools, configuration management. Run continuously, touch many systems, easy to overlook.</p>
+  </div>
+  <div class="app-card">
+    <h4>Cloud services</h4>
+    <p>Managed cloud functions, container orchestration, service meshes. The identity boundary is often a cloud role rather than a credential.</p>
+  </div>
+</div>
+
+---
+
+# 🌐 Network identifiers
+
+Network identifiers are how systems decide who is who when they cannot ask a person directly.
+
+- **IP addresses.** Source and destination identities for any network traffic. Internal IPs map to assets via the asset inventory; external IPs map to reputation via threat intelligence.
+- **Domain names.** Especially recent ones. Newly registered domains carry their own confidence weight.
+- **Protocols and ports.** A workstation that suddenly speaks SMB to an unfamiliar host is a different story than one that speaks HTTPS.
+- **MAC addresses.** Lower in the stack but useful for tracking devices across DHCP changes.
+- **Certificates.** TLS fingerprints, code-signing certificates, client certs. Mismatches and generic CNs are signals.
+- **API keys and tokens.** Persistent identifiers granted to services. Worth tracking by issuance and last-use date.
+
+---
+
+<KeyTakeaway>
+Each entity type has its own pattern of normal and its own ways of being abused. Strong Subject analysis matches the analytical lens to the type. Treating a service account like a user (or a cloud role like a host) is how attackers go uninvestigated even when their activity is in the logs.
+</KeyTakeaway>
+
+<ContinueCard
+  current="subject"
+  nextHref="/docs/subject/behavioral-framework"
+  nextLabel="Behavioral framework"
+  nextDescription="Pattern recognition, baseline development, anomaly detection. The toolkit for separating normal from suspicious at the Subject level."
+  ctaLabel="Read behavioral framework"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.entity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .entity-grid { grid-template-columns: 1fr 1fr; } }
+
+.entity-card {
+  position: relative;
+  padding: 1.5rem 1.75rem 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 4px solid #22c55e;
+  border-radius: 0.85rem;
+}
+.entity-card__tag {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(134, 239, 172, 0.7);
+  letter-spacing: 0.05em;
+}
+.entity-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #86efac;
+  font-size: 1.1rem;
+}
+.entity-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.user-lifecycle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 1.25rem 0;
+}
+.user-lifecycle__row {
+  padding: 0.95rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.55rem;
+}
+.user-lifecycle__row h4 {
+  margin: 0 0 0.3rem 0;
+  color: #f8fafc;
+  font-size: 0.98rem;
+}
+.user-lifecycle__row p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.user-subtypes, .endpoint-patterns, .app-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) {
+  .user-subtypes, .endpoint-patterns, .app-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1024px) {
+  .endpoint-patterns { grid-template-columns: repeat(3, 1fr); }
+}
+
+.user-subtype, .endpoint-card, .app-card {
+  padding: 1.1rem 1.3rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+.user-subtype h4, .endpoint-card h4, .app-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #86efac;
+  font-size: 0.98rem;
+}
+.user-subtype p, .endpoint-card p, .app-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+`}
+</style>

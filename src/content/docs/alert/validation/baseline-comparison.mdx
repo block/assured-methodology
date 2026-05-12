@@ -1,0 +1,155 @@
+---
+title: "Baseline comparison"
+description: "Validate alerts against the entity's own behavioral history. The right answer is usually hidden in plain sight."
+slug: "alert/validation/baseline-comparison"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="02 · 01"
+  pillarLabel="03 strategies"
+  chapterHref="/docs/alert/validation"
+  chapterLabel="Validation"
+  lede="Compare the alert against a dynamic behavioral baseline. Was this user logged in at this time historically? Does this host normally talk to that destination? Does the process tree look like the entity's usual activity?"
+/>
+
+<PillNav
+  label="Validation strategies"
+  current="/docs/alert/validation/baseline-comparison"
+  items={[
+    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison", phase: "alert" },
+    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains",       phase: "alert" },
+    { label: "Criticality",         href: "/docs/alert/validation/criticality",         phase: "alert" },
+  ]}
+/>
+
+# How baseline comparison works
+
+A baseline is a model of normal for a specific entity. The entity might be a user, a host, a service account, an application, or a network segment. The baseline is built over time from continuous telemetry and captures the rhythm of that entity's usual behavior: when it operates, what it connects to, which processes it runs, how much data it moves, who it interacts with.
+
+When an alert fires for an entity, the analyst compares the alert's claim against the entity's baseline. The deviation (or its absence) is what turns a generic alert into a specific answer. Many alerts that look alarming in the abstract become routine when set against the actual history of the entity involved.
+
+Baseline platforms such as Microsoft Sentinel UEBA, Splunk MLTK, Exabeam Advanced Analytics, and Securonix let security teams encode "normal" and surface deviations automatically. The quality of the baseline depends on the quality of the underlying telemetry and the stability of the operational environment.
+
+# What the baseline contains
+
+<div class="baseline-fields">
+  <div class="baseline-field">
+    <h4>🕐 Temporal patterns</h4>
+    <p>When the entity is active. Hours, days, week, month, season. Daily standups, end-of-quarter pushes, holiday slowdowns, and overnight maintenance windows all show up in the temporal model.</p>
+  </div>
+  <div class="baseline-field">
+    <h4>🔗 Communication graph</h4>
+    <p>Who the entity talks to. Internal systems, external destinations, peer accounts, and recurring collaborators. Each edge in the graph has its own typical cadence.</p>
+  </div>
+  <div class="baseline-field">
+    <h4>📊 Volume metrics</h4>
+    <p>How much the entity does. Bytes transferred, queries issued, processes spawned, files touched. Volume baselines catch staged exfiltration before it leaves the building.</p>
+  </div>
+  <div class="baseline-field">
+    <h4>🧩 Behavioral signatures</h4>
+    <p>Which actions the entity typically takes. The process tree of a developer's laptop looks nothing like the process tree of an accountant's, and the baseline captures that without anyone having to write a rule.</p>
+  </div>
+</div>
+
+---
+
+# Example: PowerShell at 03:00
+
+<CaseStudy
+  title="Developer workstation, off-hours scripting"
+  scenario="An EDR alert fires on PowerShell execution from a developer's workstation at 03:00 local time. The alert flags the off-hours timing as suspicious."
+>
+
+In isolation, the alert is concerning. PowerShell at 03:00 is a common adversary fingerprint. The job of baseline comparison is to test whether the alert is consistent with what this specific entity actually does.
+
+The analyst pulls the baseline for this user and host:
+
+- **VPN history** shows the developer routinely works overnight on Tuesdays and Wednesdays. Two of the last four weeks have similar 03:00 sessions.
+- **Process baseline** shows PowerShell is one of this developer's most-used utilities. They invoke it dozens of times per shift.
+- **Change calendar** shows a global release window scheduled for 02:00 to 04:00 UTC. The developer is one of the on-call engineers.
+- **Command-line history** shows the script being executed matches the signature of a known build pipeline that has run this way for months.
+
+The four signals converge: this is expected behavior with corroborating context from four independent sources. The alert is downgraded to informational, the closure note records the reasoning, and the validation logic feeds back into the detection so the next firing for the same pattern is suppressed.
+
+Without baseline comparison, the same alert would cost an hour of investigation, no clearer answer, and no improvement to the detection.
+
+</CaseStudy>
+
+<Reveal summary="What if even one signal disagreed?" variant="deep-dive">
+The same alert would deserve more investigation. If the developer's VPN history did not place them on the laptop at 03:00, the analyst would treat the PowerShell execution as unauthenticated and pivot to the question of how the script ran. If the change calendar showed no scheduled release, the analyst would look for an unplanned production change. Baseline comparison is most powerful when *all* signals agree; partial agreement is itself a signal worth investigating.
+</Reveal>
+
+---
+
+# Operational practice
+
+- **Refresh baselines regularly.** Treat them as a living artifact, not a one-time configuration. A baseline that has not been retrained in six months is starting to describe an organization that no longer exists.
+- **Coordinate with change management.** Planned modifications should be reflected in the baseline source data so they do not produce noise.
+- **Adjust for cyclical patterns.** End-of-month closeouts in finance, tax season in accounting, semester boundaries in education, and holiday traffic in retail all reshape baselines temporarily.
+- **Enrich the baseline from authoritative sources.** HR systems, business calendars, change-management tickets, and identity providers each carry context the SIEM does not have on its own.
+
+<KeyTakeaway>
+Baseline comparison is the validation strategy that pays the best dividends per dollar. Most alerts have a baseline-based answer waiting in telemetry the SOC already collects, and the engines to surface that answer are well established. The investment is in the telemetry quality and the cadence of model refresh.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/validation/attack-chains"
+  nextLabel="Attack chains and multi-event correlation"
+  nextDescription="The second strategy: link discrete events into sequences that reveal adversary intent across time."
+  ctaLabel="Read attack chains"
+  status={{
+    alert: "live",
+    subject: "soon",
+    scope: "soon",
+    uncover: "soon",
+    risk: "soon",
+    escalation: "soon",
+    documentation: "soon",
+  }}
+/>
+
+<style>
+{`
+.baseline-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .baseline-fields { grid-template-columns: 1fr 1fr; } }
+
+.baseline-field {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #14b8a6;
+  border-radius: 0.7rem;
+}
+
+.baseline-field h4 {
+  margin: 0 0 0.4rem 0;
+  color: #5eead4;
+  font-size: 1rem;
+}
+
+.baseline-field p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+`}
+</style>

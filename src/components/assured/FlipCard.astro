@@ -22,8 +22,17 @@ interface Props {
 const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 ---
 
+{/*
+  IMPORTANT: the outer click target is a <div role="button">, NOT a <button>.
+  The back-face slot can render arbitrary MDX content including other components
+  that emit their own <button> (e.g. DefineTerm). A <button> inside a <button>
+  is invalid HTML, and browsers auto-close the outer <button> on parse, which
+  ejects every later sibling (Callout, h2, paragraphs) out of the article column.
+  Switching to <div role="button" tabindex="0"> + JS keyboard handling fixes
+  that without losing keyboard accessibility.
+*/}
 <div class={`flip-card flip-card--${accent}`} data-flip-card>
-  <button type="button" class="flip-card__inner" aria-pressed="false">
+  <div role="button" tabindex="0" class="flip-card__inner" aria-pressed="false">
     <div class="flip-card__face flip-card__face--front">
       {icon && <div class="flip-card__icon" aria-hidden="true">{icon}</div>}
       <h3 class="flip-card__title">{title}</h3>
@@ -47,7 +56,7 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
         Tap to flip back
       </span>
     </div>
-  </button>
+  </div>
 </div>
 
 <style>
@@ -180,21 +189,33 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 
 <script>
   // ClientRouter idempotency: rebind on every page-load; per-card marker prevents double-bind.
+  // The inner element is a <div role="button"> (not a real <button>), so we
+  // implement Enter/Space activation manually. Click on nested interactive
+  // elements (e.g. DefineTerm trigger buttons) stops propagation so opening
+  // a tooltip doesn't also flip the card.
   function bindFlipCards() {
     const cards = document.querySelectorAll<HTMLElement>("[data-flip-card]:not([data-flip-bound])");
     cards.forEach((card) => {
       card.setAttribute("data-flip-bound", "true");
-      const inner = card.querySelector<HTMLButtonElement>(".flip-card__inner");
+      const inner = card.querySelector<HTMLElement>(".flip-card__inner");
       if (!inner) return;
       inner.addEventListener("click", (e) => {
-        e.preventDefault();
+        // If the click originated on (or inside) a nested interactive control,
+        // let that control handle it and don't flip the card.
+        const target = e.target as Element;
+        if (target.closest("button, a, input, select, textarea, [role='button']:not(.flip-card__inner)")) {
+          return;
+        }
         const pressed = inner.getAttribute("aria-pressed") === "true";
         inner.setAttribute("aria-pressed", pressed ? "false" : "true");
       });
       inner.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
+          const target = e.target as Element;
+          // Don't intercept Enter/Space on nested controls (e.g. DefineTerm button).
+          if (target !== inner && target.closest("button, a, input, select, textarea")) return;
           e.preventDefault();
-          inner.click();
+          (inner as HTMLElement).click();
         }
       });
     });

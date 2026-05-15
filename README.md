@@ -12,7 +12,7 @@ The ASSURED methodology is a structured, systematic approach to cybersecurity ev
 
 ### Core Philosophy
 
-ASSURED recognizes that effective cybersecurity requires more than just detection—it demands systematic analysis, contextual understanding, and structured decision-making. The methodology bridges the gap between automated detection systems and human analytical expertise, ensuring that security teams can respond to threats with precision, confidence, and operational efficiency.
+ASSURED recognizes that effective cybersecurity requires more than just detection, it demands systematic analysis, contextual understanding, and structured decision-making. The methodology bridges the gap between automated detection systems and human analytical expertise, ensuring that security teams can respond to threats with precision, confidence, and operational efficiency.
 
 ## 📋 The ASSURED Framework
 
@@ -244,7 +244,7 @@ As he mentored others, Timothy encountered a recurring challenge: there was no c
 Analysts struggled to approach investigations systematically, which often led to inconsistent outcomes. 
 This challenge sparked the earliest foundations of what would become the ASSURED methodology, as Timothy began experimenting with structured, step-by-step training techniques to give his mentees the clarity and confidence they needed.
 
-**ASSURED Emerges**: The convergence of these two forces—mentorship-driven innovation and the recognition of an industry-wide gap—gave rise to ASSURED. 
+**ASSURED Emerges**: The convergence of these two forces, mentorship-driven innovation and the recognition of an industry-wide gap, gave rise to ASSURED. 
 Through years of iteration, real-world application, and refinement based on feedback from trainees and peers, Timothy shaped ASSURED into a structured, repeatable methodology for event triage. 
 Today, it serves as both a teaching framework and an operational guide, empowering analysts to conduct investigations that are quick, thorough, and consistent, while fostering skill development and professional growth.
 
@@ -259,7 +259,7 @@ Today, it serves as both a teaching framework and an operational guide, empoweri
 - 💼 **LinkedIn**: [Connect for professional networking](https://linkedin.com/in/timothy-zilber)
 - 📧 **Email**: [Reach out for methodology discussions](mailto:tzilber@block.xyz)
 
-*ASSURED represents more than a methodology—it's a testament to the power of mentorship, structured learning, and addressing real gaps in cybersecurity practice. This framework is shared with the community to help others navigate the challenges Timothy once faced, ensuring that event triage receives the systematic attention it deserves.*
+*ASSURED represents more than a methodology, it's a testament to the power of mentorship, structured learning, and addressing real gaps in cybersecurity practice. This framework is shared with the community to help others navigate the challenges Timothy once faced, ensuring that event triage receives the systematic attention it deserves.*
 
 ## 📞 Support
 
@@ -280,4 +280,4 @@ Today, it serves as both a teaching framework and an operational guide, empoweri
 
 **Built with ❤️ by the cybersecurity community for the cybersecurity community.**
 
-*Site under active rewrite — currently published: Introduction, Alert chapter. Remaining phases are stubbed with "Coming soon" markers and being moved from the source manuscript.*
+*Site under active rewrite, currently published: Introduction, Alert chapter. Remaining phases are stubbed with "Coming soon" markers and being moved from the source manuscript.*

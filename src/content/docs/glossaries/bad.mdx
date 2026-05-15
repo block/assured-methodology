@@ -420,7 +420,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     <div class="bad-feature__text">
       <span class="bad-feature__tag">FEATURED</span>
       <h3>WannaCry, worm spread</h3>
-      <p>EternalBlue carried WannaCry across networks at line speed. From patient zero, the worm propagated outward through SMB shares to every unpatched host it could reach. By the time defenders saw the first alert, the second ring of hosts was already encrypting. This is what wormable means in practice.</p>
+      <p>WannaCry used the EternalBlue exploit (MS17-010) to propagate through SMB to any unpatched host it could reach. From patient zero, it spread autonomously by scanning local subnets and random IPs, infecting roughly 200,000 systems across 150 countries within 24 hours of the May 12, 2017 outbreak. By the time most SOCs had triaged the first alert, the second wave of hosts was already encrypting. That speed is what "wormable" means in practice: the malware does its own lateral movement; defenders don't get the usual reaction window.</p>
     </div>
   </article>
 
@@ -442,10 +442,10 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     <article class="bad-campaign" data-year="2015"><h4>Ukraine power grid</h4><p>2015 and 2016 attacks marking the first known successful cyberattacks to cause power outages. Attributed to Russia's Sandworm. Spear-phishing plus BlackEnergy to gain SCADA access; operators locked out as breakers were opened manually. 2016 used Industroyer / CrashOverride targeting grid-specific protocols. Defining examples of cyber warfare against civilian infrastructure.</p></article>
     <article class="bad-campaign" data-year="2017"><h4>WannaCry</h4><p>May 2017 ransomware outbreak using EternalBlue (NSA SMB exploit leaked by Shadow Brokers). Wormed across networks, encrypting files in 150+ countries; the UK NHS was hit hard. Microsoft had released the patch beforehand, but many systems were unpatched. Attributed to North Korea's Lazarus Group. A wake-up call on patch hygiene.</p></article>
     <article class="bad-campaign" data-year="2023"><h4>Storm-0558 (Microsoft cloud email)</h4><p>July 2023 intrusion in which a China-aligned actor forged Azure AD access tokens using a stolen Microsoft consumer-MSA signing key, reading emails of ~25 organizations including U.S. State Department and Commerce officials via Outlook Web Access. The key should not have signed enterprise tokens; a validation gap let it. Reshaped how the industry talks about identity-provider key custody, token-binding, and the blast radius of a single signing key.</p></article>
-    <article class="bad-campaign" data-year="2023"><h4>MOVEit Transfer mass exploitation</h4><p>May–June 2023 zero-day SQL-injection in Progress Software's MOVEit Transfer (CVE-2023-34362), exploited at scale by the Cl0p ransomware group. Thousands of organizations affected via the file-transfer vendor's customer base — U.S. federal agencies, state DMVs, Fortune 500 firms. A defining case for third-party-software risk and for ransomware groups shifting from encryption to pure data-extortion.</p></article>
-    <article class="bad-campaign" data-year="2023"><h4>Okta support-system breach</h4><p>October 2023 intrusion of Okta's customer support case-management system. Attackers used a service-account credential found in a Google account session to access HAR files customers had uploaded for troubleshooting — HAR files that contained valid session cookies. Drove home that "support" surfaces handle production credentials and need the same identity-provider rigor as the products themselves.</p></article>
+    <article class="bad-campaign" data-year="2023"><h4>MOVEit Transfer mass exploitation</h4><p>May–June 2023 zero-day SQL-injection in Progress Software's MOVEit Transfer (CVE-2023-34362), exploited at scale by the Cl0p ransomware group. Thousands of organizations affected via the file-transfer vendor's customer base, U.S. federal agencies, state DMVs, Fortune 500 firms. A defining case for third-party-software risk and for ransomware groups shifting from encryption to pure data-extortion.</p></article>
+    <article class="bad-campaign" data-year="2023"><h4>Okta support-system breach</h4><p>October 2023 intrusion of Okta's customer support case-management system. Attackers used a service-account credential found in a Google account session to access HAR files customers had uploaded for troubleshooting, HAR files that contained valid session cookies. Drove home that "support" surfaces handle production credentials and need the same identity-provider rigor as the products themselves.</p></article>
     <article class="bad-campaign" data-year="2024"><h4>XZ Utils backdoor</h4><p>March 2024. A multi-year social-engineering campaign by a fictitious maintainer ("Jia Tan") inserted a stealthy backdoor (CVE-2024-3094) into the xz/liblzma compression library that would have given remote SSH code execution on Linux systems linked against the affected build. Caught by chance by a Microsoft engineer noticing a 500ms slowdown. A defining open-source supply-chain case and the catalyst for renewed maintainer-trust scrutiny.</p></article>
-    <article class="bad-campaign" data-year="2024"><h4>Snowflake customer-account theft</h4><p>April–June 2024. A threat group later tracked as UNC5537 used credentials harvested from infostealer logs to access Snowflake customer environments that had no MFA configured. Victims included Ticketmaster, Santander, AT&amp;T, LendingTree. Not a Snowflake CVE — a customer-side identity hygiene failure at scale. Drove the industry-wide push for MFA-mandatory cloud SaaS access.</p></article>
+    <article class="bad-campaign" data-year="2024"><h4>Snowflake customer-account theft</h4><p>April–June 2024. A threat group later tracked as UNC5537 used credentials harvested from infostealer logs to access Snowflake customer environments that had no MFA configured. Victims included Ticketmaster, Santander, AT&amp;T, LendingTree. Not a Snowflake CVE, a customer-side identity hygiene failure at scale. Drove the industry-wide push for MFA-mandatory cloud SaaS access.</p></article>
     <article class="bad-campaign" data-year="2024"><h4>Volt Typhoon / Salt Typhoon</h4><p>2024 disclosures of two long-running China-linked campaigns against U.S. critical infrastructure. <strong>Volt Typhoon</strong> pre-positioned in energy, water, communications, and transportation networks using living-off-the-land techniques for stealthy persistence. <strong>Salt Typhoon</strong> compromised major U.S. telecom carriers' lawful-intercept systems with potential access to call metadata and the federal wiretap apparatus. Reframed the boundary between espionage and prepositioning for disruptive action.</p></article>
   </div>
 </section>
@@ -2822,14 +2822,15 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   filter: drop-shadow(0 0 6px #ef4444);
 }
 
-/* Ransomware lock */
+/* Ransomware lock. The shackle lifts clearly above the body, then snaps shut. */
 .bad-anim--lock .bad-anim__shackle {
   transform-origin: 110px 80px;
   animation: bad-lock-close 4s ease-in-out infinite;
 }
 @keyframes bad-lock-close {
-  0%, 40%   { transform: translateY(-6px); }
-  60%, 100% { transform: translateY(0); }
+  0%, 40%   { transform: translateY(-22px); }
+  55%       { transform: translateY(-22px); }
+  70%, 100% { transform: translateY(0); }
 }
 .bad-anim--lock .bad-anim__bits text {
   animation: bad-bit-flicker 3s ease-in-out infinite;

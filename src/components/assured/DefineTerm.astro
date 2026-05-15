@@ -91,13 +91,19 @@ const displayText = display ?? term;
     transform: translateY(1px);
   }
 
+  /*
+   * Tooltip horizontal positioning uses a JS-driven `--shift` variable so the
+   * panel can slide left/right when it would otherwise extend past the viewport
+   * (e.g. when the trigger is near the left or right edge of the screen).
+   * The arrow shifts in the OPPOSITE direction so it still points at the trigger.
+   */
   .define-term__panel {
     position: absolute;
     bottom: calc(100% + 0.6rem);
     left: 50%;
-    transform: translateX(-50%) translateY(4px);
+    transform: translateX(calc(-50% + var(--define-term-shift, 0px))) translateY(4px);
     width: max-content;
-    max-width: min(22rem, 80vw);
+    max-width: min(22rem, calc(100vw - 1rem));
     padding: 0.85rem 1rem;
     background: rgba(15, 23, 42, 0.98);
     border: 1px solid rgba(94, 234, 212, 0.4);
@@ -120,7 +126,8 @@ const displayText = display ?? term;
     content: "";
     position: absolute;
     top: 100%;
-    left: 50%;
+    /* Arrow stays anchored to the trigger center, even after the panel shifts. */
+    left: calc(50% - var(--define-term-shift, 0px));
     margin-left: -6px;
     border: 6px solid transparent;
     border-top-color: rgba(94, 234, 212, 0.4);
@@ -154,6 +161,37 @@ const displayText = display ?? term;
    *   - Closing logic re-queries triggers live so new triggers from view transitions
    *     are included.
    */
+  /*
+   * Reposition the tooltip away from viewport edges. Called on every reveal
+   * event (hover, focus, click) so the panel always renders within the screen,
+   * regardless of where the trigger is.
+   */
+  function adjustPanelShift(trigger: HTMLElement) {
+    const wrapper = trigger.parentElement;
+    if (!wrapper) return;
+    const panel = wrapper.querySelector<HTMLElement>(".define-term__panel");
+    if (!panel) return;
+
+    // Reset before measuring so existing shifts don't compound.
+    wrapper.style.setProperty("--define-term-shift", "0px");
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const margin = 8;
+    const triggerCenter = triggerRect.left + triggerRect.width / 2;
+    const halfWidth = panelRect.width / 2;
+    const wouldOverflowLeft = triggerCenter - halfWidth < margin;
+    const wouldOverflowRight = triggerCenter + halfWidth > window.innerWidth - margin;
+
+    let shift = 0;
+    if (wouldOverflowLeft) {
+      shift = margin - (triggerCenter - halfWidth);
+    } else if (wouldOverflowRight) {
+      shift = window.innerWidth - margin - (triggerCenter + halfWidth);
+    }
+    wrapper.style.setProperty("--define-term-shift", `${shift}px`);
+  }
+
   function bindDefineTerms() {
     const triggers = document.querySelectorAll<HTMLButtonElement>(
       ".define-term__trigger:not([data-defterm-bound])"
@@ -170,7 +208,12 @@ const displayText = display ?? term;
             if (other !== trigger) other.setAttribute("aria-expanded", "false");
           });
         trigger.setAttribute("aria-expanded", isOpen ? "false" : "true");
+        if (!isOpen) adjustPanelShift(trigger);
       });
+      // Hover and keyboard focus also need viewport-aware positioning,
+      // since the panel is reveal-on-hover via :hover/:focus-visible in CSS.
+      trigger.addEventListener("mouseenter", () => adjustPanelShift(trigger));
+      trigger.addEventListener("focus", () => adjustPanelShift(trigger));
     });
   }
 

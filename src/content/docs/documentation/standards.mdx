@@ -94,14 +94,14 @@ Chain of custody is the documented, time-stamped trail of who handled a piece of
 
 For triage and the appendix of the event report, the minimum-viable chain captures the following at each transfer:
 
-- **Identifier.** A stable handle for the artifact — usually the SHA-256 hash for files, a case ID + log query string for log excerpts, or a snapshot ID for disk/memory images.
+- **Identifier.** A stable handle for the artifact, usually the SHA-256 hash for files, a case ID + log query string for log excerpts, or a snapshot ID for disk/memory images.
 - **Acquisition.** Who collected it, on what device, with what tool, at what timestamp. Tool versions matter (the same EDR export from two product versions may differ).
 - **Transfers.** Every time the artifact moves between custodians or storage locations, log the receiving custodian, the transfer mechanism (case-management upload, encrypted bucket move, USB), the timestamp, and a re-verification of the identifier (re-hash for files).
-- **Integrity verification.** A hash recorded at acquisition, re-verified at each transfer and again before any analysis or presentation. If the hash changes, that's a break — record the break and stop using the artifact for evidentiary purposes.
+- **Integrity verification.** A hash recorded at acquisition, re-verified at each transfer and again before any analysis or presentation. If the hash changes, that's a break, record the break and stop using the artifact for evidentiary purposes.
 - **Access log.** Each read or analysis touch by name, purpose, and timestamp. Most case-management systems log this automatically; verify it's enabled.
 - **Disposal.** When and how the artifact is destroyed at end-of-retention. Inappropriate disposal is its own break.
 
-**What constitutes a break:** any time you cannot produce a continuous chain from acquisition to the current custodian. The most common silent breaks are pulling evidence into a personal scratch directory, sharing a screenshot in a Slack DM, or letting an EDR retention window expire on the source telemetry without exporting the underlying records first. If you're not sure whether a step counts as a break, log it explicitly with a note — the worst position is one where the gap is discovered later by counsel.
+**What constitutes a break:** any time you cannot produce a continuous chain from acquisition to the current custodian. The most common silent breaks are pulling evidence into a personal scratch directory, sharing a screenshot in a Slack DM, or letting an EDR retention window expire on the source telemetry without exporting the underlying records first. If you're not sure whether a step counts as a break, log it explicitly with a note, the worst position is one where the gap is discovered later by counsel.
 
 For triage analysts, the practical rule is: if the case might end in escalation to IR or external counsel, treat every artifact as if it's evidence from acquisition. The cost of treating low-stakes artifacts with chain-of-custody discipline is low. The cost of needing chain-of-custody on an artifact you didn't track is total.
 

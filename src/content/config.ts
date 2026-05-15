@@ -15,6 +15,10 @@ export const collections = {
       // and no shell padding. Use for pages that bring their own hero
       // (glossaries, themed landing pages).
       chromeless: z.boolean().optional(),
+      // When false, the in-page table of contents is suppressed even if the
+      // page has h2/h3 headings. Use for overview pages where the TOC adds an
+      // asymmetric right-side gutter without providing navigational value.
+      showToc: z.boolean().optional(),
     }),
   }),
 };

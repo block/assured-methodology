@@ -153,10 +153,17 @@ Signature-based detection is the foundation, not the building. It catches known 
   margin: 1.5rem 0;
 }
 
+/* At ≥768px show 2x2; at ≥1100px collapse to a single row so all four cards
+ * share the same row height (avoids the staggered-row look). */
 @media (min-width: 768px) {
   .signature-types {
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: 1fr;
+  }
+}
+@media (min-width: 1100px) {
+  .signature-types {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -170,6 +177,7 @@ Signature-based detection is the foundation, not the building. It catches known 
   flex-direction: column;
   gap: 0.4rem;
   height: 100%;
+  min-height: 9rem;
 }
 
 .signature-type h4 {

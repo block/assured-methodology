@@ -2433,7 +2433,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Microsoft Defender EASM": {
     "term": "Microsoft Defender EASM",
-    "definition": "External Attack Surface Management — the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.",
+    "definition": "External Attack Surface Management, the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.",
     "source": "cat-tool"
   },
   "Role-Based Access Control (RBAC)": {

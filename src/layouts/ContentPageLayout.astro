@@ -13,12 +13,16 @@ interface Props {
   showBreadcrumbs?: boolean;
   /** When true, removes the narrow prose constraint so the page can host wider visual sections. */
   wide?: boolean;
+  /** When false, suppresses the in-page TOC even if the page has headings.
+   *  Useful for overview/landing pages where the TOC creates an asymmetric
+   *  layout (extra right-side gutter) without adding navigational value. */
+  showToc?: boolean;
   /** When true, hides breadcrumbs + H1 and removes shell padding so the page goes edge-to-edge.
    *  Use for pages that bring their own hero (glossaries, themed landing pages). */
   chromeless?: boolean;
 }
 
-const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true, wide = false, chromeless = false } = Astro.props;
+const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true, wide = false, chromeless = false, showToc = true } = Astro.props;
 
 // Chromeless implies no breadcrumbs, no H1, full-bleed wide layout.
 const effectiveBreadcrumbs = chromeless ? false : showBreadcrumbs;
@@ -29,7 +33,7 @@ const effectiveWide = chromeless ? true : wide;
 <BaseLayout title={title} description={description}>
   <div class={`content-page ${chromeless ? "is-chromeless" : ""}`}>
     <div class={`content-page__shell ${chromeless ? "is-chromeless" : ""}`}>
-      {!chromeless && headings && headings.length > 0 && (
+      {!chromeless && showToc && headings && headings.length > 0 && (
         <aside class="content-page__toc" aria-label="In-page navigation">
           <div class="content-page__toc-inner">
             <SimpleTableOfContents headings={headings} />
@@ -106,13 +110,13 @@ const effectiveWide = chromeless ? true : wide;
   }
 
   .content-page__main-inner {
-    max-width: 50rem;
+    max-width: 58rem;
     margin: 0 auto;
   }
 
   /* Wide mode for overview pages with rich visual sections (intro, chapter overviews) */
   .content-page__main-inner.is-wide {
-    max-width: 88rem;
+    max-width: 96rem;
   }
 
   /* Keep paragraph text from stretching too wide on the wide pages so reading stays comfortable */

@@ -3,6 +3,7 @@ title: "The methodology"
 description: "An introduction to ASSURED, a structured, repeatable methodology for security event triage."
 slug: "intro"
 wide: true
+showToc: false
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -27,7 +28,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 </Callout>
 
 <Callout variant="warn" title="Triage is not incident response">
-ASSURED is a triage methodology. The triage analyst answers four questions — *is this real, is it malicious, how serious is it, what should happen next* — and either closes the case or hands it to incident response. The IR responder runs the formal lifecycle (NIST 800-61: preparation → detection &amp; analysis → containment → eradication → recovery → post-incident). Triage produces the **decision** to escalate; IR runs the **response** once the decision is made. The two roles share telemetry and vocabulary; they are not the same job. The clearer the line between them, the cleaner the handoff. See the **<a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a>** page in the Escalation chapter for the full distinction.
+ASSURED is a triage methodology. The triage analyst answers four questions, *is this real, is it malicious, how serious is it, what should happen next*, and either closes the case or hands it to incident response. The IR responder runs the formal lifecycle (NIST 800-61: preparation → detection &amp; analysis → containment → eradication → recovery → post-incident). Triage produces the **decision** to escalate; IR runs the **response** once the decision is made. The two roles share telemetry and vocabulary; they are not the same job. The clearer the line between them, the cleaner the handoff. See the **<a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a>** page in the Escalation chapter for the full distinction.
 </Callout>
 
 <div class="intro-section-head">
@@ -168,29 +169,41 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
 </div>
 
 <div class="intro-section-head">
-  <span class="section-overline">Time budget at a glance</span>
-  <h2 class="intro-section-title">On-shift target per phase (not reading time)</h2>
+  <span class="section-overline">How long each phase takes</span>
+  <h2 class="intro-section-title">Time per phase, by experience level</h2>
   <p class="intro-section-lede">
-    These are <strong>operational targets</strong> for a live shift — how long each phase should take when you're triaging an actual alert. They are <strong>not</strong> reading-time estimates; absorbing the chapter material the first time takes substantially longer (a careful first read of the full site runs ~7–10 hours including quizzes and examples). A well-run mid-complexity triage finishes in roughly 55–135 minutes end-to-end. Complex cases legitimately take longer; trivial false-positive closes can be far shorter. The point is having a felt sense of when to slow down, when to escalate early, and when "I've been here too long" is the signal.
+    The same phase takes very different time depending on who's working it. A senior analyst who knows the detection logic, the business, and the environment may close Alert in under a minute. A new analyst on their second week may spend 15 minutes on the same alert, partly understanding the detection, partly understanding what the systems involved even <em>do</em>. Both are normal. The ranges below cover all three experience levels so you can recognize where you are. These are operational shift times, not reading times. A careful first read of the full site is a separate ~7 to 10-hour investment including the quizzes and worked examples.
   </p>
 </div>
 
 <div class="intro-time-budget">
   <div class="intro-time-budget__row intro-time-budget__row--header">
-    <span>Phase</span><span>On-shift target</span><span>What dominates</span>
+    <span>Phase</span><span>New (0–6 mo)</span><span>Experienced (1–3 yr)</span><span>Expert (3+ yr)</span>
   </div>
-  <div class="intro-time-budget__row" data-phase="alert"><span><LetterChip letter="A" phase="alert" size="sm" /> Alert</span><span class="intro-time-budget__time">5–10 min</span><span>Detection mechanism, signal validation</span></div>
-  <div class="intro-time-budget__row" data-phase="subject"><span><LetterChip letter="S" phase="subject" size="sm" /> Subject</span><span class="intro-time-budget__time">10–20 min</span><span>Entity identification, behavioral baseline</span></div>
-  <div class="intro-time-budget__row" data-phase="scope"><span><LetterChip letter="S" phase="scope" size="sm" /> Scope</span><span class="intro-time-budget__time">5–15 min</span><span>Time, infrastructure, regulatory boundaries</span></div>
-  <div class="intro-time-budget__row" data-phase="uncover"><span><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span><span class="intro-time-budget__time">15–45 min</span><span>Telemetry pulls, correlation, MITRE mapping</span></div>
-  <div class="intro-time-budget__row" data-phase="risk"><span><LetterChip letter="R" phase="risk" size="sm" /> Risk</span><span class="intro-time-budget__time">5–15 min</span><span>RATM scoring, P.A.C.E. walk-through</span></div>
-  <div class="intro-time-budget__row" data-phase="escalation"><span><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span><span class="intro-time-budget__time">5–10 min</span><span>Handoff packet, routing decision</span></div>
-  <div class="intro-time-budget__row" data-phase="documentation"><span><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span><span class="intro-time-budget__time">10–20 min</span><span>Event report finalization, lessons learned</span></div>
-  <div class="intro-time-budget__row intro-time-budget__row--total"><span>Total</span><span class="intro-time-budget__time">~55–135 min</span><span>For a mid-complexity case worked end-to-end on shift</span></div>
+  <div class="intro-time-budget__row" data-phase="alert"><span><LetterChip letter="A" phase="alert" size="sm" /> Alert</span><span class="intro-time-budget__time">10–20 min</span><span class="intro-time-budget__time">3–8 min</span><span class="intro-time-budget__time">&lt; 2 min</span></div>
+  <div class="intro-time-budget__row" data-phase="subject"><span><LetterChip letter="S" phase="subject" size="sm" /> Subject</span><span class="intro-time-budget__time">20–40 min</span><span class="intro-time-budget__time">8–15 min</span><span class="intro-time-budget__time">3–10 min</span></div>
+  <div class="intro-time-budget__row" data-phase="scope"><span><LetterChip letter="S" phase="scope" size="sm" /> Scope</span><span class="intro-time-budget__time">15–30 min</span><span class="intro-time-budget__time">5–12 min</span><span class="intro-time-budget__time">2–8 min</span></div>
+  <div class="intro-time-budget__row" data-phase="uncover"><span><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span><span class="intro-time-budget__time">45–120 min</span><span class="intro-time-budget__time">20–45 min</span><span class="intro-time-budget__time">10–30 min</span></div>
+  <div class="intro-time-budget__row" data-phase="risk"><span><LetterChip letter="R" phase="risk" size="sm" /> Risk</span><span class="intro-time-budget__time">15–30 min</span><span class="intro-time-budget__time">5–12 min</span><span class="intro-time-budget__time">2–8 min</span></div>
+  <div class="intro-time-budget__row" data-phase="escalation"><span><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span><span class="intro-time-budget__time">15–25 min</span><span class="intro-time-budget__time">5–10 min</span><span class="intro-time-budget__time">3–8 min</span></div>
+  <div class="intro-time-budget__row" data-phase="documentation"><span><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span><span class="intro-time-budget__time">25–45 min</span><span class="intro-time-budget__time">10–20 min</span><span class="intro-time-budget__time">5–12 min</span></div>
+  <div class="intro-time-budget__row intro-time-budget__row--total"><span>End-to-end</span><span class="intro-time-budget__time">~2.5–5 hr</span><span class="intro-time-budget__time">~55–120 min</span><span class="intro-time-budget__time">~25–80 min</span></div>
 </div>
 
-<Callout variant="info" title="When you blow past the budget">
-Running long on a single phase is a signal, not a failure. Twenty minutes into Alert and still unclear what the detection logic saw? That is usually a sign the alert came from a system you do not yet understand — escalate to a peer or grab a senior analyst. Ninety minutes into Uncover with no convergence? Stop, write down what you know, and either ask for help or formally escalate as "still investigating." The budget exists so you notice these moments.
+<Callout variant="info" title="What makes the difference between new and expert">
+The gap between a new analyst and a senior one is rarely raw speed. It's three things:
+
+**1. Context familiarity.** An expert recognizes the detection that fired before they finish reading the alert. They know which mailbox rule on which finance laptop usually triggers it, what dlin's normal Tuesday looks like, and which on-call to page if the answer isn't quick. A new analyst has to assemble all of that fresh. **The fastest path to closing this gap is shift time**, sitting on the same alert queue for six months teaches more about your environment than any course can.
+
+**2. Pattern recognition for false positives.** Experts close false positives faster because they've seen the same false-positive pattern 200 times. The methodology is what lets the new analyst close the *first* one defensibly, with a record the team can learn from. Read the false-positive page in the Risk chapter early; it's the highest-leverage page on the site for closing the speed gap.
+
+**3. Knowing when to stop.** New analysts go down rabbit holes. (I did. Spent two hours on a single PowerShell command that turned out to be a sysadmin's harmless inventory script.) The good news: every rabbit hole you walk out of teaches you what entering one feels like. Six months in you'll catch yourself reaching for the next log query and recognize the pattern. By year two you'll stop yourself before you start. The methodology helps by giving you explicit phase boundaries, when Uncover starts feeling open-ended, that's the moment to step back to Scope and ask whether the boundaries are still right.
+
+These three skills compound. They are also why the time ranges in the table above span an order of magnitude. If you're at the high end of the New column, that's where you are; don't measure yourself against the Expert column on day one.
+</Callout>
+
+<Callout variant="info" title="When you blow past the upper bound">
+Even an expert hits the upper bound sometimes. Twenty minutes into Alert and still unclear what the detection logic saw? That is usually a sign the alert came from a system you do not yet understand, escalate to a peer or grab a senior analyst. Ninety minutes into Uncover with no convergence? Stop, write down what you know, and either ask for help or formally escalate as "still investigating." The ranges exist so you notice these moments, not so you race against them.
 </Callout>
 
 <div class="intro-section-head">
@@ -267,7 +280,7 @@ Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so
 
 .intro-time-budget__row {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: 0.75rem;
   align-items: center;
   padding: 0.7rem 1rem;
@@ -307,11 +320,16 @@ Read each letter in order: A, S, S, U, R, E, D. The methodology is structured so
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .intro-time-budget__row {
     grid-template-columns: 1fr;
-    gap: 0.3rem;
+    gap: 0.4rem;
   }
+  .intro-time-budget__row--header { display: none; }
+  /* Inline labels on mobile so the columns make sense without a header row */
+  .intro-time-budget__row > span:nth-child(2)::before { content: "New: "; color: #94a3b8; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
+  .intro-time-budget__row > span:nth-child(3)::before { content: "Experienced: "; color: #94a3b8; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
+  .intro-time-budget__row > span:nth-child(4)::before { content: "Expert: "; color: #94a3b8; font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
 }
 
 .intro-lede__secondary > p { margin: 0; }

@@ -51,26 +51,36 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 </div>
 
 <style>
+  /*
+   * Layout uses CSS grid to stack front + back faces in the same grid cell.
+   * This makes the card's intrinsic height the MAX of both faces, so neither
+   * is cut off, and avoids the position:absolute layout bugs that come from
+   * mixing 3D transforms with absolute positioning inside a <button>.
+   *
+   * The 3D flip itself still works via `transform: rotateY(180deg)` on the
+   * inner, with backface-visibility on each face.
+   */
   .flip-card {
     perspective: 1200px;
-    height: 100%;
     min-height: 14rem;
+    display: flex;
   }
 
   .flip-card__inner {
-    position: relative;
+    display: grid;
     width: 100%;
-    height: 100%;
-    min-height: 14rem;
     background: transparent;
     border: 0;
     padding: 0;
     cursor: pointer;
     transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     border-radius: 1rem;
     font-family: inherit;
     text-align: left;
+    /* Defeat the user-agent <button> overflow that breaks 3D context in some browsers. */
+    overflow: visible;
   }
 
   .flip-card__inner[aria-pressed="true"] {
@@ -83,8 +93,9 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
   }
 
   .flip-card__face {
-    position: absolute;
-    inset: 0;
+    /* Both faces occupy the same grid cell, so the inner sizes to the taller of the two. */
+    grid-column: 1;
+    grid-row: 1;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     padding: 1.5rem;
@@ -94,7 +105,7 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
     backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    min-height: 14rem;
   }
 
   .flip-card__face--front {
@@ -155,7 +166,6 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
     line-height: 1.65;
     font-size: 0.95rem;
     margin-bottom: 0.85rem;
-    overflow-y: auto;
   }
 
   .flip-card__back-body :first-child { margin-top: 0; }

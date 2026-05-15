@@ -495,7 +495,15 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
         setTimeout(() => t.remove(), 4200);
       }
       // Bubble fades out after ~2.5s so it doesn't linger until the next loop.
-      setTimeout(() => { bubble.style.opacity = '0'; }, 2500);
+      // We MUST remove the cat-bubble--pop class first; its CSS animation
+      // uses the forwards fill-mode, which holds the final keyframe at
+      // opacity 1 and would override the inline opacity 0 below. With the
+      // class removed, the cat-bubble transition (opacity 0.4s ease)
+      // handles a smooth fade.
+      setTimeout(() => {
+        bubble.classList.remove('cat-bubble--pop');
+        bubble.style.opacity = '0';
+      }, 2500);
     }, bubbleDelay);
   };
 
@@ -596,7 +604,10 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
  * on the seat its group.y = 135 - 12 = 123. */
 .cat-cat { transform: translate(40px, 158px); }
 .cat-cat--seq {
-  animation: cat-walk-jump calc((var(--cat-walks, 3) * 1.3s) + 3.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* Linear timing keeps the walking portion at constant speed (no jerk
+   * between bob keyframes). The jump still feels right because the
+   * keyframes themselves bunch the motion up into 70%-78%. */
+  animation: cat-walk-jump calc((var(--cat-walks, 3) * 1.3s) + 3.6s) linear forwards;
 }
 /* Small Y-axis bob during walking so the cat looks like it has weight on its
  * paws rather than gliding. Walking segment is 0% to 60%, then jump up to 70%,

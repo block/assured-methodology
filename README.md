@@ -72,76 +72,88 @@ pnpm preview
 ```
 assured-methodology/
 ├── src/
-│   ├── content/docs/           # Documentation content
-│   │   ├── alert/             # Alert phase methodology
-│   │   │   ├── index.mdx      # Alert overview and framework
-│   │   │   ├── detection-mechanisms.mdx
-│   │   │   ├── validation.mdx
-│   │   │   ├── parsing.mdx
-│   │   │   └── transition.mdx
-│   │   ├── subject/           # Subject phase methodology
-│   │   │   ├── index.mdx      # Subject overview
-│   │   │   ├── four-dimensions.mdx
-│   │   │   ├── entity-types.mdx
-│   │   │   ├── behavior.mdx
-│   │   │   └── transition.mdx
-│   │   ├── scope/             # Scope phase (future)
-│   │   ├── uncover/           # Uncover phase (future)
-│   │   ├── risk/              # Risk assessment (future)
-│   │   ├── escalation/        # Escalation procedures (future)
-│   │   ├── documentation/     # Documentation templates (future)
-│   │   ├── glossary/          # Terminology and definitions (future)
-│   │   └── intro.mdx          # Methodology introduction
-│   ├── components/            # Reusable UI components
-│   │   ├── docs/             # Documentation-specific components
-│   │   ├── ui/               # Base UI components
-│   │   └── block/            # Content block components
-│   ├── layouts/              # Page layout templates
-│   ├── styles/               # Global CSS and styling
-│   └── data/                 # Configuration and navigation data
-├── public/                   # Static assets
-├── astro.config.ts          # Astro configuration
-├── tailwind.config.js       # Tailwind CSS configuration
-└── package.json             # Dependencies and scripts
+│   ├── content/docs/                # Documentation content (MDX)
+│   │   ├── intro.mdx                # Methodology introduction
+│   │   ├── alert/                   # A. Alert chapter
+│   │   │   ├── index.mdx, example.mdx, quiz.mdx, transition.mdx
+│   │   │   ├── detection-mechanisms.mdx + /signature, /anomaly, /rule, /behavioral
+│   │   │   ├── validation.mdx + /baseline-comparison, /attack-chains, /criticality
+│   │   │   └── parsing.mdx + /command-line, /process-relationships, /network,
+│   │   │                       /file-system, /schema, /multi-format
+│   │   ├── subject/                 # S. Subject chapter (four-dimensions,
+│   │   │                              entity-types, behavioral-framework,
+│   │   │                              insider-analysis, example, quiz, transition)
+│   │   ├── scope/                   # S. Scope chapter (regulatory, time, entity,
+│   │   │                              infrastructure, example, quiz, transition)
+│   │   ├── uncover/                 # U. Uncover chapter (data-sources,
+│   │   │                              threat-intelligence, mitre, tooling,
+│   │   │                              example, quiz, transition)
+│   │   ├── risk/                    # R. Risk chapter (framework, impact-likelihood,
+│   │   │                              false-positive, example, quiz, transition)
+│   │   ├── escalation/              # E. Escalation chapter (criteria, protocols,
+│   │   │                              triage-vs-ir, handoff, example, quiz, transition)
+│   │   ├── documentation/           # D. Documentation chapter (standards,
+│   │   │                              templates, pitfalls, example, quiz, closure)
+│   │   └── glossaries/              # Three themed glossaries
+│   │       ├── bad.mdx              # B.A.D. — Behaviors, Adversaries, Damage
+│   │       ├── cat.mdx              # C.A.T. — Cybersecurity Applications & Tools
+│   │       └── clear.mdx            # C.L.E.A.R. — analyst lexicon
+│   ├── components/
+│   │   ├── assured/                 # Methodology-specific components
+│   │   │                              (ChapterHero, FlipCard, ExampleStepper,
+│   │   │                              DefineTerm, PillNav, Quiz, Callout, etc.)
+│   │   ├── Header.astro, Brand.astro, HeadSEO.astro,
+│   │   ├── SimpleTableOfContents.astro, SiteSearch.astro
+│   ├── content/config.ts            # Content collection schema
+│   ├── data/
+│   │   ├── glossary.ts              # Term registry (~670 entries, auto-extracted)
+│   │   └── navigation.ts            # Site navigation tree
+│   ├── layouts/                     # BaseLayout, ContentPageLayout
+│   ├── lib/utils.ts                 # Path + active-state helpers
+│   ├── pages/
+│   │   ├── index.astro              # Home
+│   │   ├── 404.astro
+│   │   └── docs/[...slug].astro     # Dynamic doc route
+│   └── styles/                      # global.css, assured.css, glossary.css,
+│                                       breadcrumbs.css
+├── public/
+│   ├── _headers                     # Defense-in-depth response headers
+│   │                                  (for hosts that honor _headers)
+│   └── (static assets)
+├── .github/workflows/deploy.yaml    # GitHub Pages auto-deploy on push to main
+├── astro.config.ts                  # Astro + MDX + icon + Pagefind config
+├── biome.json                       # Linter/formatter config
+└── package.json
 ```
 
-### Content Organization
+### What's published
 
-- **`/alert/`**: Complete methodology for alert analysis, including detection mechanisms, validation frameworks, parsing techniques, and transition planning
-- **`/subject/`**: Entity-centric investigation approaches, behavioral analysis, and relationship mapping (in development)
-- **`/scope/`**: Investigation boundary definition and impact assessment (planned)
-- **`/uncover/`**: Advanced threat hunting and deep dive analysis techniques (planned)
-- **`/risk/`**: Risk quantification and business impact evaluation (planned)
-- **`/escalation/`**: Response planning and stakeholder communication (planned)
-- **`/documentation/`**: Templates and best practices for incident documentation (planned)
-- **`/glossary/`**: Comprehensive terminology and definition repository (planned)
+All seven chapters and three glossaries are live. Each chapter includes:
+
+- **Concept pages** — the pillar topics
+- **A worked example** with two threaded cases (a finance-team phishing intrusion that escalates to IR, and a Cursor IDE Empyre-pattern false positive that closes at triage)
+- **A quiz** for self-assessment
+- **A transition page** that hands off to the next chapter
+
+| Phase | Chapter | What it covers |
+|-------|---------|----------------|
+| **A** | Alert | Detection mechanisms (signature, anomaly, rule, behavioral), validation, parsing |
+| **S** | Subject | Four dimensions (auth, authz, behavior, relationships), entity types, behavioral framework, insider analysis |
+| **S** | Scope | Regulatory, time, entity, and infrastructure boundaries |
+| **U** | Uncover | Data sources, threat intelligence, MITRE ATT&CK, tool integration |
+| **R** | Risk | RATM, P.A.C.E., impact and likelihood, the false-positive page |
+| **E** | Escalation | Criteria, protocols, the triage-vs-IR distinction, the 9-section handoff packet |
+| **D** | Documentation | Standards, templates, pitfalls, closure and downstream uses |
 
 ## 🛠️ Technology Stack
 
-- **[Astro](https://astro.build/)**: Static site generator with MDX support
-- **[Tailwind CSS](https://tailwindcss.com/)**: Utility-first CSS framework
-- **[MDX](https://mdxjs.com/)**: Markdown with JSX components for rich content
-- **[TypeScript](https://www.typescriptlang.org/)**: Type-safe development
-- **Responsive Design**: Mobile-first approach with modern UI/UX principles
-
-## 🎯 Current Status
-
-### ✅ Completed Phases
-
-- **Alert Phase**: Comprehensive methodology including:
-  - Detection mechanism analysis (Signature-based, Anomaly-based, Rule-based, Behavioral Analytics)
-  - Multi-dimensional validation frameworks
-  - Advanced parsing techniques and data standardization
-  - Transition planning to Subject phase
-
-### 🚧 In Development
-
-- **Subject Phase**: Entity-focused investigation including:
-- **Scope Phase**: Investigation boundary definition
-- **Uncover Phase**: Advanced threat hunting techniques
-- **Risk Assessment**: Business impact evaluation
-- **Escalation Procedures**: Response planning and communication
-- **Documentation Templates**: Standardized reporting frameworks
+- **[Astro 5](https://astro.build/)** + **[MDX](https://mdxjs.com/)** — Static site generator and authoring format
+- **[Tailwind CSS 4](https://tailwindcss.com/)** — CSS-based config (no `tailwind.config.js`)
+- **[Pagefind](https://pagefind.app/)** — Fully client-side search (⌘K from anywhere)
+- **[TypeScript](https://www.typescriptlang.org/)** — Type-safe development
+- **[Biome](https://biomejs.dev/)** — Linter and formatter
+- **rehype-slug + rehype-autolink-headings + remark-gfm** — Heading anchors, GFM tables/lists
+- **[astro-icon](https://www.astroicon.dev/)** — Iconify integration
 
 ## 🤝 Contributing
 
@@ -157,12 +169,13 @@ We welcome contributions from the cybersecurity community to enhance and expand 
 
 ### Contribution Areas
 
-- **Content Enhancement**: Improve existing methodology sections
-- **New Phase Development**: Contribute to incomplete phases (Scope, Uncover, Risk, etc.)
-- **Case Studies**: Add real-world examples and scenarios
-- **Technical Accuracy**: Review and improve technical content
-- **Visual Design**: Enhance UI/UX and visual presentation
-- **Documentation**: Improve clarity, examples, and practical guidance
+- **Content refinement**: Sharpen wording, fix factual drift, update tool references as the SOC vendor landscape changes
+- **Case studies**: Add real-world worked examples beyond the two threaded cases (cloud-native intrusions, identity-provider abuse, supply-chain compromises)
+- **Glossary entries**: Add terms to B.A.D. / C.A.T. / C.L.E.A.R. — particularly current threat actors, recent campaigns, and new SOC tooling
+- **Quiz items**: Application-grade questions that test methodology fluency on fresh scenarios
+- **Technical accuracy**: Review MITRE technique mappings, regulatory citations, and detection-mechanism descriptions
+- **Visual design**: Component and animation polish; new interactive teaching aids
+- **Pedagogy**: Suggestions on chapter ordering, scaffolding, or sections that read too theoretical
 
 ### Style Guidelines
 
@@ -193,12 +206,14 @@ git push origin feature/your-contribution-name
 
 ## 📚 Documentation Features
 
-- **Interactive Navigation**: Structured table of contents with active section highlighting
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Search Functionality**: Quick access to specific topics and terminology
-- **Visual Components**: Enhanced content presentation with cards, grids, and callouts
-- **Code Examples**: Practical implementation examples and templates
-- **Cross-References**: Linked content for easy navigation between related topics
+- **Two-case threading.** A real intrusion (finance-team phishing → P1 escalation to IR) and a false positive (Cursor IDE Empyre-pattern → close at triage) run through every chapter's working example. The same methodology produces both verdicts; the worked examples show how.
+- **Pagefind site search.** Press ⌘K from any page. Fully client-side, no server required, ~6,500 words indexed.
+- **DefineTerm hover glossary.** Hover or tap any underlined term to see the definition inline, pulled from a 670-entry registry. Auto-positions to stay inside the viewport.
+- **Interactive components.** FlipCards for paired concepts, ExampleStepper for multi-step walkthroughs, Reveal blocks for progressive disclosure, per-chapter quizzes that score on first-try correctness.
+- **Themed glossaries.** B.A.D. (dark crimson) for threat actors, campaigns, and malware. C.A.T. (defender blue) for the vendor and platform vocabulary. C.L.E.A.R. (indigo) for the analyst lexicon.
+- **9-section handoff packet.** The triage analyst's deliverable, including a communication record so IR knows who has been notified.
+- **MITRE ATT&CK + CVSS** mapping woven through Alert, Subject, Uncover, and Risk.
+- **Responsive + accessible.** Mobile-first layout. `prefers-reduced-motion` respected on every animation. View transitions via Astro's `ClientRouter`.
 
 ## 🌐 Deployment
 
@@ -279,5 +294,3 @@ Today, it serves as both a teaching framework and an operational guide, empoweri
 ---
 
 **Built with ❤️ by the cybersecurity community for the cybersecurity community.**
-
-*Site under active rewrite, currently published: Introduction, Alert chapter. Remaining phases are stubbed with "Coming soon" markers and being moved from the source manuscript.*

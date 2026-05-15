@@ -1,0 +1,489 @@
+---
+title: "Insider analysis"
+description: "Risk vs. threat. The Insider Threat Matrix as a structured lens for motivation, means, preparation, infringement, and anti-forensics."
+slug: "subject/insider-analysis"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="subject"
+  parentLetter="S"
+  pillarNumber="04"
+  pillarLabel="04"
+  chapterHref="/docs/subject"
+  chapterLabel="Subject"
+  lede="Insider analysis is the fourth pillar of Subject and the one that demands the most careful thinking. The person already has access, already knows the systems, and often already knows what the SOC watches for. The methodology has to compensate for all three."
+/>
+
+<PillNav
+  chapter="subject"
+  label="Subject chapter"
+  current="/docs/subject/insider-analysis"
+  items={[
+    { label: "Four dimensions",      href: "/docs/subject/four-dimensions",     phase: "subject" },
+    { label: "Entity types",         href: "/docs/subject/entity-types",        phase: "subject" },
+    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework",phase: "subject" },
+    { label: "Insider analysis",     href: "/docs/subject/insider-analysis",    phase: "subject" },
+  ]}
+/>
+
+## Risk vs. threat
+
+The vocabulary matters. The two words mean different things, and the response differs accordingly.
+
+<div class="insider-distinction">
+  <div class="insider-card insider-card--risk">
+    <h3>🟡 Insider risk</h3>
+    <p>The possibility that an insider's actions (intentional or not) cause harm. Includes mistakes, policy violations, unsafe habits, and well-meaning workarounds. Most insider risk is not malicious. Most insider risk is also not random; it follows the same patterns of stress, change, and incentive that any human behavior does.</p>
+  </div>
+  <div class="insider-card insider-card--threat">
+    <h3>🔴 Insider threat</h3>
+    <p>An insider acting with intent to harm the organization. Theft of intellectual property, sabotage, fraud, exfiltration to an external party. Far rarer than risk, but with disproportionate impact when it happens. The methodology for detecting threat overlaps with risk monitoring but requires escalation patterns that the rest of the SOC may not be used to.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Why the distinction matters">
+Treating all insider activity as <DefineTerm term="Threat" display="threat" /> poisons the relationship with the rest of the organization and produces investigations that find nothing useful. Treating all insider activity as risk misses the rare but consequential intentional cases. The methodology asks the analyst to start with risk and escalate to threat only when the evidence supports it.
+</Callout>
+
+<div class="case-study">
+  <div class="case-study__head">
+    <span class="case-study__tag">CASE STUDY</span>
+    <h3>Edward Snowden: when triage misses intent</h3>
+  </div>
+  <p>Snowden's actions at the NSA were not negligent errors. They were a deliberate, sophisticated insider threat. He had authorized access, knew the systems, and exfiltrated classified material over an extended period. The activity itself looked legitimate on the surface, which is exactly why traditional anomaly-driven triage missed it. Volume, file access, system queries: all within an admin profile's expected envelope.</p>
+  <p class="case-study__lesson"><strong>The lesson for Subject:</strong> entity-based behavioral analytics that compared Snowden's activity against his own historical profile, against peers in similar roles, and against the sensitivity of the data accessed could have produced earlier signals. Detection rules built around "is this normal in the environment" would not have. The methodology treats role + data sensitivity as a multiplier on every anomaly score; that multiplier is what surfaces sophisticated insiders.</p>
+</div>
+
+<Reveal summary="A second case: the marketing team and the DLP workaround" variant="example">
+
+A marketing team unintentionally bypassed Data Loss Prevention controls by converting confidential documents into image files and sharing them externally with a client during a collaboration. The workaround inadvertently exposed records for 3,200 customers.
+
+Investigation found no malicious intent. The behavior stemmed from frustration with secure file-sharing tools that added an average of 27 minutes to each transaction. The team was solving a usability problem, not stealing data.
+
+The remediation focused on the underlying friction: the approved sharing workflow was redesigned to take 4 minutes per exchange (down from 27), and a tailored process was added for marketing's specific collaboration needs. Compliance improved 92% within 30 days.
+
+This is insider <em>risk</em>, not threat. The investigation pivoted from forensics to process improvement. Treating it as threat would have produced an enforcement action that did not actually fix the cause.
+
+</Reveal>
+
+---
+
+## The Insider Threat Matrix
+
+The <DefineTerm term="Insider Threat Matrix">A community-maintained framework at insiderthreatmatrix.org. Catalogs insider techniques across phases (motive, means, preparation, infringement, anti-forensics) similar to how MITRE ATT&CK catalogs external adversary techniques. The matrix provides shared vocabulary and detection guidance.</DefineTerm> at <a href="https://insiderthreatmatrix.org" target="_blank" rel="noopener noreferrer">insiderthreatmatrix.org</a> organizes insider tradecraft into five phases. Used as a lens, it gives analysts a vocabulary for describing what they are seeing.
+
+<div class="matrix-phases">
+  <div class="matrix-phase">
+    <span class="matrix-phase__num">01</span>
+    <h4>🎯 Motivation</h4>
+    <p>Why an insider might act. Financial pressure, ideology, grievance, ego, coercion, or compromise by an external party. Rarely visible in telemetry; usually visible in human signals (HR concerns, expressed dissatisfaction, sudden lifestyle changes).</p>
+  </div>
+  <div class="matrix-phase">
+    <span class="matrix-phase__num">02</span>
+    <h4>🛠️ Means</h4>
+    <p>What access and capability the insider already has. The matrix catalogs the techniques an insider can use without ever needing to "hack in", they are already inside.</p>
+  </div>
+  <div class="matrix-phase">
+    <span class="matrix-phase__num">03</span>
+    <h4>🧭 Preparation</h4>
+    <p>The steps an insider takes before the harmful action: reconnaissance of internal systems, acquisition of additional credentials, learning what the SOC watches. These are the early signals if anyone is looking.</p>
+  </div>
+  <div class="matrix-phase">
+    <span class="matrix-phase__num">04</span>
+    <h4>⚠️ Infringement</h4>
+    <p>The actual harmful action. Theft of intellectual property, sabotage, fraud, exfiltration. The visible event most investigations start from.</p>
+  </div>
+  <div class="matrix-phase">
+    <span class="matrix-phase__num">05</span>
+    <h4>🧽 Anti-forensics</h4>
+    <p>What the insider does to make the action hard to trace. Log clearing, timestomping, using accounts they should not (or accounts that "belong" to someone else). Cleanup is itself a signal.</p>
+  </div>
+</div>
+
+### Inside each phase
+
+<Reveal summary="Motivations the matrix catalogs" variant="info">
+
+- **Financial gain.** Data theft or abuse of access for personal profit, often tied to fraud or IP theft. Triage correlates access to high-value assets with anomalous transfers or DLP violations, especially off-hours or to personal destinations.
+- **Coercion or blackmail.** External pressure produces abrupt, high-risk actions inconsistent with <DefineTerm term="User" display="user" /> history. Sudden privilege escalations or sensitive access outside normal duties, often with concealment.
+- **Revenge or resentment.** Triggered by demotions, conflicts, perceived mistreatment. Behavior changes after HR actions: unusual access, deletions, misconfigurations on critical systems.
+- **Curiosity or challenge.** Non-malicious boundary testing by privileged users. <DefineTerm term="Lateral Movement" display="Lateral movement" /> or unauthorized exploration; weigh against training environments.
+- **Ideological beliefs.** Political or personal convictions producing data leaks or sabotage. Anonymization tools, external <DefineTerm term="Data Staging" display="data staging" />, access aligned with the activism target.
+- **Negligence or apathy.** Careless behavior creating risk through weak hygiene. Repeated policy violations or mishandled <DefineTerm term="Sensitive Data" display="sensitive data" /> without clear malicious intent. This is risk territory, not threat.
+
+</Reveal>
+
+<Reveal summary="Means the matrix evaluates" variant="info">
+
+- **Technical access.** Beyond role-based access: residual permissions from previous teams, inherited group rights, lateral-movement paths via shared service accounts. Access path mapping surfaces dormant access that role review misses.
+- **Environmental awareness.** Insiders can <DefineTerm term="Exploit" display="exploit" /> knowledge of internal processes, weak controls, or architectural blind spots. Tenure, cross-department experience, and access to internal documentation all increase environmental awareness.
+- **Privileged access.** Admins and engineers bypass routine controls by design. Triage applies tighter scrutiny: unusual admin tool use, escalation paths, sensitive system access outside the job pattern.
+- **Physical access.** Hardware tampering, offline <DefineTerm term="Exfiltration" display="exfiltration" /> via USB, planted rogue devices. Badge logs, USB <DefineTerm term="Telemetry" display="telemetry" />, and secure-zone entry data belong in insider triage.
+
+</Reveal>
+
+<Reveal summary="Preparation activity to watch for" variant="info">
+
+- **Technical prep.** Penetration tools, encryption utilities, scripting platforms not normally required for the role. Often deployed in sandboxed or temporary directories. Monitor for unusual binary executions and failed installs from non-admin paths.
+- **Data gathering.** Testing access to datasets outside job scope. Small sample downloads or probing archival stores that escalate in size and frequency. Sudden access to <DefineTerm term="Legacy Systems" display="legacy systems" /> or large non-recent datasets is a precursor.
+- **Temporal indicators.** Preparation activity shifts to off-hours, weekends, holidays. These windows often coincide with reduced staffing. Alerting on high-sensitivity access during low-visibility hours surfaces this.
+- **Circumventing testing.** Deliberate threshold-testing: failed logins, policy violations, copying data across classifications. Individual events look benign; the pattern over days or weeks is the signal.
+
+</Reveal>
+
+<Reveal summary="Infringement: how harmful action actually happens" variant="info">
+
+- **<DefineTerm term="Execution" /> patterns.** Rather than one large action, insiders often spread access or extraction over days or weeks, staying below alert thresholds. Repeated small-scale transfers from sensitive systems are worth flagging even when each is under threshold.
+- **Technical execution.** Test queries to datasets outside scope, bulk downloads that escalate over time. Treat sudden access to legacy systems or large non-recent datasets as a precursor to broader exfiltration.
+- **<DefineTerm term="Compromised Credentials" display="Compromised credentials" />.** "Borrowing" accounts from coworkers on vacation, leave, or recently departed. Usage of dormant or newly reactivated identities should be correlated against the original owner's expected behavior.
+- **<DefineTerm term="Supply Chain" display="Supply chain" /> manipulation.** Abusing access to development pipelines or procurement to insert malicious code or alter dependencies. Last-minute code changes by high-privilege users tied to change-control tickets and peer approvals.
+
+</Reveal>
+
+<Reveal summary="Anti-forensics: how insiders try to hide" variant="info">
+
+- **Technical concealment.** Deleting or truncating event logs, scrubbing shell history, tampering with audit trails, overwriting timestamps. Encryption tools or shred scripts deployed shortly after activity. Integrity validation on key forensic sources is the counter.
+- **Behavioral concealment.** Working under assumed identities, manipulating ticketing systems, crafting business cases that look legitimate but cover malicious access. Authenticate business justifications against peer approvals and organizational objectives.
+- **Misdirection.** Triggering low-impact security events to divert attention from the primary objective. Triage should ask whether simultaneous incidents are causally linked or part of a broader misdirection campaign.
+- **Counter-<DefineTerm term="Intelligence" display="intelligence" />.** Monitoring SIEM alerts, <DefineTerm term="Ticket" display="ticket" /> queues, or detection content to learn how the SOC operates. Compartmentalize investigative workflows and restrict access to <DefineTerm term="Detection Logic" display="detection logic" />.
+
+</Reveal>
+
+---
+
+## What insider analysis catches
+
+<div class="insider-patterns">
+  <div class="insider-pattern">
+    <h4>📦 Slow-burn data collection</h4>
+    <p>An insider gradually building a personal cache of sensitive documents over months. Each individual access looks legitimate; the trajectory is the signal.</p>
+  </div>
+  <div class="insider-pattern">
+    <h4>🚪 Access creep before a known event</h4>
+    <p>Requesting or accumulating permissions in the weeks before a known departure, performance review, or organizational change. Correlation with HR signals is what surfaces this.</p>
+  </div>
+  <div class="insider-pattern">
+    <h4>🪪 Shared-account misuse</h4>
+    <p>A shared account being used by an unexpected person. Hard to detect because the audit trail is intentionally ambiguous. Behavioral baselining of the shared account against its expected users is the strongest approach.</p>
+  </div>
+  <div class="insider-pattern">
+    <h4>🔇 Anti-forensic cleanup</h4>
+    <p>Log clearing, history wiping, USB usage from an account that has never used removable media. Each is a signal in its own right; the combination is almost always intentional.</p>
+  </div>
+</div>
+
+### Behavioral vs technical indicators
+
+The strongest insider triage correlates two streams that often live in separate teams: human signals (HR, manager observations) and technical signals (logs, telemetry). Either stream alone produces noise. Together they produce signal.
+
+<div class="indicator-split">
+  <div class="indicator-column indicator-column--behavioral">
+    <h4>Behavioral indicators</h4>
+    <ul>
+      <li><strong>Expressed dissatisfaction.</strong> Verbal resentment toward management, policy changes, or peers. Worth investigating in context of recent disciplinary or organizational changes.</li>
+      <li><strong>Sudden withdrawal.</strong> Shift toward isolation, minimal communication, refusal of collaborative work. Worth correlating against technical anomalies in the same window.</li>
+      <li><strong>Unusual curiosity.</strong> Repeated questioning about systems, data classification, or infrastructure outside the user's role. Cross-reference with access logs.</li>
+      <li><strong>Schedule changes.</strong> Voluntary shifts to nights, early mornings, weekends without business justification, especially when paired with sensitive system access.</li>
+      <li><strong>Resistance to oversight.</strong> Arguing against monitoring tools, complaining about controls, or circumventing security steps. Concerning if paired with technical attempts to disable controls.</li>
+      <li><strong>Performance degradation.</strong> A decline after being passed over for a role or project. Risk-taking or careless access behavior shortly after is worth noting in triage urgency.</li>
+      <li><strong>Personal stressors.</strong> Major life events (divorce, debt, medical) can lead to risky decisions. Do not assume intent, but note the compounding pressure.</li>
+    </ul>
+  </div>
+  <div class="indicator-column indicator-column--technical">
+    <h4>Technical indicators</h4>
+    <ul>
+      <li><strong>Unauthorized data transfer tools.</strong> FTP clients, external sync utilities, USB mass storage on accounts that have not used them historically.</li>
+      <li><strong>Low-volume data exports just below alert thresholds.</strong> Extracting moderate amounts over extended periods is a known evasion tactic. Look for staying-below-threshold patterns.</li>
+      <li><strong>Privilege bypass attempts.</strong> Multiple failed access attempts to restricted systems, or self-approval of elevated permissions.</li>
+      <li><strong>Compression and archiving outside normal workflows.</strong> Zip, tar, or rar files containing sensitive documents in personal folders or shared drives.</li>
+      <li><strong>Disabling endpoint protections.</strong> Turning off antivirus, DLP agents, or logging services. Treat as high-priority and possibly isolate for forensic review.</li>
+      <li><strong>Accessing dormant accounts or unrelated systems.</strong> Reactivating dormant credentials, touching systems unrelated to current responsibilities.</li>
+      <li><strong>Use of anonymizing or encrypted services.</strong> Remote desktop sessions, encrypted messengers, unsanctioned cloud storage. Cross-reference with network and endpoint telemetry.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Neither stream is enough alone">
+Technical signals without behavioral context produce false-positives (admins legitimately disable agents, developers legitimately use scripting tools). Behavioral signals without technical context produce HR friction (someone is having a bad month and the SOC opens an investigation). The methodology asks the analyst to wait for both streams to agree before escalating from risk to threat.
+</Callout>
+
+---
+
+## Mitigation strategies
+
+Strong insider programs are built from five complementary practices. None of them alone is sufficient; together they create an environment where insider abuse is hard, visible, and expensive.
+
+<div class="mitigation-grid">
+  <div class="mitigation-card">
+    <span class="mitigation-card__num">01</span>
+    <h4>Least privilege enforcement</h4>
+    <p>Users have access to data and systems required for current job, with automated deprovisioning of stale roles or inherited access. Triage flags access attempts outside current scope. Role-based reviews integrate into quarterly compliance and into alert suppression logic.</p>
+  </div>
+  <div class="mitigation-card">
+    <span class="mitigation-card__num">02</span>
+    <h4>Segregation of duties</h4>
+    <p>No individual can create, approve, and execute sensitive actions on their own. Deployment, access grants, and audit log review live with separate roles. Triage treats violations of this model (especially with emergency access or after hours) as high-risk.</p>
+  </div>
+  <div class="mitigation-card">
+    <span class="mitigation-card__num">03</span>
+    <h4>Technical monitoring</h4>
+    <p>Behavioral analytics, privileged session monitoring, endpoint detection tuned for lateral movement and data aggregation. Quality alerts come from individual baselines, not just global policy violations. Triage prioritizes events that combine anomalous behavior with elevated privilege.</p>
+  </div>
+  <div class="mitigation-card">
+    <span class="mitigation-card__num">04</span>
+    <h4>Cultural approaches</h4>
+    <p>Employees feel safe reporting concerns through clear, non-retaliatory channels. The security culture surfaces early warnings before they become technical events. Triage considers HR referrals and social signals alongside log data.</p>
+  </div>
+  <div class="mitigation-card">
+    <span class="mitigation-card__num">05</span>
+    <h4>Insider response protocols</h4>
+    <p>Dedicated playbooks for internal actors: evidence preservation without tipping the subject, coordinated containment, post-event review. Mature programs maintain specialized insider threat cells separate from standard incident response.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Insider investigations need different escalation">
+An insider investigation is one of the few in triage where the analyst should usually <em>not</em> directly engage the subject. Coordinate with HR and legal before the subject becomes aware they are being investigated. Premature exposure can compromise both the security investigation and any subsequent legal action.
+</Callout>
+
+<KeyTakeaway>
+Insider analysis is the fourth pillar of Subject and the one most likely to involve people outside the SOC. The methodology applies the same four dimensions but with adjusted expectations and a different escalation path. Start with risk. Escalate to threat only with evidence.
+</KeyTakeaway>
+
+<ContinueCard
+  current="subject"
+  nextHref="/docs/subject/example"
+  nextLabel="Subject working example"
+  nextDescription="A multi-step walkthrough applying Subject analysis to a real-shaped scenario."
+  ctaLabel="See the working example"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.insider-distinction {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .insider-distinction { grid-template-columns: 1fr 1fr; } }
+
+.insider-card {
+  padding: 1.5rem 1.75rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--accent);
+  border-radius: 0.85rem;
+}
+.insider-card--risk   { --accent: #f59e0b; }
+.insider-card--threat { --accent: #ef4444; }
+
+.insider-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+.insider-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.matrix-phases {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .matrix-phases { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .matrix-phases { grid-template-columns: repeat(5, 1fr); } }
+
+.matrix-phase {
+  position: relative;
+  padding: 1.25rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 0.7rem;
+}
+.matrix-phase__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(134, 239, 172, 0.6);
+}
+.matrix-phase h4 {
+  margin: 0 0 0.5rem 0;
+  color: #86efac;
+  font-size: 0.98rem;
+}
+.matrix-phase p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+
+.insider-patterns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .insider-patterns { grid-template-columns: 1fr 1fr; } }
+
+.insider-pattern {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.insider-pattern h4 {
+  margin: 0 0 0.35rem 0;
+  color: #fbbf24;
+  font-size: 0.98rem;
+}
+.insider-pattern p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.case-study {
+  margin: 1.5rem 0;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 0.85rem;
+}
+.case-study__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+.case-study__tag {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(252, 165, 165, 0.35);
+  color: #fca5a5;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+.case-study__head h3 {
+  margin: 0;
+  color: #fca5a5;
+  font-size: 1.15rem;
+}
+.case-study > p {
+  margin: 0 0 0.75rem 0;
+  color: #cbd5e1;
+  line-height: 1.65;
+}
+.case-study__lesson {
+  margin: 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 0.55rem;
+  font-size: 0.93rem;
+  border-left: 3px solid rgba(252, 165, 165, 0.5);
+}
+.case-study__lesson strong { color: #fca5a5; }
+
+.indicator-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .indicator-split { grid-template-columns: 1fr 1fr; } }
+
+.indicator-column {
+  padding: 1.4rem 1.55rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--ind-accent);
+  border-radius: 0.85rem;
+}
+.indicator-column--behavioral { --ind-accent: #c084fc; }
+.indicator-column--technical  { --ind-accent: #38bdf8; }
+
+.indicator-column h4 {
+  margin: 0 0 0.85rem 0;
+  color: var(--ind-accent);
+  font-size: 1.05rem;
+}
+.indicator-column ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.indicator-column ul strong { color: #f8fafc; }
+
+.mitigation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .mitigation-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .mitigation-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.mitigation-card {
+  position: relative;
+  padding: 1.25rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 0.7rem;
+}
+.mitigation-card__num {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.1rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(134, 239, 172, 0.55);
+}
+.mitigation-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #86efac;
+  font-size: 0.96rem;
+}
+.mitigation-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.87rem;
+}
+`}
+</style>

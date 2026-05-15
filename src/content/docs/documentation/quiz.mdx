@@ -1,0 +1,109 @@
+---
+title: "Documentation chapter quiz"
+description: "Seven questions on standards, templates, pitfalls, and the downstream value of documentation."
+slug: "documentation/quiz"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="Quiz" pillarLabel="Documentation chapter" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Seven questions on Documentation. The final chapter of the methodology."/>
+
+<PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/quiz" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+<Quiz title="Documentation chapter quiz">
+
+  <QuizItem
+    prompt="When should documentation be written?"
+    options={[
+      { value: "before", label: "Before the investigation, as a plan." },
+      { value: "during", label: "During the investigation, with cleanup at the end. Memory is the freshest while the work is happening." },
+      { value: "after", label: "After closure, when there is time to write properly." },
+      { value: "review", label: "Only during the manager's review." },
+    ]}
+    answer="during"
+    explanation="Documentation written during the investigation captures detail that is gone an hour later. Post-hoc documentation reads tidy and is less useful for training, audit, or trend analysis."
+  />
+
+  <QuizItem
+    prompt="Which is the biggest documentation pitfall?"
+    options={[
+      { value: "length", label: "Records are too long." },
+      { value: "form", label: "Treating the form as the work. Long records with no substance are worse than short ones with substance." },
+      { value: "speed", label: "Writing too quickly." },
+      { value: "templates", label: "Using templates." },
+    ]}
+    answer="form"
+    explanation="The most common failure is filling the template without recording the reasoning. The form is scaffolding, not the goal. A short, complete record beats a long, empty one every time."
+  />
+
+  <QuizItem
+    prompt="What is the test of good documentation?"
+    options={[
+      { value: "length", label: "Length." },
+      { value: "format", label: "It follows the template exactly." },
+      { value: "replay", label: "A future reader can replay the analyst's reasoning without asking questions." },
+      { value: "speed", label: "How quickly it was written." },
+    ]}
+    answer="replay"
+    explanation="The test is whether the record stands alone. A future analyst, auditor, or trainer should be able to read it and understand both what was decided and why. Length and speed are secondary."
+  />
+
+  <QuizItem
+    prompt="A closed false-positive case is documented. What is its main downstream use?"
+    options={[
+      { value: "compliance", label: "Compliance evidence." },
+      { value: "trash", label: "It has no use; close it and move on." },
+      { value: "detection", label: "Feedback for detection engineering and a training case for the team. False-positives are sharpening signals when documented." },
+      { value: "manager", label: "Performance review material." },
+    ]}
+    answer="detection"
+    explanation="Closed false-positives, well documented, point at where the detection logic could be sharper and help newer analysts learn what to look for. The methodology treats them as contributions, not as non-events."
+  />
+
+  <QuizItem
+    prompt="The methodology recommends a 9-section format for event reports. Which section is most often skipped under time pressure, and what is the cost?"
+    options={[
+      { value: "summary", label: "Event overview. Cost: hard to scan." },
+      { value: "lessons", label: "Lessons learned. Cost: detection gaps and process inefficiencies recur. The lessons-learned section is what feeds back into detection engineering, training, and process improvement." },
+      { value: "iocs", label: "Indicators of compromise. Cost: harder threat hunting later." },
+      { value: "appendix", label: "Appendices. Cost: minor reference friction." },
+    ]}
+    answer="lessons"
+    explanation="Lessons learned is the section that most often gets short-changed under time pressure, and the one with the highest compounding cost. Without it, the same detection gaps, process breakdowns, and tooling limitations recur because the case did not feed back into improvement. Format completeness is what makes the methodology improve over time."
+  />
+
+  <QuizItem
+    prompt="Documentation is most useful downstream when it includes which of the following beyond the technical timeline?"
+    options={[
+      { value: "tech", label: "Only the technical detail. Anything else is editorializing." },
+      { value: "business", label: "Business-impact translation, lessons learned, post-incident recommendations. The technical record alone serves the immediate case; the additional layers serve detection engineering, training, executive reporting, and threat intel." },
+      { value: "ioc", label: "Just IOCs and ATT&CK mappings." },
+      { value: "narrative", label: "A long narrative." },
+    ]}
+    answer="business"
+    explanation="Documentation produces value across five downstream uses: detection engineering, analyst training, process improvement, executive reporting, and threat intelligence. A pure technical record serves only the first one well. The methodology asks for layered records that feed all five."
+  />
+
+  <QuizItem
+    prompt="When in the lifecycle should Documentation begin?"
+    options={[
+      { value: "end", label: "At the end. It is the final phase, after all." },
+      { value: "escalation", label: "At Escalation, when the case is confirmed real." },
+      { value: "alert", label: "At Alert. Documentation is continuous and embedded, not a final phase. It begins with the first observation and evolves through every subsequent phase." },
+      { value: "risk", label: "At Risk, after the verdict is known." },
+    ]}
+    answer="alert"
+    explanation="Documentation is not a distinct final phase; it is a continuous, embedded practice that spans the entire lifecycle. Critical observations, decisions, and actions are captured in real time. Delaying until after resolution leads to inaccuracies, lost detail, and incomplete reasoning. The methodology treats Documentation as an active workflow that begins at the first alert and finalizes only at closure."
+  />
+
+</Quiz>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/closure" nextLabel="Methodology complete" ctaLabel="See the closure" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>

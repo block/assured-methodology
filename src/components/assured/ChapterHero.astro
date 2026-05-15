@@ -1,0 +1,206 @@
+---
+/**
+ * ChapterHero, the shared hero block for every ASSURED chapter overview page.
+ *
+ * Replaces the seven bespoke .{phase}-hero blocks that each chapter's
+ * index.mdx used to ship inline. The look-and-feel is identical; per-chapter
+ * color comes from CSS custom properties set on the root via inline style.
+ *
+ * Lede content is rendered through the default <slot> so MDX can pass rich
+ * inline markup (<em>, <code>, links) without resorting to set:html.
+ */
+import LetterChip from "@/components/assured/LetterChip.astro";
+
+type Phase = "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+
+interface Pillar {
+  num: string;
+  label: string;
+  href: string;
+}
+
+interface Props {
+  phase: Phase;
+  letter: string;
+  pieceNumber: number;
+  totalPieces?: number;
+  question: string;
+  pillars: Pillar[];
+  /** Optional: override the auto-generated "Phase N · piece M of K" overline. */
+  overlineOverride?: string;
+  /** Optional: target time-on-target for this phase, shown as a chip in the header. */
+  timeOnTarget?: string;
+}
+
+const PHASE_COLORS: Record<Phase, { rgb: string; light: string; medium: string; group: number }> = {
+  alert:         { rgb: "59, 130, 246",  light: "#93c5fd", medium: "#60a5fa", group: 1 },
+  subject:       { rgb: "34, 197, 94",   light: "#86efac", medium: "#4ade80", group: 1 },
+  scope:         { rgb: "168, 85, 247",  light: "#d8b4fe", medium: "#c084fc", group: 1 },
+  uncover:       { rgb: "249, 115, 22",  light: "#fdba74", medium: "#fb923c", group: 2 },
+  risk:          { rgb: "239, 68, 68",   light: "#fca5a5", medium: "#f87171", group: 2 },
+  escalation:    { rgb: "99, 102, 241",  light: "#a5b4fc", medium: "#818cf8", group: 3 },
+  documentation: { rgb: "6, 182, 212",   light: "#67e8f9", medium: "#22d3ee", group: 3 },
+};
+
+const { phase, letter, pieceNumber, totalPieces = 7, question, pillars, overlineOverride, timeOnTarget } = Astro.props;
+const colors = PHASE_COLORS[phase];
+const overline = overlineOverride ?? `Phase ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
+const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; --phase-medium: ${colors.medium};`;
+---
+
+<div class={`chapter-hero chapter-hero--${phase}`} style={styleVars}>
+  <div class="chapter-hero__badge">
+    <LetterChip letter={letter} phase={phase} size="lg" />
+    <div>
+      <p class="chapter-hero__overline">{overline}</p>
+      <p class="chapter-hero__question">{question}</p>
+    </div>
+    {timeOnTarget && (
+      <span
+        class="chapter-hero__time"
+        role="note"
+        aria-label={`On-shift operational target: ${timeOnTarget}. This is how long the phase should take when triaging a live alert — not a reading-time estimate. Complex cases legitimately exceed this.`}
+        title="Operational target on a live shift — how long this phase should take when you're triaging an actual alert. NOT a reading-time estimate; absorbing the chapter takes longer. Complex cases legitimately exceed the operational target."
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="chapter-hero__time-label" aria-hidden="true">On-shift target</span>
+        <span class="chapter-hero__time-value" aria-hidden="true">{timeOnTarget}</span>
+      </span>
+    )}
+  </div>
+
+  <p class="chapter-hero__lede"><slot /></p>
+
+  <div class="chapter-hero__pillars">
+    {pillars.map((p) => (
+      <a href={p.href} class="chapter-hero__pillar">
+        <span class="chapter-hero__pillar-num">{p.num}</span>
+        <span class="chapter-hero__pillar-label">{p.label}</span>
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .chapter-hero {
+    margin: -1rem 0 2rem;
+    padding: 2rem 2.25rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--phase-rgb), 0.16),
+      rgba(15, 23, 42, 0.6)
+    );
+    border: 1px solid rgba(var(--phase-rgb), 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chapter-hero__badge {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .chapter-hero__time {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(var(--phase-rgb), 0.35);
+    color: var(--phase-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: help;
+  }
+
+  .chapter-hero__time-label {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+
+  .chapter-hero__time-value {
+    color: #f8fafc;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chapter-hero__overline {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--phase-light);
+    font-weight: 700;
+  }
+
+  .chapter-hero__question {
+    margin: 0.2rem 0 0;
+    font-size: 1.35rem;
+    color: #f8fafc;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .chapter-hero__lede {
+    margin: 0 0 1.5rem 0;
+    color: #cbd5e1;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    max-width: 62ch;
+  }
+
+  .chapter-hero__lede :global(em) {
+    color: var(--phase-light);
+    font-style: italic;
+  }
+
+  .chapter-hero__pillars {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  @media (min-width: 768px) {
+    .chapter-hero__pillars {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+  }
+
+  .chapter-hero__pillar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.6rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .chapter-hero__pillar:hover {
+    transform: translateY(-2px);
+    border-color: var(--phase-medium);
+    background: rgba(15, 23, 42, 0.75);
+  }
+
+  .chapter-hero__pillar-num {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--phase-medium);
+    letter-spacing: 0.05em;
+  }
+</style>

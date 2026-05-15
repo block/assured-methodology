@@ -1,0 +1,196 @@
+---
+title: "Alert working example"
+description: "Two alerts, two methodologies. A finance-team phishing event and a developer-workstation false-positive, both worked through the Alert phase."
+slug: "alert/example"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import ChapterExample from "@/components/assured/ChapterExample.astro";
+import ExampleStepper from "@/components/assured/ExampleStepper.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import Callout from "@/components/assured/Callout.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="Example"
+  pillarLabel="Alert chapter"
+  chapterHref="/docs/alert"
+  chapterLabel="Alert"
+  lede="Two alerts walked through the Alert phase. One turns out to be a real intrusion; the other turns out to be a false-positive. Both follow the same methodology. The methodology is what makes the verdict defensible either way."
+/>
+
+<PillNav chapter="alert" label="Alert chapter" current="/docs/alert/example" items={[
+  { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms", phase: "alert" },
+  { label: "Alert validation",     href: "/docs/alert/validation",            phase: "alert" },
+  { label: "Parsing alerts",       href: "/docs/alert/parsing",               phase: "alert" },
+]}/>
+
+<Callout variant="info" title="Two cases threaded through every chapter">
+The two cases introduced on this page run through the rest of the methodology. The finance-team phishing case (real intrusion) ends in an escalation to incident response. The Cursor IDE Empire-pattern case (false-positive) ends in a documented close at triage. Both produce a record an auditor can read months later. The Alert chapter is where each case starts.
+</Callout>
+
+<Callout variant="warn" title="The cases are illustrative, not photorealistic">
+Both walkthroughs are cleaner than real telemetry. Live cases have missing parent processes, offset timestamps across log sources, partial coverage on the host you most need, retention windows that end before the staging activity, and one user who didn't enable MFA. The cases are written to teach the methodology cleanly — when you apply them in production, expect to spend additional time reconciling sources, filing tooling-gap tickets, and noting "unable to determine" where the evidence runs out. The methodology is what gives you a place to stand when the data isn't clean; it doesn't pretend the data is.
+</Callout>
+
+<ChapterExample
+  title="Case A · The finance-team phishing alert"
+  scenario="A SIEM rule fires at 09:11. An Outlook process on a finance laptop spawned cmd.exe, which spawned PowerShell with -NoProfile -WindowStyle Hidden -EncodedCommand. The destination of the resulting network call is a domain registered four days ago. The named user is dlin, a finance analyst."
+>
+
+<ExampleStepper steps={["Read the detection", "Validate the signal", "Parse the metadata", "Frame the hypothesis", "Hand to Subject"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Read the detection</h3>
+    <p>Before anything else, the analyst reads what fired and why. The rule's logic chains three behavioral signals: <strong>Outlook → cmd.exe → PowerShell</strong> (suspicious parent-child), <strong><code>-EncodedCommand</code> with <code>-NoProfile</code></strong> (a near-universal indicator of automated execution), and <strong>outbound traffic to a low-reputation domain</strong> within 30 seconds. The rule is a behavioral-analytics rule, not a signature. False-positive rate is documented as roughly 1 in 200 fires; the rule has high precision when the chain is complete.</p>
+    <p>Three signals in a single chain is far more weight than any one of them would carry alone. The detection mechanism's confidence is already moderately high before the analyst opens the alert payload.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Validate the signal</h3>
+    <p>The four-dimensional validation:</p>
+    <ul class="example-step__list">
+      <li><strong>Technical.</strong> The parent-child chain matches a textbook initial-access pattern used by <DefineTerm term="PowerShell Empire">An open-source post-exploitation framework that uses PowerShell agents on Windows and Python agents on Linux. Empire was widely used by red teams and continues to influence threat-actor tradecraft. Many real-world intrusions still show Empire-style command-line and network patterns.</DefineTerm> and similar PowerShell-based agents.</li>
+      <li><strong>Environmental.</strong> Finance analysts on this laptop class do not normally invoke PowerShell. The host's 30-day baseline confirms it.</li>
+      <li><strong>Intelligence.</strong> The destination domain is registered four days ago, hosted on a bulletproof provider, low prevalence, and resolves to an IP block previously seen in commodity-phishing reporting.</li>
+      <li><strong>Business.</strong> dlin has read access to the cloud finance reporting platform via federated SSO. The laptop is the trust pivot for a regulated-data system.</li>
+    </ul>
+    <p>All four dimensions agree the signal is worth a deeper investigation. None of them is decisive on its own; the combination is.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Parse the metadata</h3>
+    <p>Structured extraction from the alert payload:</p>
+    <ul class="example-step__list">
+      <li><strong>Command line.</strong> <code>powershell.exe -NoP -W Hidden -EncodedCommand &lt;base64&gt;</code>. The base64 decodes to a small downloader that reaches the suspicious domain.</li>
+      <li><strong>Process tree.</strong> outlook.exe (PID 5212) → cmd.exe (PID 8104) → powershell.exe (PID 8128). Parent timestamp aligns with an email open event.</li>
+      <li><strong>Network.</strong> 09:11:43 UTC outbound HTTPS to <code>invoice-records[.]com/upd</code>. Self-signed TLS cert. Approximately 18 KB transferred.</li>
+      <li><strong>File system.</strong> <code>%TEMP%\upd.ps1</code> written at 09:11:44 UTC. SHA-256 captured.</li>
+      <li><strong>Identity.</strong> Active session: dlin@corp. Logon type 2 (interactive). MFA satisfied at 08:48.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Frame the hypothesis</h3>
+    <p>Alert finishes by stating the hypothesis the next phases will test. <strong>Working hypothesis:</strong> an attacker delivered a phishing email containing a macro-bearing document; dlin opened the attachment; the macro launched the cmd → PowerShell chain; the resulting agent established outbound C2 to a recently-registered staging domain. The case looks like a textbook Empire-style initial access.</p>
+    <p>The phrasing is deliberate. The analyst is not declaring an incident. They are recording an actionable hypothesis with explicit evidence and known gaps, so Subject knows where to expand the investigation.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand to Subject</h3>
+    <p>Subject inherits a structured starting point:</p>
+    <ul class="example-step__list">
+      <li><strong>Named entities.</strong> dlin (user), laptop-finance-09 (host), invoice-records[.]com (external domain), the originating sender (TBD via mail log pull).</li>
+      <li><strong>Open questions.</strong> Who else got the email? Did anyone else execute the macro? What did the federated cloud session do, if anything?</li>
+      <li><strong>Confidence.</strong> Moderately high on the parent-child chain (telemetry is complete); low on attribution (no actor signature, only TTP-level match to commodity Empire-style tooling).</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+The Alert phase did not declare compromise. It produced a structured, defensible hypothesis with explicit evidence and known gaps. Subject picks up from here. The same case continues on every subsequent chapter's example page.
+</KeyTakeaway>
+
+---
+
+## Case B · The developer-workstation Empire-pattern alert
+
+The same Alert methodology applied to a very different signal. A second alert fires later the same day, on a different team's laptop, and the parent-child chain looks superficially similar — but the host, the user, and the binary all tell a different story.
+
+<ChapterExample
+  title="Case B · The Cursor IDE Empire-pattern alert"
+  scenario="A behavioral-EDR alert fires at 14:03 on a macOS developer workstation. A signed helper binary (Cursor Helper, part of the Cursor AI-assisted IDE) spawned a child process that disabled its sandbox and made encrypted outbound network calls. The detection mapped the pattern to known Empire-style post-exploitation behavior. The named user is a frontend engineer."
+>
+
+<ExampleStepper steps={["Read the detection", "Validate the signal", "Parse the metadata", "Frame the hypothesis", "Hand to Subject"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Read the detection</h3>
+    <p>The rule that fired is a cross-platform behavioral-analytics rule looking for "process disables its sandbox, spawns helper, opens encrypted outbound socket." The rule was originally written from a Windows engagement against an EmPyre agent (the Python-3 fork of PowerShell Empire, since merged back into the Empire framework — both names refer to the same lineage) and was later ported to macOS. Documented false-positive rate on macOS developer hosts: ~6× higher than on managed productivity laptops. That is a known calibration issue, captured in the rule's metadata.</p>
+    <p>The rule's confidence on this host class is therefore lower from the start. The analyst notes that explicitly before opening the payload.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Validate the signal</h3>
+    <p>The four-dimensional validation reads differently from Case A:</p>
+    <ul class="example-step__list">
+      <li><strong>Technical.</strong> The pattern (disabled sandbox, encrypted outbound from a helper process) does overlap with Empire's macOS agent behavior at the surface level. But the binary itself is signed and notarized by the vendor, and the install path is a system-managed application directory, not a user-writable staging area.</li>
+      <li><strong>Environmental.</strong> The host is a managed developer workstation. Helper-process activity from IDEs is part of the daily baseline. The user's peers show the same pattern on the same vendor binary.</li>
+      <li><strong>Intelligence.</strong> No prior incidents involving this binary or vendor. The TLS destination resolves to the vendor's documented inference infrastructure with a valid cert.</li>
+      <li><strong>Business.</strong> Source code exposure exists, but the binary's runtime behavior is consistent with the vendor's documented operating mode.</li>
+    </ul>
+    <p>Three of four dimensions point away from compromise. The technical dimension has a surface match but is contradicted by deeper context. The methodology calls for continuing the investigation, not closing the alert — the hypothesis is now "likely false-positive, confirm via Subject and Uncover."</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Parse the metadata</h3>
+    <ul class="example-step__list">
+      <li><strong>Command line.</strong> <code>/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) --type=utility ...</code>. Vendor-standard.</li>
+      <li><strong>Process tree.</strong> launchd → Cursor → Cursor Helper → Cursor Helper (Plugin). All four binaries signed by Anysphere, notarized by Apple.</li>
+      <li><strong>Network.</strong> Multiple TLS connections to <code>*.cursor.sh</code> and to a small set of LLM-inference hosts, all with valid certificates, all resolving via standard public DNS.</li>
+      <li><strong>File system.</strong> Reads in the user's home and the Cursor application support directory. No writes outside expected paths.</li>
+      <li><strong>Identity.</strong> Active session: a frontend engineer. SSO login at 09:14 with FIDO2 second factor.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Frame the hypothesis</h3>
+    <p><strong>Working hypothesis:</strong> the detection logic correctly recognized a process-behavior pattern that overlaps with Empire-style macOS post-exploitation tradecraft. The binary, signature chain, install path, and behavioral baseline all suggest this is the documented operating mode of a vendor-supplied IDE plugin host, not adversary tooling. Subject and Uncover will either confirm the false-positive read or surface signals that override it.</p>
+    <p>The hypothesis is deliberately not "definitely not malicious." The Alert phase records what the evidence permits, not what the analyst feels.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand to Subject</h3>
+    <p>Subject inherits a different starting point from Case A — narrower, but with explicit caveats:</p>
+    <ul class="example-step__list">
+      <li><strong>Named entities.</strong> The frontend engineer (user), the macOS laptop (host), Cursor Helper (Plugin) (binary), the vendor's inference endpoints (external).</li>
+      <li><strong>Open questions.</strong> Does the binary's behavior match peer-group baselines? Are there detection-tuning opportunities for this host class?</li>
+      <li><strong>Confidence.</strong> Moderate-high on the binary identity and signature chain; medium on runtime posture (sandbox-disabled behavior is intrinsically harder to baseline).</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Two cases, one methodology">
+Case A produced a hypothesis pointing toward compromise. Case B produced a hypothesis pointing toward false-positive. The Alert phase did not "decide" either. It produced the structured starting point Subject needs in either direction. The methodology is what makes both verdicts defensible — including the eventual close at triage for Case B and the escalation to IR for Case A.
+</Callout>
+
+<KeyTakeaway>
+The Alert phase is the anchor for everything that follows. Two alerts that look superficially similar (PowerShell-or-helper behavior with encrypted outbound) produced two very different hypotheses because the detection mechanism, validation, and parsing were applied to each. The same methodology continues on every chapter's example page that follows.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/transition"
+  nextLabel="Transition to Subject"
+  nextDescription="The Alert chapter's segue into Subject. What Alert hands forward and what Subject picks up from these two cases."
+  ctaLabel="Continue to the transition"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>{`
+.example-step h3 { margin: 0 0 0.85rem 0; color: #93c5fd; font-size: 1.2rem; }
+.example-step p { margin: 0 0 0.85rem 0; color: #cbd5e1; line-height: 1.65; }
+.example-step strong { color: #f8fafc; }
+.example-step code { background: rgba(15, 23, 42, 0.7); padding: 0.05rem 0.35rem; border-radius: 0.25rem; font-size: 0.88em; }
+.example-step__list { margin: 0 0 1rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.example-step__list li { color: #cbd5e1; line-height: 1.6; }
+.example-step__list strong { color: #f8fafc; }
+`}</style>

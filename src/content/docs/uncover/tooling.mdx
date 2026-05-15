@@ -1,0 +1,458 @@
+---
+title: "Tool integration"
+description: "SIEM, EDR, network analysis, deception, forensics, SOAR, CSPM, data lakes. The tools that make Uncover possible at scale."
+slug: "uncover/tooling"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="04"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="Uncover at scale depends on tools. Each tool category answers a class of question; reaching for the right one at the right moment is part of the craft."
+/>
+
+<PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/tooling" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+## The tool families
+
+The Uncover phase touches around ten major tool families. Each has a distinct role, capabilities, and limitations. The methodology asks the analyst to learn the question-to-tool mapping deliberately rather than running every alert through the same SIEM query.
+
+<div class="tool-grid">
+  <a href="#siem" class="tool-card"><h4>🔎 SIEM</h4><p>Centralized log search and correlation. The investigation's primary query window.</p></a>
+  <a href="#edr" class="tool-card"><h4>💻 EDR</h4><p>Process trees, command lines, on-host containment.</p></a>
+  <a href="#network" class="tool-card"><h4>🌐 Network analysis</h4><p>Wire-level observation. Catches what endpoint cannot.</p></a>
+  <a href="#ti" class="tool-card"><h4>🧠 Threat intelligence</h4><p>Enrichment and hypothesis generation.</p></a>
+  <a href="#deception" class="tool-card"><h4>🍯 Deception</h4><p>Anything that touches deception is suspicious by definition.</p></a>
+  <a href="#forensics" class="tool-card"><h4>🔬 Digital forensics</h4><p>Deep host analysis for confirmed cases.</p></a>
+  <a href="#vuln" class="tool-card"><h4>🛡️ Vulnerability scanners</h4><p>What is exposed and what is patched.</p></a>
+  <a href="#soar" class="tool-card"><h4>🤖 SOAR</h4><p>Playbook execution and triage automation.</p></a>
+  <a href="#cspm" class="tool-card"><h4>☁️ CSPM</h4><p>Cloud misconfiguration and exposure visibility.</p></a>
+  <a href="#lake" class="tool-card"><h4>🏞️ Data lake</h4><p>Scalable retention and ML-friendly analytics.</p></a>
+</div>
+
+---
+
+<h2 id="siem">🔎 SIEM</h2>
+
+Security Information and Event Management systems function as the nerve center for <DefineTerm term="Security Operations" display="security operations" />, centralizing the collection, storage, and analysis of event data across the <DefineTerm term="Infrastructure" display="infrastructure" />. SIEMs enable both real-time detection and retrospective investigation through correlation, anomaly detection, and customizable alerting.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Log collection and storage</strong> across firewalls, IDS/IPS, OS, auth services, cloud, applications.</li>
+      <li><strong>Data analysis and alerting</strong> via rule-based and behavioral analytics.</li>
+      <li><strong>Cross-source correlation</strong> exposes multi-stage attacks and coordinated activity.</li>
+      <li><strong>Reporting and dashboards</strong> for compliance, threat hunting, and operational monitoring.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Retention constraints</strong> bounded by licensing and infrastructure capacity.</li>
+      <li><strong>Coverage gaps</strong> when log sources are unsupported or misconfigured.</li>
+      <li><strong>Operational complexity</strong> for rule tuning, parsing, and normalization.</li>
+      <li><strong>Cost overhead</strong> at enterprise scale for licensing and infrastructure.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="When SIEM is the first stop">
+SIEM's strength is cross-source correlation. When an investigation needs to know "did this happen anywhere else?" or "what other systems did this <DefineTerm term="User" display="user" /> touch?", the SIEM is the primary tool. It is less useful for deep single-source <DefineTerm term="Forensics" display="forensics" />, which is where EDR and <DefineTerm term="Digital Forensics" display="digital forensics" /> earn their keep.
+</Callout>
+
+---
+
+<h2 id="edr">💻 EDR</h2>
+
+<DefineTerm term="Endpoint" /> Detection and Response platforms provide high-fidelity <DefineTerm term="Telemetry" display="telemetry" /> and response capabilities directly on user devices and servers. EDR monitors process <DefineTerm term="Execution" display="execution" />, file system activity, memory use, and network connections to detect malicious activity at the endpoint level.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Process monitoring:</strong> creation events, command-line parameters, parent-child lineage, runtime patterns.</li>
+      <li><strong>Network monitoring:</strong> outbound connections, DNS, protocol behavior, detecting C2 and exfiltration.</li>
+      <li><strong>File activity tracking:</strong> unauthorized modifications to system files and critical directories.</li>
+      <li><strong>Response actions:</strong> endpoint isolation, memory forensics, process termination, automated remediation.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Visibility gaps</strong> on non-standard endpoints (IoT, ICS, specialized hardware).</li>
+      <li><strong>False-positives</strong> from behavioral detection misclassifying legitimate admin work.</li>
+      <li><strong>Resource demands</strong> for tuning, alert triage, and deep forensic investigation.</li>
+      <li><strong>Cost and infrastructure</strong> at scale, especially with diverse endpoint types.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="network">🌐 Network analysis</h2>
+
+Network analysis tools provide packet-level and flow-level visibility into communication patterns. Essential for detecting <DefineTerm term="Lateral Movement" display="lateral movement" />, <DefineTerm term="Exfiltration" display="exfiltration" />, C2 <DefineTerm term="Traffic" display="traffic" />, and <DefineTerm term="Protocol" display="protocol" /> misuse, especially in environments with unmanaged devices or systems that cannot support EDR.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Traffic inspection</strong> for anomalies in behavior, volume, and flow direction.</li>
+      <li><strong>Protocol decoding</strong> across DNS, HTTP, SMB, and others to uncover misuse.</li>
+      <li><strong>Deep packet inspection</strong> for embedded threats, file transfers, encrypted tunneling.</li>
+      <li><strong>Visualization tools</strong> for traffic patterns and threat propagation.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Scalability challenges</strong> in high-volume environments that overwhelm capture infrastructure.</li>
+      <li><strong>Protocol limitations</strong> with proprietary or encrypted communications.</li>
+      <li><strong>Operational complexity</strong> requiring tuning and specialized networking expertise.</li>
+      <li><strong>Cost considerations</strong> for licensing, storage, and packet-capture retention.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="ti">🧠 Threat intelligence platforms</h2>
+
+TIPs consolidate external <DefineTerm term="Threat" display="threat" /> data and provide critical context for IOCs, attacker infrastructure, and adversary tactics. Integrating TIP <DefineTerm term="Intelligence" display="intelligence" /> enhances posture, accelerates detection, and improves triage by correlating internal events with known external threats.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Feed aggregation</strong> across commercial, OSINT, ISAC, and government sources.</li>
+      <li><strong>IOC enrichment</strong> linking observed indicators to actors, campaigns, malware families.</li>
+      <li><strong>TTP analysis</strong> mapped to MITRE ATT&CK for shared vocabulary.</li>
+      <li><strong>Reporting and dashboards</strong> for strategic and tactical intelligence.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Feed quality</strong> varies dramatically across vendors and OSINT sources.</li>
+      <li><strong>Integration challenges</strong> with SIEM, EDR, and orchestration platforms.</li>
+      <li><strong>Analyst workload</strong> from redundant data and insufficient context.</li>
+      <li><strong>Resource requirements</strong> for premium subscriptions and operational tooling.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="deception">🍯 Deception technologies</h2>
+
+Deception platforms (Canary, Proofpoint Identity Threat Defense (formerly Illusive), Commvault ThreatWise (formerly TrapX)) flip the asymmetry. Decoy assets, fake credentials, deceptive files, and simulated services have no legitimate business use; interaction with them is high-confidence evidence of malicious activity.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Decoy deployment</strong> tailored to mirror the organization's unique assets.</li>
+      <li><strong>Attack engagement</strong> capturing command execution, lateral movement, attacker tools.</li>
+      <li><strong>Alert fidelity</strong> approaching zero false-positives because legitimate users do not touch decoys.</li>
+      <li><strong>Threat-actor profiling</strong> via collected behaviors and metadata.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Deployment scope</strong> matters; sparse coverage lets sophisticated attackers bypass.</li>
+      <li><strong>Operational complexity</strong> to avoid disrupting legitimate operations.</li>
+      <li><strong>Alert dependency:</strong> deception only fires when attackers engage decoys.</li>
+      <li><strong>Maintenance overhead</strong> to keep decoys believable as production evolves.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="forensics">🔬 Digital forensics</h2>
+
+Digital forensics tools enable comprehensive analysis of compromised systems. Recovery, artifact extraction, timeline reconstruction, chain-of-custody preservation. Used against active systems and forensic images during post-incident analysis and breach validation.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Disk and memory analysis</strong> recovering deleted content, extracting artifacts, identifying injected DLLs and shellcode.</li>
+      <li><strong>Timeline reconstruction</strong> via correlation across system logs, registry, file metadata, user activity.</li>
+      <li><strong>Artifact extraction</strong> isolating browser history, auth events, persistence mechanisms.</li>
+      <li><strong>Chain of custody</strong> via cryptographic verification and court-admissible documentation.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Resource intensity</strong> requires significant computing resources and skilled personnel.</li>
+      <li><strong>Reactive application</strong> retrospective by nature, not useful for real-time detection.</li>
+      <li><strong>Environmental constraints</strong> optimized for specific OSes and file systems.</li>
+      <li><strong>Operational overhead</strong> from premium licenses and specialized expertise.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="vuln">🛡️ Vulnerability scanners</h2>
+
+<DefineTerm term="Vulnerability" /> scanners systematically assess systems, applications, and configurations to identify known weaknesses. They enable analysts to determine exploitability and correlate vulnerabilities with observed threat activity.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Asset discovery and fingerprinting</strong> for comprehensive inventory.</li>
+      <li><strong>Vulnerability identification</strong> against CVE databases and misconfiguration checks.</li>
+      <li><strong>Risk scoring and prioritization</strong> using CVSS plus exploitability and asset criticality.</li>
+      <li><strong>Remediation tracking</strong> via dashboards and verification of applied patches.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>False-positives</strong> particularly in complex or customized environments.</li>
+      <li><strong>Disruption risk</strong> from active scans against sensitive systems.</li>
+      <li><strong>Limited detection of unknowns</strong> (zero-days, novel misconfigurations).</li>
+      <li><strong>Snapshot-based visibility</strong> rather than continuous monitoring.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="soar">🤖 SOAR</h2>
+
+Security Orchestration, Automation, and Response platforms integrate disparate tools, data sources, and response actions into a unified workflow. They accelerate handling through automation and ensure consistent, repeatable processes that reduce analyst cognitive load.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Playbook automation</strong> for triage, enrichment, false-positive elimination, containment.</li>
+      <li><strong>Tool integration</strong> aggregating SIEM, EDR, threat intel, ticketing, and network tools.</li>
+      <li><strong>Case management</strong> with collaboration, task assignment, and evidence tracking.</li>
+      <li><strong>Real-time response</strong> for host isolation, firewall changes, account suspension.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Playbook maintenance</strong> burden as tools and processes evolve.</li>
+      <li><strong>Onboarding complexity</strong> for integration via APIs and custom workflows.</li>
+      <li><strong>Alert fidelity dependency</strong> on incoming alert quality.</li>
+      <li><strong>Analyst overreliance</strong> risking erosion of situational awareness.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="cspm">☁️ CSPM</h2>
+
+Cloud Security Posture Management tools continuously assess AWS, Azure, GCP environments for misconfigurations, policy violations, and compliance risks. Essential for identifying exposures in dynamic, multi-account cloud infrastructures.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Misconfiguration detection</strong> across IaC, runtime configs, and account settings.</li>
+      <li><strong>Compliance mapping</strong> against CIS, NIST, ISO benchmarks with dashboards.</li>
+      <li><strong>IAM analysis</strong> highlighting privilege escalation paths and public exposure.</li>
+      <li><strong>Drift detection</strong> alerting on unauthorized configuration changes.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Blind spots</strong> in proprietary services and ephemeral assets (containers, lambdas).</li>
+      <li><strong>Overwhelm from low-severity issues</strong> requiring triage to avoid fatigue.</li>
+      <li><strong>Remediation limitations</strong> requiring integration with deployment pipelines.</li>
+      <li><strong>Cloud-specific tuning</strong> as APIs and services differ across providers.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="lake">🏞️ Security data lakes</h2>
+
+Centralized repositories that ingest, store, and manage large volumes of structured and unstructured security data. By consolidating logs, alerts, network flows, endpoint telemetry, and <DefineTerm term="Threat Intelligence" display="threat intelligence" />, data lakes enable advanced analytics, correlation, and long-term retention critical for sophisticated investigations.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Scalable ingestion and storage</strong> for diverse formats (JSON, CSV, XML, binary).</li>
+      <li><strong>Schema-on-read flexibility</strong> without upfront schema definition.</li>
+      <li><strong>ML and analytics integration</strong> for anomaly detection and behavior modeling.</li>
+      <li><strong>Cross-source correlation</strong> across endpoint, network, cloud, and external feeds.</li>
+      <li><strong>Historical retention</strong> for retrospective analysis and compliance reporting.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Data normalization</strong> challenges requiring engineering resources.</li>
+      <li><strong>Query performance</strong> variability without proper indexing.</li>
+      <li><strong>Management complexity</strong> for governance, security, access control, cost.</li>
+      <li><strong>Skill requirements</strong> in data engineering, analytics, and scripting.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## Choosing the right tool for the question
+
+The pattern is always the same.
+
+<div class="choose-flow">
+  <div class="choose-step">
+    <span class="choose-step__num">01</span>
+    <p><strong>Start with the question.</strong> What does the analyst actually need to know? "Did this binary run?" "Did this user authenticate to that system?" "Where did this traffic go?"</p>
+  </div>
+  <div class="choose-step">
+    <span class="choose-step__num">02</span>
+    <p><strong>Identify which tool category can answer it.</strong> EDR for process execution. Identity logs for authentication. Network analysis for traffic destination. The mapping is mostly memorized over time.</p>
+  </div>
+  <div class="choose-step">
+    <span class="choose-step__num">03</span>
+    <p><strong>Plan the query order.</strong> If the answer requires multiple sources, run the cheapest or most specific query first. SIEM queries that scan everything can wait until the EDR query has narrowed the window.</p>
+  </div>
+  <div class="choose-step">
+    <span class="choose-step__num">04</span>
+    <p><strong>Document tools and queries used.</strong> Audit trail matters for the handoff to Risk, for detection engineering feedback, and for compliance review later.</p>
+  </div>
+</div>
+
+<KeyTakeaway>
+Tools serve the question, not the other way around. Strong analysts learn the question-to-tool mapping deliberately and reach for the right one at the right step. Weak analysts run the same SIEM query against every alert and hope. The methodology asks for the deliberate choice every time.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/example" nextLabel="Uncover working example" nextDescription="A walkthrough of the Uncover phase applied to the bounded investigation Scope handed off." ctaLabel="See the example" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>
+{`
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 640px) { .tool-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .tool-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.tool-card {
+  display: block;
+  padding: 0.95rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.55rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tool-card:hover {
+  transform: translateY(-2px);
+  border-color: #f97316;
+  box-shadow: 0 12px 24px -14px rgba(249, 115, 22, 0.35);
+}
+.tool-card h4 { margin: 0 0 0.3rem 0; color: #fdba74; font-size: 0.93rem; }
+.tool-card p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.84rem; }
+
+.tool-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px) { .tool-detail { grid-template-columns: 1fr 1fr; } }
+
+.tool-detail__col {
+  padding: 1.2rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.7rem;
+}
+.tool-detail__col--brings { border-top: 3px solid #22c55e; }
+.tool-detail__col--limits { border-top: 3px solid #f59e0b; }
+
+.tool-detail__col h4 {
+  margin: 0 0 0.55rem 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.tool-detail__col--brings h4 { color: #86efac; }
+.tool-detail__col--limits h4 { color: #fbbf24; }
+
+.tool-detail__col ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.tool-detail__col ul strong { color: #f8fafc; }
+
+.choose-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.choose-step {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+.choose-step__num {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #f97316, #c2410c);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.choose-step p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+.choose-step strong { color: #f8fafc; }
+`}
+</style>

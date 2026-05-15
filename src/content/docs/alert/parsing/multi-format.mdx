@@ -1,0 +1,349 @@
+---
+title: "Multi-format standardization"
+description: "The four log formats parsing has to live with, and how to normalize them into queryable structure."
+slug: "alert/parsing/multi-format"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="03 · 01"
+  pillarLabel="6 surfaces"
+  chapterHref="/docs/alert/parsing"
+  chapterLabel="Parsing"
+  lede="Parsing has to live with the formats it gets. Four families dominate enterprise telemetry. Each carries its own conventions, gaps, and gotchas."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Parsing surfaces"
+  current="/docs/alert/parsing/multi-format"
+  items={[
+    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
+    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+  ]}
+/>
+
+<div class="formats-grid">
+  <div class="format-card format-card--evtx">
+    <div class="format-card__head">
+      <span class="format-card__icon">🏢</span>
+      <h3>Windows Event Logs (EVTX)</h3>
+    </div>
+    <p class="format-card__intro">
+      Windows writes structured records to log channels (Security, System, Application, and many subscribed providers) using the EVTX file format. Each record has a numeric <DefineTerm term="Event ID">A short integer that identifies what kind of event the record describes. Windows publishes a fixed catalog of event IDs (4624 for a successful logon, 4688 for a process creation, and so on). The same ID always means the same kind of event, which is what makes EVTX queryable.</DefineTerm> identifying what happened. Triage tooling parses the relevant IDs into structured fields.
+    </p>
+    <p class="format-card__sub">Common IDs an analyst will read:</p>
+    <ul>
+      <li><strong>Process events:</strong> 4688 (creation), 4689 (termination)</li>
+      <li><strong>Authentication:</strong> 4624 (successful logon), 4625 (failed logon)</li>
+      <li><strong>Privilege escalation:</strong> 4672 (special privileges assigned)</li>
+      <li><strong>Account changes:</strong> 4738 (user account changed)</li>
+    </ul>
+  </div>
+
+  <div class="format-card format-card--syslog">
+    <div class="format-card__head">
+      <span class="format-card__icon">🌐</span>
+      <h3>Syslog (RFC 5424)</h3>
+    </div>
+    <p class="format-card__intro">
+      <DefineTerm term="Syslog" /> is the long-standing standard for streaming text-formatted <DefineTerm term="Log" display="log" /> messages over the network. Each message carries a severity, a facility, a timestamp, and a free-form text body. It is the default format for Linux systems and most network gear because it is simple, universally supported, and easy to forward.
+    </p>
+    <p class="format-card__sub">Where you will see syslog:</p>
+    <ul>
+      <li><strong>Network devices:</strong> firewalls, routers, switches, load balancers</li>
+      <li><strong>Linux systems:</strong> kernel logs, application events, auth events</li>
+      <li><strong>Cloud platforms:</strong> container orchestration, microservice logs</li>
+      <li><strong>IoT and OT:</strong> ICS, embedded devices</li>
+    </ul>
+  </div>
+
+  <div class="format-card format-card--cef">
+    <div class="format-card__head">
+      <span class="format-card__icon">📋</span>
+      <h3>Common Event Format (CEF)</h3>
+    </div>
+    <p class="format-card__intro">
+      <DefineTerm term="CEF">Common Event Format. A log format pioneered by ArcSight that adds a structured header (vendor, product, event name, severity) and key-value extensions to a syslog-style line. CEF made it possible for many vendors to ship logs that SIEMs could parse without writing a custom parser per product.</DefineTerm> is the format that made multi-vendor SIEM ingestion practical. It overlays a structured header on a syslog message so the SIEM knows the vendor, product, severity, and event class without guessing.
+    </p>
+    <p class="format-card__sub">Common ecosystems:</p>
+    <ul>
+      <li><strong>SIEM platforms:</strong> ArcSight, QRadar, Splunk Enterprise Security</li>
+      <li><strong>Standardized fields:</strong> device vendor, product, version, signature</li>
+      <li><strong>Custom extensions:</strong> vendor-specific attributes</li>
+      <li><strong>Integration:</strong> broad SOAR compatibility</li>
+    </ul>
+  </div>
+
+  <div class="format-card format-card--json">
+    <div class="format-card__head">
+      <span class="format-card__icon">🔧</span>
+      <h3>JSON / structured data</h3>
+    </div>
+    <p class="format-card__intro">
+      Modern cloud and SaaS platforms emit logs as structured JSON. Every event is an object with named fields, which makes the data instantly queryable without <DefineTerm term="Parsing" display="parsing" /> tricks. Most modern SIEMs ingest JSON natively and store it as-is, preserving fidelity that older text formats lose.
+    </p>
+    <p class="format-card__sub">Where JSON dominates:</p>
+    <ul>
+      <li><strong>Cloud services:</strong> AWS CloudTrail, Azure Activity Logs, GCP audit logs</li>
+      <li><strong>Modern SIEMs:</strong> native JSON ingestion</li>
+      <li><strong>API streams:</strong> RESTful webhooks, event buses</li>
+      <li><strong>Container telemetry:</strong> Kubernetes audit, container runtime events</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Data quality is half the work">
+Alerts often arrive without full <DefineTerm term="Metadata" display="metadata" />. Parent process missing, asset identifier truncated, <DefineTerm term="Command Line" display="command line" /> cut off at a byte boundary. Advanced parsing systems integrate enrichment from CMDBs, identity directories (Active Directory, <DefineTerm term="Okta" />), and <DefineTerm term="Threat" display="threat" />-<DefineTerm term="Intelligence" display="intelligence" /> feeds (Mandiant, CrowdStrike, <DefineTerm term="Recorded Future" />) so the structured output is complete enough to act on.
+</Callout>
+
+---
+
+## Why standardization matters
+
+A single intrusion almost always produces <DefineTerm term="Telemetry" display="telemetry" /> across more than one format. Imagine an attacker phishes a <DefineTerm term="User" display="user" /> on a Windows laptop, the laptop reaches out through the corporate <DefineTerm term="Firewall" display="firewall" /> to an external <DefineTerm term="Domain" display="domain" />, the SIEM correlates the alert, and the cloud identity provider records the resulting authentication. That is four formats describing one event:
+
+<div class="story-grid">
+  <div class="story-step">
+    <span class="story-step__num">01</span>
+    <span class="story-step__label">EVTX</span>
+    <p>The Windows laptop writes a 4688 process-creation event and a 4624 logon event to its local EVTX logs.</p>
+  </div>
+  <div class="story-step">
+    <span class="story-step__num">02</span>
+    <span class="story-step__label">Syslog</span>
+    <p>The firewall sends a syslog message describing the outbound HTTPS connection: source IP, destination IP, port, and traffic volume.</p>
+  </div>
+  <div class="story-step">
+    <span class="story-step__num">03</span>
+    <span class="story-step__label">CEF</span>
+    <p>The SIEM correlates the laptop's process activity with the firewall traffic and emits a CEF alert tagged with the threat category and severity.</p>
+  </div>
+  <div class="story-step">
+    <span class="story-step__num">04</span>
+    <span class="story-step__label">JSON</span>
+    <p>The cloud identity provider records a JSON event describing the federated login that followed (timestamp, user, IP, MFA result).</p>
+  </div>
+</div>
+
+Four formats. Four different field names for the same concept. Four different timestamp conventions. Without standardization, the analyst has to write four parallel parsers in their head just to ask the basic question: did the same <DefineTerm term="User Account" display="user account" /> that triggered the laptop alert show up in the cloud identity log within the next ten minutes?
+
+That question is trivial when every event uses the same field names. It is hard when each format has its own vocabulary. Standardization is the engineering investment that makes the trivial version possible at scale.
+
+<div class="standardization-benefits">
+  <div class="benefit-row">
+    <span class="benefit-row__icon">🔗</span>
+    <div>
+      <strong>Cross-source correlation.</strong> An identity field that means the same thing in EVTX, syslog, CEF, and JSON lets the SIEM join events across sources automatically.
+    </div>
+  </div>
+  <div class="benefit-row">
+    <span class="benefit-row__icon">🤖</span>
+    <div>
+      <strong>Automation that works on more than one source.</strong> SOAR playbooks need a predictable shape. Standardized data is what makes a playbook portable across alert sources.
+    </div>
+  </div>
+  <div class="benefit-row">
+    <span class="benefit-row__icon">📈</span>
+    <div>
+      <strong>Trend analysis at scale.</strong> Asking "how many failed authentications happened across all of our identity sources this week" is one query if the field names match. It is a research project if they do not.
+    </div>
+  </div>
+  <div class="benefit-row">
+    <span class="benefit-row__icon">📋</span>
+    <div>
+      <strong>Defensible audit trails.</strong> A regulator asking how a specific event was investigated wants to see the events in the same shape. Standardization makes that report a query, not a reconstruction.
+    </div>
+  </div>
+</div>
+
+<KeyTakeaway>
+Format diversity is the cost of having visibility everywhere. Standardization is the investment that turns that diversity into something an analyst can actually query. The schema-<DefineTerm term="Normalization" display="normalization" /> page later in this chapter covers the standards (OCSF, STIX, <DefineTerm term="OpenC2" />) that make standardization practical.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing/command-line"
+  nextLabel="Command line analysis"
+  nextDescription="Decoding the true intent of process execution. Obfuscation patterns, execution context, recognizable shapes."
+  ctaLabel="Read command line"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.formats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .formats-grid { grid-template-columns: 1fr 1fr; } }
+
+.format-card {
+  position: relative;
+  padding: 1.5rem 1.75rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--accent, #3b82f6);
+  border-radius: 0.85rem;
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease;
+}
+
+.format-card:hover { transform: translateY(-2px); }
+
+.format-card--evtx    { --accent: #3b82f6; }
+.format-card--syslog  { --accent: #14b8a6; }
+.format-card--cef     { --accent: #a855f7; }
+.format-card--json    { --accent: #f97316; }
+
+.format-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.format-card__icon {
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.format-card h3 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.format-card__intro {
+  margin: 0 0 0.85rem 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.format-card__sub {
+  margin: 0 0 0.4rem 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.format-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.format-card li {
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .story-grid { grid-template-columns: 1fr 1fr; } }
+
+.story-step {
+  position: relative;
+  padding: 1.1rem 1.35rem 1.1rem 3.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #14b8a6;
+  border-radius: 0.6rem;
+}
+
+.story-step__num {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #5eead4;
+  letter-spacing: 0.05em;
+}
+
+.story-step__label {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: #5eead4;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.story-step p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.standardization-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 1.25rem 0;
+}
+
+.benefit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+}
+
+.benefit-row__icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.benefit-row div {
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.benefit-row strong { color: #f8fafc; }
+`}
+</style>

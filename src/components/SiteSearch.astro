@@ -1,0 +1,291 @@
+---
+/**
+ * SiteSearch, Pagefind-powered site-wide search.
+ *
+ * Renders a small search trigger button (intended for the header) plus a
+ * modal panel that hosts Pagefind's default UI. The index lives at
+ * /pagefind/, generated at build time by `pagefind --site dist` (chained
+ * into pnpm build). In dev the index does not exist, so the modal shows
+ * a graceful "build to use" message.
+ *
+ * Keyboard:
+ *   - ⌘K / Ctrl+K  open
+ *   - Esc          close
+ *   - /            NOT bound here, CLEAR glossary owns / for its own search.
+ */
+---
+
+<button
+  type="button"
+  class="site-search-trigger"
+  data-search-open
+  aria-label="Search the site (press Cmd or Ctrl + K)"
+  title="Search (⌘K)"
+>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+  <span class="site-search-trigger__label">Search</span>
+  <span class="site-search-trigger__kbd" aria-hidden="true">⌘K</span>
+</button>
+
+<div class="site-search-modal" data-search-modal hidden role="dialog" aria-modal="true" aria-label="Search the site">
+  <div class="site-search-modal__backdrop" data-search-close></div>
+  <div class="site-search-modal__panel">
+    <button type="button" class="site-search-modal__close" data-search-close aria-label="Close search">×</button>
+    <div id="site-search-ui" data-pagefind-ignore></div>
+  </div>
+</div>
+
+<style>
+  .site-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.65rem;
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.5rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .site-search-trigger:hover {
+    background: rgba(148, 163, 184, 0.16);
+    border-color: rgba(20, 184, 166, 0.4);
+    color: #f8fafc;
+  }
+  .site-search-trigger__label {
+    display: none;
+  }
+  .site-search-trigger__kbd {
+    display: none;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    padding: 0.05rem 0.35rem;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 0.3rem;
+  }
+  @media (min-width: 768px) {
+    .site-search-trigger__label { display: inline; }
+    .site-search-trigger__kbd { display: inline; }
+  }
+
+  .site-search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4rem 1rem 1rem;
+  }
+  .site-search-modal[hidden] { display: none; }
+  .site-search-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .site-search-modal__panel {
+    position: relative;
+    width: min(640px, 100%);
+    max-height: calc(100vh - 6rem);
+    overflow: auto;
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65);
+  }
+  .site-search-modal__close {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.6rem;
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 0.35rem;
+  }
+  .site-search-modal__close:hover { color: #f8fafc; background: rgba(148, 163, 184, 0.1); }
+
+  /* Pagefind UI dark-theme tokens */
+  #site-search-ui {
+    --pagefind-ui-primary: #14b8a6;
+    --pagefind-ui-text: #e2e8f0;
+    --pagefind-ui-background: #0f172a;
+    --pagefind-ui-border: rgba(148, 163, 184, 0.25);
+    --pagefind-ui-tag: #1e293b;
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 0.5rem;
+    --pagefind-ui-image-border-radius: 0.5rem;
+    --pagefind-ui-image-box-ratio: 3 / 2;
+    --pagefind-ui-font: inherit;
+  }
+  #site-search-ui :global(.pagefind-ui__search-input) {
+    background: rgba(15, 23, 42, 0.6);
+    color: #f1f5f9;
+  }
+  #site-search-ui :global(.pagefind-ui__result-link) {
+    color: #5eead4;
+  }
+  #site-search-ui :global(mark) {
+    background: rgba(20, 184, 166, 0.25);
+    color: #f0fdfa;
+    padding: 0 0.15em;
+    border-radius: 0.2em;
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  /*
+   * ClientRouter idempotency:
+   *   - Re-runs after every view transition (data-astro-rerun).
+   *   - Element-bound handlers (trigger/closers) use the data-search-bound marker.
+   *   - Document-bound keydown handler is registered once via window.__siteSearchKeydownBound
+   *     so view transitions never stack duplicates (every Cmd+K toggles open AND close
+   *     if the listener accumulates).
+   *
+   * H-USER-2 fix: in dev the pagefind index doesn't exist, so the empty-state message
+   * must reach the user. We probe /pagefind/pagefind-ui.js with HEAD before injecting;
+   * if missing, show the dev-fallback immediately on open() rather than after a silent
+   * failure that leaves Pagefind's UI in place with no results.
+   */
+  (function () {
+    function init() {
+      var trigger = document.querySelector("[data-search-open]:not([data-search-bound])");
+      var modal = document.querySelector("[data-search-modal]");
+      var closers = document.querySelectorAll("[data-search-close]:not([data-search-bound])");
+      var uiHost = document.getElementById("site-search-ui");
+      if (!trigger || !modal || !uiHost) return;
+      trigger.setAttribute("data-search-bound", "true");
+      closers.forEach(function (c) { c.setAttribute("data-search-bound", "true"); });
+
+      var uiInstance = null;
+      var indexCheckPromise = null;
+
+      function showDevFallback() {
+        uiHost.replaceChildren();
+        var p = document.createElement("p");
+        p.style.color = "#94a3b8";
+        p.style.padding = "0.5rem 0 0";
+        p.style.lineHeight = "1.5";
+        p.style.fontSize = "0.95rem";
+        p.textContent = "Search is unavailable in dev. Run `pnpm build && pnpm preview` to use site search.";
+        uiHost.appendChild(p);
+      }
+
+      function checkPagefindAvailable() {
+        if (indexCheckPromise) return indexCheckPromise;
+        indexCheckPromise = fetch("/pagefind/pagefind-ui.js", { method: "HEAD" })
+          .then(function (r) { return r.ok; })
+          .catch(function () { return false; });
+        return indexCheckPromise;
+      }
+
+      function loadPagefindUI() {
+        return new Promise(function (resolve, reject) {
+          if (window.PagefindUI) { resolve(window.PagefindUI); return; }
+          if (!document.querySelector('link[data-pagefind-css]')) {
+            var link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "/pagefind/pagefind-ui.css";
+            link.setAttribute("data-pagefind-css", "");
+            document.head.appendChild(link);
+          }
+          var script = document.createElement("script");
+          script.src = "/pagefind/pagefind-ui.js";
+          script.onload = function () {
+            if (window.PagefindUI) resolve(window.PagefindUI);
+            else reject(new Error("PagefindUI global not available after load"));
+          };
+          script.onerror = function () { reject(new Error("Failed to load /pagefind/pagefind-ui.js")); };
+          document.head.appendChild(script);
+        });
+      }
+
+      async function ensureUI() {
+        if (uiInstance) return;
+        var available = await checkPagefindAvailable();
+        if (!available) {
+          showDevFallback();
+          return;
+        }
+        try {
+          var PagefindUI = await loadPagefindUI();
+          uiInstance = new PagefindUI({
+            element: "#site-search-ui",
+            showImages: false,
+            showSubResults: true,
+            autofocus: true,
+            resetStyles: false,
+          });
+        } catch (e) {
+          showDevFallback();
+        }
+      }
+
+      function open() {
+        modal.hidden = false;
+        document.body.style.overflow = "hidden";
+        ensureUI().then(function () {
+          setTimeout(function () {
+            var input = uiHost.querySelector("input");
+            if (input) input.focus();
+          }, 50);
+        });
+      }
+      function close() {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+      }
+
+      trigger.addEventListener("click", open);
+      closers.forEach(function (c) { c.addEventListener("click", close); });
+
+      // Document-level keydown: register ONCE for the lifetime of the SPA session.
+      // Marker on window prevents duplicate registrations across view transitions.
+      if (!window.__siteSearchKeydownBound) {
+        window.__siteSearchKeydownBound = true;
+        document.addEventListener("keydown", function (e) {
+          // Re-resolve modal each keypress (DOM is swapped on view transition)
+          var liveModal = document.querySelector("[data-search-modal]");
+          if (!liveModal) return;
+          if (e.key === "Escape" && !liveModal.hidden) {
+            liveModal.hidden = true;
+            document.body.style.overflow = "";
+            return;
+          }
+          if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+            e.preventDefault();
+            var liveTrigger = document.querySelector("[data-search-open]");
+            if (liveModal.hidden) {
+              // Synthesize a click so the per-page open() runs with its own ensureUI scope
+              if (liveTrigger) liveTrigger.click();
+            } else {
+              liveModal.hidden = true;
+              document.body.style.overflow = "";
+            }
+          }
+        });
+      }
+    }
+
+    init();
+    document.addEventListener("astro:page-load", init);
+  })();
+</script>

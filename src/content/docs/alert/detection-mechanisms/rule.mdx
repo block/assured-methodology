@@ -1,0 +1,178 @@
+---
+title: "Rule-based detection"
+description: "Expert-defined conditional logic combining multiple indicators into scenarios worth flagging. The family that encodes institutional knowledge."
+slug: "alert/detection-mechanisms/rule"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import StrengthsLimitations from "@/components/assured/StrengthsLimitations.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="01 · 03"
+  pillarLabel="04 families"
+  chapterHref="/docs/alert/detection-mechanisms"
+  chapterLabel="Detection mechanisms"
+  lede="Rule-based detection uses expert-defined conditional logic. Most rules follow an if-then pattern that combines multiple indicators, contextual parameters, and timing constraints to describe a specific scenario worth investigating."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Detection families"
+  current="/docs/alert/detection-mechanisms/rule"
+  items={[
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+  ]}
+/>
+
+## How it works
+
+Where signature detection says "this specific thing is bad" and anomaly detection says "this is unusual," <DefineTerm term="Rule-Based Detection" display="rule-based detection" /> says "this *combination* of conditions is suspicious in our environment." A rule combines multiple indicators (a process name, a parent, a destination, a time window, a <DefineTerm term="User" display="user" /> privilege) and fires when the combination matches. The rule encodes a scenario the team has decided is worth a human looking at.
+
+Rules let security teams encode their own institutional knowledge and their own policies into the detection layer. Most modern SIEMs and SOAR platforms run on rules as their primary <DefineTerm term="Detection Mechanism" display="detection mechanism" />, supplemented by anomaly and behavioral models for what rules cannot easily express.
+
+## What a rule looks like in practice
+
+<div class="rule-examples">
+  <div class="rule-example">
+    <h4>⚠️ Office macro execution</h4>
+    <p><strong>If</strong> a Microsoft Office process spawns PowerShell <strong>and</strong> establishes an outbound network connection within 60 seconds, <strong>then</strong> fire a high-severity alert.</p>
+  </div>
+  <div class="rule-example">
+    <h4>🚪 Sensitive system access from unmanaged device</h4>
+    <p><strong>If</strong> a user accesses three or more sensitive systems <strong>and</strong> the source device is not enrolled in the asset inventory, <strong>then</strong> trigger an investigation.</p>
+  </div>
+  <div class="rule-example">
+    <h4>🔑 Privilege escalation with bulk access</h4>
+    <p><strong>If</strong> an account is granted elevated privileges <strong>and</strong> performs bulk data access <strong>within</strong> an hour <strong>and</strong> the activity is outside business hours, <strong>then</strong> escalate to the on-call engineer.</p>
+  </div>
+</div>
+
+**Representative platforms:** Splunk Enterprise Security, IBM QRadar, Microsoft Sentinel analytics rules, <DefineTerm term="Sigma">A vendor-neutral, open standard for describing SIEM detection rules. Sigma rules can be translated into the query languages of multiple SIEMs, which makes them portable across detection platforms.</DefineTerm> rules deployed across any compatible SIEM, custom KQL or SPL queries.
+
+---
+
+## Example: an Office macro chain
+
+<Reveal summary="Walk through a rule-based detection" variant="example" open={true}>
+
+A SIEM rule produces the following alert:
+
+```
+Alert: Office process spawned PowerShell with outbound traffic
+Severity: High
+Rule: rule_off_macro_pwsh_egress
+Confidence: rule-defined
+Host: laptop-rgreen
+Parent: winword.exe (PID 4128)
+Child: powershell.exe (PID 4132)
+Network: TLS connection to mail-storage-09.example.com:443
+Window: All three observations within 28 seconds
+```
+
+The analyst's first question is which family fired. The "Rule: rule_off_macro_pwsh_egress" field answers it. This is a rule-based alert, which means a security engineer wrote the logic that combined three observations into one verdict.
+
+What the analyst checks next:
+
+- **Read the rule.** Understanding exactly which conditions had to be true for the alert to fire tells the analyst what scenario the engineer was trying to catch. A well-named rule is half the investigation.
+- **Validate each condition.** Is the parent process really Word? Is the network destination really an unfamiliar host? Process <DefineTerm term="Telemetry" display="telemetry" /> and DNS history confirm each condition independently of the rule.
+- **Look at the user.** Did rgreen open a document recently? The mail logs and the user's recent inbox give context for whether the document came from a <DefineTerm term="Phishing" display="phishing" /> message or a legitimate sender.
+- **Check for siblings.** Did the same rule fire on other hosts in the same window? Multiple hits on one rule across an environment is usually a campaign, not a coincidence.
+
+Rule-based detection is precise about what it caught, and that precision is what makes the rule's wording the starting point of every rule-based investigation.
+
+</Reveal>
+
+---
+
+## Strengths and limitations
+
+<StrengthsLimitations
+  strengths={[
+    "Highly customizable. The team encodes its own policies, thresholds, and scenarios.",
+    "Captures complex attack patterns that a single-indicator signature would miss.",
+    "Transparent. An analyst can read the rule and explain exactly why the alert fired.",
+    "Efficient at runtime when rules are well-written and the underlying queries are indexed.",
+  ]}
+  limitations={[
+    "Requires deep domain expertise to design and maintain. Bad rules are worse than no rules.",
+    "Produces false-positives when misconfigured or when business context shifts and the rule does not.",
+    "Operational overhead grows with the rule library. Conflicting rules, stale rules, and duplicate rules all happen.",
+    "Continuous updates required as adversary techniques evolve.",
+  ]}
+/>
+
+---
+
+## Operational considerations
+
+- **Review and test rules on a regular cadence.** Quarterly is a reasonable minimum. The rule that fired well last quarter may be silent or noisy this quarter.
+- **Maintain version control and lifecycle documentation.** Every rule should have an owner, a documented purpose, and a history of changes.
+- **Watch for conflicting rules.** Two rules covering the same scenario can produce duplicate alerts, confused analysts, and lost trust.
+- **Train analysts to interpret rule-driven alerts.** A rule's name and description should be enough for an analyst to know what the rule is trying to catch and what to verify.
+
+<KeyTakeaway>
+Rule-based detection is the team's institutional knowledge made executable. Treat the rule library as a living asset, not a one-time configuration. A well-tuned rule library is what makes a SOC's signal-to-noise ratio survive the growth of its data sources.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/detection-mechanisms/behavioral"
+  nextLabel="Behavioral analytics"
+  nextDescription="The final family. Multi-event sequence analysis that catches the patterns no single event would reveal."
+  ctaLabel="Read behavioral analytics"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.rule-examples {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.rule-example {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+}
+
+.rule-example h4 {
+  margin: 0 0 0.4rem 0;
+  color: #d8b4fe;
+  font-size: 1rem;
+}
+
+.rule-example p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.rule-example strong {
+  color: #f8fafc;
+}
+`}
+</style>

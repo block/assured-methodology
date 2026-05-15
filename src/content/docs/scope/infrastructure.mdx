@@ -1,0 +1,344 @@
+---
+title: "Infrastructure boundaries"
+description: "What the SOC can actually see. Network segments, cloud accounts, geographic regions, retention windows, and the tools that define visibility."
+slug: "scope/infrastructure"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="04"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="Infrastructure boundaries are the honest accounting of what the SOC can actually see. The point is not pessimism. It is making sure the investigation does not waste time on questions the available telemetry cannot answer."
+/>
+
+<PillNav
+  chapter="scope"
+  label="Scope chapter"
+  current="/docs/scope/infrastructure"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+## Four common boundary types
+
+<DefineTerm term="Infrastructure" /> boundaries are guardrails, not obstacles. They prevent triage from expanding into irrelevant environments, reduce noise from unrelated <DefineTerm term="Telemetry" display="telemetry" />, and preserve analyst focus on the systems most likely to yield actionable data.
+
+<div class="infra-grid">
+  <div class="infra-card">
+    <h4>🌐 Network segmentation</h4>
+    <p>Subnets, VLANs, firewall zones, and DMZs define logical containment zones. If a host is restricted to a specific VLAN with no routing to external zones, adjacent systems can often be ruled out of scope unless evidence suggests segmentation failure.</p>
+  </div>
+  <div class="infra-card">
+    <h4>🏛️ System domains</h4>
+    <p>Active Directory forests, Azure AD tenants, LDAP hierarchies. These create structural separation in authentication and policy enforcement. Recognizing domain boundaries prevents premature attribution of behavior across unrelated trust zones.</p>
+  </div>
+  <div class="infra-card">
+    <h4>☁️ Deployment environments</h4>
+    <p>Cloud workloads, on-premises systems, SaaS platforms. Each operates under distinct access, tooling, and forensic constraints. Recognizing which segments belong to which infrastructure class tailors the scope to environments with proper visibility and operational control.</p>
+  </div>
+  <div class="infra-card">
+    <h4>🌍 Geographic and sovereignty</h4>
+    <p>Data residency rules can prevent moving log data across regions. An investigation may need to be conducted in-region or by a regional team. Multinational organizations often face conflicting jurisdictions in the same case.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Boundaries as guardrails">
+A clear boundary definition is foundational to investigative discipline. <DefineTerm term="Network Segmentation" display="Network segmentation" /> defines where the investigation should and should not extend. Identity boundaries prevent chasing misleading indicators across unrelated trust zones. Deployment environment recognition prevents wasted effort on platforms outside the SOC's jurisdiction.
+</Callout>
+
+---
+
+## 🔐 Access patterns
+
+Access patterns define how identities interact with systems and resources across the environment. Within Scope, access patterns are not evaluated for anomalies. They are cataloged to understand the structural flow of authentication and authorization. This contextual map sets investigative boundaries, identifies choke points, and prevents drift into unrelated identity ecosystems.
+
+<div class="access-grid">
+  <div class="access-card">
+    <span class="access-card__num">01</span>
+    <h4>Authentication frameworks</h4>
+    <p>SSO platforms, federated identity brokers, Kerberos-based systems. These determine where authentication events originate and how access is validated. Scope identifies which authentication systems were active during the event window and what logging sources are available, without that mapping, investigations risk extending into environments sharing no credential surface with the subject.</p>
+  </div>
+  <div class="access-card">
+    <span class="access-card__num">02</span>
+    <h4>Authorization structures</h4>
+    <p><DefineTerm term="RBAC">Role-Based Access Control. Permissions granted to roles rather than individual users; users inherit access through role assignment. The model makes access reviewable at the role level instead of per-user.</DefineTerm>, ABAC, MAC. These impose constraints on what authenticated identities can do and where. Scope accounts for these limitations so the investigation does not over-triage actions that policy would have denied. An authenticated account without write permissions can be excluded from write-only investigations.</p>
+  </div>
+  <div class="access-card">
+    <span class="access-card__num">03</span>
+    <h4>Trust relationships</h4>
+    <p>Domain trusts, delegated permissions, service principal access, token exchange. These bridge identity across boundaries. Documenting them distinguishes where access naturally extends from where escalation or impersonation would be required. Misinterpreting trust lines is the classic mis-scoping mistake.</p>
+  </div>
+</div>
+
+<Reveal summary="An example of using access patterns to bound scope" variant="example">
+
+An alert fires on an account in a Workday-federated SSO context. The implicated <DefineTerm term="User" display="user" /> normally authenticates against the corporate AD via SSO.
+
+Without access-pattern mapping, an analyst might investigate every system the user could theoretically reach via SSO including downstream SaaS apps. That can be hundreds of systems.
+
+With access-pattern mapping, Scope confirms:
+
+- The user's SSO entitlements limit <DefineTerm term="Federation" display="federation" /> to four specific SaaS apps.
+- Two of those apps had no activity in the relevant window per the IdP logs.
+- The other two are in scope; the rest are out.
+
+The investigation goes from "hundreds of possible targets" to "two confirmed accessed targets." That precision is what access patterns buy.
+
+</Reveal>
+
+---
+
+## 🧰 Tools as boundaries
+
+Tooling is part of the infrastructure picture. Before <DefineTerm term="Parsing" display="parsing" /> a single <DefineTerm term="Log" display="log" /> or reviewing alerts, analysts must inventory their tooling landscape to establish visibility coverage, identify data gaps, and recognize the fixed investigative boundaries each platform imposes. Tools define the mechanisms, not the actions.
+
+When setting scope, consider each platform's observation and retrieval capabilities. SIEMs, EDRs, packet capture appliances, and <DefineTerm term="Threat" display="threat" /> intel offer distinct perspectives on activity, and recognizing each one's reach and blind spots shapes the investigation's breadth and depth.
+
+<div class="tools-grid">
+  <div class="tool-card">
+    <h4>📊 SIEM</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> centralized log aggregation, cross-source correlation, retention. The nerve center.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> retention is capacity-bounded; unsupported log sources create coverage gaps; rule maintenance is an ongoing cost.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🔍 EDR</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> process lineage, command-line capture, file activity, real-time response actions.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> coverage gaps on non-standard endpoints (IoT, OT, certain Linux distros); tuning sensitivity affects false-positive load.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🌐 Network analysis</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> traffic inspection, protocol decoding, deep packet inspection, retrospective replay.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> high-volume environments stress capture capacity; encrypted traffic remains opaque without decryption infrastructure.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🌍 Threat intelligence</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> external IOC enrichment, TTP mapping to <DefineTerm term="MITRE ATT&CK">A public knowledge base of adversary tactics and techniques observed in real-world attacks. attack.mitre.org</DefineTerm>, campaign attribution.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> feed quality varies; integration friction with SIEM/EDR; over-reliance produces alert fatigue.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🎭 Deception</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> high-fidelity alerts with minimal false-positives. Decoy interaction implies attacker presence.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> coverage depth matters; sophisticated attackers can fingerprint decoys; maintenance overhead as production drifts.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🔬 Digital forensics</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> disk and memory analysis, artifact extraction, timeline reconstruction, chain-of-custody for legal/regulatory.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> retrospective by nature; resource-intensive; environment-specific tooling for cross-OS coverage.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🛡️ Vulnerability scanners</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> known-CVE detection, asset fingerprinting, exploitability scoring, remediation tracking.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> signature-based, no zero-day detection; point-in-time snapshots; potential disruption from active scans.</p>
+  </div>
+  <div class="tool-card">
+    <h4>⚙️ SOAR</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> playbook automation, tool integration, case management, real-time response orchestration.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> playbook maintenance burden; quality dependent on incoming alert fidelity; risk of analyst over-reliance.</p>
+  </div>
+  <div class="tool-card">
+    <h4>☁️ CSPM</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> cloud misconfiguration detection, IAM analysis, compliance mapping, configuration drift alerts.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> blind spots on proprietary/ephemeral services; finding-volume noise; cloud-specific tuning per provider.</p>
+  </div>
+  <div class="tool-card">
+    <h4>🗄️ Security data lake</h4>
+    <p class="tool-card__what"><strong>Brings:</strong> scalable retention beyond SIEM, schema-on-read flexibility, ML-friendly cross-source analytics.</p>
+    <p class="tool-card__limit"><strong>Limits:</strong> normalization engineering cost; query performance without proper indexing; data engineering skill requirement.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Tools as boundary, not as scope">
+A platform that does not collect session data from unmanaged devices marks a hard edge in scoping. No assumptions extend beyond it. The Scope output names the tools available, what each one sees, and where each one's vision ends. Uncover then queries within those bounds rather than chasing questions the tooling cannot answer.
+</Callout>
+
+---
+
+## 🚫 Naming what is invisible
+
+A useful Scope output is an explicit list of what the SOC cannot see for this case.
+
+<div class="invisible-list">
+  <div class="invisible-row">
+    <h4>📱 Off-network mobile devices</h4>
+    <p>Activity that happens when the device is off-corporate-network may be invisible until the device reconnects. MAM telemetry helps, but not all activity reaches it.</p>
+  </div>
+  <div class="invisible-row">
+    <h4>💼 Personal devices in BYOD</h4>
+    <p>Often only see authentication events, not deeper telemetry. App-level activity, file access, and clipboard behavior live outside corporate visibility.</p>
+  </div>
+  <div class="invisible-row">
+    <h4>🔌 Third-party SaaS without integrated logging</h4>
+    <p>The SOC sees the authentication; the in-app activity is in the vendor's logs. Deeper investigation requires a vendor request and (usually) a contractual or legal channel.</p>
+  </div>
+  <div class="invisible-row">
+    <h4>🚪 Air-gapped systems</h4>
+    <p>May produce no telemetry that reaches the SIEM at all. Investigation requires direct system access, often with physical or operational constraints.</p>
+  </div>
+  <div class="invisible-row">
+    <h4>🔒 Encrypted traffic without decryption</h4>
+    <p>TLS metadata (timing, volume, JA3 fingerprint) is visible; payload content is not. C2 channels riding on legitimate TLS look like other TLS unless inspection is positioned upstream.</p>
+  </div>
+  <div class="invisible-row">
+    <h4>🪨 Legacy systems without modern agents</h4>
+    <p>Mainframes, OT/ICS, embedded systems often cannot host EDR. Coverage is via network position or via the system's own audit features, which may be limited.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Listing gaps is not an apology">
+Naming what cannot be seen is a deliberate statement that frames the investigation realistically. It prevents the analyst from chasing impossible queries, and it signals to escalation when an investigation has reached the limit of what the available telemetry can prove.
+</Callout>
+
+<KeyTakeaway>
+Infrastructure boundaries are the honest map of the SOC's vision. Investigations that respect those boundaries finish on time and on point. Investigations that ignore them waste days on queries the data could never have answered. Naming the boundaries, network, identity, geography, tooling, and the gaps, is Scope's last responsibility before Uncover takes the work forward.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/example"
+  nextLabel="Scope working example"
+  nextDescription="A walkthrough of Scope applied to the same intrusion that ran through Alert and Subject."
+  ctaLabel="See the example"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>
+
+<style>
+{`
+.infra-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .infra-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .infra-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.infra-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+}
+.infra-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #d8b4fe;
+  font-size: 1rem;
+}
+.infra-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.access-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 900px) { .access-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.access-card {
+  position: relative;
+  padding: 1.4rem 1.55rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 0.85rem;
+}
+.access-card__num {
+  position: absolute;
+  top: 1.15rem;
+  right: 1.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(216, 180, 254, 0.6);
+}
+.access-card h4 {
+  margin: 0 0 0.45rem 0;
+  color: #d8b4fe;
+  font-size: 1.05rem;
+}
+.access-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .tools-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.tool-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid #5eead4;
+  border-radius: 0.6rem;
+}
+.tool-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #5eead4;
+  font-size: 0.98rem;
+}
+.tool-card__what,
+.tool-card__limit {
+  margin: 0 0 0.35rem 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+.tool-card__what strong { color: #86efac; }
+.tool-card__limit strong { color: #fca5a5; }
+.tool-card__limit { margin-bottom: 0; }
+
+.invisible-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .invisible-list { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .invisible-list { grid-template-columns: repeat(3, 1fr); } }
+
+.invisible-row {
+  padding: 1.05rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.55rem;
+}
+.invisible-row h4 {
+  margin: 0 0 0.3rem 0;
+  color: #fbbf24;
+  font-size: 0.95rem;
+}
+.invisible-row p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+`}
+</style>

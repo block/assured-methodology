@@ -1,0 +1,287 @@
+---
+title: "Transition to Risk"
+description: "Uncover produced the evidence. Risk is the analytical checkpoint that asks: is the investigation complete enough to draw conclusions?"
+slug: "uncover/transition"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="uncover" parentLetter="U" pillarNumber="Transition" pillarLabel="Uncover to Risk" chapterHref="/docs/uncover" chapterLabel="Uncover" lede="Uncover produced the chain of evidence and the MITRE-tagged narrative. Risk is the analytical checkpoint that asks whether the investigation, given current evidence and visibility, is complete enough to draw conclusions, or whether gaps remain that require rescoping or continued analysis."/>
+
+<PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/transition" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+<Callout variant="info" title="Four phases complete. The next begins.">
+Alert answered <em>what fired</em>. Subject answered <em>who acted</em>. Scope answered <em>how much of this matters</em>. Uncover answered <em>what actually happened</em>. Risk now asks <em>is the picture complete enough to act on, or do we need to keep looking?</em>
+</Callout>
+
+### What Risk actually does
+
+Risk is often misunderstood as "assign a priority" or "kick off response." It is neither. Risk is the analytical checkpoint that follows evidence gathering. It evaluates whether what Uncover produced is sufficient to draw a conclusion, or whether the gaps require rescoping or continued analysis.
+
+<div class="risk-roles">
+  <div class="risk-role">
+    <span class="risk-role__num">01</span>
+    <div>
+      <h4>Evaluates investigative completeness</h4>
+      <p>Is there enough evidence to understand what occurred and its potential impact? Could the current data support misinterpretation due to missing telemetry, limited retention, or insufficient visibility?</p>
+    </div>
+  </div>
+  <div class="risk-role">
+    <span class="risk-role__num">02</span>
+    <div>
+      <h4>Acknowledges blind spots explicitly</h4>
+      <p>Telemetry is never complete. Risk factors known blind spots into the investigative outcome rather than pretending they do not exist.</p>
+    </div>
+  </div>
+  <div class="risk-role">
+    <span class="risk-role__num">03</span>
+    <div>
+      <h4>Drives the binary decision</h4>
+      <p>Close the event with confidence, or expand scope to resolve uncertainties and trace potential lateral paths? Risk does not stall in ambiguity, and it does not prematurely conclude in the presence of unresolved exposure.</p>
+    </div>
+  </div>
+</div>
+
+---
+
+## What Uncover hands forward
+
+A clean Uncover handoff makes Risk's job possible. Five <DefineTerm term="Artifacts" display="artifacts" /> cover what Risk needs.
+
+<div class="handoff-grid">
+  <div class="handoff-card">
+    <span class="handoff-card__num">01</span>
+    <h4>📊 The evidence chain</h4>
+    <p>What happened, in order, with timestamps. Each step linked to the data source that confirmed it. Mapped to MITRE ATT&CK techniques where applicable.</p>
+  </div>
+  <div class="handoff-card">
+    <span class="handoff-card__num">02</span>
+    <h4>🎯 Confirmed entities</h4>
+    <p>Which of Scope's primary and secondary entities were actually involved in the activity. Which were investigated and ruled out. Each verdict with its supporting evidence.</p>
+  </div>
+  <div class="handoff-card">
+    <span class="handoff-card__num">03</span>
+    <h4>🌐 Intelligence context</h4>
+    <p>Which threat-intelligence sources matched, at what confidence, with what corroboration. Where the intel was hypothesis-only vs. directly evidenced.</p>
+  </div>
+  <div class="handoff-card">
+    <span class="handoff-card__num">04</span>
+    <h4>🚧 Coverage gaps</h4>
+    <p>Tools, telemetry, retention, and visibility limits that bounded the investigation. Explicit names of what could not be examined and why.</p>
+  </div>
+  <div class="handoff-card">
+    <span class="handoff-card__num">05</span>
+    <h4>🛠️ Detection gaps</h4>
+    <p>Techniques observed but not flagged automatically. Rules that fired but should have been more specific. Feedback the detection-engineering team can act on.</p>
+  </div>
+</div>
+
+---
+
+## The binary decision Risk makes
+
+Risk's output is a constrained call: close with confidence, or rescope and continue. Three patterns appear most often.
+
+<div class="decision-grid">
+  <div class="decision-card decision-card--close">
+    <span class="decision-card__tag">CLOSE WITH CONFIDENCE</span>
+    <p>Evidence is consistent with one explanation (compromise or benign), confidence is high on the primary entities, gaps are documented and assessed as non-material to the verdict. The methodology says close.</p>
+  </div>
+  <div class="decision-card decision-card--rescope">
+    <span class="decision-card__tag">RESCOPE AND CONTINUE</span>
+    <p>Evidence surfaced new entities, time periods, or systems that were out of Scope's original boundary but are clearly in play. The methodology says return to Scope, widen the lines, repeat Uncover on the expanded frame.</p>
+  </div>
+  <div class="decision-card decision-card--ambiguous">
+    <span class="decision-card__tag">RESOLVE AMBIGUITY</span>
+    <p>Evidence is mixed: some signals suggest compromise, others suggest benign. Gaps are material to the verdict. The methodology says keep working within the current scope, document the ambiguity, and define what specific evidence would resolve it.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Risk is not response">
+Risk does not contain, isolate, or notify. Those happen in Escalation, after Risk's verdict supports them. Risk's job is to ensure the verdict is defensible. A confident "close" or a confident "expand" are both correct outputs; an ambiguous "I think maybe" is the output Risk rejects.
+</Callout>
+
+---
+
+## Common Uncover-to-Risk failure modes
+
+Uncover can be thorough and still fail at the handoff to Risk.
+
+<div class="failure-grid">
+  <div class="failure-card">
+    <h4>🪞 Evidence without confidence labels</h4>
+    <p>Uncover produced a chain but did not say "high confidence on the first three steps, medium on the fourth, low on the fifth." Risk inherits a chain that looks more certain than it is, and the binary decision is made on shaky ground.</p>
+  </div>
+  <div class="failure-card">
+    <h4>📭 Silent coverage gaps</h4>
+    <p>Uncover did the work it could but did not name what it could not see. Risk closes the case without realizing a key telemetry source was offline during the relevant window. The case re-opens a week later when the data lands.</p>
+  </div>
+  <div class="failure-card">
+    <h4>🎭 Premature attribution</h4>
+    <p>Uncover claimed attribution at high confidence on isolated technical indicators. Risk inherits a verdict that survives only as long as no one questions the attribution. The methodology asks for explicit confidence on every attribution claim.</p>
+  </div>
+  <div class="failure-card">
+    <h4>📚 Free-form prose instead of ATT&CK</h4>
+    <p>Uncover wrote a narrative that does not map to the framework. Risk has to translate before it can compare against prior cases, against threat intelligence, or against detection-engineering gaps. The chain of techniques is what makes the handoff portable.</p>
+  </div>
+</div>
+
+<Reveal summary="What a clean Uncover-to-Risk handoff reads like" variant="example">
+
+> **<DefineTerm term="Threat" /> type:** confirmed compromise via spearphishing attachment.
+> **Chain:** T1566.001 → T1204.002 → T1059.001 → T1105 → T1071.001 → T1078.004.
+> **Primary entities (confirmed):** dlin (<DefineTerm term="User" display="user" />), laptop-finance-09 (host), dlin's cloud SSO identity. All high confidence.
+> **Secondary entities (confirmed):** one peer host also executed the payload (laptop-finance-12). Cloud finance platform shows federated login but no in-app activity yet.
+> **<DefineTerm term="Intelligence" /> context:** the dropper hash matches a known campaign at medium confidence. The C2 <DefineTerm term="Domain" display="domain" /> is brand-new and does not match prior intel.
+> **Coverage gaps:** cloud finance platform's in-app activity is in vendor logs, request pending. Mobile-app activity on BYOD phones is invisible.
+> **Detection gaps:** the rule that fired on host A did not fire on host B even though both ran the same payload. Cause: rule expects file path X; host B used path Y. Feature request opened.
+> **Open question for Risk:** Is the current scope (3 primary + 1 peer + 1 SaaS) sufficient, or should Risk push back to Scope to widen to other finance-team mailboxes that may have received the same email?
+
+The handoff is one screen of structured text. Every line points Risk at a specific decision. Nothing requires re-reading the SIEM query history.
+
+</Reveal>
+
+---
+
+<KeyTakeaway>
+Uncover's deliverable is a narrative supported by evidence, with explicit confidence and explicit gaps. Risk's job is to evaluate whether that deliverable is complete enough to act on. Done well, the binary decision (close or rescope) is obvious from the handoff document alone. Done poorly, Risk has to redo Uncover's work before it can decide.
+</KeyTakeaway>
+
+<PuzzleProgress current="uncover" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }} />
+
+<div class="end-cta">
+  <a href="/docs/uncover" class="assured-cta assured-cta--ghost">← Back to Uncover overview</a>
+  <a href="/docs/risk" class="assured-cta">Continue to Risk →</a>
+</div>
+
+<style>
+{`
+.risk-roles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .risk-roles { grid-template-columns: repeat(3, 1fr); } }
+
+.risk-role {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+.risk-role__num {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #f97316, #c2410c);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.risk-role h4 { margin: 0 0 0.25rem 0; color: #f8fafc; font-size: 0.97rem; }
+.risk-role p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.89rem; }
+
+.handoff-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .handoff-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .handoff-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.handoff-card {
+  position: relative;
+  padding: 1.2rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 0.7rem;
+}
+.handoff-card__num {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.15rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(253, 186, 116, 0.55);
+}
+.handoff-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.93rem; }
+.handoff-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.86rem; }
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 900px) { .decision-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.decision-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--dc-color);
+  border-radius: 0.7rem;
+}
+.decision-card--close     { --dc-color: #22c55e; }
+.decision-card--rescope   { --dc-color: #f59e0b; }
+.decision-card--ambiguous { --dc-color: #c084fc; }
+.decision-card__tag {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--dc-color);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.55rem;
+}
+.decision-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.failure-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .failure-grid { grid-template-columns: 1fr 1fr; } }
+
+.failure-card {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.failure-card h4 { margin: 0 0 0.4rem 0; color: #fbbf24; font-size: 0.97rem; }
+.failure-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.end-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 2rem 0 1rem;
+}
+`}
+</style>

@@ -1,0 +1,389 @@
+---
+title: "Regulatory boundaries"
+description: "GDPR, CCPA, HIPAA, PCI DSS, SOX. The rules that constrain what an investigation can do, with whom, and on what timeline."
+slug: "scope/regulatory"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="01"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="Regulatory boundaries are the rules that limit what an investigation can do with what kinds of data. They are not optional, and they shape Scope decisions as much as the technical signals do."
+/>
+
+<PillNav
+  chapter="scope"
+  label="Scope chapter"
+  current="/docs/scope/regulatory"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+## Five frameworks an analyst should recognize
+
+<div class="reg-grid">
+  <a href="#gdpr" class="reg-card">
+    <h4>🇪🇺 GDPR</h4>
+    <p>EU residents' personal data. 72-hour breach notification, data minimization, lawful basis. Applies wherever the data is processed.</p>
+  </a>
+  <a href="#ccpa" class="reg-card">
+    <h4>🐻 CCPA / CPRA</h4>
+    <p>California residents. 12-month lookback, 45-day rights response, defined personal information categories. Mirrors GDPR in spirit.</p>
+  </a>
+  <a href="#pci" class="reg-card">
+    <h4>💳 PCI DSS</h4>
+    <p>Cardholder data environments. Tiered access, immutable audit trails, dual-authorization windows, defined justification codes.</p>
+  </a>
+  <a href="#hipaa" class="reg-card">
+    <h4>🏥 HIPAA</h4>
+    <p>Protected Health Information. Minimum necessary access, tiered investigation tiers, 18-month log retention, 60-day breach clock.</p>
+  </a>
+  <a href="#sox" class="reg-card">
+    <h4>📊 SOX</h4>
+    <p>Public-company financial controls. 7-year retention, segregation of duties even during IR, executive authorization for historical access.</p>
+  </a>
+</div>
+
+<Callout variant="info" title="The pattern across all five">
+Each framework has three triage implications: <strong>(1)</strong> what data the analyst can touch, <strong>(2)</strong> what records the investigation has to leave behind, and <strong>(3)</strong> what timeline notifications follow. Scope is the place those three are made explicit, before Uncover starts touching regulated data.
+</Callout>
+
+---
+
+<h2 id="gdpr">🇪🇺 GDPR</h2>
+
+Investigations involving EU residents' personal data must work within GDPR while preserving investigative integrity. The framework imposes six concrete requirements on triage.
+
+<div class="reg-detail">
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">01</span>
+    <h4>Data minimization</h4>
+    <p>Extract only the data relevant to the investigation, within a defined time window (typically 72 hours surrounding the event). Document each access with a standardized justification code so the minimization is auditable.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">02</span>
+    <h4>Breach notification (72 hours)</h4>
+    <p>Confirmed compromise of personal data requires notification to the supervisory authority within 72 hours of awareness. The technical investigation does not pause that clock; Scope is where the clock starts to be tracked.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">03</span>
+    <h4>Data subject rights</h4>
+    <p>Investigation tooling must support redaction (for access requests) and erasure obligations without compromising forensic integrity. Modifications are recorded in the chain of custody with cryptographic validation.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">04</span>
+    <h4>Article 30 metadata</h4>
+    <p>Each investigation artifact carries metadata: personal data category, processing purpose, retention timeline (typically 30 days for triage data, 180 days for confirmed incidents). The metadata is what makes the record of processing defensible.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">05</span>
+    <h4>Cross-border controls</h4>
+    <p>A US-based analyst accessing EU resident data completes a Standard Contractual Clauses workflow that documents the data elements involved and the safeguards (encryption, regional key management). Out-of-region access is not free.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">06</span>
+    <h4>Compliance checkpoints</h4>
+    <p>Case management gates on lawful basis selection, privacy impact scoring, and required documentation. Escalation cannot proceed without the GDPR fields complete, which is what stops well-meaning analysts from drifting past the legal boundary.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="The 72-hour clock starts at awareness, not at confirmation">
+"Awareness" is the moment the SOC has reasonable cause to believe personal data was compromised. That can predate the technical confirmation by hours or days. Scope is where the analyst commits to a timestamp of awareness so the notification math is defensible.
+</Callout>
+
+---
+
+<h2 id="ccpa">🐻 CCPA / CPRA</h2>
+
+California's privacy regime mirrors GDPR in spirit and adds its own structural requirements that affect how investigations are scoped.
+
+<div class="reg-detail">
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">01</span>
+    <h4>Documentation with justification codes</h4>
+    <p>Each query that accesses personal data (IP addresses, device IDs, geolocation, behavioral fingerprints) carries a justification code: PC-1 for threat detection, PC-2 for fraud prevention, etc. Codes align with CCPA's defined categories.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">02</span>
+    <h4>Scope and timeframes</h4>
+    <p>CCPA requires a 12-month data-mapping lookback and 45-day response to consumer rights requests. Tooling enforces ±7-day windows around suspected events; broader queries require explicit justification.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">03</span>
+    <h4>Investigation registry</h4>
+    <p>Maintain a registry logging each personal data category accessed, justification, retention period (typically 90 days for triage, one year for confirmed incidents), and any disclosures to service providers or regulators. Persistent identifiers tie registry entries to investigation artifacts.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">04</span>
+    <h4>Compliance checkpoints</h4>
+    <p>Investigation may fall under CCPA's business-purpose exceptions (<a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.105" target="_blank" rel="noopener noreferrer">§1798.105(d)(2)</a>), but mature programs still gate on cryptographically verifiable audit logs at scope definition, evidence collection, and incident closure. <a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.82" target="_blank" rel="noopener noreferrer">Cal. Civ. Code §1798.82</a> requires breach notification "in the most expedient time possible and without unreasonable delay" — no fixed clock, but mature programs treat 30 days as their internal target so the parallel clock is documented from the moment thresholds are met.</p>
+  </div>
+</div>
+
+---
+
+<h2 id="pci">💳 PCI DSS</h2>
+
+PCI DSS v4.0 imposes the strictest technical controls in the list when an investigation crosses into a Cardholder Data Environment (CDE). The methodology treats the CDE boundary as a hard line; crossing it requires specific scaffolding.
+
+<div class="reg-detail">
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">01</span>
+    <h4>Immutable audit requirements</h4>
+    <p>All actions captured in immutable, 256-bit encrypted logs centralized to PCI-segregated SIEM instances within one hour. Investigation traffic routes exclusively through inspection zones and compliant jump servers with full packet capture. Quarterly segmentation validation must persist throughout the investigation.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">02</span>
+    <h4>Permissible access controls</h4>
+    <p>Investigative access to Level 1 cardholder systems requires dual authorization and is restricted to 4-hour windows through PAM platforms. <a href="https://www.pcisecuritystandards.org/document_library/" target="_blank" rel="noopener noreferrer">PCI DSS v4.0.1 Req. 10</a> (full PDF at <a href="https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0_1.pdf" target="_blank" rel="noopener noreferrer">docs-prv.pcisecuritystandards.org</a> — requires a PCI SSC account) mandates audit logging of all access; session recording is a best-practice control most mature programs add on top via the same PAM platform that enforces the access window. Justification codes PCI-J1 through PCI-J4 precede access. PCI-compliant bastion hosts only; no direct CDE-to-non-CDE connections.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">03</span>
+    <h4>Cardholder data boundaries</h4>
+    <p>Systems that store, process, or transmit PANs, CVV2, track data, or PIN blocks are labeled "CDE-primary" in both CMDBs and investigative tooling. The label is what makes containment and tracking precise.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">04</span>
+    <h4>Logging and Requirement 10 mapping</h4>
+    <p><a href="https://www.pcisecuritystandards.org/document_library/" target="_blank" rel="noopener noreferrer">Requirement 10</a> (full PDF at <a href="https://docs-prv.pcisecuritystandards.org/PCI%20DSS/Standard/PCI-DSS-v4_0_1.pdf" target="_blank" rel="noopener noreferrer">docs-prv.pcisecuritystandards.org</a> — PCI SSC account required) specifies the event categories that must be logged (10.2.1) and the data each entry must contain (10.2.2: user, event type, date/time, success/failure, origination, affected resource). Tag every investigative query against the relevant 10.2.1 sub-control so automated attestation reports align investigative steps with the control expectations the auditor will check.</p>
+  </div>
+</div>
+
+<Reveal summary="PCI tiered access model" variant="info">
+
+PCI investigations use a four-tier access model. Each ascending tier adds controls.
+
+- **Tier 1, <DefineTerm term="Metadata" /> only.** Counts, summary statistics, no de-tokenized data. Suitable for initial triage and validation that the alert is real.
+- **Tier 2, Aggregated statistics.** Grouped behavioral data, no individual PANs. For pattern analysis without exposing primary account numbers.
+- **Tier 3, De-tokenized data samples.** Specific cardholder records with manager approval, time-bounded access (typically 12 hours), biometric authentication.
+- **Tier 4, Full CDE access.** Direct interaction with cardholder systems. Quarterly certification against specific CDE system categories. Used only when the investigation has demonstrated need at lower tiers first.
+
+Each tier-up requires explicit justification and is logged for audit. The model is what keeps investigative pressure from collapsing the access controls that PCI exists to enforce.
+
+</Reveal>
+
+---
+
+<h2 id="hipaa">🏥 HIPAA</h2>
+
+In healthcare environments, HIPAA strictly governs investigation scoping by regulating access to Protected Health Information. Only authorized personnel access PHI, each access is justified, every event is logged, and access is limited to the minimum necessary.
+
+<div class="reg-detail">
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">01</span>
+    <h4>Justification for PHI access</h4>
+    <p>Document the specific case identifiers, threat patterns, or alerts that necessitate PHI access. Each access event carries a formal Business Associate-signed attestation referencing the specific HIPAA provision being invoked — typically <a href="https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-E/section-164.512#p-164.512(d)" target="_blank" rel="noopener noreferrer">§164.512(d)</a> (health oversight activities) for routine security investigations or <a href="https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-164/subpart-E/section-164.512#p-164.512(f)" target="_blank" rel="noopener noreferrer">§164.512(f)</a> (law enforcement) when the investigation is supporting a referred matter. §164.512(i) is for research disclosures and is the wrong authority for security work.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">02</span>
+    <h4>Designated investigation personnel</h4>
+    <p>An up-to-date roster of authorized staff is refreshed quarterly with HIPAA training certification dates and role-based privileges. Only Level 2+ investigators with current 45 CFR §164 training may access unmasked PHI.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">03</span>
+    <h4>Audit trail requirements</h4>
+    <p>18-month retention for all investigation logs: timestamp, user ID, data elements accessed, query parameters, justification codes. Tamper-evident via SHA-256 hashing and stored in WORM-compliant systems.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">04</span>
+    <h4>Data segregation</h4>
+    <p>PHI is separated from broader datasets via tokenization, AES-256 field-level encryption, and identifier substitution. Investigation-specific reference codes replace personal identifiers in working data.</p>
+  </div>
+</div>
+
+<Reveal summary="HIPAA tiered investigation access" variant="info">
+
+The minimum necessary standard (§164.502(b)) shapes investigation tiers directly.
+
+| Tier | Description | PHI Access | Authorization | Time Limit |
+|---|---|---|---|---|
+| **Tier 1** | Initial triage | Metadata only (no identifiers) | Team Lead | 24 hours |
+| **Tier 2** | Pattern analysis | Partial PHI (masked identifiers) | Security Manager | 72 hours |
+| **Tier 3** | Full investigation | Complete PHI access | CISO + Privacy Officer | 5 days |
+
+Emergency access (after-hours PHI) requires Chief Privacy Officer authorization within 30 minutes and documentation in the compliance management system within 4 hours, with the specific §164.308(a)(1)(ii)(C) risk-analysis justification.
+
+</Reveal>
+
+<Callout variant="warn" title="The 60-day breach-notification clock">
+HIPAA's breach assessment uses a four-factor test (data types, recipient ID, acquisition confirmation, <DefineTerm term="Mitigation" display="mitigation" /> evidence). When the factors indicate compromise probability, the 60-day notification clock starts at discovery. Precise and efficient scoping is time-critical.
+</Callout>
+
+---
+
+<h2 id="sox">📊 SOX</h2>
+
+Sarbanes-Oxley governs financial reporting controls for public companies. Investigations on SOX-regulated systems carry constraints that affect Scope, especially around evidence integrity and access timing.
+
+<div class="reg-detail">
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">01</span>
+    <h4>Section 404 controls</h4>
+    <p>Documented audit trails for financial systems. The investigation preserves the evidence chain for financial transactions through non-repudiation mechanisms and defensible validation of data integrity. External auditors verify these controls independently.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">02</span>
+    <h4>Data integrity protection</h4>
+    <p>Financial records on WORM storage with tamper-evident controls. <DefineTerm term="WORM storage">Write-Once-Read-Many. Storage systems that prevent modification or deletion of written data, used to preserve evidence integrity for legal or regulatory purposes. Common implementations meet SEC 17a-4 specifications.</DefineTerm> compliance must persist during investigation. Digital signatures (and increasingly blockchain-based verification) preserve immutable proof of data state.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">03</span>
+    <h4>Retention requirements</h4>
+    <p>SOX's 7-year retention shapes investigation timelines. Historical data access requires CEO/CFO authorization within 48 hours. Pre-approved investigation templates expedite emergency access while keeping governance intact.</p>
+  </div>
+  <div class="reg-detail__card">
+    <span class="reg-detail__num">04</span>
+    <h4>Access monitoring &amp; segregation of duties</h4>
+    <p>Segregation of duties stays intact during IR. Specialized PAM solutions enforce time-limited investigation windows and dual-control mechanisms for sensitive financial data. Investigator actions are tracked separately from primary security tools.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="PCAOB and dual sign-off">
+Investigations involving SOX-regulated systems require coordination with compliance officers to maintain SOX certification status. Dual-authorization workflows for financial-system investigations typically require sign-off from both security leadership and financial compliance before proceeding.
+</Callout>
+
+---
+
+## When regulatory triggers escalate the investigation
+
+Regulatory exposure is not just a constraint. It can also be a reason to escalate sooner than the technical evidence alone would justify.
+
+<div class="reg-escalation">
+  <div class="reg-escalation__row">
+    <h4>🏥 PHI confirmed compromised</h4>
+    <p>HIPAA's 60-day breach notification clock starts at awareness. The disclosure timeline runs independently of the technical investigation. Engage the privacy officer and counsel as soon as the four-factor test indicates probability of compromise.</p>
+  </div>
+  <div class="reg-escalation__row">
+    <h4>💳 PCI account access</h4>
+    <p>Compromised account with CDE access may require card-brand notification within days, independent of investigation status. Tag the case as PCI-relevant at scope so the parallel clock starts on time.</p>
+  </div>
+  <div class="reg-escalation__row">
+    <h4>🇪🇺 EU residents affected</h4>
+    <p>GDPR's 72-hour clock means delaying engagement of compliance and DPO has direct financial cost. Scope is where the awareness timestamp gets committed and the supervisory authority pathway gets opened.</p>
+  </div>
+  <div class="reg-escalation__row">
+    <h4>📊 Financial system touched</h4>
+    <p>SOX-regulated systems involved means finance compliance, internal audit, and (often) external auditors will need a structured update. Scope marks this so the parallel notifications start without serializing behind the technical investigation.</p>
+  </div>
+</div>
+
+<KeyTakeaway>
+Regulatory frameworks are not paperwork after the fact. They are part of the boundary the investigation is conducted within. Scope is where the analyst confirms which frameworks apply, attaches the right justification codes to the case, and ensures the parallel notification clocks run on time.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/time"
+  nextLabel="Time boundaries"
+  nextDescription="Historical review windows, real-time investigation, retention limits. When the investigation starts and stops."
+  ctaLabel="Read time boundaries"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>
+
+<style>
+{`
+.reg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .reg-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .reg-grid { grid-template-columns: repeat(5, 1fr); } }
+.reg-card {
+  display: block;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.reg-card:hover {
+  transform: translateY(-3px);
+  border-color: #a855f7;
+  box-shadow: 0 14px 28px -14px rgba(168, 85, 247, 0.35);
+}
+.reg-card h4 { margin: 0 0 0.4rem 0; color: #d8b4fe; font-size: 0.98rem; }
+.reg-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.reg-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .reg-detail { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .reg-detail { grid-template-columns: repeat(3, 1fr); } }
+
+.reg-detail__card {
+  position: relative;
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 0.7rem;
+}
+.reg-detail__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(216, 180, 254, 0.6);
+}
+.reg-detail__card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #d8b4fe;
+  font-size: 0.98rem;
+}
+.reg-detail__card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.reg-escalation {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .reg-escalation { grid-template-columns: 1fr 1fr; } }
+.reg-escalation__row {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.reg-escalation__row h4 {
+  margin: 0 0 0.35rem 0;
+  color: #fbbf24;
+  font-size: 0.98rem;
+}
+.reg-escalation__row p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+`}
+</style>

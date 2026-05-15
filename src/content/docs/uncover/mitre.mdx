@@ -1,0 +1,511 @@
+---
+title: "MITRE ATT&CK"
+description: "Tactics, techniques, procedures. The shared vocabulary for describing what an adversary did and how the chain progressed."
+slug: "uncover/mitre"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="03"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="MITRE ATT&CK is the public catalog of adversary behavior. Used as a vocabulary during Uncover, it lets analysts describe findings with precision and lets the rest of the team understand exactly what was observed."
+/>
+
+<PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/mitre" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+## Three matrices, four components
+
+<div class="att-grid">
+  <div class="att-card">
+    <h4>🏢 Enterprise</h4>
+    <p>Techniques targeting corporate environments across Windows, macOS, Linux, cloud services, and network infrastructure. The most widely used matrix.</p>
+  </div>
+  <div class="att-card">
+    <h4>📱 Mobile</h4>
+    <p>Specialized framework documenting threats against Android and iOS mobile ecosystems.</p>
+  </div>
+  <div class="att-card">
+    <h4>⚙️ ICS</h4>
+    <p>Dedicated matrix for industrial control systems and operational technology environments with unique safety and availability challenges.</p>
+  </div>
+</div>
+
+### The four levels
+
+<div class="mitre-grid">
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Tactics</span>
+    <h3>The why</h3>
+    <p>The adversary's strategic objectives. Categories representing the "why" behind each phase of an attack. Things like Initial Access, Persistence, Defense Evasion, Impact.</p>
+  </div>
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Techniques</span>
+    <h3>The how</h3>
+    <p>The specific method used to accomplish a tactic. Each technique has a unique ID (e.g., T1566 for Phishing). Granular enough to map to detection rules and to teach analysts what to look for.</p>
+  </div>
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Sub-techniques</span>
+    <h3>The how, narrower</h3>
+    <p>Granular variations of a parent technique with distinct characteristics. T1566 (Phishing) has sub-techniques T1566.001 (Attachment), T1566.002 (Link), T1566.003 (via Service).</p>
+  </div>
+  <div class="mitre-card">
+    <span class="mitre-card__tag">Procedures</span>
+    <h3>The exact thing</h3>
+    <p>Documented examples of techniques as implemented by specific threat actors in observed attacks. The granular operational steps that distinguish one actor from another.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="ATT&CK as community knowledge">
+The framework's strength is community-driven evolution. Rather than relying on theoretical attack models, ATT&CK draws from documented incidents, <DefineTerm term="Threat" display="threat" />-intel reporting, and direct contributions from security practitioners worldwide. The framework stays current and actionable as adversaries develop new techniques and repurpose existing ones.
+</Callout>
+
+<Callout variant="info" title="Looking up a technique by ID">
+Every ATT&CK identifier resolves to a canonical page at <a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">attack.mitre.org</a>. The URL pattern is predictable: <code>https://attack.mitre.org/techniques/T1059/</code> for a top-level technique, <code>https://attack.mitre.org/techniques/T1566/001/</code> for a sub-technique, and <code>https://attack.mitre.org/tactics/TA0001/</code> for a tactic. When this site cites an ID, you can paste it into that URL pattern to reach the authoritative description, detection guidance, and known procedures.
+</Callout>
+
+---
+
+## The 12 tactics
+
+Tactics are the strategic objectives an adversary pursues during an intrusion. Adversaries rarely progress linearly through all 12, and they may revisit phases multiple times during a single campaign. Identifying which tactic you are observing is what tells you which countermeasures apply.
+
+<div class="tactics-grid">
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0001</span>
+    <h4>Initial access</h4>
+    <p>Techniques to gain entry. Exploiting external apps, phishing, leveraging trusted relationships.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0002</span>
+    <h4>Execution</h4>
+    <p>Running adversary-controlled code. Command lines, PowerShell, malicious macros.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0003</span>
+    <h4>Persistence</h4>
+    <p>Maintaining access across restarts, credentials, or interruptions. Scheduled tasks, startup items, backdoors.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0004</span>
+    <h4>Privilege escalation</h4>
+    <p>Getting higher-level permissions. Vulnerability exploits, token manipulation, UAC bypass.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0005</span>
+    <h4>Defense evasion</h4>
+    <p>Avoiding detection. Disabling tools, obfuscating files, leveraging legitimate credentials.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0006</span>
+    <h4>Credential access</h4>
+    <p>Stealing account names and passwords. Keylogging, credential dumping, brute force.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0007</span>
+    <h4>Discovery</h4>
+    <p>Learning about the environment. Network scanning, account enumeration, system info gathering.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0008</span>
+    <h4>Lateral movement</h4>
+    <p>Moving through the environment. Remote services, internal spearphishing, pass-the-hash.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0009</span>
+    <h4>Collection</h4>
+    <p>Gathering data of interest. Screen capture, local system data, browser data.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0011</span>
+    <h4>Command and control</h4>
+    <p>Communicating with controlled systems. Encrypted channels, web services, custom protocols.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0010</span>
+    <h4>Exfiltration</h4>
+    <p>Stealing data. Alternative protocols, scheduled transfers, physical removal.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0040</span>
+    <h4>Impact</h4>
+    <p>Disrupting availability or integrity. Ransomware encryption, defacement, data destruction.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Two pre-intrusion tactics rarely observable from inside">
+ATT&CK also defines <strong>TA0043 Reconnaissance</strong> (attacker information-gathering before initial access) and <strong>TA0042 Resource Development</strong> (infrastructure and capability setup — domain registration, malware compilation, account creation). Both happen *before* the attacker touches your environment. They are useful context for attribution and threat-intel correlation, but you will rarely catch them in your own telemetry during triage — they show up in your logs as the *consequences* (the registered domain that resolves to a C2 IP, the spear-phish that lands in a mailbox), not the activity itself. Read them when you're consuming a threat-intel report; don't expect to detect them on shift.
+</Callout>
+
+---
+
+## Major techniques per tactic
+
+Hundreds of techniques exist across the matrix. These are the ones an analyst should recognize on sight; each has a stable ID that travels well in handoffs.
+
+<div class="techniques-rows">
+  <div class="tech-row">
+    <h4>Initial access</h4>
+    <ul>
+      <li><span class="tech-id">T1566</span> Phishing</li>
+      <li><span class="tech-id">T1190</span> Exploit Public-Facing Application</li>
+      <li><span class="tech-id">T1133</span> External Remote Services</li>
+      <li><span class="tech-id">T1659</span> Content Injection</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Execution</h4>
+    <ul>
+      <li><span class="tech-id">T1059</span> Command and Scripting Interpreter</li>
+      <li><span class="tech-id">T1106</span> Native API</li>
+      <li><span class="tech-id">T1204</span> User Execution</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Persistence</h4>
+    <ul>
+      <li><span class="tech-id">T1547</span> Boot or Logon Autostart Execution</li>
+      <li><span class="tech-id">T1136</span> Create Account</li>
+      <li><span class="tech-id">T1098</span> Account Manipulation</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Privilege escalation</h4>
+    <ul>
+      <li><span class="tech-id">T1548</span> Abuse Elevation Control Mechanism</li>
+      <li><span class="tech-id">T1134</span> Access Token Manipulation</li>
+      <li><span class="tech-id">T1068</span> Exploitation for Privilege Escalation</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Defense evasion</h4>
+    <ul>
+      <li><span class="tech-id">T1027</span> Obfuscated Files or Information</li>
+      <li><span class="tech-id">T1070</span> Indicator Removal on Host</li>
+      <li><span class="tech-id">T1055</span> Process Injection</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Credential access</h4>
+    <ul>
+      <li><span class="tech-id">T1003</span> OS Credential Dumping</li>
+      <li><span class="tech-id">T1110</span> Brute Force</li>
+      <li><span class="tech-id">T1056</span> Input Capture</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Discovery</h4>
+    <ul>
+      <li><span class="tech-id">T1018</span> Remote System Discovery</li>
+      <li><span class="tech-id">T1087</span> Account Discovery</li>
+      <li><span class="tech-id">T1082</span> System Information Discovery</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Lateral movement</h4>
+    <ul>
+      <li><span class="tech-id">T1021</span> Remote Services</li>
+      <li><span class="tech-id">T1550</span> Use Alternate Authentication Material</li>
+      <li><span class="tech-id">T1091</span> Replication Through Removable Media</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Collection</h4>
+    <ul>
+      <li><span class="tech-id">T1557</span> Adversary-in-the-Middle</li>
+      <li><span class="tech-id">T1119</span> Automated Collection</li>
+      <li><span class="tech-id">T1113</span> Screen Capture</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Command &amp; control</h4>
+    <ul>
+      <li><span class="tech-id">T1071</span> Application Layer Protocol</li>
+      <li><span class="tech-id">T1573</span> Encrypted Channel</li>
+      <li><span class="tech-id">T1105</span> Ingress Tool Transfer</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Exfiltration</h4>
+    <ul>
+      <li><span class="tech-id">T1041</span> Exfiltration Over C2 Channel</li>
+      <li><span class="tech-id">T1048</span> Exfiltration Over Alternative Protocol</li>
+      <li><span class="tech-id">T1567</span> Exfiltration Over Web Service</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h4>Impact</h4>
+    <ul>
+      <li><span class="tech-id">T1486</span> Data Encrypted for Impact</li>
+      <li><span class="tech-id">T1485</span> Data Destruction</li>
+      <li><span class="tech-id">T1491</span> Defacement</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Sub-techniques add precision">
+T1059 (<DefineTerm term="Command and Scripting Interpreter" />) is broad. T1059.001 (<DefineTerm term="PowerShell" />), T1059.003 (Windows Command Shell), T1059.005 (Visual Basic) are narrower and far more useful when describing what was actually observed. Wherever sub-techniques exist, the methodology asks for the most specific identifier the evidence supports.
+</Callout>
+
+---
+
+## Procedures: how specific actors implement techniques
+
+Procedures represent the specific implementations of techniques used by threat actors or <DefineTerm term="Malware" display="malware" /> families. While multiple adversaries may employ identical techniques, their procedural implementations often differ significantly based on sophistication, resources, and intent.
+
+<div class="proc-grid">
+  <div class="proc-card">
+    <span class="proc-card__actor">APT29 (Cozy Bear)</span>
+    <h4>T1566.001, Spearphishing Attachment</h4>
+    <p>Uses legitimate cloud storage services to host malware. Sends targeted emails with links to documents containing malicious macros. Macros establish persistence using WMI event subscriptions and execute PowerShell commands for C2 communication.</p>
+  </div>
+  <div class="proc-card">
+    <span class="proc-card__actor">FIN7</span>
+    <h4>T1059.001, PowerShell</h4>
+    <p>Deploys heavily obfuscated PowerShell scripts via phishing attachments. Multiple layers of encoding evade detection. Scripts create scheduled tasks for persistence and inject Carbanak malware directly into memory.</p>
+  </div>
+  <div class="proc-card">
+    <span class="proc-card__actor">Lazarus Group</span>
+    <h4>T1068, Exploitation for Privilege Escalation</h4>
+    <p>Exploits Windows privilege-escalation vulnerabilities using custom exploit code. Combines multiple vulnerabilities in sequence and employs anti-forensic techniques to hide exploitation artifacts.</p>
+  </div>
+</div>
+
+<Reveal summary="Why procedural variation matters" variant="info">
+
+Two actors might both leverage PowerShell for <DefineTerm term="Execution" display="execution" /> (T1059.001) but with very different procedural choices.
+
+One actor might deploy heavily obfuscated scripts with encrypted payloads, prioritizing stealth at the cost of speed. Another might use simpler one-liners that finish quickly but show plainly in logs.
+
+Procedural patterns are what link an investigation to a known <DefineTerm term="Threat Actor" display="threat actor" /> when multiple groups use the same technique. They are also what tell defenders which detection rule is going to fire and which is going to miss.
+
+</Reveal>
+
+---
+
+## How an analyst uses ATT&CK during Uncover
+
+<div class="usage-grid">
+  <div class="usage-card">
+    <h4>📌 During Uncover</h4>
+    <p>Map each observed behavior to its ATT&CK technique. The chain of techniques becomes the investigation's narrative spine.</p>
+  </div>
+  <div class="usage-card">
+    <h4>🤝 For handoff</h4>
+    <p>Naming techniques lets the IR team start work from a shared model rather than re-reading the analyst's notes.</p>
+  </div>
+  <div class="usage-card">
+    <h4>🔧 For detection engineering</h4>
+    <p>When a technique was observed but not detected automatically, that gap is the feature request for a new rule.</p>
+  </div>
+  <div class="usage-card">
+    <h4>📈 For trend analysis</h4>
+    <p>Tagging cases with techniques over time shows what the SOC sees most often, which feeds prioritization.</p>
+  </div>
+  <div class="usage-card">
+    <h4>📊 For executive communication</h4>
+    <p>ATT&CK gives technical teams a vocabulary executive leadership recognizes after one orientation. Bridges tactical and strategic conversations.</p>
+  </div>
+  <div class="usage-card">
+    <h4>🎯 For gap analysis</h4>
+    <p>Mapping defensive coverage against the matrix surfaces where detection is strong and where it is thin. Drives investment decisions.</p>
+  </div>
+</div>
+
+<KeyTakeaway>
+ATT&CK is the vocabulary that makes Uncover findings portable. The chain of techniques is the artifact that survives the analyst and the alert; "T1566.001 → T1059.001 → T1071.001" travels better than free-form prose, and it travels into IR, detection engineering, threat trends, and executive briefings without translation.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/tooling" nextLabel="Tool integration" nextDescription="The tools that make Uncover possible at scale: SIEM, EDR, network analysis, deception, forensics, SOAR." ctaLabel="Read tool integration" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>
+{`
+.att-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .att-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.att-card {
+  padding: 1.2rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 0.7rem;
+}
+.att-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 1rem; }
+.att-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.mitre-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .mitre-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .mitre-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.mitre-card {
+  padding: 1.4rem 1.6rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 0.85rem;
+}
+.mitre-card__tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(249, 115, 22, 0.18);
+  color: #fdba74;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+}
+.mitre-card h3 { margin: 0 0 0.45rem 0; color: #f8fafc; font-size: 1rem; }
+.mitre-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.tactics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .tactics-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .tactics-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1400px) { .tactics-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.tactic-card {
+  position: relative;
+  padding: 1rem 1.2rem 1rem 1.2rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.55rem;
+}
+.tactic-card__id {
+  display: inline-block;
+  padding: 0.12rem 0.5rem;
+  border-radius: 0.3rem;
+  background: rgba(249, 115, 22, 0.18);
+  color: #fdba74;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.tactic-card h4 { margin: 0 0 0.3rem 0; color: #f8fafc; font-size: 0.92rem; }
+.tactic-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.85rem; }
+
+.techniques-rows {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .techniques-rows { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .techniques-rows { grid-template-columns: repeat(3, 1fr); } }
+
+.tech-row {
+  padding: 0.95rem 1.2rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.55rem;
+}
+.tech-row h4 {
+  margin: 0 0 0.5rem 0;
+  color: #fdba74;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tech-row ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.86rem;
+}
+.tech-id {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(15, 23, 42, 0.7);
+  color: #fb923c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.proc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 900px) { .proc-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.proc-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 0.7rem;
+}
+.proc-card__actor {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(252, 165, 165, 0.3);
+  color: #fca5a5;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.55rem;
+}
+.proc-card h4 { margin: 0 0 0.45rem 0; color: #fdba74; font-size: 0.95rem; }
+.proc-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.usage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .usage-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .usage-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.usage-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.6rem;
+}
+.usage-card h4 { margin: 0 0 0.35rem 0; color: #fdba74; font-size: 0.95rem; }
+.usage-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+`}
+</style>

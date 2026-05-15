@@ -1,0 +1,189 @@
+---
+title: "Behavioral analytics"
+description: "Multi-event sequence analysis. The detection family built for stealth attacks that no single event would reveal."
+slug: "alert/detection-mechanisms/behavioral"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import StrengthsLimitations from "@/components/assured/StrengthsLimitations.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="01 · 04"
+  pillarLabel="04 families"
+  chapterHref="/docs/alert/detection-mechanisms"
+  chapterLabel="Detection mechanisms"
+  lede="Behavioral analytics looks for correlated, multi-step patterns across users, endpoints, and network activity over time. Where the other three families ask about a single moment, behavioral asks about a movement."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Detection families"
+  current="/docs/alert/detection-mechanisms/behavioral"
+  items={[
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+  ]}
+/>
+
+## How it works
+
+Behavioral analytics tracks sequences of related events across time and across systems. A single login that succeeds, a single file access, a single outbound connection: each one is unremarkable in isolation. Behavioral analytics is what notices when those three observations describe the same <DefineTerm term="User" display="user" />, on the same host, within minutes of each other, and matches the pattern of an attack that progresses through reconnaissance, <DefineTerm term="Lateral Movement" display="lateral movement" />, and <DefineTerm term="Exfiltration" display="exfiltration" />.
+
+The model linking events together is usually some combination of statistical correlation, machine-learned sequence detection, and rule-driven kill-chain mapping. The output is rarely a single alert. It is a *narrative* of related observations that the analyst can review as a connected timeline. The narrative is the value.
+
+<Callout variant="info" title="Behavioral vs. anomaly">
+Anomaly detection fires on a single deviation. Behavioral analytics fires on a sequence of related events that together suggest a multi-stage attack. The two often share <DefineTerm term="Infrastructure" display="infrastructure" /> (UEBA platforms typically do both) but they answer different questions.
+</Callout>
+
+## What behavioral analytics catches
+
+<div class="behavioral-examples">
+  <div class="behavioral-example">
+    <h4>↔️ Lateral movement</h4>
+    <p><DefineTerm term="Pass-the-Hash">An attack technique in which an adversary captures a Windows NT hash and uses it to authenticate to other systems without ever knowing the plaintext password.</DefineTerm> or credential reuse traced across endpoints in sequence. Each individual authentication looks valid; the pattern of authentications across hosts is what gives it away.</p>
+  </div>
+  <div class="behavioral-example">
+    <h4>📈 Privilege escalation chains</h4>
+    <p>An account moving from standard, to administrative, to domain-level access over the course of hours. Each step is observable; the trajectory is what behavioral analytics surfaces.</p>
+  </div>
+  <div class="behavioral-example">
+    <h4>📦 Data exfiltration preparation</h4>
+    <p>Sensitive database access, followed by archive creation, followed by an outbound connection. Three benign-looking events that together describe staging for exfiltration.</p>
+  </div>
+  <div class="behavioral-example">
+    <h4>🐢 Insider threat staging</h4>
+    <p>Gradual access expansion that fits no single rule. Each new permission feels small; taken together over weeks it looks like reconnaissance for a future event.</p>
+  </div>
+</div>
+
+**Representative platforms:** <DefineTerm term="Microsoft Defender" /> XDR, <DefineTerm term="SentinelOne" /> Singularity, <DefineTerm term="Exabeam" /> Fusion, Securonix UEBA, <DefineTerm term="CrowdStrike Falcon" /> Identity Protection.
+
+---
+
+## Example: a slow-burn credential abuse case
+
+<Reveal summary="Walk through a behavioral analytics alert" variant="example" open={true}>
+
+A behavioral analytics platform produces the following alert:
+
+```
+Alert: Credential abuse pattern detected
+Severity: High
+Detection: Behavioral sequence (5 correlated events)
+Subject: jmartinez (Finance role)
+Timeline:
+  09:14  Successful logon, finance laptop
+  10:02  Access to HR records system (first time for this user)
+  11:18  Access to finance reporting system (normal for this user)
+  13:45  Access to engineering source repository (first time for this user)
+  15:30  Large download from source repository
+Pattern match: "expanding access scope followed by data extraction"
+```
+
+The analyst's first question is which family fired. The "Detection: Behavioral sequence (5 correlated events)" field answers it. This is not a single moment of alarm; it is a narrative the platform assembled across six hours.
+
+What the analyst checks next:
+
+- **Read the narrative.** The five events are the alert. The first step is making sure each one is what the platform says it is. A misattribution at any step changes the conclusion.
+- **Test the legitimate explanations.** Did jmartinez recently transfer roles or take on a project that would explain the expanded access? Talking to the user's manager (with appropriate care) is often the fastest way to confirm or rule out.
+- **Look for amplifiers.** Behavioral analytics gives the analyst a timeline. The timeline becomes much more or less concerning depending on what *else* was happening during it. Was the user's account also seen from an unfamiliar location? Did the download volume match historical patterns?
+- **Map to a framework.** Behavioral patterns often align cleanly with <DefineTerm term="MITRE ATT&CK">A globally accessible knowledge base of adversary tactics and techniques based on real-world observations. ATT&CK gives security teams a shared vocabulary for describing what an adversary did.</DefineTerm> techniques. Tagging the alert with the relevant techniques helps with handoff and trend analysis.
+
+Behavioral alerts often have higher confidence than anomaly alerts because the platform has already done correlation work the analyst would otherwise have to do by hand. The analyst's job becomes confirming the narrative and deciding the response.
+
+</Reveal>
+
+---
+
+## Strengths and limitations
+
+<StrengthsLimitations
+  strengths={[
+    "Catches stealthy, multi-stage attacks that single-event detection misses entirely.",
+    "Provides context-rich alerts with the full event sequence attached, which shortens investigation time.",
+    "Adapts to evolving adversary tactics through model updates and feedback from investigations.",
+    "Correlates subtle indicators across systems, identities, and time without requiring the analyst to assemble the timeline manually.",
+  ]}
+  limitations={[
+    "Requires significant compute, storage, and skilled personnel to operate well.",
+    "Can miss isolated critical actions that do not fit a multi-event pattern.",
+    "Models drift over time. Without continuous validation, accuracy degrades quietly.",
+    "Privacy and data-governance complexity. Broad telemetry collection has implications beyond security.",
+  ]}
+/>
+
+---
+
+## Operational considerations
+
+- **Treat models as software.** They need lifecycle management, QA, validation, and eventual retirement, just like any other piece of code.
+- **Balance detection granularity against system performance.** Not every event needs to feed the behavioral model.
+- **Integrate with SIEM, SOAR, and <DefineTerm term="Incident Response" display="incident response" /> workflows.** Behavioral alerts come with rich context, and the context has to survive the handoff to be useful.
+- **Train analysts to read multi-event alerts.** A behavioral alert is not the same as a single-event alert. Reading the timeline is a learned skill.
+
+<KeyTakeaway>
+Behavioral analytics is the only family that natively answers "what is the adversary doing over time?" The other families tell the analyst about a moment. This one tells them about a movement. Used well, it shortens the dwell time of sophisticated intrusions by giving analysts the connected story before they have to build it themselves.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/validation"
+  nextLabel="Validation"
+  nextDescription="With the detection family understood, the next step is validation: confirming whether the alert is what it claims to be."
+  ctaLabel="Read validation"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.behavioral-examples {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .behavioral-examples { grid-template-columns: 1fr 1fr; }
+}
+
+.behavioral-example {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+}
+
+.behavioral-example h4 {
+  margin: 0 0 0.4rem 0;
+  color: #fdba74;
+  font-size: 1rem;
+}
+
+.behavioral-example p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+`}
+</style>

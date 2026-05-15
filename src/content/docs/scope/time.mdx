@@ -1,0 +1,303 @@
+---
+title: "Time boundaries"
+description: "Historical review windows, real-time investigation, and retention limits. When the investigation starts and stops."
+slug: "scope/time"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="02"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="The time window an investigation runs over is a decision, not a default. Different threat types deserve different windows, and choosing deliberately keeps the work bounded and the evidence defensible."
+/>
+
+<PillNav
+  chapter="scope"
+  label="Scope chapter"
+  current="/docs/scope/time"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+## Two kinds of time
+
+<div class="time-types">
+  <div class="time-card">
+    <h3>🕐 Historical review</h3>
+    <p>Looking backward from the alert. How far back the investigation pulls evidence. Short windows (hours to a day) work for fast-moving attacks like ransomware staging. Longer windows (weeks to months) are needed for slow-burn insider cases or campaigns that establish persistence over time.</p>
+  </div>
+  <div class="time-card">
+    <h3>⏱️ Real-time investigation</h3>
+    <p>The window during which the investigation is happening now. Influences whether containment can happen mid-investigation and how quickly the handoff to incident response needs to be ready.</p>
+  </div>
+</div>
+
+---
+
+## Choosing the historical window
+
+<div class="window-table">
+  <div class="window-row">
+    <span class="window-row__label">Ransomware staging</span>
+    <span class="window-row__value">Last 1 to 24 hours</span>
+    <p>Fast-moving. The attack typically progresses within a single shift, and the relevant evidence is recent.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Phishing-driven intrusion</span>
+    <span class="window-row__value">Last 24 to 72 hours</span>
+    <p>Initial access happened recently; the question is what the adversary did with it after.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Lateral movement</span>
+    <span class="window-row__value">Last 1 to 4 weeks</span>
+    <p>Adversaries dwell for days or weeks before moving. The historical baseline needs enough range to surface the gradual expansion.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Supply-chain compromise</span>
+    <span class="window-row__value">Last 1 to 6 months</span>
+    <p>The compromise may predate the alert by weeks or months. Both the alert and earlier silent activity matter.</p>
+  </div>
+  <div class="window-row">
+    <span class="window-row__label">Slow-burn insider</span>
+    <span class="window-row__value">Last 3 to 12 months</span>
+    <p>The trajectory is what reveals the case. A short window will not capture the gradual deviation.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Retention is a real constraint">
+The window the analyst chooses is bounded by what the SOC actually retains. If logs are 30 days old and the case calls for a 6-month look, the investigation has to acknowledge that gap rather than pretend it does not exist. Document the retention limit as part of the Scope output.
+</Callout>
+
+### Four elements of a defensible historical review
+
+Historical context is foundational to triage. Analysts cannot determine whether activity is malicious without understanding what normal looks like. Effective historical review anchors on four investigation elements.
+
+<div class="hist-grid">
+  <div class="hist-card">
+    <span class="hist-card__num">01</span>
+    <h4>Establishing review timeframes</h4>
+    <p>Match the window to the threat. Insider threats may require 60-90 days of user behavior analysis. Malware incidents need weeks to capture lateral movement patterns. Supply-chain compromises run months. The window is the threat type's choice, not a default.</p>
+  </div>
+  <div class="hist-card">
+    <span class="hist-card__num">02</span>
+    <h4>System log considerations</h4>
+    <p>Account for log retention periods, business cycles (financial closes, audits, holiday slowdowns), and the lookback needed for typical attacker dwell time. The right window may exceed what the SIEM retains, in which case backups, archives, or complementary systems with longer retention come into play.</p>
+  </div>
+  <div class="hist-card">
+    <span class="hist-card__num">03</span>
+    <h4>Technical &amp; organizational baselines</h4>
+    <p>Understand normal network traffic, typical user behavior, and business rhythms like seasonal spikes and recurring maintenance windows. Misinterpreting expected patterns as malicious produces false-positives and erodes trust in the triage process.</p>
+  </div>
+  <div class="hist-card">
+    <span class="hist-card__num">04</span>
+    <h4>Multi-source timeline</h4>
+    <p>Correlate authentication logs, network flows, endpoint telemetry, and application logs across consistent timeframes. The relationships between seemingly disparate events are often where the real picture emerges. A timeline anchored in only one source misses the inter-tool story.</p>
+  </div>
+</div>
+
+<Reveal summary="A historical-review pitfall to avoid" variant="info">
+
+Low-fidelity sources, such as aggregated <DefineTerm term="NetFlow" /> or summarized access logs, reveal general trends but lack the specificity needed to track session-based behavior or detect subtle anomalies. High-fidelity logs (full packet captures, process command lines, registry modifications) enable deep <DefineTerm term="Forensics" display="forensics" /> but impose storage and indexing burdens.
+
+The mistake is choosing fidelity by default rather than by need. Triage often starts with low-fidelity sources to confirm a pattern exists, then expands to high-fidelity sources for the specific time windows that pattern surfaces. Pulling full packet captures on day one for a four-week investigation is almost always wasted effort. Pulling them targeted at the 2-hour window where the suspicious <DefineTerm term="Traffic" display="traffic" /> occurred is the methodology working.
+
+</Reveal>
+
+---
+
+## Real-time investigation considerations
+
+Most investigations begin with a 24-48 hour bracket surrounding the initial alert. The window often extends if there are indicators of long-term <DefineTerm term="Persistence" display="persistence" />, recurring patterns, or deferred <DefineTerm term="Execution" display="execution" />. Extension decisions get documented with the evidence that supports them.
+
+The real-time window's job is different from the historical one. Historical analysis builds the picture of what happened. Real-time analysis tracks what is happening now and prepares the response.
+
+<div class="realtime-grid">
+  <div class="realtime-card">
+    <h4>🏃 Lateral movement attempts</h4>
+    <p>Immediately after detection, watch for privilege escalation, credential reuse, or attempts to move into adjacent systems. Real-time monitoring of authentication systems is essential when credential theft is suspected.</p>
+  </div>
+  <div class="realtime-card">
+    <h4>⏰ Scheduled or periodic execution</h4>
+    <p>Tasks that did not fire during the initial detection window but are configured to run later. Scheduled tasks, cron jobs, service abuse, and beacon callback intervals all deserve attention in real-time.</p>
+  </div>
+  <div class="realtime-card">
+    <h4>🚨 Retaliatory actions</h4>
+    <p>Log tampering, process termination, account lockouts. These are signals that the attacker is aware of detection and is reacting. Capturing them in real time both preserves evidence and informs the response posture.</p>
+  </div>
+  <div class="realtime-card">
+    <h4>🌐 C2 / beacon follow-up</h4>
+    <p>For malware events with implants or beacons, outbound traffic and DNS patterns should be tracked across the environment in real time. Additional infected systems or fallback infrastructure often surface this way.</p>
+  </div>
+</div>
+
+### Real-time prioritization
+
+It is rarely feasible to maintain continuous visibility across the entire environment in real time. Scope decides where to focus that finite attention.
+
+<div class="priority-grid">
+  <div class="priority-card">
+    <h4>🎯 Directly affected critical assets</h4>
+    <p>Hosts and accounts explicitly named in the investigation's primary entity list. Continuous attention until containment is in place.</p>
+  </div>
+  <div class="priority-card">
+    <h4>🔐 Systems with elevated access</h4>
+    <p>Domain controllers, identity providers, cloud control planes, key vaults. If they were touched during the alert window, they get real-time eyes.</p>
+  </div>
+  <div class="priority-card">
+    <h4>📈 Anomalous-after-the-alert hosts</h4>
+    <p>Any system that started showing unusual behavior after the initial alert was raised. Often the first sign of attacker pivot or alternate persistence channel.</p>
+  </div>
+</div>
+
+### Operational considerations
+
+- **Coverage model.** A 24/7 SOC and an 8/5 SOC handle real-time differently. After-hours alerts have different escalation paths.
+- **<DefineTerm term="Containment" /> timing.** Some actions (isolating a host, disabling an account) can be taken during the investigation. Others have to wait for <DefineTerm term="Incident Response" display="incident response" />. Scope decides which is which based on <DefineTerm term="Threat" display="threat" /> type and impact.
+- **Time-boxing.** Open-ended investigations consume resources without producing results. Scope sets a soft deadline at which the investigation either escalates or closes, even if not every thread has been chased.
+
+<KeyTakeaway>
+Time is a boundary, not a default. The right window depends on the threat. Choosing deliberately and documenting why is what makes the result defensible and the work bounded.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/entity"
+  nextLabel="Entity boundaries"
+  nextDescription="Primary and secondary entities, relationship mapping, access modeling, dependency tracing."
+  ctaLabel="Read entity boundaries"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>
+
+<style>
+{`
+.time-types { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .time-types { grid-template-columns: 1fr 1fr; } }
+.time-card {
+  padding: 1.4rem 1.6rem; background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 0.85rem;
+}
+.time-card h3 { margin: 0 0 0.5rem 0; color: #d8b4fe; font-size: 1.1rem; }
+.time-card p { margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 0.93rem; }
+
+.window-table { display: flex; flex-direction: column; gap: 0.6rem; margin: 1.25rem 0; }
+.window-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding: 0.95rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.55rem;
+}
+@media (min-width: 768px) { .window-row { grid-template-columns: 1.3fr 1fr; align-items: baseline; } }
+.window-row__label { color: #f8fafc; font-weight: 700; font-size: 0.95rem; }
+.window-row__value { color: #d8b4fe; font-weight: 700; font-size: 0.92rem; }
+.window-row p { grid-column: 1 / -1; margin: 0.15rem 0 0 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+
+.hist-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .hist-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .hist-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.hist-card {
+  position: relative;
+  padding: 1.2rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 0.7rem;
+}
+.hist-card__num {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.15rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(216, 180, 254, 0.6);
+}
+.hist-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #d8b4fe;
+  font-size: 0.95rem;
+}
+.hist-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.realtime-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px) { .realtime-grid { grid-template-columns: 1fr 1fr; } }
+
+.realtime-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #38bdf8;
+  border-radius: 0.6rem;
+}
+.realtime-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #7dd3fc;
+  font-size: 0.97rem;
+}
+.realtime-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.priority-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px)  { .priority-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.priority-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.priority-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #fbbf24;
+  font-size: 0.95rem;
+}
+.priority-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+`}
+</style>

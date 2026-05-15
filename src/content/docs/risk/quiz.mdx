@@ -1,0 +1,121 @@
+---
+title: "Risk chapter quiz"
+description: "Eight questions on the Risk framework, impact and likelihood, false-positives, and the dynamic loop."
+slug: "risk/quiz"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero phase="risk" parentLetter="R" pillarNumber="Quiz" pillarLabel="Risk chapter" chapterHref="/docs/risk" chapterLabel="Risk" lede="Eight questions on the Risk chapter. Push your thinking on frameworks, the dynamic loop, and the value of false-positives."/>
+
+<PillNav chapter="risk" label="Risk chapter" current="/docs/risk/quiz" items={[
+  { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
+  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood", phase: "risk" },
+  { label: "The false-positive", href: "/docs/risk/false-positive", phase: "risk" },
+]}/>
+
+<Quiz title="Risk chapter quiz">
+
+  <QuizItem
+    prompt="A CVSS 9.8 vulnerability is found on a system. What should the Risk verdict be?"
+    options={[
+      { value: "auto", label: "Automatically high. CVSS 9.8 is critical." },
+      { value: "depends", label: "It depends on environmental context: is the system exposed, in use, mitigated? CVSS is one input, not the verdict." },
+      { value: "low", label: "Low. Most CVSS-scored vulnerabilities are not actively exploited." },
+      { value: "compliance", label: "Whatever compliance says." },
+    ]}
+    answer="depends"
+    explanation="CVSS scores severity in the abstract. The Risk verdict is about the specific environment, the specific asset, and the specific case. A CVSS 9.8 on an isolated, unused system is a different decision than the same score on a production asset."
+  />
+
+  <QuizItem
+    prompt="Impact and likelihood are..."
+    options={[
+      { value: "same", label: "Two ways of measuring the same thing." },
+      { value: "independent", label: "Independent dimensions that are evaluated separately and then combined." },
+      { value: "intuitive", label: "Best evaluated by intuition rather than evidence." },
+      { value: "scoring", label: "Always converted to a single numeric score." },
+    ]}
+    answer="independent"
+    explanation="Impact is 'if this is real, how bad is it.' Likelihood is 'how confident are we that this is real.' Separating them prevents the common error of letting impact bias the likelihood judgment."
+  />
+
+  <QuizItem
+    prompt="A case closes as a false-positive. What should the analyst record?"
+    options={[
+      { value: "nothing", label: "Nothing. False-positives are non-events." },
+      { value: "summary", label: "Just a one-line summary." },
+      { value: "full", label: "The alert, what was checked, what ruled it out, and what to change in detection. False-positives feed detection engineering and team knowledge." },
+      { value: "complaint", label: "A complaint to the detection team." },
+    ]}
+    answer="full"
+    explanation="A closed false-positive is a finding too. Documenting the reasoning takes minutes and compounds into sharper detection over time. The methodology treats every closure as a contribution to institutional knowledge."
+  />
+
+  <QuizItem
+    prompt="The Risk verdict should include..."
+    options={[
+      { value: "score", label: "A single number." },
+      { value: "matrix", label: "Just the matrix decision." },
+      { value: "full", label: "Impact + likelihood + matrix decision + open questions + recommended response. The combination is what defends the verdict six months later." },
+      { value: "verbal", label: "A verbal recommendation to the manager." },
+    ]}
+    answer="full"
+    explanation="The Risk output should be a one-page verdict that a future reviewer can read and understand without re-doing the analysis. Open questions and recommended response are part of what makes the verdict actionable and defensible."
+  />
+
+  <QuizItem
+    prompt="The P.A.C.E. model structures Risk assessment through which four dimensions?"
+    options={[
+      { value: "pace1", label: "Priority, Authentication, Containment, Escalation." },
+      { value: "pace2", label: "Potential impact, Actor sophistication, Context, Escalation criteria." },
+      { value: "pace3", label: "Process, Analyst, Communication, Evidence." },
+      { value: "pace4", label: "People, Assets, Controls, Environment." },
+    ]}
+    answer="pace2"
+    explanation="P.A.C.E. = Potential impact, Actor sophistication, Context, Escalation criteria. The model guides analysts through a structured four-step assessment, providing complementary depth to the RATM matrix."
+  />
+
+  <QuizItem
+    prompt="Uncover surfaces new evidence that the adversary has reached a system outside the original Scope boundary. What does the methodology require?"
+    options={[
+      { value: "ignore", label: "Ignore the out-of-scope finding." },
+      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary. The dynamic loop is part of the methodology, not an exception." },
+      { value: "escalate", label: "Skip Risk and escalate immediately based on the new finding." },
+      { value: "drop", label: "Drop the case and start over." },
+    ]}
+    answer="rescope"
+    explanation="ASSURED is iterative by design. When new evidence changes the shape of the investigation (lateral movement, new identities, sensitive assets), the methodology loops back to Scope with refined boundaries and repeats Uncover and Risk. Each loop increases investigative fidelity until clarity is achieved or escalation criteria are met."
+  />
+
+  <QuizItem
+    prompt="A SOC sees the same false-positive alert fire repeatedly across multiple developer workstations. What is the right response?"
+    options={[
+      { value: "close", label: "Keep closing them individually. Each closure is independent." },
+      { value: "suppress", label: "Suppress the rule entirely." },
+      { value: "feedback", label: "Pattern-recognize the volume. The repeated same-asset-class false-positive is detection-engineering feedback: the rule needs a role-aware variant or context-enriched suppression with documented review cadence." },
+      { value: "escalate", label: "Escalate every instance to leadership." },
+    ]}
+    answer="feedback"
+    explanation="A single false-positive is a closure with feedback. A pattern of false-positives on the same asset class is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression with an owner and a review cadence, not for individual repeat closures or wholesale rule removal."
+  />
+
+  <QuizItem
+    prompt="The Risk verdict for the Cursor IDE case (false-positive) reads 'low residual risk, no escalation required.' What value does the documented closure provide?"
+    options={[
+      { value: "none", label: "None. It is a non-event." },
+      { value: "audit", label: "Audit checkbox only." },
+      { value: "all", label: "Defensible record if the alert fires again, detection-engineering feedback to refine the rule, program-level question about coverage gaps, and re-openable case context if new evidence surfaces. The closure is itself an artifact." },
+      { value: "metric", label: "A metric for SOC throughput." },
+    ]}
+    answer="all"
+    explanation="A documented false-positive closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, about coverage gaps in macOS PCAP and USB monitoring), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."
+  />
+
+</Quiz>
+
+<ContinueCard current="risk" nextHref="/docs/risk/transition" nextLabel="Transition to Escalation" ctaLabel="Continue" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>

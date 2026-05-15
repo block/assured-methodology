@@ -1,27 +1,6 @@
 ---
-
-/**
- * This is a base layout for all content pages backed by Markdown. It accepts a named 
- * slot "navbar", and the main slot is typically filled with Markdown content. Typical usage 
- * may look like like:
- * 
- * <ContentPageLayout title={title} 
- *   description={description} 
- *   headings={headings} 
- *   maxWidth="wide">
- *   
- *   <ComponentsNavbar slot="navbar" />
- *   <Content components={MDXComponents} />
- * 
- * </ContentPageLayout>
- * 
- * If the "navbar" slot is omitted, the left sidebar will not be present. If the 
- * "headings" are not passed, the right sidebar will not be present.
- */
-
-
 import BaseLayout from "./BaseLayout.astro";
-import type { MarkdownHeading } from 'astro';
+import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
 import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import "../styles/breadcrumbs.css";
@@ -32,36 +11,37 @@ interface Props {
   headings?: MarkdownHeading[];
   showTitleAsH1?: boolean;
   showBreadcrumbs?: boolean;
+  /** When true, removes the narrow prose constraint so the page can host wider visual sections. */
+  wide?: boolean;
+  /** When true, hides breadcrumbs + H1 and removes shell padding so the page goes edge-to-edge.
+   *  Use for pages that bring their own hero (glossaries, themed landing pages). */
+  chromeless?: boolean;
 }
 
-const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true } = Astro.props;
+const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true, wide = false, chromeless = false } = Astro.props;
+
+// Chromeless implies no breadcrumbs, no H1, full-bleed wide layout.
+const effectiveBreadcrumbs = chromeless ? false : showBreadcrumbs;
+const effectiveTitle = chromeless ? false : showTitleAsH1;
+const effectiveWide = chromeless ? true : wide;
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="relative min-h-[calc(100vh-4rem)]">
-    <!-- Cybersecurity Background Pattern -->
-    <div class="absolute inset-0 bg-cyber-pattern" style="opacity: 0.1;"></div>
-
-    <!-- Main Layout -->
-    <div class="relative mx-auto max-w-[1800px] px-6 flex flex-col lg:flex-row gap-6 max-md:px-4">
-      
-      <!-- Left Sidebar: On This Page -->
-      {headings && headings.length > 0 && (
-        <nav class="lg:w-64 flex-shrink-0 order-2 lg:order-1 hidden lg:block">
-          <div class="py-6 px-6 border-r border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm">
+  <div class={`content-page ${chromeless ? "is-chromeless" : ""}`}>
+    <div class={`content-page__shell ${chromeless ? "is-chromeless" : ""}`}>
+      {!chromeless && headings && headings.length > 0 && (
+        <aside class="content-page__toc" aria-label="In-page navigation">
+          <div class="content-page__toc-inner">
             <SimpleTableOfContents headings={headings} />
           </div>
-        </nav>
+        </aside>
       )}
 
-      <!-- Main Content -->
-      <main class="flex-1 order-1 lg:order-2 min-w-0 py-8 px-10 xl:px-6 lg:px-6 md:px-4">
-        <div id="mainContent" class="prose prose-slate dark:prose-invert mx-auto" style="max-width: none;">
-          
-          {/** Breadcrumbs */}
-          {showBreadcrumbs && (
-            <div class="mb-6 mt-2">
-              <Breadcrumbs 
+      <main class={`content-page__main ${chromeless ? "is-chromeless" : ""}`}>
+        <div data-pagefind-body class={`content-page__main-inner prose ${effectiveWide ? "is-wide" : ""} ${chromeless ? "is-chromeless" : ""}`}>
+          {effectiveBreadcrumbs && (
+            <div class="content-page__breadcrumbs">
+              <Breadcrumbs
                 indexText="Home"
                 mainBemClass="c-breadcrumbs"
                 ariaLabel="Breadcrumb navigation"
@@ -69,67 +49,643 @@ const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = tr
                 excludeCurrentPage={false}
               >
                 <span slot="separator">&nbsp;›&nbsp;</span>
-                <span slot="index">
-                  🏠
-                </span>
+                <span slot="index">🏠</span>
               </Breadcrumbs>
             </div>
           )}
-          
-          {/** h1 with the page title */}
-          {showTitleAsH1 && (
-            <h1 class="text-4xl md:text-5xl font-bold mb-8 leading-tight">{title}</h1>
+
+          {effectiveTitle && (
+            <h1 class="content-page__title">{title}</h1>
           )}
+
           <slot />
         </div>
       </main>
-
     </div>
   </div>
 </BaseLayout>
 
 <style>
-  /* Cybersecurity background pattern */
-  .bg-cyber-pattern {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.2) 0%, transparent 15%),
-      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
-    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
+  .content-page {
+    position: relative;
+    min-height: calc(100vh - 4rem);
   }
 
-  /* Improve scroll behavior */
-  html {
-    scroll-behavior: smooth;
+  .content-page__shell {
+    max-width: 88rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    gap: 2.5rem;
   }
 
-  /* Override prose max-width */
-  .prose {
-    max-width: none !important;
+  .content-page__toc {
+    display: none;
+    flex-shrink: 0;
+    width: 16rem;
+    order: 2;
   }
 
-  /* Ensure list items can span full width */
-  .prose ul, .prose ol {
-    width: 100% !important;
-    display: block !important;
-  }
-  
-  .prose li {
-    width: 100% !important;
-    display: list-item !important;
-    white-space: normal !important;
+  @media (min-width: 1024px) {
+    .content-page__toc { display: block; }
   }
 
-  /* Clean, minimal sidebar styling */
+  .content-page__toc-inner {
+    position: sticky;
+    top: 80px;
+    padding: 1.5rem 0;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
 
-  /* Mobile adjustments */
-  @media (max-width: 1024px) {
-    /* Hide sidebar on mobile */
-    nav {
-      display: none !important;
-    }
+  .content-page__main {
+    flex: 1;
+    min-width: 0;
+    order: 1;
+    padding: 2rem 0 4rem;
+  }
+
+  .content-page__main-inner {
+    max-width: 50rem;
+    margin: 0 auto;
+  }
+
+  /* Wide mode for overview pages with rich visual sections (intro, chapter overviews) */
+  .content-page__main-inner.is-wide {
+    max-width: 88rem;
+  }
+
+  /* Keep paragraph text from stretching too wide on the wide pages so reading stays comfortable */
+  .content-page__main-inner.is-wide > p,
+  .content-page__main-inner.is-wide > ul,
+  .content-page__main-inner.is-wide > ol,
+  .content-page__main-inner.is-wide > blockquote {
+    max-width: 60rem;
+  }
+
+  .content-page__breadcrumbs {
+    margin-bottom: 1.5rem;
+  }
+
+  .content-page__title {
+    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 2rem 0;
+  }
+
+  /* ---------------- Chromeless: edge-to-edge themed pages ---------------- */
+  .content-page.is-chromeless { min-height: auto; }
+
+  .content-page__shell.is-chromeless {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    display: block;
+  }
+
+  .content-page__main.is-chromeless {
+    padding: 0;
+  }
+
+  .content-page__main-inner.is-chromeless {
+    max-width: none;
+    margin: 0;
+    padding: 0;
   }
 </style>
+
+<style is:global>
+  /* ----------------------------------------------------------------------
+     Easter egg styles (chapter-themed). Activated by script below.
+     These MUST be global so dynamically-appended elements get styled.
+     ---------------------------------------------------------------------- */
+  .egg-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    z-index: 9999;
+    padding: 1rem 1.75rem;
+    border-radius: 0.75rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    max-width: min(92vw, 36rem);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .egg-toast.is-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .egg-toast.alert    { background: linear-gradient(135deg, #7f1d1d, #450a0a); border-color: #fca5a5; }
+  .egg-toast.subject  { background: linear-gradient(135deg, #4c1d95, #1e1b4b); border-color: #c4b5fd; }
+  .egg-toast.scope    { background: linear-gradient(135deg, #065f46, #064e3b); border-color: #6ee7b7; }
+  .egg-toast.uncover  { background: linear-gradient(135deg, #1e3a8a, #172554); border-color: #93c5fd; }
+  .egg-toast.risk     { background: linear-gradient(135deg, #92400e, #451a03); border-color: #fcd34d; }
+  .egg-toast.escal    { background: linear-gradient(135deg, #b91c1c, #7f1d1d); border-color: #fecaca; }
+  .egg-toast.doc      { background: linear-gradient(135deg, #155e75, #164e63); border-color: #67e8f9; }
+  .egg-toast.intro    { background: linear-gradient(135deg, #5b21b6, #312e81); border-color: #c4b5fd; }
+
+  .egg-flash {
+    position: fixed; inset: 0; z-index: 9998;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .egg-flash.is-on { opacity: 1; }
+  .egg-flash.alert { background: radial-gradient(circle at 50% 50%, rgba(220,38,38,0.55), rgba(127,29,29,0.85)); animation: egg-pulse 0.5s ease-in-out 3; }
+  .egg-flash.risk  { background: radial-gradient(circle at 50% 50%, rgba(250,204,21,0.45), rgba(146,64,14,0.8)); }
+  .egg-flash.escal { background: radial-gradient(circle at 50% 50%, rgba(248,113,113,0.5), rgba(127,29,29,0.85)); animation: egg-pulse 0.4s ease-in-out 4; }
+
+  @keyframes egg-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .egg-zoom {
+    animation: egg-zoom-kf 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center center;
+  }
+  @keyframes egg-zoom-kf {
+    0% { transform: scale(1); }
+    40% { transform: scale(0.92); }
+    100% { transform: scale(1); }
+  }
+
+  .egg-boundary {
+    position: fixed; inset: 1.5rem; z-index: 9997;
+    pointer-events: none;
+    border: 3px dashed #6ee7b7;
+    border-radius: 1rem;
+    opacity: 0;
+    animation: egg-bound-kf 1.6s ease-out;
+  }
+  @keyframes egg-bound-kf {
+    0% { opacity: 0; transform: scale(1.08); }
+    20% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.98); }
+  }
+
+  .egg-matrix {
+    position: fixed; top: -2rem; z-index: 9996;
+    font-family: ui-monospace, monospace;
+    font-weight: 700;
+    color: #60a5fa;
+    text-shadow: 0 0 8px rgba(96,165,250,0.8);
+    pointer-events: none;
+    user-select: none;
+    animation: egg-fall 2.4s linear forwards;
+    font-size: 1.25rem;
+    white-space: nowrap;
+  }
+  @keyframes egg-fall {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(105vh); opacity: 0; }
+  }
+
+  .egg-d20 {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: clamp(8rem, 30vmin, 14rem);
+    height: clamp(8rem, 30vmin, 14rem);
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #92400e, #451a03);
+    border: 4px solid #fcd34d;
+    color: #fef3c7;
+    font-family: ui-monospace, monospace;
+    font-weight: 800;
+    font-size: clamp(3rem, 12vmin, 5rem);
+    border-radius: 1rem;
+    clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+    box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 60px rgba(252,211,77,0.5);
+    animation: egg-d20-kf 3s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes egg-d20-kf {
+    0%   { transform: translate(-50%, -50%) rotate(0deg) scale(0.2); opacity: 0; }
+    15%  { transform: translate(-50%, -50%) rotate(540deg) scale(1.1); opacity: 1; }
+    35%  { transform: translate(-50%, -50%) rotate(900deg) scale(1); opacity: 1; }
+    90%  { transform: translate(-50%, -50%) rotate(900deg) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) rotate(900deg) scale(0.6); opacity: 0; }
+  }
+
+  .egg-confetti {
+    position: fixed; top: -1rem;
+    width: 0.6rem; height: 1rem;
+    z-index: 9995;
+    pointer-events: none;
+    animation: egg-confetti-kf 3s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+  }
+  @keyframes egg-confetti-kf {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+
+  .egg-glow-hero h1,
+  .egg-glow-hero .content-page__title {
+    animation: egg-glow-kf 1.6s ease-in-out 2;
+  }
+  @keyframes egg-glow-kf {
+    0%, 100% { text-shadow: none; }
+    50% { text-shadow: 0 0 24px rgba(167,139,250,0.9), 0 0 48px rgba(96,165,250,0.6); color: #fff; }
+  }
+
+  /* ---------- BREAKGLASS: cracked-screen overlay ---------- */
+  .egg-glass {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    animation: egg-glass-show 4.8s ease-out forwards;
+  }
+  .egg-glass svg { width: 100%; height: 100%; display: block; }
+  .egg-glass__crack {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.92);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: egg-glass-draw 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  }
+  @keyframes egg-glass-draw { to { stroke-dashoffset: 0; } }
+  @keyframes egg-glass-show {
+    0% { opacity: 0; }
+    6% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .egg-glass__impact {
+    animation: egg-glass-impact 0.45s ease-out forwards;
+  }
+  @keyframes egg-glass-impact {
+    0% { r: 4; opacity: 1; stroke-width: 3; }
+    100% { r: 70; opacity: 0; stroke-width: 0.5; }
+  }
+
+  /* Screen shake on body (applies to whole layout) */
+  .egg-shake { animation: egg-screen-shake 0.55s ease-out; }
+  @keyframes egg-screen-shake {
+    0%, 100% { transform: translate(0); }
+    10% { transform: translate(-6px, 3px); }
+    20% { transform: translate(7px, -4px); }
+    30% { transform: translate(-5px, 2px); }
+    40% { transform: translate(4px, -3px); }
+    50% { transform: translate(-3px, 3px); }
+    60% { transform: translate(4px, -3px); }
+    70% { transform: translate(-2px, 1px); }
+    85% { transform: translate(1px, -1px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egg-glass__crack { animation-duration: 0.2s; }
+    .egg-shake { animation: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .egg-flash.alert, .egg-flash.escal { animation: none; }
+    .egg-zoom { animation: none; }
+    .egg-boundary { animation-duration: 0.6s; }
+    .egg-matrix, .egg-confetti, .egg-d20 { animation-duration: 0.6s; }
+    .egg-glow-hero h1, .egg-glow-hero .content-page__title { animation: none; }
+  }
+</style>
+
+<script is:inline data-astro-rerun>
+  // ASSURED chapter Easter eggs.
+  // Glossaries have their own egg systems (BAD, CAT, CLEAR) so we skip those.
+  // This script re-runs on every Astro view transition; the cleanup pattern
+  // below removes the previous page's listeners before registering new ones,
+  // so we never stack handlers across navigations.
+  (function () {
+    if (typeof window === "undefined") return;
+    // Tear down listeners registered by the previous page's invocation.
+    if (window.__assuredEggCleanup) {
+      try { window.__assuredEggCleanup(); } catch (e) {}
+    }
+    const _cleanups = [];
+    function _reg(target, ev, fn) {
+      target.addEventListener(ev, fn);
+      _cleanups.push(function () { target.removeEventListener(ev, fn); });
+    }
+    window.__assuredEggCleanup = function () {
+      while (_cleanups.length) {
+        try { _cleanups.pop()(); } catch (e) {}
+      }
+    };
+
+    const path = window.location.pathname;
+    if (path.includes("/docs/glossaries")) return;
+
+    const chapterMatch = path.match(/\/docs\/([a-z]+)/i);
+    const chapter = chapterMatch ? chapterMatch[1].toLowerCase() : null;
+
+    // ---------- Toast helper ----------
+    // msg: string (treated as text) or Node (appended as-is). Never accepts an
+    // HTML string, switching this back to innerHTML reintroduces a DOM-XSS
+    // foot-gun the moment any caller passes user input.
+    function toast(msg, variant) {
+      const el = document.createElement("div");
+      el.className = "egg-toast " + (variant || "");
+      if (typeof msg === "string") {
+        el.textContent = msg;
+      } else if (msg instanceof Node) {
+        el.appendChild(msg);
+      }
+      document.body.appendChild(el);
+      requestAnimationFrame(() => el.classList.add("is-show"));
+      setTimeout(() => {
+        el.classList.remove("is-show");
+        setTimeout(() => el.remove(), 500);
+      }, 3200);
+    }
+
+    // Small helper for toasts that need an italicized inline span without
+    // touching innerHTML. Returns a DocumentFragment.
+    function toastFrag(parts) {
+      const f = document.createDocumentFragment();
+      parts.forEach(function (p) {
+        if (p && typeof p === "object" && p.em) {
+          const e = document.createElement("em");
+          e.textContent = p.em;
+          f.appendChild(e);
+        } else {
+          f.appendChild(document.createTextNode(String(p)));
+        }
+      });
+      return f;
+    }
+
+    function flash(variant, ms) {
+      const el = document.createElement("div");
+      el.className = "egg-flash " + variant;
+      document.body.appendChild(el);
+      requestAnimationFrame(() => el.classList.add("is-on"));
+      setTimeout(() => {
+        el.classList.remove("is-on");
+        setTimeout(() => el.remove(), 300);
+      }, ms || 1400);
+    }
+
+    // ---------- Chapter-specific effects ----------
+    function alertRedAlert() {
+      flash("alert", 1600);
+      toast("🚨 RED ALERT, Tier-1 escalation simulated. Page back to bed.", "alert");
+    }
+    function alertFalsePos() {
+      toast("✅ Closed as false positive. Detection engineering thanks you.", "scope");
+    }
+
+    const identities = [
+      "root@bastion-01, last login 2 weeks ago from 10.0.0.7",
+      "svc-deploy@prod-k8s, kube-system, all powerful, never sleeps",
+      "j.doe@corp, domain user, but oddly RDPing into a DC at 03:14",
+      "anon@coffee-shop-wifi, TOR exit, three hops, zero shame",
+      "admin@legacy-vpn, password rotated never, MFA: 'maybe later'",
+      "you@right-now, yes, the analyst is always a subject too",
+    ];
+    function subjectWhoami() {
+      const who = identities[Math.floor(Math.random() * identities.length)];
+      toast(toastFrag(["👤 whoami → ", { em: who }]), "subject");
+    }
+    function subjectInsider() {
+      toast("👁️ Insider mode engaged. Trust nothing. Especially the printer.", "subject");
+    }
+
+    function scopeZoom() {
+      const main = document.querySelector(".content-page__main-inner");
+      if (!main) return;
+      main.classList.add("egg-zoom");
+      setTimeout(() => main.classList.remove("egg-zoom"), 1300);
+      toast("🔍 Scope adjusted. Pulling back to the blast radius.", "scope");
+    }
+    function scopeBoundary() {
+      const el = document.createElement("div");
+      el.className = "egg-boundary";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1700);
+      toast("📐 Blast radius mapped. Everything inside is in scope.", "scope");
+    }
+
+    const ttps = ["T1078", "T1059.001", "T1566.001", "T1003", "T1547", "T1071.001", "T1486", "T1021.002", "T1110", "T1053"];
+    function uncoverHunt() {
+      toast("🔎 Hunting mode: assume breach, work backward, follow the data.", "uncover");
+    }
+    function uncoverTtps() {
+      for (let i = 0; i < 14; i++) {
+        const el = document.createElement("div");
+        el.className = "egg-matrix";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.animationDelay = (Math.random() * 0.8) + "s";
+        el.style.animationDuration = (1.8 + Math.random() * 1.5) + "s";
+        el.textContent = ttps[Math.floor(Math.random() * ttps.length)];
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+      }
+      toast("🧪 MITRE rain. Map every step to a technique.", "uncover");
+    }
+
+    function riskRoll() {
+      const n = 1 + Math.floor(Math.random() * 20);
+      const dice = document.createElement("div");
+      dice.className = "egg-d20";
+      dice.textContent = String(n);
+      document.body.appendChild(dice);
+      setTimeout(() => dice.remove(), 2300);
+      let label;
+      if (n === 20)      label = "🎲 NAT 20, auto-contain, write the post-mortem yourself.";
+      else if (n === 1)  label = "💀 NAT 1, the SIEM is on fire, the analyst is on PTO.";
+      else if (n >= 15)  label = "🎲 " + n + ", clean detection, clean response.";
+      else if (n >= 8)   label = "🎲 " + n + ", workable. Document it and move on.";
+      else               label = "🎲 " + n + ", gaps exist. Tune the rule.";
+      setTimeout(() => toast(label, "risk"), 1800);
+    }
+    function riskCrit() {
+      flash("risk", 900);
+      toast("💥 CRITICAL, escalate now, document later, sleep never.", "risk");
+    }
+
+    function escalateSiren() {
+      flash("escal", 1800);
+      toast("📟 ESCALATION engaged. Bridge open. IR lead paged.", "escal");
+    }
+
+    function escalateBreakGlass() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const cx = w / 2 + (Math.random() - 0.5) * w * 0.25;
+      const cy = h / 2 + (Math.random() - 0.5) * h * 0.25;
+      const svgNS = "http://www.w3.org/2000/svg";
+
+      const overlay = document.createElement("div");
+      overlay.className = "egg-glass";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+      svg.setAttribute("preserveAspectRatio", "none");
+
+      // Impact ring
+      const impact = document.createElementNS(svgNS, "circle");
+      impact.setAttribute("cx", cx);
+      impact.setAttribute("cy", cy);
+      impact.setAttribute("r", "4");
+      impact.setAttribute("fill", "none");
+      impact.setAttribute("stroke", "rgba(255,255,255,0.9)");
+      impact.setAttribute("stroke-width", "2");
+      impact.classList.add("egg-glass__impact");
+      svg.appendChild(impact);
+
+      // Recursive jagged-crack generator
+      function makeCrack(x, y, angle, len, depth) {
+        const segs = 4 + Math.floor(Math.random() * 4);
+        const segLen = len / segs;
+        let px = x, py = y, a = angle;
+        let d = "M " + x + " " + y;
+        const points = [{ x: x, y: y }];
+        for (let i = 0; i < segs; i++) {
+          a += (Math.random() - 0.5) * 0.7;
+          px += Math.cos(a) * segLen;
+          py += Math.sin(a) * segLen;
+          d += " L " + px + " " + py;
+          points.push({ x: px, y: py });
+        }
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", d);
+        path.classList.add("egg-glass__crack");
+        path.style.animationDelay = (depth * 0.06 + Math.random() * 0.15) + "s";
+        path.style.strokeWidth = (1.6 - depth * 0.4) + "px";
+        svg.appendChild(path);
+
+        // Sub-branches
+        if (depth < 2) {
+          const branches = 1 + Math.floor(Math.random() * 2);
+          for (let i = 0; i < branches; i++) {
+            const p = points[1 + Math.floor(Math.random() * (points.length - 1))];
+            const bAng = a + (Math.random() > 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.5);
+            makeCrack(p.x, p.y, bAng, len * (0.35 + Math.random() * 0.3), depth + 1);
+          }
+        }
+      }
+
+      const mainCracks = 9 + Math.floor(Math.random() * 4);
+      const maxLen = Math.max(w, h) * 0.85;
+      for (let i = 0; i < mainCracks; i++) {
+        const angle = (i / mainCracks) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+        const len = maxLen * (0.5 + Math.random() * 0.5);
+        makeCrack(cx, cy, angle, len, 0);
+      }
+
+      overlay.appendChild(svg);
+      document.body.appendChild(overlay);
+
+      // Screen shake
+      document.body.classList.add("egg-shake");
+      setTimeout(() => document.body.classList.remove("egg-shake"), 550);
+
+      // Toast comes in after the cracks finish drawing
+      setTimeout(() => toast("⚠️ Break-glass account used. Logged, audited, scrutinized.", "escal"), 700);
+      setTimeout(() => overlay.remove(), 5000);
+    }
+
+    function docSign() {
+      toast(toastFrag(["📝 Report signed: ", { em: "Analyst on duty" }, ". Filed for the record."]), "doc");
+    }
+    function docAudit() {
+      toast("📜 Audit trail: every click, every query, every decision. That's the point.", "doc");
+    }
+
+    function introGlow() {
+      document.body.classList.add("egg-glow-hero");
+      setTimeout(() => document.body.classList.remove("egg-glow-hero"), 3400);
+      toast("✨ A, S, S, U, R, E, D. Now you know.", "intro");
+    }
+
+    // ---------- Universal: Konami ----------
+    function konamiBurst() {
+      const colors = ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6"];
+      for (let i = 0; i < 80; i++) {
+        const c = document.createElement("div");
+        c.className = "egg-confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDelay = (Math.random() * 0.6) + "s";
+        c.style.animationDuration = (2.4 + Math.random() * 1.6) + "s";
+        c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4500);
+      }
+      toast("🎉 Konami unlocked. Every chapter has secrets, keep typing.", "intro");
+    }
+
+    // ---------- Sequence detection ----------
+    const triggers = {
+      alert:         { REDALERT: alertRedAlert, FALSEPOS: alertFalsePos },
+      subject:       { WHOAMI: subjectWhoami, INSIDER: subjectInsider },
+      scope:         { ZOOM: scopeZoom, BOUNDARY: scopeBoundary },
+      uncover:       { HUNT: uncoverHunt, TTPS: uncoverTtps },
+      risk:          { ROLL: riskRoll, CRIT: riskCrit },
+      escalation:    { ESCALATE: escalateSiren, BREAKGLASS: escalateBreakGlass },
+      documentation: { SIGN: docSign, AUDIT: docAudit },
+      intro:         { ASSURED: introGlow },
+    };
+
+    // Build a flat lookup of every trigger active on this chapter,
+    // plus a few that work everywhere.
+    const active = Object.assign({}, triggers[chapter] || {});
+    // Universal: ASSURED works on any docs page that isn't a glossary.
+    if (!active.ASSURED) active.ASSURED = introGlow;
+
+    const keys = Object.keys(active);
+    const maxLen = keys.reduce((m, k) => Math.max(m, k.length), 0);
+    let buffer = "";
+
+    _reg(window, "keydown", function (e) {
+      // Ignore typing inside form fields so we don't hijack the search bar.
+      const t = e.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key.length !== 1) return;
+      buffer = (buffer + e.key.toUpperCase()).slice(-maxLen);
+      for (const k of keys) {
+        if (buffer.endsWith(k)) {
+          active[k]();
+          buffer = "";
+          return;
+        }
+      }
+    });
+
+    // Konami: ↑ ↑ ↓ ↓ ← → ← → B A
+    const konami = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+    let kIdx = 0;
+    _reg(window, "keydown", function (e) {
+      const expected = konami[kIdx];
+      const got = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (got === expected) {
+        kIdx++;
+        if (kIdx === konami.length) {
+          kIdx = 0;
+          konamiBurst();
+        }
+      } else {
+        kIdx = got === konami[0] ? 1 : 0;
+      }
+    });
+  })();
+</script>

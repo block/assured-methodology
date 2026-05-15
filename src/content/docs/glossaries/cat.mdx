@@ -1,0 +1,750 @@
+---
+title: "C.A.T. Glossary"
+description: "Cybersecurity Applications & Tools. The vendor and platform vocabulary that shows up in real security operations."
+slug: "glossaries/cat"
+wide: true
+chromeless: true
+---
+
+import AmbientBackground from "@/components/assured/AmbientBackground.astro";
+import GlossaryHero from "@/components/assured/GlossaryHero.astro";
+
+<div class="cat-page g-page" data-theme="cat">
+
+<AmbientBackground>
+  <Fragment slot="motion">
+    <div class="cat-bg__yarn"><span></span><span></span><span></span><span></span><span></span></div>
+  </Fragment>
+</AmbientBackground>
+
+<GlossaryHero
+  badge="VENDOR & PLATFORM VOCABULARY"
+  title="The C.A.T. Glossary"
+  subParts={[
+    { strong: "C" }, "ybersecurity ",
+    { strong: "A" }, "pplications & ",
+    { strong: "T" }, "ools.",
+  ]}
+>
+  The vendor and platform vocabulary an analyst meets in the SOC. Each tool is defined by what it does: threat-intel feed, EDR, SIEM, SOAR, IAM, forensics, network security. The name on the slide maps back to a category an analyst can reason about.
+
+  <Fragment slot="ornament">
+    <div class="cat-stage" aria-hidden="true">
+      <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" class="cat-svg">
+        <defs>
+          <linearGradient id="catFur" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fb923c"/>
+            <stop offset="100%" stop-color="#9a3412"/>
+          </linearGradient>
+        </defs>
+
+        <line x1="0" y1="170" x2="480" y2="170" stroke="#60a5fa" stroke-width="1" stroke-dasharray="2,4" opacity="0.5"/>
+
+        <g class="cat-chair" transform="translate(360,80)">
+          <rect x="0"  y="0"  width="50" height="60" rx="4" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.5"/>
+          <rect x="-6" y="55" width="62" height="14" rx="3" fill="#1d4ed8" stroke="#60a5fa" stroke-width="1.5"/>
+          <rect x="-4" y="69" width="6" height="22" fill="#1e3a8a"/>
+          <rect x="54" y="69" width="6" height="22" fill="#1e3a8a"/>
+        </g>
+
+        <g class="cat-cat">
+          <path class="cat-tail" d="M -8 -10 Q -22 -16 -18 -28" stroke="url(#catFur)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <ellipse class="cat-body" cx="10" cy="-4" rx="22" ry="11" fill="url(#catFur)"/>
+          <rect class="cat-leg cat-leg--bl" x="-7"  y="3" width="4" height="9" rx="2" fill="#7c2d12"/>
+          <rect class="cat-leg cat-leg--br" x="-1"  y="3" width="4" height="9" rx="2" fill="#9a3412"/>
+          <rect class="cat-leg cat-leg--fl" x="22"  y="3" width="4" height="9" rx="2" fill="#7c2d12"/>
+          <rect class="cat-leg cat-leg--fr" x="28"  y="3" width="4" height="9" rx="2" fill="#9a3412"/>
+          <g class="cat-head" transform="translate(34,-9)">
+            <circle r="9" fill="url(#catFur)"/>
+            <path d="M -7 -6 L -3 -14 L -1 -6 Z" fill="#7c2d12"/>
+            <path d="M 7 -6 L 3 -14 L 1 -6 Z" fill="#7c2d12"/>
+            <circle cx="-3" cy="-1" r="1.2" fill="#0f172a"/>
+            <circle cx="3"  cy="-1" r="1.2" fill="#0f172a"/>
+            <circle cx="0" cy="2" r="0.8" fill="#0f172a"/>
+            <path d="M -5 2 L -10 2 M -5 3 L -10 4 M 5 2 L 10 2 M 5 3 L 10 4" stroke="#fdba74" stroke-width="0.5"/>
+          </g>
+        </g>
+
+        <g class="cat-bubble" transform="translate(330,40)">
+          <rect x="0" y="0" width="84" height="32" rx="14" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
+          <path d="M 14 32 L 18 42 L 24 32 Z" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
+          <text class="cat-bubble__text" x="42" y="21" text-anchor="middle" font-family="ui-monospace,monospace" font-size="14" font-weight="800" fill="#1e3a8a">MEOW</text>
+        </g>
+      </svg>
+    </div>
+  </Fragment>
+
+  <Fragment slot="actions">
+    <button type="button" class="cat-pet" data-cat-pet aria-label="Pet the cat">🤚 pet the cat</button>
+  </Fragment>
+</GlossaryHero>
+
+{/* Section nav */}
+<nav class="cat-nav" aria-label="Glossary sections">
+  <a href="#intel" class="cat-nav__pill"><span>📡</span> Threat intel feeds</a>
+  <a href="#cloud" class="cat-nav__pill"><span>☁️</span> Cloud monitoring</a>
+  <a href="#siem" class="cat-nav__pill"><span>📊</span> SIEM &amp; logging</a>
+  <a href="#edr" class="cat-nav__pill"><span>💻</span> EDR</a>
+  <a href="#forensics" class="cat-nav__pill"><span>🔬</span> Forensics</a>
+  <a href="#iam" class="cat-nav__pill"><span>🔑</span> Identity / IAM</a>
+  <a href="#nids" class="cat-nav__pill"><span>🌐</span> Network security</a>
+  <a href="#soar" class="cat-nav__pill"><span>🤖</span> SOAR / IR</a>
+  <a href="#malware-tools" class="cat-nav__pill"><span>🍯</span> Malware &amp; deception</a>
+  <a href="#appsec" class="cat-nav__pill"><span>🛡️</span> AppSec testing</a>
+  <a href="#backup" class="cat-nav__pill"><span>💾</span> Backup &amp; DR</a>
+  <a href="#dev" class="cat-nav__pill"><span>⚙️</span> Dev / scripting</a>
+  <a href="#patch" class="cat-nav__pill"><span>🩹</span> Patch &amp; config</a>
+  <a href="#physical" class="cat-nav__pill"><span>🛂</span> Physical security</a>
+</nav>
+
+{/* 1. Threat intel */}
+<section id="intel" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">📡</span>
+    <div>
+      <h2>Advisories &amp; threat intelligence feeds</h2>
+      <p>Sources of curated indicators, campaign reports, and analyst-grade intelligence.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Abuse.ch</h4><p>Community-driven malware infrastructure tracking; free public feeds for malicious IPs, domains, and hashes. Strong on ransomware family tracking.</p></article>
+    <article class="cat-tool"><h4>AlienVault OTX</h4><p>Collaborative threat-intel exchange aggregating IOCs from a global community, with SIEM/automated integrations.</p></article>
+    <article class="cat-tool"><h4>Anomali ThreatStream</h4><p>Collects, analyzes, and prioritizes threat data with enrichment and risk scoring; integrates with existing security stacks.</p></article>
+    <article class="cat-tool"><h4>CISA Advisories</h4><p>U.S. Cybersecurity and Infrastructure Security Agency advisories on vulnerabilities and active threats, with mitigation guidance.</p></article>
+    <article class="cat-tool"><h4>E-ISAC</h4><p>Electricity sector ISAC; threat intel, IR support, and risk analysis tailored to grid operators.</p></article>
+    <article class="cat-tool"><h4>FBI Flash Reports</h4><p>Rapid high-priority notifications about imminent cyber threats targeting public and private partners.</p></article>
+    <article class="cat-tool"><h4>FS-ISAC</h4><p>Global financial-sector ISAC providing real-time alerts, incident coordination, and member collaboration.</p></article>
+    <article class="cat-tool"><h4>GreyNoise</h4><p>Filters internet background-scan noise so SOCs focus on targeted attacks. IP context with malicious vs. benign classification.</p></article>
+    <article class="cat-tool"><h4>H-ISAC</h4><p>Healthcare-sector ISAC; threat intelligence, incident response coordination, and best practices for clinical environments.</p></article>
+    <article class="cat-tool"><h4>Intel 471</h4><p>Commercial deep/dark-web monitoring with adversary infrastructure, TTP, and threat-actor behavior intelligence.</p></article>
+    <article class="cat-tool"><h4>MITRE ATT&amp;CK</h4><p>Global knowledge base of adversary tactics, techniques, and procedures. The shared vocabulary of modern SOCs.</p></article>
+    <article class="cat-tool"><h4>MS-ISAC</h4><p>Multi-State ISAC for U.S. state, local, tribal, and territorial governments; alerts, IR, and risk management resources.</p></article>
+    <article class="cat-tool"><h4>NCSC (UK)</h4><p>UK National Cyber Security Centre; guidance, threat intelligence, and IR services across public and private sectors.</p></article>
+    <article class="cat-tool"><h4>Microsoft Defender Threat Intelligence (MDTI)</h4><p>Successor to RiskIQ PassiveTotal (acquired by Microsoft, 2021). Aggregates passive DNS, WHOIS, SSL, and infrastructure data for attribution and threat hunting.</p></article>
+    <article class="cat-tool"><h4>PhishTank</h4><p>Community-validated database of phishing URLs; supplies security tools and browsers with up-to-date intelligence.</p></article>
+    <article class="cat-tool"><h4>Recorded Future</h4><p>Threat-intelligence platform combining machine learning with human analysis across open, dark, and technical sources.</p></article>
+    <article class="cat-tool"><h4>Microsoft Defender EASM</h4><p>External Attack Surface Management — the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.</p></article>
+    <article class="cat-tool"><h4>SANS Institute</h4><p>Training, certification, and research; publishes critical threat research and runs the Internet Storm Center.</p></article>
+    <article class="cat-tool"><h4>VirusTotal</h4><p>Free analysis of files and URLs across many AV engines; community sharing and reputation data.</p></article>
+    <article class="cat-tool"><h4>WHOIS</h4><p>Protocol and database of domain registration data; used to investigate suspicious domains and attribution.</p></article>
+  </div>
+</section>
+
+{/* 2. Cloud */}
+<section id="cloud" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">☁️</span>
+    <div>
+      <h2>Cloud &amp; infrastructure monitoring / security</h2>
+      <p>Platforms that watch cloud workloads, identities, and posture across multi-account, multi-cloud environments.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>AWS CloudTrail</h4><p>Records and logs API activity within an AWS account, the audit trail for security and forensic work.</p></article>
+    <article class="cat-tool"><h4>AWS CloudWatch</h4><p>Monitoring and observability for AWS resources and applications; metrics, logs, alarms, automation hooks.</p></article>
+    <article class="cat-tool"><h4>Azure AD (Entra ID)</h4><p>Microsoft's cloud identity and access management; SSO, MFA, conditional access, and integration with SaaS apps.</p></article>
+    <article class="cat-tool"><h4>Azure Sentinel UEBA</h4><p>Behavior analytics layered onto Microsoft Sentinel for detecting insider threats and anomalous activity.</p></article>
+    <article class="cat-tool"><h4>Chronicle</h4><p>Cloud-native security analytics platform from Google Cloud; high-speed search and threat detection at petabyte scale.</p></article>
+    <article class="cat-tool"><h4>Cloudflare Cloudforce One</h4><p>Cloudflare's threat-research team and intelligence service; produces actionable indicators, campaign tracking, and disruption support against active adversaries.</p></article>
+    <article class="cat-tool"><h4>Forcepoint</h4><p>DLP, cloud security, and insider-threat behavior analytics across endpoints, networks, and cloud applications.</p></article>
+    <article class="cat-tool"><h4>Microsoft Sentinel</h4><p>Cloud-native SIEM/SOAR; AI-driven analytics across on-prem, cloud, and hybrid with rich connector library.</p></article>
+    <article class="cat-tool"><h4>Orca Security</h4><p>Agentless cloud security; full-stack visibility, vulnerability management, and risk prioritization across cloud workloads.</p></article>
+    <article class="cat-tool"><h4>Prisma Cloud</h4><p>Cloud-native security platform from Palo Alto Networks; workload protection, IaC scanning, compliance, runtime defense.</p></article>
+    <article class="cat-tool"><h4>Sysdig</h4><p>Cloud-native security focused on container runtime, Kubernetes monitoring, and cloud workload protection.</p></article>
+    <article class="cat-tool"><h4>WIZ</h4><p>Agentless cloud risk visibility; correlates infra/config/workload data to map attack paths and prioritize risk.</p></article>
+  </div>
+</section>
+
+{/* 3. SIEM */}
+<section id="siem" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">📊</span>
+    <div>
+      <h2>Data collection / logging / SIEM</h2>
+      <p>Where the logs go to be aggregated, normalized, and queried. The SOC's primary lens.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>ArcSight</h4><p>Long-standing SIEM with strong correlation engine for compliance reporting and forensic analysis.</p></article>
+    <article class="cat-tool"><h4>Cribl</h4><p>Data routing and processing for observability pipelines; filter, enrich, and reduce log data before forwarding.</p></article>
+    <article class="cat-tool"><h4>Elastic Security</h4><p>Unified security on the Elastic Stack; endpoint protection, prebuilt detections, and customizable monitoring.</p></article>
+    <article class="cat-tool"><h4>Exabeam</h4><p>Next-gen SIEM with built-in UEBA; user-behavior timelines and automated investigation workflows.</p></article>
+    <article class="cat-tool"><h4>Fluentd</h4><p>Open-source data collector that unifies log collection and processing across distributed systems via plugins.</p></article>
+    <article class="cat-tool"><h4>IBM QRadar</h4><p>Enterprise SIEM with real-time correlation, ML-assisted prioritization, and broad ecosystem integration.</p></article>
+    <article class="cat-tool"><h4>Logstash</h4><p>Server-side pipeline that ingests, transforms, and forwards data; central to the Elastic Stack.</p></article>
+    <article class="cat-tool"><h4>SIEM (concept)</h4><p>Aggregation and correlation of security event data for centralized detection, compliance, and IR.</p></article>
+    <article class="cat-tool"><h4>Splunk Enterprise Security</h4><p>Premium SIEM on the Splunk platform; correlation searches, ML, prebuilt content for SOC workflows.</p></article>
+    <article class="cat-tool"><h4>Sysmon</h4><p>Windows service that produces rich endpoint telemetry, process creation, network connections, file events, for SIEM ingestion.</p></article>
+  </div>
+</section>
+
+{/* 4. EDR */}
+<section id="edr" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">💻</span>
+    <div>
+      <h2>Endpoint detection &amp; response / endpoint security</h2>
+      <p>The agents that watch process trees, file activity, and on-host behavior.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Bitdefender GravityZone</h4><p>EDR with behavior analysis, anti-exploit, root-cause analysis, and policy-based remediation.</p></article>
+    <article class="cat-tool"><h4>CrowdStrike Falcon</h4><p>Cloud-native EDR with a lightweight agent; combines behavioral analytics, threat intel, and ML.</p></article>
+    <article class="cat-tool"><h4>Cybereason</h4><p>EDR/XDR focused on endpoint visibility, malware detection, IR, and deep process-tree forensics.</p></article>
+    <article class="cat-tool"><h4>Darktrace</h4><p>Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via Antigena.</p></article>
+    <article class="cat-tool"><h4>Digital Guardian</h4><p>DLP and endpoint security with context-aware policies for data usage across endpoints, networks, cloud.</p></article>
+    <article class="cat-tool"><h4>Falcon OverWatch</h4><p>Managed threat-hunting service on top of CrowdStrike Falcon; 24/7 human-led analysis to validate stealthy intrusions.</p></article>
+    <article class="cat-tool"><h4>Proofpoint Identity Threat Defense (formerly Illusive)</h4><p>Deception-based identity-threat detection. Plants fake credentials and decoy paths to surface attacker lateral movement. Illusive Networks acquired by Proofpoint, 2022.</p></article>
+    <article class="cat-tool"><h4>Kaspersky EDR</h4><p>Attack-chain visualization, IOC search, sandboxing, and threat-intel integration with centralized management.</p></article>
+    <article class="cat-tool"><h4>Malwarebytes EDR</h4><p>Lightweight EDR with strong remediation; ransomware rollback and post-infection recovery.</p></article>
+    <article class="cat-tool"><h4>Microsoft Defender</h4><p>Antivirus, endpoint protection, EDR (Defender for Endpoint), and XDR ties to Sentinel and Entra ID.</p></article>
+    <article class="cat-tool"><h4>SentinelOne</h4><p>Unified EPP/EDR with behavioral AI, autonomous response, rollback on Windows, and threat-hunting telemetry.</p></article>
+    <article class="cat-tool"><h4>Sophos Intercept X</h4><p>Next-gen AV plus EDR with deep learning and exploit prevention; strong investigation tools for SMB and enterprise.</p></article>
+    <article class="cat-tool"><h4>Symantec (Broadcom)</h4><p>Endpoint protection, email security, DLP, and EDR; global sensor network feeding detection and response.</p></article>
+    <article class="cat-tool"><h4>Trellix Endpoint Security</h4><p>Part of the broader Trellix XDR; detection, investigation, and response with behavioral analytics and forensic timelines.</p></article>
+    <article class="cat-tool"><h4>Trend Micro Vision One</h4><p>XDR correlating telemetry across email, endpoint, server, and cloud workloads.</p></article>
+  </div>
+</section>
+
+{/* 5. Forensics */}
+<section id="forensics" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🔬</span>
+    <div>
+      <h2>Forensics / digital evidence / mobile forensics</h2>
+      <p>The kit that turns a disk image, a memory dump, or a phone into a defensible report.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Autopsy</h4><p>Open-source forensics platform on The Sleuth Kit; timeline analysis, keyword search, file carving, media analysis.</p></article>
+    <article class="cat-tool"><h4>Belkasoft Evidence Center X</h4><p>DFIR tool focused on memory, disk, mobile, and cloud forensics; parses encrypted containers and RAM dumps.</p></article>
+    <article class="cat-tool"><h4>Cellebrite</h4><p>Industry standard for mobile-device extraction and analysis; UFED covers a wide range of devices.</p></article>
+    <article class="cat-tool"><h4>EnCase Forensic</h4><p>Long-standing digital-investigation suite; acquisition, indexing, analysis, and court-admissible reporting.</p></article>
+    <article class="cat-tool"><h4>Magnet AXIOM</h4><p>Forensics across computers, mobile, cloud, IoT; powerful artifact parsing and cross-source correlation.</p></article>
+    <article class="cat-tool"><h4>MSAB</h4><p>Mobile forensics for law enforcement; XRY for extraction, XAMN for evidence visualization, XEC for lab management.</p></article>
+    <article class="cat-tool"><h4>Oxygen Forensic Detective</h4><p>Mobile, cloud, drone, and IoT forensics with deep parsing of app data including secure messengers.</p></article>
+    <article class="cat-tool"><h4>X-Ways Forensics</h4><p>Lightweight, fast forensic suite with strong scripting and hex-level analysis for deep investigations.</p></article>
+  </div>
+</section>
+
+{/* 6. IAM */}
+<section id="iam" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🔑</span>
+    <div>
+      <h2>Identity &amp; access management / privilege management</h2>
+      <p>Who you are, what you can touch, and how the SOC proves it.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>BeyondTrust</h4><p>Privileged access management; just-in-time access, password vaulting, session monitoring, endpoint privilege management.</p></article>
+    <article class="cat-tool"><h4>CyberArk</h4><p>Market leader in PAM; credential rotation, secret management, session monitoring, secure remote access.</p></article>
+    <article class="cat-tool"><h4>Duo (Cisco)</h4><p>MFA, device trust, and contextual access; widely used for remote access and SaaS protection.</p></article>
+    <article class="cat-tool"><h4>ForgeRock</h4><p>Enterprise IAM with lifecycle management, governance, AI-driven access recommendations, and risk-based auth.</p></article>
+    <article class="cat-tool"><h4>Okta</h4><p>Identity platform with SSO, MFA, lifecycle management, and federation across thousands of apps.</p></article>
+    <article class="cat-tool"><h4>One Identity</h4><p>IGA with lifecycle, RBAC, privileged access governance; unifies AD, Azure AD, and cloud platform identity.</p></article>
+    <article class="cat-tool"><h4>Ping Identity</h4><p>Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support.</p></article>
+    <article class="cat-tool"><h4>SailPoint</h4><p>Identity governance with least-privilege enforcement, access reviews, and ML-driven anomaly detection.</p></article>
+  </div>
+</section>
+
+{/* 7. NIDS */}
+<section id="nids" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🌐</span>
+    <div>
+      <h2>Intrusion detection &amp; network security</h2>
+      <p>Where the wire is inspected. Flow data, deep packet inspection, NIDS, and scanners.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Cisco Umbrella</h4><p>Cloud-delivered DNS-layer security; blocks malicious domains at resolution time, secures outbound web traffic.</p></article>
+    <article class="cat-tool"><h4>Lansweeper</h4><p>IT asset discovery and inventory; CMDB foundations and continuous visibility into devices, software, and users.</p></article>
+    <article class="cat-tool"><h4>NetFlow</h4><p>Cisco-developed protocol for flow-based monitoring and anomaly detection; metadata about traffic sessions.</p></article>
+    <article class="cat-tool"><h4>Nexpose (Rapid7)</h4><p>Vulnerability management with dynamic scans and exploitability-based prioritization; pairs with Metasploit.</p></article>
+    <article class="cat-tool"><h4>Nessus (Tenable)</h4><p>Vulnerability scanner with authenticated/unauthenticated scans and compliance framework support.</p></article>
+    <article class="cat-tool"><h4>NIDS (concept)</h4><p>Network intrusion detection: inspects traffic for signatures, protocol anomalies, and behavioral indicators.</p></article>
+    <article class="cat-tool"><h4>Snort</h4><p>Open-source NIDS with deep packet inspection and a large community rule set maintained by Cisco Talos.</p></article>
+    <article class="cat-tool"><h4>Suricata</h4><p>Open-source NIDS/IPS with multi-threaded inspection, file extraction, TLS inspection, and JSON output.</p></article>
+    <article class="cat-tool"><h4>Tripwire</h4><p>File-integrity monitoring and change detection; enforces baselines and supports compliance.</p></article>
+    <article class="cat-tool"><h4>Wireshark</h4><p>Open-source packet analyzer; deep protocol decoding for investigation and forensics.</p></article>
+    <article class="cat-tool"><h4>Zeek (formerly Bro)</h4><p>Behavior-focused network monitoring producing structured session logs for SIEM-friendly analytics.</p></article>
+  </div>
+</section>
+
+{/* 8. SOAR */}
+<section id="soar" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🤖</span>
+    <div>
+      <h2>Incident response / SOAR / automation</h2>
+      <p>Where playbooks live, alerts get enriched, and analysts get back their afternoons.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Cynet AutoXDR</h4><p>XDR with autonomous investigation and remediation playbooks aimed at small-to-mid SOCs.</p></article>
+    <article class="cat-tool"><h4>DFIR ORC</h4><p>Open-source forensic-artifact collector from ANSSI (the French national cyber agency). Runs on Windows endpoints to gather a broad, configurable set of artifacts for offline post-compromise analysis. Not a case-management platform.</p></article>
+    <article class="cat-tool"><h4>Sumo Logic Cloud SOAR (formerly DFLabs IncMan)</h4><p>SOAR with advanced playbooks, threat-intel enrichment, KPI tracking, and human-in-the-loop decisions. DFLabs acquired by Sumo Logic, 2021.</p></article>
+    <article class="cat-tool"><h4>Cortex XSOAR (Palo Alto)</h4><p>Comprehensive SOAR with case management, threat intel, playbook-driven automation, and hundreds of integrations.</p></article>
+    <article class="cat-tool"><h4>ServiceNow SecOps</h4><p>ITSM and security workflow with ticketing, change management, CMDB integration, and security automation.</p></article>
+    <article class="cat-tool"><h4>Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)</h4><p>SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.</p></article>
+    <article class="cat-tool"><h4>SOAR (concept)</h4><p>Security orchestration, automation, and response: define, automate, and orchestrate IR workflows at scale.</p></article>
+    <article class="cat-tool"><h4>Splunk SOAR (formerly Splunk Phantom)</h4><p>SOAR with Python-based playbooks, 300+ integrations, and deep Splunk analytics ties. Phantom acquired by Splunk in 2018 and renamed Splunk SOAR in 2021; Splunk itself acquired by Cisco, 2024.</p></article>
+    <article class="cat-tool"><h4>Swimlane</h4><p>Low-code SOAR for SOC analysts to build automation workflows without deep programming expertise.</p></article>
+    <article class="cat-tool"><h4>TheHive Project</h4><p>Open-source IR platform with collaborative case management; integrates with Cortex for automated analysis.</p></article>
+    <article class="cat-tool"><h4>Tines</h4><p>No-code automation built for security teams; modular "stories" for alert ingestion, enrichment, and response.</p></article>
+  </div>
+</section>
+
+{/* 9. Malware tools */}
+<section id="malware-tools" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🍯</span>
+    <div>
+      <h2>Malware analysis / threat simulation / deception</h2>
+      <p>Sandboxes for malware, honeypots for attackers, and frameworks for stress-testing defenses.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Any.Run</h4><p>Interactive malware sandbox with behavioral and network analysis for collaborative investigation.</p></article>
+    <article class="cat-tool"><h4>Canary (Thinkst)</h4><p>Deception platform deploying low-interaction honeypots that produce high-fidelity alerts on attacker interaction.</p></article>
+    <article class="cat-tool"><h4>Cuckoo Sandbox</h4><p>Open-source automated malware analysis running suspect files in VMs and capturing behavior.</p></article>
+    <article class="cat-tool"><h4>CyberTrap</h4><p>Deception platform with realistic traps and decoys to misdirect attackers and surface intrusion attempts.</p></article>
+    <article class="cat-tool"><h4>Cymmetria</h4><p>Deception technology focused on detecting lateral movement via decoys and traps that mimic real assets.</p></article>
+    <article class="cat-tool"><h4>FireEye Mandiant Attack Simulator</h4><p>Controlled attack simulations to validate detection and response based on real-world TTPs.</p></article>
+    <article class="cat-tool"><h4>FireEye Mandiant Red Team Tools</h4><p>Offensive emulation and red-team tooling to stress-test defenses with realistic adversary behavior.</p></article>
+    <article class="cat-tool"><h4>SafeBreach</h4><p>Breach-and-attack simulation continuously testing defenses across the kill chain.</p></article>
+    <article class="cat-tool"><h4>Smokescreen</h4><p>Deception with decoys and lures mimicking real IT; alerts on engagement and provides attacker-TTP insight.</p></article>
+    <article class="cat-tool"><h4>ThreatConnect</h4><p>Threat-intel platform with playbooks for attack simulation, response automation, and intel-driven workflows.</p></article>
+    <article class="cat-tool"><h4>ThreatGRID (Cisco)</h4><p>Cloud sandbox combining behavior analysis with threat intelligence for advanced-malware investigation.</p></article>
+    <article class="cat-tool"><h4>Commvault ThreatWise (formerly TrapX)</h4><p>Deception and threat detection with decoys across endpoints, networks, and cloud. TrapX Security acquired by Commvault, 2022; rebranded as ThreatWise.</p></article>
+    <article class="cat-tool"><h4>Verodin (FireEye)</h4><p>Security-controls validation through simulated real-world attacks; risk-based testing and gap identification.</p></article>
+    <article class="cat-tool"><h4>Zscaler ThreatLabZ</h4><p>Threat research and malware sandboxing powering Zscaler's cloud security services.</p></article>
+  </div>
+</section>
+
+{/* 10. AppSec */}
+<section id="appsec" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🛡️</span>
+    <div>
+      <h2>Network &amp; application security testing</h2>
+      <p>Scanners, fuzzers, and surface-discovery tools that find the holes before adversaries do.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Acunetix</h4><p>Automated web vulnerability scanner for SQLi, XSS, misconfig, and modern-web/SPA technologies.</p></article>
+    <article class="cat-tool"><h4>Burp Suite</h4><p>Industry-leading web app security tooling: intercepting proxy, scanning, manual pentest tools, and extensions.</p></article>
+    <article class="cat-tool"><h4>Censys</h4><p>Internet-wide asset discovery via continuous scanning; SSL/TLS, services, and attack-surface monitoring.</p></article>
+    <article class="cat-tool"><h4>Nikto</h4><p>Open-source web-server scanner for dangerous files, outdated components, and known issues.</p></article>
+    <article class="cat-tool"><h4>Nmap</h4><p>Network discovery and security auditing with rich NSE scripting for service detection.</p></article>
+    <article class="cat-tool"><h4>OWASP ZAP</h4><p>Free, open-source web app security testing with automated and manual capabilities.</p></article>
+    <article class="cat-tool"><h4>Qualys</h4><p>Cloud-based vulnerability management, policy compliance, and web app scanning across enterprise estates.</p></article>
+    <article class="cat-tool"><h4>Shodan</h4><p>Search engine for internet-connected devices; identifies exposed services, outdated software, ICS, IoT.</p></article>
+    <article class="cat-tool"><h4>Tenable</h4><p>Vulnerability management platform; Nessus-based scanning with on-prem, cloud, and hybrid coverage.</p></article>
+    <article class="cat-tool"><h4>W3af</h4><p>Open-source web app scanner combining automated checks with a manual testing framework.</p></article>
+    <article class="cat-tool"><h4>Wapiti</h4><p>Open-source command-line web vulnerability scanner; crawls and injects payloads for common flaws.</p></article>
+  </div>
+</section>
+
+{/* 11. Backup */}
+<section id="backup" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">💾</span>
+    <div>
+      <h2>Backup &amp; data protection</h2>
+      <p>What you actually need <em>before</em> ransomware shows up, backups, immutability, and recovery posture.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Acronis Cyber Backup</h4><p>Backup with integrated anti-malware; blockchain-based notarization and broad workload coverage.</p></article>
+    <article class="cat-tool"><h4>Arcserve UDP</h4><p>Unified data protection with replication, HA, and ransomware-resistant immutable storage.</p></article>
+    <article class="cat-tool"><h4>Carbonite</h4><p>Cloud-based backup and DR for SMBs; encrypted transmission, hybrid backup, ransomware features.</p></article>
+    <article class="cat-tool"><h4>Code42</h4><p>Cloud-native endpoint data protection focused on insider risk and self-service restore.</p></article>
+    <article class="cat-tool"><h4>Commvault</h4><p>Unified data management; backup, archive, governance, and SaaS-app protection with AI analytics.</p></article>
+    <article class="cat-tool"><h4>Druva</h4><p>Cloud-native, agentless data protection for endpoints, data center, and cloud workloads.</p></article>
+    <article class="cat-tool"><h4>Rubrik</h4><p>Cloud-native data management; instant recovery, immutable backups, and ransomware detection.</p></article>
+    <article class="cat-tool"><h4>Veeam</h4><p>Backup and recovery across virtual, physical, and cloud workloads with cloud-mobility options.</p></article>
+    <article class="cat-tool"><h4>Veritas NetBackup</h4><p>Enterprise-grade backup with broad workload coverage and centralized hybrid-cloud management.</p></article>
+  </div>
+</section>
+
+{/* 12. Dev */}
+<section id="dev" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">⚙️</span>
+    <div>
+      <h2>Software development &amp; scripting</h2>
+      <p>The languages, frameworks, and editors that the rest of security operations runs on top of.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Ansible</h4><p>Open-source automation for config management, deployment, and orchestration via YAML playbooks.</p></article>
+    <article class="cat-tool"><h4>Electron</h4><p>Cross-platform desktop app framework using web technologies; powers Cursor, VS Code, Slack, and more.</p></article>
+    <article class="cat-tool"><h4>Jenkins</h4><p>Open-source CI/CD automation server; builds, tests, and deploys with a vast plugin ecosystem.</p></article>
+    <article class="cat-tool"><h4>Node.js</h4><p>Event-driven JavaScript runtime on V8; backend services, APIs, automation scripts, and tooling.</p></article>
+    <article class="cat-tool"><h4>PowerShell</h4><p>Task automation and configuration shell built on .NET; cross-platform via PowerShell Core.</p></article>
+    <article class="cat-tool"><h4>Python</h4><p>High-level language ubiquitous in security tooling, automation, data analysis, and ML.</p></article>
+    <article class="cat-tool"><h4>Visual Studio Code</h4><p>Lightweight, extensible code editor from Microsoft; rich ecosystem of extensions for development and security.</p></article>
+  </div>
+</section>
+
+{/* 13. Patch */}
+<section id="patch" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🩹</span>
+    <div>
+      <h2>Security configuration &amp; patch management</h2>
+      <p>Tools that keep the fleet patched, the baselines enforced, and the auditors quiet.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Ansible Tower</h4><p>Web-based interface for Ansible automation; RBAC, scheduling, visual dashboards, workflow orchestration.</p></article>
+    <article class="cat-tool"><h4>BigFix (IBM)</h4><p>Endpoint management platform automating patching, compliance, and security configuration at scale.</p></article>
+    <article class="cat-tool"><h4>Chef</h4><p>Infrastructure-as-code platform enforcing security configurations via recipes and cookbooks.</p></article>
+    <article class="cat-tool"><h4>Microsoft Configuration Manager (MECM)</h4><p>Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.</p></article>
+    <article class="cat-tool"><h4>Microsoft WSUS</h4><p>Free Microsoft tool for centrally approving and distributing Windows updates within an organization.</p></article>
+    <article class="cat-tool"><h4>Ninite Pro</h4><p>Automates installation and updates of popular third-party software across many endpoints.</p></article>
+    <article class="cat-tool"><h4>Puppet Enterprise</h4><p>Config management automating patching and continuous compliance through code-defined policies.</p></article>
+    <article class="cat-tool"><h4>Qualys Patch Management</h4><p>Cloud-based patching tied to vulnerability management; prioritizes patches by risk exposure.</p></article>
+    <article class="cat-tool"><h4>SolarWinds Patch Manager</h4><p>Centralized patching for Windows and third-party apps; integrates with WSUS and Microsoft Configuration Manager (MECM/SCCM).</p></article>
+    <article class="cat-tool"><h4>Symantec Endpoint Management</h4><p>Patch management, software distribution, and configuration enforcement across enterprise endpoints.</p></article>
+  </div>
+</section>
+
+{/* 14. Physical */}
+<section id="physical" class="cat-section">
+  <header class="cat-section__head">
+    <span class="cat-section__ico">🛂</span>
+    <div>
+      <h2>Physical security</h2>
+      <p>Cameras, badge readers, intrusion detection, and the tools that bridge physical and cyber.</p>
+    </div>
+  </header>
+  <div class="cat-tools">
+    <article class="cat-tool"><h4>Avigilon</h4><p>HD surveillance, video analytics, and access control with AI-powered anomaly detection.</p></article>
+    <article class="cat-tool"><h4>Axis Communications</h4><p>Pioneer of network video surveillance; broad IP-camera portfolio with edge analytics.</p></article>
+    <article class="cat-tool"><h4>Bosch Security Systems</h4><p>Surveillance, intrusion detection, access, and fire across enterprise and critical-infrastructure deployments.</p></article>
+    <article class="cat-tool"><h4>Cisco Physical Security</h4><p>Converged networking-plus-security platform unifying surveillance, access, and IoT device management.</p></article>
+    <article class="cat-tool"><h4>Genetec</h4><p>Unified Security Center for video surveillance, access control, and license plate recognition.</p></article>
+    <article class="cat-tool"><h4>Honeywell</h4><p>Integrated physical security: surveillance, access, intrusion detection, alarms across critical infrastructure.</p></article>
+    <article class="cat-tool"><h4>Johnson Controls</h4><p>Physical security with OpenBlue platform; security plus building automation, with cybersecurity built in.</p></article>
+    <article class="cat-tool"><h4>Lenel S2</h4><p>OnGuard access control, video, and alarm management for enterprise environments.</p></article>
+    <article class="cat-tool"><h4>Milestone Systems</h4><p>Open-platform IP video management with broad camera support and rich analytics.</p></article>
+    <article class="cat-tool"><h4>Pelco</h4><p>Surveillance cameras, recorders, and VideoXpert management; rugged builds for outdoor and industrial use.</p></article>
+    <article class="cat-tool"><h4>Vicon Industries</h4><p>End-to-end surveillance with the Valerus VMS platform; open architecture and flexible deployment.</p></article>
+  </div>
+</section>
+
+<footer class="cat-foot">
+  <p>The C.A.T. Glossary is a living catalog. Vendors merge, rebrand, and emerge constantly. See something stale or missing? Open an issue on <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
+</footer>
+
+</div>
+
+<script is:inline data-astro-rerun>{`
+(() => {
+  // Idempotency for ClientRouter: tear down any previous instance's
+  // listeners + timers before re-initialising.
+  if (window.__catGlossaryCleanup) {
+    try { window.__catGlossaryCleanup(); } catch (e) {}
+  }
+  const _cleanups = [];
+  const _reg = (target, ev, fn, opts) => {
+    target.addEventListener(ev, fn, opts);
+    _cleanups.push(() => target.removeEventListener(ev, fn, opts));
+  };
+  const _setTimeout = (fn, ms) => {
+    const id = setTimeout(fn, ms);
+    _cleanups.push(() => clearTimeout(id));
+    return id;
+  };
+  window.__catGlossaryCleanup = () => {
+    while (_cleanups.length) { try { _cleanups.pop()(); } catch (e) {} }
+  };
+
+  const stage = document.querySelector('.cat-stage');
+  if (!stage) return;
+  const svg = stage.querySelector('.cat-svg');
+  const cat = svg.querySelector('.cat-cat');
+  const bubble = svg.querySelector('.cat-bubble');
+  const text = svg.querySelector('.cat-bubble__text');
+  const btn = document.querySelector('[data-cat-pet]');
+
+  bubble.style.opacity = '0';
+
+  const playSequence = () => {
+    cat.classList.remove('cat-cat--seq');
+    bubble.style.opacity = '0';
+    void cat.getBoundingClientRect();
+
+    const walks = 2 + Math.floor(Math.random() * 4);
+    cat.style.setProperty('--cat-walks', walks);
+    cat.classList.add('cat-cat--seq');
+
+    const bubbleDelay = ((walks * 1.3) + 2.6) * 1000;
+    setTimeout(() => {
+      const isWoof = Math.random() < 0.05;
+      text.textContent = isWoof ? 'WOOF' : 'MEOW';
+      bubble.style.opacity = '1';
+      bubble.classList.remove('cat-bubble--pop');
+      void bubble.getBoundingClientRect();
+      bubble.classList.add('cat-bubble--pop');
+      if (isWoof) {
+        const t = document.createElement('div');
+        t.className = 'cat-toast';
+        t.textContent = "🐶 wait, that's not a cat. you found the 5% WOOF!";
+        document.querySelector('.cat-page').appendChild(t);
+        setTimeout(() => t.classList.add('is-out'), 3600);
+        setTimeout(() => t.remove(), 4200);
+      }
+    }, bubbleDelay);
+  };
+
+  const loop = () => {
+    playSequence();
+    _setTimeout(loop, 18000);
+  };
+  if (document.readyState === 'loading') {
+    _reg(document, 'DOMContentLoaded', loop);
+  } else {
+    loop();
+  }
+
+  if (btn) {
+    _reg(btn, 'click', () => {
+      playSequence();
+      btn.classList.add('is-active');
+      setTimeout(() => btn.classList.remove('is-active'), 400);
+    });
+  }
+
+  // Easter egg: type "treat" to make the cat purr
+  let typed = '';
+  _reg(document, 'keydown', (e) => {
+    if (e.key && e.key.length === 1) {
+      typed = (typed + e.key.toLowerCase()).slice(-8);
+      if (typed.endsWith('treat')) {
+        typed = '';
+        text.textContent = 'PURR';
+        bubble.style.opacity = '1';
+        bubble.classList.remove('cat-bubble--pop');
+        void bubble.getBoundingClientRect();
+        bubble.classList.add('cat-bubble--pop');
+        const t = document.createElement('div');
+        t.className = 'cat-toast';
+        t.textContent = '🐟 you fed the cat, purrs activated';
+        document.querySelector('.cat-page').appendChild(t);
+        setTimeout(() => t.classList.add('is-out'), 3600);
+        setTimeout(() => t.remove(), 4200);
+      }
+    }
+  });
+})();
+`}</script>
+
+<style>
+{`
+/* C.A.T. GLOSSARY, warm amber theme + cat animation */
+
+.cat-page {
+  position: relative;
+  margin: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
+  background: linear-gradient(170deg, #0a1a35 0%, #0f2655 35%, #0a1a35 70%, #061128 100%);
+  color: #dbeafe;
+  border-radius: 0;
+  overflow: hidden;
+  min-height: calc(100vh - 64px);
+}
+
+.cat-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.cat-bg__grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.5;
+}
+.cat-bg__yarn { position: absolute; inset: 0; }
+.cat-bg__yarn span {
+  position: absolute; width: 8px; height: 8px; border-radius: 50%;
+  background: #3b82f6; box-shadow: 0 0 12px #3b82f6;
+  opacity: 0; animation: cat-yarn 14s linear infinite;
+}
+.cat-bg__yarn span:nth-child(1) { left: 10%; animation-delay: 0s; }
+.cat-bg__yarn span:nth-child(2) { left: 28%; animation-delay: 3s; }
+.cat-bg__yarn span:nth-child(3) { left: 52%; animation-delay: 6s; }
+.cat-bg__yarn span:nth-child(4) { left: 73%; animation-delay: 9s; }
+.cat-bg__yarn span:nth-child(5) { left: 88%; animation-delay: 12s; }
+@keyframes cat-yarn {
+  0%   { transform: translateY(110vh); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+.cat-page > :not(.cat-bg):not(.cat-toast) { position: relative; z-index: 1; }
+
+/* Hero structure now lives in src/styles/glossary.css (.g-hero*).
+   Kept here: only the CAT-specific signature animation (the cat-stage, cat-svg,
+   cat-cat, and related anims). */
+
+/* cat stage */
+.cat-stage {
+  margin: 1.5rem auto 0; max-width: 540px; padding: 0.85rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(10, 26, 53, 0.55));
+  border: 1px dashed rgba(59, 130, 246, 0.3); border-radius: 1rem;
+  text-align: center;
+}
+.cat-svg { width: 100%; height: auto; max-height: 200px; display: block; }
+
+.cat-cat { transform: translate(40px, 140px); }
+.cat-cat--seq {
+  animation: cat-walk-jump calc((var(--cat-walks, 3) * 1.3s) + 3.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes cat-walk-jump {
+  0%   { transform: translate(40px, 140px); }
+  60%  { transform: translate(310px, 140px); }
+  70%  { transform: translate(345px, 100px); }
+  78%  { transform: translate(360px, 135px); }
+  85%  { transform: translate(360px, 135px) scaleX(1.15); }
+  90%  { transform: translate(360px, 135px) scaleX(1); }
+  100% { transform: translate(360px, 135px) scaleX(1); }
+}
+
+.cat-leg { transform-box: fill-box; transform-origin: 50% 0; }
+.cat-cat--seq .cat-leg--bl { animation: cat-leg-front 0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--br { animation: cat-leg-back  0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--fl { animation: cat-leg-back  0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--fr { animation: cat-leg-front 0.65s ease-in-out infinite; }
+@keyframes cat-leg-front { 0%,100% { transform: rotate(0); } 50% { transform: rotate(25deg); } }
+@keyframes cat-leg-back  { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-25deg); } }
+
+.cat-tail { animation: cat-tail 0.7s ease-in-out infinite; transform-box: fill-box; transform-origin: 0% 100%; }
+@keyframes cat-tail { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(15deg); } }
+
+.cat-bubble { transition: opacity 0.4s ease; }
+.cat-bubble--pop { animation: cat-bubble-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); transform-box: fill-box; transform-origin: 14px 100%; }
+@keyframes cat-bubble-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.cat-pet {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  margin: 0.6rem auto 0; padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(30, 58, 138, 0.4));
+  border: 1px solid rgba(96, 165, 250, 0.5); border-radius: 9999px;
+  color: #dbeafe; font-family: inherit; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+.cat-pet:hover { transform: translateY(-2px); border-color: #3b82f6; box-shadow: 0 12px 24px -10px rgba(59, 130, 246, 0.5); }
+.cat-pet.is-active { transform: scale(0.95); }
+
+.cat-nav {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+  margin: 0 0 2.5rem; padding: 0.85rem;
+  background: rgba(10, 26, 53, 0.6); border: 1px solid rgba(30, 58, 138, 0.5);
+  border-radius: 0.85rem; position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(10px);
+}
+.cat-nav__pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.85rem; border-radius: 9999px;
+  background: rgba(30, 58, 138, 0.3); border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #bfdbfe; text-decoration: none; font-size: 0.78rem; font-weight: 600;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+.cat-nav__pill:hover {
+  transform: translateY(-1px); background: rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6; color: #fff;
+}
+
+.cat-section { margin: 0 0 3.5rem; scroll-margin-top: 6rem; }
+.cat-section__head {
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;
+  background: linear-gradient(90deg, rgba(30, 58, 138, 0.35), rgba(10, 26, 53, 0.45) 70%);
+  border-left: 4px solid #3b82f6; border-radius: 0.6rem;
+}
+.cat-section__ico {
+  font-size: 2.2rem; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+  animation: cat-ico-float 4s ease-in-out infinite;
+}
+@keyframes cat-ico-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px) rotate(-3deg); }
+}
+.cat-section__head h2 { margin: 0; font-size: 1.4rem; color: #fff; font-weight: 800; }
+.cat-section__head p { margin: 0.3rem 0 0; color: #bfdbfe; font-size: 0.95rem; line-height: 1.55; }
+
+.cat-tools {
+  display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin: 1.25rem 0;
+}
+@media (min-width: 640px)  { .cat-tools { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .cat-tools { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1400px) { .cat-tools { grid-template-columns: repeat(4, 1fr); } }
+
+.cat-tool {
+  position: relative; padding: 1rem 1.15rem;
+  background: rgba(10, 26, 53, 0.55);
+  border: 1px solid rgba(30, 58, 138, 0.5);
+  border-left: 3px solid #1d4ed8; border-radius: 0.6rem;
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+  overflow: hidden;
+}
+.cat-tool::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1), transparent 60%);
+  opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+}
+.cat-tool:hover {
+  transform: translateY(-2px);
+  border-left-color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 22px -10px rgba(59, 130, 246, 0.35);
+}
+.cat-tool:hover::before { opacity: 1; }
+.cat-tool h4 { margin: 0 0 0.35rem; color: #60a5fa; font-size: 0.96rem; font-weight: 700; }
+.cat-tool p { margin: 0; color: #bfdbfe; line-height: 1.5; font-size: 0.85rem; }
+.cat-tool p em { font-style: italic; color: #60a5fa; }
+
+.cat-toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+  border: 1px solid #60a5fa; border-radius: 9999px;
+  color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88rem; font-weight: 600; letter-spacing: 0.04em;
+  box-shadow: 0 14px 36px -10px rgba(59, 130, 246, 0.6); z-index: 1000;
+  animation: cat-toast-in 0.35s ease-out;
+}
+.cat-toast.is-out { animation: cat-toast-out 0.4s ease-in forwards; }
+@keyframes cat-toast-in {
+  from { transform: translateX(-50%) translateY(40px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes cat-toast-out {
+  to { transform: translateX(-50%) translateY(40px); opacity: 0; }
+}
+
+.cat-foot {
+  margin: 2rem 0 0; padding: 1.25rem 1.5rem;
+  background: rgba(10, 26, 53, 0.55);
+  border: 1px solid rgba(30, 58, 138, 0.5); border-radius: 0.75rem; text-align: center;
+}
+.cat-foot p { margin: 0; color: #bfdbfe; line-height: 1.55; font-size: 0.92rem; }
+.cat-foot a { color: #60a5fa; text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-cat, .cat-tail, .cat-leg, .cat-bubble,
+  .cat-section__ico, .cat-bg__yarn span {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+`}
+</style>

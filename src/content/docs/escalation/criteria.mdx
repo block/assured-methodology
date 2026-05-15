@@ -1,0 +1,212 @@
+---
+title: "Criteria for escalation"
+description: "Confirmed malicious activity, business-critical systems, lateral movement / exfiltration, ongoing campaigns. The four canonical categories that trigger escalation."
+slug: "escalation/criteria"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="01" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Escalation criteria are pre-defined thresholds. When they are met, the case escalates regardless of analyst judgment in the moment. Criteria turn the SOC's collective wisdom into a default that holds up under pressure."/>
+
+<PillNav chapter="escalation" label="Escalation chapter" current="/docs/escalation/criteria" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+## Four canonical categories
+
+<div class="cat-grid">
+  <a href="#malicious" class="cat-card"><h4>✅ Confirmed malicious activity</h4><p>Validated IOCs reliably linked to attacker behavior. Triage moves into containment posture.</p></a>
+  <a href="#high-impact" class="cat-card"><h4>💎 High impact / business-critical</h4><p>Systems essential to operations, regulated data, or revenue. Impact-driven escalation independent of evidence depth.</p></a>
+  <a href="#lateral" class="cat-card"><h4>↔️ Lateral movement or exfiltration</h4><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
+  <a href="#campaign" class="cat-card"><h4>🌐 Ongoing or widespread campaign</h4><p>Multiple hosts, users, or sectors. Coordinated activity demanding organization-level response.</p></a>
+</div>
+
+---
+
+<h2 id="malicious">✅ Confirmed malicious activity</h2>
+
+Escalation is warranted when definitive evidence ties the event to attacker behavior. Confirmed malicious activity reflects intentional use of tactics, techniques, and procedures aligned with known <DefineTerm term="Threat" display="threat" /> actors or campaigns.
+
+<div class="malicious-grid">
+  <div class="malicious-card">
+    <h4>Verified malicious infrastructure</h4>
+    <p>IP addresses or domains associated with known command-and-control servers, phishing sites, or other malicious infrastructure documented in threat-intelligence sources.</p>
+  </div>
+  <div class="malicious-card">
+    <h4>Malware indicators</h4>
+    <p>File hashes matching malware or unauthorized tools documented in threat-intelligence databases, with verified malicious functionality.</p>
+  </div>
+  <div class="malicious-card">
+    <h4>Exploitation evidence</h4>
+    <p>Execution of attacker tools or exploits consistent with known malware families or attacker profiles, showing intentional compromise.</p>
+  </div>
+  <div class="malicious-card">
+    <h4>MITRE ATT&amp;CK correlation</h4>
+    <p>Use of techniques mapped to MITRE ATT&CK categories such as privilege escalation, persistence, or defense evasion. The framework gives the activity structured context.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Correlation over single signals">
+When evaluating potential malicious activity, security analysts must correlate multiple data points to confirm true positives. Internal threat-hunting results combined with external <DefineTerm term="Threat Intelligence" display="threat intelligence" /> indicating active targeting of the organization provide strong validation. Behavioral patterns consistent with attacker playbooks or distinct phases of the intrusion kill chain suggest coordinated malicious intent rather than isolated anomalies.
+</Callout>
+
+---
+
+<h2 id="high-impact">💎 High impact / business-critical systems affected</h2>
+
+When an event affects systems essential to operations, <DefineTerm term="Regulatory Compliance" display="regulatory compliance" />, or <DefineTerm term="Sensitive Data" display="sensitive data" /> protection, escalation must be immediate and comprehensive. Business-critical systems support mission-critical services, store regulated data, or perform functions whose disruption could cause substantial operational, financial, or reputational harm.
+
+<div class="impact-targets">
+  <div class="impact-target">
+    <h4>🏭 Production environments</h4>
+    <p>Systems directly impacting revenue generation or customer experience. Compromise can result in service degradation, financial losses, and customer dissatisfaction.</p>
+  </div>
+  <div class="impact-target">
+    <h4>📋 Regulated data repositories</h4>
+    <p>Databases containing PII, PHI, or payment card data. Heightened scrutiny due to compliance violations and mandatory breach-reporting under GDPR, HIPAA, PCI DSS, SOX.</p>
+  </div>
+  <div class="impact-target">
+    <h4>☁️ Cloud infrastructure</h4>
+    <p>Cloud environments hosting critical workloads, particularly those with privileged access or extensive connections to organizational data.</p>
+  </div>
+  <div class="impact-target">
+    <h4>🔑 Identity and access systems</h4>
+    <p>Identity providers (IdPs), authentication services, VPNs. Compromise here could impact the entire organization's secure-access infrastructure, enabling widespread unauthorized access.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Cross-functional coordination required">
+Business-critical systems often require cross-functional coordination involving IT operations, compliance, and executive stakeholders. Failure to properly escalate and address security events affecting these systems can result in significant penalties, regulatory sanctions, and reputation damage.
+</Callout>
+
+---
+
+<h2 id="lateral">↔️ Lateral movement or data exfiltration detected</h2>
+
+The detection of <DefineTerm term="Lateral Movement" display="lateral movement" /> or <DefineTerm term="Data Exfiltration" display="data exfiltration" /> signifies an advanced stage of compromise. Attackers leveraging lateral movement expand control beyond the initially <DefineTerm term="Compromised Host" display="compromised host" />. Data exfiltration indicates intent to steal information with regulatory and business consequences.
+
+### Stages of compromise
+
+<div class="stages-grid">
+  <div class="stage-card">
+    <span class="stage-card__num">01</span>
+    <h4>Initial compromise</h4>
+    <p>Attacker gains foothold on a single system. Triage usually starts here.</p>
+  </div>
+  <div class="stage-card">
+    <span class="stage-card__num">02</span>
+    <h4>Internal reconnaissance</h4>
+    <p>Discovery of additional network resources. Often the earliest expansion signal.</p>
+  </div>
+  <div class="stage-card">
+    <span class="stage-card__num">03</span>
+    <h4>Lateral movement</h4>
+    <p>Expansion to additional systems. Blast radius now exceeds triage capacity.</p>
+  </div>
+  <div class="stage-card">
+    <span class="stage-card__num">04</span>
+    <h4>Data exfiltration</h4>
+    <p>Extraction of valuable information. Regulatory clocks may already be running.</p>
+  </div>
+</div>
+
+<Reveal summary="Lateral-movement signs that demand immediate escalation" variant="warn">
+
+- **<DefineTerm term="Unauthorized Access" display="Unauthorized access" />** to multiple endpoints or servers beyond the initial compromise.
+- **<DefineTerm term="Credential Dumping" display="Credential dumping" /> (T1003) followed by credential-use techniques** like <DefineTerm term="Pass-the-Hash" display="pass-the-hash" /> (T1550.002) or <DefineTerm term="Pass-the-Ticket" display="pass-the-ticket" /> (T1550.003). Dumping extracts the hash or Kerberos ticket; pass-the-hash/ticket is the subsequent use of the stolen material to authenticate as that identity. Both stages on the same case is a strong escalation signal.
+- **Internal reconnaissance** via <DefineTerm term="PowerShell" />, WMI, or PsExec to gather network topology.
+- **Suspicious lateral connections** at unusual hours or from unexpected source systems.
+- **Tunneling mechanisms** designed to hide communication between compromised hosts.
+- **Large data transfers** to external destinations, especially with encryption or <DefineTerm term="Obfuscation" display="obfuscation" />.
+
+Escalation enables <DefineTerm term="Network Segmentation" display="network segmentation" />, <DefineTerm term="Credential" display="credential" /> rotation, and <DefineTerm term="Endpoint" display="endpoint" /> isolation. The presence of these techniques demonstrates attacker sophistication and intent that extends beyond opportunistic exploitation to targeted data theft or persistent access.
+
+</Reveal>
+
+---
+
+<h2 id="campaign">🌐 Ongoing or widespread attack campaign</h2>
+
+Attack campaigns requiring rapid escalation indicate sustained adversary presence or coordinated efforts targeting multiple assets. Early recognition allows organizational-level response and deployment of enhanced defensive measures.
+
+<div class="campaign-grid">
+  <div class="campaign-card">
+    <h4>Related alerts across systems</h4>
+    <p>Multiple alerts showing similar IOCs or attack techniques across different systems or locations within a short timeframe suggest coordination by a single threat actor or group.</p>
+  </div>
+  <div class="campaign-card">
+    <h4>Coordinated attack patterns</h4>
+    <p>Distributed phishing campaigns, simultaneous ransomware deployment attempts, or waves of brute force suggest orchestrated activity using sophisticated infrastructure designed for scale.</p>
+  </div>
+  <div class="campaign-card">
+    <h4>Evasive techniques</h4>
+    <p>Polymorphic malware or rapidly evolving techniques suggest adversaries actively modifying their approach to bypass controls. Adaptive threats require equally adaptive response.</p>
+  </div>
+  <div class="campaign-card">
+    <h4>Threat intelligence context</h4>
+    <p>External intel feeds correlating local detections with known campaigns targeting your industry or region. Contextual alignment substantially increases risk profile and response urgency.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Campaign-level escalation enables system-wide defense">
+Escalating events with these characteristics enables organization-wide defensive measures, coordinated response activities, and potential engagement with industry partners or law enforcement. Timely elevation allows security leadership to mobilize resources, implement strategic countermeasures, and collaborate with external entities when necessary.
+</Callout>
+
+---
+
+## Risk impact and likelihood reference
+
+A formal <DefineTerm term="Risk Assessment" display="risk assessment" /> combines potential impact and likelihood that the compromise will continue or worsen. The matrix below provides a quick reference for evaluating escalation thresholds.
+
+<div class="impact-table">
+  <div class="it-row it-row--header"><span>Risk factor</span><span>Low</span><span>Medium</span><span>High</span></div>
+  <div class="it-row"><span class="it-row__label">Business impact</span><span>Minimal effect, no sensitive data exposure</span><span>Limited service disruption, potential regulatory concern</span><span>Critical service outage, confirmed data breach, regulatory violation</span></div>
+  <div class="it-row"><span class="it-row__label">Asset criticality</span><span>Non-production, isolated system</span><span>Supporting infrastructure, limited data access</span><span>Core business systems, sensitive data repositories</span></div>
+  <div class="it-row"><span class="it-row__label">Attacker persistence</span><span>One-time exploitation attempt</span><span>Basic persistence mechanisms</span><span>Multiple redundant access methods, advanced persistence</span></div>
+  <div class="it-row"><span class="it-row__label">Actor sophistication</span><span>Common tooling, known vulnerabilities</span><span>Moderate evasion, some customization</span><span>Zero-day exploitation, custom malware, anti-forensics</span></div>
+</div>
+
+<KeyTakeaway>
+Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. Use them as the default; override only with documented reasoning grounded in the same evidence Risk evaluated.
+</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/protocols" nextLabel="Internal and external protocols" ctaLabel="Read protocols" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.cat-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .cat-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
+.cat-card { display: block; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.22); border-left: 3px solid #6366f1; border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+.cat-card:hover { transform: translateY(-2px); border-color: #6366f1; box-shadow: 0 12px 24px -14px rgba(99, 102, 241, 0.35); }
+.cat-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
+.cat-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.85rem; }
+
+.malicious-grid, .impact-targets, .campaign-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .malicious-grid, .impact-targets, .campaign-grid { grid-template-columns: 1fr 1fr; } }
+.malicious-card, .impact-target, .campaign-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.6rem; }
+.malicious-card h4, .impact-target h4, .campaign-card h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.97rem; }
+.malicious-card p, .impact-target p, .campaign-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.stages-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .stages-grid { grid-template-columns: repeat(4, 1fr); } }
+.stage-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+.stage-card__num { position: absolute; top: 0.85rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.6); }
+.stage-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
+.stage-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.86rem; }
+
+.impact-table { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
+.it-row { display: grid; grid-template-columns: 1fr; padding: 0.85rem 1.15rem; border-top: 1px solid rgba(148, 163, 184, 0.15); color: #cbd5e1; font-size: 0.86rem; line-height: 1.5; }
+.it-row:first-child { border-top: 0; }
+@media (min-width: 900px) { .it-row { grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 1rem; } }
+.it-row--header { background: rgba(99, 102, 241, 0.12); color: #a5b4fc; font-weight: 700; font-size: 0.83rem; }
+.it-row__label { color: #f8fafc; font-weight: 700; }
+`}</style>

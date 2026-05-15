@@ -1,6 +1,5 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import remarkGfm from 'remark-gfm';
@@ -10,18 +9,19 @@ import icon from "astro-icon";
 
 // https://astro.build/config
 export default defineConfig({
-  
+
   site: 'https://block.github.io',
-  base: '/', 
-  
+  base: '/',
+  redirects: {
+    '/docs/overview': '/docs/intro',
+  },
+
   integrations: [
     icon(),
     mdx({
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
-      //extendDefaultPlugins: true
-    }), 
-    react(),
+    }),
   ],
   markdown: {
     remarkPlugins: [remarkGfm],

@@ -1,0 +1,791 @@
+---
+title: "Data sources for evidence gathering"
+description: "15+ telemetry sources an Uncover investigation pulls from. What each one captures, when to reach for it, and where its visibility ends."
+slug: "uncover/data-sources"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="01"
+  pillarLabel="04"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="Most investigations need evidence from multiple telemetry surfaces. Knowing which source captures which question is the prerequisite to running fast, focused queries instead of broad ones."
+/>
+
+<PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/data-sources" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+## Four principles before any source
+
+Before picking a source, four properties shape whether the evidence gathered will be usable later.
+
+<div class="principles-grid">
+  <div class="principle-card">
+    <span class="principle-card__num">01</span>
+    <h4>Comprehensive coverage</h4>
+    <p>Visibility across endpoints, networks, identities, and cloud is what captures the full attack lifecycle. Gaps in any layer become blind spots that adversaries exploit.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">02</span>
+    <h4>Contextual analysis</h4>
+    <p>Sources matter most when combined. Endpoint telemetry plus identity logs plus network flows produces a story none of them tell alone.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">03</span>
+    <h4>Historical depth</h4>
+    <p>Sophisticated attacks unfold over weeks or months. Sources that retain only days of data cannot answer "did this start before the alert?" Retention shapes what is even possible.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">04</span>
+    <h4>Data integrity</h4>
+    <p>Evidence that may end up in legal or regulatory proceedings has to be tamper-evident and chain-of-custody preserved. Integrity is what makes findings durable.</p>
+  </div>
+</div>
+
+---
+
+## The sources at a glance
+
+<div class="src-grid">
+  <a href="#security-logs" class="src"><h4>📋 Security event logs</h4><p>SIEM-collected events from across the environment.</p></a>
+  <a href="#edr" class="src"><h4>💻 EDR logs</h4><p>Process creation, command lines, file changes at the endpoint level.</p></a>
+  <a href="#network" class="src"><h4>🌐 Network traffic</h4><p>NetFlow, DNS, proxy, firewall. What the wire saw.</p></a>
+  <a href="#iam" class="src"><h4>🔑 Identity and access</h4><p>Authentication, SSO, role assumption, privilege grants.</p></a>
+  <a href="#cloud" class="src"><h4>☁️ Cloud activity</h4><p>CloudTrail, Azure Activity, GCP audit. API and configuration.</p></a>
+  <a href="#ti" class="src"><h4>🧠 Threat intelligence</h4><p>IOCs and TTPs from external sources. Hypothesis fuel.</p></a>
+  <a href="#vuln" class="src"><h4>🛡️ Vulnerability &amp; patch</h4><p>What is exposed and what is patched.</p></a>
+  <a href="#fim" class="src"><h4>📁 File integrity (FIM)</h4><p>Tampering signals for critical files and configs.</p></a>
+  <a href="#email" class="src"><h4>📧 Email security</h4><p>Inbound/outbound mail metadata, attachment scanning, URL rewriting.</p></a>
+  <a href="#appdb" class="src"><h4>🗄️ Application &amp; database</h4><p>Row-level access, query history, business-logic evidence.</p></a>
+  <a href="#cmdb" class="src"><h4>📚 Asset &amp; configuration</h4><p>What exists, who owns it, what it does.</p></a>
+  <a href="#dlp" class="src"><h4>🚫 Data loss prevention</h4><p>What sensitive data moved where.</p></a>
+  <a href="#deception" class="src"><h4>🍯 Deception</h4><p>Honeypot interactions: high-confidence adversary signal.</p></a>
+  <a href="#backup" class="src"><h4>💾 Backup &amp; snapshot</h4><p>When systems were last clean. Sabotage detection too.</p></a>
+  <a href="#physical" class="src"><h4>🏢 Physical security</h4><p>Badge swipes, camera events. Insider correlation.</p></a>
+</div>
+
+<Callout variant="info" title="The skill is not memorizing them all">
+The skill is asking "which source could answer this specific question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all fifteen.
+</Callout>
+
+---
+
+<h2 id="security-logs">📋 Security event and incident logs</h2>
+
+Logs from firewalls, IDS/IPS, web proxies, and SIEM platforms. They give the high-level view of network-wide security activity and are often the first indicator of anomalous behavior. They capture <DefineTerm term="Port" display="port" /> scans, policy violations, <DefineTerm term="Malware" display="malware" /> alerts, <DefineTerm term="Unauthorized Access" display="unauthorized access" /> attempts, and correlation outputs.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Establishing the initial alert trail and identifying upstream/downstream events.</li>
+      <li>Mapping relationships across systems based on alert correlation.</li>
+      <li>Reviewing alert fidelity and triage metadata.</li>
+      <li>Creating comprehensive timelines of security events across the environment.</li>
+      <li>Identifying patterns that suggest coordinated attack campaigns.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Alert volume includes significant noise and false-positives.</li>
+      <li>Limited context without enrichment from other sources.</li>
+      <li>Ingestion lag and misconfigured sources create timing gaps.</li>
+      <li>Missing events when logging levels are not properly configured.</li>
+      <li>Normalization challenges across heterogeneous security products.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="edr">💻 Endpoint detection and response logs</h2>
+
+EDR platforms monitor <DefineTerm term="Endpoint" display="endpoint" /> activity in real time. Process creation, parent-child relationships, registry changes, file system activity, network connections, memory <DefineTerm term="Execution" display="execution" />. This data lets analysts reconstruct attacker behavior at a granular level, from initial execution to <DefineTerm term="Lateral Movement" display="lateral movement" /> and <DefineTerm term="Persistence" display="persistence" />.
+
+<Reveal summary="Key EDR data points" variant="info">
+
+- Process execution with full command-line arguments
+- Parent-child <DefineTerm term="Process Relationships" display="process relationships" /> and process-tree visualization
+- File creation, modification, and deletion events
+- Registry modifications and persistence-mechanism creation
+- Network connection attempts with destination information
+- Memory manipulation and code-injection attempts
+- <DefineTerm term="User Account" display="User account" /> activity and privilege-elevation events
+
+</Reveal>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Identifying execution chains and suspicious child processes.</li>
+      <li>Detecting unauthorized file modifications or malicious payloads.</li>
+      <li>Investigating persistence mechanisms or privilege misuse.</li>
+      <li>Reconstructing attack timelines at the endpoint level.</li>
+      <li>Validating suspicious network connections seen in other logs.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Requires agent deployment and tuning for full visibility.</li>
+      <li>May not record benign LOLBins used maliciously (wmic, rundll32).</li>
+      <li>Limited or no coverage for unmanaged or BYOD endpoints.</li>
+      <li>Performance impact on endpoints if not optimized.</li>
+      <li>Storage and retention constraints for high-volume telemetry.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="network">🌐 Network traffic and communication logs</h2>
+
+Network <DefineTerm term="Telemetry" display="telemetry" /> covers how data moves across internal and external environments: <DefineTerm term="NetFlow" />, DNS, full packet capture (PCAP), proxy and web gateway logs. Analysts use it to trace lateral movement, identify C2 channels, detect <DefineTerm term="Beaconing" display="beaconing" />, and examine <DefineTerm term="Data Exfiltration" display="data exfiltration" />. Network logs are essential for anomalies that endpoints cannot see, such as DGA <DefineTerm term="Traffic" display="traffic" /> or external callbacks from stealthy malware.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Tracing the source or destination of suspicious traffic.</li>
+      <li>Detecting exfiltration techniques (DNS tunneling, HTTPS uploads).</li>
+      <li>Correlating DNS or proxy logs to identify attacker infrastructure.</li>
+      <li>Mapping lateral movement patterns across the network.</li>
+      <li>Identifying beaconing or periodic communication indicative of C2.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Full PCAP is storage-intensive; retention is often short.</li>
+      <li>TLS encryption obscures payload content without decryption.</li>
+      <li>Requires baselining to distinguish normal from abnormal.</li>
+      <li>Cloud and remote-work environments create visibility gaps.</li>
+      <li>High-volume environments may require sampling.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="iam">🔑 User identity and access management logs</h2>
+
+Logs from identity providers (Active Directory, <DefineTerm term="Okta" />, Azure AD), SSO platforms, MFA systems, and directory services. Login attempts, access denials, role escalations, <DefineTerm term="Password" display="password" /> resets, <DefineTerm term="Token" display="token" /> activity. Critical for account compromise, <DefineTerm term="Password Spraying" display="password spraying" />, session hijacking, and unauthorized access.
+
+<div class="iam-grid">
+  <div class="iam-card">
+    <h4>User authentication</h4>
+    <p>Login attempts, successes, failures, lockouts across identity systems. Reveals brute force or credential stuffing.</p>
+  </div>
+  <div class="iam-card">
+    <h4>Privilege management</h4>
+    <p>Role assignments, permission changes, elevation requests. The path of any privilege-escalation attempt.</p>
+  </div>
+  <div class="iam-card">
+    <h4>MFA activities</h4>
+    <p>Enrollment, verification, bypass attempts. The trail of sophisticated account-takeover tactics.</p>
+  </div>
+  <div class="iam-card">
+    <h4>Session management</h4>
+    <p>Token issuance, validation, expiration. Helps detect token theft and session manipulation.</p>
+  </div>
+</div>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Validating whether access to sensitive systems was legitimate.</li>
+      <li>Detecting anomalies (logins at odd hours or unfamiliar locations).</li>
+      <li>Investigating failed authentication, lockouts, or MFA bypass.</li>
+      <li>Tracking privilege escalation across user accounts.</li>
+      <li>Correlating identity events with endpoint and network activity.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Often no detail on activity inside applications post-authentication.</li>
+      <li>Federated/hybrid environments fragment session tracking.</li>
+      <li>Inconsistent logging formats across identity platforms.</li>
+      <li>Limited historical context for behavior baselines.</li>
+      <li>Hard to distinguish legitimate from malicious in some scenarios.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="cloud">☁️ Cloud activity and configuration logs</h2>
+
+Cloud-native logs: <DefineTerm term="AWS CloudTrail" />, Azure Activity Logs, GCP Audit Logs. API calls, configuration changes, login activity, resource provisioning. Foundational for detecting cloud misconfigurations, account abuse, <DefineTerm term="Privilege Escalation" display="privilege escalation" />, and exposure of cloud storage or compute.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Tracking IAM changes (user/role creation, key usage, permission escalation).</li>
+      <li>Auditing bucket and compute resource policies.</li>
+      <li>Investigating provisioning of new cloud resources.</li>
+      <li>Detecting exfiltration through cloud storage or automation.</li>
+      <li>Reconstructing actions across multiple cloud accounts.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Logging may not be enabled by default; needs explicit configuration.</li>
+      <li>Interpretation requires familiarity with each provider's services.</li>
+      <li>Rapid provisioning/de-provisioning complicates timeline reconstruction.</li>
+      <li>Logging granularity varies across services.</li>
+      <li>Cost considerations limit retention and collection scope.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="ti">🧠 Threat intelligence and IOC feeds</h2>
+
+Structured data on known malicious indicators: domains, IPs, <DefineTerm term="Hashes" display="hashes" />, URLs. Commercial, community, or internal. Matching internal activity against these indicators lets analysts assess credibility quickly and link activity to known malware families or <DefineTerm term="Threat" display="threat" /> actors.
+
+<Callout variant="info" title="Source mix matters">
+Commercial providers offer curated, high-confidence indicators with context, at higher cost. Open-source feeds are broader but noisier. Industry ISACs deliver sector-specific <DefineTerm term="Intelligence" display="intelligence" />. The best programs balance multiple sources and apply explicit validation. Treat threat intel as a hypothesis source, not a verdict.
+</Callout>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Enriching indicators (hash, domain) with threat-actor attribution.</li>
+      <li>Prioritizing activity involving known malicious infrastructure.</li>
+      <li>Correlating internal observations with campaign data or bulletins.</li>
+      <li>Expanding searches via related indicators in the same campaign.</li>
+      <li>Supporting executive communication on threat context and impact.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Includes outdated or overused indicators (sandbox IPs, expired domains).</li>
+      <li>False-positives from benign reuse of known infrastructure.</li>
+      <li>Presence of an IOC does not confirm compromise; requires validation.</li>
+      <li>Coverage gaps for emerging threats or sophisticated actors.</li>
+      <li>Hard to operationalize at scale without automation.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="vuln">🛡️ Vulnerability and patch management logs</h2>
+
+Logs from scanners (<DefineTerm term="Qualys" />, <DefineTerm term="Tenable" />, Nexpose) and <DefineTerm term="Patch Management" display="patch management" /> (Microsoft Configuration Manager (MECM, formerly SCCM), WSUS). Exposed vulnerabilities, patch application status, security baselines. Paired with <DefineTerm term="Threat Intelligence" display="threat intelligence" /> and <DefineTerm term="Exploit" display="exploit" /> telemetry, they help identify at-risk systems and likely exploit vectors.
+
+<Reveal summary="Key vulnerability data points" variant="info">
+
+- CVE identifiers and <DefineTerm term="Vulnerability" display="vulnerability" /> descriptions
+- CVSS scores and severity ratings
+- Exploit availability and complexity assessment
+- Affected software versions and components
+- Remediation status and patch application history
+- Asset exposure duration (time since vulnerability discovery)
+- Compensating controls and <DefineTerm term="Mitigation" display="mitigation" /> status
+
+</Reveal>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Determining if exploited CVEs are present in the environment.</li>
+      <li>Verifying which systems are unpatched or missing mitigations.</li>
+      <li>Supporting risk-based prioritization of remediation.</li>
+      <li>Identifying likely attack vectors based on known vulnerabilities.</li>
+      <li>Assessing exploitability of systems involved in incidents.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Scan coverage may be incomplete or outdated.</li>
+      <li>Vulnerability databases produce false-positives.</li>
+      <li>Patch status does not always equal exploit prevention.</li>
+      <li>Limited visibility into zero-day or freshly disclosed vulns.</li>
+      <li>Hard to correlate vulnerability data with actual exploitation evidence.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="fim">📁 File integrity monitoring (FIM)</h2>
+
+FIM tools record unauthorized or unexpected changes to files, directories, registries, and configurations. They are used to detect tampering with critical system files, injection of malicious binaries, or modification of application code. They work by comparing files against known baselines and alerting on deviations.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Detecting unauthorized changes to system binaries or config files.</li>
+      <li>Identifying tampering attempts post-intrusion.</li>
+      <li>Confirming presence of malware implants or backdoors.</li>
+      <li>Tracking modifications to sensitive application code.</li>
+      <li>Validating whether critical security controls were disabled.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Noisy if baselines are not properly tuned.</li>
+      <li>Does not always distinguish legitimate from malicious changes.</li>
+      <li>Real-time monitoring can be resource-intensive.</li>
+      <li>Blind to memory-only or fileless attacks.</li>
+      <li>Hard to maintain in dynamic environments with frequent change.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="email">📧 Email security logs</h2>
+
+Logs from Secure Email Gateways (SEGs), spam filters, and <DefineTerm term="Phishing" display="phishing" />-detection platforms. Sender domains, attachment hashes, headers, click-through behavior on malicious links. Email is still one of the top initial-access vectors; these logs are invaluable for tracing the origin of many incidents.
+
+<Reveal summary="Key email security data points" variant="info">
+
+- Sender information (email, <DefineTerm term="Domain" display="domain" />, IP, <DefineTerm term="Geolocation" display="geolocation" />)
+- Authentication results (SPF, DKIM, DMARC)
+- Subject lines and content snippets
+- Attachment details (filename, type, size, hash)
+- Embedded URL information and reputation scores
+- <DefineTerm term="User" /> interaction data (opens, clicks, forwards, replies)
+- Detection verdicts and quarantine actions
+
+</Reveal>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Tracing suspected phishing campaigns or credential harvesting.</li>
+      <li>Reviewing user interaction with malicious links or attachments.</li>
+      <li>Identifying targeted users or high-risk email behaviors.</li>
+      <li>Correlating email-based attacks with other security events.</li>
+      <li>Assessing scope and impact of email-based threats.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Limited visibility into content without sandboxing or deep inspection.</li>
+      <li>Missed threats in encrypted attachments or spoofed headers.</li>
+      <li>Logs may not track behavior outside the gateway (forwarding).</li>
+      <li>Sophisticated social engineering can lack obvious indicators.</li>
+      <li>Personal email on corporate devices is often invisible.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="appdb">🗄️ Application and database logs</h2>
+
+Application and database logs offer visibility into use and abuse of business-critical systems. Transaction anomalies, privilege escalations, <DefineTerm term="SQL Injection" display="SQL injection" /> attempts, unauthorized queries. Particularly useful for investigating data breaches or access to sensitive records.
+
+<div class="appdb-grid">
+  <div class="appdb-card">
+    <h4>Authentication events</h4>
+    <p>Login attempts, session management, role and permission changes, account lockouts, password resets.</p>
+  </div>
+  <div class="appdb-card">
+    <h4>Data access activities</h4>
+    <p>Query execution, record CRUD operations, bulk exports, access to sensitive fields.</p>
+  </div>
+  <div class="appdb-card">
+    <h4>System operations</h4>
+    <p>Configuration changes, backups and restores, schema modifications, integration API calls.</p>
+  </div>
+</div>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Investigating activity within custom or sensitive applications.</li>
+      <li>Detecting unauthorized queries or privilege escalation.</li>
+      <li>Confirming access to regulated or sensitive data sets.</li>
+      <li>Tracing the business impact of technical compromises.</li>
+      <li>Establishing evidence for breach notification or compliance.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Logging is inconsistent and application-specific.</li>
+      <li>Volume and format may need specialized parsing.</li>
+      <li>Often not integrated into centralized SIEM workflows.</li>
+      <li>Variable logging levels omit critical security events.</li>
+      <li>Limited historical retention for performance reasons.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="cmdb">📚 Configuration management and asset inventory</h2>
+
+ServiceNow CMDB, <DefineTerm term="Lansweeper" />, AWS Config. Current and historical asset state: ownership, software versions, hardware specs, business functions. Analysts use these to assess <DefineTerm term="Asset Criticality" display="asset criticality" />, validate baselines, and map IPs/hostnames to physical or virtual systems.
+
+<Reveal summary="Key asset data elements" variant="info">
+
+- System identifiers (hostname, IP, MAC, asset tag)
+- Hardware specifications and physical location
+- Installed software inventory and versions
+- Operating system details and patch levels
+- Ownership and responsible teams
+- Business criticality and data classification
+- Network segment and security zone information
+- Relationships and dependencies with other systems
+
+</Reveal>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Identifying asset owners for follow-up or scope assessment.</li>
+      <li>Verifying whether a system is production, test, or abandoned.</li>
+      <li>Understanding intended vs. actual configuration state.</li>
+      <li>Determining system criticality and potential business impact.</li>
+      <li>Mapping network addresses to physical or virtual assets.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>CMDB entries become stale without regular maintenance.</li>
+      <li>Gaps in asset tagging significantly reduce effectiveness.</li>
+      <li>Often disconnected from real-time security event data.</li>
+      <li>Limited visibility into cloud or shadow IT resources.</li>
+      <li>Difficult to maintain in highly dynamic environments.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="dlp">🚫 Data loss prevention (DLP)</h2>
+
+DLP platforms monitor and control <DefineTerm term="Sensitive Data" display="sensitive data" /> movement across endpoints, email, cloud, and network. They <DefineTerm term="Log" display="log" /> when protected information (PII, IP, source code, financial data) is accessed, transferred, or potentially exfiltrated.
+
+<div class="dlp-grid">
+  <div class="dlp-card">
+    <h4>📧 Email DLP</h4>
+    <p>Outbound email and attachment monitoring. Detects sensitive content leaving via corporate or personal mail channels.</p>
+  </div>
+  <div class="dlp-card">
+    <h4>💻 Endpoint DLP</h4>
+    <p>File operations, clipboard use, device transfers on workstations. Identifies unauthorized data handling at the user level.</p>
+  </div>
+  <div class="dlp-card">
+    <h4>🌐 Network DLP</h4>
+    <p>Inspects traffic for sensitive content. Catches unauthorized transfers over web upload, FTP, or other protocols.</p>
+  </div>
+  <div class="dlp-card">
+    <h4>☁️ Cloud DLP</h4>
+    <p>Monitors data movement to and between cloud services. Detects inappropriate sharing or storage of sensitive information.</p>
+  </div>
+</div>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Confirming whether sensitive data was accessed or exfiltrated.</li>
+      <li>Reviewing policy violations related to data movement.</li>
+      <li>Investigating unusual outbound transfers or clipboard use.</li>
+      <li>Assessing the scope and impact of data breaches.</li>
+      <li>Identifying unauthorized cloud-service usage.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>High false-positive rate from generic rule matching.</li>
+      <li>Can be bypassed by encrypted or obfuscated channels.</li>
+      <li>Requires well-tuned policies to avoid alert fatigue.</li>
+      <li>Limited visibility into unmanaged devices or networks.</li>
+      <li>Performance impact when scanning large volumes.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="deception">🍯 Deception and honeypot logs</h2>
+
+Deception platforms (Canary, Proofpoint Identity Threat Defense (formerly Illusive), Commvault ThreatWise (formerly TrapX)) deploy decoys throughout the environment: fake credentials, deceptive files, memory lures, simulated services. Because these decoys have no business use, interaction with them strongly indicates malicious activity. High-fidelity, low <DefineTerm term="False-Positive" display="false-positive" /> alerts.
+
+<div class="deception-grid">
+  <div class="deception-card">
+    <h4>🔑 Credential honeypots</h4>
+    <p>Fake user accounts, tokens, or access keys. Triggered alerts on authentication use reveal credential harvesting or brute force.</p>
+  </div>
+  <div class="deception-card">
+    <h4>🖥️ System decoys</h4>
+    <p>Simulated servers and workstations that appear legitimate. Detect lateral movement and reconnaissance with high confidence.</p>
+  </div>
+  <div class="deception-card">
+    <h4>📄 File lures</h4>
+    <p>Deceptive documents with enticing names placed strategically. Identify data theft attempts and reveal attacker interests.</p>
+  </div>
+  <div class="deception-card">
+    <h4>⚙️ Application honeypots</h4>
+    <p>Fake services that emulate production. Capture attacker techniques without risk to real assets.</p>
+  </div>
+</div>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Detecting lateral movement and credential harvesting.</li>
+      <li>Triggering high-fidelity alerts on credential reuse or scanning.</li>
+      <li>Assessing attacker intent through decoy interactions.</li>
+      <li>Gathering intelligence on attacker TTPs.</li>
+      <li>Creating detection for stealthy threats.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Requires realistic integration to avoid detection by attackers.</li>
+      <li>Rarely deployed comprehensively due to cost or complexity.</li>
+      <li>Attackers may avoid honeypots if they suspect their presence.</li>
+      <li>Maintenance overhead to keep decoys believable.</li>
+      <li>Limited effect on fully automated or scripted attacks.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="backup">💾 Backup and snapshot metadata</h2>
+
+<DefineTerm term="Veeam" />, <DefineTerm term="Druva" />, AWS Backup, EBS snapshots, Azure disk snapshots. Backup <DefineTerm term="Metadata" display="metadata" /> is both a forensic resource and a recovery lifeline. Investigators use it for historical context, detect sabotage attempts (deleted or encrypted backups, a common <DefineTerm term="Ransomware" display="ransomware" /> tactic), and check whether backup repositories were accessed.
+
+<Reveal summary="Key backup metadata elements" variant="info">
+
+- Backup job execution times and status
+- Systems and data included in each backup
+- Backup storage locations and retention periods
+- Verification and validation results
+- Access logs for backup management interfaces
+- Restoration testing activity
+- Modifications to backup policies or schedules
+
+</Reveal>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Confirming whether clean backups exist pre-compromise.</li>
+      <li>Detecting attempts to delete or encrypt backups.</li>
+      <li>Assessing recovery timelines.</li>
+      <li>Identifying forensic artifacts in historical snapshots.</li>
+      <li>Determining the earliest known clean state for affected systems.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Visibility limited to protected systems and storage.</li>
+      <li>May not include granular file-level logs.</li>
+      <li>Often managed by separate IT/Ops teams.</li>
+      <li>Coverage gaps for certain systems.</li>
+      <li>Incomplete metadata for cloud-based or offsite backups.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="physical">🏢 Physical security and access control logs</h2>
+
+Badge swipes, biometric authentication, visitor records, video surveillance, secure-zone access. These logs add a dimension digital telemetry cannot. By establishing the physical location of individuals at specific times, they help validate or refute hypotheses about who performed certain actions.
+
+<Callout variant="info" title="The classic insider correlation">
+If suspicious system access occurs while badge logs show the account owner was not physically present, that strongly suggests <DefineTerm term="Credential Theft" display="credential theft" /> rather than insider activity. Physical and digital correlation often shifts a case from "<DefineTerm term="Insider Threat" display="insider threat" />" to "compromised account" in a single query.
+</Callout>
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Correlating login times with building entry logs.</li>
+      <li>Investigating physical theft or insider access.</li>
+      <li>Validating whether activity was local vs. remote.</li>
+      <li>Confirming presence or absence during security events.</li>
+      <li>Identifying unauthorized physical access to secure areas.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Limited integration with SOC tools.</li>
+      <li>May not be real-time or centralized.</li>
+      <li>Access policies vary widely across facilities.</li>
+      <li>Badge sharing and tailgating compromise accuracy.</li>
+      <li>Disparate systems across geographies.</li>
+    </ul>
+  </div>
+</div>
+
+<KeyTakeaway>
+The skill is not knowing every source by heart. The skill is asking "which source could answer this question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all fifteen. The methodology asks the analyst to choose sources by question, not by habit.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence" nextLabel="Threat intelligence" nextDescription="Indicator matching, attribution, TTP-driven hunting, validation. How to use intel as a hypothesis source, not a verdict." ctaLabel="Read threat intelligence" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>
+{`
+.principles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .principles-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .principles-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.principle-card {
+  position: relative;
+  padding: 1.2rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: 0.7rem;
+}
+.principle-card__num {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.15rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(253, 186, 116, 0.6);
+}
+.principle-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.97rem; }
+.principle-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.src-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 640px)  { .src-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .src-grid { grid-template-columns: repeat(3, 1fr); } }
+.src {
+  display: block;
+  padding: 0.95rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.55rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.src:hover {
+  transform: translateY(-2px);
+  border-color: #f97316;
+  box-shadow: 0 12px 24px -14px rgba(249, 115, 22, 0.35);
+}
+.src h4 { margin: 0 0 0.3rem 0; color: #fdba74; font-size: 0.93rem; }
+.src p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.85rem; }
+
+.src-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px) { .src-detail { grid-template-columns: 1fr 1fr; } }
+
+.src-detail__col {
+  padding: 1.2rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.7rem;
+}
+.src-detail__col--use { border-top: 3px solid #22c55e; }
+.src-detail__col--limit { border-top: 3px solid #f59e0b; }
+
+.src-detail__col h4 {
+  margin: 0 0 0.55rem 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.src-detail__col--use h4 { color: #86efac; }
+.src-detail__col--limit h4 { color: #fbbf24; }
+
+.src-detail__col ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.iam-grid,
+.appdb-grid,
+.dlp-grid,
+.deception-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px)  { .iam-grid, .appdb-grid, .dlp-grid, .deception-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .iam-grid, .dlp-grid, .deception-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px) { .appdb-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.iam-card, .appdb-card, .dlp-card, .deception-card {
+  padding: 1rem 1.2rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.55rem;
+}
+.iam-card h4, .appdb-card h4, .dlp-card h4, .deception-card h4 {
+  margin: 0 0 0.3rem 0;
+  color: #fdba74;
+  font-size: 0.93rem;
+}
+.iam-card p, .appdb-card p, .dlp-card p, .deception-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.87rem;
+}
+`}
+</style>

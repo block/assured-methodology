@@ -1,0 +1,69 @@
+---
+/**
+ * GlossaryHero. Shared hero header for the three themed glossaries.
+ *
+ * Props supply the badge + title + acronym sub-text. The sub is rendered
+ * from a typed `subParts` array (string | { strong: string }) which JSX
+ * auto-escapes — there is no set:html sink anymore, so a future caller
+ * who passes user-derived or frontmatter content cannot introduce XSS.
+ *
+ * Two named slots let each glossary inject:
+ *   - "ornament":   theme-specific decoration (BAD's SVG art, CAT's animated cat)
+ *   - "actions":    buttons under the lede (Shuffle, Pet the cat, Search input + Random)
+ *
+ * Usage:
+ *   <GlossaryHero
+ *     badge="VENDOR & PLATFORM VOCABULARY"
+ *     title="The C.A.T. Glossary"
+ *     subParts={[
+ *       { strong: "C" }, "ybersecurity ",
+ *       { strong: "A" }, "pplications & ",
+ *       { strong: "T" }, "ools.",
+ *     ]}
+ *   >
+ *     Lede paragraph as default slot content.
+ *     <Fragment slot="actions">
+ *       <button type="button">...</button>
+ *     </Fragment>
+ *   </GlossaryHero>
+ */
+
+type SubPart = string | { strong: string };
+
+interface Props {
+  badge: string;
+  title: string;
+  /** Typed parts array. Each entry is either a plain string or { strong: string }
+   *  to wrap a letter in <strong>. JSX-rendered, auto-escaped. */
+  subParts?: SubPart[];
+  /** Optional HTML id for deep-linking. */
+  id?: string;
+}
+
+const { badge, title, subParts, id } = Astro.props;
+---
+
+<header class="g-hero" id={id}>
+  <div class="g-hero__badge"><span>{badge}</span></div>
+
+  <slot name="ornament-pre" />
+
+  <h1 class="g-hero__title">{title}</h1>
+  {subParts && (
+    <p class="g-hero__sub">
+      {subParts.map((part) =>
+        typeof part === "string" ? part : <strong>{part.strong}</strong>
+      )}
+    </p>
+  )}
+
+  <p class="g-hero__desc">
+    <slot />
+  </p>
+
+  <slot name="ornament" />
+
+  <div class="g-hero__actions">
+    <slot name="actions" />
+  </div>
+</header>

@@ -1,8 +1,7 @@
 @import "tailwindcss";
+@import "./assured.css";
 
 @plugin "tailwindcss-animate";
-
-@custom-variant dark (&:is(.dark *));
 
 @theme {
   --color-border: hsl(var(--border));
@@ -32,16 +31,6 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
-  /* Block brand colors */
-  --color-afterpay: #b2fce4;
-  --color-tidal: #0ec7c7;
-  --color-proto: #ff5b00;
-  --color-cashapp: #01c846;
-  --color-square: #006aff;
-  --color-block: #000000;
-  --color-spiral: #ff00ff;
-  --color-weebly: #4285f4;
-
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -54,55 +43,24 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
   @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-
-    to {
-      height: var(--radix-accordion-content-height);
-    }
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
   }
 
   @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-
-    to {
-      height: 0;
-    }
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
   }
 }
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 1.5rem;
 
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
-  }
-
-  @media (width >= 1600px) {
-    max-width: 1600px;
-  }
-
-  @media (width >= 1800px) {
-    max-width: 1800px;
-  }
-
-  @media (width >= 2000px) {
-    max-width: 1920px;
-  }
+  @media (width >= 1280px) { max-width: 1280px; }
+  @media (width >= 1536px) { max-width: 1440px; }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -111,734 +69,76 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
-}
 
-@layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 173 80% 40%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 215 25% 27%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 215 16% 65%;
+    --accent: 173 80% 40%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 220 70% 50%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 173 80% 40%;
+    --radius: 0.75rem;
   }
 
   html {
-    @apply scroll-smooth;
-    /* Force background on html element */
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e293b 100%) !important;
-    min-height: 100vh;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply text-foreground;
-    /* font-feature-settings: "rlig" 1, "calt" 1; */
+    font-family: var(--font-sans);
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
-    
-    /* Professional cybersecurity gradient background - force with !important */
-    background: linear-gradient(135deg, 
-      #1e293b 0%, 
-      #334155 25%, 
-      #475569 50%, 
-      #334155 75%, 
-      #1e293b 100%) !important;
-    background-attachment: fixed !important;
-    min-height: 100vh;
   }
 
-  /* Light mode - professional blue-gray gradient */
-  body:not(.dark) {
-    background: linear-gradient(135deg, 
-      #e2e8f0 0%, 
-      #cbd5e1 25%, 
-      #94a3b8 50%, 
-      #cbd5e1 75%, 
-      #e2e8f0 100%) !important;
+  /* Base headings on dark gradient */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--assured-text);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
   }
 
-  /* Dark mode - enhanced cybersecurity theme */
-  .dark body {
-    background: linear-gradient(135deg, 
-      #0f172a 0%, 
-      #1e293b 25%, 
-      #334155 50%, 
-      #1e293b 75%, 
-      #0f172a 100%) !important;
-  }
+  h1 { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 800; line-height: 1.05; }
+  h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 700; line-height: 1.2; }
+  h3 { font-size: clamp(1.25rem, 2vw, 1.5rem); font-weight: 700; line-height: 1.3; }
+  h4 { font-size: 1.15rem; font-weight: 600; }
+  h5 { font-size: 1rem; font-weight: 600; }
 
-  /* Add cybersecurity-themed pattern overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-      /* Hexagonal pattern for tech feel */
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 15%),
-      /* Grid pattern */
-      linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
-    background-size: 200px 200px, 300px 300px, 150px 150px, 40px 40px, 40px 40px;
-    background-position: 0 0, 100px 100px, 50px 50px, 0 0, 0 0;
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  /* Light mode overlay */
-  body:not(.dark)::before {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 15%),
-      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-  }
-
-  /* Dark mode overlay */
-  .dark body::before {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 20%),
-      radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 20%),
-      radial-gradient(circle at 40% 60%, rgba(139, 92, 246, 0.12) 0%, transparent 15%),
-      linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px);
-  }
-
-  /* Force cybersecurity background on all main content areas */
-  .bg-background,
-  .bg-white,
-  .bg-slate-50,
-  .bg-gray-50 {
-    background: linear-gradient(135deg, 
-      #1e293b 0%, 
-      #334155 25%, 
-      #475569 50%, 
-      #334155 75%, 
-      #1e293b 100%) !important;
-  }
-
-  /* Light mode overrides */
-  body:not(.dark) .bg-background,
-  body:not(.dark) .bg-white,
-  body:not(.dark) .bg-slate-50,
-  body:not(.dark) .bg-gray-50 {
-    background: linear-gradient(135deg, 
-      #e2e8f0 0%, 
-      #cbd5e1 25%, 
-      #94a3b8 50%, 
-      #cbd5e1 75%, 
-      #e2e8f0 100%) !important;
-  }
-
-  /* Hero component styling */
-  .hero-headline,
-  .hero-description,
-  .hero-cta {
-    color: #f8fafc !important; /* Very light text for maximum contrast */
-  }
-
-  /* Hero content container */
-  .hero-content,
-  .hero-container {
-    background: rgba(248, 250, 252, 0.1) !important; /* Very subtle light overlay */
-    backdrop-filter: blur(4px) !important;
-    border-radius: 12px !important;
-    padding: 2rem !important;
-  }
-
-  /* Ensure all text in main content areas is visible */
-  .prose,
-  .prose h1,
-  .prose h2,
-  .prose h3,
-  .prose h4,
-  .prose h5,
-  .prose h6,
-  .prose p,
-  .prose li {
-    color: #f8fafc !important;
-  }
-
-  /* Center all h2 headings in content */
-  .prose h2 {
-    text-align: center !important;
-  }
-
-  /* Feature card styling */
-  .feature-card,
-  .bg-card,
-  .bg-card\/40,
-  .bg-card\/80 {
-    background: rgba(248, 250, 252, 0.95) !important; /* Light semi-transparent background */
-    border: 1px solid rgba(226, 232, 240, 0.5) !important; /* Subtle border */
-  }
-
-  .feature-card h3,
-  .feature-card h4,
-  .feature-card p,
-  .feature-card li,
-  .feature-card * {
-    color: #0f172a !important; /* Very dark text for light cards */
-  }
-
-  /* Header styling */
-  .header-wrapper,
-  .header-container {
-    background: rgba(15, 23, 42, 0.95) !important; /* Dark header background */
-    backdrop-filter: blur(8px) !important;
-  }
-
-  /* Navigation links */
-  .nav-link {
-    color: #e2e8f0 !important; /* Light text for dark header */
-  }
-
-  .nav-link:hover,
-  .nav-link-active {
-    color: #f8fafc !important; /* Very light text on hover/active */
-  }
-
-  /* Brand text */
-  .brand-text {
-    color: #f8fafc !important; /* Light brand text */
-  }
-
-  /* Additional card and content styling */
-  .rounded-lg,
-  .border,
-  .bg-card\/40,
-  .bg-card\/80,
-  .backdrop-blur-sm {
-    background: rgba(248, 250, 252, 0.95) !important; /* Light semi-transparent */
-    border: 1px solid rgba(226, 232, 240, 0.5) !important; /* Subtle border */
-  }
-
-  .rounded-lg *,
-  .border *,
-  .bg-card\/40 *,
-  .bg-card\/80 *,
-  .backdrop-blur-sm * {
-    color: #0f172a !important; /* Very dark text for light cards */
-  }
-
-  /* Checklist and list styling */
-  .checklist,
-  .checklist li {
-    background: rgba(248, 250, 252, 0.95) !important;
-  }
-
-  .checklist *,
-  .checklist li * {
-    color: #0f172a !important; /* Very dark text */
-  }
-
-  /* CTA sections */
-  .cta-section,
-  .cta-container {
-    background: rgba(248, 250, 252, 0.1) !important;
-    backdrop-filter: blur(4px) !important;
-    border: 1px solid rgba(226, 232, 240, 0.2) !important;
-  }
-
-  /* Sidebar and navigation panels */
-  .sidebar,
-  .nav-panel {
-    background: rgba(15, 23, 42, 0.9) !important;
-    backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.2) !important;
-  }
-
-  /* Force text visibility in all card-like elements */
-  div[class*="bg-card"],
-  div[class*="rounded"],
-  div[class*="border"],
-  div[class*="backdrop"] {
-    background: rgba(248, 250, 252, 0.95) !important;
-    border: 1px solid rgba(226, 232, 240, 0.5) !important;
-  }
-
-  div[class*="bg-card"] *,
-  div[class*="rounded"] *,
-  div[class*="border"] *,
-  div[class*="backdrop"] * {
-    color: #0f172a !important;
-  }
-
-  /* Specific targeting for common card classes */
-  .p-4,
-  .p-6,
-  .px-4,
-  .px-6,
-  .py-4,
-  .py-6 {
-    color: #0f172a !important;
-  }
-
-  .p-4 *,
-  .p-6 *,
-  .px-4 *,
-  .px-6 *,
-  .py-4 *,
-  .py-6 * {
-    color: #0f172a !important;
-  }
-
-  /* Typography - Block Content Styles */
-  h1 {
-    @apply font-sans text-5xl font-black leading-none;
-    @apply mt-8 mb-6 scroll-m-20 tracking-tight;
-    color: #f8fafc !important; /* Light text for dark backgrounds */
-  }
-
-  h2 {
-    @apply font-sans text-3xl font-semibold leading-relaxed;
-    @apply mt-8 mb-6 scroll-m-20 tracking-tight;
-    color: #e2e8f0 !important; /* Light text for dark backgrounds */
-  }
-
-  h3 {
-    @apply font-sans text-2xl font-semibold leading-8;
-    @apply mt-8 mb-4 scroll-m-20 tracking-tight;
-    color: #e2e8f0 !important; /* Light text for dark backgrounds */
-  }
-
-  h4 {
-    @apply font-sans text-xl font-semibold leading-7;
-    @apply mt-6 mb-4 scroll-m-20 tracking-tight;
-    color: #e2e8f0 !important; /* Light text for dark backgrounds */
-  }
-
-  h5 {
-    @apply font-sans text-lg font-medium leading-7;
-    @apply mt-6 mb-4 scroll-m-20 tracking-tight;
-    color: #e2e8f0 !important; /* Light text for dark backgrounds */
-  }
-
-  h6 {
-    @apply font-sans text-base font-semibold leading-6;
-    @apply mt-6 mb-4 scroll-m-20 tracking-tight;
-    color: #e2e8f0 !important; /* Light text for dark backgrounds */
+  /*
+   * H-14 fix: when in-page anchors scroll a heading into view, leave enough room
+   * for the sticky header (64px) + sticky PillNav (~50px) + a small gap. Without
+   * this, jumping to #ratm or any other in-page anchor parks the heading under
+   * the PillNav and the reader sees nav, not the section they jumped to.
+   */
+  h2[id], h3[id], h4[id] {
+    scroll-margin-top: 140px;
   }
 
   p {
-    @apply font-sans text-base font-normal leading-6;
-    @apply [&:not(:first-child)]:mt-6;
-    color: #cbd5e1 !important; /* Light text for dark backgrounds */
+    color: var(--assured-text-muted);
+    line-height: 1.7;
   }
 
-  blockquote {
-    @apply font-sans text-base font-normal leading-6 flex-1;
-    @apply mt-6 border-l-2 border-border pl-6 text-muted-foreground;
-  }
-
-  /* List styling */
-  ul {
-    @apply font-sans text-base font-normal leading-6;
-    @apply my-1 ml-6 list-disc [&>li]:mt-2;
-    color: #cbd5e1 !important; /* Light text for dark backgrounds */
-    font-family: var(--font-sans);
-    font-size: var(--text-base-font-size, 16px);
-    font-style: normal;
-    font-weight: var(--font-weight-normal, 400);
-    line-height: var(--text-base-line-height, 24px); /* 150% */
-    display: block;
-    width: 100%;
-    padding: 0px 0px var(--spacing-6, 24px) var(--spacing-6, 24px);
-    align-items: flex-start;
-    gap: var(--spacing-2, 8px);
-  }
-
-  ol {
-    @apply font-sans text-base font-normal leading-6;
-    @apply my-1 ml-6 list-decimal [&>li]:mt-2;
-    color: #cbd5e1 !important; /* Light text for dark backgrounds */
-    font-family: var(--font-sans);
-    font-size: var(--text-base-font-size, 16px);
-    font-style: normal;
-    font-weight: var(--font-weight-normal, 400);
-    line-height: var(--text-base-line-height, 24px); /* 150% */
-    display: block;
-    width: 100%;
-    padding: 0px 0px var(--spacing-6, 24px) var(--spacing-6, 24px);
-    align-items: flex-start;
-    gap: var(--spacing-2, 8px);
-  }
-
-  li {
-    @apply mt-2;
-    color: #cbd5e1 !important; /* Light text for dark backgrounds */
-    font-family: var(--font-sans);
-    font-size: var(--text-base-font-size, 16px);
-    font-style: normal;
-    font-weight: var(--font-weight-normal, 400);
-    line-height: var(--text-base-line-height, 24px); /* 150% */
-  }
-
-  /* Other elements */
-  hr {
-    @apply my-4 md:my-8;
-  }
-
-  /* Table styling */
-  table {
-    @apply border-collapse border border-border;
-    @apply my-6;
-  }
-
-  th {
-    @apply font-sans text-base font-bold leading-6;
-    @apply border border-border py-2 px-4;
-    @apply whitespace-nowrap;
-  }
-
-  tr {
-    @apply border-border;
-  }
-
-  tr:nth-child(even) {
-    @apply bg-muted/50;
-  }
-
-  td {
-    @apply py-2 px-4;
-    @apply border border-border;
-  }
-
-  /* Add styles for links in prose content */
-  .prose a {
-    @apply font-medium text-primary underline underline-offset-4 hover:no-underline;
-  }
-
-  /* Code block styling with proper dark mode color mapping */
+  /* Code blocks */
   pre {
-    font-family: "Cash Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-mono);
     font-size: 0.875rem;
     padding: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid hsl(var(--border));
+    border-radius: var(--assured-radius-sm);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(15, 23, 42, 0.7);
     overflow-x: auto;
   }
-
-  /* Remove border and rounded corners when code blocks are inside Tabs */
-  [data-radix-tabs-content] pre,
-  .tabs-content pre,
-  [role="tabpanel"] pre {
-    border: none;
-    border-radius: 0;
-  }
-
-  /* Enhanced code block styles with proper light/dark mode support */
-  /* Target Shiki pre elements by their inline styles and data attributes */
-  pre[data-language] {
-    @apply relative overflow-x-auto rounded-lg border;
-    /* Light mode - use !important to override Shiki inline styles */
-    background-color: #f8fafc !important;
-    border-color: #e2e8f0 !important;
-    color: #334155 !important;
-    padding: 1rem !important;
-    font-size: 0.875rem !important;
-    line-height: 1.625 !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-  }
-
-  .dark pre[data-language] {
-    /* Dark mode - use !important to override Shiki inline styles */
-    background-color: #0f172a !important;
-    border-color: #334155 !important;
-    color: #e2e8f0 !important;
-  }
-
-  /* Target Shiki code elements specifically - override MDX component styles */
-  pre[data-language] code {
-    background: transparent !important;
-    color: inherit !important;
-    font-size: inherit !important;
-    font-family: inherit !important;
-    /* Remove any borders from code elements inside code blocks */
-    border: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    /* Remove positioning and other inline code styles */
-    position: static !important;
-  }
-
-  /* More specific selector to ensure override */
-  pre[data-language] code.relative {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    position: static !important;
-  }
-
-  /* Override Shiki's inline background colors on pre elements */
-  pre[style*="background-color"] {
-    background-color: #f8fafc !important;
-  }
-
-  .dark pre[style*="background-color"] {
-    background-color: #0f172a !important;
-  }
-
-  /* Syntax highlighting overrides for better contrast */
-  /* Light mode syntax colors */
-  pre[data-language] .line {
-    color: #24292e !important;
-  }
-
-  /* Dark mode syntax colors */
-  .dark pre[data-language] .line {
-    color: #e1e4e8 !important;
-  }
-
-  /* Specific syntax highlighting color fixes */
-  /* Keywords (red) */
-  pre[data-language] span[style*="color:#D73A49"],
-  pre[data-language] span[style*="color:#d73a49"] {
-    color: #d73a49 !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#D73A49"],
-  .dark pre[data-language] span[style*="color:#d73a49"] {
-    color: #f97583 !important;
-  }
-
-  /* Strings (blue) */
-  pre[data-language] span[style*="color:#032F62"],
-  pre[data-language] span[style*="color:#032f62"] {
-    color: #032f62 !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#032F62"],
-  .dark pre[data-language] span[style*="color:#032f62"] {
-    color: #9ecbff !important;
-  }
-
-  /* Functions (purple) */
-  pre[data-language] span[style*="color:#6F42C1"],
-  pre[data-language] span[style*="color:#6f42c1"] {
-    color: #6f42c1 !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#6F42C1"],
-  .dark pre[data-language] span[style*="color:#6f42c1"] {
-    color: #b392f0 !important;
-  }
-
-  /* Numbers (blue) */
-  pre[data-language] span[style*="color:#005CC5"],
-  pre[data-language] span[style*="color:#005cc5"] {
-    color: #005cc5 !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#005CC5"],
-  .dark pre[data-language] span[style*="color:#005cc5"] {
-    color: #79b8ff !important;
-  }
-
-  /* Comments (gray) */
-  pre[data-language] span[style*="color:#6A737D"],
-  pre[data-language] span[style*="color:#6a737d"] {
-    color: #6a737d !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#6A737D"],
-  .dark pre[data-language] span[style*="color:#6a737d"] {
-    color: #6a737d !important;
-  }
-
-  /* Default text */
-  pre[data-language] span[style*="color:#24292E"],
-  pre[data-language] span[style*="color:#24292e"] {
-    color: #24292e !important;
-  }
-
-  .dark pre[data-language] span[style*="color:#24292E"],
-  .dark pre[data-language] span[style*="color:#24292e"] {
-    color: #e1e4e8 !important;
-  }
-
-  /* Inline code improvements with enhanced light/dark mode */
-  :not(pre) > code {
-    @apply relative rounded px-[0.3rem] py-[0.2rem] font-mono font-medium border;
-    /* Inherit font size from parent instead of using fixed text-sm */
-    font-size: 0.9em;
-    /* Light mode */
-    background-color: #f1f5f9;
-    border-color: #e2e8f0;
-    color: #475569;
-  }
-
-  .dark :not(pre) > code {
-    /* Dark mode */
-    background-color: #1e293b;
-    border-color: #475569;
-    color: #cbd5e1;
-  }
-
-  /* Enhanced scrollbar styling for better visibility */
-  pre[data-language]::-webkit-scrollbar {
-    height: 8px;
-  }
-
-  pre[data-language]::-webkit-scrollbar-track {
-    @apply rounded;
-    /* Light mode */
-    background-color: #e2e8f0;
-  }
-
-  .dark pre[data-language]::-webkit-scrollbar-track {
-    /* Dark mode */
-    background-color: #334155;
-  }
-
-  pre[data-language]::-webkit-scrollbar-thumb {
-    @apply rounded;
-    /* Light mode */
-    background-color: #94a3b8;
-  }
-
-  pre[data-language]::-webkit-scrollbar-thumb:hover {
-    /* Light mode hover */
-    background-color: #64748b;
-  }
-
-  .dark pre[data-language]::-webkit-scrollbar-thumb {
-    /* Dark mode */
-    background-color: #64748b;
-  }
-
-  .dark pre[data-language]::-webkit-scrollbar-thumb:hover {
-    /* Dark mode hover */
-    background-color: #94a3b8;
-  }
-}
-
-/* Scroll Animation */
-.animate-on-scroll {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.animate-on-scroll.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Ensure Tailwind generates hover variants for custom brand colors */
-@layer utilities {
-  .hover\:bg-afterpay:hover {
-    background-color: var(--color-afterpay);
-  }
-  
-  .hover\:bg-tidal:hover {
-    background-color: var(--color-tidal);
-  }
-  
-  .hover\:bg-proto:hover {
-    background-color: var(--color-proto);
-  }
-  
-  .hover\:bg-cashapp:hover {
-    background-color: var(--color-cashapp);
-  }
-  
-  .hover\:bg-square:hover {
-    background-color: var(--color-square);
-  }
-  
-  .hover\:bg-block:hover {
-    background-color: var(--color-block);
-  }
-  
-  .hover\:bg-spiral:hover {
-    background-color: var(--color-spiral);
-  }
-  
-  .hover\:bg-weebly:hover {
-    background-color: var(--color-weebly);
-  }
-
-  /* Ensure group-hover text color variants are generated */
-  .group:hover .group-hover\:text-white {
-    color: white;
-  }
-  
-  .group:hover .group-hover\:text-black {
-    color: black;
-  }
-
-  /* Force gradient effects on all elements */
-  .backdrop-blur-sm {
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
-  }
-  
-  /* Specific gradient effects for buttons and boxes */
-  .gradient-effect {
-    background: rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  }
-
-
 }

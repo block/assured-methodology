@@ -1,7 +1,9 @@
 ---
 import HeadSEO from "@/components/HeadSEO.astro";
 import Header from "@/components/Header.astro";
+import { ClientRouter } from "astro:transitions";
 import "@/styles/global.css";
+import "@/styles/glossary.css";
 import { getUrlRelativeToBase } from "@/lib/utils";
 
 interface Props {
@@ -16,10 +18,10 @@ const { title, description, ogImage } = Astro.props;
 <html lang="en">
   <head>
     <HeadSEO title={title} description={description} ogImage={ogImage} />
+    <ClientRouter />
     <style set:html={`
-      /* Cash Sans Font Family - Complete Weight Range */
-      
-      /* Light - 300 */
+      /* Cash Sans Font Family */
+
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Light.woff2')}') format('woff2');
@@ -27,7 +29,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-LightItl.woff2')}') format('woff2');
@@ -35,8 +36,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Regular - 400 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Regular.woff2')}') format('woff2');
@@ -44,7 +43,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-RegularItl.woff2')}') format('woff2');
@@ -52,8 +50,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Medium - 500 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Medium.woff2')}') format('woff2');
@@ -61,7 +57,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-MediumItl.woff2')}') format('woff2');
@@ -69,8 +64,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Semibold - 600 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Semibold.woff2')}') format('woff2');
@@ -78,7 +71,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-SemiboldItl.woff2')}') format('woff2');
@@ -86,8 +78,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Bold - 700 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Bold.woff2')}') format('woff2');
@@ -95,7 +85,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-BoldItl.woff2')}') format('woff2');
@@ -103,8 +92,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Extra Black - 800 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Extblack.woff2')}') format('woff2');
@@ -112,7 +99,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-ExtblackItl.woff2')}') format('woff2');
@@ -120,8 +106,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Black - 900 */
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-Black.woff2')}') format('woff2');
@@ -129,7 +113,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans';
         src: url('${getUrlRelativeToBase('/fonts/CashSans-BlackItl.woff2')}') format('woff2');
@@ -137,8 +120,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: italic;
         font-display: swap;
       }
-
-      /* Cash Sans Mono for code blocks */
       @font-face {
         font-family: 'Cash Sans Mono';
         src: url('${getUrlRelativeToBase('/fonts/CashSansMono-Regular.woff2')}') format('woff2');
@@ -146,7 +127,6 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
       @font-face {
         font-family: 'Cash Sans Mono';
         src: url('${getUrlRelativeToBase('/fonts/CashSansMono-Medium.woff2')}') format('woff2');
@@ -154,36 +134,9 @@ const { title, description, ogImage } = Astro.props;
         font-style: normal;
         font-display: swap;
       }
-
     `}></style>
   </head>
-  <body class="min-h-screen font-sans antialiased" style="background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #475569 50%, #334155 75%, #1e293b 100%) !important; background-attachment: fixed !important;">
-    <script is:inline>
-      // Force light mode - remove dark class and ignore user preferences
-      document.documentElement.classList.remove('dark');
-      
-      // Override any existing theme preference
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('theme', 'light');
-      }
-      
-      // Prevent dark mode from being applied
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            if (document.documentElement.classList.contains('dark')) {
-              document.documentElement.classList.remove('dark');
-            }
-          }
-        });
-      });
-      
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class']
-      });
-
-    </script>
+  <body class="min-h-screen font-sans antialiased">
     <div class="relative flex min-h-screen flex-col">
       <Header />
       <div class="flex-1">

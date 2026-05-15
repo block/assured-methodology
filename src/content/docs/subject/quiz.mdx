@@ -1,0 +1,153 @@
+---
+title: "Subject chapter quiz"
+description: "Eight questions on the four dimensions, entity types, behavioral framework, insider analysis, and the Subject working examples."
+slug: "subject/quiz"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero
+  phase="subject"
+  parentLetter="S"
+  pillarNumber="Quiz"
+  pillarLabel="Subject chapter"
+  chapterHref="/docs/subject"
+  chapterLabel="Subject"
+  lede="Eight questions across the Subject chapter. Push your thinking on identity, baselining, the insider distinction, and the matrix phases."
+/>
+
+<PillNav
+  chapter="subject"
+  label="Subject chapter"
+  current="/docs/subject/quiz"
+  items={[
+    { label: "Four dimensions",      href: "/docs/subject/four-dimensions",     phase: "subject" },
+    { label: "Entity types",         href: "/docs/subject/entity-types",        phase: "subject" },
+    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework",phase: "subject" },
+    { label: "Insider analysis",     href: "/docs/subject/insider-analysis",    phase: "subject" },
+  ]}
+/>
+
+<Quiz title="Subject chapter quiz" subtitle="No grades. The point is to push your thinking.">
+
+  <QuizItem
+    prompt="An alert names one user. How many subjects should the analyst usually profile?"
+    options={[
+      { value: "one",     label: "One. The user named in the alert." },
+      { value: "two",     label: "Two. The user and their host." },
+      { value: "many",    label: "As many as the activity touches: user, host, service accounts, federated identities, downstream systems." },
+      { value: "depends", label: "Depends on severity. Skip Subject for low-severity alerts." },
+    ]}
+    answer="many"
+    explanation="Modern identity is plural. Behind any named user are typically several non-human identities (service accounts, cloud roles, federated SSO) that share trust paths. The Subject phase profiles all of them, not just the one the alert named."
+  />
+
+  <QuizItem
+    prompt="Which of the four dimensions is most often skipped, and why does that matter?"
+    options={[
+      { value: "auth",    label: "Authentication. It is too rarely abnormal to be worth checking." },
+      { value: "authz",   label: "Authorization. The check looks fine in a glance but hides toxic permission pairings and recent role changes." },
+      { value: "behav",   label: "Behavior. Baselines are too unstable to be trusted." },
+      { value: "rel",     label: "Relationships. They are too time-consuming to map." },
+    ]}
+    answer="authz"
+    explanation="Authorization is the dimension where 'the action maps to the role' obscures the deeper question of whether the role itself is right and whether the permissions combine in unsafe ways. Toxic pairings and recent role changes are common gaps."
+    hint="Think about the dimension that looks fine at first glance but rewards a second look."
+  />
+
+  <QuizItem
+    prompt="A service account suddenly logs in interactively at 02:30. Which entity type pattern does this match?"
+    options={[
+      { value: "normal",    label: "Normal. Service accounts log in." },
+      { value: "compromise",label: "Compromise signal. Service accounts are non-interactive by design; interactive logins are near-canonical for credential theft." },
+      { value: "policy",    label: "A policy violation but not security-relevant." },
+      { value: "test",      label: "A test run. Probably the on-call engineer." },
+    ]}
+    answer="compromise"
+    explanation="Service accounts have predictable, non-interactive behavior by design. Interactive logins on a service account almost always mean the credential is being used in a way it was not intended for, and that is a high-confidence Subject signal."
+  />
+
+  <QuizItem
+    prompt="What is the difference between insider risk and insider threat?"
+    options={[
+      { value: "same",     label: "Same thing. Different vocabulary." },
+      { value: "intent",   label: "Risk is the possibility of harm regardless of intent. Threat is intentional harm. The methodology starts with risk and escalates to threat only with evidence." },
+      { value: "severity", label: "Risk is low severity. Threat is high severity." },
+      { value: "scope",    label: "Risk is internal. Threat is external." },
+    ]}
+    answer="intent"
+    explanation="The distinction is about intent. Most insider risk is unintentional (mistakes, workarounds, policy violations). Insider threat is intentional. The methodology takes risk seriously as a category of its own and reserves the 'threat' designation for cases where evidence supports it. That distinction shapes escalation and how the rest of the organization is engaged."
+  />
+
+  <QuizItem
+    prompt="The behavioral framework's most useful question is..."
+    options={[
+      { value: "env",    label: "Is this unusual in the environment?" },
+      { value: "entity", label: "Is this unusual for this specific entity?" },
+      { value: "peer",   label: "Is this unusual compared to peers in the same role?" },
+      { value: "both",   label: "The framework asks both per-entity and peer-group questions, and the disagreement between them is itself a signal." },
+    ]}
+    answer="both"
+    explanation="Per-entity baselining and peer-group baselining each catch different things. An entity drifting from its own history is one signal. An entire role drifting is another. The framework uses both, and when they disagree, that disagreement is informative."
+    hint="A trick question. The two are not mutually exclusive."
+  />
+
+  <QuizItem
+    prompt="The Insider Threat Matrix organizes insider tradecraft into five phases. Which sequence is correct?"
+    options={[
+      { value: "a", label: "Means → Motivation → Infringement → Preparation → Anti-forensics." },
+      { value: "b", label: "Motivation → Means → Preparation → Infringement → Anti-forensics." },
+      { value: "c", label: "Preparation → Motivation → Anti-forensics → Means → Infringement." },
+      { value: "d", label: "Infringement → Preparation → Motivation → Means → Anti-forensics." },
+    ]}
+    answer="b"
+    explanation="The matrix moves from why (motivation) through what makes it possible (means), how the actor sets it up (preparation), to the harmful action itself (infringement), to the cleanup that follows (anti-forensics). Each phase is a different place to look for evidence."
+  />
+
+  <QuizItem
+    prompt="The marketing team converted confidential documents into image files to share externally during a deadline. 3,200 customer records were exposed. What does Subject classify this as?"
+    options={[
+      { value: "threat",    label: "Insider threat. Data was exposed; intent does not matter." },
+      { value: "risk",      label: "Insider risk. No malicious intent, behavior driven by tool friction. The fix is process and tooling, not enforcement." },
+      { value: "neither",   label: "Neither. This is a DLP problem, not a Subject one." },
+      { value: "escalate",  label: "Both. Insider threat unless investigation proves otherwise." },
+    ]}
+    answer="risk"
+    explanation="Insider risk is unintentional behavior that causes harm. The marketing team's workaround was about getting work done past a slow tool, not about stealing data. The methodology calls this risk so the response is process improvement (which produced 92% compliance lift) instead of enforcement (which would have produced friction without fixing the cause)."
+    hint="The vocabulary matters. Risk and threat are not interchangeable."
+  />
+
+  <QuizItem
+    prompt="A binary on a developer's laptop disables its sandbox at runtime, makes encrypted outbound network calls, and matches signatures used by the Empire toolkit. Subject's most likely conclusion is..."
+    options={[
+      { value: "block",     label: "Block and contain. The signature match is conclusive." },
+      { value: "context",   label: "Read context first. Signed by the vendor, in the expected install path, baselined across peers, and the runtime mode is documented? Likely false-positive with explicit caveats." },
+      { value: "isolate",   label: "Isolate the device pending forensic image." },
+      { value: "escalate",  label: "Escalate to insider threat protocols." },
+    ]}
+    answer="context"
+    explanation="A signature match alone is not Subject's verdict. The four dimensions plus access scope plus operational risk produce the picture. A signed, vendor-installed, peer-baselined binary running in a documented configuration on a developer workstation reads very differently from the same activity from an unsigned binary in a user-writable directory. Subject's job is to record that distinction defensibly, not to react to the signature alone."
+  />
+
+</Quiz>
+
+<ContinueCard
+  current="subject"
+  nextHref="/docs/subject/transition"
+  nextLabel="Transition to Scope"
+  nextDescription="Subject produced the entity map. Scope turns that map into a formal boundary for the investigation."
+  ctaLabel="Continue to transition"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>

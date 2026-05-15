@@ -1,0 +1,19 @@
+# Defense-in-depth response headers for any host that honors a `_headers` file
+# (Netlify, Cloudflare Pages, Vercel via vercel.json equivalent, custom CDN).
+#
+# GitHub Pages does NOT honor this file — it sets its own minimal defaults
+# (Strict-Transport-Security and X-Content-Type-Options are auto-set there).
+# If the deploy target moves off GitHub Pages, these headers harden the site
+# without changing any source. The CSP-in-meta-tag in HeadSEO.astro remains
+# the source of truth for content-security policy; we deliberately do NOT
+# duplicate CSP here, since a header CSP and a meta CSP with different
+# values would conflict.
+
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), midi=(), serial=(), sync-xhr=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin

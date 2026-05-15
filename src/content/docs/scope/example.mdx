@@ -1,0 +1,217 @@
+---
+title: "Scope working example"
+description: "Drawing the formal boundary of the investigation around the entity map Subject produced."
+slug: "scope/example"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import ChapterExample from "@/components/assured/ChapterExample.astro";
+import ExampleStepper from "@/components/assured/ExampleStepper.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="Example"
+  pillarLabel="Scope chapter"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="The Scope phase applied to the same intrusion the Alert and Subject chapters walked through. Same finance team scenario, now formally bounded."
+/>
+
+<PillNav
+  chapter="scope"
+  label="Scope chapter"
+  current="/docs/scope/example"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+<ChapterExample
+  title="Drawing the lines around the finance-team intrusion"
+  scenario="Subject handed Scope an entity map: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the service account, two finance peers) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow). Scope's job is to turn that map into a formal investigation boundary."
+>
+
+<ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Regulatory check</h3>
+    <p>The compromised user dlin has read access to a cloud finance platform that processes payment data. That triggers PCI DSS implications. The platform also stores personally identifiable information for vendors, which brings GDPR into scope for any EU-resident vendor records.</p>
+    <p><strong>Decisions:</strong> Document PCI exposure now. Engage compliance early so any breach-notification clock can run in parallel with the technical investigation. Tag the case as both PCI and GDPR relevant.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Time window</h3>
+    <p>The alert is a phishing-driven intrusion that fired today. The Subject phase did not find slow-burn signals. The default window for this threat type is 24 to 72 hours of historical review, with a 4-week look at the primary entities to confirm no prior staging.</p>
+    <p><strong>Decisions:</strong> Set primary window at 72 hours pre-alert through current time. Set extended check at 4 weeks for dlin's account specifically. Note that endpoint telemetry has 90-day retention, identity telemetry has 1 year, both are sufficient.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Entity boundaries</h3>
+    <p>Subject's entity map gets categorized:</p>
+    <ul class="example-step__list">
+      <li><strong>Primary:</strong> dlin (user), laptop-finance-09 (host), dlin's cloud identity.</li>
+      <li><strong>Secondary:</strong> The service account dlin authenticates against. The two other finance users who opened the same email. The external sender.</li>
+      <li><strong>Out of scope (for now):</strong> Other finance team members who received but did not open the email. Their inboxes still get a baseline check, but no full investigation unless something new surfaces.</li>
+    </ul>
+    <p><strong>Decisions:</strong> Primary entities get full investigation depth. Secondary entities get baseline comparison and are upgraded only on a signal.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Infrastructure check</h3>
+    <p>What can the SOC see for this case?</p>
+    <ul class="example-step__list">
+      <li><strong>In scope:</strong> EDR on the laptop, cloud identity logs, firewall logs, proxy logs, mailbox audit.</li>
+      <li><strong>Limited:</strong> The cloud finance platform's in-app activity is in the vendor's logs; the SOC sees authentication and gross API calls only. A vendor request is needed for deeper investigation.</li>
+      <li><strong>Gaps:</strong> If the user worked from a personal phone via the cloud platform's mobile app, that activity may not show up in corporate telemetry.</li>
+    </ul>
+    <p><strong>Decisions:</strong> Note the cloud-platform gap explicitly. If Uncover needs deeper data, request from the vendor now so it arrives in parallel.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand off to Uncover</h3>
+    <p>The Scope deliverable is a one-page boundary statement Uncover can pin above their query window:</p>
+    <ul class="example-step__list">
+      <li><strong>Threat type:</strong> phishing-driven intrusion.</li>
+      <li><strong>Time:</strong> 72 hours primary, 4 weeks extended for dlin.</li>
+      <li><strong>Primary entities:</strong> dlin, laptop-finance-09, cloud identity. Full depth.</li>
+      <li><strong>Secondary entities:</strong> service account, 2 other finance users, external sender. Baseline depth.</li>
+      <li><strong>Regulatory:</strong> PCI and GDPR triggers active. Compliance engaged.</li>
+      <li><strong>Infrastructure gaps:</strong> mobile app activity on the cloud platform may be invisible; vendor request submitted.</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+Scope turned an <DefineTerm term="Entity" display="entity" /> map into a defensible investigation boundary. Uncover now knows what to look for, where, when, and what falls outside the bounds. Without scope, the same investigation would have wandered for hours.
+</KeyTakeaway>
+
+---
+
+## A second scenario: scoping the Cursor IDE Empire-pattern alert
+
+The first walkthrough showed Scope refining Subject's rich, expanding map for a real intrusion. The second case is the parallel thread that started in the Alert chapter: the developer-workstation false-positive. Scope here is about *restraint* — the alert's surface match to Empire tradecraft is real, but everything else points to legitimate IDE behavior. The deliverable is a narrow, defensible boundary that lets Uncover confirm or refute the false-positive read without sprawling.
+
+<ChapterExample
+  title="Drawing the lines around the Cursor Empire-pattern false-positive"
+  scenario="Subject handed Scope a tight entity map: a frontend engineer, a managed macOS laptop, the signed Cursor Helper binary, and the vendor's documented inference endpoints. All four read as legitimate across the four dimensions. Scope's job is to draw boundaries that let Uncover validate that read with rigor, not boundaries that invite a fishing expedition."
+>
+
+<ExampleStepper steps={["Time scope", "Subject scope", "Environment scope", "Data sources", "Boundary statement"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Time scope</h3>
+    <p>The Cursor case has a narrower time horizon than the finance-team intrusion. Subject's reads were all clean; there is no expanding pattern to chase. The boundary is sized to validate the false-positive hypothesis, not to investigate a compromise.</p>
+    <ul class="example-step__list">
+      <li><strong>Primary window:</strong> alert minus 1 hour through alert plus 4 hours. Five-hour total, enough to capture the IDE session that produced the alert and any follow-on behavior.</li>
+      <li><strong>Comparison window:</strong> the same user's prior 14 days of IDE activity, used only for behavioral baselining, not for incident reconstruction.</li>
+      <li><strong>Extension trigger:</strong> if Uncover surfaces any signal inconsistent with the false-positive read (new persistence, unexpected network destinations, credential access), the time window expands to 24 hours pre-alert and the case is escalated within Risk.</li>
+    </ul>
+    <p>A short window is the correct call when Subject's reads agree. Extending it preemptively would burn time investigating absence of compromise.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Subject scope</h3>
+    <p>Subject's per-entity assessment is the input. Scope translates it into investigative boundaries that don't expand the entity list.</p>
+    <ul class="example-step__list">
+      <li><strong>Primary subject:</strong> the developer's laptop and the Cursor Helper (Plugin) binary. Full process telemetry, file activity, and network behavior for this host during the time window.</li>
+      <li><strong>User context:</strong> the named frontend engineer. Authentication and authorization checks for the period; no peer-group expansion required because Subject's relationship-dimension read was clean.</li>
+      <li><strong>Excluded:</strong> other developer laptops, other engineers on the team, the vendor's infrastructure beyond observable DNS and TLS. Subject's read was conclusive on these surfaces; Scope does not re-open them.</li>
+    </ul>
+    <p class="example-step__what-not"><strong>What over-scoping would look like:</strong> pulling every developer laptop running Cursor into the investigation, or expanding to investigate Anysphere as a vendor. Both are tempting because the binary is the focal artifact. The methodology says no: Subject already validated the binary and the trust chain. Re-opening that question is wasted work.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Environment scope</h3>
+    <p>The environment for a single managed developer workstation is genuinely narrow, and Scope keeps it that way.</p>
+    <ul class="example-step__list">
+      <li><strong>In scope:</strong> the laptop's EDR telemetry, the corporate egress proxy logs for this device, the developer's SSO authentication events, the MDM compliance record for the laptop.</li>
+      <li><strong>Conditionally in:</strong> internal source-control access logs for the user's repositories during the window (read-only, no payload reconstruction).</li>
+      <li><strong>Out of scope:</strong> peer laptops, the vendor's own infrastructure beyond DNS / TLS observability, any system the laptop did not actually reach during the window.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Data sources and tooling</h3>
+    <p>The Cursor case has fewer data sources than the finance-team intrusion because the subject surface is genuinely smaller. Scope names them precisely so Uncover does not improvise.</p>
+    <ul class="example-step__list">
+      <li><strong>EDR (CrowdStrike on macOS).</strong> Primary. Process tree, file activity, network sockets, signing-status events.</li>
+      <li><strong>Corporate egress proxy.</strong> Outbound destinations, TLS metadata, byte counts. Used to corroborate that the network signal mapped to vendor inference endpoints, not staging infrastructure.</li>
+      <li><strong>Identity provider logs.</strong> Authentication events for this user during the window. No password reset, no MFA bypass, no anomalous geographies.</li>
+      <li><strong>MDM compliance record.</strong> Confirms the laptop is enrolled, encrypted, OS-current, and reporting normally.</li>
+      <li><strong>Threat intelligence.</strong> Passive only. Confirm the vendor and inference endpoints have no prior incident associations. No active hash pivots, no speculative attribution.</li>
+    </ul>
+
+    <Reveal summary="Why the threat-intel posture stays passive" variant="info">
+
+    The temptation on an Empire-pattern match is to pivot aggressively: "what other hosts ever saw a similar pattern?" That is an Uncover-phase decision, not a Scope-phase one — and even in Uncover it would only be appropriate if the false-positive read started to fail. At Scope, with Subject's reads agreeing on legitimate, active threat-intel pivots would be effort spent investigating the wrong question.
+
+    </Reveal>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Boundary statement</h3>
+    <p>The Scope deliverable for the Cursor case is deliberately compact:</p>
+    <ul class="example-step__list">
+      <li><strong>Time:</strong> alert minus 1h through alert plus 4h. Comparison window: prior 14 days for behavioral baselining only.</li>
+      <li><strong>Subject:</strong> one laptop, one engineer, one binary, the vendor's documented endpoints. No expansion.</li>
+      <li><strong>Environment:</strong> EDR, corporate egress proxy, identity provider, MDM. Source-control reads conditional.</li>
+      <li><strong>Data sources:</strong> as above. Threat intel passive only.</li>
+      <li><strong>Regulatory:</strong> none triggered. The source code on the laptop is sensitive but is not regulated data; no PCI/PII/PHI in scope.</li>
+      <li><strong>Infrastructure gaps:</strong> macOS full-packet capture not available; USB monitoring not deployed on this host class. Uncover will note these as bounded confidence reductions, not as expansion triggers.</li>
+      <li><strong>Escalation trigger:</strong> any Uncover finding inconsistent with the false-positive read expands the time window to 24 hours pre-alert and bumps the case to the Risk phase for re-evaluation.</li>
+    </ul>
+    <p>Uncover starts inside narrow rails. The case is shaped to confirm or refute the false-positive read efficiently, not to manufacture a compromise narrative from absence of evidence.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Two cases, two boundary shapes">
+The two scenarios show what Scope looks like when the inputs differ. The finance-team intrusion got an expanding, regulated boundary because Subject's map already pointed at lateral movement and a regulated downstream system. The Cursor false-positive got a tight, restrained boundary because Subject's reads agreed on legitimate. Both are correct Scope outcomes for their case. The methodology is the same; what changes is what the evidence permitted.
+</Callout>
+
+<KeyTakeaway>
+Scope is what stops good investigations from sprawling into bad ones. The deliverable is small (a one-page boundary statement) but the cost of skipping it is large (hours of unfocused work, missed compliance triggers, evidence collected outside its lawful scope). The methodology earns its time at this step.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/quiz"
+  nextLabel="Scope chapter quiz"
+  ctaLabel="Take the quiz"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>
+
+<style>
+{`
+.example-step h3 { margin: 0 0 0.85rem 0; color: #d8b4fe; font-size: 1.2rem; }
+.example-step p { margin: 0 0 0.85rem 0; color: #cbd5e1; line-height: 1.65; }
+.example-step__list { margin: 0 0 1rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.example-step__list li { color: #cbd5e1; line-height: 1.6; }
+.example-step__list strong { color: #f8fafc; }
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: #e2e8f0;
+}
+.example-step__what-not strong { color: #fca5a5; }
+`}
+</style>

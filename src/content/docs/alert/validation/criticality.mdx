@@ -1,0 +1,206 @@
+---
+title: "Asset and user criticality"
+description: "Weigh alerts by what they could affect and who is involved. Criticality is how triage stays proportional to risk."
+slug: "alert/validation/criticality"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="02 · 03"
+  pillarLabel="03 strategies"
+  chapterHref="/docs/alert/validation"
+  chapterLabel="Validation"
+  lede="Not every alert deserves the same response. The criticality strategy is a risk-based lens that weighs alerts by what they could affect and who is involved, so analyst time concentrates where it matters."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Validation strategies"
+  current="/docs/alert/validation/criticality"
+  items={[
+    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison", phase: "alert" },
+    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains",       phase: "alert" },
+    { label: "Criticality",         href: "/docs/alert/validation/criticality",         phase: "alert" },
+  ]}
+/>
+
+## How criticality validation works
+
+Two alerts can be identical in content and very different in importance. An anomalous login to a developer's sandbox account is one situation. The same anomalous login to a <DefineTerm term="Domain Controller" display="domain controller" />'s service account is another. Criticality validation is the strategy that builds this distinction into triage by attaching weights to the entities involved.
+
+The strategy has two pillars. **<DefineTerm term="Asset Criticality" display="Asset criticality" />** describes the business and operational importance of the systems involved. **<DefineTerm term="User" /> criticality** describes the privilege level and access scope of the identities involved. Together they produce a risk-weighted view of the alert that the analyst can use to allocate time proportionally.
+
+## Asset criticality
+
+Assets are usually classified into tiers like Critical / High / Medium / Low, or scored numerically. The classification reflects three things:
+
+<div class="criticality-list">
+  <div class="criticality-item">
+    <h4>💰 Business value</h4>
+    <p>Revenue impact if the asset is degraded, customer-facing visibility, contractual obligations. Revenue-generating systems and customer-data stores sit at the top of most classification schemes.</p>
+  </div>
+  <div class="criticality-item">
+    <h4>📋 Regulatory exposure</h4>
+    <p>Whether the asset stores or processes data covered by HIPAA, PCI DSS, GDPR, SOX, or sector-specific regulation. Compliance-bound systems may demand investigation regardless of where they sit on the tier list.</p>
+  </div>
+  <div class="criticality-item">
+    <h4>🔌 Network proximity</h4>
+    <p>An asset that is one hop from a critical system is effectively part of that system for triage purposes. A low-tier workstation that has direct access to the production database is no longer low-tier in practice.</p>
+  </div>
+</div>
+
+## User criticality
+
+User accounts carry their own weight. Two factors define it:
+
+<div class="criticality-list">
+  <div class="criticality-item">
+    <h4>🔑 Privilege level</h4>
+    <p>Standard user, privileged user, service account, executive. Each has a different blast radius if compromised. Service accounts are especially important to model because they often outlive the people who created them.</p>
+  </div>
+  <div class="criticality-item">
+    <h4>🌐 Access scope</h4>
+    <p>How many systems and how much data the account can touch. A privileged user with narrow scope is less dangerous than a standard user with wide scope. Both are worth weighting.</p>
+  </div>
+</div>
+
+---
+
+## Example: identical alerts, very different responses
+
+<CaseStudy
+  title="Two anomalous logins"
+  scenario="Two anomaly alerts fire at 03:00 reporting unusual login times. Both alerts look identical in shape. They are not equivalent in priority."
+>
+
+**Alert A**: anomalous 03:00 login on a workstation belonging to a contractor account, tier-3 asset, no access to production systems. The contractor's role is to maintain a single sandboxed application.
+
+**Alert B**: anomalous 03:00 login on a service account whose role includes administrative access to two <DefineTerm term="Domain" display="domain" /> controllers and a database tier holding regulated patient data.
+
+Without criticality validation, both alerts compete for the same investigator at the same time. With criticality validation, the analyst's queue is automatically ordered: Alert B becomes the immediate-action alert, Alert A is queued for review during regular hours unless other signals raise it.
+
+The validation logic is doing two things at once. It is sorting by potential impact, and it is providing the analyst with a defensible justification for the choice. Months later, in a <DefineTerm term="Post-Mortem" display="post-mortem" /> or an audit, the criticality data attached to the alert at the time of triage is what makes the prioritization decision reviewable.
+
+</CaseStudy>
+
+---
+
+## Implementation requirements
+
+Criticality validation is only as good as the data underneath it. Three sources matter most.
+
+<div class="cmdb-grid">
+  <div class="cmdb-card">
+    <h4>📦 Asset inventory</h4>
+    <p>A CMDB (ServiceNow, custom) or asset platform that knows every system, its classification, its owner, its data sensitivity, and its network position. The inventory should update as the environment changes.</p>
+  </div>
+  <div class="cmdb-card">
+    <h4>👤 Identity directory</h4>
+    <p>Active Directory, Okta, SailPoint, or equivalent. The directory should know account types, role assignments, group memberships, and the relationships between them. Service accounts should be tagged separately.</p>
+  </div>
+  <div class="cmdb-card">
+    <h4>📜 Compliance mapping</h4>
+    <p>An explicit map of which assets and data flows are covered by which regulations. The map should be authoritative enough that an analyst can rely on it during triage without consulting legal counsel for every alert.</p>
+  </div>
+</div>
+
+---
+
+## Operational practice
+
+- **Keep inventories current.** Stale CMDB data degrades criticality scoring silently. The alerts still fire, but their priorities become wrong without anyone noticing for weeks.
+- **Define classification criteria clearly.** "Critical" should mean the same thing in two different teams' heads. A short documented definition with examples is worth the time.
+- **Re-classify during organizational change.** Mergers, divestitures, system migrations, and major reorganizations all change criticality in ways that need to flow into the validation logic.
+- **Integrate compliance triggers explicitly.** HIPAA-relevant systems may need investigation even when the tier score would not have demanded it. Make that rule visible in the validation logic rather than relying on analysts to remember it.
+
+<KeyTakeaway>
+Criticality validation is what keeps a SOC's response proportional to risk as the environment grows. Without it, every alert competes equally for attention, and the most consequential intrusions get the same response time as the most routine ones. With it, analyst time concentrates where the cost of inattention is highest.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing"
+  nextLabel="Parsing alerts"
+  nextDescription="With detection mechanisms and validation covered, the next chapter turns to parsing: extracting the metadata that drives the rest of the investigation."
+  ctaLabel="Read parsing"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.criticality-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.25rem 0 1.5rem;
+}
+
+@media (min-width: 768px)  { .criticality-list { grid-template-columns: repeat(3, 1fr); } }
+
+.criticality-item {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+}
+
+.criticality-item h4 {
+  margin: 0 0 0.35rem 0;
+  color: #fdba74;
+  font-size: 0.95rem;
+}
+
+.criticality-item p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.cmdb-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .cmdb-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.cmdb-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.cmdb-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.cmdb-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+`}
+</style>

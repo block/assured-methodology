@@ -1,390 +1,227 @@
 ---
-title: "Detection Mechanisms"
-description: "Understanding the four core detection approaches used by security tools to generate alerts."
+title: "Detection mechanisms"
+description: "The four families of detection logic that produce alerts: signature-based, anomaly-based, rule-based, and behavioral analytics."
 slug: "alert/detection-mechanisms"
 ---
 
-Detection mechanisms represent the algorithmic foundations underlying modern security operations, each employing distinct computational approaches to identify potentially malicious activity within enterprise environments. 
-Mastery of these mechanisms is essential for accurate event triage within the ASSURED methodology, as the detection approach fundamentally influences alert reliability, investigative strategy, and escalation priorities.
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
 
-Modern security architectures adopt a multi-modal approach, layering signature-based, anomaly-based, rule-based, and behavioral analytics to compensate for individual limitations and maximize coverage across the threat landscape. 
-This layered strategy acknowledges that no single detection methodology can comprehensively identify the full spectrum of adversarial techniques, from commodity malware exploiting known signatures to sophisticated APT campaigns leveraging zero-days or living-off-the-land techniques.
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="01"
+  pillarLabel="03"
+  chapterHref="/docs/alert"
+  chapterLabel="Alert"
+  lede="Every alert has a provenance: the detection logic that produced it. Two alerts with the same name from different engines are not the same alert. The mechanism tells the analyst how much to trust the signal, what the engine is likely to have missed, and what evidence to gather next."
+/>
 
-**Understanding detection provenance is critical for analytical accuracy.** the mechanism triggering an alert dictates confidence, false-positive probability, and required investigative rigor. For example:
-- <em>High-confidence detection:</em> A signature match of an Empyre C2 beacon indicates strong evidence of compromise and warrants immediate investigation.
-- <em>Lower-confidence detection:</em> An anomaly indicating atypical Python execution patterns requires correlation, contextual analysis, and potentially human validation before response.
+<PillNav
+  chapter="alert"
+  label="Alert chapter"
+  current="/docs/alert/detection-mechanisms"
+  items={[
+    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms", phase: "alert" },
+    { label: "Validation",           href: "/docs/alert/validation",            phase: "alert" },
+    { label: "Parsing",              href: "/docs/alert/parsing",               phase: "alert" },
+    { label: "Transition",           href: "/docs/alert/transition",            phase: "alert" },
+  ]}
+/>
 
-Expert analysts develop <em>pattern recognition intuition</em> based on detection type, accelerating triage and reducing cognitive load in high-volume environments.
+Modern security platforms layer four families of <DefineTerm term="Detection Logic" display="detection logic" /> on top of each other. Each family is good at something specific and blind to something else. Used together they cover far more ground than any one of them could on its own. When an alert arrives, the first question an analyst asks is which family fired, because that single fact reshapes the rest of the investigation.
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
-  <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border-l-4 border-blue-500">
-    <h4 class="text-lg font-bold text-blue-900 mb-2">Signature-Based Detection</h4>
-    <p class="text-blue-800 text-sm">Employs static pattern matching against predefined indicators of compromise (IoCs), enabling rapid identification of known threats with high precision and minimal computational overhead.</p>
-  </div>
-  
-  <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-6 border-l-4 border-green-500">
-    <h4 class="text-lg font-bold text-green-900 mb-2">Anomaly-Based Detection</h4>
-    <p class="text-green-800 text-sm">Utilizes statistical modeling and machine learning to identify deviations from established behavioral baselines, enabling detection of novel and previously unknown threats.</p>
-  </div>
-  
-  <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-6 border-l-4 border-purple-500">
-    <h4 class="text-lg font-bold text-purple-900 mb-2">Rule-Based Detection</h4>
-    <p class="text-purple-800 text-sm">Implements expert-defined conditional logic frameworks to correlate events across temporal and contextual dimensions, enabling detection of complex attack scenarios.</p>
-  </div>
-  
-  <div class="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-6 border-l-4 border-orange-500">
-    <h4 class="text-lg font-bold text-orange-900 mb-2">Behavioral Analytics</h4>
-    <p class="text-orange-800 text-sm">Applies advanced analytics to identify sophisticated multi-stage attacks and insider threats through longitudinal pattern analysis and relationship modeling.</p>
-  </div>
+<Callout variant="info" title="Why provenance matters">
+A high-confidence signature hit on a known C2 binary is one alert. A behavioral anomaly suggesting unusual <DefineTerm term="PowerShell" /> child processes is a different alert, even when the underlying activity is the same. The first deserves an immediate response. The second deserves correlation and context first. Detection provenance is what tells the analyst which kind of alert they have in front of them.
+</Callout>
+
+## The four families at a glance
+
+<div class="mechs-grid">
+  <a href="/docs/alert/detection-mechanisms/signature" class="mech-card mech-card--signature">
+    <div class="mech-card__num">01</div>
+    <h3>🔍 Signature-based</h3>
+    <p>Pattern matching against known indicators. Fast, precise, useless against anything novel.</p>
+    <span class="mech-card__cta">Read →</span>
+  </a>
+  <a href="/docs/alert/detection-mechanisms/anomaly" class="mech-card mech-card--anomaly">
+    <div class="mech-card__num">02</div>
+    <h3>📊 Anomaly-based</h3>
+    <p>Statistical deviation from a behavioral baseline. Catches the unknown. Noisy during change.</p>
+    <span class="mech-card__cta">Read →</span>
+  </a>
+  <a href="/docs/alert/detection-mechanisms/rule" class="mech-card mech-card--rule">
+    <div class="mech-card__num">03</div>
+    <h3>⚖️ Rule-based</h3>
+    <p>Expert-defined conditional logic combining multiple indicators. Tunable, auditable, demanding to maintain.</p>
+    <span class="mech-card__cta">Read →</span>
+  </a>
+  <a href="/docs/alert/detection-mechanisms/behavioral" class="mech-card mech-card--behavioral">
+    <div class="mech-card__num">04</div>
+    <h3>🧠 Behavioral analytics</h3>
+    <p>Multi-event sequence analysis across users, hosts, and time. Built for stealth attacks.</p>
+    <span class="mech-card__cta">Read →</span>
+  </a>
 </div>
 
-<br />
 ---
 
-# 🔍 Signature-Based Detection: Static Pattern Recognition
+## Trust calibration
 
-Signature-based detection remains a cornerstone of cybersecurity operations, leveraging static Indicators of Compromise (IoCs) derived from threat intelligence, reverse engineering, and historical incident response analysis. 
-This approach relies on deterministic matching algorithms (such as Aho-Corasick and Boyer-Moore string matching or hash-based lookups) to compare telemetry against millions of known threat signatures in real time.
+Each family produces signals with a different default confidence level. Knowing the family is how the analyst calibrates trust before the investigation begins.
 
-Modern implementations enhance this foundational approach through:
-- Hierarchical threat classification for multi-level detection granularity
-- Contextual metadata enrichment to aid analysis and correlation
-- Mapping to frameworks such as MITRE ATT&CK to support investigative workflows
-- Automated orchestration for timely response actions
-
-### Signatures May Include:
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-2 my-8">
-  <div class="bg-slate-50 rounded-lg p-5">
-    #### 📄 File Hashes (SHA-256, MD5)
-    SHA-256: 2e8c7de812f6a8203709176e1e2494fd273f602ea53f8b8a4dfe04d072645790
+<div class="trust-list">
+  <div class="trust-item trust-item--signature">
+    <div class="trust-item__label">Signature</div>
+    <div class="trust-item__body">High confidence, narrow scope. When it fires, it is almost always real, but the family only sees what it has been told to look for.</div>
   </div>
-  
-  <div class="bg-slate-50 rounded-lg p-5">
-    #### 🧬 Byte Sequences
-    Shellcode patterns or exploit-specific opcodes
+  <div class="trust-item trust-item--anomaly">
+    <div class="trust-item__label">Anomaly</div>
+    <div class="trust-item__body">Low default confidence, wide scope. The signal is genuine but the meaning is ambiguous. Anomaly alerts almost always need correlation with another data source before action.</div>
   </div>
-  
-  <div class="bg-slate-50 rounded-lg p-5">
-    #### 🗃️ Registry Modifications
-    HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+  <div class="trust-item trust-item--rule">
+    <div class="trust-item__label">Rule</div>
+    <div class="trust-item__body">Confidence depends on how the rule was written, how recently it was reviewed, and how well it matches current adversary technique. A well-tuned rule is reliable. A stale rule is noise.</div>
   </div>
-  
-  <div class="bg-slate-50 rounded-lg p-5">
-    #### 🌐 Network Traffic
-    Command-and-control (C2) traffic to known malicious domains or IPs
+  <div class="trust-item trust-item--behavioral">
+    <div class="trust-item__label">Behavioral</div>
+    <div class="trust-item__body">Medium to high confidence when the sequence is clear, but the analyst needs to look at the full timeline that produced the alert, not just the alert itself.</div>
   </div>
 </div>
 
-<strong>Common Implementations:</strong> CrowdStrike Falcon, Symantec Endpoint Protection, Snort/Suricata NIDS, common EDR platforms
+<KeyTakeaway>
+Mastery of detection mechanisms is not memorizing each family. It is the habit of asking which family fired and adjusting investigation depth accordingly. The four deep-dive pages below are reference material, not required reading — skim the family that matches whatever fires most in your environment, then return to the others when an unfamiliar family shows up.
+</KeyTakeaway>
 
-<br />
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/detection-mechanisms/signature"
+  nextLabel="Signature-based (reference)"
+  nextDescription="The oldest and most precise of the four families: deterministic pattern matching against curated indicators of compromise. Read on-demand when a signature alert fires, or skim now if signatures dominate your alert volume."
+  ctaLabel="Browse signature-based"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
 
-### Key Characteristics:
-- Utilizes explicit, static Indicators of Compromise (IoCs)
-- Maintains a centralized repository of threat signatures
-- Compares telemetry against signatures in real time
-- Requires frequent signature updates to stay current
+<style>
+{`
+.mechs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
 
-<div class>
-  <table class>
-    <thead>
-      <tr class="bg-slate-50">
-        <th>Strengths</th>
-        <th>Limitations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="bg-slate-50"><strong>High Precision:</strong> Very low false-positive rates for known threats</td>
-        <td class="bg-slate-50"><strong>Blind to Novel Threats:</strong> Cannot detect zero-day or polymorphic malware variants</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50"><strong>Efficiency:</strong> Lightweight pattern matching, minimal system impact</td>
-        <td class="bg-slate-50"><strong>Update Dependency:</strong> Relies on timely signature updates</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50"><strong>Auditability:</strong> Transparent, explainable detection logic</td>
-        <td class="bg-slate-50"><strong>Adversary Evasion:</strong> Minor malware modifications can bypass detection</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50"><strong>Speed:</strong> Immediate identification enables rapid response</td>
-        <td class="bg-slate-50"><strong>Narrow Scope:</strong> Limited visibility into behavioral or logic-based attacks</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+@media (min-width: 768px)  { .mechs-grid { grid-template-columns: 1fr 1fr; } }
 
-### Operational Considerations:
-- Implement robust signature management and distribution pipelines
-- Validate updates for integrity and timeliness
-- Integrate with anomaly and behavior-based detection for layered coverage
-- Monitor for coverage gaps against emerging threats
+.mech-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 0.85rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 4px solid var(--accent, #14b8a6);
+  backdrop-filter: blur(8px);
+  color: #f8fafc;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-left-width 0.15s ease, box-shadow 0.2s ease;
+}
 
-<div class="bg-slate-50 rounded-lg p-5">
-    <strong>Key Takeaway:</strong>
-    Signature-based detection delivers speed, precision, and clarity, making it indispensable for detecting known threats efficiently. 
-    However, it cannot operate in isolation. 
-    Its true value emerges as part of a layered detection strategy that incorporates dynamic, behavior-driven methods, anomaly detection, and contextual analysis to defend against both known and emerging threats.
-</div>
+.mech-card:hover {
+  transform: translateY(-3px);
+  border-left-width: 6px;
+  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.5);
+}
 
-<br />
----
+.mech-card--signature  { --accent: #3b82f6; }
+.mech-card--anomaly    { --accent: #22c55e; }
+.mech-card--rule       { --accent: #a855f7; }
+.mech-card--behavioral { --accent: #f97316; }
 
-# 📊 Anomaly-Based Detection
+.mech-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.3rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent);
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+}
 
-Anomaly-based detection establishes dynamic behavioral baselines through statistical modeling, machine learning, or hybrid approaches, flagging deviations as potential indicators of compromise. 
-This methodology is particularly effective at identifying previously unseen attack techniques, subtle malicious activity, and operational patterns that diverge from established norms. 
-While highly adaptable, it requires careful tuning, sufficient historical telemetry for baseline accuracy, and computational resources. 
-Optimal results are achieved when anomaly detection is integrated with signature- and rule-based mechanisms as part of a multi-layered defense strategy.
-<br />
+.mech-card h3 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.15rem;
+}
 
-<div class="bg-slate-50 rounded-lg p-5">
-  ##### Examples Include:
-  - <strong>Unusual Login Times:</strong> Administrative access at 2:00 AM when typical access occurs between 9:00 AM – 5:00 PM
-  - <strong>Unexpected Data Transfer Volumes:</strong> Sudden 2GB exfiltration from a server that typically transfers only a few MB per day
-  - <strong>Abnormal Process Behavior:</strong> PowerShell unexpectedly launching Python scripts
-  - <strong>Atypical Authentication Patterns:</strong> Rapid lateral movement attempts across multiple endpoints
-</div>
+.mech-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
 
-<strong>Common Implementations:</strong> Microsoft Defender for Identity, Darktrace, Exabeam, Elastic Security
+.mech-card__cta {
+  margin-top: auto;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding-top: 0.4rem;
+}
 
-<br />
+.trust-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
 
-### Key Characteristics:
-- Builds dynamic baselines from continuous telemetry streams
-- Uses statistical modeling or machine learning to detect deviations
-- Continuously adapts to environmental and behavioral changes
-- Focuses on unusual or previously unseen activity rather than known threat signatures
+.trust-item {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--accent, #14b8a6);
+  border-radius: 0.7rem;
+}
 
-<div class>
-  <table class>
-    <thead>
-      <tr class="bg-slate-50">
-        <th>Strengths</th>
-        <th>Limitations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="bg-slate-50">Detects zero-day and novel attacks</td>
-        <td class="bg-slate-50">High false positives during learning periods or environment shifts</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Customizable to environment-specific patterns</td>
-        <td class="bg-slate-50">Requires significant computational resources</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Identifies subtle or gradual malicious activity</td>
-        <td class="bg-slate-50">Needs ongoing tuning and expert oversight</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Resilient to evasion tactics targeting static signatures</td>
-        <td class="bg-slate-50">Opaque decision logic (black-box ML)</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+@media (max-width: 640px) {
+  .trust-item { grid-template-columns: 1fr; }
+}
 
-### Operational Considerations:
-- Establish baseline periods (14–30 days) for accurate learning
-- Continuously monitor for drift due to operational changes
-- Balance sensitivity and noise reduction
-- Ensure infrastructure supports real-time telemetry analysis
+.trust-item--signature  { --accent: #3b82f6; }
+.trust-item--anomaly    { --accent: #22c55e; }
+.trust-item--rule       { --accent: #a855f7; }
+.trust-item--behavioral { --accent: #f97316; }
 
-<div class="bg-slate-50 rounded-lg p-5">
-    <strong>Key Takeaway:</strong>
-    Anomaly-based detection excels at identifying novel or stealthy attacks, particularly those that evade traditional signature- or rule-based defenses. 
-    When integrated into a layered detection strategy, it enhances visibility into subtle or previously unseen malicious activity while providing contextual intelligence for proactive threat hunting.
-</div>
+.trust-item__label {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
 
-<br />
----
-
-# ⚖️ Rule-Based Detection
-
-Rule-based detection leverages expert-defined conditional logic to identify threats within IT environments. 
-These rules typically follow an <strong>“if-then”</strong> construct, combining multiple indicators, contextual parameters, and temporal constraints to flag suspicious activity. 
-Rule-based systems provide high flexibility, enabling organizations to enforce security policies, compliance mandates, and custom detection scenarios. 
-However, effective implementation demands domain expertise, continuous tuning, and rigorous lifecycle management to prevent misconfigurations and excessive false positives.
-
-<br />
-
-<div class="bg-slate-50 rounded-lg p-5">
-  ##### For Example:
-  - <strong>Process Abuse:</strong> <em>If</em> Word spawns PowerShell and initiates outbound traffic within 60s → high-severity alert
-  - <strong>Suspicious User Behavior:</strong> <em>If</em> a user is accessing multiple sensitive systems from an unregistered device within 5 min → trigger investigation
-  - <strong>Privilege Escalation:</strong> If elevated privileges are followed by bulk data access after hours → escalate to incident response
-</div>
-
-<strong>Common Implementations:</strong> Splunk Enterprise Security, IBM QRadar, Palo Alto Cortex XSOAR, custom security scripts
-
-<br /> 
-
-### Key Characteristics:
-- <strong>Multi-indicator, scenario-driven logic:</strong> Rules can combine multiple conditions and thresholds across telemetry sources
-- <strong>Complex conditional expressions:</strong> Temporal and contextual constraints allow precise detection of suspicious sequences
-- <strong>Environment-specific alerting:</strong> Tailored to organizational architecture, policies, and operational norms
-- <strong>Transparent and explainable logic:</strong> Rules are auditable and interpretable, supporting compliance and incident investigation
-
-<div class>
-  <table class>
-    <thead>
-      <tr class="bg-slate-50">
-        <th>Strengths</th>
-        <th>Limitations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="bg-slate-50">Highly customizable to organizational policies</td>
-        <td class="bg-slate-50">Requires deep domain expertise to design and maintain</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Captures complex attack patterns beyond signature databases</td>
-        <td class="bg-slate-50">Can produce false positives if misconfigured</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Transparent and auditable</td>
-        <td class="bg-slate-50">Managing complex rules can add operational overhead</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Efficient execution when rules optimized</td>
-        <td class="bg-slate-50">Requires continuous updates as threats evolve</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### Operational Considerations:
-- Review and test rules quarterly
-- Maintain version control and lifecycle documentation
-- Avoid conflicting rules and optimize performance
-- Train analysts for interpretation and escalation
-
-<div class="bg-slate-50 rounded-lg p-5">
-    <strong>Key Takeaway:</strong>
-    Rule-based detection offers precision and flexibility, making it ideal for organizations with complex operational, policy, or compliance requirements. 
-    Its transparent and auditable logic supports both security operations and governance mandates. 
-    To maximize effectiveness, rule-based detection must be carefully maintained, continuously refined, and complemented with other methods such as anomaly- and signature-based detection to provide a layered, resilient security posture.
-</div>
-
-<br />
----
-
-
-# 🧠 Behavioral Analytics
-
-Behavioral analytics detects correlated, multi-step patterns across users, endpoints, and network activity. 
-Unlike static or single-event detection methods, it emphasizes context, relationships, and intent, enabling the identification of attacks that bypass signature-, anomaly-, or rule-based systems. 
-Behavioral analytics is particularly effective against advanced persistent threats (APTs), insider threats, and complex attack campaigns. 
-Implementation requires robust infrastructure, skilled personnel, and ongoing model validation to maintain accuracy and operational effectiveness.
-
-<div class="bg-slate-50 rounded-lg p-5">
-  ##### Example Detections:
-  - <strong>Lateral Movement Detection:</strong> Pass-the-Hash or credential reuse across endpoints
-  - <strong>Privilege Escalation Sequences:</strong> Tracking admin credential use post-compromise
-  - <strong>Data Exfiltration Preparation:</strong> Database access → file compression → outbound connection
-  - <strong>Insider Threat Identification:</strong> Gradual deviations in policy or access patterns.
-</div>
-
-<strong>Common Implementations:</strong> FireEye Helix, Microsoft Defender ATP, SentinelOne, Exabeam, Securonix
-
-<br />
-
-### Key Characteristics:
-- Detects correlated, multi-step attack sequences
-- Operates over extended observation windows
-- Focuses on advanced attacks, including fileless malware and LOTL techniques
-- Context-rich detection for improved situational awareness
-
-<div class>
-  <table class>
-    <thead>
-      <tr class="bg-slate-50">
-        <th>Strengths</th>
-        <th>Limitations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="bg-slate-50">Detects stealthy, sophisticated attacks</td>
-        <td class="bg-slate-50">Requires significant resources to maintain and validate models</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Provides context-rich alerts</td>
-        <td class="bg-slate-50">May miss isolated critical actions outside patterns</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Adapts to evolving adversary tactics</td>
-        <td class="bg-slate-50">Continuous tuning required to prevent drift</td>
-      </tr>
-      <tr>
-        <td class="bg-slate-50">Correlates subtle indicators across systems and users</td>
-        <td class="bg-slate-50">Privacy and data governance concerns due to extensive telemetry</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-### Operational Considerations:
-- Implement robust model lifecycle management and QA
-- Balance granularity of detection with system performance
-- Integrate with SIEM, SOAR, and incident response workflows
-- Train analysts to interpret correlated alerts effectively
-
-<div class="bg-slate-50 rounded-lg p-5">
-    <strong>Key Takeaway:</strong>
-    Behavioral analytics delivers advanced visibility into complex and sophisticated attacks, complementing signature-, anomaly-, and rule-based detection. 
-    When incorporated into a multi-layered defense strategy, it enhances detection fidelity, accelerates investigative workflows, and strengthens organizational resilience against advanced threats.
-</div>
-
-<br />
----
-
-Understanding the detection mechanism underlying each alert is a cornerstone of accurate triage and risk assessment within the ASSURED methodology. 
-<strong>Signature-based detection</strong> delivers rapid, precise identification of known threats; 
-<strong>anomaly-based detection</strong> provides early warning for previously unseen behaviors; 
-<strong>rule-based detection</strong> enforces organizational policies and complex scenarios; 
-and <strong>behavioral analytics</strong> uncovers sophisticated, multi-step attacks. 
-
-Together, these mechanisms form a layered, complementary defense, enabling analysts to contextualize alerts, prioritize investigations, and respond effectively. 
-Mastery of these detection modalities ensures that security operations are not only reactive but proactively resilient, transforming raw telemetry into actionable intelligence and driving confident, informed decision-making.
-
-<br />
----
-
-# Ready to Continue?
-<div class="cta-section text-center">
-  <div>
-    <h3 class="text-2xl font-bold mb-4">🚀 The ASSURED Methodology: Alert</h3>
-    <p class="max-w-2xl mx-auto">
-      Continue on to the next section to learn strategies for confirming alert accuracy and relevance through contextual analysis and multi-dimensional assessment.
-    </p>
-  </div>
-  
-  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">✓</span>
-      <span class = "font-semibold">Detection Mechanisms</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Alert Validation</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Parsing Alerts</span>
-    </div>
-  </div>
-  
-  <div>
-    <a href="/docs/alert/validation" class="inline-flex items-center px-8 py-4 font-semibold rounded-lg">
-      <span class="mr-2">Onwards to Alert: Validation</span>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-      </svg>
-    </a>
-  </div>
-  
-</div>
+.trust-item__body {
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+`}
+</style>

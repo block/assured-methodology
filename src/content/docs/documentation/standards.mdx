@@ -1,0 +1,214 @@
+---
+title: "Documentation standards"
+description: "Format and structure, clarity and precision, timeliness. The discipline that turns notes into records, and records into institutional knowledge."
+slug: "documentation/standards"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="01" pillarLabel="03" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Standards are how the team agrees on what good documentation looks like. Format, language, and timing each pull their weight; together they turn analyst notes into durable records."/>
+
+<PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/standards" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+## Three standards that matter most
+
+<div class="std-grid">
+  <a href="#format" class="std-card"><h4>🧱 Format and structure</h4><p>The same case sections appear in the same order across every record. Templates and field validation enforce it.</p></a>
+  <a href="#clarity" class="std-card"><h4>🔍 Clarity and precision</h4><p>Plain language, named entities, exact timestamps, separated facts vs. analysis, active voice for accountability.</p></a>
+  <a href="#timeliness" class="std-card"><h4>⏱️ Timeliness</h4><p>Documentation as a parallel workflow, not a post-facto task. Real-time capture preserves detail and reasoning.</p></a>
+</div>
+
+---
+
+<h2 id="format">🧱 Format and structure</h2>
+
+All documentation should follow a standardized template that gives every reader the same frame of reference, regardless of background or role. This uniformity allows clear, reliable records that can be referenced across cases, departments, or review cycles. Templates must be version-controlled, accessible, and regularly updated.
+
+A complete event report contains nine core sections, each with a distinct purpose.
+
+<div class="section-list">
+  <div class="section-card">
+    <span class="section-card__num">01</span>
+    <h4>Event overview</h4>
+    <p>Who, what, when, where, how, at a glance: alert identifier, detection date/time, affected system or environment, plain-language description of observed behavior, current status (resolved / ongoing / escalated).</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">02</span>
+    <h4>Timeline of events</h4>
+    <p>Chronological breakdown of key actions and decisions: initial alert details, all investigative actions with UTC timestamps, response measures, phase transitions, significant delays or decision points, final resolution.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">03</span>
+    <h4>Root cause and scope</h4>
+    <p>Thorough analysis of how the event originated and its impact radius: initial access vector, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">04</span>
+    <h4>Actions taken</h4>
+    <p>Investigative procedures, containment measures, remediation tasks: tools or methods used, responsible individual or team, outcome of each action, timeline of response activities.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">05</span>
+    <h4>Business impact</h4>
+    <p>Technical detail translated into organizational consequence: operational disruption, financial impact, regulatory implications, reputational effects, SLA violations, external communication necessities.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">06</span>
+    <h4>Indicators of compromise</h4>
+    <p>Structured listing: network indicators (IPs, domains, URLs), host-based indicators (files, registry keys), email indicators, MITRE ATT&CK technique mappings, confidence levels, recommended detection logic.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">07</span>
+    <h4>Lessons learned</h4>
+    <p>Documentation as an improvement tool: detection gaps identified, process inefficiencies, response challenges, communication breakdowns, successful tactics, organizational weaknesses exposed, technology limitations.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">08</span>
+    <h4>Post-incident recommendations</h4>
+    <p>Specific, actionable improvements: security control enhancements, detection rule improvements, procedure updates, training requirements, ownership assignments, implementation timelines, success metrics.</p>
+  </div>
+  <div class="section-card">
+    <span class="section-card__num">09</span>
+    <h4>Appendices and evidence</h4>
+    <p>Supporting materials: log excerpts (sanitized as needed), system images or snapshots, analysis tool outputs, communication transcripts, related case references, external intelligence reports, chain of custody documentation.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Balance comprehensiveness with practicality">
+Effective standards capture sufficient detail to support all downstream uses while remaining feasible during real-world events. Standards that are too burdensome lead to compliance shortcuts or documentation delays. Standards that are too simplistic omit critical information. The sweet spot is structured, validated templates with clear required fields and optional ones.
+</Callout>
+
+<Reveal summary="Chain of custody: a brief procedure" variant="info">
+
+Chain of custody is the documented, time-stamped trail of who handled a piece of evidence, when, where, and what they did with it. If a case ever ends up in court, in a regulator's request, or in a legal-hold proceeding, the chain is what proves the evidence wasn't tampered with between collection and presentation. Break the chain and the evidence becomes inadmissible.
+
+For triage and the appendix of the event report, the minimum-viable chain captures the following at each transfer:
+
+- **Identifier.** A stable handle for the artifact — usually the SHA-256 hash for files, a case ID + log query string for log excerpts, or a snapshot ID for disk/memory images.
+- **Acquisition.** Who collected it, on what device, with what tool, at what timestamp. Tool versions matter (the same EDR export from two product versions may differ).
+- **Transfers.** Every time the artifact moves between custodians or storage locations, log the receiving custodian, the transfer mechanism (case-management upload, encrypted bucket move, USB), the timestamp, and a re-verification of the identifier (re-hash for files).
+- **Integrity verification.** A hash recorded at acquisition, re-verified at each transfer and again before any analysis or presentation. If the hash changes, that's a break — record the break and stop using the artifact for evidentiary purposes.
+- **Access log.** Each read or analysis touch by name, purpose, and timestamp. Most case-management systems log this automatically; verify it's enabled.
+- **Disposal.** When and how the artifact is destroyed at end-of-retention. Inappropriate disposal is its own break.
+
+**What constitutes a break:** any time you cannot produce a continuous chain from acquisition to the current custodian. The most common silent breaks are pulling evidence into a personal scratch directory, sharing a screenshot in a Slack DM, or letting an EDR retention window expire on the source telemetry without exporting the underlying records first. If you're not sure whether a step counts as a break, log it explicitly with a note — the worst position is one where the gap is discovered later by counsel.
+
+For triage analysts, the practical rule is: if the case might end in escalation to IR or external counsel, treat every artifact as if it's evidence from acquisition. The cost of treating low-stakes artifacts with chain-of-custody discipline is low. The cost of needing chain-of-custody on an artifact you didn't track is total.
+
+</Reveal>
+
+---
+
+<h2 id="clarity">🔍 Clarity and precision</h2>
+
+Language must be unambiguous, technically accurate, and aligned with the organization's defined terminology. Reports avoid colloquial expressions, internal slang, or undocumented acronyms. Terminology standardizes across templates and aligns with the security lexicon, <DefineTerm term="MITRE ATT&CK" />, and relevant regulatory frameworks.
+
+<div class="clarity-grid">
+  <div class="clarity-card">
+    <h4>📐 Use precise technical terms</h4>
+    <p>Employ standardized security terminology aligned with industry frameworks (MITRE ATT&CK, NIST, ISO). Define specialized terms on first use to ensure clarity for diverse audiences.</p>
+  </div>
+  <div class="clarity-card">
+    <h4>🧪 Separate facts from analysis</h4>
+    <p>Clearly distinguish observed evidence (facts) from investigative conclusions (analysis) to maintain documentation integrity and support alternative interpretations if new evidence emerges.</p>
+  </div>
+  <div class="clarity-card">
+    <h4>⏰ Include exact timestamps</h4>
+    <p>Record all events with precise UTC timestamps to eliminate ambiguity and enable accurate chronological reconstruction across time zones and systems.</p>
+  </div>
+  <div class="clarity-card">
+    <h4>⚙️ Document technical details</h4>
+    <p>Include specific technical information: command syntax, tool versions, configuration parameters, exact error messages. Enables precise reproduction and verification.</p>
+  </div>
+</div>
+
+<Reveal summary="Active voice, accountability, and complex detail" variant="info">
+
+**Layered detail.** Where necessary, complex technical detail should live in referenced appendices, technical supplements, or attached forensic reports, not in the core narrative. The primary document remains readable; full investigative context is preserved for those who require it. Technical supplements might include packet captures, memory dumps, <DefineTerm term="Malware" display="malware" /> analysis reports, or detailed <DefineTerm term="Log" display="log" /> excerpts.
+
+**Confidence labeling.** When uncertainty exists, documentation explicitly states the confidence level and supporting evidence rather than presenting assumptions as facts. Transparency about knowledge limitations protects credibility and prevents inappropriate actions based on unverified information.
+
+**Active voice.** Passive voice should be avoided when describing actions. "The analyst isolated the host at 14:32 UTC" beats "the host was isolated." Active voice creates clear attribution of actions and decisions, which is essential for accountability, traceability, and <DefineTerm term="Root Cause Analysis" display="root cause analysis" />.
+
+**Professional tone.** Documentation language remains professional and objective. Technical facts and observable behaviors, not subjective judgments or emotional reactions. Even in high-impact events, measured precision supports rational decision-making rather than amplifying organizational stress.
+
+</Reveal>
+
+---
+
+<h2 id="timeliness">⏱️ Timeliness</h2>
+
+Documentation must be initiated at the earliest stages of investigation and maintained continuously. Information is logged in real time as observations are confirmed, actions performed, and decisions made. Delaying documentation until after resolution leads to inaccuracies, lost detail, and incomplete timeline reconstruction.
+
+<div class="timely-grid">
+  <div class="timely-card">
+    <h4>🎯 Captures precise sequence</h4>
+    <p>Real-time documentation preserves the exact sequence and timing of events while they are occurring. Eliminates reliance on memory or fragmented notes.</p>
+  </div>
+  <div class="timely-card">
+    <h4>🧠 Preserves reasoning</h4>
+    <p>Decisions are recorded with the reasoning available at the moment they were made. Months later, the record explains not just what happened but why.</p>
+  </div>
+  <div class="timely-card">
+    <h4>🤝 Enables seamless handoffs</h4>
+    <p>Shift changes and specialist engagement happen without context loss. The next analyst inherits the current state, not a half-explained narrative.</p>
+  </div>
+  <div class="timely-card">
+    <h4>🌐 Supports cross-zone coordination</h4>
+    <p>Critical during incidents spanning time zones, legal holds, and escalations. Timely, verified facts inform organizational decisions and stakeholder communications.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Documentation is an active part of the workflow">
+Each investigative phase, Alert, Subject, Scope, Uncover, Risk, Escalation, includes associated updates to the event record. As the investigation progresses, documentation reflects evolving understanding, scope expansion or contraction, and refined risk assessments. This progressive approach creates a natural narrative that shows how understanding developed over time, rather than a tidy after-the-fact reconstruction.
+</Callout>
+
+<Reveal summary="Standards for documentation timeliness" variant="info">
+
+Organizations should establish clear expectations:
+
+- **Maximum allowable delay** between actions and documentation (often 15 minutes during active incidents, 1 hour for routine work).
+- **Required update frequency** during active investigations (typically hourly during incidents, at every phase transition during triage).
+- **Time limits for finalization** after event closure (often 24 hours for routine cases, 5–7 days for major incidents).
+
+Compliance with timeliness standards should be regularly assessed and reinforced through training, performance metrics, and quality reviews. Automation that prompts for documentation updates or extracts information directly from security tools further improves timeliness and reduces analyst burden.
+
+</Reveal>
+
+<KeyTakeaway>Standards are not paperwork. They are the protocol that makes documentation useful to every future reader: the analyst, the auditor, the post-mortem reviewer, the regulator. Format, clarity, and timeliness compound into records that survive the case.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/templates" nextLabel="Templates" ctaLabel="Read templates" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.std-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .std-grid { grid-template-columns: repeat(3, 1fr); } }
+.std-card { display: block; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+.std-card:hover { transform: translateY(-3px); border-color: #06b6d4; box-shadow: 0 14px 28px -14px rgba(6, 182, 212, 0.35); }
+.std-card h4 { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 1rem; }
+.std-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.section-list { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .section-list { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .section-list { grid-template-columns: repeat(3, 1fr); } }
+.section-card { position: relative; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.6rem; }
+.section-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.55); }
+.section-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.95rem; }
+.section-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.clarity-grid, .timely-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .clarity-grid, .timely-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .clarity-grid, .timely-grid { grid-template-columns: repeat(4, 1fr); } }
+.clarity-card, .timely-card { padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
+.clarity-card h4, .timely-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
+.clarity-card p, .timely-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.87rem; }
+`}</style>

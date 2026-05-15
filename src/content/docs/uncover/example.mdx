@@ -1,0 +1,281 @@
+---
+title: "Uncover working example"
+description: "The investigation, applied to the same finance-team intrusion. Evidence gathering across endpoint, network, identity, and cloud."
+slug: "uncover/example"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import ChapterExample from "@/components/assured/ChapterExample.astro";
+import ExampleStepper from "@/components/assured/ExampleStepper.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarNumber="Example"
+  pillarLabel="Uncover chapter"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="The Uncover phase applied to the bounded investigation Scope handed off. Five steps that pull evidence from the right sources, correlate it, and produce the narrative the next phases need."
+/>
+
+<PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/example" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+<ChapterExample
+  title="Pulling the evidence on the finance-team intrusion"
+  scenario="Scope set the boundary: phishing-driven intrusion, 72-hour primary window with a 4-week look at primary entities, three primary identities, three secondary identities, PCI and GDPR active. Uncover begins."
+>
+
+<ExampleStepper steps={["Endpoint telemetry", "Network correlation", "Identity logs", "Mail and SaaS", "Map to ATT&CK"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Endpoint telemetry</h3>
+    <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566 (Phishing) → T1059.001 (PowerShell) → T1105 (Ingress Tool Transfer).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Network correlation</h3>
+    <p>Proxy logs confirm the HTTPS connection to invoice-records[.]com. DNS history shows the domain registered 4 days ago, low prevalence, no prior queries from the environment. Firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID. Self-signed certificate with generic CN. The destination IP is in a hosting provider's bulletproof range.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Identity logs</h3>
+    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: a second authentication path appears in cloud identity logs about 12 minutes after the alert. The session was federated from the on-premises identity, still using dlin's credentials. Targeted the cloud finance platform. Successful.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1078.004 (Valid Accounts: Cloud Accounts).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Mail and SaaS</h3>
+    <p>Mailbox audit confirms the originating email: vendor-themed subject, attachment that decoded to a macro-laden Word document. Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Map to ATT&CK and finalize the narrative</h3>
+    <p>The complete chain:</p>
+    <pre><code>{`T1566.001  Spearphishing attachment delivered to 4 finance team users
+T1204.002  <DefineTerm term="User" /> <DefineTerm term="Execution" display="execution" />: 2 users opened the document
+T1059.001  <DefineTerm term="PowerShell" /> execution invoked from macro
+T1105      Ingress tool transfer: second-stage payload pulled from external <DefineTerm term="Domain" display="domain" />
+T1071.001  Outbound HTTPS to attacker-controlled domain
+T1078.004  Valid accounts: federated login to cloud finance platform`}</code></pre>
+    <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal. Uncover ends with this narrative ready for the Risk phase.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+Uncover combined <DefineTerm term="Endpoint" display="endpoint" />, network, identity, and SaaS evidence into one chain. Each source answered a different question; the chain only emerged when all four came together. That is the whole point of the phase.
+</KeyTakeaway>
+
+---
+
+## A second scenario: confirming a false-positive on the developer workstation
+
+The first walkthrough showed Uncover building a positive narrative: this is the chain, here are the techniques, here is what to do next. Real triage often runs the other direction. The hypothesis is "compromise"; the evidence has to either confirm it or rule it out with explicit confidence. The methodology demands the same rigor on both paths.
+
+<ChapterExample
+  title="Pulling the evidence on the Cursor IDE alert"
+  scenario="Scope handed off a narrow boundary: macOS developer workstation, frontend engineer, alert minus 1 hour through alert plus 4 hours, EDR primary, the Cursor IDE / Cursor Helper alert that looked like Empire but came from a signed vendor binary. Uncover begins."
+>
+
+<ExampleStepper steps={["Endpoint telemetry", "Network and tooling", "Tooling coverage gaps", "Behavioral correlation", "Verdict and handoff"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Endpoint telemetry</h3>
+    <p>EDR data from CrowdStrike, scoped to the time window.</p>
+    <ul class="example-step__list">
+      <li><strong>14:03 UTC.</strong> User launched Cursor IDE.</li>
+      <li><strong>14:03–14:04 UTC.</strong> ripgrep search for a test string involving a reCAPTCHA token. Consistent with active code work.</li>
+      <li><strong>14:04–14:07 UTC.</strong> Multiple git commands: fetch repository content, access to test files in BlockerEmailVerification and BlockerPhoneVerification modules.</li>
+      <li><strong>14:08 UTC.</strong> JavaScript test runner configuration, relevant test files loaded.</li>
+      <li><strong>14:08+ UTC.</strong> Additional git fetch operations tied to a specific Pull Request. Local branch checked out to <code>feat-migrate-phone-verification-to-flow</code>.</li>
+    </ul>
+    <p>This sequence is a textbook developer workflow on a feature migration. Process tree, command lines, file access all align with the user's documented role.</p>
+    <p><strong>Mapped to ATT&CK:</strong> nothing in this sequence maps to an attack technique. Worth recording explicitly so the handoff says "behavior is consistent with role" rather than leaving the question open.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Network and tooling analysis</h3>
+    <p>Network telemetry over the same window.</p>
+    <ul class="example-step__list">
+      <li><strong>Outbound destinations.</strong> Legitimate corporate version-control hosts, internal development services, collaboration tools. All previously seen, all expected for the role.</li>
+      <li><strong>Traffic volume and frequency.</strong> Consistent with normal development. No unusual transfer volume, no beaconing pattern, no periodic callbacks.</li>
+      <li><strong>Protocols and ports.</strong> Standard ports for the observed services. No protocol tunneling, no port mismatch indicative of evasion.</li>
+      <li><strong>DNS queries.</strong> Internal development domains and trusted external services. No DGA-like entropy, no resolutions to known-malicious domains.</li>
+    </ul>
+    <p>The network picture matches the endpoint picture. Nothing here suggests the binary's TLS-encrypted outbound calls (the original signal that mapped to Empire patterns) were to anything other than the IDE's documented vendor infrastructure.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Tooling coverage gaps</h3>
+    <p>Uncover does not just report what it found. It reports what it could not see.</p>
+    <ul class="example-step__list">
+      <li><strong>CrowdStrike on macOS:</strong> active, capturing process execution, file access, network traffic. Primary source, working as expected.</li>
+      <li><strong>Native full-packet capture:</strong> not available on this macOS configuration. Payload-level inspection of encrypted traffic is therefore not possible from the host's perspective.</li>
+      <li><strong>USB device monitoring:</strong> absent. Cannot conclusively rule out offline data movement.</li>
+      <li><strong>Persistence mechanisms (LaunchAgents, LaunchDaemons):</strong> reviewed via EDR file activity. No new entries during the window.</li>
+    </ul>
+
+    <Reveal summary="What the gaps mean for the verdict" variant="info">
+
+    Uncover's job at this step is to be explicit about confidence. The two gaps (full PCAP and USB) mean certain attack vectors cannot be fully ruled out from <DefineTerm term="Telemetry" display="telemetry" /> alone.
+
+    However, no other evidence in the available sources supports expanding scope to chase those vectors. The methodology calls this out as "no positive evidence supports expansion at this time, gaps documented, will revisit if new signals surface" rather than pretending the gaps do not exist or panic-expanding the investigation because of them.
+
+    </Reveal>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Behavioral correlation against the role baseline</h3>
+    <p>Subject's analysis already established this user's baseline as consistent with the activity. Uncover validates that claim with the deeper telemetry.</p>
+    <ul class="example-step__list">
+      <li><strong>Peer comparison.</strong> Three other engineers on the same team show similar Cursor process trees and network patterns over the past 30 days. The behavior is not unique to this user.</li>
+      <li><strong>Historical workflow.</strong> The user's last 14 days show consistent IDE usage, regular git activity, and the same outbound destinations. The 14:03 sequence is part of a continuous workflow, not a sudden anomaly.</li>
+      <li><strong>No persistence created.</strong> No new launchd plists, no new login items, no new scheduled tasks. The binary did not attempt to anchor itself to the system.</li>
+      <li><strong>No credential access.</strong> Keychain access logs show no unusual reads. No new SSH keys, no API token grabs.</li>
+    </ul>
+    <p>Four corroborating sources (peer baseline, individual history, persistence absence, credential absence) all agree with the role-consistent reading.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Verdict and handoff</h3>
+    <p>Uncover ends with a structured, defensible verdict.</p>
+    <ul class="example-step__list">
+      <li><strong>Verdict:</strong> false-positive with explicit caveats. The detection logic correctly flagged a process behavior pattern that overlaps with Empire tradecraft, but the full investigation shows the behavior is consistent with a signed, role-appropriate IDE running in its documented configuration.</li>
+      <li><strong>Confidence:</strong> high on the binary identity, network destinations, and user behavior. Medium on full coverage due to the macOS PCAP and USB monitoring gaps; mitigated by absence of corroborating signals.</li>
+      <li><strong>ATT&CK chain:</strong> none. No techniques observed beyond legitimate development activity.</li>
+      <li><strong>Detection feedback:</strong> the rule that fired is too broad for macOS developer workstations running Electron-based IDEs. A tuned variant that incorporates binary signature, install path, and runtime context would have suppressed this alert. Feature request opened.</li>
+      <li><strong>Open question for Risk:</strong> are the documented coverage gaps (macOS PCAP, USB) acceptable given the developer-workstation population's risk profile, or do they warrant additional tooling investment? That is a Risk-phase question, not an Uncover-phase one.</li>
+    </ul>
+
+    <Reveal summary="What this Uncover deliverable proves" variant="example">
+
+    A <DefineTerm term="False-Positive" display="false-positive" /> verdict that meets the methodology's standard is not "dismissed." It is documented, evidenced, and bounded. The case has:
+
+    - Defensible scope (Scope's boundary)
+    - Defensible subject reads (Subject's per-<DefineTerm term="Entity" display="entity" /> assessments)
+    - Defensible Uncover evidence (this page's telemetry, with explicit gaps named)
+    - A detection-engineering <DefineTerm term="Feedback Loop" display="feedback loop" /> (the over-broad rule)
+    - A teed-up Risk question (acceptable coverage gaps?)
+
+    That is what a fully written false-positive looks like. The investigation can be re-opened with full context if new signals appear. Without this kind of write-up, the same alert will fire again next week and the analyst will start from zero.
+
+    </Reveal>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Two shapes of Uncover">
+The first scenario showed Uncover building a chain of techniques that confirmed compromise and produced a clear narrative for IR. The second showed Uncover documenting absence of compromise with the same rigor: chain of evidence, mapped (or explicitly not mapped) to ATT&CK, with confidence levels and tooling gaps surfaced. Both are correct Uncover outcomes. The methodology applies the same standard to both.
+</Callout>
+
+---
+
+## A cloud-native mini-example: the IAM role assumption
+
+The two cases above are endpoint-anchored. The same methodology works for cloud-origin alerts where the endpoint is irrelevant — what matters is the API call, the principal, and the role chain. This shorter walkthrough shows how Uncover applies to a 2026-typical cloud alert.
+
+<ChapterExample
+  title="An unexpected AssumeRole in AWS at 02:14 UTC"
+  scenario="GuardDuty fires: a long-tenure IAM user invokes sts:AssumeRole to take a role that is normally used only by a CI pipeline. The role grants S3 read on a regulated-data bucket. The user is a senior data engineer; the time is 02:14 UTC, outside their usual window. Subject and Scope set narrow bounds (this user, this role, this bucket, alert minus 1 hour through alert plus 4). Uncover begins."
+>
+
+<ExampleStepper steps={["CloudTrail correlation", "IdP context", "Bucket access pattern", "Verdict and gaps"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. CloudTrail correlation</h3>
+    <p>Pull the user's CloudTrail events over the time window plus 7 days of baseline.</p>
+    <ul class="example-step__list">
+      <li><strong>02:13:58 UTC.</strong> <code>sts:GetCallerIdentity</code> from the user. Source IP resolves to a corporate VPN egress.</li>
+      <li><strong>02:14:02 UTC.</strong> <code>sts:AssumeRole</code> for <code>arn:aws:iam::&lt;account&gt;:role/ci-data-export</code>, session name <code>local-investigation-2026-05-12</code>.</li>
+      <li><strong>02:14–02:31 UTC.</strong> Eight <code>s3:GetObject</code> calls against <code>regulated-pii-bucket</code>, all against keys matching <code>quarterly-export/*</code>.</li>
+      <li><strong>Baseline check.</strong> The user has assumed <em>other</em> roles regularly, but not <code>ci-data-export</code>. The role is technically grantable to anyone in the <code>data-engineers</code> group; it's just rarely used outside CI.</li>
+    </ul>
+    <p><strong>Mapped to ATT&CK:</strong> <strong>T1078.004 Valid Accounts: Cloud Accounts</strong> + <strong>T1530 Data from Cloud Storage</strong>.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. IdP context</h3>
+    <p>The role-assumption is gated by SSO. Pull the IdP authentication that preceded it.</p>
+    <ul class="example-step__list">
+      <li>SSO login at 02:13:14 UTC, FIDO2 second factor satisfied, registered device matches the user's laptop.</li>
+      <li>No <strong>impossible travel</strong> signal — same geographic region as their typical sign-in.</li>
+      <li>No <strong>OAuth consent grant</strong> events in the prior 14 days; no new app authorizations.</li>
+      <li>No <strong>token-replay</strong> indicators: the AWS API calls use credentials minted by this fresh STS session, not a long-lived access key.</li>
+    </ul>
+    <p>The identity surface reads clean. The attacker patterns that would explain "unexpected role assumption" — token theft, consent abuse, AiTM phishing — all show no corroborating evidence.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Bucket access pattern</h3>
+    <p>The actions taken inside the assumed role's session are what determine whether this matters.</p>
+    <ul class="example-step__list">
+      <li><strong>Eight objects read.</strong> All from <code>quarterly-export/</code>. No <code>s3:ListBucket</code> reconnaissance. No traversal into other prefixes.</li>
+      <li><strong>No write, no delete.</strong> No new objects created. No <code>s3:DeleteObject</code>. No bucket-policy or ACL changes.</li>
+      <li><strong>Egress check.</strong> The session's source IP is the same corporate VPN throughout. No anomalous data-transfer destination.</li>
+      <li><strong>Object size.</strong> Total ~120 MB across the eight keys, consistent with quarterly export files; not a bulk-exfil signature.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Verdict and gaps</h3>
+    <p>The hypothesis going in was "unexpected role use on regulated data." The evidence supports a more boring read:</p>
+    <ul class="example-step__list">
+      <li><strong>Likely verdict:</strong> off-hours manual export by the engineer (confirmed via Slack DM after the on-shift IR opened a quick check). Consistent with quarterly-export work that normally runs in the CI pipeline.</li>
+      <li><strong>Confidence:</strong> high on the technical evidence. Medium until the user confirms (which they did, ~15 min into Uncover).</li>
+      <li><strong>Coverage gaps:</strong> the S3 data-events trail is on for <code>regulated-pii-bucket</code>; it would NOT be on for buckets without explicit data-event logging. This is a detection-engineering note, not a blocker for this case.</li>
+      <li><strong>Detection-tuning suggestion:</strong> add an "automation-only" tag to roles like <code>ci-data-export</code> so manual assumption fires a lower-noise informational signal instead of GuardDuty's high-severity alert. Feeds the false-positive-into-feedback loop.</li>
+    </ul>
+    <p>This is what Uncover looks like when the case is cloud-anchored: same methodology, different sources (CloudTrail, IdP logs, S3 data events), same standard of evidence.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+Uncover combined multiple sources into a chain. The first scenario built a chain of malicious techniques. The second built a chain of role-consistent activity that ruled out malice with explicit confidence. The third showed the same methodology applied to a cloud-native alert where the endpoint never entered the picture. The methodology demands the same evidence, the same documentation, and the same handoff in all three cases.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/quiz" nextLabel="Uncover quiz" ctaLabel="Take the quiz" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>
+{`
+.example-step h3 { margin: 0 0 0.85rem 0; color: #fdba74; font-size: 1.2rem; }
+.example-step p { margin: 0 0 0.85rem 0; color: #cbd5e1; line-height: 1.65; }
+.example-step pre { margin: 0 0 1rem 0; font-size: 0.82rem; }
+.example-step strong { color: #f8fafc; }
+.example-step__list {
+  margin: 0 0 1rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.example-step__list li { color: #cbd5e1; line-height: 1.6; }
+.example-step__list strong { color: #f8fafc; }
+.example-step code {
+  background: rgba(15, 23, 42, 0.7);
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.88em;
+}
+`}
+</style>

@@ -1,0 +1,117 @@
+---
+title: "Alert chapter quiz"
+description: "Check what you've learned. Five questions on detection mechanisms, validation, parsing, and the Alert deliverable."
+slug: "alert/quiz"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="Quiz"
+  pillarLabel="Alert chapter"
+  chapterHref="/docs/alert"
+  chapterLabel="Alert"
+  lede="Five questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Alert chapter"
+  current="/docs/alert/quiz"
+  items={[
+    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms", phase: "alert" },
+    { label: "Validation",           href: "/docs/alert/validation",            phase: "alert" },
+    { label: "Parsing",              href: "/docs/alert/parsing",               phase: "alert" },
+    { label: "Transition",           href: "/docs/alert/transition",            phase: "alert" },
+    { label: "Quiz",                 href: "/docs/alert/quiz",                  phase: "alert" },
+  ]}
+/>
+
+<Quiz title="Quiz: did the chapter stick?" subtitle="No grades. The point is to push your thinking. Some questions are harder than they look.">
+
+  <QuizItem
+    prompt="An EDR fires a behavioral alert at 02:14 with 64% confidence. The user's baseline shows they routinely work overnight. What is the right next step?"
+    options={[
+      { value: "close",      label: "Close as a false-positive. The baseline explains it." },
+      { value: "escalate",   label: "Escalate immediately. 02:14 is suspicious enough." },
+      { value: "validate",   label: "Run validation across the other three dimensions before deciding." },
+      { value: "parse",      label: "Decode the command line in full before doing anything else." },
+    ]}
+    answer="validate"
+    explanation="Baseline comparison is one of three strategies, and one of four dimensions. A single dimension agreeing is not the same as validation. The environmental dimension says the timing is consistent; technical fidelity, threat intelligence, and business impact have not been checked yet. Validate across all four, then decide."
+  />
+
+  <QuizItem
+    prompt="Two alerts fire with identical content. Alert A is on a contractor's sandbox laptop. Alert B is on a service account with administrative access to a HIPAA-bound database. The analyst can only investigate one in the next 15 minutes. Which strategy makes the prioritization defensible?"
+    options={[
+      { value: "baseline",    label: "Baseline comparison. The deviations might differ." },
+      { value: "chains",      label: "Attack-chain correlation. One of them might be part of a sequence." },
+      { value: "criticality", label: "Asset and user criticality. The blast radius is what differs." },
+      { value: "intuition",   label: "Analyst intuition. The senior analyst will know which to pick." },
+    ]}
+    answer="criticality"
+    explanation="Criticality validation is exactly the strategy designed for this trade-off. Alert B affects a high-criticality asset and a privileged identity, so it is the immediate-action alert. Months later, the criticality data attached to the queue order is what makes the choice reviewable in a post-mortem."
+    hint="The two alerts are identical in shape. What differs is the entity each one affects."
+  />
+
+  <QuizItem
+    prompt="Which detection family is most likely to fire when an adversary uses living-off-the-land binaries with no custom malware?"
+    options={[
+      { value: "signature",  label: "Signature-based" },
+      { value: "anomaly",    label: "Anomaly-based" },
+      { value: "rule",       label: "Rule-based" },
+      { value: "behavioral", label: "Behavioral analytics" },
+    ]}
+    answer="behavioral"
+    explanation="Signature engines see only signed, trusted binaries. Anomaly engines may not flag because the individual events fall within tolerance. Rule engines can fire if a rule is well-written for the pattern, but they require someone to have written that rule. Behavioral analytics is the family designed for multi-step adversary patterns built from legitimate-looking pieces."
+    hint="Think about what each family is naturally good at and what each one is naturally blind to."
+  />
+
+  <QuizItem
+    prompt="An alert reports an outbound TLS connection to a domain registered three days ago. The process is signed certutil.exe. The user is a developer. Which combination of signals would raise the confidence that this is malicious?"
+    options={[
+      { value: "domain-age", label: "Just the domain age. New domains are suspicious." },
+      { value: "process",    label: "Just the process. certutil rarely makes outbound TLS connections." },
+      { value: "combined",   label: "Domain age + certutil + the developer not having a documented build process that uses certutil for downloads." },
+      { value: "ignore",     label: "Ignore the alert. certutil is signed by Microsoft." },
+    ]}
+    answer="combined"
+    explanation="Single signals get tuned out as noise. The combination is what changes the verdict. New domain + an unusual process for the user + no documented business reason maps to the classic certutil-as-LOLBin pattern. None of the signals on its own is decisive. The combination is."
+  />
+
+  <QuizItem
+    prompt="What is the Alert phase's deliverable to the rest of the methodology?"
+    options={[
+      { value: "verdict",     label: "A verdict on whether the alert is malicious." },
+      { value: "structured",  label: "A structured, validated, parsed record plus an entity list and an investigation plan." },
+      { value: "containment", label: "A containment recommendation for the affected host." },
+      { value: "report",      label: "A written report for the security manager." },
+    ]}
+    answer="structured"
+    explanation="Alert produces three things: a structured record of what the engine saw, a validation result that says whether the signal is real, and a parsed metadata set that the next phases can query. Verdicts and containment are downstream phases. Reports are documentation. The Alert phase's job is to make the next analyst's work fast and accurate, not to draw conclusions."
+  />
+
+</Quiz>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/subject"
+  nextLabel="Continue to Subject"
+  nextDescription="With Alert mastered, the next chapter turns to identifying every entity involved in the activity: who acted, with what credentials, in what context."
+  ctaLabel="Begin Subject"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>

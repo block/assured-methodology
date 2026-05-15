@@ -1,0 +1,201 @@
+---
+title: "Event triage vs. incident response"
+description: "Triage frames the puzzle. IR completes it. The methodology's sharpest piece of original thinking."
+slug: "escalation/triage-vs-ir"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="03" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Triage and incident response do related work for different reasons. Conflating them produces investigations that are either premature or stuck. The distinction is one of the methodology's most useful contributions."/>
+
+<PillNav chapter="escalation" label="Escalation chapter" current="/docs/escalation/triage-vs-ir" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+## Two different jobs
+
+<div class="vs-grid">
+  <div class="vs-card vs-card--triage">
+    <span class="vs-card__tag">Event triage</span>
+    <h3>🧩 Framing the puzzle</h3>
+    <p>Goal: assemble enough of the picture to know what an alert is and whether it deserves further response. The work ends with a verdict and a handoff packet.</p>
+    <p>Mindset: structured, time-bounded, defaults toward escalating when criteria are met.</p>
+    <p>Output: structured triage record, ATT&CK mapping, recommended priority.</p>
+  </div>
+  <div class="vs-card vs-card--ir">
+    <span class="vs-card__tag">Incident response</span>
+    <h3>🛠️ Completing the puzzle</h3>
+    <p>Goal: contain the incident, eradicate the adversary, recover affected systems, and produce the post-incident report. The work ends with the organization returning to a known-good state.</p>
+    <p>Mindset: deep, sustained, defaults toward maintaining containment until eradication is confirmed.</p>
+    <p>Output: contained incident, restored systems, root cause analysis, lessons learned.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Where the line is">
+The line falls at the point where investigation transitions to coordinated response. Triage decides what is going on. IR decides what to do about it. Both phases require investigation, but the questions, the timelines, and the audiences are different.
+</Callout>
+
+### The vocabulary: event, alert, incident
+
+The three terms get used interchangeably in casual conversation and lose precision under pressure. ASSURED treats them as distinct.
+
+<div class="vocab-grid">
+  <div class="vocab-card vocab-card--event">
+    <span class="vocab-card__tag">EVENT</span>
+    <h4>A point-in-time observation</h4>
+    <p>The state of a service, application, or infrastructure component at a specific moment. An event is neither good nor bad on its own. It is raw observability data.</p>
+  </div>
+  <div class="vocab-card vocab-card--alert">
+    <span class="vocab-card__tag">ALERT</span>
+    <h4>An event meeting a threshold</h4>
+    <p>A particular event, or an aggregated group of events, that crosses a threshold requiring investigation and action. Alerts are the boundary between observability and SOC work.</p>
+  </div>
+  <div class="vocab-card vocab-card--incident">
+    <span class="vocab-card__tag">INCIDENT</span>
+    <h4>A negative-type event requiring response</h4>
+    <p>A correlated set of alerts representing a business-impacting or disruptive issue that requires intervention. Incidents are what escalation hands to IR.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Why the vocabulary matters">
+"We had an incident" and "we had an alert" sound similar but mean very different things in mature SOCs. An alert is something triage acts on. An incident is something IR coordinates. The line between them is where Escalation lives.
+</Callout>
+
+---
+
+## Event triage in depth: framing the puzzle
+
+Event triage is the first and most critical phase in the security response lifecycle. It is high-efficiency, time-sensitive, and designed to answer a single decisive question: <strong>does this event warrant escalation?</strong>
+
+Rather than assembling every piece of the puzzle, triage is about putting just enough pieces together to recognize what you're looking at. Analysts focus on the most informative, high-confidence elements, confirmed IOCs, asset relevance, contextual <DefineTerm term="Telemetry" display="telemetry" />, to determine whether further investigation is necessary.
+
+<div class="triage-tenets">
+  <div class="triage-tenet">
+    <h4>🎯 High-confidence starting points</h4>
+    <p>Use well-structured data such as known malicious IPs, hashes, or attack techniques as anchors. These serve as the "corner pieces" that guide rapid assessment and provide definitive indicators of potential compromise.</p>
+  </div>
+  <div class="triage-tenet">
+    <h4>🧭 Contextual awareness</h4>
+    <p>Incorporate asset classification, user roles, geographic origin, and behavioral baselines. Context transforms raw technical data into meaningful security insights.</p>
+  </div>
+  <div class="triage-tenet">
+    <h4>🎯 Targeted information gathering</h4>
+    <p>Focus on collecting only the data required to make a go / no-go decision. Avoid exhaustive log reviews unless directly relevant to initial indicators. Efficiency prevents analysis paralysis.</p>
+  </div>
+  <div class="triage-tenet">
+    <h4>🚦 Defined escalation criteria</h4>
+    <p>Build and follow clearly defined rules that dictate when an event should hand off to incident response. Criteria should be threat-informed, asset-aware, and consistently applied.</p>
+  </div>
+</div>
+
+<Reveal summary="Why rapid closure of non-threats matters" variant="info">
+
+A critical yet often overlooked component of successful triage is the rapid closure of non-threats. When an alert is confirmed as a false-positive or expected behavior, it should be quickly documented and closed, with rationale captured for future detection tuning or suppression-rule creation.
+
+This prevents alert-backlog accumulation and keeps analyst attention focused on genuine security concerns. By design, triage prevents analysts from getting bogged down in low-fidelity events, ensuring that time and energy are preserved for high-risk scenarios.
+
+Done right, triage becomes the force multiplier for the entire security operation, enabling maximum effectiveness with limited resources.
+
+</Reveal>
+
+---
+
+## Incident response in depth: completing the puzzle
+
+Once triage concludes that an event is legitimate and potentially harmful, it transitions to <DefineTerm term="Incident Response" display="incident response" />, a thorough and methodical process where analysts seek to complete the entire picture. IR takes the partially assembled puzzle and builds it out in full: root cause, attacker behavior, impact scope, and remediation path.
+
+<div class="ir-phases">
+  <div class="ir-phase">
+    <span class="ir-phase__num">01</span>
+    <h4>Full attack reconstruction</h4>
+    <p>Identify initial vector. Map all attacker activity. Build a detailed timeline of lateral movement, privilege escalation, data access, or exfiltration.</p>
+  </div>
+  <div class="ir-phase">
+    <span class="ir-phase__num">02</span>
+    <h4>Containment and control</h4>
+    <p>Implement measures to prevent further damage. Isolate endpoints, revoke credentials, block malicious infrastructure, segment the network. Balance security with business continuity.</p>
+  </div>
+  <div class="ir-phase">
+    <span class="ir-phase__num">03</span>
+    <h4>Eradication and remediation</h4>
+    <p>Remove all traces of attacker presence. Rebuild systems from clean images, patch exploited vulnerabilities, close configuration gaps, validate that the same vectors cannot be re-exploited.</p>
+  </div>
+  <div class="ir-phase">
+    <span class="ir-phase__num">04</span>
+    <h4>Recovery and lessons learned</h4>
+    <p>Restore systems and improve defenses. Coordinate stakeholder communication. Engage legal, compliance, and executive leadership. Conduct formal post-incident review.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="IR is more than technical work">
+Incident response extends beyond technical remediation to include structured communication with stakeholders, coordination across multiple teams, and fulfillment of regulatory or contractual obligations. Legal counsel, compliance officers, executive leadership, and potentially third-party partners must be engaged through established channels to ensure synchronized action.
+</Callout>
+
+---
+
+## How to know which work this is
+
+<div class="which-grid">
+  <div class="which-card">
+    <p><strong>If the question is "is this real?"</strong></p>
+    <p class="which-answer">It is triage.</p>
+  </div>
+  <div class="which-card">
+    <p><strong>If the question is "how do we stop it?"</strong></p>
+    <p class="which-answer">It is incident response.</p>
+  </div>
+  <div class="which-card">
+    <p><strong>If both questions are still open</strong></p>
+    <p class="which-answer">The case is in the handoff. Escalation is the bridge.</p>
+  </div>
+</div>
+
+<KeyTakeaway>Triage frames the puzzle: just enough pieces to recognize what you are looking at and whether it deserves further response. IR completes the puzzle: full reconstruction, containment, eradication, recovery. The methodology treats them as related but separate, and Escalation is the deliberate transition between them.</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/handoff" nextLabel="The handoff packet" ctaLabel="Read the packet" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.vs-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .vs-grid { grid-template-columns: 1fr 1fr; } }
+.vs-card { padding: 1.4rem 1.6rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.85rem; border-top: 4px solid var(--accent); }
+.vs-card--triage { --accent: #14b8a6; }
+.vs-card--ir { --accent: #ef4444; }
+.vs-card__tag { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: var(--accent); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.65rem; }
+.vs-card h3 { margin: 0 0 0.5rem 0; color: var(--accent); font-size: 1.1rem; }
+.vs-card p { margin: 0 0 0.6rem 0; color: #cbd5e1; line-height: 1.6; font-size: 0.93rem; }
+.vs-card p:last-child { margin-bottom: 0; }
+
+.vocab-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .vocab-grid { grid-template-columns: repeat(3, 1fr); } }
+.vocab-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-top: 4px solid var(--vocab-color); border-radius: 0.7rem; }
+.vocab-card--event { --vocab-color: #5eead4; }
+.vocab-card--alert { --vocab-color: #f59e0b; }
+.vocab-card--incident { --vocab-color: #ef4444; }
+.vocab-card__tag { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 9999px; background: rgba(15, 23, 42, 0.7); color: var(--vocab-color); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+.vocab-card h4 { margin: 0 0 0.35rem 0; color: #f8fafc; font-size: 0.97rem; }
+.vocab-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.triage-tenets, .ir-phases { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .triage-tenets, .ir-phases { grid-template-columns: 1fr 1fr; } }
+.triage-tenet, .ir-phase { position: relative; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+.ir-phase__num { position: absolute; top: 0.95rem; right: 1.15rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.55); }
+.triage-tenet h4, .ir-phase h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.95rem; }
+.triage-tenet p, .ir-phase p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.which-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .which-grid { grid-template-columns: repeat(3, 1fr); } }
+.which-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #6366f1; border-radius: 0.6rem; }
+.which-card p { margin: 0 0 0.45rem 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+.which-card p:last-child { margin-bottom: 0; }
+.which-card strong { color: #f8fafc; }
+.which-answer { color: #a5b4fc !important; font-style: italic; font-weight: 600; }
+`}</style>

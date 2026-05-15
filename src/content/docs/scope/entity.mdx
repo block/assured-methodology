@@ -1,0 +1,491 @@
+---
+title: "Entity boundaries"
+description: "Which entities are in scope, and which are not. Primary, secondary, relationship mapping, access modeling, and dependency tracing."
+slug: "scope/entity"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="03"
+  pillarLabel="04"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="Subject produced a map of identities. Entity boundaries decide which of those identities are formally in the investigation, which are watched but not investigated, and which are out of scope until a new signal pulls them in."
+/>
+
+<PillNav
+  chapter="scope"
+  label="Scope chapter"
+  current="/docs/scope/entity"
+  items={[
+    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+  ]}
+/>
+
+## Primary vs. secondary
+
+The first call Scope makes is splitting Subject's <DefineTerm term="Entity" display="entity" /> map into two tiers. The split is what makes investigation depth proportional to evidence rather than spending equal time on every identity in the graph.
+
+<div class="entity-bounds">
+  <div class="entity-bound entity-bound--primary">
+    <span class="entity-bound__tag">Primary</span>
+    <p>Entities directly implicated by the alert. The user whose account fired the alert. The host that produced the telemetry. The service account that authenticated the action. The cloud resource the action targeted. Primary entities receive full investigation depth: every dimension, every available data source, the full historical window the threat type warrants.</p>
+  </div>
+  <div class="entity-bound entity-bound--secondary">
+    <span class="entity-bound__tag">Secondary</span>
+    <p>Entities connected to the primary set but not directly named in the alert. Peer accounts that share a trust path. Systems the primary entities have access to. Parent services that issued credentials. Secondary entities receive baseline-comparison depth: are they behaving normally? They are investigated more thoroughly only if a primary investigation surfaces them.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Why this split matters">
+A SOC that treats every connected identity as primary spends six hours on one alert. A SOC that only investigates the named identity misses the <DefineTerm term="Lateral Movement" display="lateral movement" />. The two-tier split is the methodology's answer: deep on what the alert touched directly, baseline-only on what is connected, with explicit upgrade criteria.
+</Callout>
+
+---
+
+## 🔴 Primary entities by type
+
+Primary entities require immediate, rigorous scrutiny. They are the foundation for everything Uncover will do, and capturing volatile or early-stage evidence depends on getting their scoping right at this moment. Four common categories cover most cases.
+
+<div class="primary-grid">
+  <div class="primary-card">
+    <div class="primary-card__head">
+      <span class="primary-card__tag">USER ACCOUNT</span>
+      <h4>👤 User accounts</h4>
+    </div>
+    <p>Often the initial access vector via credential theft or phishing. Once inside, attackers use the account to escalate and move laterally.</p>
+    <ul class="primary-card__bullets">
+      <li>Analyze authentication patterns: geolocation, time anomalies, login spikes.</li>
+      <li>Review group membership changes, role escalations, MFA resets.</li>
+      <li>Investigate use of remote execution tools (PowerShell, PsExec).</li>
+      <li>Correlate access attempts with sensitive resource interactions.</li>
+    </ul>
+  </div>
+  <div class="primary-card">
+    <div class="primary-card__head">
+      <span class="primary-card__tag">COMPROMISED ENDPOINT</span>
+      <h4>💻 Endpoints</h4>
+    </div>
+    <p>Execution platforms for malware, persistence mechanisms, and attacker tooling. Often hold key forensic artifacts that reveal intrusion methods.</p>
+    <ul class="primary-card__bullets">
+      <li>Examine process trees and parent-child anomalies.</li>
+      <li>Inspect file system and registry paths for persistence (Startup, %APPDATA%).</li>
+      <li>Check for unauthorized services, scheduled tasks, local admin creation.</li>
+      <li>Analyze outbound traffic and DNS queries for C2 activity.</li>
+    </ul>
+  </div>
+  <div class="primary-card">
+    <div class="primary-card__head">
+      <span class="primary-card__tag">CLOUD RESOURCES</span>
+      <h4>☁️ Cloud resources</h4>
+    </div>
+    <p>Common target for privilege escalation, data access, and persistence via misconfigurations or stolen credentials. Abnormal API usage is often the first sign.</p>
+    <ul class="primary-card__bullets">
+      <li>Investigate IAM changes: user/role creation, key usage, permission escalation.</li>
+      <li>Audit bucket and compute resource policies for unauthorized changes.</li>
+      <li>Review CloudTrail, Azure Activity Logs, GCP audit logs for suspicious behavior.</li>
+      <li>Monitor for exfiltration via storage, automation misuse, or unusual geographies.</li>
+    </ul>
+  </div>
+  <div class="primary-card">
+    <div class="primary-card__head">
+      <span class="primary-card__tag">APPLICATIONS</span>
+      <h4>⚙️ Applications</h4>
+    </div>
+    <p>Compromised via vulnerabilities, misconfigured APIs, or weak authentication. Often act as pivot points to backend systems and data.</p>
+    <ul class="primary-card__bullets">
+      <li>Examine logs for injection attempts, RCE indicators, auth bypasses.</li>
+      <li>Audit admin interface activity and role/permission changes.</li>
+      <li>Review session tokens and API key behavior.</li>
+      <li>Correlate frontend activity with backend database or storage access.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## 🎯 Tiering high-value entities
+
+Not every primary entity carries the same weight. Three tiers of "high-value" entities deserve elevated attention from the moment they appear in the investigation.
+
+<div class="tier-grid">
+  <div class="tier-card tier-card--zero">
+    <span class="tier-card__tag">TIER 0</span>
+    <h4>Crown-jewel infrastructure</h4>
+    <p>Domain controllers (DC01, DC02), cloud control planes (AWS Organizations management account), security vaults (HashiCorp Vault instances, Azure Key Vault). Compromise at this tier has organization-wide blast radius.</p>
+  </div>
+  <div class="tier-card tier-card--critical">
+    <span class="tier-card__tag">BUSINESS CRITICAL</span>
+    <h4>Revenue and operations systems</h4>
+    <p>Finance applications (SAP, payment gateways), HR platforms (Workday, ADP), healthcare systems (Epic EHR, PACS servers). Direct impact on business operations and regulated data.</p>
+  </div>
+  <div class="tier-card tier-card--priv">
+    <span class="tier-card__tag">PRIVILEGED</span>
+    <h4>Administrative identities</h4>
+    <p>Enterprise Admins group members, cloud IAM roles with iam:* permissions, database <code>sa</code> accounts. Capability to bypass controls and rewrite the security posture itself.</p>
+  </div>
+</div>
+
+---
+
+## 🌿 Scope evolution: the decision tree
+
+Entity scope is not a one-time decision. It evolves as evidence develops. The evolution should follow a structured, documented pattern.
+
+<div class="decision-tree">
+  <div class="decision-row">
+    <div class="decision-row__cond"><span class="decision-row__kw">IF</span><p>Compromised workstation accessed shared file drive <code>\\\\fileserver\\finance\\</code></p></div>
+    <div class="decision-row__then"><span class="decision-row__kw">THEN</span><p>Incorporate fileserver into scope. Pull access logs, file modification history, share-permission changes.</p></div>
+  </div>
+  <div class="decision-row">
+    <div class="decision-row__cond"><span class="decision-row__kw">IF</span><p>User authenticated to VPN within 48 hours of compromise</p></div>
+    <div class="decision-row__then"><span class="decision-row__kw">THEN</span><p>Examine MFA logs and add VPN concentrators to scope. Validate session origin, device fingerprint, and concurrent-session behavior.</p></div>
+  </div>
+  <div class="decision-row">
+    <div class="decision-row__cond"><span class="decision-row__kw">IF</span><p>PowerShell remoting was enabled on the endpoint</p></div>
+    <div class="decision-row__then"><span class="decision-row__kw">THEN</span><p>Include WinRM configuration and Event ID 4688 process-creation events in scope. Look for cross-host script invocation.</p></div>
+  </div>
+  <div class="decision-row">
+    <div class="decision-row__cond"><span class="decision-row__kw">IF</span><p>Service account assumed a cloud role during the relevant window</p></div>
+    <div class="decision-row__then"><span class="decision-row__kw">THEN</span><p>Add the cloud role and all resources it can touch to scope. Review STS AssumeRole call patterns against the role's normal usage.</p></div>
+  </div>
+</div>
+
+<Callout variant="info" title="Document each scope addition">
+Every entity added to scope after the initial decision should carry three lines of documentation:
+<ul>
+  <li><strong>The evidence linking it in.</strong> e.g., "PowerShell script executed at 2024-03-14T15:32:27Z connecting to internal Jenkins server 10.45.67.89."</li>
+  <li><strong>The risk assessment.</strong> e.g., "Jenkins server has pipeline access to production Kubernetes clusters; supply-chain compromise risk."</li>
+  <li><strong>The required actions.</strong> e.g., "(1) Capture memory image via volatility3, (2) review RBAC permissions, (3) validate build artifact SHA256 checksums."</li>
+</ul>
+This documentation is what makes the scope expansion defensible later.
+</Callout>
+
+---
+
+## 🔗 Secondary entities: three modeling techniques
+
+Secondary entities are not in the alert. They get into scope through analysis of the operational topology and identity fabric. Three techniques surface them in a structured way.
+
+<div class="techniques-grid">
+  <div class="technique-card">
+    <h4>🗺️ Relationship mapping</h4>
+    <p>Document technical trust relationships: Active Directory two-way trusts, privileged service accounts with elevated access, AWS cross-account roles, Kubernetes service-account tokens. These reveal potential compromise paths the alert did not directly name.</p>
+  </div>
+  <div class="technique-card">
+    <h4>🔑 Access modeling</h4>
+    <p>Identify all identities with access during the relevant timeframe: contractors with SSO access, DevOps engineers with privileged cloud roles, recently-terminated employees with lingering credentials. The access model is the immediate-blast-radius estimate.</p>
+  </div>
+  <div class="technique-card">
+    <h4>🔗 Dependency tracing</h4>
+    <p>Analyze data flows and credential pathways: automated synchronization jobs, cached authentication tickets, cross-account access mechanisms, hardcoded API credentials. Dependencies turn a single compromised identity into a network of potentially-affected systems.</p>
+  </div>
+</div>
+
+<Reveal summary="Prioritizing secondary entities during triage" variant="info">
+
+Not every secondary entity deserves equal attention. Assess each one against proximity and likely adversary goals:
+
+- **Immediate-priority secondaries.** Direct management, authentication, or automation ties to a compromised entity. (A service account that authenticates against the same identity provider. A peer in the same AD security group.)
+- **Mid-priority secondaries.** Trust relationships that bridge to higher-value systems. (Cross-account IAM roles. Federated SAML trusts. Shared service principals.)
+- **Distal secondaries.** Shared <DefineTerm term="Infrastructure" display="infrastructure" /> nodes or vendor-managed services. Assess based on exposure level, <DefineTerm term="Credential" display="credential" /> reuse, and control boundaries. Often watched, not investigated, unless a closer signal pulls them in.
+
+Documenting this tiering keeps Uncover from spreading effort evenly across a long list and instead drives focused work where the methodology says the risk lives.
+
+</Reveal>
+
+---
+
+## Containment and the entity scope
+
+Entity scope informs <DefineTerm term="Containment" display="containment" /> decisions, and containment carries its own dependency risks. Isolating a host or disabling an account can break business operations as collateral.
+
+<div class="containment-cards">
+  <div class="containment-card">
+    <h4>🔌 Host isolation</h4>
+    <p>Pulling a host from the network stops the compromise but interrupts any production work the host was doing. Validate dependencies before isolating: scheduled jobs, shared services, real-time workloads.</p>
+  </div>
+  <div class="containment-card">
+    <h4>🔒 Account disable</h4>
+    <p>Disabling a service account can break automation pipelines, sync jobs, or production deployments. Check what depends on the account before disabling; have a rollback plan.</p>
+  </div>
+  <div class="containment-card">
+    <h4>🚪 Credential rotation</h4>
+    <p>Rotating an API key invalidates every consumer of that key. For shared keys, the rotation needs a coordinated cutover across all consumers, or pre-staged replacement credentials.</p>
+  </div>
+  <div class="containment-card">
+    <h4>📛 DNS/firewall block</h4>
+    <p>Blocking a domain or IP range can stop C2 but may also block legitimate traffic if the indicator is reused infrastructure (cloud-CDN edge IPs, shared SaaS hosts). Validate uniqueness before blocking.</p>
+  </div>
+</div>
+
+<KeyTakeaway>
+Entity scope is the difference between "investigate the <DefineTerm term="User" display="user" />" and "investigate the user, the three accounts that authenticate as them, the four systems those credentials access, and the two cloud roles those systems can assume." The second is far more useful, and Scope is the phase that draws the lines, tiers them, and documents the evidence that justifies each addition.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/infrastructure"
+  nextLabel="Infrastructure boundaries"
+  nextDescription="What the SOC can actually see. Network segments, cloud accounts, geography, retention, and tooling."
+  ctaLabel="Read infrastructure"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>
+
+<style>
+{`
+.entity-bounds {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .entity-bounds { grid-template-columns: 1fr 1fr; } }
+
+.entity-bound {
+  padding: 1.4rem 1.6rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 0.85rem;
+  border-top: 4px solid var(--accent);
+}
+.entity-bound--primary   { --accent: #ef4444; }
+.entity-bound--secondary { --accent: #f59e0b; }
+.entity-bound__tag {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(168, 85, 247, 0.18);
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+.entity-bound p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.primary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .primary-grid { grid-template-columns: 1fr 1fr; } }
+
+.primary-card {
+  padding: 1.4rem 1.55rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 0.85rem;
+}
+.primary-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+.primary-card__tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+.primary-card__head h4 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.1rem;
+}
+.primary-card > p {
+  margin: 0 0 0.6rem 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+.primary-card__bullets {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .tier-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.tier-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--tier-color);
+  border-radius: 0.7rem;
+}
+.tier-card--zero     { --tier-color: #ef4444; }
+.tier-card--critical { --tier-color: #f59e0b; }
+.tier-card--priv     { --tier-color: #a855f7; }
+
+.tier-card__tag {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--tier-color);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+.tier-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+.tier-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.tier-card code {
+  background: rgba(15, 23, 42, 0.7);
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+}
+
+.decision-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+.decision-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 0.7rem;
+}
+@media (min-width: 768px) { .decision-row { grid-template-columns: 1fr 1.3fr; align-items: start; } }
+
+.decision-row__cond,
+.decision-row__then {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.decision-row__kw {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.35rem;
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  align-self: flex-start;
+}
+.decision-row__cond p,
+.decision-row__then p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.decision-row code {
+  background: rgba(15, 23, 42, 0.8);
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  font-size: 0.88em;
+}
+
+.techniques-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .techniques-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.technique-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.6rem;
+}
+.technique-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #d8b4fe;
+  font-size: 0.98rem;
+}
+.technique-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.containment-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .containment-cards { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .containment-cards { grid-template-columns: repeat(4, 1fr); } }
+
+.containment-card {
+  padding: 1.15rem 1.3rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.containment-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #fbbf24;
+  font-size: 0.96rem;
+}
+.containment-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+`}
+</style>

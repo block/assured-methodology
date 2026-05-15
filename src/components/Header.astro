@@ -1,179 +1,478 @@
 ---
-import Brand from '@/components/Brand.astro';
+import Brand from "@/components/Brand.astro";
+import SiteSearch from "@/components/SiteSearch.astro";
 import { getUrlRelativeToBase } from "@/lib/utils";
 import { mainNavigation } from "@/data/navigation";
-import { isActivePage } from '@/lib/utils';
+import { isActivePage } from "@/lib/utils";
 
 const currentPath = Astro.url.pathname;
 ---
 
-<header class="header-wrapper">
-  <div class="header-container">
-    <!-- Left Section: Logo + Navigation -->
-    <div class="header-left whitespace-nowrap">
-      
+<header class="header">
+  <div class="header__inner">
+    <div class="header__left">
       <Brand />
 
-      <!-- Desktop Navigation -->
-      <nav class="desktop-nav whitespace-nowrap">
-        {mainNavigation[0].items.map((item) => (
-          <a
-            href={getUrlRelativeToBase(item.href)}
-            class={`nav-link whitespace-nowrap ${isActivePage(item.href, currentPath) ? 'nav-link-active' : ''}`}
-          >
-            {item.title}
-          </a>
-        ))}
+      <nav class="header__nav" aria-label="Primary">
+        {mainNavigation[0].items.map((item) => {
+          const isActive = isActivePage(item.href, currentPath);
+          if (item.status === "soon") {
+            return (
+              <span class="header__link header__link--soon" aria-disabled="true" title="Coming soon">
+                {item.title}
+                <span class="header__soon-dot" aria-hidden="true"></span>
+              </span>
+            );
+          }
+          if (item.children && item.children.length > 0) {
+            return (
+              <div class="header__menu-item">
+                <a
+                  href={getUrlRelativeToBase(item.href)}
+                  class={`header__link header__link--has-menu ${isActive ? "is-active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-haspopup="true"
+                >
+                  {item.title}
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </a>
+                <div class="header__dropdown" role="menu">
+                  <a
+                    href={getUrlRelativeToBase(item.href)}
+                    class="header__dropdown-link header__dropdown-link--overview"
+                    role="menuitem"
+                  >
+                    <span class="header__dropdown-title">{item.title} overview</span>
+                    <span class="header__dropdown-sub">Chapter intro and outcomes</span>
+                  </a>
+                  {item.children.map((child) => {
+                    if (child.status === "soon") {
+                      return (
+                        <span class="header__dropdown-link header__dropdown-link--soon" role="menuitem" aria-disabled="true">
+                          <span class="header__dropdown-title">{child.title}</span>
+                          <span class="assured-soon">Soon</span>
+                        </span>
+                      );
+                    }
+                    const childActive = currentPath === child.href || currentPath === child.href + "/";
+                    return (
+                      <a
+                        href={getUrlRelativeToBase(child.href)}
+                        class={`header__dropdown-link ${childActive ? "is-active" : ""}`}
+                        role="menuitem"
+                      >
+                        <span class="header__dropdown-title">{child.title}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <a
+              href={getUrlRelativeToBase(item.href)}
+              class={`header__link ${isActive ? "is-active" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {item.title}
+            </a>
+          );
+        })}
       </nav>
     </div>
 
-    <!-- Right Section: Actions -->
-    <div class="header-right whitespace-nowrap">
-      <!-- External Links -->
-      <div class="external-links whitespace-nowrap">
-        <a
-          href="https://github.com/block/assured-methodology"
-          target="_blank"
-          rel="noreferrer"
-          class="external-link whitespace-nowrap"
-          title="View on GitHub"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-        </a>
-      </div>
+    <div class="header__right">
+      <SiteSearch />
 
-      <!-- <ThemeToggle /> -->
+      <a
+        href="https://github.com/block/assured-methodology"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="header__icon"
+        title="View on GitHub"
+        aria-label="View on GitHub"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+      </a>
+
+      <button type="button" class="header__menu-btn" aria-label="Toggle navigation" data-menu-toggle>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="3" y1="6"  x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </div>
+
+  <!-- Mobile menu -->
+  <nav class="header__mobile" data-mobile-menu aria-label="Mobile">
+    {mainNavigation[0].items.map((item) => {
+      const isActive = isActivePage(item.href, currentPath);
+      if (item.status === "soon") {
+        return (
+          <span class="header__mobile-link header__mobile-link--soon" aria-disabled="true">
+            {item.title}
+            <span class="assured-soon">Soon</span>
+          </span>
+        );
+      }
+      // Render nested children for items that have them (chapters, glossaries).
+      const hasChildren = item.children && item.children.length > 0;
+      return (
+        <div class="header__mobile-group">
+          <a
+            href={getUrlRelativeToBase(item.href)}
+            class={`header__mobile-link ${isActive ? "is-active" : ""}`}
+          >
+            {item.title}
+          </a>
+          {hasChildren && (
+            <div class="header__mobile-sublist">
+              {item.children!.map((child) => {
+                if (child.status === "soon") return null;
+                const childActive = currentPath === child.href || currentPath === child.href + "/";
+                return (
+                  <a
+                    href={getUrlRelativeToBase(child.href)}
+                    class={`header__mobile-sublink ${childActive ? "is-active" : ""}`}
+                  >
+                    {child.title}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </nav>
 </header>
 
 <style>
-  .header-wrapper {
-    position: static !important;
-    top: auto !important;
+  .header {
+    position: sticky;
+    top: 0;
     z-index: 50;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .header__inner {
     width: 100%;
-    background-color: hsl(var(--background) / 0.95);
-    backdrop-filter: blur(8px);
-  }
-
-  @supports (backdrop-filter: blur(8px)) {
-    .header-wrapper {
-      background-color: hsl(var(--background) / 0.6);
-    }
-  }
-
-  .header-container {
-    max-width: 1800px; /* Increased from 1600px */
-    margin: 0 auto;
-    padding: 0 1.5rem; /* Increased padding */
-    display: flex;
+    margin: 0;
+    padding: 0 1.5rem;
     height: 64px;
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
   }
 
-  .header-left {
+  @media (min-width: 768px) {
+    .header__inner { padding: 0 2rem; }
+  }
+
+  .header__left {
     display: flex;
     align-items: center;
     gap: 2rem;
     flex: 1;
+    min-width: 0;
   }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  /* Desktop Navigation */
-  .desktop-nav {
+  .header__nav {
     display: none;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
   }
 
-  @media (min-width: 768px) {
-    .desktop-nav {
-      display: flex;
-    }
+  @media (min-width: 960px) {
+    .header__nav { display: flex; }
   }
 
-  .nav-link {
+  .header__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.55rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: hsl(var(--muted-foreground));
-    position: relative;
-    padding: 0.5rem 0;
+    color: #cbd5e1;
     text-decoration: none;
-    transition: color 0.2s ease;
+    border-radius: 0.5rem;
+    transition: color 0.15s ease, background 0.15s ease;
+    position: relative;
+    white-space: nowrap;
   }
 
-  .nav-link:hover {
-    color: hsl(var(--foreground));
+  @media (min-width: 1280px) {
+    .header__link { padding: 0.45rem 0.7rem; }
+    .header__nav { gap: 0.4rem; }
   }
 
-  .nav-link-active {
-    color: hsl(var(--foreground));
+  .header__link:hover {
+    color: #f8fafc;
+    background: rgba(248, 250, 252, 0.06);
   }
 
-  .nav-link-active::after {
-    content: '';
+  .header__link.is-active {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.12);
+  }
+
+  .header__link--soon {
+    color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  .header__link--soon:hover {
+    background: transparent;
+    color: #94a3b8;
+  }
+
+  .header__soon-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  }
+
+  /* Dropdown menus for nav items with children */
+  .header__menu-item {
+    position: relative;
+  }
+
+  .header__link--has-menu svg {
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+  }
+
+  .header__menu-item:hover .header__link--has-menu svg,
+  .header__menu-item:focus-within .header__link--has-menu svg {
+    transform: rotate(180deg);
+    opacity: 1;
+  }
+
+  .header__dropdown {
     position: absolute;
-    bottom: -1px;
+    top: calc(100% + 0.25rem);
     left: 0;
-    right: 0;
-    height: 2px;
-    background: #16a34a; /* Green-600 */
-    border-radius: 1px;
+    min-width: 16rem;
+    padding: 0.5rem;
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.6rem;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 100;
   }
 
-  /* External Links */
-  .external-links {
+  .header__menu-item:hover .header__dropdown,
+  .header__menu-item:focus-within .header__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .header__dropdown-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.4rem;
+    color: #e2e8f0;
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .header__dropdown-link:hover,
+  .header__dropdown-link:focus-visible {
+    background: rgba(20, 184, 166, 0.14);
+    color: #f8fafc;
+    outline: none;
+  }
+
+  .header__dropdown-link.is-active {
+    background: rgba(20, 184, 166, 0.18);
+    color: #5eead4;
+  }
+
+  .header__dropdown-link--overview {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .header__dropdown-link--overview .header__dropdown-title {
+    color: #5eead4;
+  }
+
+  .header__dropdown-link--soon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+
+  .header__dropdown-title {
+    font-weight: 600;
+  }
+
+  .header__dropdown-sub {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    font-weight: 400;
+  }
+
+  .header__right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  .external-link {
-    padding: 0.5rem;
-    color: hsl(var(--muted-foreground));
+  .header__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem;
+    color: #cbd5e1;
+    border-radius: 0.5rem;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .header__icon:hover {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.08);
+  }
+
+  .header__menu-btn {
+    display: inline-flex;
+    padding: 0.45rem;
+    color: #cbd5e1;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+
+  @media (min-width: 960px) {
+    .header__menu-btn { display: none; }
+  }
+
+  .header__menu-btn:hover {
+    color: #f8fafc;
+    border-color: rgba(20, 184, 166, 0.4);
+  }
+
+  .header__mobile {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem 1rem;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .header__mobile.is-open {
+    display: flex;
+  }
+
+  .header__mobile-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
+    color: #e2e8f0;
     text-decoration: none;
-    border-radius: 0.375rem;
-    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.5);
+    font-weight: 500;
   }
 
-  .external-link:hover {
-    color: hsl(var(--foreground));
-    background-color: hsl(var(--muted) / 0.5);
+  .header__mobile-link.is-active {
+    color: #5eead4;
+    border-color: rgba(20, 184, 166, 0.4);
   }
 
-  /* Mobile Responsive */
-  @media (max-width: 768px) {
-    .header-container {
-      padding: 0 1rem;
-      gap: 1rem;
-    }
-
-    .header-left {
-      gap: 1rem;
-    }
-
-    .brand-text {
-      display: none;
-    }
-
-    .external-links {
-      gap: 0.25rem;
-    }
+  .header__mobile-link--soon {
+    color: #94a3b8;
+    opacity: 0.7;
   }
 
-  @media (max-width: 640px) {
-    .header-container {
-      padding: 0 0.75rem;
-    }
+  .header__mobile-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .header__mobile-sublist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin: 0.1rem 0 0.4rem 0.85rem;
+    padding-left: 0.65rem;
+    border-left: 2px solid rgba(20, 184, 166, 0.25);
+  }
+
+  .header__mobile-sublink {
+    display: block;
+    padding: 0.45rem 0.75rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .header__mobile-sublink:hover {
+    color: #f8fafc;
+    background: rgba(20, 184, 166, 0.08);
+  }
+
+  .header__mobile-sublink.is-active {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.12);
   }
 </style>
+
+<script>
+  // ClientRouter idempotency: bind on both initial load and after every view transition.
+  // Marker attribute prevents double-binding when the script re-runs against the same
+  // element (e.g., view transition replaces the body but leaves the persistent island).
+  function bindMobileMenu() {
+    const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]:not([data-menu-bound])");
+    const menu = document.querySelector<HTMLElement>("[data-mobile-menu]");
+    if (!toggle) return;
+    toggle.setAttribute("data-menu-bound", "true");
+    toggle.addEventListener("click", () => {
+      menu?.classList.toggle("is-open");
+      const isOpen = menu?.classList.contains("is-open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  }
+  bindMobileMenu();
+  document.addEventListener("astro:page-load", bindMobileMenu);
+</script>

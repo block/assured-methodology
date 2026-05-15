@@ -1,0 +1,517 @@
+---
+title: "Behavioral analysis framework"
+description: "Pattern recognition, baseline development, anomaly detection, Subject-centric triage. The toolkit for separating normal from suspicious at the identity level."
+slug: "subject/behavioral-framework"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="subject"
+  parentLetter="S"
+  pillarNumber="03"
+  pillarLabel="04"
+  chapterHref="/docs/subject"
+  chapterLabel="Subject"
+  lede="The behavioral framework is the toolkit that turns a stream of events about an entity into a verdict on whether the entity is behaving normally. Pattern recognition, baselines, anomaly detection, and Subject-centric triage operating together."
+/>
+
+<PillNav
+  chapter="subject"
+  label="Subject chapter"
+  current="/docs/subject/behavioral-framework"
+  items={[
+    { label: "Four dimensions",      href: "/docs/subject/four-dimensions",     phase: "subject" },
+    { label: "Entity types",         href: "/docs/subject/entity-types",        phase: "subject" },
+    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework",phase: "subject" },
+    { label: "Insider analysis",     href: "/docs/subject/insider-analysis",    phase: "subject" },
+  ]}
+/>
+
+## Four working pieces
+
+The framework breaks the work into four operating pieces. Each one is a different question the analyst is asking about the <DefineTerm term="Entity" display="entity" />.
+
+<div class="framework-grid">
+  <a href="#pattern-recognition" class="framework-card">
+    <span class="framework-card__num">01</span>
+    <h3>🔍 Pattern recognition</h3>
+    <p>Learn the shapes of normal for each entity type. Time, access, location, communication. The base layer of judgment.</p>
+  </a>
+  <a href="#baseline-development" class="framework-card">
+    <span class="framework-card__num">02</span>
+    <h3>📈 Baseline development</h3>
+    <p>Build references at four scales: individual, group, system, application. Each catches a different class of deviation.</p>
+  </a>
+  <a href="#anomaly-detection" class="framework-card">
+    <span class="framework-card__num">03</span>
+    <h3>⚠️ Anomaly detection</h3>
+    <p>Surface deviations from the baseline. Five families, from temporal anomalies to communication shifts.</p>
+  </a>
+  <a href="#subject-centric-triage" class="framework-card">
+    <span class="framework-card__num">04</span>
+    <h3>🎯 Subject-centric triage</h3>
+    <p>Apply the framework with the entity in the foreground. Not "is this unusual in the environment" but "is this unusual for <em>this</em> entity."</p>
+  </a>
+</div>
+
+---
+
+<h2 id="pattern-recognition">Pattern recognition</h2>
+
+Recognizing the shapes of normal is the base layer of every behavioral judgment that follows. Four patterns matter most in practice.
+
+<div class="pattern-grid">
+  <div class="pattern-card">
+    <span class="pattern-card__tag">⏰ Time</span>
+    <h4>Time-based patterns</h4>
+    <p>Users and systems follow predictable daily and weekly schedules. Executives log in during business hours. Backups and batch jobs run during defined maintenance windows. Recognizing temporal cadence is what makes off-hours activity a signal instead of noise.</p>
+  </div>
+  <div class="pattern-card">
+    <span class="pattern-card__tag">🚪 Access</span>
+    <h4>Access patterns</h4>
+    <p>Different roles touch systems in characteristic ways. HR pulls personnel data during review cycles. Developers commit code constantly. Administrators run privileged actions at predictable cadences tied to change windows. The shape of access reveals the role.</p>
+  </div>
+  <div class="pattern-card">
+    <span class="pattern-card__tag">🌍 Location</span>
+    <h4>Location patterns</h4>
+    <p>Most identities connect from a consistent set of geographic origins and network segments. Sales teams roam more than back-office staff. IT uses known VPN endpoints. The pattern is what makes a single login from an unusual place worth investigating.</p>
+  </div>
+  <div class="pattern-card">
+    <span class="pattern-card__tag">💬 Communication</span>
+    <h4>Communication patterns</h4>
+    <p>Communication volume and channel vary by role. Executives engage broad external networks. Engineering teams use chat heavily during business hours. Sudden changes in who communicates with whom are early signals of insider activity or compromise.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Pattern recognition is dynamic">
+Patterns shift with the business. Mergers, reorganizations, seasonal cycles, and project phases all legitimately change behavior. A baseline that does not account for these will fire noise during every quarterly close, every promotion cycle, every product launch. Adaptation is what keeps pattern recognition useful.
+</Callout>
+
+---
+
+<h2 id="baseline-development">Baseline development</h2>
+
+A baseline is a reference. Four scales of reference matter, and each catches a different class of deviation. Strong Subject programs maintain all four.
+
+<div class="baseline-grid">
+  <div class="baseline-card">
+    <span class="baseline-card__num">01</span>
+    <h4>Individual baselines</h4>
+    <p>Per-identity history: login times, system access, communication patterns, command-line activity. Catches deviations from <em>this entity's</em> norm. Most useful for high-impact identities (executives, admins, privileged service accounts).</p>
+  </div>
+  <div class="baseline-card">
+    <span class="baseline-card__num">02</span>
+    <h4>Group baselines</h4>
+    <p>Per-role or per-team expected behavior. Catches drift across an entire role, and contextualizes individual deviations by asking whether peers are doing the same thing. Distinguishes "one developer is acting strange" from "the whole team is in production for the launch."</p>
+  </div>
+  <div class="baseline-card">
+    <span class="baseline-card__num">03</span>
+    <h4>System baselines</h4>
+    <p>Performance, usage, and network metrics for hosts and services. Critical for finding compromised infrastructure where the user-level signal is hidden by the system-level activity. Sustained high CPU on a database during a quiet hour is worth a look.</p>
+  </div>
+  <div class="baseline-card">
+    <span class="baseline-card__num">04</span>
+    <h4>Application baselines</h4>
+    <p>Per-application interaction rates, API call volumes, response times, error patterns. Catches data exfiltration that hides as ordinary application traffic. The right baseline catches a 30% query-volume spike from one role even when total volume looks normal.</p>
+  </div>
+</div>
+
+<div class="baseline-questions">
+  <h4 class="baseline-questions__head">Three questions of any baseline</h4>
+  <div class="baseline-question">
+    <h4>What window is the baseline built over?</h4>
+    <p>Too short and seasonal patterns get missed (finance close at end-of-month, holiday slowdowns). Too long and stale behavior dilutes the signal. Typical starting point: rolling 30 to 90 days, with explicit handling for seasonal events.</p>
+  </div>
+  <div class="baseline-question">
+    <h4>How is the entity grouped?</h4>
+    <p>An individual baseline catches deviations from <em>this entity's</em> history. A peer-group baseline catches drift across the role. Both have value; both deserve their own thresholds.</p>
+  </div>
+  <div class="baseline-question">
+    <h4>What enrichment feeds the baseline?</h4>
+    <p>HR data for role context. Business calendars for legitimate off-hours. Change management tickets for planned activity. A baseline without context generates noise that looks like anomaly but is just business.</p>
+  </div>
+</div>
+
+---
+
+<h2 id="anomaly-detection">Anomaly detection</h2>
+
+With baselines in place, anomaly detection is the systematic surfacing of deviations. Five families show up over and over.
+
+<div class="anomaly-grid">
+  <div class="anomaly-card">
+    <h4>🌐 Temporal &amp; geographic anomalies</h4>
+    <p>Logins at unusual times or from unfamiliar locations. Rapid succession logins suggest automation. Impossible-travel patterns suggest credential theft. Cross-reference these with the entity's role and historical pattern before scoring.</p>
+  </div>
+  <div class="anomaly-card">
+    <h4>📊 Pattern deviations</h4>
+    <p>Uncharacteristic changes in access frequency or data transfer volume. Spikes or sudden silences without operational cause. Investigate inside the broader context of system health and known business cycles; many "anomalies" turn out to be planned activity.</p>
+  </div>
+  <div class="anomaly-card">
+    <h4>🚫 Unauthorized resource use</h4>
+    <p>Access to systems or data outside the role's normal scope. Source code from an account that has never touched the repo. Customer records from a marketing tool. Even a single anomalous access into sensitive areas is worth investigation.</p>
+  </div>
+  <div class="anomaly-card">
+    <h4>🔑 Credential-based anomalies</h4>
+    <p>Excessive concurrent sessions. Geographically inconsistent logins from the same identity within minutes. Rapid credential resets, especially from unexpected locations. These signal account compromise or lateral movement and require fast correlation with other signals.</p>
+  </div>
+  <div class="anomaly-card">
+    <h4>📤 Communication abnormalities</h4>
+    <p>Unusual email recipients, unexpected attachment sizes, messaging volumes well outside baseline. These are often the earliest external signals of insider data movement and the latest signals of an external compromise that has reached the email environment.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Risk-weight the anomaly">
+Two principles. First, weight anomalies by the actor's risk profile: an unusual action from an admin account or service principal carries more weight than the same action from a standard user. Second, weight by the data at risk: anomalies that touch regulated data (<DefineTerm term="PCI">Payment Card Industry data. Cardholder data subject to PCI DSS handling, retention, and audit requirements.</DefineTerm>, <DefineTerm term="PII">Personally Identifiable Information. Data that identifies an individual person, regulated under GDPR, CCPA, HIPAA where health-related, and similar regimes.</DefineTerm>, source code, secrets) automatically escalate severity. A clean methodology bakes both weights into the scoring instead of leaving them to ad-hoc judgment.
+</Callout>
+
+---
+
+<h2 id="subject-centric-triage">Subject-centric triage</h2>
+
+The framework's payoff. Subject-centric triage is the discipline of always evaluating an alert through the lens of the implicated entity rather than through general <DefineTerm term="Detection Logic" display="detection logic" /> alone.
+
+<div class="triage-grid">
+  <div class="triage-card">
+    <h4>Alert validation</h4>
+    <p>Correlate the alert against the entity's baselines. The same alert is true positive on one identity and false-positive on another when the baselines say so. Subject-centric validation reduces false-positive rate without losing real signal.</p>
+  </div>
+  <div class="triage-card">
+    <h4>Insider threat detection</h4>
+    <p>Subtle behavioral deviations that match an identity's known patterns of frustration, role change, or staging often surface here. Pattern-based alerts will miss this; entity-based comparison surfaces it.</p>
+  </div>
+  <div class="triage-card">
+    <h4>Escalation support</h4>
+    <p>The entity's role and access drive escalation. Alerts on privileged or high-value identities escalate faster and to different on-call roles. Subject-centric triage encodes that into the workflow rather than relying on individual judgment.</p>
+  </div>
+  <div class="triage-card">
+    <h4>Response tailoring</h4>
+    <p>The depth of follow-up is bounded by the entity's behavioral risk profile. A clean baseline + a low-risk action gets less time. A clean baseline + a high-risk action gets more. The methodology spends investigator effort where it has the most return.</p>
+  </div>
+  <div class="triage-card">
+    <h4>Event reconstruction</h4>
+    <p>Behavioral timelines per entity become the spine of any post-incident write-up. Subject-centric triage produces those timelines as a byproduct of the work, which makes Documentation faster downstream.</p>
+  </div>
+</div>
+
+<Reveal summary="A worked example of Subject-centric triage" variant="example">
+An alert fires: a developer account ran a database export at 22:30. Generic anomaly detection (environment-wide) might tune this out: developers query the database routinely, late-evening work happens, the export volume is within thresholds.
+
+Subject-centric triage zooms in:
+
+- **This developer's** baseline shows they have never queried this specific database before.
+- **This developer's** historical working hours are 09:00 to 18:00. The 22:30 timing is four hours outside their normal window.
+- **This developer's** other recent activity includes account permission changes that look like preparation.
+- The peer group (other developers on the same team) shows no parallel activity. This is one developer doing something unusual on their own.
+
+Each individual signal is below the environment-wide threshold. The combination, in the context of *this specific entity*, is a high-confidence Subject-level anomaly. That is what Subject-centric triage adds.
+</Reveal>
+
+---
+
+## Implementing behavioral analysis
+
+Strong behavioral analysis is not a tool. It is four practices the methodology asks of the SOC.
+
+<div class="impl-grid">
+  <div class="impl-card">
+    <span class="impl-card__icon">📡</span>
+    <h4>Capture broad telemetry</h4>
+    <p>Authentication events, system access, application interactions, network flows. The more dimensions captured, the more deviations the framework can find. Gaps in coverage are gaps in detection.</p>
+  </div>
+  <div class="impl-card">
+    <span class="impl-card__icon">🧩</span>
+    <h4>Integrate contextual data</h4>
+    <p>HR records for role context. Business calendars for legitimate off-hours. Project assignments and change tickets for planned activity. Without context, the framework fires noise during every legitimate organizational change.</p>
+  </div>
+  <div class="impl-card">
+    <span class="impl-card__icon">🔄</span>
+    <h4>Adapt continuously</h4>
+    <p>Analyst feedback feeds the framework. Marked false-positives recalibrate thresholds. New attack patterns become new baselines. A behavioral system that is not learning is decaying.</p>
+  </div>
+  <div class="impl-card">
+    <span class="impl-card__icon">🔒</span>
+    <h4>Respect privacy</h4>
+    <p>Per-entity behavior modeling has implications beyond security. Coordinate with legal, HR, and works councils where relevant. Data minimization, role-based access to the analytics, encryption at rest. The framework's value depends on trust.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Tooling vs. methodology">
+UEBA platforms (<DefineTerm term="Microsoft Defender" /> XDR, <DefineTerm term="Exabeam" />, Securonix and others) handle the framework's mechanics out of the box. SIEMs can do it with custom rules but at higher operational cost. The tool matters less than the discipline of capturing data, integrating context, and learning from feedback. A SOC with no UEBA product but strong baselines often outperforms a SOC with the tool but no methodology around it.
+</Callout>
+
+<KeyTakeaway>
+The behavioral framework is the difference between "an alert fired" and "this specific entity is doing something this specific entity does not normally do." The second is far more useful, and it is what Subject is designed to surface. Pattern recognition, baseline development, anomaly detection, and Subject-centric triage are the four pieces that produce that second statement reliably.
+</KeyTakeaway>
+
+<ContinueCard
+  current="subject"
+  nextHref="/docs/subject/insider-analysis"
+  nextLabel="Insider analysis"
+  nextDescription="The fourth pillar. Risk vs. threat, the Insider Threat Matrix, and the patterns that come from the inside."
+  ctaLabel="Read insider analysis"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.framework-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .framework-grid { grid-template-columns: 1fr 1fr; } }
+
+.framework-card {
+  position: relative;
+  display: block;
+  padding: 1.5rem 1.75rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 0.85rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.framework-card:hover {
+  transform: translateY(-3px);
+  border-color: #22c55e;
+  box-shadow: 0 14px 28px -14px rgba(34, 197, 94, 0.35);
+}
+.framework-card__num {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(134, 239, 172, 0.6);
+  letter-spacing: 0.05em;
+}
+.framework-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #86efac;
+  font-size: 1.05rem;
+}
+.framework-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .pattern-grid { grid-template-columns: 1fr 1fr; } }
+
+.pattern-card {
+  position: relative;
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #22c55e;
+  border-radius: 0.6rem;
+}
+.pattern-card__tag {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+.pattern-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+.pattern-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.baseline-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .baseline-grid { grid-template-columns: 1fr 1fr; } }
+
+.baseline-card {
+  position: relative;
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 0.7rem;
+}
+.baseline-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(134, 239, 172, 0.6);
+}
+.baseline-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #86efac;
+  font-size: 1rem;
+}
+.baseline-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.baseline-questions {
+  margin: 2rem 0 1.5rem;
+  padding: 1.4rem 1.6rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 0.85rem;
+}
+.baseline-questions__head {
+  margin: 0 0 1rem 0;
+  color: #5eead4;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.baseline-question {
+  padding: 0.9rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+.baseline-question:first-of-type { border-top: 0; padding-top: 0; }
+.baseline-question h4 {
+  margin: 0 0 0.3rem 0;
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+.baseline-question p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.anomaly-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px)  { .anomaly-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .anomaly-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.anomaly-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.6rem;
+}
+.anomaly-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #fbbf24;
+  font-size: 0.98rem;
+}
+.anomaly-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.triage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .triage-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .triage-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1100px) { .triage-grid > :nth-child(4),
+                              .triage-grid > :nth-child(5) {
+                                grid-column: span 1;
+                              } }
+
+.triage-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 0.6rem;
+}
+.triage-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #86efac;
+  font-size: 0.98rem;
+}
+.triage-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.impl-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .impl-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .impl-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.impl-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid #5eead4;
+  border-radius: 0.6rem;
+}
+.impl-card__icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.impl-card h4 {
+  margin: 0 0 0.35rem 0;
+  color: #5eead4;
+  font-size: 0.98rem;
+}
+.impl-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+`}
+</style>

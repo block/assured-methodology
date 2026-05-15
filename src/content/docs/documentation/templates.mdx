@@ -1,0 +1,178 @@
+---
+title: "Documentation templates"
+description: "Alert reporting templates, timeline trackers, and the design principles that make templates efficient. Reduce cognitive load and ensure comprehensive capture."
+slug: "documentation/templates"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="02" pillarLabel="03" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Templates make documentation fast and consistent. The structure already exists; the analyst fills in the substance. Done well, templates reduce cognitive load during high-pressure investigations and ensure nothing critical gets missed."/>
+
+<PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/templates" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+## Why standardized templates
+
+<div class="tpl-benefit-grid">
+  <div class="tpl-benefit-card">
+    <h4>Benefits</h4>
+    <ul>
+      <li>Reduce cognitive load during high-pressure investigations</li>
+      <li>Ensure comprehensive capture of required information</li>
+      <li>Enable consistent classification and categorization</li>
+      <li>Support automated data extraction for metrics and reporting</li>
+      <li>Facilitate knowledge transfer between team members</li>
+      <li>Accelerate review and approval processes</li>
+      <li>Maintain compliance with regulatory requirements</li>
+    </ul>
+  </div>
+  <div class="tpl-benefit-card">
+    <h4>Implementation best practices</h4>
+    <ul>
+      <li>Integrate templates directly into case management systems</li>
+      <li>Include both required and optional fields with clear guidance</li>
+      <li>Provide dropdown menus for consistent categorization</li>
+      <li>Implement field validation to ensure data quality</li>
+      <li>Create specialized variants for different event types</li>
+      <li>Include examples of properly completed documentation</li>
+      <li>Design for both operational and compliance needs</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Customize the core template by event type">
+While a core template structure should be universal across the organization, specialized variants must exist for common categories: <DefineTerm term="Phishing" display="phishing" />, <DefineTerm term="Credential" display="credential" /> compromise, <DefineTerm term="Ransomware" display="ransomware" />, insider misuse, <DefineTerm term="Data Exfiltration" display="data exfiltration" />. Phishing templates include fields for email <DefineTerm term="Artifacts" display="artifacts" />, affected recipients, and delivery <DefineTerm term="Infrastructure" display="infrastructure" />. Ransomware templates capture encryption details, ransom demands, and <DefineTerm term="Business Continuity" display="business continuity" /> impacts.
+</Callout>
+
+---
+
+## The alert reporting template
+
+A well-designed alert report template captures all essential details consistently to support rapid understanding, <DefineTerm term="Event Correlation" display="event correlation" />, and knowledge reuse. Each report includes the following core fields.
+
+<div class="alert-tpl">
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Event title and identifier</div>
+    <div class="alert-tpl__desc">Concise yet descriptive. Pairs with a unique identifier (e.g., INC-YYYYMMDD-NNN) for chronological tracking and cross-referencing.</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Detection timestamp and source</div>
+    <div class="alert-tpl__desc">Standardized UTC timestamp with optional local time. Detection source specifies the tool or control (EDR, SIEM, CSPM) responsible for generating the alert.</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Activity summary</div>
+    <div class="alert-tpl__desc">Describes the observable behavior that triggered the alert. Balances technical clarity with readability, highlighting specific indicators and anomalies.</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Initial triage outcome</div>
+    <div class="alert-tpl__desc">Early classification: true positive, false-positive, or inconclusive, with concise justification grounded in observable behaviors and detection logic.</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Affected systems</div>
+    <div class="alert-tpl__desc">Endpoints, accounts, infrastructure elements involved, with business context (function, criticality, ownership).</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Actions taken</div>
+    <div class="alert-tpl__desc">Investigative or containment steps with timestamps and outcomes. Telemetry reviews, process analysis, network validation, remediation.</div>
+  </div>
+  <div class="alert-tpl__row">
+    <div class="alert-tpl__field">Escalation decision and final disposition</div>
+    <div class="alert-tpl__desc">Whether the alert warranted escalation, to whom, and why. Final disposition: benign, confirmed malicious, or merged with a broader incident.</div>
+  </div>
+</div>
+
+<Reveal summary="Worked example: the Cursor IDE alert report" variant="example">
+
+A completed alert report for the macOS / Cursor IDE <DefineTerm term="False-Positive" display="false-positive" /> case, in the standardized format:
+
+| Field | Content |
+|---|---|
+| **Event title and ID** | Empire-like behavior on developer workstation, INC-20241104-001 |
+| **Detection date/time** | 2024-11-04T15:27:33Z |
+| **Detection source** | CrowdStrike EDR |
+| **Activity summary** | EDR flagged <DefineTerm term="Execution" display="execution" /> of "Cursor Helper (Plugin)" binary due to behavioral traits associated with Empire <DefineTerm term="Post-Exploitation" display="post-exploitation" /> frameworks. |
+| **Initial triage outcome** | Behavioral heuristics triggered on execution via helper binaries with sandbox <DefineTerm term="Evasion" display="evasion" /> flags, manipulated debugger ports, TLS-encrypted high-entropy <DefineTerm term="Traffic" display="traffic" />, and elevated <DefineTerm term="Node.js" /> subprocesses. Matches known Empire indicators but requires contextual validation. |
+| **Affected systems** | Single developer workstation, source of the alert. |
+| **Actions taken** | Reviewed CrowdStrike <DefineTerm term="Telemetry" display="telemetry" />: execution patterns and network behavior aligned with expected developer activity. Traffic normal in volume / frequency, used standard ports / protocols, no signs of <DefineTerm term="Exfiltration" display="exfiltration" />, <DefineTerm term="Beaconing" display="beaconing" />, or tunneling. |
+| **Escalation decision** | Flagged behavior appears to be benign development activity triggering a heuristic rule. No escalation required. |
+| **Final disposition** | False-positive. Activity deemed non-malicious and consistent with developer workflows. |
+
+The same template, filled differently for the finance-team phishing case, would have produced a P1 escalation record with confirmed malicious classification.
+
+</Reveal>
+
+---
+
+## Timeline and action tracking
+
+Maintaining an accurate, timestamped timeline is fundamental to effective documentation. The timeline provides a sequential record of activities, decisions, and communications, supporting retrospective analysis and accountability.
+
+Each timeline entry should contain five components.
+
+<div class="timeline-grid">
+  <div class="timeline-card">
+    <span class="timeline-card__num">01</span>
+    <h4>Timestamp</h4>
+    <p>The exact time the action occurred, using UTC for consistency across geographies. Both date and time for extended incidents.</p>
+  </div>
+  <div class="timeline-card">
+    <span class="timeline-card__num">02</span>
+    <h4>Actor</h4>
+    <p>Entity performing the action: human (analyst, engineer with name and role) or automated system (SOAR, EDR, IAM platform).</p>
+  </div>
+  <div class="timeline-card">
+    <span class="timeline-card__num">03</span>
+    <h4>Action taken</h4>
+    <p>Brief but descriptive: "isolated host via EDR," "blocked IP in firewall," "added hash to denylist." Concrete and specific.</p>
+  </div>
+  <div class="timeline-card">
+    <span class="timeline-card__num">04</span>
+    <h4>Rationale</h4>
+    <p>Reasoning behind the action, especially for discretionary steps. Documents the decision-making process and justification.</p>
+  </div>
+  <div class="timeline-card">
+    <span class="timeline-card__num">05</span>
+    <h4>Outcome / result</h4>
+    <p>Observed effect: successful containment, error encountered, lack of expected response. Captures actual vs. intended.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Real-time, collaborative timelines">
+Timelines should be maintained in real-time and synchronized across systems involved in the event lifecycle. Modern <DefineTerm term="Incident Response" display="incident response" /> platforms provide collaborative timeline features that enable multiple team members to contribute entries while preventing conflicts. These integrated timelines become the authoritative record of event progression, supporting handoffs, shift changes, and distributed-team coordination.
+</Callout>
+
+<KeyTakeaway>A template is not a constraint; it is scaffolding. Templates make documentation faster, more consistent, and more complete. Time invested in designing the right template saves hours of inconsistent records, and the right alert-reporting template plus a timestamped action timeline cover most of what any audit, post-mortem, or shift handoff will ask for.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/pitfalls" nextLabel="Pitfalls" ctaLabel="Read pitfalls" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.tpl-benefit-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .tpl-benefit-grid { grid-template-columns: 1fr 1fr; } }
+.tpl-benefit-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; }
+.tpl-benefit-card h4 { margin: 0 0 0.55rem 0; color: #67e8f9; font-size: 1rem; }
+.tpl-benefit-card ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.alert-tpl { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
+.alert-tpl__row { display: grid; grid-template-columns: 1fr; padding: 0.95rem 1.25rem; border-top: 1px solid rgba(148, 163, 184, 0.15); color: #cbd5e1; }
+.alert-tpl__row:first-child { border-top: 0; }
+@media (min-width: 900px) { .alert-tpl__row { grid-template-columns: 1fr 2fr; gap: 1rem; align-items: baseline; } }
+.alert-tpl__field { color: #67e8f9; font-weight: 700; font-size: 0.9rem; }
+.alert-tpl__desc { color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+
+.timeline-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .timeline-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .timeline-grid { grid-template-columns: repeat(5, 1fr); } }
+.timeline-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.6rem; }
+.timeline-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.55); }
+.timeline-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
+.timeline-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.86rem; }
+`}</style>

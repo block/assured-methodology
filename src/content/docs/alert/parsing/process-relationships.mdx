@@ -1,0 +1,562 @@
+---
+title: "Process relationships"
+description: "Reconstruct adversary lineage through parent-child process chains. Recognize macro execution, persistence, hollowing, and token theft."
+slug: "alert/parsing/process-relationships"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="03 · 03"
+  pillarLabel="6 surfaces"
+  chapterHref="/docs/alert/parsing"
+  chapterLabel="Parsing"
+  lede="Operating systems have predictable process lineages. Deviations from those patterns are highly informative. Mapping parent-child chains turns isolated alerts into narratives."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Parsing surfaces"
+  current="/docs/alert/parsing/process-relationships"
+  items={[
+    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
+    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+  ]}
+/>
+
+## Normal patterns
+
+These are the lineages that should not surprise you:
+
+<div class="lineage-grid">
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>explorer.exe → winword.exe</code>
+    <p>User-launched document activity.</p>
+  </div>
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>services.exe → svchost.exe</code>
+    <p>Normal Windows service initiation.</p>
+  </div>
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>taskeng.exe → &lt;scheduled binary&gt;</code>
+    <p>Scheduled task execution under Task Scheduler.</p>
+  </div>
+</div>
+
+---
+
+## What to flag
+
+<Callout variant="info" title="Suspicious lineage signals">
+- **Unexpected origins.** `notepad.exe` spawning `wmic.exe`. Notepad should not be spawning anything.
+- **Compressed timing.** Multiple processes launching within sub-second intervals suggests scripted automation.
+- **Office spawning shells.** `winword.exe → cmd.exe → powershell.exe` is the classic macro-execution chain.
+- **System binaries in <DefineTerm term="User" display="user" /> contexts.** Elevated processes running with anomalous parent-child relationships.
+</Callout>
+
+A direct spawn of `msdt.exe` by `winword.exe` strongly suggests exploitation of <DefineTerm term="Follina">CVE-2022-30190. A vulnerability in the Microsoft Support Diagnostic Tool that allowed a malicious Office document to trigger remote code execution via a crafted URL handler.</DefineTerm>, where a malicious document triggers the Microsoft Support Diagnostic Tool to run attacker-controlled code.
+
+---
+
+## Common malicious chains
+
+Five chains an analyst should recognize on sight. Each one has a characteristic shape, a typical purpose, and a recognizable telltale that distinguishes it from look-alike legitimate activity.
+
+<div class="chains-stack">
+  <div class="chain-row" data-chain="rogue-script">
+    <div class="chain-row__head">
+      <span class="chain-row__icon">🧨</span>
+      <h4>Rogue script execution</h4>
+    </div>
+    <div class="chain-row__viz">
+      <svg viewBox="0 0 420 60" class="chain-viz">
+        <g class="chain-viz__node" style="--delay: 0s;">
+          <rect x="10" y="18" width="100" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="60" y="36" text-anchor="middle" class="chain-viz__label">powershell.exe</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 115 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 0.6s;">
+          <rect x="170" y="18" width="100" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="220" y="36" text-anchor="middle" class="chain-viz__label">script.ps1</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 275 32 L 325 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 1.2s;">
+          <rect x="330" y="18" width="80" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="370" y="36" text-anchor="middle" class="chain-viz__label">%TEMP%</text>
+        </g>
+        <defs>
+          <marker id="chain-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <p class="chain-row__body">
+      PowerShell downloads a script from a remote location and runs it directly from a public temp directory. The shape is recognizable because legitimate PowerShell almost never sources its code from <code>%TEMP%</code> or <code>%PUBLIC%</code>. The telltale is the chain ending in a user-writable directory.
+    </p>
+  </div>
+
+  <div class="chain-row" data-chain="registry">
+    <div class="chain-row__head">
+      <span class="chain-row__icon">🗝️</span>
+      <h4>Registry manipulation for persistence</h4>
+    </div>
+    <div class="chain-row__viz">
+      <svg viewBox="0 0 420 60" class="chain-viz">
+        <g class="chain-viz__node" style="--delay: 0s;">
+          <rect x="10" y="18" width="80" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="50" y="36" text-anchor="middle" class="chain-viz__label">cmd.exe</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 95 32 L 140 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 0.6s;">
+          <rect x="145" y="18" width="90" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="190" y="36" text-anchor="middle" class="chain-viz__label">wmic.exe</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 240 32 L 280 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 1.2s;">
+          <rect x="285" y="18" width="125" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="347" y="36" text-anchor="middle" class="chain-viz__label">reg.exe (autorun)</text>
+        </g>
+      </svg>
+    </div>
+    <p class="chain-row__body">
+      Trusted binaries (<code>cmd</code>, <code>wmic</code>, <code>reg</code>) used in sequence to drop or modify a registry value that survives reboot. The shape is normal; the destination key is what gives it away. Watch for writes to autorun keys, Run/RunOnce hives, or service definitions.
+    </p>
+  </div>
+
+  <div class="chain-row" data-chain="service">
+    <div class="chain-row__head">
+      <span class="chain-row__icon">⚙️</span>
+      <h4>Unauthorized service creation</h4>
+    </div>
+    <div class="chain-row__viz">
+      <svg viewBox="0 0 420 60" class="chain-viz">
+        <g class="chain-viz__node" style="--delay: 0s;">
+          <rect x="10" y="18" width="100" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="60" y="36" text-anchor="middle" class="chain-viz__label">sc.exe</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 115 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 0.6s;">
+          <rect x="170" y="18" width="120" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="230" y="36" text-anchor="middle" class="chain-viz__label">sc create &lt;svc&gt;</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 295 32 L 335 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 1.2s;">
+          <rect x="340" y="18" width="70" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="375" y="36" text-anchor="middle" class="chain-viz__label">auto-start</text>
+        </g>
+      </svg>
+    </div>
+    <p class="chain-row__body">
+      <code>sc.exe create</code> registers a new Windows service that auto-starts on boot. Legitimate software installs services this way at install time; adversaries do it post-compromise to survive reboots. Watch for service creation outside an installer process or from an unusual user context.
+    </p>
+  </div>
+
+  <div class="chain-row" data-chain="hollowing">
+    <div class="chain-row__head">
+      <span class="chain-row__icon">🥚</span>
+      <h4>Process hollowing</h4>
+    </div>
+    <div class="chain-row__viz">
+      <svg viewBox="0 0 420 60" class="chain-viz">
+        <g class="chain-viz__node" style="--delay: 0s;">
+          <rect x="10" y="18" width="100" height="28" rx="6" fill="rgba(34, 197, 94, 0.18)" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="60" y="36" text-anchor="middle" class="chain-viz__label">svchost.exe</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 115 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 0.6s;">
+          <rect x="170" y="18" width="100" height="28" rx="6" fill="rgba(168, 85, 247, 0.18)" stroke="#a855f7" stroke-width="1.5"/>
+          <text x="220" y="36" text-anchor="middle" class="chain-viz__label">code swapped</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 275 32 L 325 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 1.2s;">
+          <rect x="330" y="18" width="80" height="28" rx="6" fill="rgba(34, 197, 94, 0.18)" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="370" y="36" text-anchor="middle" class="chain-viz__label">still ✓</text>
+        </g>
+      </svg>
+    </div>
+    <p class="chain-row__body">
+      Malicious code is injected into a legitimate process (<code>svchost.exe</code> is a favorite) while the outer process keeps its name and digital signature. The chain looks normal in tree view. Memory and behavioral telemetry are how the substitution is caught; signature checks will not.
+    </p>
+  </div>
+
+  <div class="chain-row" data-chain="token-theft">
+    <div class="chain-row__head">
+      <span class="chain-row__icon">🎭</span>
+      <h4>Token theft and impersonation</h4>
+    </div>
+    <div class="chain-row__viz">
+      <svg viewBox="0 0 420 60" class="chain-viz">
+        <g class="chain-viz__node" style="--delay: 0s;">
+          <rect x="10" y="18" width="110" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="65" y="36" text-anchor="middle" class="chain-viz__label">alice (user)</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 125 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 0.6s;">
+          <rect x="170" y="18" width="100" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="220" y="36" text-anchor="middle" class="chain-viz__label">token stolen</text>
+        </g>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 275 32 L 315 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <g class="chain-viz__node" style="--delay: 1.2s;">
+          <rect x="320" y="18" width="90" height="28" rx="6" fill="rgba(168, 85, 247, 0.18)" stroke="#a855f7" stroke-width="1.5"/>
+          <text x="365" y="36" text-anchor="middle" class="chain-viz__label">runs as alice</text>
+        </g>
+      </svg>
+    </div>
+    <p class="chain-row__body">
+      A new process is launched under another user's security context using a stolen authentication <DefineTerm term="token">A Windows credential object that represents an authenticated user session. Tokens let processes run with the rights of the user who started them. Stealing one lets a process behave as that user without ever needing their password.</DefineTerm>. The activity looks like the impersonated user. Detection depends on cross-correlating the process owner against where the user was actually logged in.
+    </p>
+  </div>
+</div>
+
+<CaseStudy
+  title="Reconstructing a macro-borne intrusion"
+  scenario="An EDR alert reports anomalous child processes spawned by Microsoft Word on a finance team workstation."
+>
+
+Process tree investigation reveals:
+
+```
+winword.exe (PID 3421)
+  └─ cmd.exe (PID 3422)
+       └─ powershell.exe (PID 3423)
+            └─ outbound TLS connection to a recently registered domain
+```
+
+The chain alone is enough to recognize the pattern: macro <DefineTerm term="Execution" display="execution" /> from a document, shell launch, scripted download cradle, command-and-control establishment. The exact IP is not the point. The shape of the chain is.
+
+<Reveal summary="What an analyst checks next">
+- The originating email and attachment in the user's mailbox.
+- Other recipients of the same email (lateral exposure).
+- The <DefineTerm term="PowerShell" /> <DefineTerm term="Command Line" display="command line" /> for download cradle patterns.
+- DNS queries from the host in the relevant window.
+- File system creates in `%TEMP%` and `%APPDATA%` correlated to the PowerShell PID.
+- Whether the user opened the document themselves or it executed on preview.
+</Reveal>
+
+</CaseStudy>
+
+---
+
+## Visualization tools
+
+Process tree visualization makes anomalies obvious. Three categories of tooling matter:
+
+<div class="tools-grid">
+  <div class="tool-card">
+    <h4>Sysinternals Process Explorer</h4>
+    <p>Detailed local tree analysis and thread inspection. Good for ad-hoc investigation on a single host.</p>
+  </div>
+  <div class="tool-card">
+    <h4>System Informer (formerly Process Hacker)</h4>
+    <p>Lightweight alternative for in-depth lineage mapping and thread inspection. Open source; the project was renamed System Informer in 2022 and continues active development.</p>
+  </div>
+  <div class="tool-card">
+    <h4>EDR consoles</h4>
+    <p>CrowdStrike Falcon, SentinelOne, Microsoft Defender XDR all provide real-time tree visualization with historical playback at scale.</p>
+  </div>
+</div>
+
+---
+
+## Evasion to know about
+
+Adversaries who understand process tree analysis design their tradecraft to look normal in the tree. The four techniques below are the most common evasions an analyst will encounter in real intrusions. Recognizing them by name accelerates the moment of "wait, that is not what it looks like."
+
+<div class="evasion-detail-list">
+  <div class="evasion-detail">
+    <div class="evasion-detail__head">
+      <span class="evasion-detail__icon">🪤</span>
+      <h4>DLL search order hijacking</h4>
+    </div>
+    <p>
+      A <DefineTerm term="DLL">Dynamic Link Library. A shared library that Windows loads into a process at runtime to provide functions the process uses. Programs name the DLLs they need; Windows finds them by searching a defined order of directories.</DefineTerm> is loaded by a legitimate binary from one of several search paths in a defined order. An adversary places a malicious DLL earlier in that order than the real one. The legitimate, signed binary loads the malicious DLL instead of the real one, executing attacker code under the trust of the original program.
+    </p>
+    <p class="evasion-detail__tell">
+      <strong>The telltale:</strong> a process tree that looks normal at the binary level, but with a DLL that was loaded from an unusual location (a writable directory, the user profile, a removable drive). EDRs that track DLL loads can flag this. Tree views that only show processes cannot.
+    </p>
+  </div>
+
+  <div class="evasion-detail">
+    <div class="evasion-detail__head">
+      <span class="evasion-detail__icon">👻</span>
+      <h4>Fileless execution</h4>
+    </div>
+    <p>
+      <DefineTerm term="fileless">An execution model that runs the malicious payload entirely from memory, without ever writing it to disk. Common techniques include PowerShell loading code via reflection, WMI event subscriptions that fire compiled MOF, and .NET assemblies loaded straight into memory.</DefineTerm> attacks run their payload from memory, never landing on disk. Disk-based detections (file hashes, AV scans, file integrity monitoring) see nothing. The process tree shows only legitimate parents (often PowerShell or WMI).
+    </p>
+    <p class="evasion-detail__tell">
+      <strong>The telltale:</strong> a long-running PowerShell or WMI process with a command line that decodes a base64 blob and executes it, or a WMI event subscription that fires at boot. Memory analysis and command-line decoding catch this; surface process inspection does not.
+    </p>
+  </div>
+
+  <div class="evasion-detail">
+    <div class="evasion-detail__head">
+      <span class="evasion-detail__icon">📑</span>
+      <h4>Alternate data streams (ADS)</h4>
+    </div>
+    <p>
+      NTFS supports multiple data streams per file. The default stream is what most tools and users see. An <DefineTerm term="alternate data stream">A secondary data stream attached to an NTFS file. The primary stream is what you see in Explorer. The alternate stream is invisible to most tools but can be opened and executed directly. Used historically to hide payloads inside otherwise innocuous files.</DefineTerm> can hide a payload inside a normal-looking file, and the malicious code can be invoked directly from the stream.
+    </p>
+    <p class="evasion-detail__tell">
+      <strong>The telltale:</strong> a process whose image path includes a colon (<code>C:\Users\victim\readme.txt:hidden.exe</code>). The format <code>file:stream</code> is the giveaway. Most modern EDRs flag ADS execution, but the technique is still seen in older or under-instrumented environments.
+    </p>
+  </div>
+
+  <div class="evasion-detail">
+    <div class="evasion-detail__head">
+      <span class="evasion-detail__icon">🛠️</span>
+      <h4>LOLBin-only chains</h4>
+    </div>
+    <p>
+      The adversary uses only trusted system binaries (<DefineTerm term="LOLBin">Living Off the Land Binary. A trusted, signed system binary (regsvr32, mshta, wmic, certutil, rundll32) used to perform malicious actions while looking like normal system activity.</DefineTerm> such as <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>rundll32</code>) to download, decode, and execute attacker code. No malicious file is ever written to disk by the adversary, and no signature on any of the binaries is wrong.
+    </p>
+    <p class="evasion-detail__tell">
+      <strong>The telltale:</strong> common system binaries being invoked with command-line flags they almost never use in legitimate operations (<code>certutil -urlcache -split -f</code>, <code>regsvr32 /s /u /n /i:http://...</code>). Command-line parsing is what catches this; the process names alone look harmless.
+    </p>
+  </div>
+</div>
+
+<KeyTakeaway>
+Process relationship analysis bridges single-alert detection and full kill-chain reconstruction. Combined with command-line <DefineTerm term="Parsing" display="parsing" />, it is the foundation for confidently mapping what an adversary did and what they are trying to do next.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing/network"
+  nextLabel="Network correlation"
+  nextDescription="Tie host activity to outbound traffic. C2 detection through timing, TLS, DNS, and exfiltration indicators."
+  ctaLabel="Read network correlation"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.lineage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+@media (min-width: 768px)  { .lineage-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.lineage-card {
+  padding: 1.1rem 1.3rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #22c55e;
+  border-radius: 0.6rem;
+}
+
+.lineage-card__label {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #86efac;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.lineage-card code {
+  display: block;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.lineage-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.chains-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.chain-row {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #ef4444;
+  border-radius: 0.7rem;
+}
+
+.chain-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.chain-row__icon {
+  font-size: 1.3rem;
+}
+
+.chain-row h4 {
+  margin: 0;
+  color: #fca5a5;
+  font-size: 1rem;
+}
+
+.chain-row__viz {
+  margin: 0.4rem 0 0.85rem;
+}
+
+.chain-viz {
+  width: 100%;
+  height: auto;
+  max-width: 480px;
+}
+
+.chain-viz__label {
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  fill: #e2e8f0;
+}
+
+.chain-viz__node {
+  opacity: 0;
+  animation: chain-pop 4s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.chain-viz__arrow {
+  opacity: 0;
+  animation: chain-fade 4s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes chain-pop {
+  0%, 75%, 100% { opacity: 0.25; transform: scale(0.98); }
+  10%, 65%      { opacity: 1; transform: scale(1); }
+}
+
+@keyframes chain-fade {
+  0%, 75%, 100% { opacity: 0; }
+  15%, 65%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chain-viz__node, .chain-viz__arrow { opacity: 1; animation: none; }
+}
+
+.chain-row__body {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .tools-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.tool-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.tool-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #5eead4;
+  font-size: 0.95rem;
+}
+
+.tool-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.evasion-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.evasion-detail {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+}
+
+.evasion-detail__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.evasion-detail__icon { font-size: 1.3rem; }
+
+.evasion-detail h4 {
+  margin: 0;
+  color: #d8b4fe;
+  font-size: 1.02rem;
+}
+
+.evasion-detail p {
+  margin: 0 0 0.7rem 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.evasion-detail__tell {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px dashed rgba(168, 85, 247, 0.3);
+  border-radius: 0.5rem;
+}
+
+.evasion-detail__tell strong { color: #d8b4fe; }
+`}
+</style>

@@ -1,0 +1,119 @@
+---
+title: "The value of investigating a false-positive"
+description: "A closed case is not a wasted case. The reflection on a false-positive sharpens detection and the analyst's instinct."
+slug: "risk/false-positive"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="risk" parentLetter="R" pillarNumber="03" pillarLabel="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Most alerts close as false-positives. The methodology asks the analyst to treat that closure as a finding, not as a non-event."/>
+
+<PillNav chapter="risk" label="Risk chapter" current="/docs/risk/false-positive" items={[
+  { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
+  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood", phase: "risk" },
+  { label: "The false-positive", href: "/docs/risk/false-positive", phase: "risk" },
+]}/>
+
+## Three things a closed false-positive teaches
+
+<div class="fp-grid">
+  <div class="fp-card">
+    <h4>🎯 Detection precision</h4>
+    <p>Every false-positive points at a place where the detection logic could be sharper. Capture which rule fired, what made it noisy, and what change would prevent the same noise next time. This is the feedback the detection team needs.</p>
+  </div>
+  <div class="fp-card">
+    <h4>🧠 Analyst instinct</h4>
+    <p>The first false-positive on a new alert type feels productive. The fiftieth feels like waste. Both reactions are useful: the first builds knowledge, the fiftieth is a sign the alert needs to be retired or re-tuned.</p>
+  </div>
+  <div class="fp-card">
+    <h4>🌐 Environmental drift</h4>
+    <p>False-positives often surface legitimate operational changes the SOC was not told about. A new automation tool, a new vendor integration, a configuration change. The closed case becomes a feedback channel to other teams.</p>
+  </div>
+</div>
+
+---
+
+## What to record
+
+Even a clean <DefineTerm term="False-Positive" display="false-positive" /> closure should produce:
+
+- **What fired and why.** The alert source, the rule, the inputs.
+- **What the analyst checked.** Which dimensions, which sources, which queries.
+- **What ruled the case out.** The specific evidence that supported "false-positive."
+- **What to change.** Detection-engineering feedback, baseline adjustments, or knowledge to share with the team.
+
+<Callout variant="info" title="The reflection is the value">
+Closing a case without documenting the reasoning is a missed opportunity. The reflection takes minutes; the value compounds over time as the SOC's collective knowledge grows.
+</Callout>
+
+---
+
+## An analyst's reflection on false-positives
+
+A reflection that bears repeating, from one of the methodology's authors.
+
+<Reveal summary="Early in my career, I approached every alert with the assumption that it was malicious..." variant="info">
+
+Early in my career, I approached security alerts with the default assumption that they represented confirmed malicious activity. My objective, consciously or not, became finding the bad — even if it meant stretching beyond what the data supported. That mindset produced frequent over-scoping, time wasted on benign anomalies, and rabbit holes that undermined my investigative efficiency.
+
+The methodology asks for a deliberate inversion. We are not validating <DefineTerm term="Threat" display="threat" /> assumptions; we are validating the alert. My role is to interpret observed behavior against contextual baselines, technical realities, and environmental constraints — not to assume malice by default.
+
+Alarms are not omniscient. They are designed and tuned by humans, and they inherently reflect imperfect understanding, incomplete data, and an evolving threat landscape. An alert is a starting point, not a conclusion. Even alerts that mimic known adversary techniques may be entirely benign when I examine them within the proper technical and operational context.
+
+The triage process is not about proving evil. It is about accurately characterizing risk. Recognizing a false-positive upholds the integrity of the investigative process, minimizes unnecessary disruptions, and preserves resources for the genuinely consequential threats. **Clarity, not escalation, is the primary outcome of effective triage.**
+
+</Reveal>
+
+---
+
+## When false-positive volume becomes its own signal
+
+A single false-positive is a closure with feedback. A pattern of false-positives on the same rule, environment, or asset class is a signal about the detection stack itself.
+
+<div class="fp-pattern-grid">
+  <div class="fp-pattern-card">
+    <h4>🔁 Same rule, repeatedly</h4>
+    <p>The rule is over-broad or mis-tuned. Triggers detection-engineering review and likely a refined variant or suppression.</p>
+  </div>
+  <div class="fp-pattern-card">
+    <h4>🏷️ Same asset class</h4>
+    <p>The asset's normal behavior overlaps with the rule's logic. May need an asset-class-aware variant or a baseline-aware suppression.</p>
+  </div>
+  <div class="fp-pattern-card">
+    <h4>📅 Same time window</h4>
+    <p>A scheduled operational task is firing the rule. Coordinate with the operations team to tag the activity or adjust the rule.</p>
+  </div>
+  <div class="fp-pattern-card">
+    <h4>👥 Same user role</h4>
+    <p>The role's legitimate workflow looks suspicious to the rule. A role-aware variant or context-enriched suppression is the fix.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Suppress with care">
+Suppression is a powerful tool that becomes a detection gap when over-used. The methodology asks for a suppression rationale, a review cadence, and an owner. A suppression that no one ever reviews becomes the place an attacker hides.
+</Callout>
+
+<KeyTakeaway>A closed false-positive is not waste. It is a sharpening signal for the detection stack, the analyst's instinct, and (in volume) the program. The methodology treats every closure as a small contribution to the SOC's institutional knowledge, and treats patterns of closure as targeted feedback for the detection engineering team.</KeyTakeaway>
+
+<ContinueCard current="risk" nextHref="/docs/risk/example" nextLabel="Risk working example" ctaLabel="See the example" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.fp-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .fp-grid { grid-template-columns: repeat(3, 1fr); } }
+.fp-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.7rem; }
+.fp-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
+.fp-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.92rem; }
+
+.fp-pattern-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .fp-pattern-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .fp-pattern-grid { grid-template-columns: repeat(4, 1fr); } }
+.fp-pattern-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #f59e0b; border-radius: 0.55rem; }
+.fp-pattern-card h4 { margin: 0 0 0.3rem 0; color: #fbbf24; font-size: 0.93rem; }
+.fp-pattern-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.86rem; }
+`}</style>

@@ -1,0 +1,137 @@
+---
+title: "Scope chapter quiz"
+description: "Eight questions on regulatory, time, entity, infrastructure boundaries, and the Uncover handoff."
+slug: "scope/quiz"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+
+<SubPageHero
+  phase="scope"
+  parentLetter="S"
+  pillarNumber="Quiz"
+  pillarLabel="Scope chapter"
+  chapterHref="/docs/scope"
+  chapterLabel="Scope"
+  lede="Eight questions on Scope. Push your thinking on boundaries, regulatory triggers, tiered access, and the Uncover handoff."
+/>
+
+<PillNav chapter="scope" label="Scope chapter" current="/docs/scope/quiz" items={[
+  { label: "Regulatory", href: "/docs/scope/regulatory", phase: "scope" },
+  { label: "Time", href: "/docs/scope/time", phase: "scope" },
+  { label: "Entity", href: "/docs/scope/entity", phase: "scope" },
+  { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+]}/>
+
+<Quiz title="Scope chapter quiz" subtitle="Pick the answer that best matches the methodology.">
+
+  <QuizItem
+    prompt="A confirmed compromise of a system processing payment card data is detected. The technical investigation will take days. What does Scope require the analyst to do about timing?"
+    options={[
+      { value: "wait", label: "Wait until the technical investigation finishes, then notify." },
+      { value: "parallel", label: "Engage compliance and start any breach-notification clocks in parallel with the technical investigation." },
+      { value: "skip", label: "Skip the compliance step; it can be done later." },
+      { value: "only-if", label: "Only notify if the investigation confirms data loss." },
+    ]}
+    answer="parallel"
+    explanation="PCI breach-notification timelines run independently of the technical investigation. Scope is the phase where regulatory obligations are recognized, and engaging compliance early lets those clocks run in parallel with technical work rather than serially after."
+  />
+
+  <QuizItem
+    prompt="An alert looks like phishing-driven intrusion. What is the typical historical window for the investigation?"
+    options={[
+      { value: "hour", label: "Last hour. Phishing is fast." },
+      { value: "24-72", label: "24 to 72 hours, with a 4-week extended look at the primary entities to rule out earlier staging." },
+      { value: "year", label: "Last year. Adversaries dwell." },
+      { value: "default", label: "30 days, always. Default windows are best." },
+    ]}
+    answer="24-72"
+    explanation="Phishing-driven intrusion typically progresses within days, but ruling out earlier staging requires a longer look on the primary entities. The two-window pattern (short primary + extended look on primaries) is a common Scope decision for this threat type."
+  />
+
+  <QuizItem
+    prompt="The Subject phase identified seven identities connected to the alert. How many should be primary in scope?"
+    options={[
+      { value: "all", label: "All seven. Investigate each fully." },
+      { value: "depends", label: "It depends on which identities were directly involved in the alert vs. connected by trust paths. Primary entities get full depth; secondary entities get baseline comparison and are upgraded only on a signal." },
+      { value: "one", label: "One. The first one named in the alert." },
+      { value: "three", label: "Three. That is the manageable number." },
+    ]}
+    answer="depends"
+    explanation="Primary entities are those directly involved in the alert. Secondary entities are connected but not in the alert. The split keeps investigation depth proportional to evidence rather than spending equal time on every identity in the map."
+  />
+
+  <QuizItem
+    prompt="An investigation needs in-app activity from a SaaS platform, but the SOC only has authentication logs and gross API metrics. What does Scope require?"
+    options={[
+      { value: "ignore", label: "Ignore the gap. Make do with what is available." },
+      { value: "document", label: "Name the gap explicitly in the Scope output. Submit a vendor data request now so it can arrive in parallel with the rest of the investigation." },
+      { value: "stop", label: "Stop the investigation until the gap is closed." },
+      { value: "guess", label: "Reconstruct the in-app activity from authentication patterns alone." },
+    ]}
+    answer="document"
+    explanation="Naming what cannot be seen is part of Scope. It prevents wasted effort on impossible queries, and it lets the analyst submit vendor or external-team requests early so the data arrives in parallel."
+  />
+
+  <QuizItem
+    prompt="A HIPAA investigation hits Tier 3 (full PHI access). What approval is required, and how long does access last?"
+    options={[
+      { value: "team-lead", label: "Team lead approval, 24 hours." },
+      { value: "manager-72", label: "Security manager approval, 72 hours." },
+      { value: "ciso-priv", label: "CISO + Privacy Officer approval, 5 days." },
+      { value: "automatic", label: "Automatic for any Level 2+ investigator." },
+    ]}
+    answer="ciso-priv"
+    explanation="HIPAA's tiered model escalates approval and constrains time as access expands. Tier 1 (metadata only) is team lead, 24 hours. Tier 2 (partial PHI) is security manager, 72 hours. Tier 3 (complete PHI) requires both CISO and Privacy Officer authorization and is bounded to 5 days. The escalation is what makes the minimum-necessary principle operational."
+  />
+
+  <QuizItem
+    prompt="During Scope, the analyst confirms that a compromised account assumed a cloud role during the investigation window. The decision-tree response is..."
+    options={[
+      { value: "ignore", label: "Note it but stay focused on the originating endpoint." },
+      { value: "add-role", label: "Add the cloud role and resources it can touch into scope. Review STS AssumeRole patterns against normal usage. Document the evidence, risk, and required actions." },
+      { value: "isolate", label: "Immediately isolate every system the role can access." },
+      { value: "wait", label: "Wait for Uncover to find evidence of misuse before expanding scope." },
+    ]}
+    answer="add-role"
+    explanation="The IF/THEN decision-tree pattern is Scope's structured way of evolving the boundary. A cloud-role assumption is evidence; the methodology says incorporate it now and document the three-line justification (evidence, risk, required actions) so the expansion is defensible. Waiting for Uncover to surface it would mean Uncover queries outside its own scope to find what Scope should have already framed."
+  />
+
+  <QuizItem
+    prompt="A PCI investigation requires de-tokenized cardholder data samples. Which tier of access is appropriate, and what controls apply?"
+    options={[
+      { value: "tier1", label: "Tier 1: metadata-only counts. No PAN data needed." },
+      { value: "tier3", label: "Tier 3: de-tokenized samples, manager approval, time-bounded to 12 hours, biometric authentication required." },
+      { value: "tier4", label: "Tier 4: full CDE access. Always default to most permissive tier." },
+      { value: "tier2-loose", label: "Tier 2 with extended retention so the analyst can reference samples for several days." },
+    ]}
+    answer="tier3"
+    explanation="PCI's four-tier model maps access depth to scrutiny. De-tokenized samples are Tier 3, which requires manager approval, 12-hour time-boxing, and biometric authentication. The methodology refuses to default to Tier 4 (full CDE) because each ascending tier adds operational and audit cost, and triage should demonstrate need at lower tiers first."
+  />
+
+  <QuizItem
+    prompt="The Scope handoff to Uncover should include investigative questions. Why?"
+    options={[
+      { value: "format", label: "Standard format. Required for documentation." },
+      { value: "focus", label: "To focus Uncover on the most critical unknowns instead of broad data exploration. Specific questions drive specific queries; broad ones drive wandering." },
+      { value: "audit", label: "For audit purposes only." },
+      { value: "duplicate", label: "Because Uncover does not have access to Subject's findings." },
+    ]}
+    answer="focus"
+    explanation="Uncover's depth comes from working through specific investigative questions. How did the attacker get in? What systems were touched? Was data moved? Is persistence active? Scope frames those questions before the data is pulled, which is what keeps Uncover from running broad queries and hoping. The questions are how the methodology converts a boundary into actionable analytical effort."
+    hint="Think about what makes the difference between focused triage and unstructured exploration."
+  />
+
+</Quiz>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/transition"
+  nextLabel="Transition to Uncover"
+  ctaLabel="Continue"
+  status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}
+/>

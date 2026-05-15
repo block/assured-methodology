@@ -1,0 +1,352 @@
+/**
+ * Shared glossary chrome.
+ *
+ * Each glossary (BAD, CAT, CLEAR) gets its theme via `data-theme` on the
+ * page-level wrapper. Tokens below switch palette; structural CSS (hero
+ * scale, section-head layout, term-grid layout, motion gating) is shared.
+ *
+ * Add a new themed glossary in three steps:
+ *   1. Add `[data-theme="newname"]` token block here.
+ *   2. Wrap the page in `<div class="g-page" data-theme="newname">`.
+ *   3. Use <GlossaryHero>, <AmbientBackground>, <SectionHead>, <TermGrid>.
+ */
+
+/* ----------------------------------------------------------------------
+   Theme tokens
+   ---------------------------------------------------------------------- */
+
+[data-theme="bad"] {
+  --g-bg-from: #0a0303;
+  --g-bg-via:  #1a0606;
+  --g-bg-mid:  #240a0a;
+  --g-bg-to:   #0a0303;
+  --g-accent:        #ef4444;
+  --g-accent-light:  #fca5a5;
+  --g-accent-mid:    #f87171;
+  --g-text:          #e2e8f0;
+  --g-text-strong:   #fef2f2;
+  --g-text-muted:    #fca5a5;
+  --g-border:        rgba(127, 29, 29, 0.45);
+  --g-border-strong: rgba(239, 68, 68, 0.55);
+  --g-surface:       rgba(40, 8, 8, 0.55);
+}
+
+[data-theme="cat"] {
+  --g-bg-from: #0a1a35;
+  --g-bg-via:  #0f2655;
+  --g-bg-mid:  #0a1a35;
+  --g-bg-to:   #061128;
+  --g-accent:        #3b82f6;
+  --g-accent-light:  #93c5fd;
+  --g-accent-mid:    #60a5fa;
+  --g-text:          #dbeafe;
+  --g-text-strong:   #f0f9ff;
+  --g-text-muted:    #bfdbfe;
+  --g-border:        rgba(30, 58, 138, 0.5);
+  --g-border-strong: rgba(96, 165, 250, 0.55);
+  --g-surface:       rgba(10, 26, 53, 0.55);
+}
+
+[data-theme="clear"] {
+  --g-bg-from: #0a0518;
+  --g-bg-via:  #1e1b4b;
+  --g-bg-mid:  #0a0518;
+  --g-bg-to:   #050a18;
+  --g-accent:        #a78bfa;
+  --g-accent-light:  #c4b5fd;
+  --g-accent-mid:    #a78bfa;
+  --g-text:          #ede9fe;
+  --g-text-strong:   #f5f3ff;
+  --g-text-muted:    #ddd6fe;
+  --g-border:        rgba(91, 33, 182, 0.45);
+  --g-border-strong: rgba(167, 139, 250, 0.55);
+  --g-surface:       rgba(15, 10, 30, 0.55);
+}
+
+/* ----------------------------------------------------------------------
+   Page wrapper. All three glossaries inherit edge-to-edge layout.
+   ---------------------------------------------------------------------- */
+
+.g-page {
+  position: relative;
+  margin: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
+  background: linear-gradient(170deg, var(--g-bg-from) 0%, var(--g-bg-via) 35%, var(--g-bg-mid) 70%, var(--g-bg-to) 100%);
+  color: var(--g-text);
+  border-radius: 0;
+  overflow: hidden;
+  min-height: calc(100vh - 64px);
+}
+
+.g-page > :not(.g-bg):not(.g-toast):not(.g-secret-pet):not(.bad-bug):not(.bad-slime):not(.bad-lose):not(.bad-toast) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----------------------------------------------------------------------
+   Ambient background
+   ---------------------------------------------------------------------- */
+
+.g-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.g-bg__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+/* ----------------------------------------------------------------------
+   Hero (shared layout, themed accents)
+   ---------------------------------------------------------------------- */
+
+.g-hero {
+  position: relative;
+  text-align: center;
+  padding: clamp(2.5rem, 6vw, 4rem) 1.5rem clamp(2rem, 4vw, 3rem);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g-accent) 18%, transparent), transparent);
+  border: 1px solid var(--g-border);
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+
+.g-hero__badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--g-accent) 18%, transparent);
+  border: 1px solid var(--g-border-strong);
+  margin-bottom: 1.25rem;
+}
+
+.g-hero__badge span {
+  color: var(--g-accent-light);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.g-hero__title {
+  margin: 0 auto;
+  max-width: 20ch;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--g-text-strong), var(--g-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.g-hero__sub {
+  margin: 0.6rem 0 0;
+  color: var(--g-accent-light);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+.g-hero__sub strong {
+  color: var(--g-text-strong);
+}
+
+.g-hero__desc {
+  margin: 1.25rem auto 0;
+  max-width: 62ch;
+  color: var(--g-text-muted);
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+.g-hero__actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ----------------------------------------------------------------------
+   Section nav (pill row) — shared
+   ---------------------------------------------------------------------- */
+
+.g-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0 auto 2.5rem;
+  max-width: 72rem;
+}
+
+.g-nav__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  background: var(--g-surface);
+  border: 1px solid var(--g-border);
+  color: var(--g-text-muted);
+  text-decoration: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.g-nav__pill:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--g-accent) 16%, var(--g-surface));
+  border-color: var(--g-border-strong);
+  color: var(--g-text-strong);
+}
+
+.g-nav__pill .g-nav__ico {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* ----------------------------------------------------------------------
+   Section head — icon + title + lede
+   ---------------------------------------------------------------------- */
+
+.g-section { margin: 0 0 2.5rem; scroll-margin-top: 6rem; }
+
+.g-section__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 0 0 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--g-surface);
+  border: 1px solid var(--g-border);
+  border-left: 3px solid var(--g-accent);
+  border-radius: 0.75rem;
+}
+
+.g-section__ico {
+  font-size: 1.85rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.g-section__title {
+  margin: 0;
+  color: var(--g-text-strong);
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.g-section__lede {
+  margin: 0.3rem 0 0;
+  color: var(--g-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  max-width: 64ch;
+}
+
+/* ----------------------------------------------------------------------
+   Term grid — cards with h4 + p
+   ---------------------------------------------------------------------- */
+
+.g-terms {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .g-terms { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1280px) {
+  .g-terms { grid-template-columns: repeat(3, 1fr); }
+}
+
+.g-term {
+  padding: 1.1rem 1.25rem;
+  background: var(--g-surface);
+  border: 1px solid var(--g-border);
+  border-radius: 0.6rem;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.g-term:hover {
+  transform: translateY(-2px);
+  border-color: var(--g-border-strong);
+}
+
+.g-term h4 {
+  margin: 0 0 0.35rem;
+  color: var(--g-accent-light);
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.g-term p {
+  margin: 0;
+  color: var(--g-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.g-term p em {
+  font-style: italic;
+  color: var(--g-accent-light);
+}
+
+.g-term--featured {
+  border-color: var(--g-border-strong);
+  background: color-mix(in srgb, var(--g-accent) 10%, var(--g-surface));
+}
+
+/* ----------------------------------------------------------------------
+   Footer
+   ---------------------------------------------------------------------- */
+
+.g-foot {
+  margin: 2rem 0 0;
+  padding: 1.25rem 1.5rem;
+  background: var(--g-surface);
+  border: 1px solid var(--g-border);
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.g-foot p {
+  margin: 0;
+  color: var(--g-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.g-foot a {
+  color: var(--g-accent-light);
+  text-decoration: underline;
+}
+
+/* ----------------------------------------------------------------------
+   Reduced motion (applies across all glossaries)
+   ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .g-nav__pill, .g-term { transition: none; }
+}

@@ -1,0 +1,327 @@
+---
+title: "File system activity"
+description: "Track the file lifecycle. Persistence, payload deployment, ransomware staging, and exfiltration preparation."
+slug: "alert/parsing/file-system"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="03 · 05"
+  pillarLabel="6 surfaces"
+  chapterHref="/docs/alert/parsing"
+  chapterLabel="Parsing"
+  lede="File system telemetry exposes persistence, payload deployment, privilege escalation, and exfiltration staging. Tracking create, modify, delete, and access patterns reveals both traditional malware and fileless tradecraft."
+/>
+
+<PillNav
+  chapter="alert"
+  label="Parsing surfaces"
+  current="/docs/alert/parsing/file-system"
+  items={[
+    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
+    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+  ]}
+/>
+
+Adversaries lean on living-off-the-land techniques: modifying legitimate files, creating hidden payloads, abusing trusted utilities. A seemingly benign file like `C:\ProgramData\1.dat` followed by registry modifications under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run` fits the persistence-staging pattern exactly. Tying that to a parent process and outbound connection completes the picture.
+
+## The four lifecycle events
+
+<div class="lifecycle-grid">
+  <div class="lifecycle-card">
+    <span class="lifecycle-card__num">01</span>
+    <h4>Creation</h4>
+    <p>New executables, DLLs, or configuration files in non-standard locations. <code>%APPDATA%</code>, <code>%LOCALAPPDATA%</code>, <code>%PROGRAMDATA%</code>, <code>%TEMP%</code>. PowerShell creating DLLs in user directories. <code>regsvr32.exe</code> writing unexpected files.</p>
+  </div>
+  <div class="lifecycle-card">
+    <span class="lifecycle-card__num">02</span>
+    <h4>Modification</h4>
+    <p>Unexpected changes to system binaries, DLLs, or configuration files. Monitor <code>C:\Windows\System32</code> for tampering. Watch trusted application directories for sideloading.</p>
+  </div>
+  <div class="lifecycle-card">
+    <span class="lifecycle-card__num">03</span>
+    <h4>Deletion</h4>
+    <p>Sudden removal of logs, binaries, or staging files often signals cleanup. Watch for log clearing tied to other suspicious activity.</p>
+  </div>
+  <div class="lifecycle-card">
+    <span class="lifecycle-card__num">04</span>
+    <h4>Access patterns</h4>
+    <p>Large-scale sequential reads of sensitive datasets (customer databases, financial records, intellectual property) point to data staging.</p>
+  </div>
+</div>
+
+---
+
+## Suspicious patterns by category
+
+<div class="patterns-grid">
+  <div class="patterns-card">
+    <h4>🔁 Persistence mechanisms</h4>
+    <ul>
+      <li>Registry autorun keys under <code>HKLM\Software\Microsoft\Windows\CurrentVersion\Run</code> or the user-hive equivalent</li>
+      <li>Scheduled tasks with obfuscated commands or unusual triggers</li>
+      <li><DefineTerm term="DLL search order hijacking">A technique that places a malicious DLL in an application directory so a legitimate binary loads it instead of the intended library.</DefineTerm> via malicious DLLs in application directories</li>
+    </ul>
+  </div>
+
+  <div class="patterns-card">
+    <h4>💣 Payload deployment</h4>
+    <ul>
+      <li>Executables in sensitive system directories (<code>C:\Windows\Tasks</code>, <code>C:\Windows\System32</code>)</li>
+      <li>Files with double extensions (<code>invoice.pdf.exe</code>)</li>
+      <li>DLLs created in temporary or user folders</li>
+    </ul>
+  </div>
+
+  <div class="patterns-card">
+    <h4>🔒 Ransomware activity</h4>
+    <ul>
+      <li>Bulk renaming of files with extensions like <code>.locked</code> or <code>.encrypted</code></li>
+      <li>Rapid creation of ransom notes across many directories</li>
+    </ul>
+  </div>
+
+  <div class="patterns-card">
+    <h4>📦 Exfiltration staging</h4>
+    <ul>
+      <li>Large compressed archives (<code>.zip</code>, <code>.rar</code>, <code>.7z</code>) containing sensitive data appearing shortly before outbound transfers</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## File metadata that matters
+
+<DefineTerm term="Parsing" /> has to do more than catch file events. The <DefineTerm term="Metadata" display="metadata" /> on each file is where the signal often lives.
+
+<div class="metadata-list">
+  <div class="metadata-item">
+    <span class="metadata-item__label">File hashes</span>
+    <span class="metadata-item__detail">MD5, SHA-1, SHA-256 for integrity verification and threat-intelligence correlation.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">Digital signatures</span>
+    <span class="metadata-item__detail">Expired, self-signed, or mismatched certificates. The supply-chain risk lives here.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">Entropy scores</span>
+    <span class="metadata-item__detail">Values above 7.8 typically indicate encryption, packing, or obfuscation.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">Timestamps</span>
+    <span class="metadata-item__detail">Timestomping, creation outside business hours, irregular modification patterns.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">Permissions and ownership</span>
+    <span class="metadata-item__detail">SYSTEM-level privileges in user directories, unexpected ownership changes.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">File size anomalies</span>
+    <span class="metadata-item__detail">Deviations from the version-pinned hash of your gold image are the reliable signal. Specific byte counts vary with build and patch level.</span>
+  </div>
+</div>
+
+---
+
+## Fileless and LOLBin patterns
+
+The hardest patterns to catch leave little or nothing on disk:
+
+<div class="fileless-grid">
+  <div class="fileless-card">
+    <h4>Memory-only execution</h4>
+    <p>PowerShell loading code via <code>System.Reflection.Assembly.Load()</code> directly from memory.</p>
+  </div>
+  <div class="fileless-card">
+    <h4>WMI persistence</h4>
+    <p>Scripts stored in the WMI repository or registry, executing via event subscriptions.</p>
+  </div>
+  <div class="fileless-card">
+    <h4>COM hijacking</h4>
+    <p>Modifying <code>HKCR</code> to hijack legitimate COM objects.</p>
+  </div>
+  <div class="fileless-card">
+    <h4>LOLBins</h4>
+    <p><code>certutil.exe</code> decoding Base64 payloads. <code>mshta.exe</code>, <code>wmic.exe</code>, <code>rundll32.exe</code> for stealth execution.</p>
+  </div>
+</div>
+
+File system activity frequently precedes exfiltration. Compressed archives created in `%TEMP%` shortly before outbound connections to low-reputation domains is a near-canonical pattern.
+
+<KeyTakeaway>
+File system parsing gives you the longest tail of intrusion evidence. Combined with process and network telemetry, it is the layer that turns "something happened" into "here is exactly what happened, in order, with timestamps."
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/parsing/schema"
+  nextLabel="Schema normalization"
+  nextDescription="Unified shape for heterogeneous alerts. OCSF, STIX, OpenC2. Governance and sustainability."
+  ctaLabel="Read schema normalization"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<style>
+{`
+.lifecycle-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .lifecycle-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .lifecycle-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.lifecycle-card {
+  position: relative;
+  padding: 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid #14b8a6;
+  border-radius: 0.7rem;
+}
+
+.lifecycle-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(94, 234, 212, 0.6);
+}
+
+.lifecycle-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #5eead4;
+  font-size: 0.98rem;
+}
+
+.lifecycle-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.patterns-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .patterns-grid { grid-template-columns: 1fr 1fr; } }
+
+.patterns-card {
+  padding: 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.patterns-card h4 {
+  margin: 0 0 0.6rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.patterns-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.patterns-card li {
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.metadata-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+@media (min-width: 768px)  { .metadata-list { grid-template-columns: 1fr 1fr; } }
+
+.metadata-item {
+  padding: 0.9rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-left: 3px solid #a855f7;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metadata-item__label {
+  color: #c4b5fd;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.metadata-item__detail {
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.fileless-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .fileless-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .fileless-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.fileless-card {
+  padding: 1.15rem 1.35rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+
+.fileless-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #fdba74;
+  font-size: 0.95rem;
+}
+
+.fileless-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+`}
+</style>

@@ -1,0 +1,128 @@
+---
+title: "Internal and external escalation protocols"
+description: "Tier 1, 2, 3 responsibilities; vendor, legal, law-enforcement paths; communication structure."
+slug: "escalation/protocols"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="02" pillarLabel="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Where the case goes matters. Internal tiers define who picks up; external paths exist when the response goes beyond the organization."/>
+
+<PillNav chapter="escalation" label="Escalation chapter" current="/docs/escalation/protocols" items={[
+  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+]}/>
+
+## Internal tiers
+
+<div class="tier-list">
+  <div class="tier-row">
+    <span class="tier-row__label">Tier 1</span>
+    <h4>Initial detection and triage</h4>
+    <p>Receives alerts, validates the signal, applies initial triage protocols to categorize events by type and severity. Determines true positive vs. false-positive. The Alert, Subject, and Scope work usually lives here. Escalates anything that meets predefined criteria or exceeds Tier 1 mandate.</p>
+    <ul class="tier-row__bullets">
+      <li>Alert validation and preliminary risk assessment</li>
+      <li>False-positive closure with detection feedback</li>
+      <li>Categorization by event type and severity</li>
+      <li>Initial scope and entity identification</li>
+    </ul>
+  </div>
+  <div class="tier-row">
+    <span class="tier-row__label">Tier 2</span>
+    <h4>In-depth investigation</h4>
+    <p>Security engineers with specialized expertise pick up escalated cases. Conduct deeper technical investigation, develop containment strategies, and create remediation plans for confirmed incidents. Uncover and Risk work usually completes here.</p>
+    <ul class="tier-row__bullets">
+      <li>Technical analysis with deep forensic capability</li>
+      <li>Containment planning and remediation design</li>
+      <li>Decision on whether case becomes a declared incident</li>
+      <li>Coordination with detection engineering for rule refinement</li>
+    </ul>
+  </div>
+  <div class="tier-row">
+    <span class="tier-row__label">Tier 3</span>
+    <h4>Cross-functional coordination</h4>
+    <p>Engages the full incident response capability for high-impact events or those involving critical systems. Brings together legal counsel for compliance considerations, communications for stakeholder messaging, and executive leadership for strategic decisions.</p>
+    <ul class="tier-row__bullets">
+      <li>Full incident response orchestration</li>
+      <li>Legal, compliance, communications engagement</li>
+      <li>Executive briefings and strategic decision support</li>
+      <li>Incident-commander role responsibilities</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Proportional response, efficient resource allocation">
+The tiered approach ensures proportional response and efficient resource allocation based on incident severity and scope. Tier 1 handles the high-volume, lower-complexity events. Tier 2 brings specialized expertise. Tier 3 mobilizes the full organizational response capability. The line between tiers is clear escalation criteria, not subjective judgment.
+</Callout>
+
+---
+
+## Beyond the internal tiers: organizational stakeholders
+
+Internal escalation moves the case through Tiers 1 → 2 → 3. Established protocols then govern when to engage other organizational stakeholders.
+
+<div class="stakeholder-grid">
+  <div class="stakeholder-card">
+    <h4>🛠️ IT Operations</h4>
+    <p>Engaged when system or network-level compromises require configuration changes, patching, or network-wide defensive measures. Containment in production environments often needs IT Ops on the call.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h4>🧑‍⚖️ Legal &amp; compliance</h4>
+    <p>Engaged when events potentially affect regulated information. Assesses reporting obligations and legal implications. Often early in the timeline for incidents with regulatory exposure.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h4>🏢 Business units</h4>
+    <p>Engaged for business-specific incidents affecting departmental systems or data. Ensures remediation aligns with operational requirements and that affected workflows are restored.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h4>📢 Communications</h4>
+    <p>For incidents that may become public. Press, customer, and partner messaging is its own workstream. Legal counsel coordinates with comms before any external disclosure.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h4>🤝 Vendors</h4>
+    <p>When the incident involves a vendor's product, platform, or data. Vendor disclosure may be required by contract. Coordination follows MSA / DPA terms.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h4>👮 Law enforcement</h4>
+    <p>For criminal activity, extortion, or cross-border threats. Engaged through legal counsel, not directly by the SOC. Engagement decisions usually require executive sign-off.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="Protocols must be exercised, not just documented">
+These protocols must be documented, regularly tested through tabletop exercises, and continuously refined based on <DefineTerm term="Lessons Learned" display="lessons learned" /> from actual incidents. Clear escalation paths with defined thresholds, contact information, and decision-making authorities eliminate ambiguity during high-pressure events and ensure timely, appropriate response actions.
+</Callout>
+
+<KeyTakeaway>Internal tiers handle the technical work. External paths handle the non-technical consequences. Both are part of the escalation map, and both should be tested before they are needed under real-incident pressure.</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/triage-vs-ir" nextLabel="Triage vs. incident response" ctaLabel="Read the distinction" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.tier-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.tier-row { padding: 1.1rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.6rem; }
+.tier-row__label { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: #a5b4fc; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.tier-row h4 { margin: 0 0 0.3rem 0; color: #f8fafc; font-size: 1rem; }
+.tier-row p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.92rem; }
+
+.ext-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 640px)  { .ext-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .ext-grid { grid-template-columns: repeat(3, 1fr); } }
+.ext { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; }
+.ext h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.92rem; }
+.ext p { margin: 0; color: #cbd5e1; line-height: 1.45; font-size: 0.85rem; }
+
+.tier-row__bullets { margin: 0.6rem 0 0 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.3rem; color: #cbd5e1; line-height: 1.5; font-size: 0.86rem; }
+
+.stakeholder-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .stakeholder-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .stakeholder-grid { grid-template-columns: repeat(3, 1fr); } }
+.stakeholder-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #6366f1; border-radius: 0.55rem; }
+.stakeholder-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
+.stakeholder-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.87rem; }
+`}</style>

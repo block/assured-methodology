@@ -1,5 +1,5 @@
 ---
-import type { MarkdownHeading } from 'astro';
+import type { MarkdownHeading } from "astro";
 
 interface Props {
   headings: MarkdownHeading[];
@@ -7,141 +7,153 @@ interface Props {
 
 const { headings } = Astro.props;
 
-// Filter headings to show only h1 levels (main sections only)
-const filteredHeadings = headings.filter(heading => heading.depth === 1);
+// Show h1 + h2 in the in-page navigation. h2s are indented.
+const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
 ---
 
-{filteredHeadings.length > 0 && (
-  <nav id="table-of-contents" class="space-y-4">
-    <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-4">On This Page</h3>
-    
-    <div class="space-y-1 relative">
-      {filteredHeadings.map((heading) => (
-        <a
-          href={`#${heading.slug}`}
-          data-target={heading.slug}
-          class="toc-link block px-3 py-2 text-sm rounded-md transition-all duration-200 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 font-semibold"
-        >
-          {heading.text}
-        </a>
+{filtered.length > 0 && (
+  <nav id="table-of-contents" class="toc" aria-label="On this page">
+    <h3 class="toc__title">On this page</h3>
+
+    <ul class="toc__list">
+      {filtered.map((heading) => (
+        <li class={`toc__item toc__item--depth-${heading.depth}`}>
+          <a
+            href={`#${heading.slug}`}
+            data-target={heading.slug}
+            class="toc__link"
+          >
+            {heading.text}
+          </a>
+        </li>
       ))}
-    </div>
+    </ul>
   </nav>
 )}
 
 <style>
-  /* Smooth scrolling for anchor links */
-  html {
-    scroll-behavior: smooth;
+  .toc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
-  
-  /* Add some scroll padding to account for header */
-  :target {
-    scroll-margin-top: 4rem;
+
+  .toc__title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 0;
   }
-  
-  /* Active section indicator */
-  .toc-link.active {
-    background-color: rgb(34 197 94 / 0.1) !important; /* green-500/10 */
-    color: rgb(22 163 74) !important; /* green-600 */
-    border-left: 3px solid rgb(34 197 94); /* green-500 */
-    padding-left: 0.675rem; /* Compensate for border */
+
+  .toc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .toc__item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .toc__item--depth-2 .toc__link {
+    padding-left: 1.5rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+
+  .toc__link {
+    display: block;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-radius: 0 0.35rem 0.35rem 0;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .toc__link:hover {
+    color: #f8fafc;
+    background: rgba(248, 250, 252, 0.04);
+  }
+
+  .toc__link.is-active {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.08);
+    border-left-color: #14b8a6;
     font-weight: 600;
-  }
-  
-  .dark .toc-link.active {
-    background-color: rgb(34 197 94 / 0.15) !important;
-    color: rgb(74 222 128) !important; /* green-400 */
-    border-left-color: rgb(74 222 128);
-  }
-  
-  /* Hover states for non-active links */
-  .toc-link:not(.active):hover {
-    background-color: rgb(148 163 184 / 0.1) !important; /* slate-400/10 */
-  }
-  
-  .dark .toc-link:not(.active):hover {
-    background-color: rgb(148 163 184 / 0.15) !important;
   }
 </style>
 
 <script>
-  // Table of Contents scroll spy and active section highlighting
-  document.addEventListener('DOMContentLoaded', function() {
-    const tocLinks = document.querySelectorAll('.toc-link');
-    const headings = document.querySelectorAll('h1[id]');
-    
-    if (!tocLinks.length || !headings.length) return;
-    
-    // Function to update active link
-    function updateActiveLink() {
-      const scrollPos = window.scrollY + 100; // Offset for better UX
-      
-      let activeHeading = null;
-      
-      // Find the current section
-      for (let i = headings.length - 1; i >= 0; i--) {
-        const heading = headings[i] as HTMLElement;
-        const headingTop = heading.offsetTop;
-        
-        if (scrollPos >= headingTop) {
-          activeHeading = heading;
-          break;
-        }
-      }
-      
-      // Update active states
-      tocLinks.forEach(link => {
-        link.classList.remove('active');
-        
-        if (activeHeading && link.getAttribute('data-target') === activeHeading.id) {
-          link.classList.add('active');
-        }
-      });
-    }
-    
-    // Throttled scroll handler for performance
-    let ticking = false;
-    function handleScroll() {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          updateActiveLink();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }
-    
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll);
-    
-    // Set initial active state
-    updateActiveLink();
-    
-    // Handle click events for smooth scrolling
-    tocLinks.forEach(link => {
-      link.addEventListener('click', function(this: HTMLElement, e: Event) {
+  /*
+   * ClientRouter idempotency:
+   *   - Scroll-spy state is page-local; each navigation must rebind to the new headings.
+   *   - The scroll listener on window is registered ONCE via window.__tocScrollBound and
+   *     reads live DOM each tick (so it picks up new headings after view transitions).
+   *   - Link click handlers use a per-element data-toc-bound marker.
+   *
+   * Note: DOMContentLoaded fires on initial load only. We must also run on astro:page-load.
+   */
+  function bindToc() {
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".toc__link:not([data-toc-bound])")
+    );
+    links.forEach((link) => {
+      link.setAttribute("data-toc-bound", "true");
+      link.addEventListener("click", (e) => {
+        const target = link.dataset.target;
+        if (!target) return;
+        const el = document.getElementById(target);
+        if (!el) return;
         e.preventDefault();
-        
-        const targetId = this.getAttribute('data-target');
-        if (!targetId) return;
-        
-        const targetElement = document.getElementById(targetId);
-        
-        if (targetElement) {
-          const targetPosition = (targetElement as HTMLElement).offsetTop - 80; // Account for spacing
-          
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-          });
-          
-          // Update URL hash after scroll
-          setTimeout(() => {
-            history.pushState(null, '', `#${targetId}`);
-          }, 100);
-        }
+        window.scrollTo({ top: el.offsetTop - 90, behavior: "smooth" });
+        history.pushState(null, "", `#${target}`);
       });
     });
-  });
+
+    updateActive();
+  }
+
+  function updateActive() {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>(".toc__link"));
+    const headings = Array.from(document.querySelectorAll<HTMLElement>("h1[id], h2[id]"));
+    if (!links.length || !headings.length) return;
+    const scrollPos = window.scrollY + 120;
+    let active: HTMLElement | null = null;
+    for (let i = headings.length - 1; i >= 0; i--) {
+      if (scrollPos >= headings[i].offsetTop) {
+        active = headings[i];
+        break;
+      }
+    }
+    links.forEach((l) => {
+      const matches = active && l.dataset.target === active.id;
+      l.classList.toggle("is-active", !!matches);
+    });
+  }
+
+  // One scroll listener for the SPA's whole lifetime; reads live DOM each tick.
+  if (!(window as any).__tocScrollBound) {
+    (window as any).__tocScrollBound = true;
+    let ticking = false;
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        updateActive();
+        ticking = false;
+      });
+    });
+  }
+
+  bindToc();
+  document.addEventListener("astro:page-load", bindToc);
 </script>

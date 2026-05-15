@@ -1,0 +1,105 @@
+---
+title: "Documentation pitfalls"
+description: "The common ways documentation breaks down, and how to avoid them."
+slug: "documentation/pitfalls"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="03" pillarLabel="03" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Documentation does not usually fail at the moment of writing. It fails at the moments around it: when an analyst skips a step, fills the record after the fact, or treats the form as the work."/>
+
+<PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/pitfalls" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+## Common failure modes
+
+<div class="pit-grid">
+  <div class="pit"><h4>🔤 Inconsistent terminology</h4><p>Different analysts using varied terms for the same concepts. Creates confusion and complicates trend analysis. Fix: standardized security lexicon aligned with MITRE ATT&CK and consistent enforcement via templates and review.</p></div>
+  <div class="pit"><h4>🕰️ Delayed documentation</h4><p>Postponing until after the event is resolved. Leads to information loss, inaccurate timelines, and incomplete context. Fix: real-time documentation practices with regular checkpoints throughout the investigation.</p></div>
+  <div class="pit"><h4>📚 Excessive jargon</h4><p>Overuse of technical terminology without explanation limits the value to non-technical stakeholders. Fix: precision plus clear explanations for specialized terms, especially in executive summaries and business impact sections.</p></div>
+  <div class="pit"><h4>🧭 Missing context</h4><p>Focusing on technical details without business context or impact significance. Reduces strategic value. Fix: always connect technical findings to business risk, operational impact, and organizational priorities.</p></div>
+  <div class="pit"><h4>📭 Incomplete records</h4><p>Fields left blank, sections skipped, references not linked. The record exists but does not support future review. Often caused by writing after the case is closed.</p></div>
+  <div class="pit"><h4>🔗 Missing evidence chains</h4><p>The record states a conclusion but does not say which evidence supports it. The next reader cannot verify the reasoning without redoing the work.</p></div>
+  <div class="pit"><h4>🤐 Sanitization mistakes</h4><p>Records containing PII, regulated data, or sensitive operational detail that should not be in the documentation system. The record is complete and unusable for compliance reasons.</p></div>
+  <div class="pit"><h4>📜 Form over substance</h4><p>Long documentation that meets the standard but says nothing useful. Fields filled; value absent. The template was treated as the goal.</p></div>
+</div>
+
+<Reveal summary="Other pitfalls to recognize" variant="warn">
+
+**Ambiguous ownership.** Documentation quality suffers when responsibility is unclear. When it's not clear who should document what aspects of an investigation, critical information may be assumed to be someone else's responsibility and consequently omitted. The fix is clear documentation roles, whether via dedicated Documentation Officers for major incidents or explicit assignment during routine event handling.
+
+**Failure to document negative findings.** Actions taken that revealed no evidence of compromise or attack progression. These negative results rule out potential attack vectors, establish incident boundaries, and prevent redundant investigation paths later. Documentation should explicitly state when key hypotheses were tested and disproven, not just when malicious activity was confirmed.
+
+**Wrong level of detail.** Overly verbose records consume excessive time to create and review. Overly brief records omit critical context. Documentation standards should provide clear guidance on expected depth for different event types and severity levels.
+
+**Accessibility and discoverability gaps.** Well-documented events provide limited value if the information cannot be easily located. Implement structured knowledge repositories with consistent categorization, tagging, and search to ensure documentation remains accessible for reference, training, and improvement.
+
+</Reveal>
+
+<Callout variant="info" title="The shortest fix">
+The single biggest fix is writing during the investigation rather than after. Five minutes of "this is what I just observed" notes at each step produces a better record than two hours of reconstruction at the end. The methodology asks the analyst to treat documentation as a continuous part of the work.
+</Callout>
+
+---
+
+## Incomplete records: the recurring failure
+
+The most common failure mode deserves its own treatment. Effective documentation during <DefineTerm term="Event Triage" display="event triage" /> is essential to maintain the integrity and continuity of the security investigation. Due to the urgency inherent in triage, key contextual information is often inadequately captured or delayed.
+
+<div class="omission-grid">
+  <div class="omission-col">
+    <h4>Common documentation omissions</h4>
+    <ul>
+      <li>Decision rationale and risk acceptance justifications</li>
+      <li>Alternative courses of action considered but rejected</li>
+      <li>Stakeholder consultations and approvals obtained</li>
+      <li>Technical limitations that constrained response options</li>
+      <li>Assumptions made when working with incomplete information</li>
+      <li>Temporary workarounds implemented during response</li>
+      <li>Failed attempts or approaches before successful resolution</li>
+    </ul>
+  </div>
+  <div class="omission-col">
+    <h4>Consequences of incomplete documentation</h4>
+    <ul>
+      <li>Inability to justify actions during audits or legal proceedings</li>
+      <li>Repeated mistakes due to lost lessons from previous incidents</li>
+      <li>Inefficient knowledge transfer to new team members</li>
+      <li>Difficulty establishing patterns across multiple incidents</li>
+      <li>Challenges in demonstrating regulatory compliance</li>
+      <li>Inaccurate metrics and effectiveness measurements</li>
+      <li>Reduced confidence in security team capabilities</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="warn" title="The structural fix">
+Documentation must be explicitly integrated as a fundamental part of triage. Analysts should document key findings, justification for risk ratings, and decisions at defined milestones, post-initial review, pre-escalation, closure, using standardized templates or case-management fields. This enforces consistency and ensures essential information is systematically recorded. Automation that prompts for documentation updates or extracts information directly from security tools further reduces manual burden and supports continuous updates.
+</Callout>
+
+<KeyTakeaway>The pitfalls are predictable. Catching them is mostly a matter of writing during the investigation, keeping evidence chains tight, and treating the form as scaffolding rather than the goal. The methodology's defense against documentation failures is structural: enforced templates, defined milestones, automated prompts, and quality-assurance review on a regular cadence. See **[Closure → Downstream uses of documentation](/docs/documentation/closure#downstream-uses)** for what well-written records get used for after the case is closed.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/example" nextLabel="Documentation working example" ctaLabel="See the example" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.pit-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .pit-grid { grid-template-columns: 1fr 1fr; } }
+.pit { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(6, 182, 212, 0.25); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
+.pit h4 { margin: 0 0 0.3rem 0; color: #67e8f9; font-size: 0.95rem; }
+.pit p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.9rem; }
+
+.omission-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .omission-grid { grid-template-columns: 1fr 1fr; } }
+.omission-col { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-top: 3px solid #f59e0b; border-radius: 0.7rem; }
+.omission-col h4 { margin: 0 0 0.55rem 0; color: #fbbf24; font-size: 0.97rem; }
+.omission-col ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
+`}</style>

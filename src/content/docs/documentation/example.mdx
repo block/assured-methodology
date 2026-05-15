@@ -1,0 +1,108 @@
+---
+title: "Documentation working example"
+description: "Closing the finance-team intrusion with a record the team can actually use."
+slug: "documentation/example"
+---
+
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import ChapterExample from "@/components/assured/ChapterExample.astro";
+import ExampleStepper from "@/components/assured/ExampleStepper.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import Callout from "@/components/assured/Callout.astro";
+
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="Example" pillarLabel="Documentation chapter" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="The Documentation phase applied to the finance-team intrusion. The case is closed; the record makes the work durable."/>
+
+<PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/example" items={[
+  { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
+  { label: "Templates", href: "/docs/documentation/templates", phase: "documentation" },
+  { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
+]}/>
+
+<ChapterExample title="Closing the case durably" scenario="Escalation handed the case to IR. IR contained the intrusion. The triage analyst's Documentation phase produces the record that survives the case.">
+
+<ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Capture the record</h3>
+    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. Sections 01-04 (event overview, timeline, root cause &amp; scope, actions taken) carry forward from the handoff packet the analyst built during Escalation, expanded with the IR responder's findings. Sections 05-09 (business impact, IOCs, lessons learned, post-incident recommendations, appendices) are added during the Documentation phase as the full picture becomes clear.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Sanitize for sharing</h3>
+    <p>The record needs to be usable by the broader team without exposing sensitive data. PII is masked, regulated content is referenced rather than reproduced, sensitive infrastructure detail is generalized where possible. The version stored in the case-management system stays detailed; the version shared in training stays useful but safe.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Link related artifacts</h3>
+    <p>The record links to: the original alert in the SIEM, the IR ticket in the response system, the compliance notification record, the vendor request thread, the post-mortem document, and the detection-engineering ticket for the rules that need tuning. Every relevant artifact is one click away.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Feed detection engineering</h3>
+    <p>The case surfaced two detection gaps and one false-positive opportunity. The triage analyst writes a short detection-engineering brief: which rules fired (and how usefully), which patterns were missed, and what changes would prevent or sharpen detection next time. The brief becomes a ticket in the detection-engineering queue.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Submit for review</h3>
+    <p>The record is submitted to the SOC manager for closure review. The review is not theater; it is the quality check that ensures the record meets the standard. The reviewer either accepts the record, requests clarification, or flags it as a training case for the team.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>Documentation made the finance-team case durable. The record survives the analyst, the manager, and the moment. Future analysts will learn from it; future audits will rely on it.</KeyTakeaway>
+
+---
+
+## A second scenario: closing the Cursor false-positive durably
+
+The Cursor IDE Empire-pattern case ended in Escalation as a documented close at triage. Documentation now finalizes that record — same nine-section event report, same standards, same review. The lesson is that *false-positives deserve documentation too*. The event report for a "no incident" verdict carries forward into detection-engineering tickets, training, and the audit trail that proves the SOC closed for the right reasons.
+
+<ChapterExample title="Finalizing the Cursor false-positive record" scenario="Escalation produced the close-at-triage record. Documentation finalizes the event report so the close survives a year of detection-rule changes and a quarterly auditor read.">
+
+<ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Capture the record</h3>
+    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, root cause &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the false-positive-specific content: <strong>business impact</strong> is "none — legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-incident recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Sanitize for sharing</h3>
+    <p>The Cursor case has less sensitive content than the finance-team intrusion, but the same discipline applies. The named developer's identity is pseudonymized in the version stored for team-wide review. The binary hash and vendor endpoints stay in the detailed version. The internal source-control repository names are generalized.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Link related artifacts</h3>
+    <p>The record links to: the original alert in the SIEM, the case in the case-management system, the detection-engineering ticket for rule tuning, the peer-baseline query saved in the analytics library, and (this one matters) the *training-archive entry* — the Cursor case is a textbook example of "looks like Empire, isn't Empire," and lives in the SOC's onboarding curriculum.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Feed detection engineering</h3>
+    <p>The case surfaced one over-broad detection rule and one improvement opportunity. The triage analyst writes a brief: the rule that fired, why it matches on macOS Electron IDEs, what a tuned variant would incorporate (binary signature, install path, runtime context), and what the false-positive rate trajectory should look like after tuning. The brief becomes a ticket in the detection-engineering queue, traceable back to this case and to any future cases that fire on a similarly tuned rule.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Submit for review</h3>
+    <p>The record is submitted for closure review. A false-positive record is reviewed by the SOC manager with the same eye an escalation record gets — perhaps with extra attention, because false-positive close records are how the SOC's discipline gets calibrated. The reviewer either accepts the record, requests clarification, or flags it as a training case. This one is flagged for training.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Two cases, one durable record">
+The two scenarios show the same methodology applied to opposite verdicts. The finance-team intrusion produced an audit-quality record of a real compromise. The Cursor false-positive produced an audit-quality record of why a pattern match wasn't malicious. Both records survive months later. Both train future analysts. The methodology's value isn't that it always reaches the same verdict — it's that it always produces a defensible one.
+</Callout>
+
+<KeyTakeaway>Documentation closes the loop on both cases the methodology threaded through. Future analysts will reach for the finance-team record when they see a similar Empire-style chain; they will reach for the Cursor record when they see another Electron IDE flagged on the same pattern. Both records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>
+
+<ContinueCard current="documentation" nextHref="/docs/documentation/quiz" nextLabel="Documentation quiz" ctaLabel="Take the quiz" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+
+<style>{`
+.example-step h3 { margin: 0 0 0.85rem 0; color: #5eead4; font-size: 1.2rem; }
+.example-step p { margin: 0 0 0.85rem 0; color: #cbd5e1; line-height: 1.65; }
+`}</style>

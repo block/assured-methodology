@@ -1,0 +1,279 @@
+---
+/**
+ * PillNav. Horizontal pill row used for two cases:
+ *
+ * 1. Peer-page navigation, e.g., the 6 Parsing sub-pages, each linking to
+ *    its siblings, with the current page highlighted.
+ * 2. In-page section jumper, anchor links to major sections of a long
+ *    page (Detection Mechanisms families, Validation strategies).
+ *
+ * Sticky on scroll so it stays accessible without forcing the reader back
+ * to the top. Mobile: horizontal scroll if too wide.
+ */
+
+type Phase = "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+
+interface Item {
+  label: string;
+  href: string;
+  phase?: string;
+}
+
+interface Props {
+  label?: string;
+  items: Item[];
+  current?: string;
+  variant?: "peer" | "anchor";
+  sticky?: boolean;
+  /** When set, appends Example / Quiz / Transition links for the named chapter. */
+  chapter?: Phase;
+}
+
+const {
+  label = "Jump to",
+  items,
+  current,
+  variant = "peer",
+  sticky = true,
+  chapter,
+} = Astro.props;
+
+/* Auto-appended links so every chapter sub-page surfaces its companion
+ * Example / Quiz / Transition pages. The chapter sub-page authors don't
+ * need to repeat these in every items={[...]} array.
+ */
+const chapterTail: Item[] = chapter
+  ? [
+      { label: "Working example", href: `/docs/${chapter}/example`, phase: chapter },
+      { label: "Chapter quiz",    href: `/docs/${chapter}/quiz`,    phase: chapter },
+      { label: "Transition",      href: `/docs/${chapter}/transition`, phase: chapter },
+    ]
+  : [];
+---
+
+<nav class={`pillnav pillnav--${variant} ${sticky ? "pillnav--sticky" : ""}`} aria-label={label}>
+  <span class="pillnav__label" aria-hidden="true">{label}</span>
+  <div class="pillnav__items" role="list">
+    {items.map((item) => {
+      const isCurrent = current === item.href || (item.href.startsWith("#") && false);
+      return (
+        <a
+          href={item.href}
+          class={`pillnav__item ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
+          aria-current={isCurrent ? "page" : undefined}
+          role="listitem"
+        >
+          {item.label}
+        </a>
+      );
+    })}
+    {chapterTail.length > 0 && (
+      <>
+        <span class="pillnav__divider" aria-hidden="true">·</span>
+        {chapterTail.map((item) => {
+          const isCurrent = current === item.href;
+          return (
+            <a
+              href={item.href}
+              class={`pillnav__item pillnav__item--tail ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
+              aria-current={isCurrent ? "page" : undefined}
+              role="listitem"
+            >
+              {item.label}
+            </a>
+          );
+        })}
+      </>
+    )}
+  </div>
+</nav>
+
+<style>
+  .pillnav {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin: 0 0 2rem 0;
+    padding: 0.6rem 0.85rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 9999px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+  }
+
+  .pillnav--sticky {
+    position: sticky;
+    top: 80px;
+    z-index: 10;
+    box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .pillnav__label {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding-left: 0.55rem;
+  }
+
+  .pillnav__items {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .pillnav__items::-webkit-scrollbar { display: none; }
+
+  .pillnav__item {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    text-decoration: none;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  /* The auto-appended Example / Quiz / Transition tail. Visually quieter than
+   * the primary pillar links so the eye lands on the pillars first. */
+  .pillnav__divider {
+    flex-shrink: 0;
+    color: rgba(148, 163, 184, 0.45);
+    padding: 0 0.2rem;
+    font-size: 0.85rem;
+    user-select: none;
+  }
+  .pillnav__item--tail {
+    color: #94a3b8;
+    font-weight: 500;
+    font-size: 0.78rem;
+  }
+  .pillnav__item--tail:hover {
+    color: #e2e8f0;
+  }
+  .pillnav__item--tail.is-current {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.12);
+  }
+
+  .pillnav__item:hover {
+    color: #f8fafc;
+    background: rgba(248, 250, 252, 0.06);
+  }
+
+  .pillnav__item.is-current {
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.14);
+    border-color: rgba(20, 184, 166, 0.5);
+  }
+
+  /* Per-phase active accent */
+  .pillnav__item.is-current.pillnav__item--alert        { color: #93c5fd; background: rgba(59, 130, 246, 0.16); border-color: rgba(59, 130, 246, 0.5); }
+  .pillnav__item.is-current.pillnav__item--subject      { color: #86efac; background: rgba(34, 197, 94, 0.16); border-color: rgba(34, 197, 94, 0.5); }
+  .pillnav__item.is-current.pillnav__item--scope        { color: #d8b4fe; background: rgba(168, 85, 247, 0.16); border-color: rgba(168, 85, 247, 0.5); }
+  .pillnav__item.is-current.pillnav__item--uncover      { color: #fdba74; background: rgba(249, 115, 22, 0.16); border-color: rgba(249, 115, 22, 0.5); }
+  .pillnav__item.is-current.pillnav__item--risk         { color: #fca5a5; background: rgba(239, 68, 68, 0.16); border-color: rgba(239, 68, 68, 0.5); }
+  .pillnav__item.is-current.pillnav__item--escalation   { color: #a5b4fc; background: rgba(99, 102, 241, 0.16); border-color: rgba(99, 102, 241, 0.5); }
+  .pillnav__item.is-current.pillnav__item--documentation{ color: #5eead4; background: rgba(20, 184, 166, 0.16); border-color: rgba(20, 184, 166, 0.5); }
+
+  /* anchor variant gets a slightly different feel */
+  .pillnav--anchor .pillnav__label {
+    color: #5eead4;
+  }
+
+  @media (max-width: 640px) {
+    .pillnav {
+      padding: 0.5rem 0.6rem;
+      gap: 0.5rem;
+      border-radius: 0.75rem;
+    }
+    .pillnav__label {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /*
+   * ClientRouter idempotency:
+   *   - Per-nav binding via data-pillnav-bound marker.
+   *   - One global scroll listener via window.__pillNavScrollBound, scans all
+   *     anchor pillnavs live each tick (so post-navigation pillnavs are included).
+   */
+  function bindPillNavs() {
+    const anchorNavs = document.querySelectorAll<HTMLElement>(
+      ".pillnav--anchor:not([data-pillnav-bound])"
+    );
+    anchorNavs.forEach((nav) => {
+      nav.setAttribute("data-pillnav-bound", "true");
+      const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>(".pillnav__item"));
+      links.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          const href = link.getAttribute("href");
+          if (!href || !href.startsWith("#")) return;
+          const el = document.getElementById(href.slice(1));
+          if (!el) return;
+          e.preventDefault();
+          window.scrollTo({ top: el.offsetTop - 100, behavior: "smooth" });
+          history.pushState(null, "", href);
+        });
+      });
+    });
+    updateAllPillNavs();
+  }
+
+  function updateAllPillNavs() {
+    const anchorNavs = document.querySelectorAll<HTMLElement>(".pillnav--anchor");
+    anchorNavs.forEach((nav) => {
+      const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>(".pillnav__item"));
+      const anchors = links
+        .map((l) => l.getAttribute("href"))
+        .filter((h): h is string => !!h && h.startsWith("#"))
+        .map((h) => h.slice(1));
+      if (anchors.length === 0) return;
+      const scrollPos = window.scrollY + 140;
+      let activeId: string | null = null;
+      for (let i = anchors.length - 1; i >= 0; i--) {
+        const el = document.getElementById(anchors[i]);
+        if (el && scrollPos >= el.offsetTop) {
+          activeId = anchors[i];
+          break;
+        }
+      }
+      links.forEach((link) => {
+        const href = link.getAttribute("href") ?? "";
+        const id = href.startsWith("#") ? href.slice(1) : "";
+        link.classList.toggle("is-current", !!activeId && id === activeId);
+      });
+    });
+  }
+
+  if (!(window as any).__pillNavScrollBound) {
+    (window as any).__pillNavScrollBound = true;
+    let ticking = false;
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        updateAllPillNavs();
+        ticking = false;
+      });
+    });
+  }
+
+  bindPillNavs();
+  document.addEventListener("astro:page-load", bindPillNavs);
+</script>

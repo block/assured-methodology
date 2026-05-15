@@ -1,0 +1,256 @@
+---
+/**
+ * Quiz. Multiple-choice quiz block. Each question has options. Click an
+ * option to mark it. The selected option turns green if correct, red if
+ * not. The explanation reveals after any answer is selected.
+ *
+ * Usage in MDX:
+ *   <Quiz title="Check what you've learned">
+ *     <QuizItem
+ *       prompt="Which detection family gives you a high-confidence verdict on a known threat?"
+ *       answer="signature"
+ *       explanation="Signature-based detection is deterministic. When it fires on a known IoC, the engine is highly confident."
+ *       options={[
+ *         { value: "signature", label: "Signature-based" },
+ *         { value: "anomaly", label: "Anomaly-based" },
+ *         { value: "rule", label: "Rule-based" },
+ *         { value: "behavioral", label: "Behavioral analytics" },
+ *       ]}
+ *     />
+ *   </Quiz>
+ */
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+}
+
+const { title = "Quiz: check what you've learned", subtitle = "No grades. The point is to push your thinking. Tap an option to see if it lands." } = Astro.props;
+---
+
+<section class="quiz" data-quiz>
+  <header class="quiz__head">
+    <span class="quiz__badge">Quiz</span>
+    <h2 class="quiz__title">{title}</h2>
+    <p class="quiz__subtitle">{subtitle}</p>
+    <div class="quiz__progress" data-quiz-progress aria-live="polite" hidden>
+      <span class="quiz__progress-count" data-quiz-progress-count>0</span>
+      <span class="quiz__progress-sep">of</span>
+      <span class="quiz__progress-total" data-quiz-progress-total>0</span>
+      <span class="quiz__progress-label">reviewed</span>
+      <span class="quiz__progress-score" data-quiz-progress-score hidden>
+        · <span data-quiz-progress-correct>0</span> correct
+      </span>
+    </div>
+  </header>
+  <div class="quiz__body">
+    <slot />
+  </div>
+  <div class="quiz__done" data-quiz-done hidden>
+    <span class="quiz__done-icon" aria-hidden="true">✓</span>
+    <span class="quiz__done-text" data-quiz-done-text>Quiz reviewed.</span>
+    <button type="button" class="quiz__done-reset" data-quiz-reset>Start over</button>
+  </div>
+</section>
+
+<style>
+  .quiz {
+    margin: 3rem 0 2rem;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(15, 23, 42, 0.6));
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    backdrop-filter: blur(8px);
+  }
+
+  .quiz__head {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .quiz__badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.18);
+    color: #5eead4;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.85rem;
+  }
+
+  .quiz__title {
+    margin: 0 auto 0.6rem;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    color: #f8fafc;
+    line-height: 1.2;
+    max-width: 30ch;
+  }
+
+  .quiz__subtitle {
+    margin: 0 auto;
+    color: #cbd5e1;
+    max-width: 50ch;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .quiz__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .quiz__progress {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 1rem auto 0;
+    padding: 0.4rem 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    color: #5eead4;
+    background: rgba(20, 184, 166, 0.12);
+    border: 1px solid rgba(20, 184, 166, 0.35);
+    border-radius: 9999px;
+  }
+
+  .quiz__progress[hidden] { display: none; }
+
+  .quiz__progress-count,
+  .quiz__progress-total {
+    font-weight: 800;
+    color: #f0fdfa;
+  }
+
+  .quiz__progress-sep,
+  .quiz__progress-label {
+    color: #94a3b8;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+
+  .quiz__progress-score {
+    color: #cbd5e1;
+    font-weight: 500;
+    font-size: 0.78rem;
+  }
+
+  .quiz__done {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(15, 23, 42, 0.5));
+    border: 1px solid rgba(20, 184, 166, 0.4);
+    color: #e2e8f0;
+    font-size: 0.92rem;
+  }
+
+  .quiz__done[hidden] { display: none; }
+
+  .quiz__done-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.25);
+    color: #5eead4;
+    font-weight: 800;
+  }
+
+  .quiz__done-reset {
+    margin-left: auto;
+    padding: 0.4rem 0.85rem;
+    background: rgba(15, 23, 42, 0.6);
+    color: #5eead4;
+    border: 1px solid rgba(20, 184, 166, 0.4);
+    border-radius: 0.4rem;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .quiz__done-reset:hover {
+    background: rgba(20, 184, 166, 0.18);
+    border-color: #5eead4;
+  }
+</style>
+
+<script>
+  // ClientRouter idempotency: rebind quiz progress tracking on every page-load.
+  // Per-quiz data-quiz-bound marker prevents double-counting if the same DOM
+  // survives a transition.
+  function bindQuizzes() {
+  const quizzes = document.querySelectorAll<HTMLElement>("[data-quiz]:not([data-quiz-bound])");
+  quizzes.forEach((quiz) => {
+    quiz.setAttribute("data-quiz-bound", "true");
+    const items = Array.from(quiz.querySelectorAll<HTMLElement>("[data-quiz-item]"));
+    const total = items.length;
+    if (total === 0) return;
+
+    const progressEl = quiz.querySelector<HTMLElement>("[data-quiz-progress]");
+    const countEl = quiz.querySelector<HTMLElement>("[data-quiz-progress-count]");
+    const totalEl = quiz.querySelector<HTMLElement>("[data-quiz-progress-total]");
+    const scoreEl = quiz.querySelector<HTMLElement>("[data-quiz-progress-score]");
+    const correctEl = quiz.querySelector<HTMLElement>("[data-quiz-progress-correct]");
+    const doneEl = quiz.querySelector<HTMLElement>("[data-quiz-done]");
+    const doneTextEl = quiz.querySelector<HTMLElement>("[data-quiz-done-text]");
+    const resetBtn = quiz.querySelector<HTMLButtonElement>("[data-quiz-reset]");
+
+    if (totalEl) totalEl.textContent = String(total);
+    if (progressEl) progressEl.hidden = false;
+
+    const answered = new Set<HTMLElement>();
+    let correctCount = 0;
+
+    function recompute() {
+      const reviewed = answered.size;
+      if (countEl) countEl.textContent = String(reviewed);
+      if (correctEl) correctEl.textContent = String(correctCount);
+      if (scoreEl) scoreEl.hidden = reviewed === 0;
+      if (doneEl && doneTextEl) {
+        if (reviewed === total) {
+          doneTextEl.textContent = `Quiz reviewed. ${correctCount} of ${total} correct on first try.`;
+          doneEl.hidden = false;
+        } else {
+          doneEl.hidden = true;
+        }
+      }
+    }
+
+    items.forEach((item) => {
+      const correctValue = item.dataset.answer;
+      const options = item.querySelectorAll<HTMLButtonElement>(".quiz-item__option");
+      options.forEach((opt) => {
+        opt.addEventListener("click", () => {
+          if (answered.has(item)) return;
+          answered.add(item);
+          if (opt.dataset.value === correctValue) correctCount++;
+          recompute();
+        });
+      });
+    });
+
+    resetBtn?.addEventListener("click", () => {
+      // Reload the page; cheapest reliable reset given the existing QuizItem script
+      // locks each option after first click.
+      window.location.reload();
+    });
+  });
+  }
+  bindQuizzes();
+  document.addEventListener("astro:page-load", bindQuizzes);
+</script>

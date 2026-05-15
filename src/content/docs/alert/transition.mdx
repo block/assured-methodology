@@ -1,176 +1,367 @@
 ---
-title: "Transition to Subject Phase"
-description: "How Alert analysis findings inform the next phase of investigation and entity identification."
+title: "Transition to Subject"
+description: "What Alert leaves behind, and what Subject picks up. The handoff that keeps the methodology coherent."
 slug: "alert/transition"
 ---
 
-The Alert phase establishes a comprehensive analytical foundation through systematic detection mechanism analysis, multi-dimensional validation frameworks, and sophisticated parsing methodologies. 
-This technical groundwork enables the ASSURED methodology to transition seamlessly into the Subject phase—a critical analytical pivot that transforms technical observations into contextual intelligence through entity-centric investigation and organizational risk assessment.
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
 
-This transition represents a fundamental shift in analytical focus: from understanding *what* was detected through technical telemetry analysis to comprehending *who* was involved, *why* the activity occurred, and *how* it relates to broader organizational context and risk exposure. 
-The Subject phase introduces human factors, business context, and organizational dynamics that are essential for accurate threat assessment and appropriate response prioritization.
+<SubPageHero
+  phase="alert"
+  parentLetter="A"
+  pillarNumber="Transition"
+  pillarLabel="Alert to Subject"
+  chapterHref="/docs/alert"
+  chapterLabel="Alert"
+  lede="The Alert phase produces three deliverables. The Subject phase needs all of them. This page is the bridge: what to carry forward, what to leave behind, and how to set up the next analyst (or your next hour of work) for success."
+/>
 
-**Contextual Risk Assessment:** 
-The Subject phase enables sophisticated risk evaluation through entity-centric analysis, incorporating user behavioral baselines, access entitlements, system sensitivity classifications, and organizational relationships. 
-This contextual framework transforms isolated technical indicators into comprehensive threat assessments that account for business impact, regulatory implications, and operational continuity requirements.
+<PillNav
+  chapter="alert"
+  label="Alert chapter"
+  current="/docs/alert/transition"
+  items={[
+    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms", phase: "alert" },
+    { label: "Validation",           href: "/docs/alert/validation",            phase: "alert" },
+    { label: "Parsing",              href: "/docs/alert/parsing",               phase: "alert" },
+    { label: "Transition",           href: "/docs/alert/transition",            phase: "alert" },
+  ]}
+/>
 
-**Analytical Sophistication:** 
-The transition from Alert to Subject analysis requires advanced analytical capabilities that integrate technical expertise with business acumen and organizational understanding. 
-Analysts must evaluate affected entities through multiple dimensions: role-based risk assessment, privilege escalation potential, lateral movement capabilities, and business criticality impact.
+<Callout variant="info" title="One phase complete. The next begins.">
+Alert told the analyst what fired and gave the signal structured shape. Subject is the next step: who acted, with what credentials, and in what context. Done well, the transition is invisible. The work flows from one phase to the next without the analyst having to re-derive what they already knew.
+</Callout>
 
-**Strategic Context Integration:** 
-This phase bridges the gap between raw technical telemetry and organizational reality, enabling security teams to make informed, business-aligned decisions that balance security requirements with operational continuity and regulatory compliance obligations.
+### What the transition is for
 
-## Strategic Transition Framework
+The handoff between phases is where investigations either gather momentum or stall. A clean Alert-to-Subject transition does three things:
 
-The Alert-to-Subject transition represents a critical analytical evolution that transforms technical observations into actionable business intelligence. 
-This sophisticated handoff process requires systematic organization of Alert phase findings to support comprehensive entity-focused investigation and risk assessment.
-
-<div class="bg-white rounded-lg p-6 my-6">
-  <div class="flex items-start space-x-3">
-    <div class="flex-shrink-0">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-    </div>
+<div class="transition-roles">
+  <div class="transition-role">
+    <span class="transition-role__num">01</span>
     <div>
-      <h4 class="text-lg font-semibold mb-2">Transition Imperative</h4>
-      <p class="leading-relaxed">
-        This analytical pivot shifts investigation focus from isolated event analysis to comprehensive entity understanding, enabling informed decision-making that balances security requirements with operational continuity and regulatory compliance obligations.
-      </p>
+      <h4>Hands forward structured alert data</h4>
+      <p>Parsed metadata, validated signal, detection mechanism context.</p>
+    </div>
+  </div>
+  <div class="transition-role">
+    <span class="transition-role__num">02</span>
+    <div>
+      <h4>Identifies the entities</h4>
+      <p>Primary, secondary, and high-value targets that need Subject-phase analysis.</p>
+    </div>
+  </div>
+  <div class="transition-role">
+    <span class="transition-role__num">03</span>
+    <div>
+      <h4>Frames investigative parameters</h4>
+      <p>Analysis depth, time window, escalation thresholds.</p>
     </div>
   </div>
 </div>
 
 ---
 
-# Comprehensive Alert Phase Deliverables
+## Three deliverables from Alert
 
-The Alert phase produces three critical analytical outputs that form the foundation for Subject phase investigation. 
-These deliverables represent the culmination of systematic detection analysis, validation frameworks, and parsing methodologies implemented throughout the Alert phase.
+By the time you leave the Alert phase, you should have:
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-  <div class="bg-white rounded-lg p-6">
-    <div class="flex items-center mb-4">
-      <span class="text-2xl mr-3">🔧</span>
-      <h4 class="text-lg font-bold">Technical Foundation</h4>
-    </div>
-    <ul class="text-sm space-y-2">
-      <li><strong> Detection Mechanism Analysis:</strong> Comprehensive understanding of alert provenance and triggering logic</li>
-      <li><strong> Structured Alert Data:</strong> Normalized technical indicators including processes, commands, and artifacts</li>
-      <li><strong> Validation Framework Results:</strong> Multi-dimensional assessment confirming alert legitimacy and priority</li>
-      <li><strong> Telemetry Correlation:</strong> Cross-platform event correlation and artifact validation</li>
+<div class="deliverables-grid">
+  <div class="deliverable-card">
+    <h4>🔧 Technical foundation</h4>
+    <ul>
+      <li><strong>Detection mechanism analysis</strong>, what fired, by what logic, with what confidence.</li>
+      <li><strong>Structured alert data</strong>, normalized fields: processes, commands, hashes, identifiers.</li>
+      <li><strong>Validation results</strong>, the four-dimensional check on signal fidelity.</li>
+      <li><strong>Telemetry correlation</strong>, cross-platform context tying the alert to its environment.</li>
     </ul>
   </div>
-  
-  <div class="bg-white rounded-lg p-6">
-    <div class="flex items-center mb-4">
-      <span class="text-2xl mr-3">🧠</span>
-      <h4 class="text-lg font-bold">Contextual Intelligence</h4>
-    </div>
-    <ul class="text-sm space-y-2">
-      <li><strong> Behavioral Baseline Analysis:</strong> Deviation assessment from established operational patterns</li>
-      <li><strong> Attack Chain Reconstruction:</strong> Multi-event correlation identifying coordinated attack sequences</li>
-      <li><strong> Threat Intelligence Fusion:</strong> Campaign attribution and TTP mapping integration</li>
-      <li><strong> Temporal Pattern Analysis:</strong> Chronological event sequencing and anomaly detection</li>
+
+  <div class="deliverable-card">
+    <h4>🧠 Contextual intelligence</h4>
+    <ul>
+      <li><strong>Baseline analysis</strong>, how this activity compares to the entity's history.</li>
+      <li><strong>Attack chain reconstruction</strong>, any multi-event correlation that emerged during validation.</li>
+      <li><strong>Threat intelligence fusion</strong>, campaign attribution, TTP mapping where applicable.</li>
+      <li><strong>Temporal context</strong>, the chronology of what happened, in what order.</li>
     </ul>
   </div>
-  
-  <div class="bg-white rounded-lg p-6">
-    <div class="flex items-center mb-4">
-      <span class="text-2xl mr-3">⚖️</span>
-      <h4 class="text-lg font-bold">Risk Assessment</h4>
-    </div>
-    <ul class="text-sm space-y-2">
-      <li><strong> Asset Criticality Classification:</strong> Business value and operational importance assessment</li>
-      <li><strong> Regulatory Compliance Mapping:</strong> SOX, HIPAA, GDPR, PCI-DSS impact analysis</li>
-      <li><strong> Business Impact Quantification:</strong> Operational, financial, and reputational risk evaluation</li>
-      <li><strong> Escalation Criteria Definition:</strong> Threshold-based response prioritization framework</li>
+
+  <div class="deliverable-card">
+    <h4>⚖️ Initial risk framing</h4>
+    <ul>
+      <li><strong>Asset criticality classification</strong>, business value of the systems involved.</li>
+      <li><strong>Regulatory mapping</strong>, applicable compliance regimes (SOX, HIPAA, GDPR, PCI DSS).</li>
+      <li><strong>Business impact framing</strong>, first-pass estimate of operational, financial, reputational consequence.</li>
+      <li><strong>Escalation criteria</strong>, thresholds defined; Subject and later phases test them.</li>
     </ul>
   </div>
 </div>
 
 ---
 
-# Preparing for Subject Analysis
+## Preparing for Subject analysis
 
-The transition to Subject phase requires organizing Alert findings to support entity-focused investigation:
+Alert told you *what fired*. Subject asks *who acted*. To make that question answerable, organize three things before you start.
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
-  <div class="bg-white rounded-lg p-6">
-    ### Entity Identification
-    From the Alert analysis, identify all entities that require Subject-phase evaluation:
-    - <strong>Primary Entities:</strong> Users, systems, and services directly involved in the detected activity
-    - <strong>Secondary Entities:</strong> Related accounts, connected systems, and dependent services that may be affected
-    - <strong>High-Value Targets:</strong> Critical assets or privileged accounts that could be targets for lateral movement
-  </div>
-  
-  <div class="bg-white rounded-lg p-6">
-    ### Context Requirements
-    Gather the organizational context needed for Subject analysis:
-    - <strong>User Role Information:</strong> Job functions, department assignments, and business responsibilities
-    - <strong>System Classifications:</strong> Asset criticality ratings, data sensitivity levels, and operational importance
-    - <strong>Relationship Mappings:</strong> Network connectivity, access dependencies, and trust relationships
-  </div>
-  
-  <div class="bg-white rounded-lg p-6">
-    ### Investigation Parameters
-    - <strong>Analysis Depth:</strong> Determine the level of behavioral, authorization, authentication, and relationship analysis required
-    - <strong>Time Boundaries:</strong> Establish historical analysis periods for baseline comparison and pattern detection
-    - <strong>Escalation Thresholds:</strong> Define criteria for immediate escalation based on Subject-phase findings
-  </div>
-</div>
+### Entity identification
 
-<br />
+From the parsed Alert data, list every <DefineTerm term="Entity" display="entity" /> that touched the activity:
+
+- **Primary entities**: users, systems, services directly named in the detection.
+- **Secondary entities**: related accounts, connected systems, dependent services that may have been affected.
+- **High-value targets**: critical assets or privileged accounts that could become targets for <DefineTerm term="Lateral Movement" display="lateral movement" />.
+
+### Context requirements
+
+The Subject phase needs organizational context the Alert phase didn't have to assemble:
+
+- **<DefineTerm term="User" /> role information**: job functions, department, business responsibilities.
+- **System classifications**: criticality ratings, data sensitivity, operational importance.
+- **Relationship mappings**: network connectivity, access dependencies, trust relationships.
+
+### Investigation parameters
+
+Set the shape of the Subject-phase work before you start:
+
+- **Analysis depth**: how much behavioral, authorization, authentication, and relationship analysis is the alert worth?
+- **Time boundaries**: historical window for baseline comparison and pattern detection.
+- **Escalation thresholds**: what would the Subject phase need to find for you to skip ahead and escalate?
+
+<Callout variant="info" title="The handoff is the artifact">
+If a peer picked up this alert tomorrow, would the Alert-phase work give them a clean starting point? That's the test. The transition isn't ceremony, it's quality assurance for everything downstream.
+</Callout>
+
+<KeyTakeaway>
+A clean Alert phase ends with a structured, validated alert + an entity list + a context plan. The Subject phase doesn't re-derive that work. It builds on it.
+</KeyTakeaway>
+
 ---
 
-# Ready to Continue?
-<div class="cta-section text-center">
-  <div>
-    <h3 class="text-2xl font-bold mb-4">🚀 The ASSURED Methodology: Subject</h3>
-    <p class="max-w-2xl mx-auto">
-      Continue on to SUBJECT to learn how to identify and evaluate the key entities involved in the security event, focusing on their authentication, authorization, behavior, and relationships within the organizational context.
-    </p>
+<Callout variant="info" title="Worked examples live on the Example page">
+The full two-case walkthrough — Case A (the finance-team phishing intrusion) and Case B (the Cursor IDE Empire-pattern false-positive) — is on the **[Alert working example](/docs/alert/example)** page. Both cases continue on every later chapter's example page, so you can follow the same investigations all the way through Documentation.
+</Callout>
+
+---
+
+<div class="quiz-cta">
+  <span class="quiz-cta__icon" aria-hidden="true">🧠</span>
+  <div class="quiz-cta__body">
+    <h3>Ready to check your understanding?</h3>
+    <p>The Alert chapter ends with a five-question quiz that tests how you would apply what you have learned to fresh scenarios.</p>
   </div>
-  
-  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">✓</span>
-      <span class = "font-semibold">Alert</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Subject</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Scope</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Uncover</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Risk</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Escalation</span>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span class="w-6 h-6 bg-white-50 rounded-full flex items-center justify-center">x</span>
-      <span class = "font-semibold">Documentation</span>
-    </div>
-  </div>
-  
-  <div>
-    <a href="/docs/NA>" class="inline-flex items-center px-8 py-4 font-semibold rounded-lg">
-      <span class="mr-2">In Development</span>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-      </svg>
-    </a>
-  </div>
-  
+  <a href="/docs/alert/quiz" class="assured-cta">Take the chapter quiz</a>
 </div>
+
+---
+
+## Where you are in the methodology
+
+<PuzzleProgress
+  current="alert"
+  status={{
+    alert: "live",
+    subject: "live",
+    scope: "live",
+    uncover: "live",
+    risk: "live",
+    escalation: "live",
+    documentation: "live",
+  }}
+/>
+
+<Callout variant="info" title="Continue to Subject">
+You've finished Alert. The principles above describe what Alert hands forward; the next chapter, **Subject**, picks up the work of identifying every entity in play.
+</Callout>
+
+<div class="end-cta">
+  <a href="/docs/alert" class="assured-cta assured-cta--ghost">
+    ← Back to the Alert overview
+  </a>
+  <a href="https://github.com/block/assured-methodology" class="assured-cta" target="_blank" rel="noopener noreferrer">
+    Track progress on GitHub
+  </a>
+</div>
+
+<style>
+{`
+.deliverables-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .deliverables-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.deliverable-card {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.85rem;
+  backdrop-filter: blur(8px);
+}
+
+.deliverable-card h4 {
+  margin: 0 0 0.75rem 0;
+  color: #f8fafc;
+  font-size: 1.05rem;
+}
+
+.deliverable-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.deliverable-card li {
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.end-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 2rem 0 1rem;
+}
+
+.transition-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.25rem 0;
+}
+
+.transition-role {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+
+.transition-role__num {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transition-role h4 {
+  margin: 0 0 0.25rem 0;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.transition-role p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.example-step h3 {
+  margin: 0 0 0.85rem 0;
+  color: #d8b4fe;
+  font-size: 1.2rem;
+}
+
+.example-step p {
+  margin: 0 0 0.85rem 0;
+  color: #cbd5e1;
+  line-height: 1.65;
+}
+
+.example-step__list {
+  margin: 0 0 1rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.example-step__list li {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.example-step__list strong {
+  color: #f8fafc;
+}
+
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: #e2e8f0;
+}
+
+.example-step__what-not strong {
+  color: #fca5a5;
+}
+
+.example-step pre {
+  margin: 0 0 1.25rem 0;
+  font-size: 0.82rem;
+}
+
+.quiz-cta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin: 2rem 0;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(15, 23, 42, 0.6));
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  border-radius: 1rem;
+  flex-wrap: wrap;
+}
+
+.quiz-cta__icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.quiz-cta__body {
+  flex: 1;
+  min-width: 16rem;
+}
+
+.quiz-cta__body h3 {
+  margin: 0 0 0.35rem 0;
+  color: #f8fafc;
+  font-size: 1.1rem;
+}
+
+.quiz-cta__body p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+`}
+</style>

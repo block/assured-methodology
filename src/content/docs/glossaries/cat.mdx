@@ -494,6 +494,8 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
         setTimeout(() => t.classList.add('is-out'), 3600);
         setTimeout(() => t.remove(), 4200);
       }
+      // Bubble fades out after ~2.5s so it doesn't linger until the next loop.
+      setTimeout(() => { bubble.style.opacity = '0'; }, 2500);
     }, bubbleDelay);
   };
 
@@ -589,31 +591,33 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 }
 .cat-svg { width: 100%; height: auto; max-height: 200px; display: block; }
 
-.cat-cat { transform: translate(40px, 140px); }
+/* Cat sits so its leg bottoms (group.y + 12) sit on the ground line at y=170,
+ * so initial group.y = 158. Chair seat top is at y=135, so when the cat lands
+ * on the seat its group.y = 135 - 12 = 123. */
+.cat-cat { transform: translate(40px, 158px); }
 .cat-cat--seq {
   animation: cat-walk-jump calc((var(--cat-walks, 3) * 1.3s) + 3.6s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-/* Small Y-axis bob during the walking phase so the cat looks like it has weight
- * on its paws rather than gliding above the ground. The bob is sampled at
- * percentage points throughout the walk segment (0% to 60% is the walking
- * portion of the animation). */
+/* Small Y-axis bob during walking so the cat looks like it has weight on its
+ * paws rather than gliding. Walking segment is 0% to 60%, then jump up to 70%,
+ * land on the chair seat at 78%. */
 @keyframes cat-walk-jump {
-  0%   { transform: translate(40px, 140px); }
-  6%   { transform: translate(70px, 142px); }
-  12%  { transform: translate(100px, 140px); }
-  18%  { transform: translate(130px, 142px); }
-  24%  { transform: translate(160px, 140px); }
-  30%  { transform: translate(190px, 142px); }
-  36%  { transform: translate(220px, 140px); }
-  42%  { transform: translate(250px, 142px); }
-  48%  { transform: translate(280px, 140px); }
-  54%  { transform: translate(300px, 142px); }
-  60%  { transform: translate(310px, 140px); }
+  0%   { transform: translate(40px, 158px); }
+  6%   { transform: translate(70px, 156px); }
+  12%  { transform: translate(100px, 158px); }
+  18%  { transform: translate(130px, 156px); }
+  24%  { transform: translate(160px, 158px); }
+  30%  { transform: translate(190px, 156px); }
+  36%  { transform: translate(220px, 158px); }
+  42%  { transform: translate(250px, 156px); }
+  48%  { transform: translate(280px, 158px); }
+  54%  { transform: translate(300px, 156px); }
+  60%  { transform: translate(310px, 158px); }
   70%  { transform: translate(345px, 100px); }
-  78%  { transform: translate(360px, 135px); }
-  85%  { transform: translate(360px, 135px) scaleX(1.15); }
-  90%  { transform: translate(360px, 135px) scaleX(1); }
-  100% { transform: translate(360px, 135px) scaleX(1); }
+  78%  { transform: translate(370px, 123px); }
+  85%  { transform: translate(370px, 123px) scaleX(1.15); }
+  90%  { transform: translate(370px, 123px) scaleX(1); }
+  100% { transform: translate(370px, 123px) scaleX(1); }
 }
 
 .cat-leg { transform-box: fill-box; transform-origin: 50% 0; }

@@ -32,7 +32,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   ]}
 />
 
-Modern security platforms layer four families of <DefineTerm term="Detection Logic" display="detection logic" /> on top of each other. Each family is good at something specific and blind to something else. Used together they cover far more ground than any one of them could on its own. When an alert arrives, the first question an analyst asks is which family fired, because that single fact reshapes the rest of the investigation.
+Modern security platforms layer many kinds of <DefineTerm term="Detection Logic" display="detection logic" /> on top of each other. ASSURED groups them into four families. The grouping is this methodology's teaching taxonomy, not an industry standard (NIST SP 800-94, for example, cuts the space differently), but it maps cleanly onto how alerts arrive in practice. Each family is good at something specific and blind to something else. Used together they cover far more ground than any one of them could on its own. When an alert arrives, the first question an analyst asks is which family fired, because that single fact reshapes the rest of the investigation.
 
 <Callout variant="info" title="Why provenance matters">
 A high-confidence signature hit on a known C2 binary is one alert. A behavioral anomaly suggesting unusual <DefineTerm term="PowerShell" /> child processes is a different alert, even when the underlying activity is the same. The first deserves an immediate response. The second deserves correlation and context first. Detection provenance is what tells the analyst which kind of alert they have in front of them.
@@ -67,6 +67,10 @@ A high-confidence signature hit on a known C2 binary is one alert. A behavioral 
   </a>
 </div>
 
+<Callout variant="info" title="The grid behind the four families">
+The families are the corners of a 2×2. One axis is how the logic is produced: signature and rule conditions are written by humans; anomaly and behavioral models are learned from data. The other axis is what the logic evaluates: signature and anomaly judge a single event; rule and behavioral evaluate combinations and sequences. That grid is why Snort content matching sits under signature while a Sigma correlation rule sits under rule, even though both are "rules" in everyday speech.
+</Callout>
+
 ---
 
 ## Trust calibration
@@ -76,7 +80,7 @@ Each family produces signals with a different default confidence level. Knowing 
 <div class="trust-list">
   <div class="trust-item trust-item--signature">
     <div class="trust-item__label">Signature</div>
-    <div class="trust-item__body">High confidence, narrow scope. When it fires, it is almost always real, but the family only sees what it has been told to look for.</div>
+    <div class="trust-item__body">High confidence on exact indicator matches, narrow scope. A hit on a known-bad hash or verified C2 infrastructure is almost always real; a generic heuristic AV name deserves more skepticism. Either way, the family only sees what it has been told to look for.</div>
   </div>
   <div class="trust-item trust-item--anomaly">
     <div class="trust-item__label">Anomaly</div>

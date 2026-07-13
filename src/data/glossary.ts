@@ -2970,7 +2970,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Threat": {
     "term": "Threat",
-    "definition": "An actor (or capability) with intent and means to cause harm. A vulnerability is what they exploit; risk is the product of threat, vulnerability, and impact.",
+    "definition": "An actor (or capability) with intent and means to cause harm. A vulnerability is what they exploit. Classical risk models multiply threat, vulnerability, and impact; ASSURED's RATM folds the threat and vulnerability questions into likelihood, so risk stays impact times likelihood.",
     "source": "clear"
   },
   "Threat Actor": {
@@ -3240,7 +3240,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Volt Typhoon / Salt Typhoon": {
     "term": "Volt Typhoon / Salt Typhoon",
-    "definition": "2024 disclosures of two long-running China-linked campaigns against U.S. critical infrastructure. Volt Typhoon pre-positioned in energy, water, communications, and transportation networks using living-off-the-land techniques for stealthy persistence. Salt Typhoon compromised major U.S. telecom carriers' lawful-intercept systems with potential access to call metadata and the federal wiretap apparatus. Reframed the boundary between espionage and prepositioning for disruptive action.",
+    "definition": "Two long-running China-linked campaigns against U.S. critical infrastructure. Volt Typhoon , disclosed May 2023 by Microsoft and CISA, pre-positioned in energy, water, communications, and transportation networks using living-off-the-land techniques for stealthy persistence. Salt Typhoon , disclosed in late 2024, compromised major U.S. telecom carriers' lawful-intercept systems with potential access to call metadata and the federal wiretap apparatus. Together they reframed the boundary between espionage and prepositioning for disruptive action.",
     "source": "bad-campaign"
   },
   "Vulnerability": {

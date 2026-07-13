@@ -1523,7 +1523,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Insider Threat Matrix": {
     "term": "Insider Threat Matrix",
-    "definition": "A framework for categorizing and understanding different types of insider threats based on motivation, access level, and potential impact.",
+    "definition": "A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Useful as a shared vocabulary for describing insider risk and threat.",
     "source": "clear"
   },
   "Insider Threats": {

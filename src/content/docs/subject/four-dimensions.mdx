@@ -147,8 +147,8 @@ Modern intrusions disproportionately route through identity-provider abuse rathe
     <p>A sign-in from a geographic location the user could not have physically reached given the time since their previous sign-in. Provider-side risk detections (Entra ID Identity Protection, Okta ThreatInsight) score this directly. Treat as a strong but not conclusive signal, VPN, mobile-carrier routing, and travel-while-active can produce false-positives. Maps to <strong>T1078.004 Valid Accounts: Cloud Accounts</strong>.</p>
   </div>
   <div class="cloud-id-card">
-    <h4>📲 Device-code / phishing-resistant-MFA bypass</h4>
-    <p>The OAuth 2.0 device-authorization flow is exploited by attackers prompting the user to "enter this code on your other device" while the attacker's device receives the token. Adversary-in-the-middle (AiTM) toolkits (EvilProxy, Tycoon) sit between user and IdP, capturing session cookies after legitimate MFA. Detect via unusual device-code grants, new-device sign-ins right after MFA succeeds, and session-cookie use from IPs the user never authenticated from. Maps to <strong>T1621 MFA Request Generation</strong> and <strong>T1539 Steal Web Session Cookie</strong>.</p>
+    <h4>📲 Device-code phishing and AiTM session theft</h4>
+    <p>The OAuth 2.0 device-authorization flow is exploited by attackers prompting the user to "enter this code on your other device" while the attacker's device receives the token. Adversary-in-the-middle (AiTM) toolkits (EvilProxy, Tycoon) sit between user and IdP, capturing session cookies after legitimate MFA. Both defeat OTP and push-based MFA; phishing-resistant FIDO2 stops the AiTM credential replay, which is exactly why attackers pivot to flows like device code that sidestep it. Detect via unusual device-code grants, new-device sign-ins right after MFA succeeds, and session-cookie use from IPs the user never authenticated from. Maps to <strong>T1528 Steal Application Access Token</strong> (device-code phishing, with the stolen token replayed via <strong>T1550.001 Application Access Token</strong>) and <strong>T1539 Steal Web Session Cookie</strong> (AiTM).</p>
   </div>
 </div>
 

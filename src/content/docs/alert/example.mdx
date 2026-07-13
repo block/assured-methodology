@@ -113,7 +113,7 @@ The same Alert methodology applied to a very different signal. A second alert fi
 
   <div data-step class="example-step">
     <h3>Step 1. Read the detection</h3>
-    <p>The rule that fired is a cross-platform behavioral-analytics rule looking for "process disables its sandbox, spawns helper, opens encrypted outbound socket." The rule was originally written from a Windows engagement against an EmPyre agent (the Python-3 fork of PowerShell Empire, since merged back into the Empire framework, both names refer to the same lineage) and was later ported to macOS. Documented false-positive rate on macOS developer hosts: ~6× higher than on managed productivity laptops. That is a known calibration issue, captured in the rule's metadata.</p>
+    <p>The rule that fired is a cross-platform behavioral-analytics rule looking for "process disables its sandbox, spawns helper, opens encrypted outbound socket." The rule was originally written from an engagement against an EmPyre agent (the Python 2.6/2.7 macOS/Linux sister agent to PowerShell Empire, merged into the framework in Empire 2.0 in 2016, both names refer to the same lineage) and was later ported to macOS. Documented false-positive rate on macOS developer hosts: ~6× higher than on managed productivity laptops. That is a known calibration issue, captured in the rule's metadata.</p>
     <p>The rule's confidence on this host class is therefore lower from the start. The analyst notes that explicitly before opening the payload.</p>
   </div>
 
@@ -133,7 +133,7 @@ The same Alert methodology applied to a very different signal. A second alert fi
     <h3>Step 3. Parse the metadata</h3>
     <ul class="example-step__list">
       <li><strong>Command line.</strong> <code>/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) --type=utility ...</code>. Vendor-standard.</li>
-      <li><strong>Process tree.</strong> launchd → Cursor → Cursor Helper → Cursor Helper (Plugin). All four binaries signed by Anysphere, notarized by Apple.</li>
+      <li><strong>Process tree.</strong> launchd → Cursor → Cursor Helper → Cursor Helper (Plugin). launchd is Apple's platform-signed init process; the three Cursor binaries are signed by Anysphere (Developer ID) and notarized by Apple.</li>
       <li><strong>Network.</strong> Multiple TLS connections to <code>*.cursor.sh</code> and to a small set of LLM-inference hosts, all with valid certificates, all resolving via standard public DNS.</li>
       <li><strong>File system.</strong> Reads in the user's home and the Cursor application support directory. No writes outside expected paths.</li>
       <li><strong>Identity.</strong> Active session: a frontend engineer. SSO login at 09:14 with FIDO2 second factor.</li>

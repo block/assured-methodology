@@ -2828,7 +2828,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Subdomain Abuse": {
     "term": "Subdomain Abuse",
-    "definition": "Uses legitimate-looking subdomains (e.g., cdn.dropbox.com.evil.com) to trick filters and users.",
+    "definition": "Uses legitimate-looking subdomains (e.g., cdn.dropbox.com.evil.example) to trick filters and users.",
     "source": "bad-term"
   },
   "Subject": {

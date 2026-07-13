@@ -20,12 +20,14 @@ export function isActivePage(href: string, currentPath: string): boolean {
  */
 export function getUrlRelativeToBase(url:string):string{
 
-  // Don't prepend baseUrl for special URL types
-  if (url.startsWith('#') || 
-      url.startsWith('javascript:') || 
-      url.startsWith('http:') || 
-      url.startsWith('https:') || 
-      url.startsWith('mailto:') || 
+  // Don't prepend baseUrl for special URL types.
+  // javascript: is deliberately not on this list — nothing on the site uses
+  // it, and passing it through unmodified would hand any future caller an
+  // XSS primitive.
+  if (url.startsWith('#') ||
+      url.startsWith('http:') ||
+      url.startsWith('https:') ||
+      url.startsWith('mailto:') ||
       url.startsWith('tel:')) {
     return url;
   }

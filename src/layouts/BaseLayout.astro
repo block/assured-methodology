@@ -2,9 +2,14 @@
 import HeadSEO from "@/components/HeadSEO.astro";
 import Header from "@/components/Header.astro";
 import { ClientRouter } from "astro:transitions";
+// Variable fonts (OFL-licensed, self-hosted via Fontsource). One file per
+// family covers weights 100-900; unicode-range subsetting means browsers
+// only fetch the latin subset for this site.
+import "@fontsource-variable/inter";
+import "@fontsource-variable/inter/wght-italic.css";
+import "@fontsource-variable/jetbrains-mono";
 import "@/styles/global.css";
 import "@/styles/glossary.css";
-import { getUrlRelativeToBase } from "@/lib/utils";
 
 interface Props {
   title?: string | undefined;
@@ -19,122 +24,6 @@ const { title, description, ogImage } = Astro.props;
   <head>
     <HeadSEO title={title} description={description} ogImage={ogImage} />
     <ClientRouter />
-    <style set:html={`
-      /* Cash Sans Font Family */
-
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Light.woff2')}') format('woff2');
-        font-weight: 300;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-LightItl.woff2')}') format('woff2');
-        font-weight: 300;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Regular.woff2')}') format('woff2');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-RegularItl.woff2')}') format('woff2');
-        font-weight: 400;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Medium.woff2')}') format('woff2');
-        font-weight: 500;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-MediumItl.woff2')}') format('woff2');
-        font-weight: 500;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Semibold.woff2')}') format('woff2');
-        font-weight: 600;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-SemiboldItl.woff2')}') format('woff2');
-        font-weight: 600;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Bold.woff2')}') format('woff2');
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-BoldItl.woff2')}') format('woff2');
-        font-weight: 700;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Extblack.woff2')}') format('woff2');
-        font-weight: 800;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-ExtblackItl.woff2')}') format('woff2');
-        font-weight: 800;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-Black.woff2')}') format('woff2');
-        font-weight: 900;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans';
-        src: url('${getUrlRelativeToBase('/fonts/CashSans-BlackItl.woff2')}') format('woff2');
-        font-weight: 900;
-        font-style: italic;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans Mono';
-        src: url('${getUrlRelativeToBase('/fonts/CashSansMono-Regular.woff2')}') format('woff2');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Cash Sans Mono';
-        src: url('${getUrlRelativeToBase('/fonts/CashSansMono-Medium.woff2')}') format('woff2');
-        font-weight: 500;
-        font-style: normal;
-        font-display: swap;
-      }
-    `}></style>
   </head>
   <body class="min-h-screen font-sans antialiased">
     <div class="relative flex min-h-screen flex-col">

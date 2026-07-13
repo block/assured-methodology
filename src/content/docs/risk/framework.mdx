@@ -1,6 +1,6 @@
 ---
 title: "Risk framework"
-description: "The risk-based alert triage matrix, P.A.C.E. model, MITRE ATT&CK, CVSS scoring. Four standardized lenses for repeatable, defensible escalation decisions."
+description: "The risk-based alert triage matrix with its scoring rubric, MITRE ATT&CK as vocabulary, CVSS as severity input. Repeatable, defensible escalation decisions."
 slug: "risk/framework"
 ---
 
@@ -11,7 +11,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 
-<SubPageHero phase="risk" parentLetter="R" pillarNumber="01" pillarLabel="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Risk is a structured judgment, not a feeling. Multiple frameworks bring complementary structure: the triage matrix, the P.A.C.E. model, MITRE ATT&CK, and CVSS. Together they create repeatable, defensible escalation decisions."/>
+<SubPageHero phase="risk" parentLetter="R" pillarNumber="01" pillarLabel="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Risk is a structured judgment, not a feeling. One scoring model does the work: ASSURED's Risk-Based Alert Triage Matrix, with MITRE ATT&CK supplying the vocabulary and CVSS supplying severity input where a vulnerability is in play."/>
 
 <PillNav chapter="risk" label="Risk chapter" current="/docs/risk/framework" items={[
   { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
@@ -19,28 +19,23 @@ import PillNav from "@/components/assured/PillNav.astro";
   { label: "The false-positive", href: "/docs/risk/false-positive", phase: "risk" },
 ]}/>
 
-## Four complementary frameworks
+## One scoring model, two supporting lenses
 
 <div class="fw-grid">
-  <a href="#ratm" class="fw-card"><h4>🎚️ RATM <span class="fw-card__role">output</span></h4><p>Risk-Based Alert Triage Matrix. Composite rating across asset criticality, threat intent, exploitation scope, and business impact. The verdict you write in the case.</p></a>
-  <a href="#pace" class="fw-card"><h4>🧭 P.A.C.E. <span class="fw-card__role">process</span></h4><p>Potential impact, Actor sophistication, Context, Escalation criteria. The four-step think-through that gets you to the verdict.</p></a>
-  <a href="#mitre" class="fw-card"><h4>🎯 MITRE ATT&CK <span class="fw-card__role">vocabulary</span></h4><p>Maps observed behaviors to a shared taxonomy of adversary tactics, techniques, and procedures.</p></a>
-  <a href="#cvss" class="fw-card"><h4>📈 CVSS <span class="fw-card__role">severity</span></h4><p>Standardized numerical severity for vulnerabilities, adapted for active-threat prioritization.</p></a>
+  <a href="#ratm" class="fw-card"><h4>🎚️ RATM <span class="fw-card__role">scoring</span></h4><p>Risk-Based Alert Triage Matrix, ASSURED's own scoring model. Four dimensions with a High/Medium/Low rubric, reduced to the impact and likelihood axes of the triage matrix. The verdict you write in the case.</p></a>
+  <a href="#mitre" class="fw-card"><h4>🎯 MITRE ATT&CK <span class="fw-card__role">vocabulary</span></h4><p>Maps observed behaviors to a shared taxonomy of adversary tactics, techniques, and procedures. Names what happened; does not score it.</p></a>
+  <a href="#cvss" class="fw-card"><h4>📈 CVSS <span class="fw-card__role">severity</span></h4><p>Standardized numerical severity for vulnerabilities. An input to the RATM when the alert is exploit-driven, not a verdict on its own.</p></a>
 </div>
 
-<Callout variant="info" title="Why standardize the assessment">
-Frameworks make Risk repeatable across analysts and incidents. They reduce variability from individual judgment, create a shared vocabulary for handoff, and accelerate onboarding for new analysts. Organizations adapt these frameworks to industry, <DefineTerm term="Regulatory Requirements" display="regulatory requirements" />, and risk tolerance, but the structural benefits hold across customizations.
-</Callout>
-
-<Callout variant="info" title="P.A.C.E. vs. RATM, process and output">
-The two look similar at a glance. They are not redundant. **P.A.C.E. is the *process***, a four-step think-through (Potential impact → Actor sophistication → Context → Escalation criteria) that walks an analyst from raw observation to a defensible verdict. **RATM is the *output***, a composite rating produced by scoring the case across four dimensions (asset criticality, threat intent, exploitation/scope, business impact). Use P.A.C.E. to *arrive* at a position; use RATM to *document and communicate* it. A mature SOC runs P.A.C.E. in the analyst's head and records the result as a RATM score in the case notes.
+<Callout variant="info" title="What is borrowed and what is ours">
+A structured assessment makes Risk repeatable across analysts and incidents: it reduces variability from individual judgment, creates a shared vocabulary for handoff, and accelerates onboarding. Two of the lenses here are industry standards, <DefineTerm term="MITRE ATT&CK" /> and <DefineTerm term="CVSS" display="CVSS" />. **The RATM is this methodology's own construct**, not an external standard; adapt its rubric to your industry, <DefineTerm term="Regulatory Requirements" display="regulatory requirements" />, and risk tolerance. What matters is that the whole team scores from the same calibrated rubric, whatever its anchors say.
 </Callout>
 
 ---
 
 <h2 id="ratm">🎚️ Risk-Based Alert Triage Matrix</h2>
 
-The RATM scores alerts across four dimensions, producing a composite rating. It emphasizes technical reality while integrating business context.
+The RATM scores alerts across four dimensions, producing a composite rating. It emphasizes technical reality while integrating business context. The four dimensions reduce to the two axes of the triage matrix at the bottom of this page: **asset criticality + business impact make up the impact axis**; **threat actor intent + exploitation &amp; scope, weighted by evidence quality, make up the likelihood axis**. Score the dimensions, reduce them to the two axes, read the default action off the matrix.
 
 <div class="ratm-grid">
   <div class="ratm-card">
@@ -101,55 +96,6 @@ The thresholds above are starting defaults. Two adjustments most teams make: (1)
 
 ---
 
-<h2 id="pace">🧭 P.A.C.E. Model</h2>
-
-P.A.C.E. is a step-by-step model that guides analysts through four key dimensions. It helps evaluate consequences, <DefineTerm term="Threat Actor" display="threat actor" /> sophistication, context, and predefined escalation criteria to determine whether immediate action or further investigation is required.
-
-<div class="pace-grid">
-  <div class="pace-card">
-    <span class="pace-card__letter">P</span>
-    <h4>Potential impact</h4>
-    <p>Evaluates the potential consequences if the event remains unresolved. Data breach, system downtime, reputational harm, each raises prioritization.</p>
-    <ul class="pace-card__bullets">
-      <li>Measures severity of possible outcomes</li>
-      <li>Considers both short and long-term effects</li>
-      <li>Maps to business continuity concerns</li>
-    </ul>
-  </div>
-  <div class="pace-card">
-    <span class="pace-card__letter">A</span>
-    <h4>Actor sophistication</h4>
-    <p>Assesses skill level and resources. Amateur group or APT? Higher sophistication signals a more dangerous threat.</p>
-    <ul class="pace-card__bullets">
-      <li>Evaluates technical complexity of observed TTPs</li>
-      <li>Considers attribution to known threat groups</li>
-      <li>Examines customization versus off-the-shelf tooling</li>
-    </ul>
-  </div>
-  <div class="pace-card">
-    <span class="pace-card__letter">C</span>
-    <h4>Context</h4>
-    <p>Examines evidence supporting alert legitimacy. Match to known attack patterns or correlation with related IOCs raises priority.</p>
-    <ul class="pace-card__bullets">
-      <li>Correlates activity with historical patterns</li>
-      <li>Considers normal vs. abnormal for users / systems</li>
-      <li>Incorporates threat intel and current campaign awareness</li>
-    </ul>
-  </div>
-  <div class="pace-card">
-    <span class="pace-card__letter">E</span>
-    <h4>Escalation criteria</h4>
-    <p>Defines clear triggers for when an alert should escalate. Predefined thresholds, significant operational impact, evidence aligned with known threat models.</p>
-    <ul class="pace-card__bullets">
-      <li>Applies organization-specific thresholds</li>
-      <li>Ensures consistent decision-making</li>
-      <li>Supports defensible triage outcomes</li>
-    </ul>
-  </div>
-</div>
-
----
-
 <h2 id="mitre">🎯 MITRE ATT&CK as a risk lens</h2>
 
 ATT&CK enters Risk as a structuring vocabulary, not a scoring tool. The framework's value at this phase is naming what was observed so the verdict aligns with the broader <DefineTerm term="Threat" display="threat" /> landscape.
@@ -170,7 +116,7 @@ ATT&CK enters Risk as a structuring vocabulary, not a scoring tool. The framewor
 </div>
 
 <Callout variant="info" title="ATT&CK alone is not the verdict">
-Mapping to <DefineTerm term="MITRE ATT&CK" /> is necessary but not sufficient. The framework names what happened; it does not say how much it matters in this environment for this asset. Pair the ATT&CK mapping with the RATM or P.A.C.E. lens to translate technique-level observations into business-level priority.
+Mapping to <DefineTerm term="MITRE ATT&CK" /> is necessary but not sufficient. The framework names what happened; it does not say how much it matters in this environment for this asset. Pair the ATT&CK mapping with the RATM rubric to translate technique-level observations into business-level priority.
 </Callout>
 
 ---
@@ -207,25 +153,25 @@ A CVSS 9.8 on an asset that is not exposed, not in use, or already mitigated by 
 
 ## The triage matrix in practice
 
-The four frameworks combine into a composite verdict. The triage matrix below is the practical output: impact and likelihood combine into a default action.
+The triage matrix is the practical output: impact and likelihood combine into a default action. **Likelihood here means what [Impact + likelihood](/docs/risk/impact-likelihood) defines: confidence that the activity is real and malicious.** The probability that an attack continues or spreads is a separate consideration, scored inside the RATM's exploitation &amp; scope dimension, not smuggled into this axis. Each default action carries the priority band (P1–P4) that the [Escalation criteria](/docs/escalation/criteria) page defines.
 
 <div class="matrix-table">
   <div class="matrix-row matrix-row--header">
     <span>Impact</span><span>Likelihood</span><span>Default action</span>
   </div>
-  <div class="matrix-row"><span>High</span><span>High</span><span class="matrix-row__action matrix-row__action--p1">Escalate immediately</span></div>
-  <div class="matrix-row"><span>High</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p2">Escalate within shift</span></div>
-  <div class="matrix-row"><span>High</span><span>Low</span><span class="matrix-row__action matrix-row__action--p3">Continue investigation; raise priority if evidence strengthens</span></div>
-  <div class="matrix-row"><span>Medium</span><span>High</span><span class="matrix-row__action matrix-row__action--p2">Escalate within shift</span></div>
-  <div class="matrix-row"><span>Medium</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p3">Investigate to closure within 24 hours</span></div>
-  <div class="matrix-row"><span>Medium</span><span>Low</span><span class="matrix-row__action matrix-row__action--p4">Standard queue</span></div>
-  <div class="matrix-row"><span>Low</span><span>High</span><span class="matrix-row__action matrix-row__action--p3">Investigate; likely false-positive, but worth a clean close</span></div>
-  <div class="matrix-row"><span>Low</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p4">Standard queue; close after light investigation</span></div>
-  <div class="matrix-row"><span>Low</span><span>Low</span><span class="matrix-row__action matrix-row__action--p5">Document and close</span></div>
+  <div class="matrix-row"><span>High</span><span>High</span><span class="matrix-row__action matrix-row__action--p1">P1 · Escalate immediately</span></div>
+  <div class="matrix-row"><span>High</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p2">P2 · Escalate within shift</span></div>
+  <div class="matrix-row"><span>High</span><span>Low</span><span class="matrix-row__action matrix-row__action--p3">P3 · Continue investigation; raise priority if evidence strengthens</span></div>
+  <div class="matrix-row"><span>Medium</span><span>High</span><span class="matrix-row__action matrix-row__action--p2">P2 · Escalate within shift</span></div>
+  <div class="matrix-row"><span>Medium</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p3">P3 · Investigate to closure within 24 hours</span></div>
+  <div class="matrix-row"><span>Medium</span><span>Low</span><span class="matrix-row__action matrix-row__action--p4">P4 · Standard queue</span></div>
+  <div class="matrix-row"><span>Low</span><span>High</span><span class="matrix-row__action matrix-row__action--p3">P3 · Confirm and close; a real but low-impact finding. Remediate cheaply, tune the control if it keeps firing</span></div>
+  <div class="matrix-row"><span>Low</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p4">P4 · Standard queue; close after light investigation</span></div>
+  <div class="matrix-row"><span>Low</span><span>Low</span><span class="matrix-row__action matrix-row__action--p5">P4 · Document and close</span></div>
 </div>
 
 <KeyTakeaway>
-The Risk framework produces a verdict the analyst can defend. RATM provides the multi-dimensional scoring. P.A.C.E. structures the assessment. ATT&CK names the techniques. CVSS quantifies <DefineTerm term="Vulnerability" display="vulnerability" /> severity. The combination is what makes the verdict repeatable, defensible, and portable across analysts.
+The Risk framework produces a verdict the analyst can defend. The RATM rubric does the scoring, ATT&CK names the techniques, and CVSS quantifies <DefineTerm term="Vulnerability" display="vulnerability" /> severity when one is in play. Real triage is four moves: score impact, score likelihood, read the matrix, act on the band. Everything else on this page exists to make those four moves repeatable across analysts.
 </KeyTakeaway>
 
 <ContinueCard current="risk" nextHref="/docs/risk/impact-likelihood" nextLabel="Impact and likelihood" ctaLabel="Read next" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
@@ -233,16 +179,15 @@ The Risk framework produces a verdict the analyst can defend. RATM provides the 
 <style>{`
 .fw-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .fw-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .fw-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px) { .fw-grid { grid-template-columns: repeat(3, 1fr); } }
 .fw-card { display: block; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .fw-card:hover { transform: translateY(-2px); border-color: #ef4444; box-shadow: 0 12px 24px -14px rgba(239, 68, 68, 0.35); }
 .fw-card h4 { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
 .fw-card__role { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid; }
 /* Distinct colorways per semantic role so the chips read as categories, not decoration. */
-.fw-card:nth-of-type(1) .fw-card__role { /* RATM = output (red) */ background: rgba(239, 68, 68, 0.18); color: #fecaca; border-color: rgba(239, 68, 68, 0.5); }
-.fw-card:nth-of-type(2) .fw-card__role { /* PACE = process (sky-blue) */ background: rgba(56, 189, 248, 0.18); color: #bae6fd; border-color: rgba(56, 189, 248, 0.5); }
-.fw-card:nth-of-type(3) .fw-card__role { /* MITRE = vocabulary (teal) */ background: rgba(94, 234, 212, 0.18); color: #99f6e4; border-color: rgba(94, 234, 212, 0.5); }
-.fw-card:nth-of-type(4) .fw-card__role { /* CVSS = severity (amber) */ background: rgba(245, 158, 11, 0.18); color: #fde68a; border-color: rgba(245, 158, 11, 0.5); }
+.fw-card:nth-of-type(1) .fw-card__role { /* RATM = scoring (red) */ background: rgba(239, 68, 68, 0.18); color: #fecaca; border-color: rgba(239, 68, 68, 0.5); }
+.fw-card:nth-of-type(2) .fw-card__role { /* MITRE = vocabulary (teal) */ background: rgba(94, 234, 212, 0.18); color: #99f6e4; border-color: rgba(94, 234, 212, 0.5); }
+.fw-card:nth-of-type(3) .fw-card__role { /* CVSS = severity (amber) */ background: rgba(245, 158, 11, 0.18); color: #fde68a; border-color: rgba(245, 158, 11, 0.5); }
 .fw-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.85rem; }
 
 .ratm-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
@@ -265,14 +210,6 @@ The Risk framework produces a verdict the analyst can defend. RATM provides the 
   .ratm-rubric__row > span:nth-child(3)::before { content: "Medium: "; color: #fde68a; font-weight: 700; }
   .ratm-rubric__row > span:nth-child(4)::before { content: "Low: "; color: #99f6e4; font-weight: 700; }
 }
-
-.pace-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .pace-grid { grid-template-columns: 1fr 1fr; } }
-.pace-card { position: relative; padding: 1.4rem 1.5rem 1.4rem 4.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.pace-card__letter { position: absolute; top: 1.25rem; left: 1.4rem; width: 2.5rem; height: 2.5rem; border-radius: 0.55rem; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-.pace-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
-.pace-card > p { margin: 0 0 0.55rem 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
-.pace-card__bullets { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.3rem; color: #cbd5e1; line-height: 1.5; font-size: 0.85rem; }
 
 .mitre-risk-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .mitre-risk-grid { grid-template-columns: repeat(3, 1fr); } }

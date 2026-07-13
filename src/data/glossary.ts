@@ -2216,11 +2216,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "The structured retrospective an organization runs after a closed incident: timeline, decisions, what worked, what failed, what the team learned. A good post-mortem points back at detection, process, or training gaps. A blameless one names the system, not the person.",
     "source": "clear"
   },
-  "Potential Impact, Actor Sophistication, Context, Escalation Criteria (PACE)": {
-    "term": "Potential Impact, Actor Sophistication, Context, Escalation Criteria (PACE)",
-    "definition": "A framework used in this methodology to assess and prioritize security incidents. Not to be confused with the military communications PACE (Primary, Alternate, Contingency, Emergency).",
-    "source": "clear"
-  },
   "PowerShell": {
     "term": "PowerShell",
     "definition": "A command-line shell and scripting language built on the .NET framework, commonly used for system administration and potentially for malicious purposes.",

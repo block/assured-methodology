@@ -22,15 +22,15 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 <Quiz title="Escalation chapter quiz">
 
   <QuizItem
-    prompt="An analyst is uncertain whether a case meets escalation criteria. What should they do?"
+    prompt="Mid-investigation, the evidence confirms one canonical escalation criterion, but the analyst feels the case would be stronger after finishing the remaining phases. What should they do?"
     options={[
-      { value: "wait", label: "Wait until more evidence comes in." },
-      { value: "escalate", label: "Default to escalating if any single criterion is met. The criteria are the SOC's pre-committed answer." },
-      { value: "manager", label: "Ask the manager for permission." },
-      { value: "close", label: "Close the case to avoid noise." },
+      { value: "wait", label: "Finish the investigation first; a complete packet makes a better handoff." },
+      { value: "escalate", label: "Escalate now. One confirmed criterion is the SOC's pre-committed answer; the remaining phases complete under IR's clock." },
+      { value: "manager", label: "Ask the manager whether this case is worth escalating." },
+      { value: "close", label: "Downgrade the case to avoid a noisy escalation." },
     ]}
     answer="escalate"
-    explanation="Pre-defined criteria exist precisely to prevent hesitation under pressure. If even one criterion is met, escalation is the default. Overriding requires documented reasoning."
+    explanation="Pre-defined criteria exist precisely to remove this judgment call under pressure. One confirmed criterion escalates the case, from whatever phase the investigation is in, and the packet finishes in parallel. Overriding the default requires documented reasoning, not a feeling that more polish would help."
   />
 
   <QuizItem
@@ -82,15 +82,15 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="Lateral movement into systems outside the original Scope boundary appears during Uncover. What is the right escalation behavior?"
+    prompt="Uncover confirms lateral movement into systems outside the original Scope boundary. What is the right escalation behavior?"
     options={[
       { value: "ignore", label: "Ignore the out-of-scope finding." },
-      { value: "escalate", label: "Escalate immediately and let IR handle the expanded scope." },
-      { value: "loop", label: "Treat it as a trigger for the dynamic loop: refine Scope, re-run Uncover, re-evaluate Risk. Escalate only if the expanded picture meets criteria." },
+      { value: "escalate", label: "Escalate immediately, confirmed lateral movement is a canonical criterion, and keep the dynamic loop running in parallel to refine scope for IR." },
+      { value: "loop", label: "Refine Scope, re-run Uncover, re-evaluate Risk, and escalate only if the expanded picture still meets criteria." },
       { value: "close", label: "Close the case and open a new one." },
     ]}
-    answer="loop"
-    explanation="Lateral movement into unscoped systems is a classic dynamic-loop trigger. The methodology requires returning to Scope with refined boundaries, re-running Uncover on the expanded frame, and re-evaluating Risk. Escalation criteria are then applied to the broader picture, not just the initial finding. Skipping the loop produces escalations based on incomplete pictures."
+    answer="escalate"
+    explanation="Confirmed lateral movement is one of the four canonical criteria, and the break-glass rule fires the moment a criterion is confirmed, from any phase. A spreading compromise is IR's problem to contain while investigation continues. The dynamic loop still matters: refining Scope and re-running Uncover is exactly the scoping support IR needs next, but it happens in parallel under IR's clock, not as a precondition for escalating. Deferring escalation through a full loop iteration while a compromise spreads is the failure mode the criteria exist to prevent."
   />
 
   <QuizItem

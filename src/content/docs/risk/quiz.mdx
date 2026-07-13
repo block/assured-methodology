@@ -69,27 +69,27 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="The P.A.C.E. model structures Risk assessment through which four dimensions?"
+    prompt="The RATM rubric scores a case as High asset criticality (crown-jewel database), but the only evidence is a signature match with no behavioral confirmation. The matrix reads High impact / Low likelihood. What is the default action?"
     options={[
-      { value: "pace1", label: "Priority, Authentication, Containment, Escalation." },
-      { value: "pace2", label: "Potential impact, Actor sophistication, Context, Escalation criteria." },
-      { value: "pace3", label: "Process, Analyst, Communication, Evidence." },
-      { value: "pace4", label: "People, Assets, Controls, Environment." },
+      { value: "escalate", label: "Escalate immediately. A crown-jewel system is at stake." },
+      { value: "continue", label: "Continue investigating; raise priority if evidence strengthens." },
+      { value: "queue", label: "Standard queue. Low likelihood means low priority." },
+      { value: "close", label: "Close as a false-positive. Signature matches without behavior are noise." },
     ]}
-    answer="pace2"
-    explanation="P.A.C.E. = Potential impact, Actor sophistication, Context, Escalation criteria. The model guides analysts through a structured four-step assessment, providing complementary depth to the RATM matrix."
+    answer="continue"
+    explanation="Impact answers what is at stake if the finding is real; likelihood answers how confident you are that it is real. High impact with weak evidence is neither an escalation (that would let stakes inflate confidence) nor a closure (that would let weak evidence excuse a crown-jewel case). The matrix keeps it under active investigation with an explicit trigger to re-score."
   />
 
   <QuizItem
-    prompt="Uncover surfaces new evidence that the adversary has reached a system outside the original Scope boundary. What does the methodology require?"
+    prompt="Uncover confirms the adversary has reached a system outside the original Scope boundary. What does the methodology require?"
     options={[
       { value: "ignore", label: "Ignore the out-of-scope finding." },
-      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary. The dynamic loop is part of the methodology, not an exception." },
-      { value: "escalate", label: "Skip Risk and escalate immediately based on the new finding." },
+      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary before deciding anything." },
+      { value: "breakglass", label: "Escalate now, confirmed spread beyond the boundary is a canonical criterion, and continue the Scope → Uncover → Risk loop in parallel under IR's clock." },
       { value: "drop", label: "Drop the case and start over." },
     ]}
-    answer="rescope"
-    explanation="ASSURED is iterative by design. When new evidence changes the shape of the investigation (lateral movement, new identities, sensitive assets), the methodology loops back to Scope with refined boundaries and repeats Uncover and Risk. Each loop increases investigative fidelity until clarity is achieved or escalation criteria are met."
+    answer="breakglass"
+    explanation="Confirmed lateral movement beyond the boundary meets a canonical escalation criterion, and the break-glass rule fires from any phase the moment a criterion is confirmed. The dynamic loop still runs, refining scope is exactly what IR needs next, but it runs in parallel with containment, not instead of it. The loop is for building fidelity on unresolved cases; it is never a reason to sit on a confirmed, spreading compromise."
   />
 
   <QuizItem

@@ -67,13 +67,13 @@ The handoff between phases is where investigations either gather momentum or sta
 
 ---
 
-## Three deliverables from Alert
+## What Alert hands off, and what it only flags
 
-By the time you leave the Alert phase, you should have:
+One of Alert's three deliverables is finished work; the other two are honest lead lists. Alert does not classify assets, reconstruct attack chains, or score business impact; those verdicts belong to Subject, Scope, Uncover, and Risk. What Alert owes them is the validated alert plus every flag worth carrying forward, so no later phase starts from a cold read.
 
 <div class="deliverables-grid">
   <div class="deliverable-card">
-    <h4>🔧 Technical foundation</h4>
+    <h4>🔧 Finished: the validated alert</h4>
     <ul>
       <li><strong>Detection mechanism analysis</strong>, what fired, by what logic, with what confidence.</li>
       <li><strong>Structured alert data</strong>, normalized fields: processes, commands, hashes, identifiers.</li>
@@ -83,22 +83,22 @@ By the time you leave the Alert phase, you should have:
   </div>
 
   <div class="deliverable-card">
-    <h4>🧠 Contextual intelligence</h4>
+    <h4>🧭 Leads for Subject and Uncover</h4>
     <ul>
-      <li><strong>Baseline analysis</strong>, how this activity compares to the entity's history.</li>
-      <li><strong>Attack chain reconstruction</strong>, any multi-event correlation that emerged during validation.</li>
-      <li><strong>Threat intelligence fusion</strong>, campaign attribution, TTP mapping where applicable.</li>
-      <li><strong>Temporal context</strong>, the chronology of what happened, in what order.</li>
+      <li><strong>Baseline anomalies noticed</strong>, anything that looked off against casual knowledge of the entity. Subject owns the real behavioral analysis.</li>
+      <li><strong>Correlations spotted in validation</strong>, related events worth chasing. Uncover owns the attack-chain reconstruction.</li>
+      <li><strong>Intel hits captured</strong>, IOC or TTP matches recorded as leads, not conclusions. Uncover owns the fusion and attribution.</li>
+      <li><strong>Temporal anchors</strong>, the timestamps that fix the chronology later phases build on.</li>
     </ul>
   </div>
 
   <div class="deliverable-card">
-    <h4>⚖️ Initial risk framing</h4>
+    <h4>🚩 Flags for Scope, Risk, and Escalation</h4>
     <ul>
-      <li><strong>Asset criticality classification</strong>, business value of the systems involved.</li>
-      <li><strong>Regulatory mapping</strong>, applicable compliance regimes (SOX, HIPAA, GDPR, PCI DSS).</li>
-      <li><strong>Business impact framing</strong>, first-pass estimate of operational, financial, reputational consequence.</li>
-      <li><strong>Escalation criteria</strong>, thresholds defined; Subject and later phases test them.</li>
+      <li><strong>Possibly critical assets named</strong>, systems that look important. Scope classifies criticality; Alert just raises the flag.</li>
+      <li><strong>Regulated-data proximity noted</strong>, signs the case may touch PCI, PHI, or PII scope. Scope's regulatory pillar does the mapping.</li>
+      <li><strong>Early severity signals</strong>, observations Risk will weigh. No impact score is assigned here.</li>
+      <li><strong>Escalation criteria in sight</strong>, if any pre-defined criterion already looks close to confirmed, say so now: a criterion confirmed at <em>any</em> phase escalates immediately under the <a href="/docs/escalation/criteria">break-glass rule</a>.</li>
     </ul>
   </div>
 </div>
@@ -131,7 +131,7 @@ Set the shape of the Subject-phase work before you start:
 
 - **Analysis depth**: how much behavioral, authorization, authentication, and relationship analysis is the alert worth?
 - **Time boundaries**: historical window for baseline comparison and pattern detection.
-- **Escalation thresholds**: what would the Subject phase need to find for you to skip ahead and escalate?
+- **Escalation thresholds**: what would the Subject phase need to find to confirm an escalation criterion? Name it now, because confirmation at any phase fires the [break-glass rule](/docs/escalation/criteria) immediately, without waiting for Risk.
 
 <Callout variant="info" title="The handoff is the artifact">
 If a peer picked up this alert tomorrow, would the Alert-phase work give them a clean starting point? That's the test. The transition isn't ceremony, it's quality assurance for everything downstream.

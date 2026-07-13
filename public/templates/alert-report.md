@@ -1,6 +1,6 @@
 # Alert report
 
-<!-- ASSURED documentation — the core alert reporting template
+<!-- ASSURED documentation: the core alert reporting template
      (https://assured-methodology.vercel.app/docs/documentation/templates).
      Universal core fields; add specialized fields per event type
      (phishing, credential compromise, ransomware, ...) as needed. -->
@@ -23,7 +23,7 @@
 
 ## Initial triage outcome
 
-<!-- True positive / false-positive / inconclusive — with a concise
+<!-- True positive / false-positive / inconclusive, with a concise
      justification grounded in observable behavior and detection logic. -->
 
 - Classification:
@@ -31,7 +31,7 @@
 
 ## Affected systems
 
-<!-- Endpoints, accounts, infrastructure involved — with business context:
+<!-- Endpoints, accounts, infrastructure involved, with business context:
      function, criticality, ownership. -->
 
 -
@@ -47,5 +47,5 @@
 
 ## Escalation decision and final disposition
 
-- Escalated: yes / no — to whom, and why (or why not):
+- Escalated: yes / no; to whom, and why (or why not):
 - Final disposition: benign / confirmed malicious / merged into incident:

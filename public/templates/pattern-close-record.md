@@ -1,8 +1,8 @@
 # Level 0 pattern-close record
 
-<!-- ASSURED fast path — Level 0 (https://assured-methodology.vercel.app/docs/fast-path).
+<!-- ASSURED fast path, Level 0 (https://assured-methodology.vercel.app/docs/fast-path).
      One record per closed alert. Every field is required. If a field cannot
-     be filled honestly, this is not a Level 0 close — move the alert up the
+     be filled honestly, this is not a Level 0 close; move the alert up the
      ladder. -->
 
 ## 1. Alert
@@ -18,7 +18,7 @@
 ## 3. Checks
 
 <!-- The discriminators verified, with what was actually observed. Not
-     "matches pattern" — the specific observations, e.g. "signed vendor
+     "matches pattern" but the specific observations, e.g. "signed vendor
      binary, expected install path, no persistence". One line each. -->
 
 -

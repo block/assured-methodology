@@ -1,6 +1,6 @@
 # Escalation handoff packet
 
-<!-- ASSURED escalation — the nine-section handoff packet
+<!-- ASSURED escalation: the nine-section handoff packet
      (https://assured-methodology.vercel.app/docs/escalation/handoff).
      Target: the whole packet is readable in five minutes. -->
 
@@ -11,7 +11,7 @@
 
 ## 2. Timeline
 
-<!-- Sequential events with timestamps — both adversary actions and analyst
+<!-- Sequential events with timestamps: both adversary actions and analyst
      actions (when notified, what was checked, when escalated). -->
 
 | Timestamp (UTC) | Actor | Action taken | Rationale | Outcome / result |
@@ -20,7 +20,7 @@
 
 ## 3. Entities
 
-<!-- Primary and secondary entities with their assessment results — the
+<!-- Primary and secondary entities with their assessment results: the
      Subject and Scope output. -->
 
 -
@@ -49,7 +49,7 @@
 
 ## 7. Artifacts
 
-<!-- Relevant log excerpts, IoCs, hashes, screenshots, queries — attached or
+<!-- Relevant log excerpts, IoCs, hashes, screenshots, queries, attached or
      linked so the next analyst does not have to re-derive them. -->
 
 -

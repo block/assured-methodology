@@ -8,7 +8,7 @@ import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
 
-The intro makes two claims that look incompatible. SOCs see thousands of alerts per day, and the full seven-phase arc takes an expert 25–80 minutes per alert. Run the math on those two numbers and no team on earth can operate this methodology. The reconciliation is that **the full arc is not the unit of triage work — the depth ladder is.** Depth is a decision the analyst makes per alert, and most of a real queue closes on the ladder's lowest rung.
+The intro makes two claims that look incompatible. SOCs see thousands of alerts per day, and the full seven-phase arc takes an expert 25–80 minutes per alert. Run the math on those two numbers and no team on earth can operate this methodology. The reconciliation is that **the full arc is not the unit of triage work; the depth ladder is.** Depth is a decision the analyst makes per alert, and most of a real queue closes on the ladder's lowest rung.
 
 The seven chapters teach the full arc because that is the skill that has to exist before it can be compressed: an analyst who cannot run Subject cannot safely skip it. This page is the operating model that the trained skill plugs into.
 
@@ -21,17 +21,17 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <h3 class="ladder__name">Pattern close</h3>
       <span class="ladder__time">≤ 5 minutes</span>
     </div>
-    <p class="ladder__what">For alerts that match a <strong>documented known-benign pattern</strong> in the team's pattern library. The analyst validates the match, records a five-field close, and moves on. This is where the bulk of a healthy queue dies — the "majority of alerts are routine or false-positives" the <a href="/docs/alert/validation">Validation page</a> describes.</p>
+    <p class="ladder__what">For alerts that match a <strong>documented known-benign pattern</strong> in the team's pattern library. The analyst validates the match, records a five-field close, and moves on. This is where the bulk of a healthy queue dies: the "majority of alerts are routine or false-positives" the <a href="/docs/alert/validation">Validation page</a> describes.</p>
     <div class="ladder__cols">
       <div>
         <h4>What runs</h4>
         <ul>
-          <li>Alert, compressed: confirm the alert's discriminators match the documented pattern — not just its shape</li>
+          <li>Alert, compressed: confirm the alert's discriminators match the documented pattern, not just its shape</li>
           <li>Documentation, compressed: the <a href="#five-field">five-field record</a>, referencing the pattern by ID</li>
         </ul>
       </div>
       <div>
-        <h4>Entry criteria — all required</h4>
+        <h4>Entry criteria (all required)</h4>
         <ul>
           <li>A written pattern entry exists, with named discriminators and an owner</li>
           <li>Every discriminator checks out; nothing about the alert is novel</li>
@@ -52,11 +52,11 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <div>
         <h4>What runs</h4>
         <ul>
-          <li><strong>Validate</strong> — Alert, as taught</li>
-          <li><strong>Context</strong> — Subject and Scope as one sweep: who is this, what can they reach</li>
-          <li><strong>Investigate</strong> — Uncover narrowed to the one question the verdict turns on</li>
-          <li><strong>Decide</strong> — Risk verdict, then close or escalate</li>
-          <li><strong>Document</strong> — as-you-go, using the <a href="/docs/documentation/templates">alert report template</a></li>
+          <li><strong>Validate</strong>: Alert, as taught</li>
+          <li><strong>Context</strong>: Subject and Scope as one sweep, asking who is this and what can they reach</li>
+          <li><strong>Investigate</strong>: Uncover narrowed to the one question the verdict turns on</li>
+          <li><strong>Decide</strong>: Risk verdict, then close or escalate</li>
+          <li><strong>Document</strong>: as-you-go, using the <a href="/docs/documentation/templates">alert report template</a></li>
         </ul>
       </div>
       <div>
@@ -76,7 +76,7 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <h3 class="ladder__name">Full arc</h3>
       <span class="ladder__time">the intro's time table</span>
     </div>
-    <p class="ladder__what">The seven phases as the chapters teach them, with the Scope → Uncover → Risk loop running until the residual risk is understood. This is what the <a href="/docs/intro">intro's time table</a> prices — and it is reserved for the alerts that earn it.</p>
+    <p class="ladder__what">The seven phases as the chapters teach them, with the Scope → Uncover → Risk loop running until the residual risk is understood. This is what the <a href="/docs/intro">intro's time table</a> prices, and it is reserved for the alerts that earn it.</p>
     <div class="ladder__cols">
       <div>
         <h4>What runs</h4>
@@ -85,7 +85,7 @@ The seven chapters teach the full arc because that is the skill that has to exis
         </ul>
       </div>
       <div>
-        <h4>Entry criteria — any one suffices</h4>
+        <h4>Entry criteria (any one suffices)</h4>
         <ul>
           <li>Anything suspicious survived Level 1 without a defensible verdict</li>
           <li>Crown-jewel subject, privileged identity, or regulated data in reach</li>
@@ -105,15 +105,15 @@ The seven chapters teach the full arc because that is the skill that has to exis
   </div>
   <div class="ladder-rule">
     <h4>🚨 Break-glass overrides everything</h4>
-    <p>The ladder governs how much process an alert gets, not when to escalate. A <a href="/docs/escalation/criteria">canonical escalation criterion</a> confirmed at any level escalates immediately under the break-glass rule — even from inside a five-minute Level 0 check. Depth and urgency are separate decisions.</p>
+    <p>The ladder governs how much process an alert gets, not when to escalate. A <a href="/docs/escalation/criteria">canonical escalation criterion</a> confirmed at any level escalates immediately under the break-glass rule, even from inside a five-minute Level 0 check. Depth and urgency are separate decisions.</p>
   </div>
   <div class="ladder-rule">
     <h4>📚 Level 0 runs on a pattern library, not on memory</h4>
-    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy — and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive">tuning feedback</a>.</p>
+    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive">tuning feedback</a>.</p>
   </div>
   <div class="ladder-rule">
     <h4>🤖 Automation moves the starting line, not the bar</h4>
-    <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment — identity lookups, asset criticality, sandbox verdicts — it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. What automation does not change is the evidentiary bar: the analyst still confirms the discriminators. Enrichment is input to the ladder, never a verdict.</p>
+    <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment (identity lookups, asset criticality, sandbox verdicts), it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. What automation does not change is the evidentiary bar: the analyst still confirms the discriminators. Enrichment is input to the ladder, never a verdict.</p>
   </div>
 </div>
 
@@ -125,7 +125,7 @@ Level 0's entire documentation burden. Anything that cannot be honestly captured
 <div class="ff-record">
   <div class="ff-row"><span class="ff-field">1 · Alert</span><span class="ff-desc">Alert ID, detection source, timestamp.</span></div>
   <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID and name.</span></div>
-  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The discriminators verified, with what was actually observed — not "matches pattern" but "signed vendor binary, expected install path, no persistence."</span></div>
+  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The discriminators verified, with what was actually observed: not "matches pattern" but "signed vendor binary, expected install path, no persistence."</span></div>
   <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc"><DefineTerm term="False Positive" display="False-positive" /> or expected behavior, one line of justification.</span></div>
   <div class="ff-row"><span class="ff-field">5 · Disposition</span><span class="ff-desc">Closed at Level 0; analyst and time; tuning ticket reference if the rule keeps firing.</span></div>
 </div>
@@ -133,7 +133,7 @@ Level 0's entire documentation burden. Anything that cannot be honestly captured
 A copy-ready version lives on the [templates page](/docs/documentation/templates#copy-ready), alongside the full nine-section packet.
 
 <Callout variant="warn" title="What the ladder is not">
-The ladder is not permission to skip thinking. Level 0 without a real pattern library degrades into bulk-closing by vibes — the exact failure mode Validation exists to prevent. The discipline is the trade: five-minute closes are earned by the written pattern entry, the ratchet, and the break-glass rule, not granted by the timer.
+The ladder is not permission to skip thinking. Level 0 without a real pattern library degrades into bulk-closing by vibes, the exact failure mode Validation exists to prevent. The discipline is the trade: five-minute closes are earned by the written pattern entry, the ratchet, and the break-glass rule, not granted by the timer.
 </Callout>
 
 <KeyTakeaway>

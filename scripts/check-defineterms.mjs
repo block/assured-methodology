@@ -8,7 +8,7 @@
  * The resolution rules mirror lookupTerm() in glossary.ts: exact key match,
  * then case-/hyphen-insensitive match, then the singular form. Usages that
  * pass an explicit body (<DefineTerm term="X">definition...</DefineTerm>) or
- * a definition="..." prop supply their own text and are exempt from lookup —
+ * a definition="..." prop supply their own text and are exempt from lookup,
  * but only self-closing/prop detection is possible without a full MDX parse,
  * so explicit-body usages are detected by the tag not being self-closed.
  *
@@ -31,7 +31,7 @@ function loadGlossaryKeys() {
   const src = readFileSync(GLOSSARY, "utf8");
   // Each record repeats its key in a quoted `term` field (the generator
   // emits `"term": "..."`; a formatter pass may strip the property quotes),
-  // so collect from those — one per record, always one string per line.
+  // so collect from those: one per record, always one string per line.
   const keys = new Set();
   for (const m of src.matchAll(/^\s+"?term"?: "((?:[^"\\]|\\.)*)",?$/gm)) {
     keys.add(m[1].replace(/\\"/g, '"'));
@@ -101,5 +101,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `check-defineterms: OK — ${checked} lookups resolve against ${keys.size} glossary entries (${exempt} usages carry their own definition).`,
+  `check-defineterms: OK. ${checked} lookups resolve against ${keys.size} glossary entries (${exempt} usages carry their own definition).`,
 );

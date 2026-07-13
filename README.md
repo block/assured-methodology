@@ -11,7 +11,7 @@
 
 ## 🔍 What is ASSURED?
 
-ASSURED is a methodology for **security event triage** — the work between an alert firing and the decision to close it or escalate it to incident response. IR frameworks like NIST 800-61 and SANS PICERL describe what to do once you already know what you are looking at; ASSURED structures the work before that, which most analysts otherwise learn informally on the job.
+ASSURED is a methodology for **security event triage**: the work between an alert firing and the decision to close it or escalate it to incident response. IR frameworks like NIST 800-61 and SANS PICERL describe what to do once you already know what you are looking at; ASSURED structures the work before that, which most analysts otherwise learn informally on the job.
 
 It is written as a teachable course: seven chapters, each with concept pages, a worked example, a quiz, and a transition into the next phase.
 
@@ -29,7 +29,7 @@ It is written as a teachable course: seven chapters, each with concept pages, a 
 
 Two threaded cases run through every chapter's worked example: a finance-team phishing intrusion that escalates to IR, and a Cursor IDE false positive that closes at triage. The same methodology produces both verdicts.
 
-Three themed glossaries support the chapters: **B.A.D.** (threat actors, campaigns, malware), **C.A.T.** (vendor and platform vocabulary), and **C.L.E.A.R.** (the analyst lexicon) — around 670 terms, surfaced inline via hover tooltips.
+Three themed glossaries support the chapters: **B.A.D.** (threat actors, campaigns, malware), **C.A.T.** (vendor and platform vocabulary), and **C.L.E.A.R.** (the analyst lexicon). They total around 670 terms, surfaced inline via hover tooltips.
 
 ## 🚀 Getting Started
 
@@ -61,15 +61,15 @@ src/
 
 ## 🤝 Contributing
 
-Contributions are welcome. Fork, branch, make your change, verify with `pnpm build && pnpm preview`, and open a pull request — [CONTRIBUTING.md](CONTRIBUTING.md) has the full setup and the glossary-regeneration workflow. High-value areas:
+Contributions are welcome. Fork, branch, make your change, verify with `pnpm build && pnpm preview`, and open a pull request; [CONTRIBUTING.md](CONTRIBUTING.md) has the full setup and the glossary-regeneration workflow. High-value areas:
 
-- **Technical accuracy** — MITRE technique mappings, regulatory citations, detection-mechanism descriptions
-- **Content refinement** — sharpen wording, fix factual drift, update tool references as the vendor landscape shifts
-- **Case studies** — worked examples beyond the two threaded cases (cloud-native intrusions, identity-provider abuse, supply chain)
-- **Glossary entries** — current threat actors, recent campaigns, new SOC tooling
-- **Quiz items** — application-grade questions that test methodology fluency on fresh scenarios
+- **Technical accuracy**: MITRE technique mappings, regulatory citations, detection-mechanism descriptions
+- **Content refinement**: sharpen wording, fix factual drift, update tool references as the vendor landscape shifts
+- **Case studies**: worked examples beyond the two threaded cases (cloud-native intrusions, identity-provider abuse, supply chain)
+- **Glossary entries**: current threat actors, recent campaigns, new SOC tooling
+- **Quiz items**: application-grade questions that test methodology fluency on fresh scenarios
 
-Keep the tone practical and evidence-based, and support claims with technical rationale — the content teaches; unsupported assertions are defects.
+Keep the tone practical and evidence-based, and support claims with technical rationale: the content teaches; unsupported assertions are defects.
 
 ## 🌐 Deployment
 
@@ -79,12 +79,12 @@ The site deploys on **Vercel** at [assured-methodology.vercel.app](https://assur
 
 This repository uses a dual license:
 
-- **Code** — components, layouts, styles, scripts, and build configuration — is licensed under the [MIT License](LICENSE).
-- **Content** — the methodology text under `src/content/` (chapters, worked examples, quizzes, and glossaries) — is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-CONTENT).
+- **Code** (components, layouts, styles, scripts, and build configuration) is licensed under the [MIT License](LICENSE).
+- **Content**, the methodology text under `src/content/` (chapters, worked examples, quizzes, and glossaries), is licensed under [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE-CONTENT).
 
 ## 👨‍💻 About the Author
 
-**Timothy Zilber** is a security engineer specializing in event triage and incident response. ASSURED grew out of his experience mentoring analysts through a workplace lateral-development program: teaching event triage exposed the lack of a clear, repeatable methodology for it — existing frameworks covered incident response at a high level but not the alert-by-alert analysis work that precedes it. ASSURED is the structured method that came out of years of iterating on that training, shared here so the gap he had to cross informally is easier for the next analyst.
+**Timothy Zilber** is a security engineer specializing in event triage and incident response. ASSURED grew out of his experience mentoring analysts through a workplace lateral-development program: teaching event triage exposed the lack of a clear, repeatable methodology for it. Existing frameworks covered incident response at a high level but not the alert-by-alert analysis work that precedes it. ASSURED is the structured method that came out of years of iterating on that training, shared here so the gap he had to cross informally is easier for the next analyst.
 
 - 💼 **LinkedIn**: [timothy-zilber](https://linkedin.com/in/timothy-zilber)
 - 📧 **Email**: [tzilber@block.xyz](mailto:tzilber@block.xyz)

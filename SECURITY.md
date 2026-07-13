@@ -7,9 +7,9 @@ pipeline, the published static assets, and the response headers set in
 
 ## Reporting a vulnerability
 
-If you find a security issue — a dependency vulnerability that reaches the
+If you find a security issue (a dependency vulnerability that reaches the
 built site, an XSS vector in an interactive component, a header
-misconfiguration — please report it privately rather than opening a public
+misconfiguration), please report it privately rather than opening a public
 issue:
 
 - Use GitHub's [private vulnerability reporting](../../security/advisories/new)
@@ -24,4 +24,4 @@ understand it. You should get an acknowledgment within a few business days.
 - The methodology's *content* deliberately discusses attacker techniques at
   a recognition level. Content that describes techniques is not a
   vulnerability; a page that would give a copy-pasteable working exploit is
-  a content defect — report it with the *Content correction* issue template.
+  a content defect. Report it with the *Content correction* issue template.

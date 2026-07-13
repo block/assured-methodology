@@ -17,7 +17,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   pillarLabel="Scope chapter"
   chapterHref="/docs/scope"
   chapterLabel="Scope"
-  lede="Eight questions on Scope. Push your thinking on boundaries, regulatory triggers, tiered access, and the Uncover handoff."
+  lede="Eight questions on Scope. Push your thinking on boundaries, regulatory clocks, entity prioritization, and the Uncover handoff."
 />
 
 <PillNav chapter="scope" label="Scope chapter" current="/docs/scope/quiz" items={[
@@ -78,15 +78,15 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="A HIPAA investigation hits Tier 3 (full PHI access). What approval is required, and how long does access last?"
+    prompt="A hospital SOC confirms a compromised workstation had access to systems holding PHI. When does HIPAA's 60-day individual-notification clock start?"
     options={[
-      { value: "team-lead", label: "Team lead approval, 24 hours." },
-      { value: "manager-72", label: "Security manager approval, 72 hours." },
-      { value: "ciso-priv", label: "CISO + Privacy Officer approval, 5 days." },
-      { value: "automatic", label: "Automatic for any Level 2+ investigator." },
+      { value: "confirmed", label: "When the technical investigation confirms PHI was actually exfiltrated." },
+      { value: "discovery", label: "At discovery: the first day anyone in the workforce (other than the person responsible) knew, or with reasonable diligence should have known, of the potential breach. That can be the alert itself." },
+      { value: "case-open", label: "When the privacy officer formally opens a breach case." },
+      { value: "assessment", label: "When counsel signs off on the four-factor risk assessment." },
     ]}
-    answer="ciso-priv"
-    explanation="HIPAA's tiered model escalates approval and constrains time as access expands. Tier 1 (metadata only) is team lead, 24 hours. Tier 2 (partial PHI) is security manager, 72 hours. Tier 3 (complete PHI) requires both CISO and Privacy Officer authorization and is bounded to 5 days. The escalation is what makes the minimum-necessary principle operational."
+    answer="discovery"
+    explanation="The 60-day clock (45 CFR §164.404) runs from discovery, not from confirmation — and discovery is a knew-or-should-have-known standard applied to the whole workforce. The alert that starts triage can be the discovery event, which is why Scope commits the timestamp and engages the privacy officer early. The four-factor assessment (§164.402) decides whether notification is required at all; it does not pause the clock."
   />
 
   <QuizItem
@@ -102,15 +102,15 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="A PCI investigation requires de-tokenized cardholder data samples. Which tier of access is appropriate, and what controls apply?"
+    prompt="Scope confirms a compromised identity can reach systems inside the cardholder data environment (CDE). What does the methodology require?"
     options={[
-      { value: "tier1", label: "Tier 1: metadata-only counts. No PAN data needed." },
-      { value: "tier3", label: "Tier 3: de-tokenized samples, manager approval, time-bounded to 12 hours, biometric authentication required." },
-      { value: "tier4", label: "Tier 4: full CDE access. Always default to most permissive tier." },
-      { value: "tier2-loose", label: "Tier 2 with extended retention so the analyst can reference samples for several days." },
+      { value: "recognize", label: "Tag the case PCI-relevant, preserve CDE audit logs beyond their rotation schedule, and notify the owner of the acquirer relationship — in parallel with the technical investigation." },
+      { value: "full-access", label: "Request full CDE access for the analyst so cardholder data can be sampled directly." },
+      { value: "wait", label: "Wait for confirmed cardholder-data exfiltration before involving compliance." },
+      { value: "isolate", label: "Isolate every CDE system immediately; PCI requires containment within one hour." },
     ]}
-    answer="tier3"
-    explanation="PCI's four-tier model maps access depth to scrutiny. De-tokenized samples are Tier 3, which requires manager approval, 12-hour time-boxing, and biometric authentication. The methodology refuses to default to Tier 4 (full CDE) because each ascending tier adds operational and audit cost, and triage should demonstrate need at lower tiers first."
+    answer="recognize"
+    explanation="PCI DSS is contractual: card-brand rules require prompt notification of suspected account-data compromise through the acquirer, and a PFI may later re-examine everything preserved in the first hours. A compliant environment guarantees 12 months of audit logs with 3 months immediately available (Req. 10.5.1), but stopping rotation is still the analyst's job. And investigative access into the CDE follows the same least-privilege controls as any other access — defaulting to full access is exactly backwards."
   />
 
   <QuizItem

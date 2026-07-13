@@ -58,7 +58,11 @@ const resolvedTotal = pillarTotal ?? pillarLabel ?? "";
         <span class="subpage-hero__crumb-arrow" aria-hidden="true">›</span>
       </span>
     </a>
-    <span class="subpage-hero__pillar">Pillar {resolvedIndex} of {resolvedTotal}</span>
+    <span class="subpage-hero__pillar">
+      {/^\d+$/.test(resolvedIndex.trim())
+        ? `Pillar ${resolvedIndex} of ${resolvedTotal}`
+        : resolvedIndex}
+    </span>
   </div>
 
   {lede && <p class="subpage-hero__lede">{lede}</p>}

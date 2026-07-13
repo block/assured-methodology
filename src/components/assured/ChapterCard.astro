@@ -7,7 +7,14 @@
 
 interface Props {
   letter: string;
-  phase: "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+  phase:
+    | "alert"
+    | "subject"
+    | "scope"
+    | "uncover"
+    | "risk"
+    | "escalation"
+    | "documentation";
   title: string;
   description: string;
   href?: string;
@@ -15,10 +22,18 @@ interface Props {
   topics?: string[];
 }
 
-const { letter, phase, title, description, href, status = "live", topics = [] } = Astro.props;
+const {
+  letter,
+  phase,
+  title,
+  description,
+  href,
+  status = "live",
+  topics = [],
+} = Astro.props;
 
-const Tag = (status === "live" && href) ? "a" : "div";
-const tagProps = (Tag === "a") ? { href } : {};
+const Tag = status === "live" && href ? "a" : "div";
+const tagProps = Tag === "a" ? { href } : {};
 ---
 
 <Tag class={`chapter-card chapter-card--${phase} chapter-card--${status}`} {...tagProps}>

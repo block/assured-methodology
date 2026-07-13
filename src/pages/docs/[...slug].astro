@@ -1,22 +1,22 @@
 ---
+import { getCollection, render } from "astro:content";
 import ContentPageLayout from "@/layouts/ContentPageLayout.astro";
-import { getCollection, render} from 'astro:content';
 
 /**
  * Magic required function for dynamic routes; determines the slug
  */
 export async function getStaticPaths() {
-	const docs = await getCollection('docs');
+  const docs = await getCollection("docs");
 
-	// Filter for component pages that have a slug in their frontmatter
-	const docDocs = docs.filter(doc => doc.data.slug);
+  // Filter for component pages that have a slug in their frontmatter
+  const docDocs = docs.filter((doc) => doc.data.slug);
 
-	return docDocs.map((doc) => ({
-		params: { 
-			slug: doc.data.slug || doc.id
-		},
-		props: doc,
-	}));
+  return docDocs.map((doc) => ({
+    params: {
+      slug: doc.data.slug || doc.id,
+    },
+    props: doc,
+  }));
 }
 
 /**
@@ -29,7 +29,6 @@ const wide = doc.data.wide ?? false;
 const chromeless = doc.data.chromeless ?? false;
 const showToc = doc.data.showToc ?? true;
 const { Content, headings, remarkPluginFrontmatter } = await render(doc);
-
 ---
 
 <ContentPageLayout

@@ -11,7 +11,14 @@
  */
 import LetterChip from "@/components/assured/LetterChip.astro";
 
-type Phase = "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+type Phase =
+  | "alert"
+  | "subject"
+  | "scope"
+  | "uncover"
+  | "risk"
+  | "escalation"
+  | "documentation";
 
 interface Pillar {
   num: string;
@@ -32,19 +39,53 @@ interface Props {
   timeOnTarget?: string;
 }
 
-const PHASE_COLORS: Record<Phase, { rgb: string; light: string; medium: string; group: number }> = {
-  alert:         { rgb: "59, 130, 246",  light: "#93c5fd", medium: "#60a5fa", group: 1 },
-  subject:       { rgb: "34, 197, 94",   light: "#86efac", medium: "#4ade80", group: 1 },
-  scope:         { rgb: "168, 85, 247",  light: "#d8b4fe", medium: "#c084fc", group: 1 },
-  uncover:       { rgb: "249, 115, 22",  light: "#fdba74", medium: "#fb923c", group: 2 },
-  risk:          { rgb: "239, 68, 68",   light: "#fca5a5", medium: "#f87171", group: 2 },
-  escalation:    { rgb: "99, 102, 241",  light: "#a5b4fc", medium: "#818cf8", group: 3 },
-  documentation: { rgb: "6, 182, 212",   light: "#67e8f9", medium: "#22d3ee", group: 3 },
+const PHASE_COLORS: Record<
+  Phase,
+  { rgb: string; light: string; medium: string; group: number }
+> = {
+  alert: { rgb: "59, 130, 246", light: "#93c5fd", medium: "#60a5fa", group: 1 },
+  subject: {
+    rgb: "34, 197, 94",
+    light: "#86efac",
+    medium: "#4ade80",
+    group: 1,
+  },
+  scope: { rgb: "168, 85, 247", light: "#d8b4fe", medium: "#c084fc", group: 1 },
+  uncover: {
+    rgb: "249, 115, 22",
+    light: "#fdba74",
+    medium: "#fb923c",
+    group: 2,
+  },
+  risk: { rgb: "239, 68, 68", light: "#fca5a5", medium: "#f87171", group: 2 },
+  escalation: {
+    rgb: "99, 102, 241",
+    light: "#a5b4fc",
+    medium: "#818cf8",
+    group: 3,
+  },
+  documentation: {
+    rgb: "6, 182, 212",
+    light: "#67e8f9",
+    medium: "#22d3ee",
+    group: 3,
+  },
 };
 
-const { phase, letter, pieceNumber, totalPieces = 7, question, pillars, overlineOverride, timeOnTarget } = Astro.props;
+const {
+  phase,
+  letter,
+  pieceNumber,
+  totalPieces = 7,
+  question,
+  pillars,
+  overlineOverride,
+  timeOnTarget,
+} = Astro.props;
 const colors = PHASE_COLORS[phase];
-const overline = overlineOverride ?? `Phase ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
+const overline =
+  overlineOverride ??
+  `Phase ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
 const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; --phase-medium: ${colors.medium};`;
 ---
 

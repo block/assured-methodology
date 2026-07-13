@@ -5,7 +5,6 @@ import mdx from "@astrojs/mdx";
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import icon from "astro-icon";
 import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
@@ -19,7 +18,6 @@ export default defineConfig({
   },
 
   integrations: [
-    icon(),
     sitemap(),
     mdx({
       remarkPlugins: [remarkGfm],

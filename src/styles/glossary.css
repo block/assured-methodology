@@ -17,50 +17,50 @@
 
 [data-theme="bad"] {
   --g-bg-from: #0a0303;
-  --g-bg-via:  #1a0606;
-  --g-bg-mid:  #240a0a;
-  --g-bg-to:   #0a0303;
-  --g-accent:        #ef4444;
-  --g-accent-light:  #fca5a5;
-  --g-accent-mid:    #f87171;
-  --g-text:          #e2e8f0;
-  --g-text-strong:   #fef2f2;
-  --g-text-muted:    #fca5a5;
-  --g-border:        rgba(127, 29, 29, 0.45);
+  --g-bg-via: #1a0606;
+  --g-bg-mid: #240a0a;
+  --g-bg-to: #0a0303;
+  --g-accent: #ef4444;
+  --g-accent-light: #fca5a5;
+  --g-accent-mid: #f87171;
+  --g-text: #e2e8f0;
+  --g-text-strong: #fef2f2;
+  --g-text-muted: #fca5a5;
+  --g-border: rgba(127, 29, 29, 0.45);
   --g-border-strong: rgba(239, 68, 68, 0.55);
-  --g-surface:       rgba(40, 8, 8, 0.55);
+  --g-surface: rgba(40, 8, 8, 0.55);
 }
 
 [data-theme="cat"] {
   --g-bg-from: #0a1a35;
-  --g-bg-via:  #0f2655;
-  --g-bg-mid:  #0a1a35;
-  --g-bg-to:   #061128;
-  --g-accent:        #3b82f6;
-  --g-accent-light:  #93c5fd;
-  --g-accent-mid:    #60a5fa;
-  --g-text:          #dbeafe;
-  --g-text-strong:   #f0f9ff;
-  --g-text-muted:    #bfdbfe;
-  --g-border:        rgba(30, 58, 138, 0.5);
+  --g-bg-via: #0f2655;
+  --g-bg-mid: #0a1a35;
+  --g-bg-to: #061128;
+  --g-accent: #3b82f6;
+  --g-accent-light: #93c5fd;
+  --g-accent-mid: #60a5fa;
+  --g-text: #dbeafe;
+  --g-text-strong: #f0f9ff;
+  --g-text-muted: #bfdbfe;
+  --g-border: rgba(30, 58, 138, 0.5);
   --g-border-strong: rgba(96, 165, 250, 0.55);
-  --g-surface:       rgba(10, 26, 53, 0.55);
+  --g-surface: rgba(10, 26, 53, 0.55);
 }
 
 [data-theme="clear"] {
   --g-bg-from: #0a0518;
-  --g-bg-via:  #1e1b4b;
-  --g-bg-mid:  #0a0518;
-  --g-bg-to:   #050a18;
-  --g-accent:        #a78bfa;
-  --g-accent-light:  #c4b5fd;
-  --g-accent-mid:    #a78bfa;
-  --g-text:          #ede9fe;
-  --g-text-strong:   #f5f3ff;
-  --g-text-muted:    #ddd6fe;
-  --g-border:        rgba(91, 33, 182, 0.45);
+  --g-bg-via: #1e1b4b;
+  --g-bg-mid: #0a0518;
+  --g-bg-to: #050a18;
+  --g-accent: #a78bfa;
+  --g-accent-light: #c4b5fd;
+  --g-accent-mid: #a78bfa;
+  --g-text: #ede9fe;
+  --g-text-strong: #f5f3ff;
+  --g-text-muted: #ddd6fe;
+  --g-border: rgba(91, 33, 182, 0.45);
   --g-border-strong: rgba(167, 139, 250, 0.55);
-  --g-surface:       rgba(15, 10, 30, 0.55);
+  --g-surface: rgba(15, 10, 30, 0.55);
 }
 
 /* ----------------------------------------------------------------------
@@ -71,7 +71,13 @@
   position: relative;
   margin: 0;
   padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
-  background: linear-gradient(170deg, var(--g-bg-from) 0%, var(--g-bg-via) 35%, var(--g-bg-mid) 70%, var(--g-bg-to) 100%);
+  background: linear-gradient(
+    170deg,
+    var(--g-bg-from) 0%,
+    var(--g-bg-via) 35%,
+    var(--g-bg-mid) 70%,
+    var(--g-bg-to) 100%
+  );
   color: var(--g-text);
   border-radius: 0;
   overflow: hidden;
@@ -81,7 +87,10 @@
 /* Exclusions must use the real page-specific class names (.cat-toast,
    .clear-toast, .bad-secret-pet, ...) — these overlays are position:fixed
    children of .g-page and must not be forced into the stacking flow. */
-.g-page > :not(.g-bg):not(.cat-toast):not(.clear-toast):not(.bad-secret-pet):not(.bad-bug):not(.bad-slime):not(.bad-lose):not(.bad-toast) {
+.g-page
+  > :not(.g-bg):not(.cat-toast):not(.clear-toast):not(.bad-secret-pet):not(
+    .bad-bug
+  ):not(.bad-slime):not(.bad-lose):not(.bad-toast) {
   position: relative;
   z-index: 1;
 }
@@ -101,12 +110,17 @@
   position: absolute;
   inset: 0;
   opacity: 0.5;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px
+    ), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    black 30%,
+    transparent 80%
+  );
 }
 
 /* ----------------------------------------------------------------------
@@ -118,7 +132,11 @@
   text-align: center;
   padding: clamp(2.5rem, 6vw, 4rem) 1.5rem clamp(2rem, 4vw, 3rem);
   border-radius: 1rem;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--g-accent) 18%, transparent), transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--g-accent) 18%, transparent),
+    transparent
+  );
   border: 1px solid var(--g-border);
   margin-bottom: 2.5rem;
   overflow: hidden;
@@ -210,7 +228,8 @@
   font-weight: 600;
   letter-spacing: 0.03em;
   white-space: nowrap;
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .g-nav__pill:hover {
@@ -229,7 +248,10 @@
    Section head, icon + title + lede
    ---------------------------------------------------------------------- */
 
-.g-section { margin: 0 0 2.5rem; scroll-margin-top: 6rem; }
+.g-section {
+  margin: 0 0 2.5rem;
+  scroll-margin-top: 6rem;
+}
 
 .g-section__head {
   display: flex;
@@ -277,11 +299,15 @@
 }
 
 @media (min-width: 768px) {
-  .g-terms { grid-template-columns: repeat(2, 1fr); }
+  .g-terms {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (min-width: 1280px) {
-  .g-terms { grid-template-columns: repeat(3, 1fr); }
+  .g-terms {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .g-term {
@@ -351,5 +377,8 @@
    ---------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .g-nav__pill, .g-term { transition: none; }
+  .g-nav__pill,
+  .g-term {
+    transition: none;
+  }
 }

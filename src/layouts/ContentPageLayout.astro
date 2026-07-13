@@ -1,8 +1,8 @@
 ---
-import BaseLayout from "./BaseLayout.astro";
+import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
-import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
+import BaseLayout from "./BaseLayout.astro";
 import "../styles/breadcrumbs.css";
 
 interface Props {
@@ -22,7 +22,16 @@ interface Props {
   chromeless?: boolean;
 }
 
-const { title, description, headings, showTitleAsH1 = true, showBreadcrumbs = true, wide = false, chromeless = false, showToc = true } = Astro.props;
+const {
+  title,
+  description,
+  headings,
+  showTitleAsH1 = true,
+  showBreadcrumbs = true,
+  wide = false,
+  chromeless = false,
+  showToc = true,
+} = Astro.props;
 
 // Chromeless implies no breadcrumbs, no H1, full-bleed wide layout.
 const effectiveBreadcrumbs = chromeless ? false : showBreadcrumbs;

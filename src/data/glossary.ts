@@ -7,7 +7,14 @@
 export interface GlossaryEntry {
   term: string;
   definition: string;
-  source: 'clear' | 'bad-term' | 'bad-actor' | 'bad-campaign' | 'bad-family' | 'bad-feature' | 'cat-tool';
+  source:
+    | "clear"
+    | "bad-term"
+    | "bad-actor"
+    | "bad-campaign"
+    | "bad-family"
+    | "bad-feature"
+    | "cat-tool";
 }
 
 export const glossary: Record<string, GlossaryEntry> = {
@@ -3376,7 +3383,7 @@ export const glossary: Record<string, GlossaryEntry> = {
 /** Lowercase and treat hyphens as spaces so "False-Positive" finds
  *  "False Positive". Collapses runs of whitespace to a single space. */
 function normalizeKey(s: string): string {
-  return s.toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+  return s.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
 }
 
 /** Case- and hyphen-insensitive lookup. Tries exact, normalized, and
@@ -3386,7 +3393,7 @@ export function lookupTerm(needle: string): GlossaryEntry | undefined {
   const direct = glossary[needle];
   if (direct) return direct;
   const candidates = [normalizeKey(needle)];
-  if (needle.endsWith('s')) {
+  if (needle.endsWith("s")) {
     candidates.push(normalizeKey(needle.slice(0, -1)));
   }
   for (const k of Object.keys(glossary)) {

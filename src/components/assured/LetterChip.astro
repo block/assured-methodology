@@ -5,12 +5,24 @@
 
 interface Props {
   letter: string;
-  phase: "alert" | "subject" | "scope" | "uncover" | "risk" | "escalation" | "documentation";
+  phase:
+    | "alert"
+    | "subject"
+    | "scope"
+    | "uncover"
+    | "risk"
+    | "escalation"
+    | "documentation";
   size?: "sm" | "md" | "lg";
 }
 
 const { letter, phase, size = "md" } = Astro.props;
-const sizeClass = size === "sm" ? "assured-letter--sm" : size === "lg" ? "assured-letter--lg" : "";
+const sizeClass =
+  size === "sm"
+    ? "assured-letter--sm"
+    : size === "lg"
+      ? "assured-letter--lg"
+      : "";
 ---
 
 <span class={`assured-letter assured-letter--${phase} ${sizeClass}`} aria-hidden="true">

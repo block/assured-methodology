@@ -1,5 +1,5 @@
-import { z, defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 export const collections = {
   docs: defineCollection({

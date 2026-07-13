@@ -61,7 +61,7 @@ src/
 
 ## 🤝 Contributing
 
-Contributions are welcome. Fork, branch, make your change, verify with `pnpm build && pnpm preview`, and open a pull request. High-value areas:
+Contributions are welcome. Fork, branch, make your change, verify with `pnpm build && pnpm preview`, and open a pull request — [CONTRIBUTING.md](CONTRIBUTING.md) has the full setup and the glossary-regeneration workflow. High-value areas:
 
 - **Technical accuracy** — MITRE technique mappings, regulatory citations, detection-mechanism descriptions
 - **Content refinement** — sharpen wording, fix factual drift, update tool references as the vendor landscape shifts

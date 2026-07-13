@@ -36,7 +36,8 @@ interface Props {
 const { term, display, definition } = Astro.props;
 const hasExplicitBody = Astro.slots.has("default");
 const lookup = lookupTerm(term);
-const resolvedDefinition = definition ?? (hasExplicitBody ? null : lookup?.definition ?? null);
+const resolvedDefinition =
+  definition ?? (hasExplicitBody ? null : (lookup?.definition ?? null));
 const resolvedTitle = lookup?.term ?? term;
 const displayText = display ?? term;
 ---

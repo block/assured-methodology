@@ -72,7 +72,7 @@ Correlation reveals three signals that, in isolation, are not decisive:
 
 1. The PowerShell process launched outside the <DefineTerm term="User" display="user" />'s normal working hours.
 2. Within seconds, the host established encrypted HTTPS sessions to a domain registered 48 hours earlier.
-3. The destination has low prevalence in historical DNS data and an untrusted TLS certificate.
+3. The destination has low prevalence in historical DNS data, and the TLS client fingerprint (<DefineTerm term="JA3" />/<DefineTerm term="JA4" />) does not match any browser or approved tool in the environment.
 
 Together they describe initial compromise and command-and-control. The correlation is the alert.
 
@@ -158,12 +158,12 @@ Three dimensions to weigh on every connection:
     <span class="strategy-item__num">03</span>
     <div>
       <h4>Destination reputation</h4>
-      <p>Domain age, threat intelligence overlap, geographic anomalies, certificate provenance.</p>
+      <p>Domain age, prevalence in the environment, threat intelligence overlap, geographic anomalies, TLS client fingerprints (JA3/JA4), certificate provenance.</p>
     </div>
   </div>
 </div>
 
-A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern. Without combining process-level context, network <DefineTerm term="Metadata" display="metadata" />, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
+A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern. Do not require the shady certificate, though: modern commodity C2 fronts with valid certificates from free CAs or hides behind CDNs, which is why domain age, prevalence, and TLS client fingerprints (JA3/JA4) carry more weight than certificate hygiene. Without combining process-level context, network <DefineTerm term="Metadata" display="metadata" />, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
 
 ---
 
@@ -178,7 +178,7 @@ Adversaries hide C2 inside legitimate protocols (HTTPS, DNS). The automation und
   </div>
   <div class="c2-card">
     <h4>🔐 TLS certificates</h4>
-    <p>Mismatched, self-signed, or generic-CN certificates (impersonated vendor names). Rotating cert chains tied to short-lived infrastructure.</p>
+    <p>Mismatched, self-signed, or generic-CN certificates still appear on cheap infrastructure, but valid certificates are now the norm for C2. Treat certificate hygiene as weak evidence; client fingerprints (JA3/JA4) identify the connecting software regardless of the certificate.</p>
   </div>
   <div class="c2-card">
     <h4>🔎 DNS patterns</h4>

@@ -65,7 +65,7 @@ These are the lineages that should not surprise you:
 
 <Callout variant="info" title="Suspicious lineage signals">
 - **Unexpected origins.** `notepad.exe` spawning `wmic.exe`. Notepad should not be spawning anything.
-- **Compressed timing.** Multiple processes launching within sub-second intervals suggests scripted automation.
+- **Compressed timing.** Multiple processes launching within sub-second intervals suggests scripted automation. Installers and build systems produce the same burst legitimately, so weigh the parent process and the host's role before reading the burst as hostile.
 - **Office spawning shells.** `winword.exe → cmd.exe → powershell.exe` is the classic macro-execution chain.
 - **System binaries in <DefineTerm term="User" display="user" /> contexts.** Elevated processes running with anomalous parent-child relationships.
 </Callout>
@@ -192,7 +192,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
       </svg>
     </div>
     <p class="chain-row__body">
-      Malicious code is injected into a legitimate process (<code>svchost.exe</code> is a favorite) while the outer process keeps its name and digital signature. The chain looks normal in tree view. Memory and behavioral telemetry are how the substitution is caught; signature checks will not.
+      A legitimate process (<code>svchost.exe</code> is a favorite) is created suspended, its executable memory is replaced with attacker code, and it resumes under the original name and digital signature. The tree looks normal at a glance, but lineage still betrays it: real <code>svchost.exe</code> is spawned by <code>services.exe</code>, so an svchost whose parent is anything else deserves immediate scrutiny. Memory and behavioral telemetry are how the code swap itself is caught; signature checks will not.
     </p>
   </div>
 

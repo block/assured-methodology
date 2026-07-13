@@ -80,7 +80,9 @@ The analyst pulls the baseline for this user and host:
 - **Change calendar** shows a global release window scheduled for 02:00 to 04:00 UTC. The developer is one of the on-call engineers.
 - **Command-line history** shows the script being executed matches the signature of a known build pipeline that has run this way for months.
 
-The four signals converge: this is expected behavior with corroborating context from four independent sources. The alert is downgraded to informational, the closure note records the reasoning, and the validation logic feeds back into the detection so the next firing for the same pattern is suppressed.
+That four-source pull assumes joined tooling: SIEM, EDR, VPN logs, and the change calendar reachable from one console. In a less integrated shop the same validation happens by hand (search the ticketing system for the release window, pull VPN logs from the concentrator, message the on-call lead). Slower, but the logic is identical.
+
+The four signals converge: this is expected behavior with corroborating context from four independent sources. The alert is downgraded to informational, the closure note records the reasoning, and the validation logic feeds back into the detection so the next firing for the same pattern is suppressed. Suppress narrowly and with an expiry: this user, this script signature, this release window. A broad or permanent suppression of off-hours PowerShell on a developer host creates exactly the blind spot an adversary wants; when in doubt, downgrade and auto-enrich rather than silence.
 
 Without baseline comparison, the same alert would cost an hour of investigation, no clearer answer, and no improvement to the detection.
 

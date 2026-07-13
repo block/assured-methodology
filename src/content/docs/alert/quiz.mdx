@@ -1,6 +1,6 @@
 ---
 title: "Alert chapter quiz"
-description: "Check what you've learned. Eight questions on detection mechanisms, validation, parsing, and the Alert deliverable."
+description: "Check what you've learned. Nine questions on detection mechanisms, validation, parsing, and the Alert deliverable."
 slug: "alert/quiz"
 ---
 
@@ -17,7 +17,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   pillarLabel="Alert chapter"
   chapterHref="/docs/alert"
   chapterLabel="Alert"
-  lede="Eight questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
+  lede="Nine questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
 />
 
 <PillNav
@@ -51,7 +51,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "baseline",    label: "Baseline comparison. The deviations might differ." },
       { value: "chains",      label: "Attack-chain correlation. One of them might be part of a sequence." },
       { value: "criticality", label: "Asset and user criticality. The blast radius is what differs." },
-      { value: "intuition",   label: "Analyst intuition. The senior analyst will know which to pick." },
+      { value: "fifo",        label: "Queue order. Investigate whichever alert fired first; consistent FIFO handling is defensible." },
     ]}
     answer="criticality"
     explanation="Criticality validation is exactly the strategy designed for this trade-off. Alert B affects a high-criticality asset and a privileged identity, so it is the immediate-action alert. Months later, the criticality data attached to the queue order is what makes the choice reviewable in a post-mortem."
@@ -69,6 +69,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     answer="behavioral"
     explanation="Signature engines see only signed, trusted binaries. Anomaly engines may not flag because the individual events fall within tolerance. Rule engines can fire if a rule is well-written for the pattern, but they require someone to have written that rule. Behavioral analytics is the family designed for multi-step adversary patterns built from legitimate-looking pieces."
     hint="Think about what each family is naturally good at and what each one is naturally blind to."
+  />
+
+  <QuizItem
+    prompt="A signature engine reports an exact match on a known-bad SHA-256. At the same moment, a UEBA engine flags the same host for 'unusual process activity'. Before any investigation, how should the analyst calibrate trust in the two signals?"
+    options={[
+      { value: "equal",     label: "Treat both equally; every alert deserves identical skepticism until validated." },
+      { value: "signature", label: "The exact-match signature hit carries high default confidence; the anomaly is genuine signal but ambiguous until corroborated." },
+      { value: "anomaly",   label: "The anomaly deserves more trust; it is learned from this environment while signatures are generic." },
+      { value: "recent",    label: "Whichever engine was tuned most recently reflects current adversary technique and should be trusted more." },
+    ]}
+    answer="signature"
+    explanation="This is the trust-calibration table from the detection-mechanisms page. Signature means high confidence on exact indicator matches with narrow scope; anomaly means genuine but ambiguous signal that almost always needs corroboration before action. Treating them equally throws away the provenance information the alerts already carry."
+    hint="The chapter assigns each detection family a default confidence before any investigation begins."
   />
 
   <QuizItem

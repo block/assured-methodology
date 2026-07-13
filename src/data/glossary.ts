@@ -1,7 +1,7 @@
 /**
  * Auto-generated glossary registry.
- * Sources: bad.mdx, cat.mdx, clear.mdx. Extracted via scripts/extract-glossary.py.
- * Edit the source MDX files, then re-run the extraction.
+ * Sources: bad.mdx, cat.mdx, clear.mdx. Extracted via scripts/extract-glossary.mjs.
+ * Edit the source MDX files, then run `node scripts/extract-glossary.mjs`.
  */
 
 export interface GlossaryEntry {
@@ -511,6 +511,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Cloud-delivered DNS-layer security; blocks malicious domains at resolution time, secures outbound web traffic.",
     "source": "cat-tool"
   },
+  "Cl0p MOVEit / mass exploitation": {
+    "term": "Cl0p MOVEit / mass exploitation",
+    "definition": "Russian-speaking extortion group (TA505-adjacent) that industrialized mass exploitation of file-transfer software: Accellion FTA (2021), GoAnywhere (2023), and MOVEit Transfer (2023), which alone touched 2,700+ organizations. Skips encryption in favor of pure data-theft extortion at scale. A defining example of one zero-day monetized across thousands of victims simultaneously.",
+    "source": "bad-actor"
+  },
   "Click Fraud Malware": {
     "term": "Click Fraud Malware",
     "definition": "Malware that simulates user clicks on advertisements to generate fraudulent revenue. Often run on compromised systems in large volumes to exploit pay-per-click ad platforms.",
@@ -541,9 +546,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Inserting malicious code into a vulnerable application to execute arbitrary commands or manipulate program behavior.",
     "source": "bad-term"
   },
-  "Code42": {
-    "term": "Code42",
-    "definition": "Cloud-native endpoint data protection focused on insider risk and self-service restore.",
+  "Code42 Incydr (now Mimecast)": {
+    "term": "Code42 Incydr (now Mimecast)",
+    "definition": "Cloud-native endpoint data protection focused on insider risk and self-service restore. Code42 acquired by Mimecast, July 2024; Incydr folded into the Mimecast platform.",
     "source": "cat-tool"
   },
   "Colonial Pipeline": {
@@ -589,6 +594,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Commvault": {
     "term": "Commvault",
     "definition": "Unified data management; backup, archive, governance, and SaaS-app protection with AI analytics.",
+    "source": "cat-tool"
+  },
+  "Commvault ThreatWise (formerly TrapX)": {
+    "term": "Commvault ThreatWise (formerly TrapX)",
+    "definition": "Deception and threat detection with decoys across endpoints, networks, and cloud. TrapX Security acquired by Commvault, 2022; rebranded as ThreatWise.",
     "source": "cat-tool"
   },
   "Compliance": {
@@ -703,7 +713,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Cuckoo Sandbox": {
     "term": "Cuckoo Sandbox",
-    "definition": "Open-source automated malware analysis running suspect files in VMs and capturing behavior.",
+    "definition": "Open-source automated malware analysis running suspect files in VMs and capturing behavior. Original project unmaintained since ~2017; community forks (CAPEv2, Cuckoo3) carry the approach forward.",
     "source": "cat-tool"
   },
   "Custom Encryption Protocols": {
@@ -749,11 +759,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "DFIR ORC": {
     "term": "DFIR ORC",
     "definition": "Open-source forensic-artifact collector from ANSSI (the French national cyber agency). Runs on Windows endpoints to gather a broad, configurable set of artifacts for offline post-compromise analysis. Not a case-management platform.",
-    "source": "cat-tool"
-  },
-  "Sumo Logic Cloud SOAR (formerly DFLabs IncMan)": {
-    "term": "Sumo Logic Cloud SOAR (formerly DFLabs IncMan)",
-    "definition": "SOAR with advanced playbooks, threat-intel enrichment, KPI tracking, and human-in-the-loop decisions. DFLabs acquired by Sumo Logic, 2021.",
     "source": "cat-tool"
   },
   "DLL Injection": {
@@ -946,11 +951,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Algorithm generating many domain names on the fly, making C2 connections hard to block via static domain blacklists.",
     "source": "bad-term"
   },
-  "Domain Keys Identified Mail (DKIM)": {
-    "term": "Domain Keys Identified Mail (DKIM)",
-    "definition": "An email authentication method that verifies message integrity and sender identity.",
-    "source": "clear"
-  },
   "Domain Name System (DNS)": {
     "term": "Domain Name System (DNS)",
     "definition": "A system that translates domain names into IP addresses.",
@@ -974,6 +974,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Domain-based Message Authentication, Reporting, and Conformance (DMARC)": {
     "term": "Domain-based Message Authentication, Reporting, and Conformance (DMARC)",
     "definition": "An email validation system to prevent spoofing.",
+    "source": "clear"
+  },
+  "DomainKeys Identified Mail (DKIM)": {
+    "term": "DomainKeys Identified Mail (DKIM)",
+    "definition": "An email authentication method that verifies message integrity and sender identity.",
     "source": "clear"
   },
   "Dridex": {
@@ -1011,11 +1016,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Electricity sector ISAC; threat intel, IR support, and risk analysis tailored to grid operators.",
     "source": "cat-tool"
   },
-  "Edward Snowden insider disclosure": {
-    "term": "Edward Snowden insider disclosure",
-    "definition": "Former NSA contractor who leaked classified documents revealing global surveillance programs. Not a traditional threat actor, but his disclosures had massive impact on public awareness, policy, and cybersecurity posture. Viewed variously as a whistleblower, a leaker, or a traitor. A touchpoint for discussions on data access, civil liberties, and operational secrecy.",
-    "source": "bad-actor"
-  },
   "Elastic Security": {
     "term": "Elastic Security",
     "definition": "Unified security on the Elastic Stack; endpoint protection, prebuilt detections, and customizable monitoring.",
@@ -1045,6 +1045,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Email-Based C2",
     "definition": "Using SMTP/IMAP to send or receive commands and data, hidden in attachments or content that blends with business traffic.",
     "source": "bad-term"
+  },
+  "Emotet": {
+    "term": "Emotet",
+    "definition": "Banking trojan turned modular loader botnet; for years the dominant initial-access delivery vehicle, dropping TrickBot, QakBot, and ultimately ransomware. Spread via thread-hijacked phishing with macro documents. Taken down by law enforcement in January 2021, resurfaced later that year, and its playbook still defines the loader-botnet ecosystem.",
+    "source": "bad-family"
   },
   "EnCase Forensic": {
     "term": "EnCase Forensic",
@@ -1125,11 +1130,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Escalation Matrix",
     "definition": "A predetermined framework defining when and how to elevate security incidents to higher levels of response based on severity and impact.",
     "source": "clear"
-  },
-  "Escape-The-Box": {
-    "term": "Escape-The-Box",
-    "definition": "An attack that breaks out of a restricted environment (container, VM, sandbox) to gain access to the underlying host system.",
-    "source": "bad-term"
   },
   "EternalBlue": {
     "term": "EternalBlue",
@@ -1223,7 +1223,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "False Positive": {
     "term": "False Positive",
-    "definition": "A security alert that fires on activity that is, on inspection, benign. The detection logic matched a pattern that looked malicious but was not. Distinct from a benign true positive, which is real adversary-like activity that does not warrant action in the local context.",
+    "definition": "A security alert that fires on activity that is, on inspection, benign. The detection logic matched a pattern that looked malicious but was not. Distinct from a benign true positive , which is real adversary-like activity that does not warrant action in the local context.",
     "source": "clear"
   },
   "False-Premise": {
@@ -1233,17 +1233,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Fast Flux DNS": {
     "term": "Fast Flux DNS",
-    "definition": "Rapidly changing IP addresses associated with a single domain to avoid IP-based blocking and takedowns.",
-    "source": "bad-term"
-  },
-  "Fast-Flux DNS": {
-    "term": "Fast-Flux DNS",
-    "definition": "One domain. Six (or sixty, or six hundred) IPs rotating beneath it on short TTLs. Block one IP, the next resolution returns another. Defenders trying to take down the infrastructure can't pin it long enough for a block to stick.",
-    "source": "bad-feature"
-  },
-  "Fast-Flux Networks": {
-    "term": "Fast-Flux Networks",
-    "definition": "Rapidly changing DNS records that rotate IP addresses for malicious domains, hiding C2 servers behind shifting infrastructure.",
+    "definition": "Rapidly rotating DNS records that cycle a malicious domain through many IP addresses, hiding C2 servers behind shifting infrastructure and defeating IP-based blocking and takedowns.",
     "source": "bad-term"
   },
   "Federation": {
@@ -1258,7 +1248,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "File Extension Spoofing": {
     "term": "File Extension Spoofing",
-    "definition": "Files disguised with misleading extensions (e.g., invoice.pdf.exe) to trick users and bypass basic file-type filters.",
+    "definition": "Files disguised with misleading extensions (e.g., invoice.pdf.exe ) to trick users and bypass basic file-type filters.",
     "source": "bad-term"
   },
   "File Integrity Monitoring (FIM)": {
@@ -1270,16 +1260,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Fileless Malware",
     "definition": "Malware that operates in memory without writing files to disk, harder to detect with traditional AV. Often leverages legitimate system tools like PowerShell or WMI for execution.",
     "source": "bad-term"
-  },
-  "FireEye Mandiant Attack Simulator": {
-    "term": "FireEye Mandiant Attack Simulator",
-    "definition": "Controlled attack simulations to validate detection and response based on real-world TTPs.",
-    "source": "cat-tool"
-  },
-  "FireEye Mandiant Red Team Tools": {
-    "term": "FireEye Mandiant Red Team Tools",
-    "definition": "Offensive emulation and red-team tooling to stress-test defenses with realistic adversary behavior.",
-    "source": "cat-tool"
   },
   "Firewall": {
     "term": "Firewall",
@@ -1305,11 +1285,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Forensics",
     "definition": "The application of scientific methods to collect, preserve, and analyze digital evidence for security investigations and incident response.",
     "source": "clear"
-  },
-  "ForgeRock": {
-    "term": "ForgeRock",
-    "definition": "Enterprise IAM with lifecycle management, governance, AI-driven access recommendations, and risk-based auth.",
-    "source": "cat-tool"
   },
   "Framework": {
     "term": "Framework",
@@ -1340,6 +1315,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Golden Ticket Attack",
     "definition": "Forging Kerberos TGTs to grant unrestricted domain access by impersonating any user.",
     "source": "bad-term"
+  },
+  "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)": {
+    "term": "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)",
+    "definition": "SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.",
+    "source": "cat-tool"
   },
   "GreyNoise": {
     "term": "GreyNoise",
@@ -1373,7 +1353,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "HTTPS C2": {
     "term": "HTTPS C2",
-    "definition": "The beacon hides in normal-looking HTTPS traffic. To a proxy log, a C2 request is identical to any CDN or SaaS request: 200 OK, encrypted body, common-looking hostname. The beacon is indistinguishable from its neighbors at a glance, which is exactly why TLS-aware decryption and JA3 fingerprinting matter.",
+    "definition": "The beacon hides in normal-looking HTTPS traffic. To a proxy log, a C2 request is identical to any CDN or SaaS request: 200 OK , encrypted body, common-looking hostname. The beacon is indistinguishable from its neighbors at a glance, which is exactly why TLS-aware decryption and JA3 fingerprinting matter.",
     "source": "bad-feature"
   },
   "Hash Injection": {
@@ -1440,11 +1420,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "IcedID (BokBot)",
     "definition": "Banking Trojan turned loader frequently used to drop Cobalt Strike, TrickBot, or ransomware. Spread through malicious documents and phishing. Modular: credential theft, web injection, lateral movement. Persistence via scheduled tasks and registry keys. A key player in post-intrusion ransomware operations.",
     "source": "bad-family"
-  },
-  "Proofpoint Identity Threat Defense (formerly Illusive)": {
-    "term": "Proofpoint Identity Threat Defense (formerly Illusive)",
-    "definition": "Deception-based identity-threat detection. Plants fake credentials and decoy paths to surface attacker lateral movement. Illusive Networks acquired by Proofpoint, 2022.",
-    "source": "cat-tool"
   },
   "Impact": {
     "term": "Impact",
@@ -1513,7 +1488,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Insider Risk": {
     "term": "Insider Risk",
-    "definition": "The potential for harm from individuals with legitimate access arising from mistakes, policy violations, or unsafe habits, not from intent. Distinct from insider threat, which is deliberate.",
+    "definition": "The potential for harm from individuals with legitimate access arising from mistakes, policy violations, or unsafe habits, not from intent. Distinct from insider threat , which is deliberate.",
     "source": "clear"
   },
   "Insider Threat": {
@@ -1528,7 +1503,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Insider Threats": {
     "term": "Insider Threats",
-    "definition": "Personnel with authorized access who intentionally or unintentionally pose a risk to organizational security through misuse, theft, or sabotage.",
+    "definition": "Personnel with authorized access who deliberately misuse it to harm the organization through theft, sabotage, or assisting external attackers. Distinct from insider risk, which also covers unintentional harm from negligence or mistakes.",
     "source": "clear"
   },
   "Integrated Development Environment (IDE)": {
@@ -1593,17 +1568,17 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "JA3": {
     "term": "JA3",
-    "definition": "A method for fingerprinting TLS client applications by hashing specific fields in the TLS Client Hello packet. Less effective on TLS 1.3 where cipher-suite ordering is less stable; JA4 is the modernized successor.",
-    "source": "clear"
-  },
-  "JA4": {
-    "term": "JA4",
-    "definition": "The 2023 successor to JA3 from FoxIO. A modernized TLS-client fingerprint that handles TLS 1.3 cipher-suite ordering and adds a separate fingerprint family for QUIC (JA4Q), HTTP (JA4H), and TLS-server (JA4S). Often paired with JA3 in modern threat-intel feeds during the transition.",
+    "definition": "A method for fingerprinting TLS client applications by hashing specific fields in the TLS Client Hello packet. Degraded against modern clients: Chrome's extension-order randomization (2023) and GREASE values fragment a single client into many hashes.",
     "source": "clear"
   },
   "JA3S": {
     "term": "JA3S",
     "definition": "The server-side counterpart to JA3, it fingerprints TLS servers by hashing fields in the Server Hello packet.",
+    "source": "clear"
+  },
+  "JA4": {
+    "term": "JA4",
+    "definition": "The 2023 successor to JA3 from FoxIO. A modernized TLS-client fingerprint that sorts extensions before hashing (defeating randomization), handles TLS 1.3, and covers QUIC natively via a leading \"q\" or \"t\" transport marker. Part of the JA4+ suite, which adds separate fingerprints such as JA4H (HTTP client) and JA4S (TLS server).",
     "source": "clear"
   },
   "Jailbreaking": {
@@ -1711,15 +1686,15 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Abusing legitimate system tools already on the host. powershell, certutil, rundll32, wmic, mshta, bitsadmin.",
     "source": "bad-term"
   },
-  "Living Off The Land Binaries (LOLBins)": {
-    "term": "Living Off The Land Binaries (LOLBins)",
-    "definition": "Legitimate built-in utilities (PowerShell, certutil) used maliciously, blending with normal operations.",
-    "source": "bad-term"
-  },
   "Living-Off-The-Land (LotL)": {
     "term": "Living-Off-The-Land (LotL)",
     "definition": "Attack technique utilizing legitimate, built-in system tools and features to conduct malicious activities while evading detection.",
     "source": "clear"
+  },
+  "LockBit RaaS at scale": {
+    "term": "LockBit RaaS at scale",
+    "definition": "The most prolific ransomware-as-a-service operation of the 2020s, responsible for thousands of victims across every sector. Ran a professionalized affiliate program with a slick leak site, bug bounties, and payment discipline. Disrupted by Operation Cronos (2024), which seized infrastructure and unmasked its leader, but affiliates and the playbook persist under new brands.",
+    "source": "bad-actor"
   },
   "Log": {
     "term": "Log",
@@ -1786,6 +1761,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Specific methods used by adversaries to achieve tactical goals within the ATT&CK framework.",
     "source": "clear"
   },
+  "MOVEit Transfer mass exploitation": {
+    "term": "MOVEit Transfer mass exploitation",
+    "definition": "May–June 2023 zero-day SQL-injection in Progress Software's MOVEit Transfer (CVE-2023-34362), exploited at scale by the Cl0p ransomware group. Thousands of organizations affected via the file-transfer vendor's customer base, U.S. federal agencies, state DMVs, Fortune 500 firms. A defining case for third-party-software risk and for ransomware groups shifting from encryption to pure data-extortion.",
+    "source": "bad-campaign"
+  },
   "MS-ISAC": {
     "term": "MS-ISAC",
     "definition": "Multi-State ISAC for U.S. state, local, tribal, and territorial governments; alerts, IR, and risk management resources.",
@@ -1831,6 +1811,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "An access policy where permissions are centrally controlled and enforced based on classifications.",
     "source": "clear"
   },
+  "Mandiant Security Validation (formerly Verodin)": {
+    "term": "Mandiant Security Validation (formerly Verodin)",
+    "definition": "Breach-and-attack simulation validating security controls against real-world TTPs. Verodin acquired by FireEye, 2019; renamed 2020; Mandiant acquired by Google Cloud, 2022.",
+    "source": "cat-tool"
+  },
   "Masquerading": {
     "term": "Masquerading",
     "definition": "Disguises a malicious process or file by renaming it or giving it the appearance of a trusted application.",
@@ -1861,14 +1846,24 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A systematic framework or approach for conducting security operations or investigations.",
     "source": "clear"
   },
+  "Microsoft Configuration Manager (MECM)": {
+    "term": "Microsoft Configuration Manager (MECM)",
+    "definition": "Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.",
+    "source": "cat-tool"
+  },
   "Microsoft Defender": {
     "term": "Microsoft Defender",
     "definition": "Antivirus, endpoint protection, EDR (Defender for Endpoint), and XDR ties to Sentinel and Entra ID.",
     "source": "cat-tool"
   },
-  "Microsoft Configuration Manager (MECM)": {
-    "term": "Microsoft Configuration Manager (MECM)",
-    "definition": "Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.",
+  "Microsoft Defender EASM": {
+    "term": "Microsoft Defender EASM",
+    "definition": "External Attack Surface Management, the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.",
+    "source": "cat-tool"
+  },
+  "Microsoft Defender Threat Intelligence (MDTI)": {
+    "term": "Microsoft Defender Threat Intelligence (MDTI)",
+    "definition": "Successor to RiskIQ PassiveTotal (acquired by Microsoft, 2021). Aggregates passive DNS, WHOIS, SSL, and infrastructure data for attribution and threat hunting.",
     "source": "cat-tool"
   },
   "Microsoft Sentinel": {
@@ -1890,6 +1885,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Milestone Systems",
     "definition": "Open-platform IP video management with broad camera support and rich analytics.",
     "source": "cat-tool"
+  },
+  "Mimikatz": {
+    "term": "Mimikatz",
+    "definition": "The canonical credential-theft tool: reads LSASS memory to extract plaintext passwords, NTLM hashes, and Kerberos tickets, and implements pass-the-hash, pass-the-ticket, golden and silver tickets. Written by Benjamin Delpy as a proof of concept; now embedded in nearly every intrusion toolchain and re-implemented inside countless loaders and C2 frameworks. EDR watches lsass access patterns specifically because of it.",
+    "source": "bad-family"
   },
   "Mitigation": {
     "term": "Mitigation",
@@ -2036,6 +2036,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Identity platform with SSO, MFA, lifecycle management, and federation across thousands of apps.",
     "source": "cat-tool"
   },
+  "Okta support-system breach": {
+    "term": "Okta support-system breach",
+    "definition": "October 2023 intrusion of Okta's customer support case-management system. Attackers used a service-account credential found in a Google account session to access HAR files customers had uploaded for troubleshooting, HAR files that contained valid session cookies. Drove home that \"support\" surfaces handle production credentials and need the same identity-provider rigor as the products themselves.",
+    "source": "bad-campaign"
+  },
   "One Identity": {
     "term": "One Identity",
     "definition": "IGA with lifecycle, RBAC, privileged access governance; unifies AD, Azure AD, and cloud platform identity.",
@@ -2088,7 +2093,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Parent PID Spoofing": {
     "term": "Parent PID Spoofing",
-    "definition": "Spawns processes that appear to be launched by trusted executables (like explorer.exe), misleading analysts and EDR.",
+    "definition": "Spawns processes that appear to be launched by trusted executables (like explorer.exe ), misleading analysts and EDR.",
     "source": "bad-term"
   },
   "Parsing": {
@@ -2103,18 +2108,13 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Pass-the-Hash": {
     "term": "Pass-the-Hash",
-    "definition": "The attacker never needs the plaintext password. The NTLM hash from host A authenticates against host B because the protocol treats the hash as the credential. Silent, irreversible until the password is rotated, and the backbone of many lateral-movement campaigns. MITRE T1550.002.",
+    "definition": "The attacker never needs the plaintext password. The NTLM hash from host A authenticates against host B because the protocol treats the hash as the credential. Silent, irreversible until the password is rotated, and the backbone of many lateral-movement campaigns.",
     "source": "bad-feature"
   },
   "Pass-the-Ticket": {
     "term": "Pass-the-Ticket",
     "definition": "Kerberos analog of pass-the-hash. The attacker presents a stolen TGT (Ticket Granting Ticket) or TGS (Ticket Granting Service ticket) to authenticate as that identity against any service in the realm, without ever needing the user's password. Often paired with Mimikatz extraction of LSASS memory. MITRE T1550.003.",
-    "source": "bad-feature"
-  },
-  "Microsoft Defender Threat Intelligence (MDTI)": {
-    "term": "Microsoft Defender Threat Intelligence (MDTI)",
-    "definition": "Successor to RiskIQ PassiveTotal (acquired by Microsoft, 2021). Aggregates passive DNS, WHOIS, SSL, and infrastructure data for attribution and threat hunting.",
-    "source": "cat-tool"
+    "source": "clear"
   },
   "Password": {
     "term": "Password",
@@ -2193,7 +2193,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Ping Identity": {
     "term": "Ping Identity",
-    "definition": "Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support.",
+    "definition": "Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support. Absorbed ForgeRock (acquired by Thoma Bravo, 2023) and now ships its enterprise IAM lifecycle and governance products under the Ping brand.",
     "source": "cat-tool"
   },
   "Polymorphic Malware": {
@@ -2275,6 +2275,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Process Relationships",
     "definition": "The connections and interactions between different processes running on a system, including parent-child relationships and inter-process communication.",
     "source": "clear"
+  },
+  "Proofpoint Identity Threat Defense (formerly Illusive)": {
+    "term": "Proofpoint Identity Threat Defense (formerly Illusive)",
+    "definition": "Deception-based identity-threat detection. Plants fake credentials and decoy paths to surface attacker lateral movement. Illusive Networks acquired by Proofpoint, 2022.",
+    "source": "cat-tool"
   },
   "Protected Health Information (PHI)": {
     "term": "Protected Health Information (PHI)",
@@ -2386,8 +2391,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Running commands or malicious code on a target system from a remote location, often via exploits or administrative tools.",
     "source": "bad-term"
   },
-  "Request For Comment (RFC)": {
-    "term": "Request For Comment (RFC)",
+  "Request for Comments (RFC)": {
+    "term": "Request for Comments (RFC)",
     "definition": "A series of documents that define internet standards and protocols.",
     "source": "clear"
   },
@@ -2430,11 +2435,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Risk-Based Alert Triage Matrix",
     "definition": "A tool to prioritize alerts based on risk factors to improve response effectiveness.",
     "source": "clear"
-  },
-  "Microsoft Defender EASM": {
-    "term": "Microsoft Defender EASM",
-    "definition": "External Attack Surface Management, the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.",
-    "source": "cat-tool"
   },
   "Role-Based Access Control (RBAC)": {
     "term": "Role-Based Access Control (RBAC)",
@@ -2516,6 +2516,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Most sandboxes are not very lived-in. They have small disks, brief uptime, no mouse activity, suspicious driver names, and known artifacts. Malware that runs the checks above will sit silent in analysis, then unfurl on a real user's host.",
     "source": "bad-feature"
   },
+  "Sandbox Escape": {
+    "term": "Sandbox Escape",
+    "definition": "An attack that breaks out of a restricted environment (container, VM, or sandbox) to reach the underlying host. The container variant is ATT&CK T1611, Escape to Host.",
+    "source": "bad-term"
+  },
   "Sandboxing": {
     "term": "Sandboxing",
     "definition": "Detonating an unknown file or URL inside an isolated environment to observe what it does. Mature malware checks for sandbox-typical signals (small disk, brief uptime, no mouse activity, suspicious driver names) and stays dormant until it sees a real host.",
@@ -2535,6 +2540,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Scareware",
     "definition": "Software that tricks users into believing their device is infected, pressuring them to buy fake antivirus tools. Often a social-engineering precursor to real malware.",
     "source": "bad-term"
+  },
+  "Scattered Spider identity-first intrusion": {
+    "term": "Scattered Spider identity-first intrusion",
+    "definition": "Native-English-speaking group (UNC3944 / Octo Tempest) behind the 2023 MGM and Caesars intrusions. The defining identity-attack playbook: help-desk social engineering, SIM swapping, MFA fatigue, AiTM phishing kits, then abuse of the victim's own IdP and cloud tooling. Overlaps with the loose \"The Com\" ecosystem; later partnered with RaaS operations for encryption. The actor profile most relevant to SSO-era triage.",
+    "source": "bad-actor"
   },
   "Schema Normalization": {
     "term": "Schema Normalization",
@@ -2571,8 +2581,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A protocol for secure remote login and command execution.",
     "source": "clear"
   },
-  "Secure Socket Layer (SSL)": {
-    "term": "Secure Socket Layer (SSL)",
+  "Secure Sockets Layer (SSL)": {
+    "term": "Secure Sockets Layer (SSL)",
     "definition": "A deprecated protocol for encrypting internet communications, replaced by TLS.",
     "source": "clear"
   },
@@ -2658,7 +2668,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Shamoon": {
     "term": "Shamoon",
-    "definition": "Destructive wiper associated with Iranian state-sponsored actors. Infamous for the 2012 and 2016 attacks on Saudi Aramco. Overwrites MBR with provocative imagery, renders devices inoperable. Spreads via stolen credentials and admin shares. Primary goal is destruction, not financial gain.",
+    "definition": "Destructive wiper associated with Iranian state-sponsored actors. Infamous for the 2012 attack on Saudi Aramco that wiped roughly 30,000 machines; returned in 2016-2017 (\"Shamoon 2\") against other Saudi organizations, including the General Authority of Civil Aviation. Overwrites MBR with provocative imagery, renders devices inoperable. Spreads via stolen credentials and admin shares. Primary goal is destruction, not financial gain.",
     "source": "bad-family"
   },
   "Shellshock (CVE-2014-6271)": {
@@ -2681,11 +2691,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Loading and executing a malicious DLL or module through a legitimate application to bypass security controls.",
     "source": "bad-term"
   },
-  "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)": {
-    "term": "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)",
-    "definition": "SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.",
-    "source": "cat-tool"
-  },
   "Signature Database": {
     "term": "Signature Database",
     "definition": "A repository of known threat signatures used by security tools.",
@@ -2703,7 +2708,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Signed Binary Proxy Execution": {
     "term": "Signed Binary Proxy Execution",
-    "definition": "Executes malicious code through trusted signed binaries (rundll32, regsvr32), exploiting inherent trust.",
+    "definition": "Executes malicious code through trusted signed binaries ( rundll32 , regsvr32 ), exploiting inherent trust.",
     "source": "bad-term"
   },
   "Silver Ticket Attack": {
@@ -2726,15 +2731,15 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Abuse of Slack's APIs, webhooks, or tokens to create covert C2 by embedding commands or exfiltrated data within messages or bots.",
     "source": "bad-term"
   },
-  "Smokescreen": {
-    "term": "Smokescreen",
-    "definition": "Deception with decoys and lures mimicking real IT; alerts on engagement and provides attacker-TTP insight.",
-    "source": "cat-tool"
-  },
   "Snort": {
     "term": "Snort",
     "definition": "Open-source NIDS with deep packet inspection and a large community rule set maintained by Cisco Talos.",
     "source": "cat-tool"
+  },
+  "Snowflake customer-account theft": {
+    "term": "Snowflake customer-account theft",
+    "definition": "April–June 2024. A threat group later tracked as UNC5537 used credentials harvested from infostealer logs to access Snowflake customer environments that had no MFA configured. Victims included Ticketmaster, Santander, AT&T, LendingTree. Not a Snowflake CVE, a customer-side identity hygiene failure at scale. Drove the industry-wide push for MFA-mandatory cloud SaaS access.",
+    "source": "bad-campaign"
   },
   "Social Engineering": {
     "term": "Social Engineering",
@@ -2748,7 +2753,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "SolarWinds Patch Manager": {
     "term": "SolarWinds Patch Manager",
-    "definition": "Centralized patching for Windows and third-party apps; integrates with WSUS and SCCM.",
+    "definition": "Centralized patching for Windows and third-party apps; integrates with WSUS and Microsoft Configuration Manager (MECM/SCCM).",
     "source": "cat-tool"
   },
   "SolarWinds SUNBURST": {
@@ -2806,6 +2811,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Mathematical models that analyze data distributions and relationships to detect anomalies or predict outcomes.",
     "source": "clear"
   },
+  "Storm-0558 (Microsoft cloud email)": {
+    "term": "Storm-0558 (Microsoft cloud email)",
+    "definition": "July 2023 intrusion in which a China-aligned actor forged Azure AD access tokens using a stolen Microsoft consumer-MSA signing key, reading emails of ~25 organizations including U.S. State Department and Commerce officials via Outlook Web Access. The key should not have signed enterprise tokens; a validation gap let it. Reshaped how the industry talks about identity-provider key custody, token-binding, and the blast radius of a single signing key.",
+    "source": "bad-campaign"
+  },
   "String Concatenation": {
     "term": "String Concatenation",
     "definition": "The operation of joining two or more strings end-to-end.",
@@ -2816,8 +2826,8 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A programming language used to manage and manipulate data in databases.",
     "source": "clear"
   },
-  "Structured Threat Information Express (STIX)": {
-    "term": "Structured Threat Information Express (STIX)",
+  "Structured Threat Information Expression (STIX)": {
+    "term": "Structured Threat Information Expression (STIX)",
     "definition": "A standardized format for sharing cyber threat intelligence.",
     "source": "clear"
   },
@@ -2828,13 +2838,18 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Subdomain Abuse": {
     "term": "Subdomain Abuse",
-    "definition": "Uses legitimate-looking subdomains (e.g., cdn.dropbox.com.evil.example) to trick filters and users.",
+    "definition": "Uses legitimate-looking subdomains (e.g., cdn.dropbox.com.evil.example ) to trick filters and users.",
     "source": "bad-term"
   },
   "Subject": {
     "term": "Subject",
     "definition": "An entity, such as a user or system, that is involved in a security incident or event.",
     "source": "clear"
+  },
+  "Sumo Logic Cloud SOAR (formerly DFLabs IncMan)": {
+    "term": "Sumo Logic Cloud SOAR (formerly DFLabs IncMan)",
+    "definition": "SOAR with advanced playbooks, threat-intel enrichment, KPI tracking, and human-in-the-loop decisions. DFLabs acquired by Sumo Logic, 2021.",
+    "source": "cat-tool"
   },
   "Supply Chain": {
     "term": "Supply Chain",
@@ -3036,9 +3051,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Leveraging Tor to anonymize attacker and malware communication, making attribution and traffic analysis significantly harder.",
     "source": "bad-term"
   },
-  "Toxic Access Pairing": {
-    "term": "Toxic Access Pairing",
-    "definition": "Combines multiple benign or low-privilege roles that together create excessive and dangerous access to sensitive resources.",
+  "Toxic Combination": {
+    "term": "Toxic Combination",
+    "definition": "An access-governance term: multiple individually benign roles or permissions that together create excessive, dangerous access (the classic separation-of-duties conflict). A condition attackers hunt for and access reviews exist to catch.",
     "source": "bad-term"
   },
   "Traffic": {
@@ -3050,11 +3065,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Transport Layer Security (TLS)",
     "definition": "A protocol for encrypting internet communications.",
     "source": "clear"
-  },
-  "Commvault ThreatWise (formerly TrapX)": {
-    "term": "Commvault ThreatWise (formerly TrapX)",
-    "definition": "Deception and threat detection with decoys across endpoints, networks, and cloud. TrapX Security acquired by Commvault, 2022; rebranded as ThreatWise.",
-    "source": "cat-tool"
   },
   "Trellix Endpoint Security": {
     "term": "Trellix Endpoint Security",
@@ -3186,11 +3196,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Enterprise-grade backup with broad workload coverage and centralized hybrid-cloud management.",
     "source": "cat-tool"
   },
-  "Verodin (FireEye)": {
-    "term": "Verodin (FireEye)",
-    "definition": "Security-controls validation through simulated real-world attacks; risk-based testing and gap identification.",
-    "source": "cat-tool"
-  },
   "Vicon Industries": {
     "term": "Vicon Industries",
     "definition": "End-to-end surveillance with the Valerus VMS platform; open architecture and flexible deployment.",
@@ -3231,6 +3236,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Lightweight, extensible code editor from Microsoft; rich ecosystem of extensions for development and security.",
     "source": "cat-tool"
   },
+  "Volt Typhoon / Salt Typhoon": {
+    "term": "Volt Typhoon / Salt Typhoon",
+    "definition": "2024 disclosures of two long-running China-linked campaigns against U.S. critical infrastructure. Volt Typhoon pre-positioned in energy, water, communications, and transportation networks using living-off-the-land techniques for stealthy persistence. Salt Typhoon compromised major U.S. telecom carriers' lawful-intercept systems with potential access to call metadata and the federal wiretap apparatus. Reframed the boundary between espionage and prepositioning for disruptive action.",
+    "source": "bad-campaign"
+  },
   "Vulnerability": {
     "term": "Vulnerability",
     "definition": "A defect in a system that can be turned into adversary capability if paired with an exploit and exposure: an unpatched CVE, a misconfiguration, a default credential, a logic flaw. Vulnerability without exposure or exploitability is latent; with both, it's a finding.",
@@ -3268,7 +3278,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "WannaCry, worm spread": {
     "term": "WannaCry, worm spread",
-    "definition": "EternalBlue carried WannaCry across networks at line speed. From patient zero, the worm propagated outward through SMB shares to every unpatched host it could reach. By the time defenders saw the first alert, the second ring of hosts was already encrypting. This is what wormable means in practice.",
+    "definition": "WannaCry used the EternalBlue exploit (MS17-010) to propagate through SMB to any unpatched host it could reach. From patient zero, it spread autonomously by scanning local subnets and random IPs, infecting roughly 200,000 systems across 150 countries within 24 hours of the May 12, 2017 outbreak. By the time most SOCs had triaged the first alert, the second wave of hosts was already encrypting. That speed is what \"wormable\" means in practice: the malware does its own lateral movement; defenders don't get the usual reaction window.",
     "source": "bad-feature"
   },
   "Wapiti": {
@@ -3303,7 +3313,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Windows Management Instrumentation Command-line (WMIC)": {
     "term": "Windows Management Instrumentation Command-line (WMIC)",
-    "definition": "A tool for managing Windows systems via scripting. Deprecated by Microsoft since Windows 10 21H1 (2021) but still ships on most Windows 11 builds, which is why it remains a favorite LOLBin in active intrusions. The modern equivalent is PowerShell's Get-CimInstance / Invoke-CimMethod against the same WMI namespaces.",
+    "definition": "A tool for managing Windows systems via scripting. Deprecated by Microsoft since Windows 10 21H1 (2021); a Feature on Demand disabled by default in Windows 11 23H2/24H2 and removed entirely starting with 25H2, though it lingers on older and upgraded systems, which is why it remains a favorite LOLBin in active intrusions. The modern equivalent is PowerShell's Get-CimInstance / Invoke-CimMethod against the same WMI namespaces.",
     "source": "clear"
   },
   "Wiper Malware": {
@@ -3326,6 +3336,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Lightweight, fast forensic suite with strong scripting and hex-level analysis for deep investigations.",
     "source": "cat-tool"
   },
+  "XZ Utils backdoor": {
+    "term": "XZ Utils backdoor",
+    "definition": "March 2024. A multi-year social-engineering campaign by a fictitious maintainer (\"Jia Tan\") inserted a stealthy backdoor (CVE-2024-3094) into the xz/liblzma compression library that would have given remote SSH code execution on Linux systems linked against the affected build. Caught by chance by a Microsoft engineer noticing a 500ms slowdown. A defining open-source supply-chain case and the catalyst for renewed maintainer-trust scrutiny.",
+    "source": "bad-campaign"
+  },
   "Zeek (formerly Bro)": {
     "term": "Zeek (formerly Bro)",
     "definition": "Behavior-focused network monitoring producing structured session logs for SIEM-friendly analytics.",
@@ -3345,6 +3360,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Zerologon (CVE-2020-1472)",
     "definition": "Netlogon protocol flaw (CVE-2020-1472) allowing an unauthenticated attacker on the network to gain domain admin by exploiting a weakness in the AES-CFB8 implementation to bypass Netlogon authentication, then resetting the domain controller's machine-account password to a known value and pivoting to domain admin. Actively exploited soon after disclosure.",
     "source": "bad-term"
+  },
+  "Zscaler Deception (formerly Smokescreen)": {
+    "term": "Zscaler Deception (formerly Smokescreen)",
+    "definition": "Deception with decoys and lures mimicking real IT; alerts on engagement and provides attacker-TTP insight. Smokescreen acquired by Zscaler, 2021.",
+    "source": "cat-tool"
   },
   "Zscaler ThreatLabZ": {
     "term": "Zscaler ThreatLabZ",

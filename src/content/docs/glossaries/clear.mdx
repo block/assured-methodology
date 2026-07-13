@@ -195,7 +195,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Domain-based Message Authentication, Reporting, and Conformance (DMARC)</dt><dd>An email validation system to prevent spoofing.</dd>
 <dt>Domain Controller</dt><dd>A server that responds to security authentication requests in a Windows domain environment.</dd>
 <dt>Domain Depth</dt><dd>The hierarchical level or complexity within a domain namespace or network structure.</dd>
-<dt>Domain Keys Identified Mail (DKIM)</dt><dd>An email authentication method that verifies message integrity and sender identity.</dd>
+<dt>DomainKeys Identified Mail (DKIM)</dt><dd>An email authentication method that verifies message integrity and sender identity.</dd>
 <dt>Domain Name System (DNS)</dt><dd>A system that translates domain names into IP addresses.</dd>
 <dt>Domain Name System Exfiltration</dt><dd>A technique where data is covertly sent out of a network using DNS queries.</dd>
 <dt>Domain Name System Query</dt><dd>A request sent to a DNS server to resolve a domain name into an IP address.</dd>
@@ -303,7 +303,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Information Technology Service Management (ITSM)</dt><dd>Frameworks and tools to manage IT services and processes.</dd>
 <dt>Infrastructure</dt><dd>The underlying systems, networks, and architecture that support an organization's operations.</dd>
 <dt>Insider Risk</dt><dd>The potential for harm from individuals with legitimate access arising from mistakes, policy violations, or unsafe habits, not from intent. Distinct from <em>insider threat</em>, which is deliberate.</dd>
-<dt>Insider Threats</dt><dd>Personnel with authorized access who intentionally or unintentionally pose a risk to organizational security through misuse, theft, or sabotage.</dd>
+<dt>Insider Threats</dt><dd>Personnel with authorized access who deliberately misuse it to harm the organization through theft, sabotage, or assisting external attackers. Distinct from insider risk, which also covers unintentional harm from negligence or mistakes.</dd>
 <dt>Insider Threat Matrix</dt><dd>A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Useful as a shared vocabulary for describing insider risk and threat.</dd>
 <dt>Integrated Development Environment (IDE)</dt><dd>Software that provides comprehensive facilities to programmers.</dd>
 <dt>Intelligence</dt><dd>Information gathered and analyzed to understand and predict potential security threats.</dd>
@@ -325,8 +325,9 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <h2>J</h2>
 
 <dl class="clear-terms">
-<dt>JA3</dt><dd>A method for fingerprinting TLS client applications by hashing specific fields in the TLS Client Hello packet.</dd>
+<dt>JA3</dt><dd>A method for fingerprinting TLS client applications by hashing specific fields in the TLS Client Hello packet. Degraded against modern clients: Chrome's extension-order randomization (2023) and GREASE values fragment a single client into many hashes.</dd>
 <dt>JA3S</dt><dd>The server-side counterpart to JA3, it fingerprints TLS servers by hashing fields in the Server Hello packet.</dd>
+<dt>JA4</dt><dd>The 2023 successor to JA3 from FoxIO. A modernized TLS-client fingerprint that sorts extensions before hashing (defeating randomization), handles TLS 1.3, and covers QUIC natively via a leading "q" or "t" transport marker. Part of the JA4+ suite, which adds separate fingerprints such as JA4H (HTTP client) and JA4S (TLS server).</dd>
 </dl>
 
 </section>
@@ -433,6 +434,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Parsing</dt><dd>The process of analyzing data structures or code to extract meaningful information.</dd>
 <dt>Packet Capture Files (PCAP)</dt><dd>Files used to record network traffic for analysis.</dd>
 <dt>Pass-The-Hash</dt><dd>An attack technique that allows an attacker to authenticate to a remote server/service using the underlying NTLM or LM hash of a user's password instead of the password itself.</dd>
+<dt>Pass-the-Ticket</dt><dd>Kerberos analog of pass-the-hash. The attacker presents a stolen TGT (Ticket Granting Ticket) or TGS (Ticket Granting Service ticket) to authenticate as that identity against any service in the realm, without ever needing the user's password. Often paired with Mimikatz extraction of LSASS memory. MITRE T1550.003.</dd>
 <dt>Password</dt><dd>A secret word or phrase used to authenticate a user or system.</dd>
 <dt>Patch Management</dt><dd>The process of applying updates and fixes to software and systems to repair vulnerabilities and improve security.</dd>
 <dt>Payment Card Industry Data Security Standard (PCI DSS)</dt><dd>Security standards designed to ensure companies that accept, process, store, or transmit credit card information maintain a secure environment.</dd>
@@ -469,7 +471,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Regulatory Requirements</dt><dd>Laws and policies organizations must follow to ensure compliance and security.</dd>
 <dt>Relationship Mapping</dt><dd>The process of identifying and visualizing connections between entities like users, systems, or processes.</dd>
 <dt>Reliability Assessment</dt><dd>Evaluating the trustworthiness and accuracy of security data or alerts.</dd>
-<dt>Request For Comment (RFC)</dt><dd>A series of documents that define internet standards and protocols.</dd>
+<dt>Request for Comments (RFC)</dt><dd>A series of documents that define internet standards and protocols.</dd>
 <dt>Resource Allocation</dt><dd>Assigning personnel, tools, and time to address security tasks or incidents.</dd>
 <dt>Return on Investment (ROI)</dt><dd>Analysis of security investments comparing the cost of security controls against potential losses from security incidents.</dd>
 <dt>Risk</dt><dd>Impact times likelihood, weighted by the analyst's confidence in the evidence. Risk is what turns a finding into a prioritized response; it's the verdict the rest of the team acts on.</dd>
@@ -502,7 +504,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Secure Email Gateways (SEG)</dt><dd>Security solutions that filter and protect email communications from threats.</dd>
 <dt>Secure Hash Algorithm (SHA)</dt><dd>A family of cryptographic hash functions used for data integrity.</dd>
 <dt>Secure Shell (SSH)</dt><dd>A protocol for secure remote login and command execution.</dd>
-<dt>Secure Socket Layer (SSL)</dt><dd>A deprecated protocol for encrypting internet communications, replaced by TLS.</dd>
+<dt>Secure Sockets Layer (SSL)</dt><dd>A deprecated protocol for encrypting internet communications, replaced by TLS.</dd>
 <dt>Security Control</dt><dd>A measure or mechanism used to prevent, detect, or respond to a security threat or incident.</dd>
 <dt>Security In Depth</dt><dd>A layered security approach that combines multiple controls to protect assets.</dd>
 <dt>Security Information and Event Management (SIEM)</dt><dd>Platform that collects, aggregates, and analyzes security data from multiple sources to provide real-time monitoring, correlation, and incident response capabilities.</dd>
@@ -523,7 +525,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dt>Statistical Models</dt><dd>Mathematical models that analyze data distributions and relationships to detect anomalies or predict outcomes.</dd>
 <dt>String Concatenation</dt><dd>The operation of joining two or more strings end-to-end.</dd>
 <dt>Structured Query Language (SQL)</dt><dd>A programming language used to manage and manipulate data in databases.</dd>
-<dt>Structured Threat Information Express (STIX)</dt><dd>A standardized format for sharing cyber threat intelligence.</dd>
+<dt>Structured Threat Information Expression (STIX)</dt><dd>A standardized format for sharing cyber threat intelligence.</dd>
 <dt>Subject</dt><dd>An entity, such as a user or system, that is involved in a security incident or event.</dd>
 <dt>Supply Chain</dt><dd>The network of organizations, people, activities, and resources involved in creating and delivering products, presenting multiple attack vectors for compromising systems or software during development and distribution.</dd>
 <dt>Syslog</dt><dd>A standard protocol for message logging in network devices and systems.</dd>
@@ -601,7 +603,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dl class="clear-terms">
 <dt>Wildcard DNS</dt><dd>A DNS configuration that resolves all subdomains under a domain to a specified address.</dd>
 <dt>Windows Event Logs</dt><dd>Logs generated by Windows operating systems recording system, security, and application events.</dd>
-<dt>Windows Management Instrumentation Command-line (WMIC)</dt><dd>A tool for managing Windows systems via scripting. Deprecated by Microsoft since Windows 10 21H1 (2021) but still ships on most Windows 11 builds, which is why it remains a favorite LOLBin in active intrusions. The modern equivalent is PowerShell's <code>Get-CimInstance</code> / <code>Invoke-CimMethod</code> against the same WMI namespaces.</dd>
+<dt>Windows Management Instrumentation Command-line (WMIC)</dt><dd>A tool for managing Windows systems via scripting. Deprecated by Microsoft since Windows 10 21H1 (2021); a Feature on Demand disabled by default in Windows 11 23H2/24H2 and removed entirely starting with 25H2, though it lingers on older and upgraded systems, which is why it remains a favorite LOLBin in active intrusions. The modern equivalent is PowerShell's <code>Get-CimInstance</code> / <code>Invoke-CimMethod</code> against the same WMI namespaces.</dd>
 </dl>
 
 </section>

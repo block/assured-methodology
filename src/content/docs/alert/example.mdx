@@ -48,6 +48,7 @@ Both walkthroughs are cleaner than real telemetry. Live cases have missing paren
     <h3>Step 1. Read the detection</h3>
     <p>Before anything else, the analyst reads what fired and why. The rule's logic chains three behavioral signals: <strong>an Office process spawning a shell (Outlook → winword.exe → cmd.exe → PowerShell)</strong>, <strong><code>-EncodedCommand</code> with <code>-NoProfile</code></strong> (a near-universal indicator of automated execution), and <strong>outbound traffic to a low-reputation domain</strong> within 30 seconds. The rule is a behavioral-analytics rule, not a signature. False-positive rate is documented as roughly 1 in 200 fires; the rule has high precision when the chain is complete.</p>
     <p>Three signals in a single chain is far more weight than any one of them would carry alone. The detection mechanism's confidence is already moderately high before the analyst opens the alert payload.</p>
+    <p>One modernization note: since Microsoft began blocking internet-sourced macros by default in 2022, this classic chain requires the user to unblock the document or the file to arrive without the Mark of the Web (via an ISO or ZIP container, for example). Much commodity initial access has shifted to LNK smuggling and fake-update lures; the macro chain still appears, it is just no longer the default path.</p>
   </div>
 
   <div data-step class="example-step">
@@ -133,7 +134,7 @@ The same Alert methodology applied to a very different signal. A second alert fi
     <h3>Step 3. Parse the metadata</h3>
     <ul class="example-step__list">
       <li><strong>Command line.</strong> <code>/Applications/Cursor.app/Contents/Frameworks/Cursor Helper (Plugin).app/Contents/MacOS/Cursor Helper (Plugin) --type=utility ...</code>. Vendor-standard.</li>
-      <li><strong>Process tree.</strong> launchd → Cursor → Cursor Helper → Cursor Helper (Plugin). launchd is Apple's platform-signed init process; the three Cursor binaries are signed by Anysphere (Developer ID) and notarized by Apple.</li>
+      <li><strong>Process tree.</strong> launchd → Cursor; the main Cursor process spawns Cursor Helper and Cursor Helper (Plugin) as direct children (Electron helpers are children of the main app, never of each other). launchd is Apple's platform-signed init process; the three Cursor binaries are signed by Anysphere (Developer ID) and notarized by Apple.</li>
       <li><strong>Network.</strong> Multiple TLS connections to <code>*.cursor.sh</code> and to a small set of LLM-inference hosts, all with valid certificates, all resolving via standard public DNS.</li>
       <li><strong>File system.</strong> Reads in the user's home and the Cursor application support directory. No writes outside expected paths.</li>
       <li><strong>Identity.</strong> Active session: a frontend engineer. SSO login at 09:14 with FIDO2 second factor.</li>

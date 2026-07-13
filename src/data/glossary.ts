@@ -778,6 +778,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "The process of loading Dynamic Link Libraries into a program's memory space, which can be exploited by attackers for malicious code execution.",
     "source": "clear"
   },
+  "DLL Search Order Hijacking": {
+    "term": "DLL Search Order Hijacking",
+    "definition": "A persistence and privilege-escalation technique that places a malicious DLL where an application looks for libraries before the legitimate location, so a trusted, signed binary loads attacker code. Detected by watching for DLLs loaded from application or user-writable directories instead of their expected system paths.",
+    "source": "clear"
+  },
   "DNS Tunneling": {
     "term": "DNS Tunneling",
     "definition": "Abusing DNS to encapsulate and exfiltrate data or create covert C2, bypassing traditional network controls.",

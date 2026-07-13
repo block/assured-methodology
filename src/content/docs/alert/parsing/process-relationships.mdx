@@ -91,11 +91,13 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
           <text x="60" y="36" text-anchor="middle" class="chain-viz__label">powershell.exe</text>
         </g>
         <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 115 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="140" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">downloads</text>
         <g class="chain-viz__node" style="--delay: 0.6s;">
           <rect x="170" y="18" width="100" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
           <text x="220" y="36" text-anchor="middle" class="chain-viz__label">script.ps1</text>
         </g>
         <path class="chain-viz__arrow" style="--delay: 1s;" d="M 275 32 L 325 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="300" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">runs from</text>
         <g class="chain-viz__node" style="--delay: 1.2s;">
           <rect x="330" y="18" width="80" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
           <text x="370" y="36" text-anchor="middle" class="chain-viz__label">%TEMP%</text>
@@ -108,7 +110,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
       </svg>
     </div>
     <p class="chain-row__body">
-      PowerShell downloads a script from a remote location and runs it directly from a public temp directory. The shape is recognizable because legitimate PowerShell almost never sources its code from <code>%TEMP%</code> or <code>%PUBLIC%</code>. The telltale is the chain ending in a user-writable directory.
+      PowerShell downloads a script from a remote location and runs it directly from a public temp directory. In this row the labeled arrows are actions (download, execute-from), not parent-child spawns; the boxes are a process, an artifact, and a location. The shape is recognizable because legitimate PowerShell almost never sources its code from <code>%TEMP%</code> or <code>%PUBLIC%</code>. The telltale is code executing out of a user-writable directory.
     </p>
   </div>
 
@@ -124,19 +126,21 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
           <text x="50" y="36" text-anchor="middle" class="chain-viz__label">cmd.exe</text>
         </g>
         <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 95 32 L 140 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="117" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">spawns</text>
         <g class="chain-viz__node" style="--delay: 0.6s;">
           <rect x="145" y="18" width="90" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
-          <text x="190" y="36" text-anchor="middle" class="chain-viz__label">wmic.exe</text>
+          <text x="190" y="36" text-anchor="middle" class="chain-viz__label">reg.exe</text>
         </g>
         <path class="chain-viz__arrow" style="--delay: 1s;" d="M 240 32 L 280 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="260" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">writes</text>
         <g class="chain-viz__node" style="--delay: 1.2s;">
           <rect x="285" y="18" width="125" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
-          <text x="347" y="36" text-anchor="middle" class="chain-viz__label">reg.exe (autorun)</text>
+          <text x="347" y="36" text-anchor="middle" class="chain-viz__label">Run key (autorun)</text>
         </g>
       </svg>
     </div>
     <p class="chain-row__body">
-      Trusted binaries (<code>cmd</code>, <code>wmic</code>, <code>reg</code>) used in sequence to drop or modify a registry value that survives reboot. The shape is normal; the destination key is what gives it away. Watch for writes to autorun keys, Run/RunOnce hives, or service definitions.
+      A shell spawns a trusted binary (<code>reg.exe</code> here; <code>wmic</code> and PowerShell offer parallel routes) to write a registry value that survives reboot. The spawn itself is ordinary; the destination key is what gives it away. Watch for writes to autorun keys, Run/RunOnce hives, or service definitions.
     </p>
   </div>
 
@@ -148,18 +152,20 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
         <g class="chain-viz__node" style="--delay: 0s;">
-          <rect x="10" y="18" width="100" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
-          <text x="60" y="36" text-anchor="middle" class="chain-viz__label">sc.exe</text>
+          <rect x="10" y="18" width="80" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="50" y="36" text-anchor="middle" class="chain-viz__label">cmd.exe</text>
         </g>
-        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 115 32 L 165 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <path class="chain-viz__arrow" style="--delay: 0.4s;" d="M 95 32 L 140 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="117" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">spawns</text>
         <g class="chain-viz__node" style="--delay: 0.6s;">
-          <rect x="170" y="18" width="120" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
-          <text x="230" y="36" text-anchor="middle" class="chain-viz__label">sc create &lt;svc&gt;</text>
+          <rect x="145" y="18" width="110" height="28" rx="6" fill="rgba(59, 130, 246, 0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+          <text x="200" y="36" text-anchor="middle" class="chain-viz__label">sc.exe create</text>
         </g>
-        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 295 32 L 335 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <path class="chain-viz__arrow" style="--delay: 1s;" d="M 260 32 L 300 32" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#chain-arrow)"/>
+        <text x="280" y="12" text-anchor="middle" class="chain-viz__label" font-size="9">creates</text>
         <g class="chain-viz__node" style="--delay: 1.2s;">
-          <rect x="340" y="18" width="70" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
-          <text x="375" y="36" text-anchor="middle" class="chain-viz__label">auto-start</text>
+          <rect x="305" y="18" width="105" height="28" rx="6" fill="rgba(239, 68, 68, 0.15)" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="357" y="36" text-anchor="middle" class="chain-viz__label">auto-start svc</text>
         </g>
       </svg>
     </div>
@@ -299,7 +305,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
       <h4>Fileless execution</h4>
     </div>
     <p>
-      <DefineTerm term="fileless">An execution model that runs the malicious payload entirely from memory, without ever writing it to disk. Common techniques include PowerShell loading code via reflection, WMI event subscriptions that fire compiled MOF, and .NET assemblies loaded straight into memory.</DefineTerm> attacks run their payload from memory, never landing on disk. Disk-based detections (file hashes, AV scans, file integrity monitoring) see nothing. The process tree shows only legitimate parents (often PowerShell or WMI).
+      <DefineTerm term="fileless">An execution model that runs the malicious payload entirely from memory, without ever writing it to disk. Common techniques include PowerShell loading code via reflection, WMI event subscriptions whose consumers execute script payloads (the MOF defining them is compiled into the WMI repository at persistence time), and .NET assemblies loaded straight into memory.</DefineTerm> attacks run their payload from memory, never landing on disk. Disk-based detections (file hashes, AV scans, file integrity monitoring) see nothing. The process tree shows only legitimate parents (often PowerShell or WMI).
     </p>
     <p class="evasion-detail__tell">
       <strong>The telltale:</strong> a long-running PowerShell or WMI process with a command line that decodes a base64 blob and executes it, or a WMI event subscription that fires at boot. Memory analysis and command-line decoding catch this; surface process inspection does not.
@@ -325,7 +331,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
       <h4>LOLBin-only chains</h4>
     </div>
     <p>
-      The adversary uses only trusted system binaries (<DefineTerm term="LOLBin">Living Off the Land Binary. A trusted, signed system binary (regsvr32, mshta, wmic, certutil, rundll32) used to perform malicious actions while looking like normal system activity.</DefineTerm> such as <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>rundll32</code>) to download, decode, and execute attacker code. No malicious file is ever written to disk by the adversary, and no signature on any of the binaries is wrong.
+      The adversary uses only trusted system binaries (<DefineTerm term="LOLBins" display="LOLBins" /> such as <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>rundll32</code>) to download, decode, and execute attacker code. No malicious file is ever written to disk by the adversary, and no signature on any of the binaries is wrong.
     </p>
     <p class="evasion-detail__tell">
       <strong>The telltale:</strong> common system binaries being invoked with command-line flags they almost never use in legitimate operations (<code>certutil -urlcache -split -f</code>, <code>regsvr32 /s /u /n /i:http://...</code>). Command-line parsing is what catches this; the process names alone look harmless.

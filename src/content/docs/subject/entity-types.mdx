@@ -205,7 +205,7 @@ Network identifiers are how systems decide who is who when they cannot ask a per
   </div>
   <div class="net-card">
     <h4>Protocols and ports</h4>
-    <p>Unusual ports often indicate tunneling or evasion. Validate that traffic conforms to RFC standards for the claimed protocol; encrypted traffic on uncommon ports (SSH over 443, DNS over arbitrary ports) is the classic bypass pattern.</p>
+    <p>The signal is protocol/port mismatch, not port rarity: SSH riding port 443 or DNS on an arbitrary high port is the classic bypass pattern, and 443 is the most common port on the internet. Validate that the traffic actually conforms to the protocol the port implies.</p>
   </div>
   <div class="net-card">
     <h4>MAC addresses</h4>
@@ -228,8 +228,8 @@ Network identifiers are how systems decide who is who when they cannot ask a per
     <p>Queries to external resolvers, uncommon record types (TXT, NULL), unusually high query rates, or high entropy in queried domains can signal covert data exfiltration via DNS.</p>
   </div>
   <div class="net-card">
-    <h4>JA3 / JA3S fingerprints</h4>
-    <p>Hashes of TLS handshake parameters. Detect malicious clients or C2 infrastructure even when IPs and domains rotate. Flag JA3 fingerprints that deviate from enterprise baselines.</p>
+    <h4>JA3 / JA4 fingerprints</h4>
+    <p>Hashes of TLS handshake parameters. Detect malicious clients or C2 infrastructure even when IPs and domains rotate. Flag fingerprints that deviate from enterprise baselines. Note that ClientHello extension randomization (Chrome since 2023) degraded JA3; JA4 is the successor, and modern feeds publish both.</p>
   </div>
   <div class="net-card">
     <h4>URI / URL structures</h4>

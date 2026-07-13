@@ -42,7 +42,7 @@ import PillNav from "@/components/assured/PillNav.astro";
       <h3>Windows Event Logs (EVTX)</h3>
     </div>
     <p class="format-card__intro">
-      Windows writes structured records to log channels (Security, System, Application, and many subscribed providers) using the EVTX file format. Each record has a numeric <DefineTerm term="Event ID">A short integer that identifies what kind of event the record describes. Windows publishes a fixed catalog of event IDs (4624 for a successful logon, 4688 for a process creation, and so on). The same ID always means the same kind of event, which is what makes EVTX queryable.</DefineTerm> identifying what happened. Triage tooling parses the relevant IDs into structured fields.
+      Windows writes structured records to log channels (Security, System, Application, and many subscribed providers) using the EVTX file format. Each record has a numeric <DefineTerm term="Event ID">A short integer that identifies what kind of event the record describes. Windows publishes a catalog of event IDs (4624 for a successful logon, 4688 for a process creation, and so on). Within a provider the same ID always means the same kind of event, which is what makes EVTX queryable; across providers IDs collide (Sysmon's event 1 is process creation, the Security log's 4688 is too), so always read the ID together with its channel and provider.</DefineTerm> identifying what happened. Triage tooling parses the relevant IDs into structured fields.
     </p>
     <p class="format-card__sub">Common IDs an analyst will read:</p>
     <ul>
@@ -56,10 +56,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   <div class="format-card format-card--syslog">
     <div class="format-card__head">
       <span class="format-card__icon">🌐</span>
-      <h3>Syslog (RFC 5424)</h3>
+      <h3>Syslog (RFC 5424 / RFC 3164)</h3>
     </div>
     <p class="format-card__intro">
-      <DefineTerm term="Syslog" /> is the long-standing standard for streaming text-formatted <DefineTerm term="Log" display="log" /> messages over the network. Each message carries a severity, a facility, a timestamp, and a free-form text body. It is the default format for Linux systems and most network gear because it is simple, universally supported, and easy to forward.
+      <DefineTerm term="Syslog" /> is the long-standing standard for streaming text-formatted <DefineTerm term="Log" display="log" /> messages over the network. Each message carries a severity, a facility, a timestamp, and a free-form text body. RFC 5424 is the modern spec, but most network gear still emits the older BSD framing (RFC 3164), so expect both in one pipeline. It is the default format for Linux systems and most network devices because it is simple, universally supported, and easy to forward.
     </p>
     <p class="format-card__sub">Where you will see syslog:</p>
     <ul>

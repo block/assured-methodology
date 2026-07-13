@@ -66,6 +66,10 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
       <span class="bad-shuffle__icon">🎲</span>
       <span class="bad-shuffle__text">Shuffle featured</span>
     </button>
+    <button type="button" class="bad-shuffle" data-bad-anim-toggle>
+      <span class="bad-shuffle__icon" aria-hidden="true">⏸️</span>
+      <span class="bad-shuffle__text">Pause animations</span>
+    </button>
   </Fragment>
 </GlossaryHero>
 
@@ -1755,6 +1759,43 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   const page = document.querySelector('.bad-page');
   if (!page) return;
 
+  // SC 2.1.4: honor the site-wide easter-egg kill switch (the toggle lives
+  // in the docs layout footer and persists in localStorage).
+  const eggsEnabled = () => {
+    try { return localStorage.getItem('assured-eggs') !== 'off'; } catch (e) { return true; }
+  };
+
+  // ============================================================
+  // SC 2.2.2: pause control for this page's infinite animations.
+  // CSS animations pause via animation-play-state (.bad-anims-paused);
+  // SMIL <animate>/<animateMotion> ignore CSS entirely, so the SVG
+  // timelines are paused with pauseAnimations(). Reduced-motion visitors
+  // start paused unless they've explicitly chosen otherwise.
+  // ============================================================
+  const animToggle = document.querySelector('[data-bad-anim-toggle]');
+  const setAnimsPaused = (paused, persist) => {
+    page.classList.toggle('bad-anims-paused', paused);
+    page.querySelectorAll('svg').forEach((svg) => {
+      try { if (paused) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) {}
+    });
+    if (animToggle) {
+      const icon = animToggle.querySelector('.bad-shuffle__icon');
+      const label = animToggle.querySelector('.bad-shuffle__text');
+      if (icon) icon.textContent = paused ? '▶️' : '⏸️';
+      if (label) label.textContent = paused ? 'Play animations' : 'Pause animations';
+    }
+    if (persist) {
+      try { localStorage.setItem('assured-bad-anims', paused ? 'paused' : 'playing'); } catch (e) {}
+    }
+  };
+  if (animToggle) {
+    _reg(animToggle, 'click', () => setAnimsPaused(!page.classList.contains('bad-anims-paused'), true));
+  }
+  const badReduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const storedAnims = (() => { try { return localStorage.getItem('assured-bad-anims'); } catch (e) { return null; } })();
+  if (storedAnims === 'paused' || (storedAnims === null && badReduceMq.matches)) setAnimsPaused(true, false);
+  _reg(badReduceMq, 'change', () => { if (badReduceMq.matches) setAnimsPaused(true, false); });
+
   // ============================================================
   // CORE: featured cards, all visible by default; shuffle picks one
   // ============================================================
@@ -1849,6 +1890,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
   let konami = [];
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     konami.push(e.code);
     if (konami.length > KONAMI.length) konami.shift();
     if (konami.join() === KONAMI.join()) {
@@ -1875,6 +1917,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   // ============================================================
   let typed = '';
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     if (e.key && e.key.length === 1) {
       typed = (typed + e.key.toLowerCase()).slice(-12);
       if (typed.endsWith('meow')) {
@@ -1909,6 +1952,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   // KEY "S" anywhere → shuffle shortcut
   // ============================================================
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     if ((e.key === 's' || e.key === 'S') && !e.metaKey && !e.ctrlKey && !e.altKey) {
       const tag = (e.target && e.target.tagName) || '';
       if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
@@ -2192,7 +2236,9 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 
 /* ----- Shuffle button ----- */
 .bad-shuffle {
-  margin: 1.75rem auto 0;
+  /* No auto side-margins: two of these now share the g-hero__actions flex
+     row, which already centers and gaps its children. */
+  margin: 0;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -3339,7 +3385,22 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   text-decoration: underline;
 }
 
+/* ----- Pause toggle ----- */
+/* Freezes every CSS animation on the page; the page script pairs this with
+   svg.pauseAnimations() because SMIL timelines ignore CSS. Spawned
+   interaction feedback (toasts, secret pets, game bugs) stays animated:
+   its entrance keyframes start at opacity 0, so freezing frame 0 would
+   make it invisible rather than static. */
+.bad-anims-paused *:not(.bad-toast):not(.bad-secret-pet):not(.bad-bug):not(.bad-lose__text),
+.bad-anims-paused *::before,
+.bad-anims-paused *::after {
+  animation-play-state: paused !important;
+}
+
 /* ----- Reduced motion ----- */
+/* CSS animations only. SMIL <animate>/<animateMotion> cannot be stopped
+   from CSS; the page script pauses those timelines with
+   svg.pauseAnimations() and starts reduced-motion visitors paused. */
 @media (prefers-reduced-motion: reduce) {
   [class*="bad-anim"],
   [class*="bad-anim"] *,
@@ -3350,7 +3411,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   .bad-shuffle__icon,
   .bad-stomp-real, .bad-stomp-fake,
   .bad-letters, .bad-anim,
-  circle[r], animate, animateMotion {
+  circle[r] {
     animation: none !important;
     transition: none !important;
   }

@@ -79,6 +79,20 @@
 @layer base {
   html,
   body {
+    background: var(--assured-bg-0);
+    color: var(--assured-text);
+    min-height: 100vh;
+  }
+
+  /* The viewport-pinned gradient lives on a fixed pseudo-element instead of
+     background-attachment: fixed, which forces a full-page repaint on every
+     scroll frame in mobile Safari. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background: radial-gradient(
         circle at 18% 12%,
         rgba(20, 184, 166, 0.1) 0%,
@@ -97,9 +111,6 @@
         var(--assured-bg-1) 80%,
         var(--assured-bg-0) 100%
       );
-    background-attachment: fixed;
-    color: var(--assured-text);
-    min-height: 100vh;
   }
 }
 

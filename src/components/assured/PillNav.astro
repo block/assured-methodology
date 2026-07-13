@@ -252,7 +252,8 @@ const chapterTail: Item[] = chapter
           const el = document.getElementById(href.slice(1));
           if (!el) return;
           e.preventDefault();
-          window.scrollTo({ top: el.offsetTop - 100, behavior: "smooth" });
+          const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+          window.scrollTo({ top: el.offsetTop - 100, behavior: smooth });
           history.pushState(null, "", href);
         });
       });

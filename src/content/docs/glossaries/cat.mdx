@@ -74,6 +74,13 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     </div>
   </Fragment>
 
+  <Fragment slot="actions">
+    <button type="button" class="cat-anim-toggle" data-cat-anim-toggle>
+      <span class="cat-anim-toggle__icon" aria-hidden="true">⏸️</span>
+      <span class="cat-anim-toggle__text">Pause animations</span>
+    </button>
+  </Fragment>
+
 </GlossaryHero>
 
 {/* Section nav */}
@@ -461,10 +468,43 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   const cat = svg.querySelector('.cat-cat');
   const bubble = svg.querySelector('.cat-bubble');
   const text = svg.querySelector('.cat-bubble__text');
+  const catPage = document.querySelector('.cat-page');
+
+  // SC 2.1.4: honor the site-wide easter-egg kill switch (the toggle lives
+  // in the docs layout footer and persists in localStorage).
+  const eggsEnabled = () => {
+    try { return localStorage.getItem('assured-eggs') !== 'off'; } catch (e) { return true; }
+  };
+
+  // SC 2.2.2: pause control for the walking cat and yarn scenery. All the
+  // motion here is CSS animation, so animation-play-state covers it; the
+  // MEOW sequence loop also checks the flag before starting a new walk.
+  const animsPaused = () => catPage.classList.contains('cat-anims-paused');
+  const animToggle = document.querySelector('[data-cat-anim-toggle]');
+  const setAnimsPaused = (paused, persist) => {
+    catPage.classList.toggle('cat-anims-paused', paused);
+    if (animToggle) {
+      const icon = animToggle.querySelector('.cat-anim-toggle__icon');
+      const label = animToggle.querySelector('.cat-anim-toggle__text');
+      if (icon) icon.textContent = paused ? '▶️' : '⏸️';
+      if (label) label.textContent = paused ? 'Play animations' : 'Pause animations';
+    }
+    if (persist) {
+      try { localStorage.setItem('assured-cat-anims', paused ? 'paused' : 'playing'); } catch (e) {}
+    }
+  };
+  if (animToggle) {
+    _reg(animToggle, 'click', () => setAnimsPaused(!animsPaused(), true));
+  }
+  const catReduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const storedAnims = (() => { try { return localStorage.getItem('assured-cat-anims'); } catch (e) { return null; } })();
+  if (storedAnims === 'paused' || (storedAnims === null && catReduceMq.matches)) setAnimsPaused(true, false);
+  _reg(catReduceMq, 'change', () => { if (catReduceMq.matches) setAnimsPaused(true, false); });
 
   bubble.style.opacity = '0';
 
   const playSequence = () => {
+    if (animsPaused()) return;
     cat.classList.remove('cat-cat--seq');
     bubble.style.opacity = '0';
     void cat.getBoundingClientRect();
@@ -515,6 +555,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   // Easter egg: type "treat" to make the cat purr
   let typed = '';
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     if (e.key && e.key.length === 1) {
       typed = (typed + e.key.toLowerCase()).slice(-8);
       if (typed.endsWith('treat')) {
@@ -745,9 +786,38 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 .cat-foot p { margin: 0; color: #bfdbfe; line-height: 1.55; font-size: 0.92rem; }
 .cat-foot a { color: #60a5fa; text-decoration: underline; }
 
+/* Pause toggle: freezes every CSS animation on the page. Toasts stay
+   animated: their entrance keyframe starts at opacity 0, so freezing
+   frame 0 would make them invisible rather than static. */
+.cat-anims-paused *:not(.cat-toast),
+.cat-anims-paused *::before,
+.cat-anims-paused *::after {
+  animation-play-state: paused !important;
+}
+
+.cat-anim-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  background: rgba(30, 58, 138, 0.5);
+  border: 1px solid rgba(96, 165, 250, 0.5);
+  border-radius: 9999px;
+  color: #dbeafe;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+.cat-anim-toggle:hover { border-color: #60a5fa; }
+.cat-anim-toggle:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+.cat-anim-toggle__icon { font-size: 1.1rem; }
+
 @media (prefers-reduced-motion: reduce) {
   .cat-cat, .cat-tail, .cat-leg, .cat-bubble,
-  .cat-section__ico, .cat-bg__yarn span {
+  .cat-section__ico, .cat-bg__yarn span,
+  .cat-toast {
     animation: none !important;
     transition: none !important;
   }

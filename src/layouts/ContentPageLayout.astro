@@ -107,6 +107,16 @@ const crumbs = effectiveBreadcrumbs
 
           <slot />
         </div>
+
+        {/* Outside the data-pagefind-body div so search never indexes it.
+            SC 2.1.4: the docs pages (and glossaries) listen for keyboard
+            easter-egg sequences; this is the visible, persisted off switch
+            every egg handler checks. */}
+        <footer class="content-page__eggs">
+          <button type="button" data-egg-toggle aria-pressed="true">
+            Keyboard easter eggs: on
+          </button>
+        </footer>
       </main>
     </div>
   </div>
@@ -196,6 +206,33 @@ const crumbs = effectiveBreadcrumbs
     margin: 0 0 2rem 0;
   }
 
+  .content-page__eggs {
+    text-align: center;
+    padding: 0 0 2rem;
+  }
+
+  .content-page__eggs button {
+    background: none;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 9999px;
+    color: #a8b3c4;
+    font-size: 0.75rem;
+    font-family: inherit;
+    padding: 0.4rem 0.95rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .content-page__eggs button:hover {
+    color: #e2e8f0;
+    border-color: rgba(94, 234, 212, 0.6);
+  }
+
+  .content-page__eggs button:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: 2px;
+  }
+
   /* ---------------- Chromeless: edge-to-edge themed pages ---------------- */
   .content-page.is-chromeless { min-height: auto; }
 
@@ -264,9 +301,11 @@ const crumbs = effectiveBreadcrumbs
     transition: opacity 0.18s ease;
   }
   .egg-flash.is-on { opacity: 1; }
-  .egg-flash.alert { background: radial-gradient(circle at 50% 50%, rgba(220,38,38,0.55), rgba(127,29,29,0.85)); animation: egg-pulse 0.5s ease-in-out 3; }
+  /* 1s pulse period = at most 1 flash/sec on these full-viewport overlays;
+     faster cycles (0.4-0.5s) approach the WCAG 2.3.1 three-flash threshold. */
+  .egg-flash.alert { background: radial-gradient(circle at 50% 50%, rgba(220,38,38,0.55), rgba(127,29,29,0.85)); animation: egg-pulse 1s ease-in-out 2; }
   .egg-flash.risk  { background: radial-gradient(circle at 50% 50%, rgba(250,204,21,0.45), rgba(146,64,14,0.8)); }
-  .egg-flash.escal { background: radial-gradient(circle at 50% 50%, rgba(248,113,113,0.5), rgba(127,29,29,0.85)); animation: egg-pulse 0.4s ease-in-out 4; }
+  .egg-flash.escal { background: radial-gradient(circle at 50% 50%, rgba(248,113,113,0.5), rgba(127,29,29,0.85)); animation: egg-pulse 1s ease-in-out 2; }
 
   @keyframes egg-pulse {
     0%, 100% { opacity: 0.4; }
@@ -417,15 +456,24 @@ const crumbs = effectiveBreadcrumbs
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .egg-glass__crack { animation-duration: 0.2s; }
+    /* Disable egg motion outright rather than shortening it (a faster
+       confetti fall is worse for vestibular users, not better). Elements
+       whose keyframes doubled as their visibility get static visible
+       states; the JS removal timers still clean everything up. The
+       opacity-only fades (egg-glass-show, .egg-toast fade, .egg-flash
+       fade) stay: they are not motion. */
+    .egg-toast { transition: opacity 0.3s ease; transform: translateX(-50%) translateY(0); }
+    .egg-glass__crack { animation: none; stroke-dashoffset: 0; }
+    .egg-glass__impact { animation: none; opacity: 0; }
     .egg-shake { animation: none; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
     .egg-flash.alert, .egg-flash.escal { animation: none; }
     .egg-zoom { animation: none; }
-    .egg-boundary { animation-duration: 0.6s; }
-    .egg-matrix, .egg-confetti, .egg-d20 { animation-duration: 0.6s; }
+    .egg-boundary { animation: none; opacity: 1; }
+    /* Matrix rain and confetti are also skipped at spawn time by a JS
+       matchMedia gate; animation:none here is belt-and-braces against the
+       inline per-particle animation-duration randomization. */
+    .egg-matrix, .egg-confetti { animation: none !important; opacity: 0; }
+    .egg-d20 { animation: none; }
     .egg-glow-hero h1, .egg-glow-hero .content-page__title { animation: none; }
   }
 </style>
@@ -453,8 +501,36 @@ const crumbs = effectiveBreadcrumbs
       }
     };
 
+    // ---------- SC 2.1.4: persisted kill switch for keyboard eggs ----------
+    // Every egg keydown handler (here and in the glossary pages' own inline
+    // scripts) checks this flag, so the one toggle disables them site-wide.
+    function eggsEnabled() {
+      try { return localStorage.getItem("assured-eggs") !== "off"; } catch (e) { return true; }
+    }
+    const eggToggle = document.querySelector("[data-egg-toggle]");
+    function renderEggToggle() {
+      if (!eggToggle) return;
+      const on = eggsEnabled();
+      eggToggle.setAttribute("aria-pressed", String(on));
+      eggToggle.textContent = on ? "Keyboard easter eggs: on" : "Keyboard easter eggs: off";
+    }
+    if (eggToggle) {
+      renderEggToggle();
+      _reg(eggToggle, "click", function () {
+        try { localStorage.setItem("assured-eggs", eggsEnabled() ? "off" : "on"); } catch (e) {}
+        renderEggToggle();
+      });
+    }
+
+    // The toggle must work on glossary pages too (they bind their own egg
+    // keys), so it is wired above this early return.
     const path = window.location.pathname;
     if (path.includes("/docs/glossaries")) return;
+
+    // Vestibular safety: when reduced motion is on, effects that fling
+    // particles across the viewport are skipped at spawn time (the CSS
+    // reduce block can't reach the inline randomized durations).
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const chapterMatch = path.match(/\/docs\/([a-z]+)/i);
     const chapter = chapterMatch ? chapterMatch[1].toLowerCase() : null;
@@ -466,13 +542,20 @@ const crumbs = effectiveBreadcrumbs
     function toast(msg, variant) {
       const el = document.createElement("div");
       el.className = "egg-toast " + (variant || "");
-      if (typeof msg === "string") {
-        el.textContent = msg;
-      } else if (msg instanceof Node) {
-        el.appendChild(msg);
-      }
+      // role=status (implicit aria-live=polite) so assistive tech hears the
+      // egg respond. Content is populated a frame AFTER insertion: live
+      // regions announce changes, so the region must already be in the DOM
+      // when the text lands.
+      el.setAttribute("role", "status");
       document.body.appendChild(el);
-      requestAnimationFrame(() => el.classList.add("is-show"));
+      requestAnimationFrame(() => {
+        if (typeof msg === "string") {
+          el.textContent = msg;
+        } else if (msg instanceof Node) {
+          el.appendChild(msg);
+        }
+        el.classList.add("is-show");
+      });
       setTimeout(() => {
         el.classList.remove("is-show");
         setTimeout(() => el.remove(), 500);
@@ -508,7 +591,7 @@ const crumbs = effectiveBreadcrumbs
 
     // ---------- Chapter-specific effects ----------
     function alertRedAlert() {
-      flash("alert", 1600);
+      flash("alert", 2000);
       toast("🚨 RED ALERT, Tier-1 escalation simulated. Page back to bed.", "alert");
     }
     function alertFalsePos() {
@@ -551,6 +634,10 @@ const crumbs = effectiveBreadcrumbs
       toast("🔎 Hunting mode: assume breach, work backward, follow the data.", "uncover");
     }
     function uncoverTtps() {
+      if (reduceMotion.matches) {
+        toast("🧪 MITRE rain (paused for reduced motion). Map every step to a technique.", "uncover");
+        return;
+      }
       for (let i = 0; i < 14; i++) {
         const el = document.createElement("div");
         el.className = "egg-matrix";
@@ -585,7 +672,7 @@ const crumbs = effectiveBreadcrumbs
     }
 
     function escalateSiren() {
-      flash("escal", 1800);
+      flash("escal", 2000);
       toast("📟 ESCALATION engaged. Bridge open. IR lead paged.", "escal");
     }
 
@@ -680,6 +767,10 @@ const crumbs = effectiveBreadcrumbs
 
     // ---------- Universal: Konami ----------
     function konamiBurst() {
+      if (reduceMotion.matches) {
+        toast("🎉 Konami unlocked (confetti skipped for reduced motion). Every chapter has secrets, keep typing.", "intro");
+        return;
+      }
       const colors = ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6"];
       for (let i = 0; i < 80; i++) {
         const c = document.createElement("div");
@@ -718,6 +809,7 @@ const crumbs = effectiveBreadcrumbs
     let buffer = "";
 
     _reg(window, "keydown", function (e) {
+      if (!eggsEnabled()) return;
       // Ignore typing inside form fields so we don't hijack the search bar.
       const t = e.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
@@ -736,6 +828,7 @@ const crumbs = effectiveBreadcrumbs
     const konami = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
     let kIdx = 0;
     _reg(window, "keydown", function (e) {
+      if (!eggsEnabled()) return;
       const expected = konami[kIdx];
       const got = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       if (got === expected) {

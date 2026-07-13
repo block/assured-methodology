@@ -719,8 +719,16 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     _reg(search, 'keydown', (e) => { if (e.key === 'Escape') { search.value = ''; filterTerms(''); search.blur(); } });
   }
 
+  // SC 2.1.4: single-key shortcuts and typed eggs honor the site-wide
+  // easter-egg kill switch (the toggle lives in the docs layout footer and
+  // persists in localStorage).
+  const eggsEnabled = () => {
+    try { return localStorage.getItem('assured-eggs') !== 'off'; } catch (e) { return true; }
+  };
+
   // Keyboard shortcuts: "/" focuses search, "?" rolls spotlight
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     const tag = (e.target && e.target.tagName) || '';
     const editable = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable);
     if (e.key === '/' && !editable) {
@@ -735,6 +743,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   // Easter egg: type "clearmymind" → everything goes greyscale briefly
   let typed = '';
   _reg(document, 'keydown', (e) => {
+    if (!eggsEnabled()) return;
     if (e.key && e.key.length === 1) {
       typed = (typed + e.key.toLowerCase()).slice(-14);
       if (typed.endsWith('clearmymind')) {
@@ -953,7 +962,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 .clear-foot a { color: #c4b5fd; text-decoration: underline; }
 
 @media (prefers-reduced-motion: reduce) {
-  .clear-bg__beams span, .clear-random.is-rolling { animation: none !important; }
+  .clear-bg__beams span, .clear-random.is-rolling, .clear-toast { animation: none !important; }
 }
 `}
 </style>

@@ -16,17 +16,19 @@
     <desc id="anim-diagram-desc">Phase one (Preparation and Context) feeds phase two (Investigation and Assessment), which feeds phase three (Resolution and Documentation). A feedback loop returns insight to the earlier phases.</desc>
 
     <defs>
+      <!-- Both stops of every gradient clear WCAG AA 4.5:1 under the white
+           16px labels; the lighter brand shades sit at 2.2-2.9:1. -->
       <linearGradient id="anim-phase1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#22c55e"/>
-        <stop offset="100%" stop-color="#15803d"/>
+        <stop offset="0%" stop-color="#15803d"/>
+        <stop offset="100%" stop-color="#166534"/>
       </linearGradient>
       <linearGradient id="anim-phase2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#3b82f6"/>
-        <stop offset="100%" stop-color="#1d4ed8"/>
+        <stop offset="0%" stop-color="#1d4ed8"/>
+        <stop offset="100%" stop-color="#1e40af"/>
       </linearGradient>
       <linearGradient id="anim-phase3" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#f59e0b"/>
-        <stop offset="100%" stop-color="#b45309"/>
+        <stop offset="0%" stop-color="#b45309"/>
+        <stop offset="100%" stop-color="#92400e"/>
       </linearGradient>
       <marker id="anim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="#cbd5e1"/>
@@ -54,22 +56,24 @@
       </g>
     </g>
 
-    <!-- Component pieces. Letter colors must match the canonical 7-color system
-         defined in src/components/assured/ChapterHero.astro and used by LetterChip.
+    <!-- Component pieces. Cell fills are the AA-dark phase variants
+         (--assured-phase-*-deep in assured.css, hardcoded here because SVG
+         fill attributes can't read CSS custom properties), so the white cell
+         text clears 4.5:1.
          Group 1 (Preparation): Alert=blue, Subject=green, Scope=purple.
          Group 2 (Investigation): Uncover=orange, Risk=red.
          Group 3 (Resolution): Escalation=indigo, Documentation=cyan. -->
     <g class="anim-components">
       <g class="anim-item" style="--delay: 620ms;">
-        <rect x="20" y="130" width="110" height="55" rx="10" fill="#3b82f6"/>
+        <rect x="20" y="130" width="110" height="55" rx="10" fill="#1d4ed8"/>
         <text x="75" y="163" text-anchor="middle" class="anim-cell">A · Alert</text>
       </g>
       <g class="anim-item" style="--delay: 720ms;">
-        <rect x="140" y="130" width="120" height="55" rx="10" fill="#22c55e"/>
+        <rect x="140" y="130" width="120" height="55" rx="10" fill="#15803d"/>
         <text x="200" y="163" text-anchor="middle" class="anim-cell">S · Subject</text>
       </g>
       <g class="anim-item" style="--delay: 820ms;">
-        <rect x="80" y="200" width="120" height="55" rx="10" fill="#a855f7"/>
+        <rect x="80" y="200" width="120" height="55" rx="10" fill="#7e22ce"/>
         <text x="140" y="232" text-anchor="middle" class="anim-cell">S · Scope</text>
       </g>
 
@@ -78,11 +82,11 @@
       <path class="anim-line" style="--delay: 980ms;" d="M 202 228 L 285 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
 
       <g class="anim-item" style="--delay: 1060ms;">
-        <rect x="290" y="200" width="120" height="55" rx="10" fill="#f97316"/>
+        <rect x="290" y="200" width="120" height="55" rx="10" fill="#c2410c"/>
         <text x="350" y="232" text-anchor="middle" class="anim-cell">U · Uncover</text>
       </g>
       <g class="anim-item" style="--delay: 1160ms;">
-        <rect x="420" y="200" width="120" height="55" rx="10" fill="#ef4444"/>
+        <rect x="420" y="200" width="120" height="55" rx="10" fill="#b91c1c"/>
         <text x="480" y="232" text-anchor="middle" class="anim-cell">R · Risk</text>
       </g>
 
@@ -90,11 +94,11 @@
       <path class="anim-line" style="--delay: 1260ms;" d="M 542 228 L 548 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
 
       <g class="anim-item" style="--delay: 1320ms;">
-        <rect x="550" y="200" width="120" height="55" rx="10" fill="#6366f1"/>
+        <rect x="550" y="200" width="120" height="55" rx="10" fill="#4338ca"/>
         <text x="610" y="232" text-anchor="middle" class="anim-cell">E · Escalation</text>
       </g>
       <g class="anim-item" style="--delay: 1420ms;">
-        <rect x="680" y="200" width="125" height="55" rx="10" fill="#06b6d4"/>
+        <rect x="680" y="200" width="125" height="55" rx="10" fill="#0e7490"/>
         <text x="742" y="232" text-anchor="middle" class="anim-cell">D · Documentation</text>
       </g>
 
@@ -114,28 +118,28 @@
        display:none keeps the hidden variant out of the accessibility tree,
        so screen readers only encounter one rendering. -->
   <div class="anim-stack">
-    <div class="anim-stack__phase" style="--phase-a: #22c55e; --phase-b: #15803d;">
+    <div class="anim-stack__phase" style="--phase-a: #15803d; --phase-b: #166534;">
       <p class="anim-stack__label">Preparation &amp; Context</p>
       <ul class="anim-stack__cells">
-        <li style="--cell: #3b82f6;">A · Alert</li>
-        <li style="--cell: #22c55e;">S · Subject</li>
-        <li style="--cell: #a855f7;">S · Scope</li>
+        <li style="--cell: #1d4ed8;">A · Alert</li>
+        <li style="--cell: #15803d;">S · Subject</li>
+        <li style="--cell: #7e22ce;">S · Scope</li>
       </ul>
     </div>
     <div class="anim-stack__arrow" aria-hidden="true">↓</div>
-    <div class="anim-stack__phase" style="--phase-a: #3b82f6; --phase-b: #1d4ed8;">
+    <div class="anim-stack__phase" style="--phase-a: #1d4ed8; --phase-b: #1e40af;">
       <p class="anim-stack__label">Investigation &amp; Assessment</p>
       <ul class="anim-stack__cells">
-        <li style="--cell: #f97316;">U · Uncover</li>
-        <li style="--cell: #ef4444;">R · Risk</li>
+        <li style="--cell: #c2410c;">U · Uncover</li>
+        <li style="--cell: #b91c1c;">R · Risk</li>
       </ul>
     </div>
     <div class="anim-stack__arrow" aria-hidden="true">↓</div>
-    <div class="anim-stack__phase" style="--phase-a: #f59e0b; --phase-b: #b45309;">
+    <div class="anim-stack__phase" style="--phase-a: #b45309; --phase-b: #92400e;">
       <p class="anim-stack__label">Resolution &amp; Documentation</p>
       <ul class="anim-stack__cells">
-        <li style="--cell: #6366f1;">E · Escalation</li>
-        <li style="--cell: #06b6d4;">D · Documentation</li>
+        <li style="--cell: #4338ca;">E · Escalation</li>
+        <li style="--cell: #0e7490;">D · Documentation</li>
       </ul>
     </div>
     <p class="anim-stack__loop">↻ Feedback loop, refine scope, re-uncover, re-validate</p>

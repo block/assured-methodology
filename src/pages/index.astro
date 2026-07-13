@@ -289,6 +289,15 @@ const chapterStatus = {
     -webkit-text-fill-color: transparent;
   }
 
+  /* Windows High Contrast: forced colors strip the gradient background but
+     not -webkit-text-fill-color, which would leave the headline invisible. */
+  @media (forced-colors: active) {
+    .home-hero__accent {
+      background: none;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
   .home-hero__lede {
     font-size: clamp(1rem, 1.5vw, 1.2rem);
     color: #cbd5e1;

@@ -42,6 +42,18 @@
     --assured-phase-escalation: #6366f1; /* indigo, Escalation */
     --assured-phase-documentation: #06b6d4; /* cyan, Documentation (distinct from brand accent #14b8a6) */
 
+    /* Dark variants of the phase accents, used wherever white text sits
+       directly on the phase color (letter chips, diagram cells). Every pair
+       clears WCAG AA 4.5:1 with white; the base accents above (2.3-4.5:1)
+       stay for borders, glows, and accents that carry no text. */
+    --assured-phase-alert-deep: #1d4ed8;
+    --assured-phase-subject-deep: #15803d;
+    --assured-phase-scope-deep: #7e22ce;
+    --assured-phase-uncover-deep: #c2410c;
+    --assured-phase-risk-deep: #b91c1c;
+    --assured-phase-escalation-deep: #4338ca;
+    --assured-phase-documentation-deep: #0e7490;
+
     /* Semantic colors */
     --assured-accent: #14b8a6;
     --assured-success: #22c55e;
@@ -258,25 +270,25 @@
 }
 
 .assured-letter--alert {
-  background: var(--assured-phase-alert);
+  background: var(--assured-phase-alert-deep);
 }
 .assured-letter--subject {
-  background: var(--assured-phase-subject);
+  background: var(--assured-phase-subject-deep);
 }
 .assured-letter--scope {
-  background: var(--assured-phase-scope);
+  background: var(--assured-phase-scope-deep);
 }
 .assured-letter--uncover {
-  background: var(--assured-phase-uncover);
+  background: var(--assured-phase-uncover-deep);
 }
 .assured-letter--risk {
-  background: var(--assured-phase-risk);
+  background: var(--assured-phase-risk-deep);
 }
 .assured-letter--escalation {
-  background: var(--assured-phase-escalation);
+  background: var(--assured-phase-escalation-deep);
 }
 .assured-letter--documentation {
-  background: var(--assured-phase-documentation);
+  background: var(--assured-phase-documentation-deep);
 }
 
 /* Callout */
@@ -376,6 +388,15 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Windows High Contrast: forced colors strip the gradient background but not
+   -webkit-text-fill-color, which would leave the value invisible. */
+@media (forced-colors: active) {
+  .assured-stat__value {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
 }
 
 .assured-stat__label {

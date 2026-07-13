@@ -40,10 +40,15 @@ const resolvedDefinition =
   definition ?? (hasExplicitBody ? null : (lookup?.definition ?? null));
 const resolvedTitle = lookup?.term ?? term;
 const displayText = display ?? term;
+const panelId = `defterm-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
+{/* No aria-haspopup: the panel is a tooltip, not a menu/dialog, and haspopup
+    makes screen readers announce a popup that never opens as one. The trigger
+    is linked to the panel with aria-describedby instead, so the definition is
+    read as the button's description. */}
 <span class="define-term">
-  <button type="button" class="define-term__trigger" aria-haspopup="true" aria-expanded="false">
+  <button type="button" class="define-term__trigger" aria-expanded="false" aria-describedby={panelId}>
     {displayText}
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
       <circle cx="12" cy="12" r="10"></circle>
@@ -51,7 +56,7 @@ const displayText = display ?? term;
       <line x1="12" y1="17" x2="12.01" y2="17"></line>
     </svg>
   </button>
-  <span class="define-term__panel" role="tooltip">
+  <span class="define-term__panel" role="tooltip" id={panelId}>
     <strong class="define-term__title">{resolvedTitle}</strong>
     {hasExplicitBody ? <slot /> : resolvedDefinition ? <span>{resolvedDefinition}</span> : <span>(definition missing)</span>}
   </span>
@@ -84,7 +89,14 @@ const displayText = display ?? term;
   .define-term__trigger:hover,
   .define-term__trigger:focus-visible {
     color: #99f6e4;
-    outline: none;
+  }
+
+  /* Keyboard users need a visible focus indicator (WCAG 2.4.7); the color
+     shift alone fails for low-vision users. */
+  .define-term__trigger:focus-visible {
+    outline: 2px solid rgba(94, 234, 212, 0.7);
+    outline-offset: 2px;
+    border-radius: 0.2rem;
   }
 
   .define-term__trigger svg {
@@ -139,6 +151,18 @@ const displayText = display ?? term;
     border-top-color: rgba(94, 234, 212, 0.4);
   }
 
+  /* Invisible hover bridge across the 0.6rem gap between panel and trigger,
+     so the pointer can travel onto the panel without it closing
+     (WCAG 1.4.13 hoverable). */
+  .define-term__panel::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 0.7rem;
+  }
+
   .define-term__title {
     display: block;
     color: #5eead4;
@@ -149,7 +173,9 @@ const displayText = display ?? term;
     letter-spacing: 0.05em;
   }
 
-  .define-term__trigger:hover + .define-term__panel,
+  /* :hover on the wrapper (not just the trigger) keeps the panel open while
+     the pointer is over the panel itself (WCAG 1.4.13 hoverable). */
+  .define-term:hover .define-term__panel,
   .define-term__trigger:focus-visible + .define-term__panel,
   .define-term__trigger[aria-expanded="true"] + .define-term__panel {
     display: block;
@@ -160,6 +186,14 @@ const displayText = display ?? term;
     animation: define-term-in 0.15s ease;
   }
 
+  /* Esc dismisses hover/focus-revealed panels without moving pointer or focus
+     (WCAG 1.4.13 dismissable). The script clears the class on mouseleave/blur
+     so the next reveal works. Must come after the reveal rule: equal
+     specificity, so source order decides. */
+  .define-term.is-dismissed .define-term__panel {
+    display: none;
+  }
+
   @keyframes define-term-in {
     from {
       opacity: 0;
@@ -168,7 +202,7 @@ const displayText = display ?? term;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .define-term__trigger:hover + .define-term__panel,
+    .define-term:hover .define-term__panel,
     .define-term__trigger:focus-visible + .define-term__panel,
     .define-term__trigger[aria-expanded="true"] + .define-term__panel {
       animation: none;
@@ -228,8 +262,10 @@ const displayText = display ?? term;
     );
     triggers.forEach((trigger) => {
       trigger.setAttribute("data-defterm-bound", "true");
+      const wrapper = trigger.closest<HTMLElement>(".define-term");
       trigger.addEventListener("click", (e) => {
         e.preventDefault();
+        wrapper?.classList.remove("is-dismissed");
         const isOpen = trigger.getAttribute("aria-expanded") === "true";
         // Close all other open triggers on this page (live query so newly-mounted ones count).
         document
@@ -244,13 +280,36 @@ const displayText = display ?? term;
       // since the panel is reveal-on-hover via :hover/:focus-visible in CSS.
       trigger.addEventListener("mouseenter", () => adjustPanelShift(trigger));
       trigger.addEventListener("focus", () => adjustPanelShift(trigger));
+      if (wrapper) {
+        // Reset the Esc-dismissed state once the pointer/focus leaves, so the
+        // next hover or tab-stop reveals the panel again. Focus leaving also
+        // collapses a click-opened panel instead of leaving it stranded.
+        wrapper.addEventListener("mouseleave", () => wrapper.classList.remove("is-dismissed"));
+        wrapper.addEventListener("focusout", (e) => {
+          if (!wrapper.contains(e.relatedTarget as Node)) {
+            trigger.setAttribute("aria-expanded", "false");
+            wrapper.classList.remove("is-dismissed");
+          }
+        });
+      }
     });
   }
 
-  function closeAllDefineTerms() {
+  function closeAllDefineTerms(dismissRevealed = false) {
     document
       .querySelectorAll<HTMLButtonElement>(".define-term__trigger")
       .forEach((t) => t.setAttribute("aria-expanded", "false"));
+    if (dismissRevealed) {
+      // Esc must also hide panels held open purely by :hover/:focus-visible,
+      // without requiring the pointer or focus to move (WCAG 1.4.13).
+      document
+        .querySelectorAll<HTMLElement>(".define-term:hover")
+        .forEach((w) => w.classList.add("is-dismissed"));
+      const active = document.activeElement;
+      if (active && active.classList.contains("define-term__trigger")) {
+        active.closest(".define-term")?.classList.add("is-dismissed");
+      }
+    }
   }
 
   bindDefineTerms();
@@ -267,7 +326,7 @@ const displayText = display ?? term;
       }
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeAllDefineTerms();
+      if (e.key === "Escape") closeAllDefineTerms(true);
     });
   }
 </script>

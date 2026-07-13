@@ -50,7 +50,11 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
     ))}
   </div>
 
-  <div class="quiz-item__feedback" data-feedback hidden>
+  {/* tabindex="-1": the script moves focus here after an answer so screen
+      readers read the verdict + explanation; aria-live is the fallback for
+      SRs that don't announce on focus. The verdict is real text set by the
+      script, not CSS ::before content (which many SRs never voice). */}
+  <div class="quiz-item__feedback" data-feedback hidden tabindex="-1" aria-live="polite">
     <div class="quiz-item__feedback-head">
       <span class="quiz-item__feedback-verdict" data-verdict></span>
     </div>
@@ -122,13 +126,13 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
     width: 100%;
   }
 
-  .quiz-item__option:hover:not(:disabled) {
+  .quiz-item__option:hover:not([aria-disabled="true"]) {
     transform: translateY(-1px);
     border-color: rgba(94, 234, 212, 0.5);
     background: rgba(15, 23, 42, 0.75);
   }
 
-  .quiz-item__option:disabled {
+  .quiz-item__option[aria-disabled="true"] {
     cursor: default;
   }
 
@@ -233,13 +237,11 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
     background: rgba(34, 197, 94, 0.18);
     color: #86efac;
   }
-  .quiz-item__feedback.is-correct .quiz-item__feedback-verdict::before { content: "Correct"; }
 
   .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict {
     background: rgba(239, 68, 68, 0.18);
     color: #fca5a5;
   }
-  .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict::before { content: "Not quite"; }
 
   .quiz-item__feedback-text {
     margin: 0;
@@ -278,14 +280,17 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
 
       options.forEach((option) => {
         option.addEventListener("click", () => {
-          if (option.disabled) return;
+          if (item.dataset.answered === "true") return;
+          item.dataset.answered = "true";
 
           const value = option.dataset.value;
           const isCorrect = value === correctValue;
 
-          // Lock the options
+          // Lock the options with aria-disabled, not the disabled property:
+          // native disabled yanks focus off the just-clicked button and drops
+          // keyboard users back to <body>.
           options.forEach((o) => {
-            o.disabled = true;
+            o.setAttribute("aria-disabled", "true");
             if (o.dataset.value === correctValue && o !== option) {
               o.classList.add("is-revealed-correct");
             }
@@ -294,8 +299,11 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
           option.classList.add(isCorrect ? "is-correct" : "is-wrong");
 
           if (feedback) {
+            const verdict = feedback.querySelector<HTMLElement>("[data-verdict]");
+            if (verdict) verdict.textContent = isCorrect ? "Correct" : "Not quite";
             feedback.hidden = false;
             feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
+            feedback.focus();
           }
         });
       });

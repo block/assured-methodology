@@ -50,15 +50,20 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
     <slot />
   </div>
 
+  {/* aria-disabled (not disabled) at the range ends: disabling the button
+      that currently holds focus drops keyboard users to <body>. The script
+      guards clicks while the button stays focusable.
+      aria-live on the progress span announces "Step N of M" to screen
+      readers on every advance. */}
   <div class="stepper__controls">
-    <button type="button" class="stepper__btn stepper__btn--prev" data-stepper-prev disabled>
+    <button type="button" class="stepper__btn stepper__btn--prev" data-stepper-prev aria-disabled="true">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M19 12H5"></path><path d="M11 19l-7-7 7-7"></path>
       </svg>
       Previous
     </button>
-    <span class="stepper__progress" data-stepper-progress>Step 1 of {steps.length}</span>
-    <button type="button" class="stepper__btn stepper__btn--next" data-stepper-next>
+    <span class="stepper__progress" data-stepper-progress aria-live="polite">Step 1 of {steps.length}</span>
+    <button type="button" class="stepper__btn stepper__btn--next" data-stepper-next aria-disabled="false">
       Next
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M5 12h14"></path><path d="M13 19l7-7-7-7"></path>
@@ -170,12 +175,12 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
     transition: filter 0.15s ease, transform 0.15s ease;
   }
 
-  .stepper__btn:hover:not(:disabled) {
+  .stepper__btn:hover:not([aria-disabled="true"]) {
     filter: brightness(1.15);
     transform: translateY(-1px);
   }
 
-  .stepper__btn:disabled {
+  .stepper__btn[aria-disabled="true"] {
     opacity: 0.35;
     cursor: not-allowed;
   }
@@ -238,8 +243,8 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
         panels.forEach((p, i) => {
           p.classList.toggle("is-active", i === current);
         });
-        if (prev) prev.disabled = current === 0;
-        if (next) next.disabled = current === total - 1;
+        if (prev) prev.setAttribute("aria-disabled", current === 0 ? "true" : "false");
+        if (next) next.setAttribute("aria-disabled", current === total - 1 ? "true" : "false");
         if (progress) progress.textContent = `Step ${current + 1} of ${total}`;
         if (focusTab) tabs[current]?.focus();
       }
@@ -258,8 +263,14 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
           go(keyTargets[e.key], true);
         });
       });
-      prev?.addEventListener("click", () => go(current - 1));
-      next?.addEventListener("click", () => go(current + 1));
+      prev?.addEventListener("click", () => {
+        if (prev.getAttribute("aria-disabled") === "true") return;
+        go(current - 1);
+      });
+      next?.addEventListener("click", () => {
+        if (next.getAttribute("aria-disabled") === "true") return;
+        go(current + 1);
+      });
 
       // Initial state
       go(0);

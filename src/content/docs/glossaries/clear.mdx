@@ -34,6 +34,9 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     <div class="clear-search-wrap">
       <input type="search" class="clear-search" placeholder="Search terms..." aria-label="Search glossary terms" data-clear-search/>
       <button type="button" class="clear-random" data-clear-random aria-label="Show a random term">🎲 Random term</button>
+      {/* Visually-hidden live region: announces the match count as the
+          filter runs, since the visual result is only rows disappearing. */}
+      <span class="clear-search-count" data-clear-results aria-live="polite"></span>
     </div>
   </Fragment>
 
@@ -73,7 +76,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   <a href="#Z" class="clear-nav__letter">Z</a>
 </nav>
 
-<div class="clear-empty" data-clear-empty hidden>No terms matched. Try a different spelling or clear the search.</div>
+<div class="clear-empty" data-clear-empty role="status" hidden>No terms matched. Try a different spelling or clear the search.</div>
 
 {/* A */}
 <section id="A" class="clear-section">
@@ -643,6 +646,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   if (!page) return;
   const search = page.querySelector('[data-clear-search]');
   const empty = page.querySelector('[data-clear-empty]');
+  const resultsCount = page.querySelector('[data-clear-results]');
   const random = page.querySelector('[data-clear-random]');
   const spotlightTerm = page.querySelector('[data-clear-spotlight-term]');
   const spotlightDef = page.querySelector('[data-clear-spotlight-def]');
@@ -682,6 +686,7 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
   const filterTerms = (q) => {
     const query = q.trim().toLowerCase();
     let anyVisible = false;
+    let totalVisible = 0;
     sections.forEach((sec) => {
       const dl = sec.querySelector('.clear-terms');
       if (!dl) return;
@@ -697,10 +702,16 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
         if (dd) dd.style.display = match ? '' : 'none';
         if (match) { visibleInSection++; }
       }
+      totalVisible += visibleInSection;
       sec.style.display = visibleInSection > 0 ? '' : 'none';
       if (visibleInSection > 0) anyVisible = true;
     });
     if (empty) empty.hidden = anyVisible || query === '';
+    if (resultsCount) {
+      resultsCount.textContent = query === ''
+        ? ''
+        : totalVisible + (totalVisible === 1 ? ' term matches' : ' terms match');
+    }
   };
 
   if (search) {
@@ -800,6 +811,19 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 }
 .clear-search:focus { outline: none; border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18); }
 .clear-search::placeholder { color: #64748b; }
+
+/* Visually hidden but present in the accessibility tree. */
+.clear-search-count {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .clear-random {
   padding: 0.7rem 1.25rem;

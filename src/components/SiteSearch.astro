@@ -11,6 +11,7 @@
  * Keyboard:
  *   - ⌘K / Ctrl+K  open
  *   - Esc          close
+ *   - ↓ / ↑        move through results (↑ from the first result returns to the input)
  *   - /            NOT bound here, CLEAR glossary owns / for its own search.
  */
 ---
@@ -34,6 +35,9 @@
   <div class="site-search-modal__backdrop" data-search-close></div>
   <div class="site-search-modal__panel">
     <button type="button" class="site-search-modal__close" data-search-close aria-label="Close search">×</button>
+    {/* Visually-hidden live region: announces the "search unavailable"
+        fallback to screen readers, which otherwise only see the visual <p>. */}
+    <div class="site-search-modal__status" data-search-status role="status"></div>
     <div id="site-search-ui" data-pagefind-ignore></div>
   </div>
 </div>
@@ -141,6 +145,19 @@
   }
   .site-search-modal__close:hover { color: #f8fafc; background: rgba(148, 163, 184, 0.1); }
 
+  /* Visually hidden but present in the accessibility tree. */
+  .site-search-modal__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* Pagefind UI dark-theme tokens */
   #site-search-ui {
     --pagefind-ui-primary: #14b8a6;
@@ -205,14 +222,19 @@
         "/pagefind/";
 
       function showUnavailableFallback() {
+        var message = "Search index not found. If you are running locally, build it with `pnpm build && pnpm preview`; the index is generated at build time.";
         uiHost.replaceChildren();
         var p = document.createElement("p");
         p.style.color = "#94a3b8";
         p.style.padding = "0.5rem 0 0";
         p.style.lineHeight = "1.5";
         p.style.fontSize = "0.95rem";
-        p.textContent = "Search index not found. If you are running locally, build it with `pnpm build && pnpm preview`; the index is generated at build time.";
+        p.textContent = message;
         uiHost.appendChild(p);
+        // Mirror into the role="status" live region so screen readers hear it;
+        // the injected <p> renders silently otherwise.
+        var status = modal.querySelector("[data-search-status]");
+        if (status) status.textContent = message;
       }
 
       function checkPagefindAvailable() {
@@ -285,6 +307,33 @@
 
       trigger.addEventListener("click", open);
       closers.forEach(function (c) { c.addEventListener("click", close); });
+
+      // Arrow-key navigation through results: ↓ from the input focuses the
+      // first result link, ↓/↑ walk the list, ↑ from the first result returns
+      // to the input. Bound per modal element (view transitions swap the DOM,
+      // so the marker travels with the element).
+      if (!modal.hasAttribute("data-search-nav-bound")) {
+        modal.setAttribute("data-search-nav-bound", "true");
+        modal.addEventListener("keydown", function (e) {
+          if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+          var links = Array.prototype.slice.call(
+            uiHost.querySelectorAll(".pagefind-ui__result-link")
+          );
+          if (links.length === 0) return;
+          var idx = links.indexOf(document.activeElement);
+          // ArrowUp while still in the input keeps its native caret behavior.
+          if (e.key === "ArrowUp" && idx === -1) return;
+          e.preventDefault();
+          if (e.key === "ArrowDown") {
+            links[Math.min(idx + 1, links.length - 1)].focus();
+          } else if (idx === 0) {
+            var input = uiHost.querySelector("input");
+            if (input) input.focus();
+          } else {
+            links[idx - 1].focus();
+          }
+        });
+      }
 
       // Document-level keydown: register ONCE for the lifetime of the SPA session.
       // Marker on window prevents duplicate registrations across view transitions.

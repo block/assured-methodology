@@ -53,39 +53,41 @@ const chapterTail: Item[] = chapter
 
 <nav class={`pillnav pillnav--${variant} ${sticky ? "pillnav--sticky" : ""}`} aria-label={label}>
   <span class="pillnav__label" aria-hidden="true">{label}</span>
-  <div class="pillnav__items" role="list">
+  <ul class="pillnav__items">
     {items.map((item) => {
       const isCurrent = current === item.href || (item.href.startsWith("#") && false);
       return (
-        <a
-          href={item.href}
-          class={`pillnav__item ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
-          aria-current={isCurrent ? "page" : undefined}
-          role="listitem"
-        >
-          {item.label}
-        </a>
+        <li>
+          <a
+            href={item.href}
+            class={`pillnav__item ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
+            aria-current={isCurrent ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
       );
     })}
     {chapterTail.length > 0 && (
       <>
-        <span class="pillnav__divider" aria-hidden="true">·</span>
+        <li aria-hidden="true" class="pillnav__divider">·</li>
         {chapterTail.map((item) => {
           const isCurrent = current === item.href;
           return (
-            <a
-              href={item.href}
-              class={`pillnav__item pillnav__item--tail ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
-              aria-current={isCurrent ? "page" : undefined}
-              role="listitem"
-            >
-              {item.label}
-            </a>
+            <li>
+              <a
+                href={item.href}
+                class={`pillnav__item pillnav__item--tail ${isCurrent ? "is-current" : ""} ${item.phase ? `pillnav__item--${item.phase}` : ""}`}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
           );
         })}
       </>
     )}
-  </div>
+  </ul>
 </nav>
 
 <style>
@@ -128,6 +130,14 @@ const chapterTail: Item[] = chapter
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pillnav__items > li {
+    display: inline-flex;
+    flex-shrink: 0;
   }
 
   .pillnav__items::-webkit-scrollbar { display: none; }

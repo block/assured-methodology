@@ -29,24 +29,37 @@ const phases = [
 ] as const;
 ---
 
-<div class={`puzzle ${compact ? "puzzle--compact" : ""}`} role="img" aria-label="ASSURED methodology puzzle progress">
-  {phases.map((p) => {
-    const state = status[p.key] ?? "live";
-    const isCurrent = current === p.key;
-    return (
-      <a
-        href={state === "live" ? `/docs/${p.key}` : "#"}
-        class={`puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""} ${state === "soon" ? "is-soon" : ""}`}
-        aria-label={`${p.label} phase${state === "soon" ? " (coming soon)" : ""}${isCurrent ? " (current)" : ""}`}
-        data-state={state}
-      >
-        <span class="puzzle__letter">{p.letter}</span>
-        <span class="puzzle__label">{p.label}</span>
-        {state === "soon" && <span class="puzzle__soon" aria-hidden="true">soon</span>}
-      </a>
-    );
-  })}
-</div>
+<nav aria-label="ASSURED methodology progress">
+  <ul class={`puzzle ${compact ? "puzzle--compact" : ""}`}>
+    {phases.map((p) => {
+      const state = status[p.key] ?? "live";
+      const isCurrent = current === p.key;
+      const pieceClass = `puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""} ${state === "soon" ? "is-soon" : ""}`;
+      return (
+        <li>
+          {state === "live" ? (
+            <a
+              href={`/docs/${p.key}`}
+              class={pieceClass}
+              aria-label={`${p.label} phase${isCurrent ? " (current)" : ""}`}
+              aria-current={isCurrent ? "page" : undefined}
+              data-state={state}
+            >
+              <span class="puzzle__letter">{p.letter}</span>
+              <span class="puzzle__label">{p.label}</span>
+            </a>
+          ) : (
+            <span class={pieceClass} data-state={state}>
+              <span class="puzzle__letter" aria-hidden="true">{p.letter}</span>
+              <span class="puzzle__label">{p.label}</span>
+              <span class="puzzle__soon">soon</span>
+            </span>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</nav>
 
 <style>
   .puzzle {
@@ -56,6 +69,17 @@ const phases = [
     width: 100%;
     max-width: 56rem;
     margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .puzzle > li {
+    display: flex;
+    min-width: 0;
+  }
+
+  .puzzle > li > .puzzle__piece {
+    flex: 1;
   }
 
   @media (max-width: 640px) {

@@ -24,11 +24,11 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 </div>
 
 <Callout variant="info" title="Why ASSURED, why now">
-<DefineTerm term="Incident Response" display="Incident response" /> frameworks like NIST 800-61, SANS PICERL, and <DefineTerm term="MITRE ATT&CK" /> describe what to do once you already know what you are looking at. <DefineTerm term="Event Triage" display="Event triage" /> is the work before that, and most analysts learn it informally on the job. ASSURED gives that informal craft a structure that scales: scaffolding for newer analysts, a checklist for experienced ones, and a shared vocabulary for handoff and review.
+<DefineTerm term="Incident Response" display="Incident response" /> frameworks like NIST 800-61 and SANS PICERL describe what to do once you already know what you are looking at, and knowledge bases like <DefineTerm term="MITRE ATT&CK" /> catalog adversary behavior once you know which behavior you are looking for. <DefineTerm term="Event Triage" display="Event triage" /> is the work before both, and most analysts learn it informally on the job. The gap is widening, not closing: NIST's 2025 revision of 800-61 (r3) reframes incident response around the CSF 2.0 functions and deliberately drops r2's step-by-step analysis guidance, leaving the *how* of alert analysis to each organization. ASSURED gives that informal craft a structure that scales: scaffolding for newer analysts, a checklist for experienced ones, and a shared vocabulary for handoff and review.
 </Callout>
 
 <Callout variant="warn" title="Triage is not incident response">
-ASSURED is a triage methodology. The triage analyst answers four questions, *is this real, is it malicious, how serious is it, what should happen next*, and either closes the case or hands it to incident response. The IR responder runs the formal lifecycle (NIST 800-61: preparation → detection &amp; analysis → containment → eradication → recovery → post-incident). Triage produces the **decision** to escalate; IR runs the **response** once the decision is made. The two roles share telemetry and vocabulary; they are not the same job. The clearer the line between them, the cleaner the handoff. See the **<a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a>** page in the Escalation chapter for the full distinction.
+ASSURED is a triage methodology. The triage analyst answers four questions, *is this real, is it malicious, how serious is it, what should happen next*, and either closes the case or hands it to incident response. The IR responder runs the formal lifecycle (NIST 800-61r2: preparation → detection &amp; analysis → containment, eradication &amp; recovery → post-incident activity). Triage produces the **decision** to escalate; IR runs the **response** once the decision is made. The two roles share telemetry and vocabulary; they are not the same job. The clearer the line between them, the cleaner the handoff. See the **<a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a>** page in the Escalation chapter for the full distinction.
 </Callout>
 
 <div class="intro-section-head">
@@ -143,7 +143,7 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
     <div class="intro-goal__num">01</div>
     <div class="intro-goal__icon" aria-hidden="true">🤖</div>
     <h3>Strategic automation</h3>
-    <p>Each phase highlights what is safe to automate and what requires human judgment. Automation handles the repetitive work (enrichment, correlation, scoring) so analysts can spend their time on the decisions that actually need a person.</p>
+    <p>The phase structure shows where automation fits: repetitive work like enrichment, correlation, and scoring can be handed to tooling, while the phase boundaries keep human judgment on the decisions that actually need a person. A SOAR that pre-fills Alert and Subject shortens the arc; it doesn't replace it.</p>
   </article>
 
   <article class="intro-goal">
@@ -197,7 +197,7 @@ The gap between a new analyst and a senior one is rarely raw speed. It's three t
 
 **2. Pattern recognition for false positives.** Experts close false positives faster because they've seen the same false-positive pattern 200 times. The methodology is what lets the new analyst close the *first* one defensibly, with a record the team can learn from. Read the false-positive page in the Risk chapter early; it's the highest-leverage page on the site for closing the speed gap.
 
-**3. Knowing when to stop.** New analysts go down rabbit holes. (I did. Spent two hours on a single PowerShell command that turned out to be a sysadmin's harmless inventory script.) The good news: every rabbit hole you walk out of teaches you what entering one feels like. Six months in you'll catch yourself reaching for the next log query and recognize the pattern. By year two you'll stop yourself before you start. The methodology helps by giving you explicit phase boundaries, when Uncover starts feeling open-ended, that's the moment to step back to Scope and ask whether the boundaries are still right.
+**3. Knowing when to stop.** New analysts go down rabbit holes. (Every analyst has a story like it: two hours on a single PowerShell command that turns out to be a sysadmin's harmless inventory script.) The good news: every rabbit hole you walk out of teaches you what entering one feels like. Six months in you'll catch yourself reaching for the next log query and recognize the pattern. By year two you'll stop yourself before you start. The methodology helps by giving you explicit phase boundaries, when Uncover starts feeling open-ended, that's the moment to step back to Scope and ask whether the boundaries are still right.
 
 These three skills compound. They are also why the time ranges in the table above span an order of magnitude. If you're at the high end of the New column, that's where you are; don't measure yourself against the Expert column on day one.
 </Callout>

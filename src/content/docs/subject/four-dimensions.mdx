@@ -126,7 +126,7 @@ The dimension breaks down into eight techniques an analyst applies in roughly th
 </div>
 
 <Callout variant="info" title="Mapping to MITRE ATT&CK">
-The ATT&CK techniques most worth recognizing in Authentication: <strong>T1078 Valid Accounts</strong> (legitimate credentials used by an attacker, including <strong>T1078.004 Cloud Accounts</strong>), <strong>T1110 Brute Force</strong> (and its sub-techniques for password spraying, credential stuffing), <strong>T1556 Modify Authentication Process</strong>, <strong>T1621 Multi-Factor Authentication Request Generation</strong> (MFA fatigue), <strong>T1539 Steal Web Session Cookie</strong>, and <strong>T1550.001 Application Access Token</strong> (token theft/replay, including forged OAuth/OIDC tokens, the Storm-0558 pattern). Every authentication anomaly is worth a one-line answer to "which technique does this look like" because it gives the rest of the SOC a shared vocabulary.
+The ATT&CK techniques most worth recognizing in Authentication: <strong>T1078 Valid Accounts</strong> (legitimate credentials used by an attacker, including <strong>T1078.004 Cloud Accounts</strong>), <strong>T1110 Brute Force</strong> (and its sub-techniques for password spraying, credential stuffing), <strong>T1556 Modify Authentication Process</strong>, <strong>T1621 Multi-Factor Authentication Request Generation</strong> (MFA fatigue), <strong>T1539 Steal Web Session Cookie</strong>, and <strong>T1550.001 Application Access Token</strong> (token theft/replay; when the token was forged from a stolen signing key, the Storm-0558 pattern, the forging step itself is <strong>T1606 Forge Web Credentials</strong>). Every authentication anomaly is worth a one-line answer to "which technique does this look like" because it gives the rest of the SOC a shared vocabulary.
 </Callout>
 
 ### Cloud-identity patterns you'll see in 2024+
@@ -140,7 +140,7 @@ Modern intrusions disproportionately route through identity-provider abuse rathe
   </div>
   <div class="cloud-id-card">
     <h4>🎫 Token replay / forged tokens</h4>
-    <p>An attacker presents a stolen or forged bearer/refresh token to bypass primary authentication and MFA. The token may be lifted from a compromised endpoint, stolen via AiTM phishing, or forged using a stolen signing key (the Storm-0558 pattern). Detect via token-binding anomalies, unusual <code>aud</code> claims, sign-ins with no associated interactive login, and refresh-token usage from new locations. Maps to <strong>T1550.001 Application Access Token</strong>.</p>
+    <p>An attacker presents a stolen or forged bearer/refresh token to bypass primary authentication and MFA. The token may be lifted from a compromised endpoint, stolen via AiTM phishing, or forged using a stolen signing key (the Storm-0558 pattern). Detect via token-binding anomalies, unusual <code>aud</code> claims, sign-ins with no associated interactive login, and refresh-token usage from new locations. Replaying the token maps to <strong>T1550.001 Application Access Token</strong>; forging it maps to <strong>T1606 Forge Web Credentials</strong>.</p>
   </div>
   <div class="cloud-id-card">
     <h4>🌍 Impossible travel</h4>
@@ -276,7 +276,7 @@ The relationships dimension maps the connections between the entity and other id
 </div>
 
 <Reveal summary="Example: how relationships expose lateral movement" variant="example">
-A finance team user authenticates from their laptop at 09:14. Normal. The laptop then authenticates against a <DefineTerm term="Domain Controller" display="domain controller" /> at 09:16. Normal for a typical workday. The domain controller authentication is followed at 09:18 by a successful logon from the same host to a developer's workstation. That is the signal. The finance user's identity touched a workstation that the user has never interacted with before, and that workstation is in a different department.
+A finance team user authenticates from their laptop at 09:14. Normal. The laptop then authenticates against a <DefineTerm term="Domain Controller" display="domain controller" /> at 09:16. Normal for a typical workday. The domain controller authentication is followed at 09:18 by a successful logon from that same laptop to a developer's workstation. That is the signal. The finance user's identity touched a workstation that the user has never interacted with before, and that workstation is in a different department.
 
 Single-entity analysis would have closed this at the laptop. Relationship mapping is what extends the question into "what else does this identity now reach?"
 </Reveal>

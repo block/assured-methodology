@@ -38,15 +38,15 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 <ChapterExample
   title="Drawing the lines around the finance-team intrusion"
-  scenario="Subject handed Scope an entity map: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the service account, two finance peers) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow). Scope's job is to turn that map into a formal investigation boundary."
+  scenario="Subject handed Scope an entity map: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the laptop's machine account, two finance peers) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow), plus the external sender tracked as the originating threat. Scope's job is to turn that map into a formal investigation boundary."
 >
 
 <ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Regulatory check</h3>
-    <p>The compromised user dlin has read access to a cloud finance platform that processes payment data. That triggers PCI DSS implications. The platform also stores personally identifiable information for vendors, which brings GDPR into scope for any EU-resident vendor records.</p>
-    <p><strong>Decisions:</strong> Document PCI exposure now. Engage compliance early so any breach-notification clock can run in parallel with the technical investigation. Tag the case as both PCI and GDPR relevant.</p>
+    <p>The compromised user dlin has read access to a cloud finance platform that processes payment data. That does not by itself place the investigation inside a cardholder data environment, but it is the cue to flag possible PCI DSS exposure and engage compliance, who own that determination. The platform also stores personally identifiable information for vendors, which brings GDPR into scope for any EU-resident vendor records.</p>
+    <p><strong>Decisions:</strong> Document the possible PCI exposure now. Engage compliance early so any breach-notification clock can run in parallel with the technical investigation. Tag the case as both PCI and GDPR relevant.</p>
   </div>
 
   <div data-step class="example-step">
@@ -60,7 +60,8 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
     <p>Subject's entity map gets categorized:</p>
     <ul class="example-step__list">
       <li><strong>Primary:</strong> dlin (user), laptop-finance-09 (host), dlin's cloud identity.</li>
-      <li><strong>Secondary:</strong> The machine account of laptop-finance-09. The two other finance users who opened the same email. The external sender, tracked as the originating threat.</li>
+      <li><strong>Secondary:</strong> The machine account of laptop-finance-09. The two other finance users who opened the same email.</li>
+      <li><strong>Originating threat:</strong> The external sender. Tracked as the adversary side of the case rather than as an entity under investigation; its sending domain and infrastructure indicators feed Uncover's threat-intelligence work.</li>
       <li><strong>Out of scope (for now):</strong> Other finance team members who received but did not open the email. Their inboxes still get a baseline check, but no full investigation unless something new surfaces.</li>
     </ul>
     <p><strong>Decisions:</strong> Primary entities get full investigation depth. Secondary entities get baseline comparison and are upgraded only on a signal.</p>
@@ -84,8 +85,8 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
       <li><strong>Threat type:</strong> phishing-driven intrusion.</li>
       <li><strong>Time:</strong> 72 hours primary, 4 weeks extended for dlin.</li>
       <li><strong>Primary entities:</strong> dlin, laptop-finance-09, cloud identity. Full depth.</li>
-      <li><strong>Secondary entities:</strong> machine account, 2 other finance users, external sender. Baseline depth.</li>
-      <li><strong>Regulatory:</strong> PCI and GDPR triggers active. Compliance engaged.</li>
+      <li><strong>Secondary entities:</strong> machine account, 2 other finance users. Baseline depth. External sender tracked as the originating threat.</li>
+      <li><strong>Regulatory:</strong> likely PCI and GDPR exposure; confirmation owned by compliance. Compliance engaged.</li>
       <li><strong>Infrastructure gaps:</strong> mobile app activity on the cloud platform may be invisible; vendor request submitted.</li>
     </ul>
   </div>

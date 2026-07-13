@@ -33,7 +33,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 <ChapterExample
   title="Pulling the evidence on the finance-team intrusion"
-  scenario="Scope set the boundary: phishing-driven intrusion, 72-hour primary window with a 4-week look at primary entities, three primary identities, three secondary identities, PCI and GDPR active. Uncover begins."
+  scenario="Scope set the boundary: phishing-driven intrusion, 72-hour primary window with a 4-week extended look at dlin, three primary identities, three secondary entities, likely PCI and GDPR exposure flagged for compliance. Uncover begins."
 >
 
 <ExampleStepper steps={["Endpoint telemetry", "Network correlation", "Identity logs", "Mail and SaaS", "Map to ATT&CK"]}>
@@ -52,7 +52,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
   <div data-step class="example-step">
     <h3>Step 3. Identity logs</h3>
-    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: EDR file-access telemetry shows the PowerShell agent reading the browser's cookie store at 09:19, and a federated login to the cloud finance platform follows at 09:23. The session rode dlin's existing SSO state, but it is distinguishable from dlin's own morning activity: different user-agent string than dlin's browser, and no matching interactive activity (no window focus, no input events) on the laptop at that moment. That discrimination is what turns "a login happened" into evidence.</p>
+    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: EDR file-access telemetry shows the PowerShell agent reading the browser's cookie store at 09:19, and a federated login to the cloud finance platform follows at 09:23. The session rode dlin's existing SSO state, but it is distinguishable from dlin's own morning activity: different user-agent string than dlin's browser, and no matching interactive activity (no window focus, no input events) on the laptop at that moment. That discrimination is what turns "a login happened" into evidence. The 4-week extended look at dlin's account that Scope ordered also closes here: no earlier anomalous logins, no unfamiliar consent grants, no staging activity. The extended window is recorded as checked and clean.</p>
     <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1078.004 (Valid Accounts: Cloud Accounts).</p>
   </div>
 
@@ -240,6 +240,7 @@ The two cases above are endpoint-anchored. The same methodology works for cloud-
     <p>The hypothesis going in was "unexpected role use on regulated data." The evidence supports a more boring read:</p>
     <ul class="example-step__list">
       <li><strong>Likely verdict:</strong> off-hours manual export by the engineer (confirmed via Slack DM after the on-shift IR opened a quick check). Consistent with quarterly-export work that normally runs in the CI pipeline.</li>
+      <li><strong>Loose end chased:</strong> the role session was named <code>local-investigation-2026-05-12</code>, which does not describe export work. The engineer's answer: a reused shell helper stamps that session name by default. Worth asking every time, because a session name that misdescribes its own activity is also a cheap attacker disguise.</li>
       <li><strong>Confidence:</strong> high on the technical evidence. Medium until the user confirms (which they did, ~15 min into Uncover).</li>
       <li><strong>Coverage gaps:</strong> the S3 data-events trail is on for <code>regulated-pii-bucket</code>; it would NOT be on for buckets without explicit data-event logging. This is a detection-engineering note, not a blocker for this case.</li>
       <li><strong>Detection-tuning suggestion:</strong> add an "automation-only" tag to roles like <code>ci-data-export</code> so manual assumption fires a lower-noise informational signal instead of GuardDuty's high-severity alert. Feeds the false-positive-into-feedback loop.</li>

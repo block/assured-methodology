@@ -50,12 +50,12 @@ export const mainNavigation: NavGroup[] = [
             href: "/docs/alert/example",
             status: "live",
           },
+          { title: "Chapter quiz", href: "/docs/alert/quiz", status: "live" },
           {
             title: "Transition to Subject",
             href: "/docs/alert/transition",
             status: "live",
           },
-          { title: "Chapter quiz", href: "/docs/alert/quiz", status: "live" },
         ],
       },
       {
@@ -400,12 +400,12 @@ export const docsNavigation: NavGroup[] = [
         href: "/docs/alert/example",
         status: "live",
       },
+      { title: "   → Chapter quiz", href: "/docs/alert/quiz", status: "live" },
       {
         title: "   → Transition to Subject",
         href: "/docs/alert/transition",
         status: "live",
       },
-      { title: "   → Chapter quiz", href: "/docs/alert/quiz", status: "live" },
       { title: "S · Subject", href: "/docs/subject", status: "live" },
       {
         title: "   → Four dimensions",

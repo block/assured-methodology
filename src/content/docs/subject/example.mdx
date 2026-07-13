@@ -60,11 +60,11 @@ import Callout from "@/components/assured/Callout.astro";
     <p>Subject does not stop at the named user. Every identity touched by the activity gets profiled.</p>
     <ul class="example-step__list">
       <li><strong>The host.</strong> laptop-finance-09 is a managed corporate device, enrolled in the EDR, with a baseline of activity matching dlin's role.</li>
-      <li><strong>The service account.</strong> Pre-attack, the laptop authenticated against a domain-joined identity that itself authenticates services on behalf of the user. The service account's recent activity becomes part of the picture.</li>
+      <li><strong>The machine account.</strong> laptop-finance-09 is domain-joined, so it has its own computer account that authenticates to domain services independently of dlin. Anything running as SYSTEM on the host speaks as that account, so its recent activity becomes part of the picture.</li>
       <li><strong>The Outlook session.</strong> The parent process of the PowerShell invocation. Each Outlook session has its own token, mailbox identity, and audit trail.</li>
       <li><strong>The cloud identity.</strong> dlin's federated SSO identity for the cloud-based finance reporting platform. Has the same recent-login pattern as the on-premises account.</li>
     </ul>
-    <p>One named user has become six identities, three that get full primary-depth investigation (dlin, the laptop, dlin's federated cloud identity) and three that get secondary-depth (the service account, plus two other finance users who, as Step 4 will surface, also touched the originating email). Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
+    <p>One named user has become five identities: the user account, the host, the machine account, the Outlook session, and the federated cloud identity. The Outlook session is assessed as part of dlin's own primary investigation, same principal, same token chain, which leaves four distinct entities to profile. Three get full primary depth (dlin, the laptop, dlin's federated cloud identity); the machine account gets secondary depth. Step 4 will add two more finance users to the map. Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
   </div>
 
   <div data-step class="example-step">
@@ -73,10 +73,10 @@ import Callout from "@/components/assured/Callout.astro";
     <ul class="example-step__list">
       <li><strong>Authentication.</strong> All four identities authenticated normally. No impossible travel, no MFA bypass, no token replay signals.</li>
       <li><strong>Authorization.</strong> No identity exceeded its assigned permissions during the relevant window. Authorization checks pass.</li>
-      <li><strong>Behavior.</strong> dlin's user account behaved abnormally (PowerShell). The host's process baseline shows no prior PowerShell use under this user. The service account and cloud identity show no unusual activity.</li>
+      <li><strong>Behavior.</strong> dlin's user account behaved abnormally (PowerShell). The host's process baseline shows no prior PowerShell use under this user. The machine account and cloud identity show no unusual activity.</li>
       <li><strong>Relationships.</strong> The four identities are tightly connected: same user, same device, same SSO chain. No surprising new connections to entities outside that cluster.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> applying the dimensions only to the named user. The service account and cloud identity are easy to overlook because the alert did not name them, but they share trust paths and could expose lateral movement if compromised.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> applying the dimensions only to the named user. The machine account and cloud identity are easy to overlook because the alert did not name them, but they share trust paths and could expose lateral movement if compromised.</p>
   </div>
 
   <div data-step class="example-step">
@@ -87,7 +87,7 @@ import Callout from "@/components/assured/Callout.astro";
       <li><strong>Other recipients.</strong> The same email pattern landed in three other finance team mailboxes. Two of them opened the attachment. Two more potential compromise candidates.</li>
       <li><strong>Downstream access.</strong> The cloud finance platform that dlin can access is connected to a vendor payment workflow. If the compromise extends to the cloud identity, payment systems are in scope for the next phase.</li>
     </ul>
-    <p>The Subject picture now consolidates: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the service account, two other finance users who opened the email) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow), plus the external originating sender tracked as the originating threat. That is the map Scope inherits.</p>
+    <p>The Subject picture now consolidates: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the machine account, two other finance users who opened the email) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow), plus the external originating sender tracked as the originating threat. That is the map Scope inherits.</p>
   </div>
 
   <div data-step class="example-step">
@@ -95,7 +95,8 @@ import Callout from "@/components/assured/Callout.astro";
     <p>Subject ends with a structured, defended view of every identity connected to the alert. The handoff to Scope answers:</p>
     <ul class="example-step__list">
       <li><strong>Primary entities.</strong> dlin (user), laptop-finance-09 (host), dlin's cloud identity (SSO).</li>
-      <li><strong>Secondary entities.</strong> The service account dlin's laptop authenticates against. Two other finance users who opened the same email. The originating sender.</li>
+      <li><strong>Secondary entities.</strong> The machine account of laptop-finance-09. Two other finance users who opened the same email.</li>
+      <li><strong>Originating threat.</strong> The external sender behind the phishing email, tracked as a threat entity rather than an internal identity.</li>
       <li><strong>High-value paths.</strong> The cloud finance platform → vendor payment workflow. Lateral movement here would have regulatory and financial impact.</li>
       <li><strong>Insider risk indicators.</strong> None. The pattern looks like external phishing, not insider activity. No anti-forensic signs.</li>
     </ul>
@@ -223,7 +224,7 @@ Subject's verdict is rarely "compromise" or "false-positive" as a binary. It is 
   current="subject"
   nextHref="/docs/subject/quiz"
   nextLabel="Subject chapter quiz"
-  nextDescription="Five questions on the four dimensions, entity types, behavioral framework, and insider analysis."
+  nextDescription="Eight questions on the four dimensions, entity types, behavioral framework, and insider analysis."
   ctaLabel="Take the chapter quiz"
   status={{
     alert: "live",

@@ -39,14 +39,14 @@ Both walkthroughs are cleaner than real telemetry. Live cases have missing paren
 
 <ChapterExample
   title="Case A · The finance-team phishing alert"
-  scenario="A SIEM rule fires at 09:11. An Outlook process on a finance laptop spawned cmd.exe, which spawned PowerShell with -NoProfile -WindowStyle Hidden -EncodedCommand. The destination of the resulting network call is a domain registered four days ago. The named user is dlin, a finance analyst."
+  scenario="A SIEM rule fires at 09:11. On a finance laptop, a Word process opened from Outlook spawned cmd.exe, which spawned PowerShell with -NoProfile -WindowStyle Hidden -EncodedCommand. The destination of the resulting network call is a domain registered four days ago. The named user is dlin, a finance analyst."
 >
 
 <ExampleStepper steps={["Read the detection", "Validate the signal", "Parse the metadata", "Frame the hypothesis", "Hand to Subject"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Read the detection</h3>
-    <p>Before anything else, the analyst reads what fired and why. The rule's logic chains three behavioral signals: <strong>Outlook → cmd.exe → PowerShell</strong> (suspicious parent-child), <strong><code>-EncodedCommand</code> with <code>-NoProfile</code></strong> (a near-universal indicator of automated execution), and <strong>outbound traffic to a low-reputation domain</strong> within 30 seconds. The rule is a behavioral-analytics rule, not a signature. False-positive rate is documented as roughly 1 in 200 fires; the rule has high precision when the chain is complete.</p>
+    <p>Before anything else, the analyst reads what fired and why. The rule's logic chains three behavioral signals: <strong>an Office process spawning a shell (Outlook → winword.exe → cmd.exe → PowerShell)</strong>, <strong><code>-EncodedCommand</code> with <code>-NoProfile</code></strong> (a near-universal indicator of automated execution), and <strong>outbound traffic to a low-reputation domain</strong> within 30 seconds. The rule is a behavioral-analytics rule, not a signature. False-positive rate is documented as roughly 1 in 200 fires; the rule has high precision when the chain is complete.</p>
     <p>Three signals in a single chain is far more weight than any one of them would carry alone. The detection mechanism's confidence is already moderately high before the analyst opens the alert payload.</p>
   </div>
 
@@ -67,7 +67,7 @@ Both walkthroughs are cleaner than real telemetry. Live cases have missing paren
     <p>Structured extraction from the alert payload:</p>
     <ul class="example-step__list">
       <li><strong>Command line.</strong> <code>powershell.exe -NoP -W Hidden -EncodedCommand &lt;base64&gt;</code>. The base64 decodes to a small downloader that reaches the suspicious domain.</li>
-      <li><strong>Process tree.</strong> outlook.exe (PID 5212) → cmd.exe (PID 8104) → powershell.exe (PID 8128). Parent timestamp aligns with an email open event.</li>
+      <li><strong>Process tree.</strong> outlook.exe (PID 5212) → winword.exe (PID 7420) → cmd.exe (PID 8104) → powershell.exe (PID 8128). The winword.exe start time aligns with an attachment-open event in the mailbox audit log.</li>
       <li><strong>Network.</strong> 09:11:43 UTC outbound HTTPS to <code>invoice-records[.]com/upd</code>. Self-signed TLS cert. Approximately 18 KB transferred.</li>
       <li><strong>File system.</strong> <code>%TEMP%\upd.ps1</code> written at 09:11:44 UTC. SHA-256 captured.</li>
       <li><strong>Identity.</strong> Active session: dlin@corp. Logon type 2 (interactive). MFA satisfied at 08:48.</li>

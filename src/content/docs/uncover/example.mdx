@@ -40,25 +40,25 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
   <div data-step class="example-step">
     <h3>Step 1. Endpoint telemetry</h3>
-    <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
+    <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → winword.exe → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
     <p><strong>Mapped to ATT&CK:</strong> T1566 (Phishing) → T1059.001 (PowerShell) → T1105 (Ingress Tool Transfer).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Network correlation</h3>
     <p>Proxy logs confirm the HTTPS connection to invoice-records[.]com. DNS history shows the domain registered 4 days ago, low prevalence, no prior queries from the environment. Firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID. Self-signed certificate with generic CN. The destination IP is in a hosting provider's bulletproof range.</p>
-    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web).</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web Protocols).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Identity logs</h3>
-    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: a second authentication path appears in cloud identity logs about 12 minutes after the alert. The session was federated from the on-premises identity, still using dlin's credentials. Targeted the cloud finance platform. Successful.</p>
-    <p><strong>Mapped to ATT&CK:</strong> T1078.004 (Valid Accounts: Cloud Accounts).</p>
+    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: EDR file-access telemetry shows the PowerShell agent reading the browser's cookie store at 09:19, and a federated login to the cloud finance platform follows at 09:23. The session rode dlin's existing SSO state, but it is distinguishable from dlin's own morning activity: different user-agent string than dlin's browser, and no matching interactive activity (no window focus, no input events) on the laptop at that moment. That discrimination is what turns "a login happened" into evidence.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1078.004 (Valid Accounts: Cloud Accounts).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Mail and SaaS</h3>
-    <p>Mailbox audit confirms the originating email: vendor-themed subject, attachment that decoded to a macro-laden Word document. Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
+    <p>Mailbox audit confirms the originating email: vendor-themed subject, attachment that decoded to a macro-laden Word document. Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → winword.exe → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
     <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
   </div>
 
@@ -70,6 +70,7 @@ T1204.002  User execution: 2 users opened the document
 T1059.001  PowerShell execution invoked from macro
 T1105      Ingress tool transfer: second-stage payload pulled from external domain
 T1071.001  Outbound HTTPS to attacker-controlled domain
+T1539      Browser session cookies read from the compromised host
 T1078.004  Valid accounts: federated login to cloud finance platform`}</code></pre>
     <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal. Uncover ends with this narrative ready for the Risk phase.</p>
   </div>
@@ -194,7 +195,7 @@ The two cases above are endpoint-anchored. The same methodology works for cloud-
 
 <ChapterExample
   title="An unexpected AssumeRole in AWS at 02:14 UTC"
-  scenario="GuardDuty fires: a long-tenure IAM user invokes sts:AssumeRole to take a role that is normally used only by a CI pipeline. The role grants S3 read on a regulated-data bucket. The user is a senior data engineer; the time is 02:14 UTC, outside their usual window. Subject and Scope set narrow bounds (this user, this role, this bucket, alert minus 1 hour through alert plus 4). Uncover begins."
+  scenario="GuardDuty fires: a long-tenure engineer's SSO-federated role session invokes sts:AssumeRole to chain into a role that is normally used only by a CI pipeline. The role grants S3 read on a regulated-data bucket. The user is a senior data engineer; the time is 02:14 UTC, outside their usual window. Subject and Scope set narrow bounds (this user, this role, this bucket, alert minus 1 hour through alert plus 4). Uncover begins."
 >
 
 <ExampleStepper steps={["CloudTrail correlation", "IdP context", "Bucket access pattern", "Verdict and gaps"]}>
@@ -213,7 +214,7 @@ The two cases above are endpoint-anchored. The same methodology works for cloud-
 
   <div data-step class="example-step">
     <h3>Step 2. IdP context</h3>
-    <p>The role-assumption is gated by SSO. Pull the IdP authentication that preceded it.</p>
+    <p>The engineer's AWS access is federated through IAM Identity Center, so every role session starts at the IdP. Pull the authentication that preceded it.</p>
     <ul class="example-step__list">
       <li>SSO login at 02:13:14 UTC, FIDO2 second factor satisfied, registered device matches the user's laptop.</li>
       <li>No <strong>impossible travel</strong> signal, same geographic region as their typical sign-in.</li>

@@ -150,6 +150,129 @@ Each timeline entry should contain five components.
 Timelines should be maintained in real-time and synchronized across systems involved in the event lifecycle. Modern <DefineTerm term="Incident Response" display="incident response" /> platforms provide collaborative timeline features that enable multiple team members to contribute entries while preventing conflicts. These integrated timelines become the authoritative record of event progression, supporting handoffs, shift changes, and distributed-team coordination.
 </Callout>
 
+---
+
+<a id="copy-ready"></a>
+## Copy-ready templates
+
+Everything above describes the templates; these are the templates themselves. Each block is plain Markdown — paste it into a case management system, a ticket, or a shared doc, or download the file and drop it into the team's template library. The timeline table inside the alert report and the handoff packet uses the five components above (timestamp, actor, action taken, rationale, outcome).
+
+<div class="tpl-downloads">
+  <a href="/templates/pattern-close-record.md" download>⬇ pattern-close-record.md</a>
+  <a href="/templates/alert-report.md" download>⬇ alert-report.md</a>
+  <a href="/templates/handoff-packet.md" download>⬇ handoff-packet.md</a>
+</div>
+
+### Level 0 pattern-close record
+
+The five-field record from the [fast path](/docs/fast-path#five-field) — the entire documentation burden of a Level 0 pattern close.
+
+```markdown
+# Level 0 pattern-close record
+
+## 1. Alert
+- Alert ID:
+- Detection source:
+- Detection timestamp (UTC):
+
+## 2. Pattern
+- Pattern library entry matched (ID and name):
+
+## 3. Checks
+<!-- Discriminators verified, with what was actually observed. Not "matches
+     pattern" — e.g. "signed vendor binary, expected install path, no
+     persistence". One line each. -->
+-
+
+## 4. Verdict
+<!-- False-positive or expected behavior, one line of justification. -->
+-
+
+## 5. Disposition
+- Closed at Level 0 by (analyst):
+- Closed at (UTC):
+- Tuning ticket, if the rule keeps firing:
+```
+
+### Alert report
+
+The seven core fields described above, as a fill-in skeleton.
+
+```markdown
+# Alert report
+
+## Event title and identifier
+- Title:
+- ID: INC-YYYYMMDD-NNN
+
+## Detection timestamp and source
+- Detected (UTC):
+- Detection source (tool or control, e.g. EDR / SIEM / CSPM):
+
+## Activity summary
+<!-- The observable behavior that triggered the alert. -->
+
+## Initial triage outcome
+- Classification: true positive / false-positive / inconclusive
+- Justification:
+
+## Affected systems
+<!-- With business context: function, criticality, ownership. -->
+-
+
+## Actions taken
+| Timestamp (UTC) | Actor | Action taken | Rationale | Outcome / result |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
+## Escalation decision and final disposition
+- Escalated: yes / no — to whom, and why (or why not):
+- Final disposition: benign / confirmed malicious / merged into incident:
+```
+
+### Nine-section handoff packet
+
+The escalation packet, sections exactly as the [Handoff page](/docs/escalation/handoff) defines them. Target: readable in five minutes.
+
+```markdown
+# Escalation handoff packet
+
+## 1. Case summary
+<!-- One paragraph: what happened, what is known, what triage recommends. -->
+
+## 2. Timeline
+| Timestamp (UTC) | Actor | Action taken | Rationale | Outcome / result |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
+## 3. Entities
+<!-- Primary and secondary entities with assessment results —
+     the Subject and Scope output. -->
+
+## 4. Evidence chain
+<!-- The Uncover narrative: sources, queries used, MITRE technique mappings. -->
+
+## 5. Risk verdict
+- Impact:
+- Likelihood:
+- Priority:
+- Recommended response:
+
+## 6. Containment actions taken
+<!-- What was done AND what was deliberately not done, and why. -->
+
+## 7. Artifacts
+<!-- Log excerpts, IoCs, hashes, screenshots, queries — attached or linked. -->
+
+## 8. Open questions
+<!-- What triage could not resolve and would have pursued next. -->
+
+## 9. Communication record
+| Time (UTC) | Who was notified | Channel | By whom |
+| --- | --- | --- | --- |
+|  |  |  |  |
+```
+
 <KeyTakeaway>A template is not a constraint; it is scaffolding. Templates make documentation faster, more consistent, and more complete. Time invested in designing the right template saves hours of inconsistent records, and the right alert-reporting template plus a timestamped action timeline cover most of what any audit, post-mortem, or shift handoff will ask for.</KeyTakeaway>
 
 <ContinueCard current="documentation" nextHref="/docs/documentation/pitfalls" nextLabel="Pitfalls" ctaLabel="Read pitfalls" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
@@ -175,4 +298,8 @@ Timelines should be maintained in real-time and synchronized across systems invo
 .timeline-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.55); }
 .timeline-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
 .timeline-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.86rem; }
+
+.tpl-downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.25rem 0 1.75rem; }
+.tpl-downloads a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 9999px; background: rgba(6, 182, 212, 0.08); color: #67e8f9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; text-decoration: none; }
+.tpl-downloads a:hover { background: rgba(6, 182, 212, 0.16); border-color: rgba(6, 182, 212, 0.55); }
 `}</style>

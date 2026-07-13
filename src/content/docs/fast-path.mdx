@@ -1,0 +1,184 @@
+---
+title: "The fast path: triage at volume"
+description: "The depth ladder reconciles thousands of alerts per day with the full seven-phase arc. Level 0 pattern close, Level 1 standard triage, Level 2 full investigation."
+slug: "fast-path"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+The intro makes two claims that look incompatible. SOCs see thousands of alerts per day, and the full seven-phase arc takes an expert 25–80 minutes per alert. Run the math on those two numbers and no team on earth can operate this methodology. The reconciliation is that **the full arc is not the unit of triage work — the depth ladder is.** Depth is a decision the analyst makes per alert, and most of a real queue closes on the ladder's lowest rung.
+
+The seven chapters teach the full arc because that is the skill that has to exist before it can be compressed: an analyst who cannot run Subject cannot safely skip it. This page is the operating model that the trained skill plugs into.
+
+## The depth ladder
+
+<div class="ladder">
+  <div class="ladder__level" data-level="0">
+    <div class="ladder__head">
+      <span class="ladder__num">Level 0</span>
+      <h3 class="ladder__name">Pattern close</h3>
+      <span class="ladder__time">≤ 5 minutes</span>
+    </div>
+    <p class="ladder__what">For alerts that match a <strong>documented known-benign pattern</strong> in the team's pattern library. The analyst validates the match, records a five-field close, and moves on. This is where the bulk of a healthy queue dies — the "majority of alerts are routine or false-positives" the <a href="/docs/alert/validation">Validation page</a> describes.</p>
+    <div class="ladder__cols">
+      <div>
+        <h4>What runs</h4>
+        <ul>
+          <li>Alert, compressed: confirm the alert's discriminators match the documented pattern — not just its shape</li>
+          <li>Documentation, compressed: the <a href="#five-field">five-field record</a>, referencing the pattern by ID</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Entry criteria — all required</h4>
+        <ul>
+          <li>A written pattern entry exists, with named discriminators and an owner</li>
+          <li>Every discriminator checks out; nothing about the alert is novel</li>
+          <li>The subject is not a crown-jewel system or privileged identity</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="ladder__level" data-level="1">
+    <div class="ladder__head">
+      <span class="ladder__num">Level 1</span>
+      <h3 class="ladder__name">Standard triage</h3>
+      <span class="ladder__time">~15–45 minutes</span>
+    </div>
+    <p class="ladder__what">The compressed pass for alerts with <strong>no matching pattern but a bounded blast radius</strong>. Every phase still happens; several collapse into single moves.</p>
+    <div class="ladder__cols">
+      <div>
+        <h4>What runs</h4>
+        <ul>
+          <li><strong>Validate</strong> — Alert, as taught</li>
+          <li><strong>Context</strong> — Subject and Scope as one sweep: who is this, what can they reach</li>
+          <li><strong>Investigate</strong> — Uncover narrowed to the one question the verdict turns on</li>
+          <li><strong>Decide</strong> — Risk verdict, then close or escalate</li>
+          <li><strong>Document</strong> — as-you-go, using the <a href="/docs/documentation/templates">alert report template</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Entry criteria</h4>
+        <ul>
+          <li>No documented pattern match, or a match with one discriminator failing</li>
+          <li>Single subject, ordinary privilege, no regulated-data exposure on its face</li>
+          <li>The verdict question is answerable from telemetry you already have</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="ladder__level" data-level="2">
+    <div class="ladder__head">
+      <span class="ladder__num">Level 2</span>
+      <h3 class="ladder__name">Full arc</h3>
+      <span class="ladder__time">the intro's time table</span>
+    </div>
+    <p class="ladder__what">The seven phases as the chapters teach them, with the Scope → Uncover → Risk loop running until the residual risk is understood. This is what the <a href="/docs/intro">intro's time table</a> prices — and it is reserved for the alerts that earn it.</p>
+    <div class="ladder__cols">
+      <div>
+        <h4>What runs</h4>
+        <ul>
+          <li>Alert → Subject → Scope → Uncover → Risk → Escalation → Documentation, in full</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Entry criteria — any one suffices</h4>
+        <ul>
+          <li>Anything suspicious survived Level 1 without a defensible verdict</li>
+          <li>Crown-jewel subject, privileged identity, or regulated data in reach</li>
+          <li>A novel detection, or multiple alerts correlating into a chain</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+## Ladder rules
+
+<div class="ladder-rules">
+  <div class="ladder-rule">
+    <h4>⬆️ The ladder is a ratchet</h4>
+    <p>Any surprise moves the case <strong>up</strong> a level, and it never slides back down mid-case. A failed discriminator at Level 0 makes the alert a Level 1 case. A Level 1 context sweep that finds a second subject, a privileged account, or regulated data makes it Level 2. Down-scoping happens only between cases, never within one.</p>
+  </div>
+  <div class="ladder-rule">
+    <h4>🚨 Break-glass overrides everything</h4>
+    <p>The ladder governs how much process an alert gets, not when to escalate. A <a href="/docs/escalation/criteria">canonical escalation criterion</a> confirmed at any level escalates immediately under the break-glass rule — even from inside a five-minute Level 0 check. Depth and urgency are separate decisions.</p>
+  </div>
+  <div class="ladder-rule">
+    <h4>📚 Level 0 runs on a pattern library, not on memory</h4>
+    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy — and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive">tuning feedback</a>.</p>
+  </div>
+  <div class="ladder-rule">
+    <h4>🤖 Automation moves the starting line, not the bar</h4>
+    <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment — identity lookups, asset criticality, sandbox verdicts — it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. What automation does not change is the evidentiary bar: the analyst still confirms the discriminators. Enrichment is input to the ladder, never a verdict.</p>
+  </div>
+</div>
+
+<a id="five-field"></a>
+## The five-field record
+
+Level 0's entire documentation burden. Anything that cannot be honestly captured in these five fields does not belong at Level 0.
+
+<div class="ff-record">
+  <div class="ff-row"><span class="ff-field">1 · Alert</span><span class="ff-desc">Alert ID, detection source, timestamp.</span></div>
+  <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID and name.</span></div>
+  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The discriminators verified, with what was actually observed — not "matches pattern" but "signed vendor binary, expected install path, no persistence."</span></div>
+  <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc"><DefineTerm term="False Positive" display="False-positive" /> or expected behavior, one line of justification.</span></div>
+  <div class="ff-row"><span class="ff-field">5 · Disposition</span><span class="ff-desc">Closed at Level 0; analyst and time; tuning ticket reference if the rule keeps firing.</span></div>
+</div>
+
+A copy-ready version lives on the [templates page](/docs/documentation/templates#copy-ready), alongside the full nine-section packet.
+
+<Callout variant="warn" title="What the ladder is not">
+The ladder is not permission to skip thinking. Level 0 without a real pattern library degrades into bulk-closing by vibes — the exact failure mode Validation exists to prevent. The discipline is the trade: five-minute closes are earned by the written pattern entry, the ratchet, and the break-glass rule, not granted by the timer.
+</Callout>
+
+<KeyTakeaway>
+Depth is a per-alert decision, made once at intake and revised only upward. Level 0 pattern-closes the routine majority in five minutes against a written pattern library. Level 1 runs the compressed pass when there is no pattern but the blast radius is bounded. Level 2 is the full arc the chapters teach, reserved for cases that earn it. Break-glass escalation cuts across all three: confirmation escalates now, from any level.
+</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/intro" class="assured-cta assured-cta--ghost">← The methodology</a>
+  <a href="/docs/documentation/templates#copy-ready" class="assured-cta">Copy-ready templates →</a>
+</div>
+
+<style>{`
+.ladder { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0 2rem; }
+.ladder__level { padding: 1.35rem 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.85rem; border-left-width: 3px; }
+.ladder__level[data-level="0"] { border-left-color: #22c55e; }
+.ladder__level[data-level="1"] { border-left-color: #f59e0b; }
+.ladder__level[data-level="2"] { border-left-color: #ef4444; }
+.ladder__head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.65rem; }
+.ladder__num { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; }
+.ladder__level[data-level="0"] .ladder__num { color: #86efac; }
+.ladder__level[data-level="1"] .ladder__num { color: #fcd34d; }
+.ladder__level[data-level="2"] .ladder__num { color: #fca5a5; }
+.ladder__name { margin: 0; font-size: 1.25rem; color: #f8fafc; }
+.ladder__time { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; color: #5eead4; background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.3); padding: 0.15rem 0.6rem; border-radius: 9999px; white-space: nowrap; }
+.ladder__what { margin: 0 0 1rem; color: #cbd5e1; line-height: 1.6; }
+.ladder__cols { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
+@media (min-width: 768px) { .ladder__cols { grid-template-columns: 1fr 1fr; } }
+.ladder__cols h4 { margin: 0 0 0.4rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; }
+.ladder__cols ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+.ladder__cols a { color: #5eead4; }
+.ladder__what a { color: #5eead4; }
+
+.ladder-rules { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0 2rem; }
+@media (min-width: 900px) { .ladder-rules { grid-template-columns: 1fr 1fr; } }
+.ladder-rule { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
+.ladder-rule h4 { margin: 0 0 0.45rem; color: #f8fafc; font-size: 0.97rem; }
+.ladder-rule p { margin: 0; color: #cbd5e1; line-height: 1.6; font-size: 0.9rem; }
+.ladder-rule a { color: #5eead4; }
+
+.ff-record { display: flex; flex-direction: column; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
+.ff-row { display: grid; grid-template-columns: 1fr; gap: 0.25rem; padding: 0.85rem 1.25rem; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+.ff-row:first-child { border-top: 0; }
+@media (min-width: 768px) { .ff-row { grid-template-columns: 10rem 1fr; gap: 1rem; align-items: baseline; } }
+.ff-field { color: #86efac; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+.ff-desc { color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
+
+.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2.5rem 0 1rem; }
+`}</style>

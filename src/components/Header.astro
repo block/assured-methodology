@@ -195,7 +195,10 @@ const currentPath = Astro.url.pathname;
     flex-wrap: nowrap;
   }
 
-  @media (min-width: 960px) {
+  /* Ten top-level items fit only from ~1250px up, even with compact spacing;
+     below that the hamburger menu takes over (the nav used to paint over the
+     search and GitHub controls between 960px and ~1230px). */
+  @media (min-width: 1250px) {
     .header__nav { display: flex; }
   }
 
@@ -214,7 +217,14 @@ const currentPath = Astro.url.pathname;
     white-space: nowrap;
   }
 
-  @media (min-width: 1280px) {
+  /* Compact spacing until the viewport can hold the roomier layout. */
+  @media (min-width: 1250px) and (max-width: 1449px) {
+    .header__left { gap: 1.25rem; }
+    .header__link { padding: 0.45rem 0.35rem; }
+    .header__nav { gap: 0.15rem; }
+  }
+
+  @media (min-width: 1450px) {
     .header__link { padding: 0.45rem 0.7rem; }
     .header__nav { gap: 0.4rem; }
   }
@@ -282,6 +292,14 @@ const currentPath = Astro.url.pathname;
     transform: translateY(-6px);
     transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
     z-index: 100;
+  }
+
+  /* The last nav item sits near the viewport edge; a left-aligned dropdown
+     there extends past the page and adds a horizontal scrollbar even while
+     hidden (visibility:hidden still occupies layout space). */
+  .header__nav > :last-child .header__dropdown {
+    left: auto;
+    right: 0;
   }
 
   .header__menu-item:hover .header__dropdown,
@@ -377,7 +395,7 @@ const currentPath = Astro.url.pathname;
     cursor: pointer;
   }
 
-  @media (min-width: 960px) {
+  @media (min-width: 1250px) {
     .header__menu-btn { display: none; }
   }
 
@@ -388,7 +406,7 @@ const currentPath = Astro.url.pathname;
 
   /* 44px touch-target floor for the header's icon controls on touch devices
      and narrow screens (WCAG 2.5.5; the audit measured ~32px). */
-  @media (max-width: 959px), (pointer: coarse) {
+  @media (max-width: 1249px), (pointer: coarse) {
     .header__icon,
     .header__menu-btn {
       min-width: 2.75rem;

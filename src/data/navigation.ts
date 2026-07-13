@@ -24,6 +24,7 @@ export const mainNavigation: NavGroup[] = [
     title: "Main Navigation",
     items: [
       { title: "Introduction", href: "/docs/intro", status: "live" },
+      { title: "Fast path", href: "/docs/fast-path", status: "live" },
       {
         title: "Alert",
         href: "/docs/alert",

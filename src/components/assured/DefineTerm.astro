@@ -148,7 +148,10 @@ const displayText = display ?? term;
   .define-term__trigger[aria-expanded="true"] + .define-term__panel {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    /* Must keep --define-term-shift here: the JS edge-avoidance sets it on
+       reveal, and dropping it from the visible state snaps the panel back to
+       centered — clipping at viewport edges and panning the page on mobile. */
+    transform: translateX(calc(-50% + var(--define-term-shift, 0px))) translateY(0);
     pointer-events: auto;
   }
 </style>

@@ -218,27 +218,3 @@ const scatter = [
   }
 </style>
 
-<script>
-  // ClientRouter idempotency: per-element data-hp-bound marker; rerun on page-load.
-  function bindHeroPuzzle() {
-    const prefersReduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return;
-    const root = document.querySelector<HTMLElement>("[data-hero-puzzle]:not([data-hp-bound])");
-    if (!root) return;
-    root.setAttribute("data-hp-bound", "true");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            // First time will already have animated via CSS. Subsequent
-            // re-entries restart the animation.
-          }
-        });
-      },
-      { threshold: [0, 0.5, 1] }
-    );
-    observer.observe(root);
-  }
-  bindHeroPuzzle();
-  document.addEventListener("astro:page-load", bindHeroPuzzle);
-</script>

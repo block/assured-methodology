@@ -3358,22 +3358,25 @@ export const glossary: Record<string, GlossaryEntry> = {
   }
 };
 
-/** Case-insensitive lookup. Tries exact, lowercased, and singular forms. */
+/** Lowercase and treat hyphens as spaces so "False-Positive" finds
+ *  "False Positive". Collapses runs of whitespace to a single space. */
+function normalizeKey(s: string): string {
+  return s.toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Case- and hyphen-insensitive lookup. Tries exact, normalized, and
+ *  singular forms. */
 export function lookupTerm(needle: string): GlossaryEntry | undefined {
   if (!needle) return undefined;
   const direct = glossary[needle];
   if (direct) return direct;
-  const lower = needle.toLowerCase();
-  for (const k of Object.keys(glossary)) {
-    if (k.toLowerCase() === lower) return glossary[k];
-  }
+  const candidates = [normalizeKey(needle)];
   if (needle.endsWith('s')) {
-    const singular = needle.slice(0, -1);
-    const e = glossary[singular];
-    if (e) return e;
-    for (const k of Object.keys(glossary)) {
-      if (k.toLowerCase() === singular.toLowerCase()) return glossary[k];
-    }
+    candidates.push(normalizeKey(needle.slice(0, -1)));
+  }
+  for (const k of Object.keys(glossary)) {
+    const nk = normalizeKey(k);
+    if (candidates.includes(nk)) return glossary[k];
   }
   return undefined;
 }

@@ -30,13 +30,11 @@ export default defineConfig({
     remarkPlugins: [remarkGfm],
     rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
     shikiConfig: {
-      themes: {
-        light: 'github-light',
-        dark: 'github-dark'
-      },
-      wrap: true,
-      // Remove default theme application
-      defaultColor: 'light'
+      // The site is dark-only; a single dark theme keeps code blocks from
+      // rendering on a white background (the old dual-theme config defaulted
+      // to github-light and nothing ever switched it).
+      theme: 'github-dark',
+      wrap: true
     }
   },
   vite: {

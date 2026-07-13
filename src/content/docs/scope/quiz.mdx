@@ -32,10 +32,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A confirmed compromise of a system processing payment card data is detected. The technical investigation will take days. What does Scope require the analyst to do about timing?"
     options={[
-      { value: "wait", label: "Wait until the technical investigation finishes, then notify." },
-      { value: "parallel", label: "Engage compliance and start any breach-notification clocks in parallel with the technical investigation." },
-      { value: "skip", label: "Skip the compliance step; it can be done later." },
-      { value: "only-if", label: "Only notify if the investigation confirms data loss." },
+      { value: "wait", label: "Wait until the technical investigation finishes, so the notification is accurate the first time." },
+      { value: "parallel", label: "Engage compliance and start any notification clocks in parallel with the technical work." },
+      { value: "skip", label: "Skip the compliance step during triage; regulatory work begins if the case escalates to IR." },
+      { value: "only-if", label: "Notify only once the investigation confirms data actually left; premature notice causes churn." },
     ]}
     answer="parallel"
     explanation="PCI breach-notification timelines run independently of the technical investigation. Scope is the phase where regulatory obligations are recognized, and engaging compliance early lets those clocks run in parallel with technical work rather than serially after."
@@ -44,10 +44,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="An alert looks like phishing-driven intrusion. What is the typical historical window for the investigation?"
     options={[
-      { value: "hour", label: "Last hour. Phishing is fast." },
-      { value: "24-72", label: "24 to 72 hours, with a 4-week extended look at the primary entities to rule out earlier staging." },
-      { value: "year", label: "Last year. Adversaries dwell." },
-      { value: "default", label: "30 days, always. Default windows are best." },
+      { value: "hour", label: "The last hour. Phishing plays out in minutes, and a tight window keeps the queries fast." },
+      { value: "24-72", label: "24 to 72 hours, with a 4-week extended look at primary entities to rule out earlier staging." },
+      { value: "year", label: "The last year. Median dwell times mean anything shorter risks missing the real intrusion start." },
+      { value: "default", label: "30 days, always. A standard window keeps cases comparable and the tooling configuration simple." },
     ]}
     answer="24-72"
     explanation="Phishing-driven intrusion typically progresses within days, but ruling out earlier staging requires a longer look on the primary entities. The two-window pattern (short primary + extended look on primaries) is a common Scope decision for this threat type."
@@ -56,10 +56,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The Subject phase identified seven identities connected to the alert. How many should be primary in scope?"
     options={[
-      { value: "all", label: "All seven. Investigate each fully." },
-      { value: "depends", label: "It depends on which identities were directly involved in the alert vs. connected by trust paths. Primary entities get full depth; secondary entities get baseline comparison and are upgraded only on a signal." },
-      { value: "one", label: "One. The first one named in the alert." },
-      { value: "three", label: "Three. That is the manageable number." },
+      { value: "all", label: "All seven at full depth. Anything less leaves a potentially compromised identity unexamined." },
+      { value: "depends", label: "Directly involved identities get full depth; trust-path-connected ones get baseline checks." },
+      { value: "one", label: "One, the identity named in the alert. The others belong to Uncover if evidence points there." },
+      { value: "three", label: "Three, the number one analyst can profile within the Scope phase's time budget." },
     ]}
     answer="depends"
     explanation="Primary entities are those directly involved in the alert. Secondary entities are connected but not in the alert. The split keeps investigation depth proportional to evidence rather than spending equal time on every identity in the map."
@@ -68,9 +68,9 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="An investigation needs in-app activity from a SaaS platform, but the SOC only has authentication logs and gross API metrics. What does Scope require?"
     options={[
-      { value: "ignore", label: "Ignore the gap. Make do with what is available." },
-      { value: "document", label: "Name the gap explicitly in the Scope output. Submit a vendor data request now so it can arrive in parallel with the rest of the investigation." },
-      { value: "stop", label: "Stop the investigation until the gap is closed." },
+      { value: "ignore", label: "Work with what is available; visibility gaps are universal and not worth documenting." },
+      { value: "document", label: "Name the gap explicitly in the Scope output and submit the vendor data request now." },
+      { value: "stop", label: "Pause the investigation until the vendor data arrives, so conclusions rest on full evidence." },
       { value: "guess", label: "Reconstruct the in-app activity from authentication patterns alone." },
     ]}
     answer="document"
@@ -80,10 +80,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A hospital SOC confirms a compromised workstation had access to systems holding PHI. When does HIPAA's 60-day individual-notification clock start?"
     options={[
-      { value: "confirmed", label: "When the technical investigation confirms PHI was actually exfiltrated." },
-      { value: "discovery", label: "At discovery: the first day anyone in the workforce (other than the person responsible) knew, or with reasonable diligence should have known, of the potential breach. That can be the alert itself." },
-      { value: "case-open", label: "When the privacy officer formally opens a breach case." },
-      { value: "assessment", label: "When counsel signs off on the four-factor risk assessment." },
+      { value: "confirmed", label: "When the technical investigation confirms PHI actually left the covered environment." },
+      { value: "discovery", label: "At discovery: when the workforce knew or reasonably should have known. Maybe the alert." },
+      { value: "case-open", label: "When the privacy officer formally opens a breach case in the compliance system." },
+      { value: "assessment", label: "When counsel signs off on the four-factor risk assessment that a breach occurred." },
     ]}
     answer="discovery"
     explanation="The 60-day clock (45 CFR §164.404) runs from discovery, not from confirmation — and discovery is a knew-or-should-have-known standard applied to the whole workforce. The alert that starts triage can be the discovery event, which is why Scope commits the timestamp and engages the privacy officer early. The four-factor assessment (§164.402) decides whether notification is required at all; it does not pause the clock."
@@ -92,10 +92,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="During Scope, the analyst confirms that a compromised account assumed a cloud role during the investigation window. The decision-tree response is..."
     options={[
-      { value: "ignore", label: "Note it but stay focused on the originating endpoint." },
-      { value: "add-role", label: "Add the cloud role and resources it can touch into scope. Review STS AssumeRole patterns against normal usage. Document the evidence, risk, and required actions." },
-      { value: "isolate", label: "Immediately isolate every system the role can access." },
-      { value: "wait", label: "Wait for Uncover to find evidence of misuse before expanding scope." },
+      { value: "ignore", label: "Note it but stay focused on the originating endpoint until Uncover produces evidence." },
+      { value: "add-role", label: "Add the role and its reachable resources into scope; review AssumeRole patterns vs. normal." },
+      { value: "isolate", label: "Immediately isolate every system the role can access before the session can be used again." },
+      { value: "wait", label: "Keep scope as-is until Uncover finds evidence of misuse; expansion without evidence is churn." },
     ]}
     answer="add-role"
     explanation="The IF/THEN decision-tree pattern is Scope's structured way of evolving the boundary. A cloud-role assumption is evidence; the methodology says incorporate it now and document the three-line justification (evidence, risk, required actions) so the expansion is defensible. Waiting for Uncover to surface it would mean Uncover queries outside its own scope to find what Scope should have already framed."
@@ -104,9 +104,9 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Scope confirms a compromised identity can reach systems inside the cardholder data environment (CDE). What does the methodology require?"
     options={[
-      { value: "recognize", label: "Tag the case PCI-relevant, preserve CDE audit logs beyond their rotation schedule, and notify the owner of the acquirer relationship — in parallel with the technical investigation." },
-      { value: "full-access", label: "Request full CDE access for the analyst so cardholder data can be sampled directly." },
-      { value: "wait", label: "Wait for confirmed cardholder-data exfiltration before involving compliance." },
+      { value: "recognize", label: "Tag the case PCI-relevant, preserve CDE audit logs, notify the acquirer-relationship owner." },
+      { value: "full-access", label: "Request full CDE access for the analyst so cardholder-data exposure can be sampled directly." },
+      { value: "wait", label: "Wait for confirmed cardholder-data exfiltration before involving compliance or the acquirer." },
       { value: "isolate", label: "Isolate every CDE system immediately; PCI requires containment within one hour." },
     ]}
     answer="recognize"
@@ -116,10 +116,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The Scope handoff to Uncover should include investigative questions. Why?"
     options={[
-      { value: "format", label: "Standard format. Required for documentation." },
-      { value: "focus", label: "To focus Uncover on the most critical unknowns instead of broad data exploration. Specific questions drive specific queries; broad ones drive wandering." },
-      { value: "audit", label: "For audit purposes only." },
-      { value: "duplicate", label: "Because Uncover does not have access to Subject's findings." },
+      { value: "format", label: "Standard format: the documentation templates require an open-questions section." },
+      { value: "focus", label: "To focus Uncover on the critical unknowns: specific questions drive specific queries." },
+      { value: "audit", label: "For the audit trail: reviewers check that every open question was eventually answered." },
+      { value: "duplicate", label: "Because Uncover cannot read Subject's findings and needs the questions restated." },
     ]}
     answer="focus"
     explanation="Uncover's depth comes from working through specific investigative questions. How did the attacker get in? What systems were touched? Was data moved? Is persistence active? Scope frames those questions before the data is pulled, which is what keeps Uncover from running broad queries and hoping. The questions are how the methodology converts a boundary into actionable analytical effort."

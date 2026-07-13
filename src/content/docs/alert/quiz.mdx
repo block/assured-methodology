@@ -1,6 +1,6 @@
 ---
 title: "Alert chapter quiz"
-description: "Check what you've learned. Five questions on detection mechanisms, validation, parsing, and the Alert deliverable."
+description: "Check what you've learned. Eight questions on detection mechanisms, validation, parsing, and the Alert deliverable."
 slug: "alert/quiz"
 ---
 
@@ -17,7 +17,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   pillarLabel="Alert chapter"
   chapterHref="/docs/alert"
   chapterLabel="Alert"
-  lede="Five questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
+  lede="Eight questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
 />
 
 <PillNav
@@ -76,22 +76,60 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="An alert reports an outbound TLS connection to a domain registered three days ago. The process is signed certutil.exe. The user is a developer. Which combination of signals would raise the confidence that this is malicious?"
     options={[
-      { value: "domain-age", label: "Just the domain age. New domains are suspicious." },
-      { value: "process",    label: "Just the process. certutil rarely makes outbound TLS connections." },
-      { value: "combined",   label: "Domain age + certutil + the developer not having a documented build process that uses certutil for downloads." },
-      { value: "ignore",     label: "Ignore the alert. certutil is signed by Microsoft." },
+      { value: "domain-age", label: "The domain age alone. Domains registered within a week are suspicious enough to act on." },
+      { value: "process",    label: "The process alone. certutil making any outbound TLS connection is suspicious enough to act on." },
+      { value: "combined",   label: "Domain age, plus certutil, plus no documented build process that uses certutil for downloads." },
+      { value: "ignore",     label: "None. The binary is signed by Microsoft, so the activity is trusted regardless of destination." },
     ]}
     answer="combined"
     explanation="Single signals get tuned out as noise. The combination is what changes the verdict. New domain + an unusual process for the user + no documented business reason maps to the classic certutil-as-LOLBin pattern. None of the signals on its own is decisive. The combination is."
   />
 
   <QuizItem
+    prompt={'An EDR alert shows: powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA... What does -enc tell you, and what is the right parsing move?'}
+    options={[
+      { value: "encrypted", label: "The payload is encrypted. Without the key, judge the alert on the parent process alone." },
+      { value: "decode",    label: "The payload is Base64 of UTF-16LE text. Decode it; the decoded command decides the verdict." },
+      { value: "malicious", label: "The flag itself is the verdict. -enc only exists for attackers, so this alert is a true positive." },
+      { value: "benign",    label: "The flag is administrative noise. Plenty of vendor tooling uses -enc; drop it from the parse." },
+    ]}
+    answer="decode"
+    explanation="-EncodedCommand takes a Base64-encoded UTF-16LE string, an encoding, not encryption, so it decodes locally with no key. The surrounding flags (-nop, -w hidden, abbreviated names) raise suspicion, and legitimate automation does use -enc, which is exactly why the decoded payload, not the flag, decides. Here it opens with IEX (New-Object ..., the classic download-and-execute-in-memory prefix."
+    hint="Encoded and encrypted are different words for a reason."
+  />
+
+  <QuizItem
+    prompt="A parsed process tree reads: explorer.exe → WINWORD.EXE → msdt.exe → sdiagnhost.exe. Which link is the anomaly?"
+    options={[
+      { value: "explorer", label: "explorer.exe → WINWORD.EXE. Word should be launched by the Office click-to-run service." },
+      { value: "winword",  label: "WINWORD.EXE → msdt.exe. A document reader spawning a diagnostic tool is the anomaly." },
+      { value: "msdt",     label: "msdt.exe → sdiagnhost.exe. The diagnostic tool should never spawn a scripted host." },
+      { value: "none",     label: "None. Every process in the chain is a signed Microsoft binary, so the chain is expected." },
+    ]}
+    answer="winword"
+    explanation="explorer.exe launching Word is a user double-click, normal. And once msdt.exe runs, sdiagnhost.exe is its expected child. The break in the story is the middle link: a word processor has no business spawning the Microsoft Support Diagnostic Tool, and that parent-child pair is the signature of the Follina exploit (CVE-2022-30190). Every node being signed by Microsoft is exactly why lineage, not identity, is what you parse."
+    hint="Ask what business each parent has spawning its child."
+  />
+
+  <QuizItem
+    prompt="An analyst pivots to Windows Security Event 4688 to reconstruct process creations, but the CommandLine field is blank on every event. What is the most likely reason?"
+    options={[
+      { value: "fileless",  label: "The activity was fileless, so there were no command lines to record in the event." },
+      { value: "policy",    label: "Command-line capture is a separate audit policy that is off by default and was never enabled." },
+      { value: "cleared",   label: "The attacker selectively cleared the field, which is why the rest of the event survived." },
+      { value: "sysmon",    label: "Event 4688 has no command-line field at all; only Sysmon Event 1 can record one." },
+    ]}
+    answer="policy"
+    explanation="4688 does have a CommandLine field, but populating it requires the 'Include command line in process creation events' policy, which is off by default. If it was never enabled, every historical event is blank and no retroactive fix exists, a telemetry gap you discover exactly when you need the data. Sysmon Event 1 is the common compensating source. This is why parsing includes knowing what your telemetry was configured to capture."
+  />
+
+  <QuizItem
     prompt="What is the Alert phase's deliverable to the rest of the methodology?"
     options={[
-      { value: "verdict",     label: "A verdict on whether the alert is malicious." },
-      { value: "structured",  label: "A structured, validated, parsed record plus an entity list and an investigation plan." },
-      { value: "containment", label: "A containment recommendation for the affected host." },
-      { value: "report",      label: "A written report for the security manager." },
+      { value: "verdict",     label: "A verdict on whether the alert is malicious, with the reasoning that supports it." },
+      { value: "structured",  label: "A structured, validated, parsed record, plus an entity list and an investigation plan." },
+      { value: "containment", label: "A containment recommendation for the affected host, ready for IR to execute." },
+      { value: "report",      label: "A written report for the security manager summarizing what fired and why it matters." },
     ]}
     answer="structured"
     explanation="Alert produces three things: a structured record of what the engine saw, a validation result that says whether the signal is real, and a parsed metadata set that the next phases can query. Verdicts and containment are downstream phases. Reports are documentation. The Alert phase's job is to make the next analyst's work fast and accurate, not to draw conclusions."

@@ -23,10 +23,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A CVSS 9.8 vulnerability is found on a system. What should the Risk verdict be?"
     options={[
-      { value: "auto", label: "Automatically high. CVSS 9.8 is critical." },
-      { value: "depends", label: "It depends on environmental context: is the system exposed, in use, mitigated? CVSS is one input, not the verdict." },
-      { value: "low", label: "Low. Most CVSS-scored vulnerabilities are not actively exploited." },
-      { value: "compliance", label: "Whatever compliance says." },
+      { value: "auto", label: "High automatically. A critical base score is the industry-standard escalation threshold." },
+      { value: "depends", label: "It depends on context: exposure, use, and mitigations. CVSS is an input, not the verdict." },
+      { value: "low", label: "Low by default, since only a small fraction of scored vulnerabilities see exploitation." },
+      { value: "compliance", label: "Whatever the compliance framework covering that system dictates for critical findings." },
     ]}
     answer="depends"
     explanation="CVSS scores severity in the abstract. The Risk verdict is about the specific environment, the specific asset, and the specific case. A CVSS 9.8 on an isolated, unused system is a different decision than the same score on a production asset."
@@ -35,10 +35,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Impact and likelihood are..."
     options={[
-      { value: "same", label: "Two ways of measuring the same thing." },
-      { value: "independent", label: "Independent dimensions that are evaluated separately and then combined." },
-      { value: "intuitive", label: "Best evaluated by intuition rather than evidence." },
-      { value: "scoring", label: "Always converted to a single numeric score." },
+      { value: "same", label: "Two ways of measuring the same underlying severity from different directions." },
+      { value: "independent", label: "Independent dimensions, evaluated separately and then deliberately combined." },
+      { value: "intuitive", label: "Judgment calls where a senior analyst's intuition outperforms any explicit rubric." },
+      { value: "scoring", label: "Two factors that must be multiplied into a single numeric score for the record." },
     ]}
     answer="independent"
     explanation="Impact is 'if this is real, how bad is it.' Likelihood is 'how confident are we that this is real.' Separating them prevents the common error of letting impact bias the likelihood judgment."
@@ -47,10 +47,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A case closes as a false-positive. What should the analyst record?"
     options={[
-      { value: "nothing", label: "Nothing. False-positives are non-events." },
-      { value: "summary", label: "Just a one-line summary." },
-      { value: "full", label: "The alert, what was checked, what ruled it out, and what to change in detection. False-positives feed detection engineering and team knowledge." },
-      { value: "complaint", label: "A complaint to the detection team." },
+      { value: "nothing", label: "Nothing beyond the closure code. False-positives are non-events by definition." },
+      { value: "summary", label: "A one-line summary, enough to show the alert was reviewed before it was closed." },
+      { value: "full", label: "The alert, what was checked, what ruled it out, and what to change in detection." },
+      { value: "complaint", label: "A tuning request to the detection team, since the rule fired on benign activity." },
     ]}
     answer="full"
     explanation="A closed false-positive is a finding too. Documenting the reasoning takes minutes and compounds into sharper detection over time. The methodology treats every closure as a contribution to institutional knowledge."
@@ -59,10 +59,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The Risk verdict should include..."
     options={[
-      { value: "score", label: "A single number." },
-      { value: "matrix", label: "Just the matrix decision." },
-      { value: "full", label: "Impact + likelihood + matrix decision + open questions + recommended response. The combination is what defends the verdict six months later." },
-      { value: "verbal", label: "A verbal recommendation to the manager." },
+      { value: "score", label: "A single composite number, so verdicts can be compared and trended across cases." },
+      { value: "matrix", label: "The matrix decision alone; the scoring detail behind it lives in the analyst's notes." },
+      { value: "full", label: "Impact, likelihood, matrix decision, open questions, and a recommended response." },
+      { value: "verbal", label: "A verbal recommendation to the SOC manager, who owns the written record of verdicts." },
     ]}
     answer="full"
     explanation="The Risk output should be a one-page verdict that a future reviewer can read and understand without re-doing the analysis. Open questions and recommended response are part of what makes the verdict actionable and defensible."
@@ -83,10 +83,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Uncover confirms the adversary has reached a system outside the original Scope boundary. What does the methodology require?"
     options={[
-      { value: "ignore", label: "Ignore the out-of-scope finding." },
-      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary before deciding anything." },
-      { value: "breakglass", label: "Escalate now, confirmed spread beyond the boundary is a canonical criterion, and continue the Scope → Uncover → Risk loop in parallel under IR's clock." },
-      { value: "drop", label: "Drop the case and start over." },
+      { value: "ignore", label: "Note the finding for the record but keep the case inside its original Scope boundary." },
+      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary before deciding." },
+      { value: "breakglass", label: "Escalate now, confirmed spread is a canonical criterion, and keep the loop running for IR." },
+      { value: "drop", label: "Close this case and open a fresh one scoped to the newly discovered system from the start." },
     ]}
     answer="breakglass"
     explanation="Confirmed lateral movement beyond the boundary meets a canonical escalation criterion, and the break-glass rule fires from any phase the moment a criterion is confirmed. The dynamic loop still runs, refining scope is exactly what IR needs next, but it runs in parallel with containment, not instead of it. The loop is for building fidelity on unresolved cases; it is never a reason to sit on a confirmed, spreading compromise."
@@ -95,10 +95,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A SOC sees the same false-positive alert fire repeatedly across multiple developer workstations. What is the right response?"
     options={[
-      { value: "close", label: "Keep closing them individually. Each closure is independent." },
-      { value: "suppress", label: "Suppress the rule entirely." },
-      { value: "feedback", label: "Pattern-recognize the volume. The repeated same-asset-class false-positive is detection-engineering feedback: the rule needs a role-aware variant or context-enriched suppression with documented review cadence." },
-      { value: "escalate", label: "Escalate every instance to leadership." },
+      { value: "close", label: "Keep closing them individually with full records. Each case stands on its own evidence." },
+      { value: "suppress", label: "Suppress the rule entirely. A rule this noisy costs more attention than it could return." },
+      { value: "feedback", label: "Treat the pattern as detection feedback: a role-aware rule variant or documented suppression." },
+      { value: "escalate", label: "Escalate the volume to leadership so the detection budget conversation happens upstream." },
     ]}
     answer="feedback"
     explanation="A single false-positive is a closure with feedback. A pattern of false-positives on the same asset class is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression with an owner and a review cadence, not for individual repeat closures or wholesale rule removal."
@@ -107,10 +107,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The Risk verdict for the Cursor IDE case (false-positive) reads 'low residual risk, no escalation required.' What value does the documented closure provide?"
     options={[
-      { value: "none", label: "None. It is a non-event." },
-      { value: "audit", label: "Audit checkbox only." },
-      { value: "all", label: "Defensible record if the alert fires again, detection-engineering feedback to refine the rule, program-level question about coverage gaps, and re-openable case context if new evidence surfaces. The closure is itself an artifact." },
-      { value: "metric", label: "A metric for SOC throughput." },
+      { value: "none", label: "None. A false-positive that never escalated produced nothing the organization can use." },
+      { value: "audit", label: "An audit checkbox: evidence the queue is worked, with no investigative value beyond that." },
+      { value: "all", label: "A defensible record, detection feedback, a coverage-gap question, and re-openable context." },
+      { value: "metric", label: "A throughput metric: closed cases are how triage capacity gets measured and staffed." },
     ]}
     answer="all"
     explanation="A documented false-positive closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, about coverage gaps in macOS PCAP and USB monitoring), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."

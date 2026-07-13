@@ -23,10 +23,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="When should documentation be written?"
     options={[
-      { value: "before", label: "Before the investigation, as a plan." },
-      { value: "during", label: "During the investigation, with cleanup at the end. Memory is the freshest while the work is happening." },
-      { value: "after", label: "After closure, when there is time to write properly." },
-      { value: "review", label: "Only during the manager's review." },
+      { value: "before", label: "Before the investigation begins, as a written plan the analyst then executes against." },
+      { value: "during", label: "During the investigation, with a cleanup pass at the end, while memory is freshest." },
+      { value: "after", label: "After closure, when the full picture is known and there is time to write it properly." },
+      { value: "review", label: "At the manager's review, so the record reflects what the reviewer actually needs." },
     ]}
     answer="during"
     explanation="Documentation written during the investigation captures detail that is gone an hour later. Post-hoc documentation reads tidy and is less useful for training, audit, or trend analysis."
@@ -35,10 +35,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Which is the biggest documentation pitfall?"
     options={[
-      { value: "length", label: "Records are too long." },
-      { value: "form", label: "Treating the form as the work. Long records with no substance are worse than short ones with substance." },
-      { value: "speed", label: "Writing too quickly." },
-      { value: "templates", label: "Using templates." },
+      { value: "length", label: "Records that run too long. Past a page, nobody reads the record at all." },
+      { value: "form", label: "Treating the form as the work: a filled template with none of the reasoning recorded." },
+      { value: "speed", label: "Writing too quickly. Speed is what introduces the errors that undermine trust in records." },
+      { value: "templates", label: "Using templates in the first place; they shape the record around fields, not facts." },
     ]}
     answer="form"
     explanation="The most common failure is filling the template without recording the reasoning. The form is scaffolding, not the goal. A short, complete record beats a long, empty one every time."
@@ -47,10 +47,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="What is the test of good documentation?"
     options={[
-      { value: "length", label: "Length." },
-      { value: "format", label: "It follows the template exactly." },
-      { value: "replay", label: "A future reader can replay the analyst's reasoning without asking questions." },
-      { value: "speed", label: "How quickly it was written." },
+      { value: "length", label: "Completeness by volume: the longer the record, the more of the case it preserves." },
+      { value: "format", label: "Template fidelity: every section of the standard format is present and filled in." },
+      { value: "replay", label: "A future reader can replay the analyst's reasoning without asking anyone questions." },
+      { value: "speed", label: "Timeliness: the record was written during the case rather than reconstructed after." },
     ]}
     answer="replay"
     explanation="The test is whether the record stands alone. A future analyst, auditor, or trainer should be able to read it and understand both what was decided and why. Length and speed are secondary."
@@ -59,49 +59,49 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A closed false-positive case is documented. What is its main downstream use?"
     options={[
-      { value: "compliance", label: "Compliance evidence." },
-      { value: "trash", label: "It has no use; close it and move on." },
-      { value: "detection", label: "Feedback for detection engineering and a training case for the team. False-positives are sharpening signals when documented." },
-      { value: "manager", label: "Performance review material." },
+      { value: "compliance", label: "Compliance evidence: proof for auditors that the alert queue is actually being worked." },
+      { value: "trash", label: "None. A false-positive is a non-event, and recording more than the closure wastes time." },
+      { value: "detection", label: "Feedback for detection engineering and a training case for newer analysts on the team." },
+      { value: "manager", label: "Performance material: documented closes are how analyst throughput gets measured." },
     ]}
     answer="detection"
     explanation="Closed false-positives, well documented, point at where the detection logic could be sharper and help newer analysts learn what to look for. The methodology treats them as contributions, not as non-events."
   />
 
   <QuizItem
-    prompt="The methodology recommends a 9-section format for event reports. Which section is most often skipped under time pressure, and what is the cost?"
+    prompt="An investigation checked for persistence mechanisms and found none. Under time pressure, the analyst leaves that check out of the record, reasoning that there was nothing to report. What went wrong?"
     options={[
-      { value: "summary", label: "Event overview. Cost: hard to scan." },
-      { value: "lessons", label: "Lessons learned. Cost: detection gaps and process inefficiencies recur. The lessons-learned section is what feeds back into detection engineering, training, and process improvement." },
-      { value: "iocs", label: "Indicators of compromise. Cost: harder threat hunting later." },
-      { value: "appendix", label: "Appendices. Cost: minor reference friction." },
+      { value: "nothing", label: "Nothing. Records document findings, and a check that found nothing produced no finding." },
+      { value: "negative", label: "Negative findings are evidence too: what was checked and ruled out bounds the case." },
+      { value: "escalate", label: "The real error came earlier: a persistence check at all means the case needed escalation." },
+      { value: "summary", label: "Only the placement. Ruled-out checks belong in the appendix, not the main record." },
     ]}
-    answer="lessons"
-    explanation="Lessons learned is the section that most often gets short-changed under time pressure, and the one with the highest compounding cost. Without it, the same detection gaps, process breakdowns, and tooling limitations recur because the case did not feed back into improvement. Format completeness is what makes the methodology improve over time."
+    answer="negative"
+    explanation="Omitting negative findings is one of the classic documentation pitfalls. 'Persistence checked: none found, here is what was examined' is what lets a reviewer trust the closure, lets the case re-open without re-doing the work, and defends the analyst if persistence later surfaces through a gap the check could not see. A record that only lists positive findings reads as an investigation that never looked."
   />
 
   <QuizItem
-    prompt="Documentation is most useful downstream when it includes which of the following beyond the technical timeline?"
+    prompt="A closed case record contains a flawless technical timeline and nothing else. Who is left unserved?"
     options={[
-      { value: "tech", label: "Only the technical detail. Anything else is editorializing." },
-      { value: "business", label: "Business-impact translation, lessons learned, post-incident recommendations. The technical record alone serves the immediate case; the additional layers serve detection engineering, training, executive reporting, and threat intel." },
-      { value: "ioc", label: "Just IOCs and ATT&CK mappings." },
-      { value: "narrative", label: "A long narrative." },
+      { value: "nobody", label: "Nobody. The timeline is the record; every other audience can derive what they need from it." },
+      { value: "audiences", label: "Most non-analyst readers: executives, auditors, and trainers each need a layer beyond raw events." },
+      { value: "ir", label: "Only incident response, because a timeline without containment steps cannot be actioned." },
+      { value: "legal", label: "Only legal, because a timeline without chain-of-custody entries is inadmissible evidence." },
     ]}
-    answer="business"
-    explanation="Documentation produces value across five downstream uses: detection engineering, analyst training, process improvement, executive reporting, and threat intelligence. A pure technical record serves only the first one well. The methodology asks for layered records that feed all five."
+    answer="audiences"
+    explanation="The standards page asks records to serve multiple audiences: the technical timeline serves the next analyst, but an executive needs the business-impact translation, an auditor needs the decision rationale and approvals, and a trainer needs the reasoning that connects evidence to verdict. Each layer is short; what matters is that the record is written knowing that most of its future readers are not the analyst who wrote it."
   />
 
   <QuizItem
     prompt="When in the lifecycle should Documentation begin?"
     options={[
-      { value: "end", label: "At the end. It is the final phase, after all." },
-      { value: "escalation", label: "At Escalation, when the case is confirmed real." },
-      { value: "alert", label: "At Alert. Documentation is continuous and embedded, not a final phase. It begins with the first observation and evolves through every subsequent phase." },
-      { value: "risk", label: "At Risk, after the verdict is known." },
+      { value: "end", label: "At the end of the case. D is the seventh phase, and phases run in order." },
+      { value: "escalation", label: "At Escalation, once the case is confirmed real and a record is worth keeping." },
+      { value: "alert", label: "At Alert. The record is built continuously; the final phase finalizes it." },
+      { value: "risk", label: "At Risk, once the verdict exists to structure the record around." },
     ]}
     answer="alert"
-    explanation="Documentation is not a distinct final phase; it is a continuous, embedded practice that spans the entire lifecycle. Critical observations, decisions, and actions are captured in real time. Delaying until after resolution leads to inaccuracies, lost detail, and incomplete reasoning. The methodology treats Documentation as an active workflow that begins at the first alert and finalizes only at closure."
+    explanation="D is the closure gate for a record built continuously from Alert. Observations, decisions, and actions are captured in real time as each phase runs; the Documentation phase is where that living record is finalized into the durable, audit-quality artifact. Delaying the writing until after resolution loses detail and invites post-hoc rationalization, the exact failure the pitfalls page opens with."
   />
 
 </Quiz>

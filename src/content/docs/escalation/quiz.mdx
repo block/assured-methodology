@@ -24,10 +24,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Mid-investigation, the evidence confirms one canonical escalation criterion, but the analyst feels the case would be stronger after finishing the remaining phases. What should they do?"
     options={[
-      { value: "wait", label: "Finish the investigation first; a complete packet makes a better handoff." },
-      { value: "escalate", label: "Escalate now. One confirmed criterion is the SOC's pre-committed answer; the remaining phases complete under IR's clock." },
-      { value: "manager", label: "Ask the manager whether this case is worth escalating." },
-      { value: "close", label: "Downgrade the case to avoid a noisy escalation." },
+      { value: "wait", label: "Finish the remaining phases first; a complete packet is what makes the handoff survive a cold read." },
+      { value: "escalate", label: "Escalate now. One confirmed criterion is the pre-committed answer; the packet finishes in parallel." },
+      { value: "manager", label: "Ask the SOC manager whether this particular case is worth the noise of an escalation." },
+      { value: "close", label: "Downgrade the case and keep investigating; escalating on one criterion invites alert fatigue." },
     ]}
     answer="escalate"
     explanation="Pre-defined criteria exist precisely to remove this judgment call under pressure. One confirmed criterion escalates the case, from whatever phase the investigation is in, and the packet finishes in parallel. Overriding the default requires documented reasoning, not a feeling that more polish would help."
@@ -36,10 +36,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="What is the difference between event triage and incident response?"
     options={[
-      { value: "size", label: "Triage is small cases; IR is big cases." },
-      { value: "team", label: "Triage is junior analysts; IR is senior." },
-      { value: "question", label: "Triage frames the puzzle ('what is this?'). IR completes it ('how do we stop it?'). Different questions, different mindsets, different outputs." },
-      { value: "same", label: "They are the same work with different names." },
+      { value: "size", label: "Scale: triage handles single-host cases, and IR takes over once multiple systems are involved." },
+      { value: "team", label: "Seniority: triage is the analyst queue, and IR is where the senior responders sit." },
+      { value: "question", label: "The question: triage asks what is this, IR asks how do we stop it. Different outputs follow." },
+      { value: "same", label: "Sequence: they are the same investigative work, split into before and after the P1 page." },
     ]}
     answer="question"
     explanation="The distinction is about the question being asked. Triage is 'what is going on.' IR is 'what do we do about it.' Conflating them leads to premature escalation or stalled investigations."
@@ -48,10 +48,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The handoff packet should be optimized for..."
     options={[
-      { value: "brevity", label: "Brevity. Keep it short." },
-      { value: "completeness", label: "Letting the next analyst start where this one stopped. Brevity matters; clarity matters more." },
-      { value: "compliance", label: "Compliance reporting." },
-      { value: "manager", label: "The SOC manager's review." },
+      { value: "brevity", label: "Brevity. A responder in an active incident reads one page; anything longer goes unread." },
+      { value: "completeness", label: "Letting the next analyst start where this one stopped, without re-asking anything." },
+      { value: "compliance", label: "Compliance reporting, since the packet becomes the regulatory record of the incident." },
+      { value: "manager", label: "The SOC manager's review, which is the approval gate the escalation must clear first." },
     ]}
     answer="completeness"
     explanation="The packet is the bridge between triage and IR. The metric is whether the next tier can act without asking the triage analyst to re-explain. Brevity is good; completeness is the goal."
@@ -60,10 +60,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="When does law enforcement get engaged?"
     options={[
-      { value: "always", label: "Always, for every incident." },
-      { value: "never", label: "Never. Security is the SOC's job." },
-      { value: "selective", label: "For criminal activity, extortion, or cross-border threats, engaged through legal counsel rather than directly by the SOC." },
-      { value: "soc-call", label: "When the SOC manager decides." },
+      { value: "always", label: "For every confirmed incident, since unreported intrusions can create liability later." },
+      { value: "never", label: "Only if the insurer requires it; law enforcement rarely adds value to a private incident." },
+      { value: "selective", label: "For criminal activity, extortion, or cross-border threats, engaged through legal counsel." },
+      { value: "soc-call", label: "Whenever the SOC manager judges the case serious enough to warrant an outside report." },
     ]}
     answer="selective"
     explanation="Law enforcement is one external path among several. Engagement is selective (specific case types), channeled through legal counsel, and not a default for every incident."
@@ -72,10 +72,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="The terms 'event', 'alert', and 'incident' get used interchangeably in casual conversation. How does ASSURED distinguish them?"
     options={[
-      { value: "same", label: "They mean the same thing in mature SOCs." },
-      { value: "size", label: "Event is small, alert is medium, incident is large." },
-      { value: "structural", label: "Event is a point-in-time observation (neutral). Alert is an event meeting a threshold requiring action. Incident is a negative event with correlated alerts requiring intervention. Each term carries distinct operational meaning." },
-      { value: "tooling", label: "They map to different tools." },
+      { value: "same", label: "They are synonyms in practice; mature SOCs standardize on whichever term the tooling uses." },
+      { value: "size", label: "Magnitude: an event is small, an alert is medium, and an incident is organization-scale." },
+      { value: "structural", label: "Events are neutral observations; alerts cross an action threshold; incidents require intervention." },
+      { value: "tooling", label: "Source: events come from log pipelines, alerts from the SIEM, incidents from the ticketing system." },
     ]}
     answer="structural"
     explanation="ASSURED treats them as distinct concepts with distinct operational meaning. Events are raw observability data. Alerts cross a threshold and become SOC work. Incidents are correlated alerts representing business-impacting issues that require coordinated response. Conflating them loses precision under pressure."
@@ -84,10 +84,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Uncover confirms lateral movement into systems outside the original Scope boundary. What is the right escalation behavior?"
     options={[
-      { value: "ignore", label: "Ignore the out-of-scope finding." },
-      { value: "escalate", label: "Escalate immediately, confirmed lateral movement is a canonical criterion, and keep the dynamic loop running in parallel to refine scope for IR." },
+      { value: "ignore", label: "Note the finding but keep working the original boundary; out-of-scope systems are a separate case." },
+      { value: "escalate", label: "Escalate immediately, it is a canonical criterion, and keep the loop running in parallel for IR." },
       { value: "loop", label: "Refine Scope, re-run Uncover, re-evaluate Risk, and escalate only if the expanded picture still meets criteria." },
-      { value: "close", label: "Close the case and open a new one." },
+      { value: "close", label: "Close this case and open a fresh one scoped to the newly discovered systems from the start." },
     ]}
     answer="escalate"
     explanation="Confirmed lateral movement is one of the four canonical criteria, and the break-glass rule fires the moment a criterion is confirmed, from any phase. A spreading compromise is IR's problem to contain while investigation continues. The dynamic loop still matters: refining Scope and re-running Uncover is exactly the scoping support IR needs next, but it happens in parallel under IR's clock, not as a precondition for escalating. Deferring escalation through a full loop iteration while a compromise spreads is the failure mode the criteria exist to prevent."
@@ -96,10 +96,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Your handoff packet has eight strong sections, but you noticed during the case that you forgot to log the 14:02 page to your SOC manager. What is the right call?"
     options={[
-      { value: "skip", label: "Skip it; managers already know they were paged." },
-      { value: "verbal", label: "Mention it verbally during the IR handoff but don't update the packet." },
-      { value: "add", label: "Add the entry to the Communication record section with the actual timestamps; that's exactly what the section exists for." },
-      { value: "amend", label: "Amend only after IR closes the case, since the audit happens later." },
+      { value: "skip", label: "Skip it. The manager knows they were paged, and the packet documents the case, not the chatter." },
+      { value: "verbal", label: "Mention it verbally during the IR handoff so the responders know, but leave the packet as-is." },
+      { value: "add", label: "Add it to the Communication record with the real timestamps; that section exists for this." },
+      { value: "amend", label: "Amend the packet after IR closes the case, when the audit review actually needs the entry." },
     ]}
     answer="add"
     explanation="The Communication record is the ninth section of the handoff packet for exactly this reason. Backfilling notifications (who, on which channel, when) with real timestamps prevents duplicate pages, gives IR an instant view of who already knows, and starts the audit trail before memory fades. Verbal handoffs and post-close amendments both lose information."

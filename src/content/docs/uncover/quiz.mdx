@@ -24,10 +24,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="A threat intel feed says a particular domain is associated with a known campaign. The analyst sees the same domain in firewall logs from one host. What is the right next step?"
     options={[
-      { value: "block", label: "Block the domain immediately. Intel is intel." },
-      { value: "validate", label: "Use the intel as a hypothesis. Validate by checking what process initiated the connection and whether the connection matches the campaign's broader pattern." },
-      { value: "ignore", label: "Ignore the intel. Domains change all the time." },
-      { value: "share", label: "Share the intel with the team without action." },
+      { value: "block", label: "Block the domain at the perimeter now; a campaign association is action-worthy on its own." },
+      { value: "validate", label: "Treat the match as a hypothesis: check which process connected and whether the pattern fits." },
+      { value: "ignore", label: "Ignore it. Campaign domains rotate too fast for a feed match to mean anything locally." },
+      { value: "share", label: "Post the intel to the team channel and let the host's owner decide whether to look." },
     ]}
     answer="validate"
     explanation="Threat intelligence is most useful as a hypothesis. The matched domain is a starting point, not a verdict. Validate against the actual telemetry (which process, which user, which pattern) before acting."
@@ -46,7 +46,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="An investigation needs to know if a file ever ran on an endpoint. Which data source answers this most directly?"
+    prompt="An investigation needs to know whether a file was executed on an endpoint earlier this week. Which data source answers this most directly?"
     options={[
       { value: "siem", label: "SIEM" },
       { value: "edr", label: "EDR" },
@@ -54,16 +54,16 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "network", label: "Network analysis" },
     ]}
     answer="edr"
-    explanation="EDR captures process creation events that show whether a file was executed. FIM tells you the file exists or was modified, but not whether it ran. SIEM aggregates events from multiple sources; EDR is the source that answers execution directly."
+    explanation="EDR captures process creation events that show whether a file was executed, and a few days is comfortably inside a typical retention window. FIM tells you the file exists or was modified, but not whether it ran. SIEM aggregates from other sources. One caveat worth knowing: for questions like did this ever run, beyond the EDR retention window, the answer lives in whatever long-term store (SIEM or data lake) archives the EDR telemetry."
   />
 
   <QuizItem
     prompt="The Uncover narrative concludes with a chain of MITRE techniques. Why is the chain more useful than free-form prose?"
     options={[
-      { value: "shorter", label: "It is shorter." },
-      { value: "portable", label: "It is a shared vocabulary the IR team, detection engineers, and trend analysts all recognize. The chain travels better than prose." },
-      { value: "required", label: "It is required for compliance." },
-      { value: "easier", label: "It is easier to write." },
+      { value: "shorter", label: "It is shorter, and shorter records are what downstream readers actually finish." },
+      { value: "portable", label: "It is a shared vocabulary that IR, detection engineering, and trend analysis all recognize." },
+      { value: "required", label: "Most compliance frameworks require ATT&CK mappings in escalated-incident records." },
+      { value: "easier", label: "It is easier to write correctly under time pressure than a free-form narrative is." },
     ]}
     answer="portable"
     explanation="ATT&CK turns analyst observations into a portable artifact. The same chain of techniques is meaningful to the IR responder, the detection engineer who decides what to tune, and the leader who wants to see threat trends over time."
@@ -72,10 +72,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="An analyst is investigating a possible compromise on a macOS developer workstation. The user's role legitimately involves scripting, IDE plugin processes, and encrypted outbound traffic. What does the methodology require Uncover to produce if the evidence supports a false-positive verdict?"
     options={[
-      { value: "dismiss", label: "Dismiss the alert. Move on." },
-      { value: "evidenced", label: "Document the verdict with the same rigor as a positive finding: chain of evidence, confidence levels, explicit coverage gaps, ATT&CK mapping (or explicit absence), and detection-engineering feedback." },
-      { value: "shorten", label: "Write 'false-positive' in the case notes and close." },
-      { value: "escalate", label: "Escalate anyway since the activity looks suspicious." },
+      { value: "dismiss", label: "Nothing beyond the closure itself. A false-positive verdict ends the Uncover obligation." },
+      { value: "evidenced", label: "The same rigor as a positive finding: evidence chain, confidence, coverage gaps, feedback." },
+      { value: "shorten", label: "A one-line entry, 'false-positive, developer tooling', in the case notes before closing." },
+      { value: "escalate", label: "An escalation anyway; surface-suspicious activity should get an IR review before closing." },
     ]}
     answer="evidenced"
     explanation="A false-positive verdict that meets the methodology's standard is not dismissed. It is documented, evidenced, and bounded. That documentation is what lets the case re-open with full context if new signals appear, and what produces the detection-engineering feedback that prevents the same alert from firing repeatedly."
@@ -84,10 +84,10 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   <QuizItem
     prompt="Risk receives an Uncover handoff. Which of these decisions is Risk authorized to make?"
     options={[
-      { value: "isolate", label: "Isolate the host." },
-      { value: "notify", label: "Notify regulators." },
-      { value: "binary", label: "Close the event with confidence, or push back to Scope to expand the investigation. Risk's binary decision drives what happens next; it does not perform containment or notification itself." },
-      { value: "tune", label: "Tune the detection rule that fired." },
+      { value: "isolate", label: "Isolate the compromised host before the adversary can react to detection." },
+      { value: "notify", label: "Start regulator notification if the evidence shows regulated data was touched." },
+      { value: "binary", label: "Close with confidence, or push back to Scope to expand. Risk decides; it does not act." },
+      { value: "tune", label: "Tune the detection rule that fired so the same alert stops consuming the queue." },
     ]}
     answer="binary"
     explanation="Risk is the analytical checkpoint, not the response phase. Its job is to evaluate whether Uncover's evidence is sufficient to close the case or whether the investigation needs to expand. Containment, notification, and detection tuning happen in later phases (Escalation, Documentation) once Risk's verdict supports them."
@@ -95,27 +95,28 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="During Uncover, a TLS certificate associated with a known C2 campaign appears in proxy logs from one internal host. The threat-intel feed labels it medium confidence, 30 days old. What is the right next move?"
+    prompt="EDR records powershell.exe (PID 4416) opening an outbound connection at 14:22:31Z. The proxy logs a TLS session from the same host to a newly registered domain at 14:22:31Z. What makes treating these as one event defensible?"
     options={[
-      { value: "block", label: "Block the certificate's domain across the perimeter and close the case." },
-      { value: "validate", label: "Use the match as a hypothesis. Validate by examining what process initiated the connection, what came before and after, and whether the broader campaign's TTPs are present. Confidence stays medium until evidence in the environment corroborates the intel." },
-      { value: "low-conf", label: "Ignore. Medium confidence is not actionable." },
-      { value: "expand", label: "Immediately expand scope to every host that has spoken to that hosting provider." },
+      { value: "time", label: "The identical timestamp. Two sources agreeing to the second is the correlation." },
+      { value: "joins", label: "The join keys agree: same host, same second, and the process's destination matches the proxy's." },
+      { value: "domain", label: "The domain's age. A newly registered destination makes any nearby telemetry part of the case." },
+      { value: "edr", label: "Nothing extra is needed. Once EDR attributes the connection to a process, the proxy adds nothing." },
     ]}
-    answer="validate"
-    explanation="The intel match raises a hypothesis at medium confidence. The methodology says validate against the environment's own telemetry (which process, which user, what came next) before acting. Validation may promote the case to high confidence, demote it to false-positive, or leave it ambiguous and shape what Risk will decide. The match alone is not the verdict."
+    answer="joins"
+    explanation="Correlation is defensible when independent sources agree on the keys that identify the event: the host, the time, and the connection endpoints. A timestamp alone can collide, hosts make many simultaneous connections, and the proxy adds what EDR cannot see (the URI, TLS details, and bytes transferred). The worked example does exactly this: the firewall session matching the EDR network event to the second is what turns two log lines into one attributed action."
+    hint="One matching field is coincidence-prone. Which fields together identify the event?"
   />
 
   <QuizItem
-    prompt="The five intelligence-use patterns Uncover relies on most are indicator matching, attribution, TTP hunting, automated enrichment, and dark-web monitoring. Which one is most durable against an adversary that changes tools every campaign?"
+    prompt="The case needs to answer one question before Risk: did data actually leave the environment? Which evidence combination answers it?"
     options={[
-      { value: "indicator", label: "Indicator matching." },
-      { value: "attribution", label: "Attribution to a named group." },
-      { value: "ttp", label: "TTP-based hunting, because techniques change far less often than the specific tools or infrastructure that implement them." },
-      { value: "darkweb", label: "Dark-web monitoring." },
+      { value: "edr", label: "EDR alone. Process telemetry shows file reads and network sends from the same process tree." },
+      { value: "egress", label: "Egress telemetry (proxy, DLP, cloud data events) aligned against the endpoint timeline." },
+      { value: "intel", label: "Threat intelligence. If the actor's campaigns exfiltrate, treat exfiltration as established." },
+      { value: "vuln", label: "The vulnerability scanner, which shows whether an exfiltration-capable exposure existed." },
     ]}
-    answer="ttp"
-    explanation="Indicators (hashes, domains, IPs) change every campaign and can be modified in minutes. Procedures (specific tool implementations) change between campaigns. Techniques (the underlying methods) change in years. TTP-based hunting builds detection on the most durable layer, which is why it outperforms indicator matching against sophisticated adversaries."
+    answer="egress"
+    explanation="Exfiltration is proven at the boundary, not on the endpoint. EDR shows a process read files and sent bytes, but volume, destination, and content classification live in the egress path: proxy or firewall session sizes, DLP verdicts, and cloud-side data events for storage services. Aligning those against the endpoint timeline is what turns 'the process could have exfiltrated' into 'this much data moved to this destination at this time', or into a documented negative finding."
   />
 
 </Quiz>

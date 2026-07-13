@@ -70,17 +70,9 @@ The first dimension evaluates how the entity proved who it was. The job is not t
   </div>
 </div>
 
-<Callout variant="info" title="Authentication techniques to recognize">
-- **Impossible travel.** Logins from two locations that cannot be reached in the elapsed time.
-- **<DefineTerm term="Password Spraying" display="Password spraying" />.** Many accounts hit with the same common <DefineTerm term="Password" display="password" />, often producing a burst of 4625 failed logon events on Windows.
-- **MFA fatigue.** Repeated MFA prompts hoping the <DefineTerm term="User" display="user" /> approves one to stop the noise.
-- **<DefineTerm term="Token" /> replay.** A captured session token used from a different device.
-- **Federated SSO movement.** Successful login via SSO from a host that does not normally use that identity provider.
-</Callout>
+### Seven investigative techniques
 
-### Eight investigative techniques
-
-The dimension breaks down into eight techniques an analyst applies in roughly this order. Each one is a different question about the same authentication event.
+The dimension breaks down into seven techniques. Each one is a different question about the same authentication event.
 
 <div class="technique-grid">
   <div class="technique-card">
@@ -91,7 +83,7 @@ The dimension breaks down into eight techniques an analyst applies in roughly th
   <div class="technique-card">
     <span class="technique-card__num">02</span>
     <h4>Login patterns review</h4>
-    <p>Investigate spikes in failed logins or rapid successions of attempts, especially when followed by a successful login. These patterns often indicate brute force or password-spraying efforts.</p>
+    <p>Investigate spikes in failed logins or rapid successions of attempts, especially when followed by a successful login. Brute force and <DefineTerm term="Password Spraying" display="password spraying" /> (many accounts hit with the same common <DefineTerm term="Password" display="password" />) often surface as a burst of 4625 failed logon events on Windows.</p>
   </div>
   <div class="technique-card">
     <span class="technique-card__num">03</span>
@@ -100,26 +92,21 @@ The dimension breaks down into eight techniques an analyst applies in roughly th
   </div>
   <div class="technique-card">
     <span class="technique-card__num">04</span>
-    <h4>MITRE mapping</h4>
-    <p>Align observed authentication behaviors with <DefineTerm term="MITRE ATT&CK">A public knowledge base of adversary tactics and techniques observed in real-world attacks. Each technique has a stable ID (e.g., T1110 for Brute Force) that gives analysts shared vocabulary. attack.mitre.org</DefineTerm>. Situating an anomaly within a known threat framework gives investigators vocabulary for what they are seeing.</p>
-  </div>
-  <div class="technique-card">
-    <span class="technique-card__num">05</span>
     <h4>Identity change correlation</h4>
     <p>Check recent changes to user roles or access levels when investigating anomalies. Unauthorized activity shortly after promotions, transfers, or off-boarding often reflects privilege misuse or insider risk.</p>
   </div>
   <div class="technique-card">
-    <span class="technique-card__num">06</span>
+    <span class="technique-card__num">05</span>
     <h4>Session behavior review</h4>
-    <p>Look for unusually long sessions or token reuse across locations. These behaviors often indicate hijacked sessions or token abuse following credential compromise.</p>
+    <p>Look for unusually long sessions or <DefineTerm term="Token" display="token" /> reuse across locations. These behaviors often indicate hijacked sessions or token abuse following credential compromise.</p>
   </div>
   <div class="technique-card">
-    <span class="technique-card__num">07</span>
+    <span class="technique-card__num">06</span>
     <h4>SSO movement detection</h4>
     <p>Monitor federated login flows for lateral movement. Unauthorized access to additional systems via SSO can reveal deeper compromise and privilege escalation across federated identities.</p>
   </div>
   <div class="technique-card">
-    <span class="technique-card__num">08</span>
+    <span class="technique-card__num">07</span>
     <h4>MFA event auditing</h4>
     <p>Review authentication prompts for signs of excessive challenges, fallback method use, or repeated failures. These anomalies may indicate phishing, MFA fatigue, or bypass attempts.</p>
   </div>
@@ -144,7 +131,7 @@ Modern intrusions disproportionately route through identity-provider abuse rathe
   </div>
   <div class="cloud-id-card">
     <h4>🌍 Impossible travel</h4>
-    <p>A sign-in from a geographic location the user could not have physically reached given the time since their previous sign-in. Provider-side risk detections (Entra ID Identity Protection, Okta ThreatInsight) score this directly. Treat as a strong but not conclusive signal, VPN, mobile-carrier routing, and travel-while-active can produce false-positives. Maps to <strong>T1078.004 Valid Accounts: Cloud Accounts</strong>.</p>
+    <p>The geolocation signal from step 01, scored provider-side: Entra ID Identity Protection and Okta ThreatInsight flag it directly, so it often arrives pre-detected. Treat as a strong but not conclusive signal, VPN, mobile-carrier routing, and travel-while-active can produce false-positives. Maps to <strong>T1078.004 Valid Accounts: Cloud Accounts</strong>.</p>
   </div>
   <div class="cloud-id-card">
     <h4>📲 Device-code phishing and AiTM session theft</h4>
@@ -194,7 +181,7 @@ When an alert touches an entity's Tier 0 access, Authorization gets weighted dif
 
 ## 📊 Behavior
 
-The behavior dimension compares current activity to the entity's historical norm. Subject borrows the techniques covered in the Alert chapter's validation strategies, but applies them with deeper context: not "is this unusual in the environment" but "is this unusual for this specific identity."
+The behavior dimension compares current activity to the entity's historical norm: not "is this unusual in the environment" (the Alert chapter's question) but "is this unusual for this specific identity." This dimension is deep enough that it has its own sub-page. The [behavioral framework](/docs/subject/behavioral-framework) covers the full workflow, from establishing baselines to peer-group comparison; the four signals below are the short version, worth checking on every entity even when the full framework is not warranted.
 
 <div class="dim-detail">
   <div class="dim-detail__step">

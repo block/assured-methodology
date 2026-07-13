@@ -27,31 +27,7 @@ Alert answered <em>what fired</em>. Subject answered <em>who acted</em>. Scope a
 
 ## What Risk actually does
 
-Risk is often misunderstood as "assign a priority" or "kick off response." It is neither. Risk is the analytical checkpoint that follows evidence gathering. It evaluates whether what Uncover produced is sufficient to draw a conclusion, or whether the gaps require rescoping or continued analysis.
-
-<div class="risk-roles">
-  <div class="risk-role">
-    <span class="risk-role__num">01</span>
-    <div>
-      <h4>Evaluates investigative completeness</h4>
-      <p>Is there enough evidence to understand what occurred and its potential impact? Could the current data support misinterpretation due to missing telemetry, limited retention, or insufficient visibility?</p>
-    </div>
-  </div>
-  <div class="risk-role">
-    <span class="risk-role__num">02</span>
-    <div>
-      <h4>Acknowledges blind spots explicitly</h4>
-      <p>Telemetry is never complete. Risk factors known blind spots into the investigative outcome rather than pretending they do not exist.</p>
-    </div>
-  </div>
-  <div class="risk-role">
-    <span class="risk-role__num">03</span>
-    <div>
-      <h4>Drives the binary decision</h4>
-      <p>Close the event with confidence, or expand scope to resolve uncertainties and trace potential lateral paths? Risk does not stall in ambiguity, and it does not prematurely conclude in the presence of unresolved exposure.</p>
-    </div>
-  </div>
-</div>
+Risk is the analytical checkpoint that follows evidence gathering: it evaluates whether Uncover's output is complete enough to draw a conclusion, then makes a constrained call, close with confidence, escalate, or rescope and continue. How that evaluation works is the <a href="/docs/risk">Risk chapter</a>'s subject; this page is about handing it evidence worth evaluating.
 
 ---
 
@@ -86,31 +62,6 @@ A clean Uncover handoff makes Risk's job possible. Five <DefineTerm term="Artifa
     <p>Techniques observed but not flagged automatically. Rules that fired but should have been more specific. Feedback the detection-engineering team can act on.</p>
   </div>
 </div>
-
----
-
-## The decision Risk makes
-
-Risk's output is a constrained call: close, escalate, or rescope and continue. When evidence is mixed, the work loops back through the current scope until the ambiguity resolves. Three patterns appear most often at this handoff.
-
-<div class="decision-grid">
-  <div class="decision-card decision-card--close">
-    <span class="decision-card__tag">CLOSE WITH CONFIDENCE</span>
-    <p>Evidence is consistent with one explanation (compromise or benign), confidence is high on the primary entities, gaps are documented and assessed as non-material to the verdict. The methodology says close.</p>
-  </div>
-  <div class="decision-card decision-card--rescope">
-    <span class="decision-card__tag">RESCOPE AND CONTINUE</span>
-    <p>Evidence surfaced new entities, time periods, or systems that were out of Scope's original boundary but are clearly in play. The methodology says return to Scope, widen the lines, repeat Uncover on the expanded frame.</p>
-  </div>
-  <div class="decision-card decision-card--ambiguous">
-    <span class="decision-card__tag">RESOLVE AMBIGUITY</span>
-    <p>Evidence is mixed: some signals suggest compromise, others suggest benign. Gaps are material to the verdict. The methodology says keep working within the current scope, document the ambiguity, and define what specific evidence would resolve it.</p>
-  </div>
-</div>
-
-<Callout variant="info" title="Risk is not response">
-Risk does not contain, isolate, or notify. Those happen in Escalation, after Risk's verdict supports them. Risk's job is to ensure the verdict is defensible. A confident "close" or a confident "expand" are both correct outputs; an ambiguous "I think maybe" is the output Risk rejects.
-</Callout>
 
 ---
 
@@ -167,39 +118,6 @@ Uncover's deliverable is a narrative supported by evidence, with explicit confid
 
 <style>
 {`
-.risk-roles {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px) { .risk-roles { grid-template-columns: repeat(3, 1fr); } }
-
-.risk-role {
-  display: flex;
-  gap: 0.85rem;
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-.risk-role__num {
-  flex-shrink: 0;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #f97316, #c2410c);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.risk-role h4 { margin: 0 0 0.25rem 0; color: #f8fafc; font-size: 0.97rem; }
-.risk-role p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.89rem; }
-
 .handoff-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -226,37 +144,6 @@ Uncover's deliverable is a narrative supported by evidence, with explicit confid
 }
 .handoff-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.93rem; }
 .handoff-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.86rem; }
-
-.decision-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 900px) { .decision-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.decision-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 4px solid var(--dc-color);
-  border-radius: 0.7rem;
-}
-.decision-card--close     { --dc-color: #22c55e; }
-.decision-card--rescope   { --dc-color: #f59e0b; }
-.decision-card--ambiguous { --dc-color: #c084fc; }
-.decision-card__tag {
-  display: inline-block;
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.7);
-  color: var(--dc-color);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.55rem;
-}
-.decision-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
 
 .failure-grid {
   display: grid;

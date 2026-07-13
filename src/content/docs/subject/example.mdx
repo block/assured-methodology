@@ -101,13 +101,15 @@ import Callout from "@/components/assured/Callout.astro";
       <li><strong>Insider risk indicators.</strong> None. The pattern looks like external phishing, not insider activity. No anti-forensic signs.</li>
     </ul>
 
-    <Reveal summary="What the Subject deliverable looks like in practice" variant="example">
-      <p>Subject's output is a short, structured document the next phase can act on without redoing the work:</p>
+    <Reveal summary="Filling in the six-section handoff document" variant="example">
+      <p>Subject's output follows the six-section handoff document specified in <a href="/docs/subject/transition">Transition to Scope</a>. For this case, the sections fill in as:</p>
       <ul>
-        <li>Map of every identity in scope (primary + secondary + downstream).</li>
-        <li>Per-identity assessment across the four dimensions.</li>
-        <li>List of relationships that expand the investigation beyond the alert.</li>
-        <li>Recommended scope parameters: time window (24 hours before the alert), entities (the list above), depth of investigation (full for primary identities, baseline-comparison for secondary).</li>
+        <li><strong>Investigation header.</strong> The alert ID, the analyst, and a two-sentence summary of the phishing-to-PowerShell pattern.</li>
+        <li><strong>Entity inventory.</strong> The map from step 4: 3 primary + 3 secondary + 1 downstream system, plus the external sender tracked as the originating threat.</li>
+        <li><strong>Confidence summary.</strong> High on the four profiled identities (authentication and authorization verified against logs); the two other finance users have not yet been assessed beyond "opened the same email."</li>
+        <li><strong>Open questions.</strong> Whether the two other finance users' hosts show the same PowerShell pattern, and whether the cloud identity's session tokens were exposed.</li>
+        <li><strong>Recommended scope parameters.</strong> Time window 24 hours before the alert; the entity list above; full depth for primary identities, baseline-comparison for secondary.</li>
+        <li><strong>Insider posture.</strong> None observed. The pattern is external phishing; no HR or legal coordination triggered.</li>
       </ul>
       <p>Scope picks up here and turns this map into the formal boundary of the investigation.</p>
     </Reveal>

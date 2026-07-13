@@ -6,11 +6,9 @@ slug: "escalation/transition"
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import Reveal from "@/components/assured/Reveal.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
-import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 <SubPageHero phase="escalation" parentLetter="E" pillarNumber="Transition" pillarLabel="Escalation to Documentation" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Documentation is not a distinct final phase; it is a continuous, embedded practice that spans the entire lifecycle of a security event. The transition from Escalation to Documentation is the moment the methodology formalizes what has already been recorded throughout."/>
 
@@ -21,32 +19,13 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
 ]}/>
 
-<Callout variant="info" title="Six phases complete. The methodology closes here.">
+<Callout variant="info" title="Six phases complete. The last begins.">
 Alert through Escalation produced the investigation and the response handoff. Documentation captures the full arc as durable institutional knowledge. The transition is not a new phase of work, it is the formalization of work that has been embedded throughout.
 </Callout>
 
 ## Documentation is continuous, not final
 
-Rather than being deferred until the end of an investigation, documentation begins early and evolves alongside triage, investigation, and resolution. Critical observations, decisions, and actions are captured in real time. The methodology rejects the pattern of "investigate first, document later" because retrospective documentation loses detail, accuracy, and the reasoning behind decisions at the moment they were made.
-
-<div class="cont-grid">
-  <div class="cont-card">
-    <h4>⏱️ Real-time timeline</h4>
-    <p>A detailed, timestamped record of events, findings, and response actions captured as they occur. The timeline is the spine of every later artifact.</p>
-  </div>
-  <div class="cont-card">
-    <h4>📈 Business-impact translation</h4>
-    <p>Complex technical developments translated into clear summaries for executive and non-technical stakeholders. Continuous translation prevents end-of-incident communication scrambles.</p>
-  </div>
-  <div class="cont-card">
-    <h4>🔧 Containment record</h4>
-    <p>Each containment, remediation, and recovery step recorded in sufficient detail to confirm effectiveness and support audit readiness.</p>
-  </div>
-  <div class="cont-card">
-    <h4>📋 Operational gap capture</h4>
-    <p>Tooling limitations, process breakdowns, and missed detection opportunities surfaced during real-world response. Captured at the moment, used post-incident for improvement.</p>
-  </div>
-</div>
+Documentation began at Alert and evolved alongside the investigation: the timeline, the containment record, and the stakeholder communications were captured as they happened, not reconstructed afterwards. Why the methodology insists on that, and what the practice looks like day to day, is the <a href="/docs/documentation">Documentation chapter</a>'s own subject. This page covers only the handoff.
 
 ---
 
@@ -77,19 +56,7 @@ By the time Escalation has run its course, much of the documentation is already 
   </div>
 </div>
 
-<Reveal summary="What Documentation does with the handoff" variant="info">
-
-Documentation's job is not to start writing. It is to:
-
-- **Verify completeness** against the standards (format, language, timeliness).
-- **Apply consistent terminology** across the record.
-- **Ensure timestamps and attributions** are present for every action.
-- **Translate technical detail** into stakeholder-appropriate summaries.
-- **Quality-control before closure** so the artifact stands up to audit, <DefineTerm term="Post-Mortem" display="post-mortem" />, and legal review months later.
-
-The case closes only when Documentation passes its quality bar. The methodology rejects "we will document later" because later usually means never.
-
-</Reveal>
+What Documentation does with this handoff, verifying completeness against the <a href="/docs/documentation/standards">standards</a>, applying consistent terminology, and quality-controlling the record before closure, is covered in the chapter itself. The case closes only when that quality bar is passed.
 
 <KeyTakeaway>Escalation moved the case forward. Documentation makes it durable. The transition is not a new task; it is the formalization of work that has been continuous throughout the lifecycle. Documentation is the phase that says "the case is complete," and it does so by quality-controlling what the rest of the methodology has already captured.</KeyTakeaway>
 
@@ -101,13 +68,13 @@ The case closes only when Documentation passes its quality bar. The methodology 
 </div>
 
 <style>{`
-.cont-grid, .handoff-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .cont-grid, .handoff-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .cont-grid, .handoff-grid { grid-template-columns: repeat(4, 1fr); } }
-.cont-card, .handoff-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+.handoff-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .handoff-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .handoff-grid { grid-template-columns: repeat(4, 1fr); } }
+.handoff-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
 .handoff-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.55); }
-.cont-card h4, .handoff-card h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.93rem; }
-.cont-card p, .handoff-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.87rem; }
+.handoff-card h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.93rem; }
+.handoff-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.87rem; }
 
 .end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
 `}</style>

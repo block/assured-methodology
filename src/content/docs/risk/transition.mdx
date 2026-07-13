@@ -31,61 +31,11 @@ The loop is never a reason to sit on a confirmed criterion, though. A loop that 
 
 ---
 
-## When escalation is warranted
+## What the Escalation chapter picks up
 
-Escalation is warranted when the cumulative findings indicate that observed activity exceeds predefined thresholds of acceptable risk. Crucially, escalation is not reactionary. It is a deliberate step grounded in collected evidence and organizational policy.
+The ground this handoff feeds into is covered where it belongs, in the Escalation chapter. The <a href="/docs/escalation/criteria">four canonical criteria</a> define when escalation is warranted: confirmed malicious activity, high-impact or business-critical systems, lateral movement or exfiltration, and an ongoing or widespread campaign. The <a href="/docs/escalation/handoff">handoff packet</a> defines what makes an escalation actionable rather than merely justified.
 
-<div class="escalate-grid">
-  <div class="escalate-card">
-    <h4>⚠️ Confirmed malicious behavior</h4>
-    <p>Evidence supports compromise. Indicators map cleanly to known tactics or campaigns. The verdict is high-likelihood, and the activity is ongoing or has produced material impact.</p>
-  </div>
-  <div class="escalate-card">
-    <h4>💎 High-value asset involvement</h4>
-    <p>Primary entities include crown-jewel infrastructure, regulated data stores, or systems supporting critical operations. The asset profile elevates the response posture independent of the technical evidence's depth.</p>
-  </div>
-  <div class="escalate-card">
-    <h4>📋 Regulatory exposure</h4>
-    <p>Evidence triggers reportable incident thresholds under GDPR, HIPAA, PCI DSS, or the SEC disclosure rule, or touches SOX-scoped financial systems. The compliance clocks run independently of the technical investigation; escalation lets compliance engage on the parallel track.</p>
-  </div>
-  <div class="escalate-card">
-    <h4>📌 Persistence indicators</h4>
-    <p>The adversary has established or is establishing mechanisms for long-term access. Containment requires response capabilities beyond what triage provides.</p>
-  </div>
-</div>
-
----
-
-## What an actionable escalation includes
-
-Risk's handoff to Escalation must be both justified and actionable.
-
-<div class="actionable-grid">
-  <div class="actionable-card">
-    <span class="actionable-card__num">01</span>
-    <h4>Articulate why the risk is unacceptable</h4>
-    <p>Based on observed evidence. Not "this seems bad" but "impact X, likelihood Y, here are the named inputs that produced both."</p>
-  </div>
-  <div class="actionable-card">
-    <span class="actionable-card__num">02</span>
-    <h4>Identify affected systems, users, or data</h4>
-    <p>With precision. Primary entities, secondary entities, downstream exposures. The escalation team should not have to re-derive the entity map.</p>
-  </div>
-  <div class="actionable-card">
-    <span class="actionable-card__num">03</span>
-    <h4>Outline containment needs and timing</h4>
-    <p>What needs to happen now vs. what can wait. Time-sensitive factors (active session, ongoing exfiltration, regulatory clock) get called out explicitly.</p>
-  </div>
-  <div class="actionable-card">
-    <span class="actionable-card__num">04</span>
-    <h4>Curate the supporting data</h4>
-    <p>Validated, deduplicated, ready for transfer. Logs, timeline, ATT&CK mapping, intel context. The next analyst should not have to re-pull the same data.</p>
-  </div>
-</div>
-
-<Callout variant="info" title="Escalation imposes a communication obligation">
-Analysts must present the case in a way that is immediately understandable to responders. Relevant observables, supporting context, current status, and recommended next steps, conveyed through structured documentation or templated workflows. The form is as important as the content.
-</Callout>
+Risk's contribution to both is the verdict itself: impact, likelihood, and the named evidence that produced them, stated precisely enough that the packet can be assembled without re-deriving the investigation.
 
 ---
 
@@ -101,19 +51,5 @@ The decision to escalate reflects not just risk severity, but investigative comp
 </div>
 
 <style>{`
-.escalate-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .escalate-grid { grid-template-columns: 1fr 1fr; } }
-.escalate-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.55rem; }
-.escalate-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 0.97rem; }
-.escalate-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
-
-.actionable-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .actionable-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .actionable-grid { grid-template-columns: repeat(4, 1fr); } }
-.actionable-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.6rem; }
-.actionable-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(252, 165, 165, 0.55); }
-.actionable-card h4 { margin: 0 0 0.35rem 0; color: #fca5a5; font-size: 0.93rem; }
-.actionable-card p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.86rem; }
-
 .end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
 `}</style>

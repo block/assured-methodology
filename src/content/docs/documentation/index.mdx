@@ -11,6 +11,7 @@ import ChapterHero from "@/components/assured/ChapterHero.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import FlipCard from "@/components/assured/FlipCard.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 <ChapterHero
   phase="documentation"
@@ -87,6 +88,37 @@ Documentation is the phase that makes the methodology's other six phases worth d
   </FlipCard>
 </div>
 
+---
+
+<h2 id="downstream-uses">Five downstream uses of documentation</h2>
+
+<div class="value-grid">
+  <div class="value-card">
+    <h4>🔧 Detection engineering</h4>
+    <p>Documentation reveals detection gaps, false-positive trends, and emerging threat indicators. Detailed records of IOCs, missed alerts, and lateral movement patterns inform rule refinement and new detections. Well-documented cases often surface subtle adversary behaviors initially overlooked.</p>
+  </div>
+  <div class="value-card">
+    <h4>🎓 Analyst training</h4>
+    <p>Real events become sanitized simulations or tabletop exercises. These scenarios build analyst proficiency. Documentation of decision-making, especially in complex or unusual cases, serves as teaching material that develops critical thinking among junior responders.</p>
+  </div>
+  <div class="value-card">
+    <h4>⚙️ Process improvement</h4>
+    <p>Records of operational gaps, tooling limitations, and process breakdowns drive systematic improvement. Trends across cases surface friction points that single-case retrospectives would miss. Process inefficiencies become tracked items with owners.</p>
+  </div>
+  <div class="value-card">
+    <h4>📊 Metrics and executive reporting</h4>
+    <p>Aggregated documentation produces impact summaries, risk trends, and security-posture metrics. Consistent records enable accurate measurement of MTTD and MTTR. These metrics demonstrate program effectiveness and support budget and strategic decisions.</p>
+  </div>
+  <div class="value-card">
+    <h4>🧠 Threat intelligence</h4>
+    <p>Comprehensive documentation captures new tactics, techniques, and procedures observed during investigations. These insights enrich intelligence repositories and strengthen proactive threat hunting. When appropriate, sanitized intelligence is shared with industry partners and ISACs to enhance collective defense.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="Post-incident review as a discipline">
+To maximize documentation value, organizations should conduct post-incident reviews (PIRs) for every major event. Using standardized rubrics, these reviews evaluate documentation completeness, cross-check alert coverage, and assign actions to address gaps. Clear ownership of follow-up ensures incident records become drivers of continuous improvement, not <DefineTerm term="Artifacts" display="artifacts" /> that age in a case management system.
+</Callout>
+
 <KeyTakeaway>Documentation is what makes everything else durable. Done well, it is invisible. Done badly, it is the first thing that breaks down in a stressful incident.</KeyTakeaway>
 
 <PuzzleProgress current="documentation" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }} />
@@ -111,4 +143,11 @@ Documentation is the phase that makes the methodology's other six phases worth d
 
 .why-subject-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .why-subject-grid { grid-template-columns: 1fr 1fr; } }
+
+.value-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .value-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .value-grid { grid-template-columns: repeat(5, 1fr); } }
+.value-card { padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; }
+.value-card h4 { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 0.96rem; }
+.value-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.87rem; }
 `}</style>

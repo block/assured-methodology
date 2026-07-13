@@ -22,32 +22,9 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 ## Why standardized templates
 
-<div class="tpl-benefit-grid">
-  <div class="tpl-benefit-card">
-    <h4>Benefits</h4>
-    <ul>
-      <li>Reduce cognitive load during high-pressure investigations</li>
-      <li>Ensure comprehensive capture of required information</li>
-      <li>Enable consistent classification and categorization</li>
-      <li>Support automated data extraction for metrics and reporting</li>
-      <li>Facilitate knowledge transfer between team members</li>
-      <li>Accelerate review and approval processes</li>
-      <li>Maintain compliance with regulatory requirements</li>
-    </ul>
-  </div>
-  <div class="tpl-benefit-card">
-    <h4>Implementation best practices</h4>
-    <ul>
-      <li>Integrate templates directly into case management systems</li>
-      <li>Include both required and optional fields with clear guidance</li>
-      <li>Provide dropdown menus for consistent categorization</li>
-      <li>Implement field validation to ensure data quality</li>
-      <li>Create specialized variants for different event types</li>
-      <li>Include examples of properly completed documentation</li>
-      <li>Design for both operational and compliance needs</li>
-    </ul>
-  </div>
-</div>
+A template is the difference between "what should I write?" and "fill in the next field" during an active case. The structure carries the completeness burden: every field the record needs is prompted, including the ones analysts forget under pressure, like negative findings and decision rationale. Consistency is what makes records comparable across cases; three phishing reports with the same fields can reveal a campaign, three free-form narratives cannot.
+
+In practice that means building the templates into the case-management system rather than a separate document, validating the critical fields so a case cannot close with them blank, and keeping one specialized variant per common event type instead of one giant form.
 
 <Callout variant="info" title="Customize the core template by event type">
 While a core template structure should be universal across the organization, specialized variants must exist for common categories: <DefineTerm term="Phishing" display="phishing" />, <DefineTerm term="Credential" display="credential" /> compromise, <DefineTerm term="Ransomware" display="ransomware" />, insider misuse, <DefineTerm term="Data Exfiltration" display="data exfiltration" />. Phishing templates include fields for email <DefineTerm term="Artifacts" display="artifacts" />, affected recipients, and delivery <DefineTerm term="Infrastructure" display="infrastructure" />. Ransomware templates capture encryption details, ransom demands, and <DefineTerm term="Business Continuity" display="business continuity" /> impacts.
@@ -278,12 +255,6 @@ The escalation packet, sections exactly as the [Handoff page](/docs/escalation/h
 <ContinueCard current="documentation" nextHref="/docs/documentation/pitfalls" nextLabel="Pitfalls" ctaLabel="Read pitfalls" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
 
 <style>{`
-.tpl-benefit-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .tpl-benefit-grid { grid-template-columns: 1fr 1fr; } }
-.tpl-benefit-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; }
-.tpl-benefit-card h4 { margin: 0 0 0.55rem 0; color: #67e8f9; font-size: 1rem; }
-.tpl-benefit-card ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
-
 .alert-tpl { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
 .alert-tpl__row { display: grid; grid-template-columns: 1fr; padding: 0.95rem 1.25rem; border-top: 1px solid rgba(148, 163, 184, 0.15); color: #cbd5e1; }
 .alert-tpl__row:first-child { border-top: 0; }

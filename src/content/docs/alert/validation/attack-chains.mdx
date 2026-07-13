@@ -34,24 +34,24 @@ import PillNav from "@/components/assured/PillNav.astro";
   ]}
 />
 
-## How attack-chain correlation works
-
-A correlation engine watches a continuous stream of events from many sources (endpoints, network, identity, cloud) and looks for sequences that match known adversary patterns. The engine maintains a model of how attacks unfold over time and flags combinations of events that together describe one of those patterns, even when each individual event looks benign on its own.
+## The strategy: think in sequences, not moments
 
 Most attacks are not a single dramatic action. They are a sequence of small actions that together describe a progression: reconnaissance, then <DefineTerm term="Initial Access" display="initial access" />, then <DefineTerm term="Privilege Escalation" display="privilege escalation" />, then <DefineTerm term="Lateral Movement" display="lateral movement" />, then <DefineTerm term="Exfiltration" display="exfiltration" />. Multi-<DefineTerm term="Event Correlation" display="event correlation" /> is the validation strategy designed to catch that shape, not just the single suspicious moment in the middle.
 
+As a validation strategy, chain thinking is a question the analyst asks of every alert: **is this event one step in a sequence?** Answering it means pivoting outward from the alert (same host, same account, adjacent time windows, related techniques) and assembling the timeline by hand. When a platform has already assembled the sequence, the result arrives as a [behavioral alert](/docs/alert/detection-mechanisms/behavioral) and the analyst's job is to confirm the narrative. This page is about the same thinking applied by the analyst directly, especially for the chains no engine has a pattern or a window for.
+
 ## The dimensions of correlation
 
-Correlation engines operate across four dimensions simultaneously. A useful chain typically involves at least two of them.
+Whether an engine assembles the chain or the analyst does, it links events across four dimensions. During validation, pivot along each. A useful chain typically involves at least two of them.
 
 <div class="correlation-dims">
   <div class="correlation-dim">
     <h4>🕐 Time</h4>
-    <p>Events grouped within a window. The window can be minutes for fast attacks like ransomware staging, or hours-to-days for slow-and-low intrusions. The engine maintains state across the window so events arriving late still get linked.</p>
+    <p>Events grouped within a window. The window can be minutes for fast attacks like ransomware staging, or hours-to-days for slow-and-low intrusions. Search in both directions: the alert in front of you may be the first, middle, or last visible step.</p>
   </div>
   <div class="correlation-dim">
     <h4>📍 Assets</h4>
-    <p>Events that touch the same host, account, segment, or service. The correlation graph is built around entities the events share, so a lateral movement chain shows the host and account hops in order.</p>
+    <p>Events that touch the same host, account, segment, or service. Pivot on the entities the events share, so a lateral movement chain shows the host and account hops in order.</p>
   </div>
   <div class="correlation-dim">
     <h4>🛠️ Technique</h4>
@@ -71,41 +71,47 @@ One underlying activity rarely produces one alert. A single malicious download c
 
 ---
 
-## Example: an Office macro chain reconstructed
+## Example: a chain no single rule catches
+
+The fast version of chain detection is already covered: the [rule-based example](/docs/alert/detection-mechanisms/rule) shows a single SIEM rule catching an Office-macro chain because all three steps land on one host within 28 seconds. This example is the other kind, the kind that validation strategy exists for.
 
 <CaseStudy
-  title="A document, a shell, and an outbound connection"
-  scenario="Three alerts fire on the same finance team workstation within four minutes. None of the three is decisive on its own."
+  title="A week of quiet steps on one account"
+  scenario="None of these events produced a high-severity alert. Two were logged without alerting at all. The chain only exists if someone assembles it."
 >
 
-The three events the correlation engine links:
+What happened around the account j.moreau over eight days:
 
 ```
-08:32:14  Office process spawned a child shell
-          Parent: winword.exe   Child: cmd.exe
+Day 1  09:14  VPN login from a residential ISP in a new city
+              Low-severity geo alert, auto-closed by playbook
 
-08:32:21  Encoded PowerShell invocation
-          cmd.exe spawned powershell.exe with -EncodedCommand
+Day 3  22:47  SMB share enumeration across two file servers
+              Logged by EDR; below alerting threshold
 
-08:33:42  Outbound TLS to an unfamiliar destination
-          Source: powershell.exe   Destination: a domain registered 6 days ago
+Day 6  21:03  New service account created: svc-backup-2
+              Change-audit event; no ticket referenced
+
+Day 8  02:19  svc-backup-2 compresses 4 GB from a finance share
+              and uploads it to a personal cloud-storage domain
+              Medium-severity DLP alert on the upload only
 ```
 
-In isolation, each event is the kind that a SOC sees regularly. Word spawns shells for legitimate add-in installs. <DefineTerm term="PowerShell" /> uses encoded commands for ordinary administrative scripts. New <DefineTerm term="Domain" display="domain" /> destinations appear during normal business as the organization adopts new services.
+The Day 8 DLP alert is the only thing in front of the analyst. Validated in isolation, it reads like an employee misusing personal storage: a policy violation, not an intrusion.
 
-The chain is what gives them meaning. The same parent-child lineage starting from a Microsoft Office process, encoding immediately, and reaching a fresh domain within minutes maps to the classic <DefineTerm term="phishing-with-macros">An initial-access technique where the adversary delivers a Microsoft Office document containing a malicious macro. Opening the document triggers the macro, which usually executes a download cradle (often via PowerShell) to pull the next-stage payload from attacker-controlled infrastructure.</DefineTerm> initial-access pattern. The correlation engine recognizes the shape and produces a single alert describing the chain.
+The chain is what changes the verdict. Pivoting on the account, and then on the service account it created, connects four events that no rule linked: they span eight days (longer than any correlation window configured in the SIEM), four data sources (VPN, EDR, change audit, DLP), and two identities. A rule that alerted on any single step would drown the SOC in false positives, and a rule tuned to the whole sequence would be too specific to ever fire again. This shape of intrusion is only caught by an analyst who asks what sequence the alert in front of them belongs to.
 
-What the analyst checks next:
+What the analyst checks while assembling the chain:
 
-- **The originating document.** The <DefineTerm term="User" display="user" />'s mailbox in the relevant window will identify the inbound message, the sender, the subject, and other recipients.
-- **The decoded PowerShell payload.** The encoded command is the next investigative artifact. Decoding it (in a safe environment) reveals the download cradle.
-- **The outbound destination.** <DefineTerm term="WHOIS" /> data, DNS prevalence, <DefineTerm term="Threat" display="threat" />-<DefineTerm term="Intelligence" display="intelligence" /> overlap, and certificate properties for the destination domain. New domains with low prevalence are a high-confidence signal.
-- **Other recipients.** A <DefineTerm term="Phishing" display="phishing" /> campaign rarely targets one user. The mail logs will identify others in the same window.
+- **The initial access.** Was the Day 1 VPN login protected by MFA, and did it come from a device the <DefineTerm term="User" display="user" /> had used before? The authentication logs answer whether the account was already compromised before anything else happened.
+- **The enumeration scope.** Which shares did the Day 3 activity touch? If the Day 8 upload came from a share enumerated on Day 3, coincidence becomes sequence.
+- **The service-account creation.** Who authorized svc-backup-2? An unreferenced change that stages data two days later is the strongest link in the chain, and it pivots the investigation onto a second identity.
+- **The destination.** <DefineTerm term="WHOIS" /> data, DNS prevalence, and <DefineTerm term="Threat" display="threat" />-<DefineTerm term="Intelligence" display="intelligence" /> overlap for the cloud-storage domain, plus one wider question: has any other account in the environment sent data there?
 
 </CaseStudy>
 
 <Reveal summary="What makes the chain stronger than the parts" variant="deep-dive">
-Each individual event in the example would be tuned out as noise at most SOCs. Office spawns shells thousands of times a day across a large environment, encoded PowerShell is sometimes used by legitimate scripts, and new domains appear all the time. The chain is stronger than the sum of the parts because the *combination* (Office → cmd → encoded PowerShell → new domain within minutes) almost never happens for legitimate reasons. Correlation is the strategy that surfaces these combinations without forcing the analyst to write a hand-crafted rule for every possible permutation.
+Each event in the example had a plausible legitimate explanation on its own: people travel, admins enumerate shares, service accounts get created, employees misuse personal storage. The chain is stronger than the sum of the parts because the *combination* (new-location access, then enumeration, then unauthorized account creation, then staging and egress, all traceable to one identity) describes a progression with intent. Correlation, whether an engine runs it inside a window or an analyst runs it across a week, is the strategy that surfaces these combinations without a hand-crafted rule for every permutation.
 </Reveal>
 
 ---
@@ -118,7 +124,7 @@ Each individual event in the example would be tuned out as noise at most SOCs. O
 - **Provide real-time processing capacity.** Batch-only correlation misses the speed window during which response is most effective.
 
 <KeyTakeaway>
-Attack-chain correlation is the strategy that catches the attacks no single event would catch. It is also the most computationally expensive of the three validation strategies, which is why it benefits the most from careful tuning. Used well, it gives the analyst the timeline of an intrusion as the alert itself, not as the output of a manual reconstruction.
+Attack-chain correlation is the strategy that catches the attacks no single event would catch. Platforms assemble the chains they have patterns and windows for; the analyst assembles the rest by pivoting on time, assets, technique, and targeting. Used well, it turns validation from "is this one event bad?" into "what sequence is this event part of?", and that is the question intrusions actually fail.
 </KeyTakeaway>
 
 <ContinueCard

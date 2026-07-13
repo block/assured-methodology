@@ -100,7 +100,7 @@ const currentPath = Astro.url.pathname;
         </svg>
       </a>
 
-      <button type="button" class="header__menu-btn" aria-label="Toggle navigation" data-menu-toggle>
+      <button type="button" class="header__menu-btn" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <line x1="3" y1="6"  x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -386,6 +386,18 @@ const currentPath = Astro.url.pathname;
     border-color: rgba(20, 184, 166, 0.4);
   }
 
+  /* 44px touch-target floor for the header's icon controls on touch devices
+     and narrow screens (WCAG 2.5.5; the audit measured ~32px). */
+  @media (max-width: 959px), (pointer: coarse) {
+    .header__icon,
+    .header__menu-btn {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   .header__mobile {
     display: none;
     flex-direction: column;
@@ -475,4 +487,20 @@ const currentPath = Astro.url.pathname;
   }
   bindMobileMenu();
   document.addEventListener("astro:page-load", bindMobileMenu);
+
+  // Escape closes the open mobile menu and returns focus to the toggle.
+  // Registered once per SPA session (view transitions would stack duplicates);
+  // elements are re-queried live because transitions swap the DOM.
+  if (!(window as any).__mobileMenuEscBound) {
+    (window as any).__mobileMenuEscBound = true;
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      const openMenu = document.querySelector<HTMLElement>("[data-mobile-menu].is-open");
+      if (!openMenu) return;
+      openMenu.classList.remove("is-open");
+      const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+      toggle?.setAttribute("aria-expanded", "false");
+      toggle?.focus();
+    });
+  }
 </script>

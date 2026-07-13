@@ -32,7 +32,10 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
     </details>
   )}
 
-  <div class="quiz-item__options" role="radiogroup" aria-label={prompt}>
+  {/* role="group", not "radiogroup": the children are one-shot <button>s, not
+      radios with checked state. A radiogroup announcing zero radios is an
+      axe/Lighthouse failure; a labelled group of buttons is the honest pattern. */}
+  <div class="quiz-item__options" role="group" aria-label={prompt}>
     {options.map((o, i) => (
       <button
         type="button"
@@ -243,6 +246,21 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
     color: #e2e8f0;
     line-height: 1.6;
     font-size: 0.93rem;
+  }
+
+  /* Collapse this component's share of the nested padding chain on small
+     screens (see the matching breakpoint in Quiz.astro). */
+  @media (max-width: 640px) {
+    .quiz-item {
+      padding: 1.1rem 0.8rem;
+    }
+    .quiz-item__option {
+      padding: 0.7rem 0.7rem;
+      gap: 0.6rem;
+    }
+    .quiz-item__feedback {
+      padding: 0.85rem 0.9rem;
+    }
   }
 </style>
 

@@ -76,6 +76,16 @@
     .site-search-trigger__kbd { display: inline; }
   }
 
+  /* Icon-only below 768px measured ~31px square — the most-used control on
+     the page needs the 44px touch-target floor (WCAG 2.5.5). */
+  @media (max-width: 767px), (pointer: coarse) {
+    .site-search-trigger {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      justify-content: center;
+    }
+  }
+
   .site-search-modal {
     position: fixed;
     inset: 0;
@@ -103,6 +113,14 @@
     border-radius: 0.75rem;
     padding: 1.25rem;
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65);
+    /* Default white scrollbar track slices down the dark modal; theme it. */
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  }
+  .site-search-modal__panel::-webkit-scrollbar { width: 10px; }
+  .site-search-modal__panel::-webkit-scrollbar-track { background: transparent; }
+  .site-search-modal__panel::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
   }
   .site-search-modal__close {
     position: absolute;
@@ -260,6 +278,9 @@
       function close() {
         modal.hidden = true;
         document.body.style.overflow = "";
+        // Modal dialog pattern: focus returns to the control that opened it,
+        // otherwise keyboard users are dumped back to <body> after every search.
+        trigger.focus();
       }
 
       trigger.addEventListener("click", open);
@@ -273,9 +294,14 @@
           // Re-resolve modal each keypress (DOM is swapped on view transition)
           var liveModal = document.querySelector("[data-search-modal]");
           if (!liveModal) return;
-          if (e.key === "Escape" && !liveModal.hidden) {
+          function closeLive() {
             liveModal.hidden = true;
             document.body.style.overflow = "";
+            var liveTrigger = document.querySelector("[data-search-open]");
+            if (liveTrigger) liveTrigger.focus();
+          }
+          if (e.key === "Escape" && !liveModal.hidden) {
+            closeLive();
             return;
           }
           if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -285,8 +311,7 @@
               // Synthesize a click so the per-page open() runs with its own ensureUI scope
               if (liveTrigger) liveTrigger.click();
             } else {
-              liveModal.hidden = true;
-              document.body.style.overflow = "";
+              closeLive();
             }
           }
         });

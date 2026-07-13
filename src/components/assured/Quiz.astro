@@ -63,6 +63,19 @@ const { title = "Quiz: check what you've learned", subtitle = "No grades. The po
     backdrop-filter: blur(8px);
   }
 
+  /* The page shell, .quiz, .quiz-item, and .quiz-item__option paddings nest;
+     at 375px the sum leaves ~76px for answer text unless the outer layers
+     collapse. QuizItem.astro trims its own layers at the same breakpoint. */
+  @media (max-width: 640px) {
+    .quiz {
+      padding: 1.25rem 0.75rem;
+      border-radius: 0.85rem;
+    }
+    .quiz__head {
+      margin-bottom: 1.5rem;
+    }
+  }
+
   .quiz__head {
     text-align: center;
     margin-bottom: 2rem;

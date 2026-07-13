@@ -96,6 +96,14 @@ const displayText = display ?? term;
    * panel can slide left/right when it would otherwise extend past the viewport
    * (e.g. when the trigger is near the left or right edge of the screen).
    * The arrow shifts in the OPPOSITE direction so it still points at the trigger.
+   *
+   * Closed panels use display:none, not visibility:hidden. A visibility:hidden
+   * box still contributes to the document's scrollable overflow, so dozens of
+   * closed tooltips centered near the text edge widen document.scrollWidth and
+   * let the whole page pan sideways on mobile. The reveal is a keyframes
+   * animation, not a transition: transitions out of display:none need
+   * @starting-style/allow-discrete, which some engines leave stuck at
+   * opacity:0 — an invisible tooltip. Keyframes fire reliably on display flip.
    */
   .define-term__panel {
     position: absolute;
@@ -113,10 +121,7 @@ const displayText = display ?? term;
     line-height: 1.55;
     font-weight: 400;
     box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    display: none;
     z-index: 20;
     text-align: left;
     white-space: normal;
@@ -146,13 +151,27 @@ const displayText = display ?? term;
   .define-term__trigger:hover + .define-term__panel,
   .define-term__trigger:focus-visible + .define-term__panel,
   .define-term__trigger[aria-expanded="true"] + .define-term__panel {
-    opacity: 1;
-    visibility: visible;
+    display: block;
     /* Must keep --define-term-shift here: the JS edge-avoidance sets it on
        reveal, and dropping it from the visible state snaps the panel back to
        centered — clipping at viewport edges and panning the page on mobile. */
     transform: translateX(calc(-50% + var(--define-term-shift, 0px))) translateY(0);
-    pointer-events: auto;
+    animation: define-term-in 0.15s ease;
+  }
+
+  @keyframes define-term-in {
+    from {
+      opacity: 0;
+      transform: translateX(calc(-50% + var(--define-term-shift, 0px))) translateY(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .define-term__trigger:hover + .define-term__panel,
+    .define-term__trigger:focus-visible + .define-term__panel,
+    .define-term__trigger[aria-expanded="true"] + .define-term__panel {
+      animation: none;
+    }
   }
 </style>
 
@@ -180,17 +199,24 @@ const displayText = display ?? term;
 
     const triggerRect = trigger.getBoundingClientRect();
     const panelRect = panel.getBoundingClientRect();
+    // Panel can be display:none here (e.g. the focus event of a touch tap,
+    // where :focus-visible doesn't match). Width 0 means nothing to shift;
+    // the click handler re-runs this once aria-expanded makes it visible.
+    if (panelRect.width === 0) return;
+    // clientWidth, not window.innerWidth: innerWidth includes the scrollbar,
+    // so a right-edge panel would be shifted under it instead of into view.
+    const viewportWidth = document.documentElement.clientWidth;
     const margin = 8;
     const triggerCenter = triggerRect.left + triggerRect.width / 2;
     const halfWidth = panelRect.width / 2;
     const wouldOverflowLeft = triggerCenter - halfWidth < margin;
-    const wouldOverflowRight = triggerCenter + halfWidth > window.innerWidth - margin;
+    const wouldOverflowRight = triggerCenter + halfWidth > viewportWidth - margin;
 
     let shift = 0;
     if (wouldOverflowLeft) {
       shift = margin - (triggerCenter - halfWidth);
     } else if (wouldOverflowRight) {
-      shift = window.innerWidth - margin - (triggerCenter + halfWidth);
+      shift = viewportWidth - margin - (triggerCenter + halfWidth);
     }
     wrapper.style.setProperty("--define-term-shift", `${shift}px`);
   }

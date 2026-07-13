@@ -107,6 +107,39 @@
       <text class="anim-feedback-text" style="--delay: 1900ms;" x="310" y="340" text-anchor="middle">↻ Feedback loop, refine scope, re-uncover, re-validate</text>
     </g>
   </svg>
+
+  <!-- Stacked rendering for small screens. The fixed-viewBox SVG scales
+       uniformly, which turns its labels into ~6px text at 375px wide. Below
+       640px the SVG hides and this legible vertical flow shows instead;
+       display:none keeps the hidden variant out of the accessibility tree,
+       so screen readers only encounter one rendering. -->
+  <div class="anim-stack">
+    <div class="anim-stack__phase" style="--phase-a: #22c55e; --phase-b: #15803d;">
+      <p class="anim-stack__label">Preparation &amp; Context</p>
+      <ul class="anim-stack__cells">
+        <li style="--cell: #3b82f6;">A · Alert</li>
+        <li style="--cell: #22c55e;">S · Subject</li>
+        <li style="--cell: #a855f7;">S · Scope</li>
+      </ul>
+    </div>
+    <div class="anim-stack__arrow" aria-hidden="true">↓</div>
+    <div class="anim-stack__phase" style="--phase-a: #3b82f6; --phase-b: #1d4ed8;">
+      <p class="anim-stack__label">Investigation &amp; Assessment</p>
+      <ul class="anim-stack__cells">
+        <li style="--cell: #f97316;">U · Uncover</li>
+        <li style="--cell: #ef4444;">R · Risk</li>
+      </ul>
+    </div>
+    <div class="anim-stack__arrow" aria-hidden="true">↓</div>
+    <div class="anim-stack__phase" style="--phase-a: #f59e0b; --phase-b: #b45309;">
+      <p class="anim-stack__label">Resolution &amp; Documentation</p>
+      <ul class="anim-stack__cells">
+        <li style="--cell: #6366f1;">E · Escalation</li>
+        <li style="--cell: #06b6d4;">D · Documentation</li>
+      </ul>
+    </div>
+    <p class="anim-stack__loop">↻ Feedback loop, refine scope, re-uncover, re-validate</p>
+  </div>
 </figure>
 
 <style>
@@ -124,6 +157,74 @@
     width: 100%;
     height: auto;
     display: block;
+  }
+
+  /* Mobile stacked variant (hidden on wide screens, swapped in below 640px) */
+  .anim-stack {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .anim-stack__phase {
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.75rem;
+    background: rgba(15, 23, 42, 0.5);
+    overflow: hidden;
+  }
+
+  .anim-stack__label {
+    margin: 0;
+    padding: 0.6rem 0.85rem;
+    background: linear-gradient(135deg, var(--phase-a), var(--phase-b));
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .anim-stack__cells {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .anim-stack__cells li {
+    background: var(--cell);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.5rem;
+  }
+
+  .anim-stack__arrow {
+    text-align: center;
+    color: #cbd5e1;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .anim-stack__loop {
+    margin: 0.35rem 0 0;
+    text-align: center;
+    color: #5eead4;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  @media (max-width: 640px) {
+    .anim-diagram {
+      padding: 1rem;
+    }
+    .anim-diagram svg {
+      display: none;
+    }
+    .anim-stack {
+      display: flex;
+    }
   }
 
   .anim-label {

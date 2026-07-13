@@ -18,9 +18,15 @@ interface Props {
 }
 
 const { steps } = Astro.props;
+const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
 <div class="stepper" data-stepper>
+  {/* Tabs pattern completed across markup + script: each tab gets an id and
+      aria-controls here; the [data-step] panels are authored in MDX, so the
+      bind script assigns their role="tabpanel"/id/aria-labelledby at runtime.
+      aria-label keeps the tab's accessible name when the small-screen CSS
+      hides .stepper__tab-label. */}
   <nav class="stepper__tabs" role="tablist" aria-label="Walkthrough steps">
     {steps.map((label, i) => (
       <button
@@ -28,10 +34,14 @@ const { steps } = Astro.props;
         role="tab"
         class="stepper__tab"
         data-step-index={i}
+        id={`${idBase}-tab-${i}`}
+        aria-controls={`${idBase}-panel-${i}`}
         aria-selected={i === 0 ? "true" : "false"}
+        aria-label={label}
+        tabindex={i === 0 ? 0 : -1}
       >
-        <span class="stepper__tab-num">{String(i + 1).padStart(2, "0")}</span>
-        <span class="stepper__tab-label">{label}</span>
+        <span class="stepper__tab-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+        <span class="stepper__tab-label" aria-hidden="true">{label}</span>
       </button>
     ))}
   </nav>
@@ -178,9 +188,17 @@ const { steps } = Astro.props;
 
   @media (max-width: 640px) {
     .stepper__tabs { padding: 0.4rem; }
-    .stepper__tab { font-size: 0.75rem; padding: 0.45rem 0.7rem; }
+    /* Number-only tabs need the 44px touch-target floor once labels hide. */
+    .stepper__tab {
+      font-size: 0.75rem;
+      padding: 0.45rem 0.7rem;
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      justify-content: center;
+    }
     .stepper__tab-label { display: none; }
-    .stepper__panels { padding: 1.25rem; }
+    .stepper__panels { padding: 1.25rem 1rem; }
+    .stepper__btn { min-height: 2.75rem; }
   }
 </style>
 
@@ -200,10 +218,22 @@ const { steps } = Astro.props;
       const total = panels.length;
       let current = 0;
 
-      function go(to: number) {
+      // The [data-step] panels come from MDX, so the server can't stamp tabpanel
+      // attributes on them. Derive each panel's id from its tab's aria-controls
+      // so the tablist linkage resolves.
+      panels.forEach((panel, i) => {
+        const tab = tabs[i];
+        if (!tab) return;
+        panel.setAttribute("role", "tabpanel");
+        panel.id = tab.getAttribute("aria-controls") ?? "";
+        panel.setAttribute("aria-labelledby", tab.id);
+      });
+
+      function go(to: number, focusTab = false) {
         current = Math.max(0, Math.min(total - 1, to));
         tabs.forEach((t, i) => {
           t.setAttribute("aria-selected", i === current ? "true" : "false");
+          t.tabIndex = i === current ? 0 : -1;
         });
         panels.forEach((p, i) => {
           p.classList.toggle("is-active", i === current);
@@ -211,10 +241,22 @@ const { steps } = Astro.props;
         if (prev) prev.disabled = current === 0;
         if (next) next.disabled = current === total - 1;
         if (progress) progress.textContent = `Step ${current + 1} of ${total}`;
+        if (focusTab) tabs[current]?.focus();
       }
 
       tabs.forEach((tab, i) => {
         tab.addEventListener("click", () => go(i));
+        tab.addEventListener("keydown", (e) => {
+          const keyTargets: Record<string, number> = {
+            ArrowRight: current + 1,
+            ArrowLeft: current - 1,
+            Home: 0,
+            End: total - 1,
+          };
+          if (!(e.key in keyTargets)) return;
+          e.preventDefault();
+          go(keyTargets[e.key], true);
+        });
       });
       prev?.addEventListener("click", () => go(current - 1));
       next?.addEventListener("click", () => go(current + 1));

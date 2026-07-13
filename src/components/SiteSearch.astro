@@ -30,7 +30,7 @@
   <span class="site-search-trigger__kbd" aria-hidden="true">⌘K</span>
 </button>
 
-<div class="site-search-modal" data-search-modal hidden role="dialog" aria-modal="true" aria-label="Search the site">
+<div class="site-search-modal" data-search-modal data-pagefind-base={import.meta.env.BASE_URL} hidden role="dialog" aria-modal="true" aria-label="Search the site">
   <div class="site-search-modal__backdrop" data-search-close></div>
   <div class="site-search-modal__panel">
     <button type="button" class="site-search-modal__close" data-search-close aria-label="Close search">×</button>
@@ -178,20 +178,28 @@
       var uiInstance = null;
       var indexCheckPromise = null;
 
-      function showDevFallback() {
+      // Resolve the pagefind bundle against the configured base path so a
+      // non-root deployment doesn't silently lose search. The base is
+      // rendered server-side onto the modal (the script is is:inline, so it
+      // can't read import.meta.env itself).
+      var pagefindBase =
+        (modal.getAttribute("data-pagefind-base") || "/").replace(/\/+$/, "") +
+        "/pagefind/";
+
+      function showUnavailableFallback() {
         uiHost.replaceChildren();
         var p = document.createElement("p");
         p.style.color = "#94a3b8";
         p.style.padding = "0.5rem 0 0";
         p.style.lineHeight = "1.5";
         p.style.fontSize = "0.95rem";
-        p.textContent = "Search is unavailable in dev. Run `pnpm build && pnpm preview` to use site search.";
+        p.textContent = "Search index not found. If you are running locally, build it with `pnpm build && pnpm preview` — the index is generated at build time.";
         uiHost.appendChild(p);
       }
 
       function checkPagefindAvailable() {
         if (indexCheckPromise) return indexCheckPromise;
-        indexCheckPromise = fetch("/pagefind/pagefind-ui.js", { method: "HEAD" })
+        indexCheckPromise = fetch(pagefindBase + "pagefind-ui.js", { method: "HEAD" })
           .then(function (r) { return r.ok; })
           .catch(function () { return false; });
         return indexCheckPromise;
@@ -203,17 +211,17 @@
           if (!document.querySelector('link[data-pagefind-css]')) {
             var link = document.createElement("link");
             link.rel = "stylesheet";
-            link.href = "/pagefind/pagefind-ui.css";
+            link.href = pagefindBase + "pagefind-ui.css";
             link.setAttribute("data-pagefind-css", "");
             document.head.appendChild(link);
           }
           var script = document.createElement("script");
-          script.src = "/pagefind/pagefind-ui.js";
+          script.src = pagefindBase + "pagefind-ui.js";
           script.onload = function () {
             if (window.PagefindUI) resolve(window.PagefindUI);
             else reject(new Error("PagefindUI global not available after load"));
           };
-          script.onerror = function () { reject(new Error("Failed to load /pagefind/pagefind-ui.js")); };
+          script.onerror = function () { reject(new Error("Failed to load " + pagefindBase + "pagefind-ui.js")); };
           document.head.appendChild(script);
         });
       }
@@ -222,7 +230,7 @@
         if (uiInstance) return;
         var available = await checkPagefindAvailable();
         if (!available) {
-          showDevFallback();
+          showUnavailableFallback();
           return;
         }
         try {
@@ -235,7 +243,7 @@
             resetStyles: false,
           });
         } catch (e) {
-          showDevFallback();
+          showUnavailableFallback();
         }
       }
 

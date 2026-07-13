@@ -3,7 +3,9 @@
 > **A comprehensive, scalable framework for security analysts to triage, investigate, and document events with clarity, context, and confidence.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation](https://img.shields.io/badge/Documentation-Live-blue.svg)](#)
+[![Documentation](https://img.shields.io/badge/Documentation-Live-blue.svg)](https://assured-methodology.vercel.app)
+
+**📖 Live site: [assured-methodology.vercel.app](https://assured-methodology.vercel.app)**
 [![Contributors Welcome](https://img.shields.io/badge/Contributors-Welcome-green.svg)](#contributing)
 
 ## 🔍 What is ASSURED?
@@ -116,11 +118,8 @@ assured-methodology/
 │   │   └── docs/[...slug].astro     # Dynamic doc route
 │   └── styles/                      # global.css, assured.css, glossary.css,
 │                                       breadcrumbs.css
-├── public/
-│   ├── _headers                     # Defense-in-depth response headers
-│   │                                  (for hosts that honor _headers)
-│   └── (static assets)
-├── .github/workflows/deploy.yaml    # GitHub Pages auto-deploy on push to main
+├── public/                          # Static assets (favicon, og-image, robots.txt)
+├── vercel.json                      # Vercel headers + trailing-slash config
 ├── astro.config.ts                  # Astro + MDX + icon + Pagefind config
 ├── biome.json                       # Linter/formatter config
 └── package.json
@@ -217,11 +216,7 @@ git push origin feature/your-contribution-name
 
 ## 🌐 Deployment
 
-The documentation is designed for easy deployment on modern hosting platforms:
-
-- **Vercel** (Recommended): Automatic deployments from GitHub
-- **Netlify**: Simple drag-and-drop deployment
-- **GitHub Pages**: Free hosting with GitHub Actions
+The site deploys on **Vercel** at [assured-methodology.vercel.app](https://assured-methodology.vercel.app), building automatically from `main`. `vercel.json` supplies the response headers and trailing-slash behavior; `astro.config.ts` sets the canonical `site` URL.
 - **Self-hosted**: Static file serving on any web server
 
 ## 📄 License

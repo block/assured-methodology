@@ -6,18 +6,21 @@ import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import icon from "astro-icon";
+import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
 
-  site: 'https://block.github.io',
+  site: 'https://assured-methodology.vercel.app',
   base: '/',
   redirects: {
     '/docs/overview': '/docs/intro',
+    '/docs': '/docs/intro',
   },
 
   integrations: [
     icon(),
+    sitemap(),
     mdx({
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],

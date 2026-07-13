@@ -18,12 +18,18 @@ const currentPath = Astro.url.pathname;
           const isActive = isActivePage(item.href, currentPath);
           if (item.status === "soon") {
             return (
-              <span class="header__link header__link--soon" aria-disabled="true" title="Coming soon">
+              <span class="header__link header__link--soon">
                 {item.title}
                 <span class="header__soon-dot" aria-hidden="true"></span>
+                <span class="visually-hidden">(coming soon)</span>
               </span>
             );
           }
+          // No role="menu"/"menuitem": these are plain navigation links revealed
+          // by CSS :hover/:focus-within, not an ARIA menu widget (no roving
+          // tabindex, no arrow-key handling, no managed expanded state). The
+          // fake roles made screen readers promise menu semantics the keyboard
+          // never delivered; honest links inside the nav landmark need none.
           if (item.children && item.children.length > 0) {
             return (
               <div class="header__menu-item">
@@ -31,18 +37,16 @@ const currentPath = Astro.url.pathname;
                   href={getUrlRelativeToBase(item.href)}
                   class={`header__link header__link--has-menu ${isActive ? "is-active" : ""}`}
                   aria-current={isActive ? "page" : undefined}
-                  aria-haspopup="true"
                 >
                   {item.title}
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </a>
-                <div class="header__dropdown" role="menu">
+                <div class="header__dropdown">
                   <a
                     href={getUrlRelativeToBase(item.href)}
                     class="header__dropdown-link header__dropdown-link--overview"
-                    role="menuitem"
                   >
                     <span class="header__dropdown-title">{item.title} overview</span>
                     <span class="header__dropdown-sub">Chapter intro and outcomes</span>
@@ -50,7 +54,7 @@ const currentPath = Astro.url.pathname;
                   {item.children.map((child) => {
                     if (child.status === "soon") {
                       return (
-                        <span class="header__dropdown-link header__dropdown-link--soon" role="menuitem" aria-disabled="true">
+                        <span class="header__dropdown-link header__dropdown-link--soon">
                           <span class="header__dropdown-title">{child.title}</span>
                           <span class="assured-soon">Soon</span>
                         </span>
@@ -61,7 +65,6 @@ const currentPath = Astro.url.pathname;
                       <a
                         href={getUrlRelativeToBase(child.href)}
                         class={`header__dropdown-link ${childActive ? "is-active" : ""}`}
-                        role="menuitem"
                       >
                         <span class="header__dropdown-title">{child.title}</span>
                       </a>
@@ -100,7 +103,7 @@ const currentPath = Astro.url.pathname;
         </svg>
       </a>
 
-      <button type="button" class="header__menu-btn" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>
+      <button type="button" class="header__menu-btn" aria-label="Toggle navigation" aria-expanded="false" aria-controls="header-mobile-menu" data-menu-toggle>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <line x1="3" y1="6"  x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -111,12 +114,12 @@ const currentPath = Astro.url.pathname;
   </div>
 
   <!-- Mobile menu -->
-  <nav class="header__mobile" data-mobile-menu aria-label="Mobile">
+  <nav class="header__mobile" id="header-mobile-menu" data-mobile-menu aria-label="Mobile">
     {mainNavigation[0].items.map((item) => {
       const isActive = isActivePage(item.href, currentPath);
       if (item.status === "soon") {
         return (
-          <span class="header__mobile-link header__mobile-link--soon" aria-disabled="true">
+          <span class="header__mobile-link header__mobile-link--soon">
             {item.title}
             <span class="assured-soon">Soon</span>
           </span>
@@ -258,6 +261,20 @@ const currentPath = Astro.url.pathname;
     box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
   }
 
+  /* Visually hidden but present in the accessibility tree: gives the
+     "soon" items a spoken status the amber dot only conveys visually. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   /* Dropdown menus for nav items with children */
   .header__menu-item {
     position: relative;
@@ -326,7 +343,13 @@ const currentPath = Astro.url.pathname;
   .header__dropdown-link:focus-visible {
     background: rgba(20, 184, 166, 0.14);
     color: #f8fafc;
-    outline: none;
+  }
+
+  /* Keyboard users need a visible focus indicator (WCAG 2.4.7); the faint
+     background tint alone fails for low-vision users. */
+  .header__dropdown-link:focus-visible {
+    outline: 2px solid #5eead4;
+    outline-offset: -2px;
   }
 
   .header__dropdown-link.is-active {
@@ -468,7 +491,10 @@ const currentPath = Astro.url.pathname;
   }
 
   .header__mobile-sublink {
-    display: block;
+    display: flex;
+    align-items: center;
+    /* 44px touch-target floor (WCAG 2.5.5); padding alone measured ~35px. */
+    min-height: 2.75rem;
     padding: 0.45rem 0.75rem;
     color: #cbd5e1;
     text-decoration: none;
@@ -501,6 +527,9 @@ const currentPath = Astro.url.pathname;
       menu?.classList.toggle("is-open");
       const isOpen = menu?.classList.contains("is-open");
       toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      // Move focus to the first link so keyboard users land inside the menu
+      // they just opened instead of having to tab past the rest of the header.
+      if (isOpen) menu?.querySelector<HTMLAnchorElement>("a")?.focus();
     });
   }
   bindMobileMenu();

@@ -8,15 +8,22 @@
 interface Props {
   title: string;
   scenario?: string;
+  /** Heading level for the title. Every current usage sits directly under an
+   *  h2 section, so h3 is the default; pass 4 when nesting under an h3. */
+  headingLevel?: 3 | 4;
 }
 
-const { title, scenario } = Astro.props;
+const { title, scenario, headingLevel = 3 } = Astro.props;
 ---
 
 <section class="case-study">
   <header class="case-study__head">
     <span class="case-study__badge">Case study</span>
-    <h4 class="case-study__title">{title}</h4>
+    {/* Explicit tags (not a dynamic-tag variable) so Astro's scoped styles
+        reliably attach to the heading. */}
+    {headingLevel === 4
+      ? <h4 class="case-study__title">{title}</h4>
+      : <h3 class="case-study__title">{title}</h3>}
   </header>
   {scenario && <p class="case-study__scenario">{scenario}</p>}
   <div class="case-study__body">

@@ -281,7 +281,14 @@ const chapterTail: Item[] = chapter
       links.forEach((link) => {
         const href = link.getAttribute("href") ?? "";
         const id = href.startsWith("#") ? href.slice(1) : "";
-        link.classList.toggle("is-current", !!activeId && id === activeId);
+        const isCurrent = !!activeId && id === activeId;
+        link.classList.toggle("is-current", isCurrent);
+        // Keep AT in sync with the visual scroll-spy state, not just the class.
+        if (isCurrent) {
+          link.setAttribute("aria-current", "true");
+        } else {
+          link.removeAttribute("aria-current");
+        }
       });
     });
   }

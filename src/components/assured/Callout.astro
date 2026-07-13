@@ -25,10 +25,14 @@ const defaultIcons: Record<string, string> = {
 const renderedIcon = icon ?? defaultIcons[variant];
 ---
 
-<aside class={`assured-callout assured-callout--${variant}`}>
+{/* div + role="note", not <aside>: dense pages render up to seven callouts,
+    and each <aside> is an anonymous complementary landmark cluttering the
+    screen-reader landmark list. role="note" keeps the semantics without the
+    landmark. */}
+<div class={`assured-callout assured-callout--${variant}`} role="note">
   {renderedIcon && <div class="assured-callout__icon" aria-hidden="true">{renderedIcon}</div>}
   <div class="assured-callout__body">
     {title && <p class="assured-callout__title">{title}</p>}
     <slot />
   </div>
-</aside>
+</div>

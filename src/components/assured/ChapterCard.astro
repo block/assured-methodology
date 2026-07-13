@@ -33,17 +33,21 @@ const {
 } = Astro.props;
 
 const Tag = status === "live" && href ? "a" : "div";
-const tagProps = Tag === "a" ? { href } : {};
+const titleId = `chapter-card-${Math.random().toString(36).slice(2, 9)}`;
+// aria-labelledby: without it the whole-card link's accessible name is the
+// full card text (title + description + every topic), which is what screen
+// readers announce for each link in the chapter grid.
+const tagProps = Tag === "a" ? { href, "aria-labelledby": titleId } : {};
 ---
 
 <Tag class={`chapter-card chapter-card--${phase} chapter-card--${status}`} {...tagProps}>
   <div class="chapter-card__head">
     <span class={`assured-letter assured-letter--${phase}`}>{letter}</span>
     <div class="chapter-card__title-wrap">
-      <h3 class="chapter-card__title">{title}</h3>
+      <h3 class="chapter-card__title" id={titleId}>{title}</h3>
       {status === "soon" && (
         <span class="assured-soon" aria-label="Coming soon">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M12 7v5l3 2"></path>
           </svg>

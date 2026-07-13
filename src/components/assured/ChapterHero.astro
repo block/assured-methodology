@@ -96,21 +96,23 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
       <p class="chapter-hero__overline">{overline}</p>
       <p class="chapter-hero__question">{question}</p>
     </div>
+    {/* The visible spans ARE the accessible content (no aria-hidden, no
+        aria-label wall of text). The clarification that this is a live-shift
+        target rather than a reading time is visually-hidden text, so it
+        reaches screen readers and is not trapped in a mouse-only title. */}
     {timeOnTarget && (
-      <span
-        class="chapter-hero__time"
-        role="note"
-        aria-label={`On-shift operational target: ${timeOnTarget}. This is how long the phase should take when triaging a live alert, not a reading-time estimate. Complex cases legitimately exceed this.`}
-        title="Operational target on a live shift, how long this phase should take when you're triaging an actual alert. NOT a reading-time estimate; absorbing the chapter takes longer. Complex cases legitimately exceed the operational target."
-      >
+      <span class="chapter-hero__time" role="note">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span class="chapter-hero__time-label" aria-hidden="true">On-shift target</span>
-        <span class="chapter-hero__time-value" aria-hidden="true">{timeOnTarget}</span>
+        <span class="chapter-hero__time-label">On-shift target</span>
+        <span class="chapter-hero__time-value">{timeOnTarget}</span>
+        <span class="chapter-hero__time-sr">Operational target for triaging a live alert, not a reading-time estimate. Complex cases legitimately exceed it.</span>
       </span>
     )}
   </div>
 
-  <p class="chapter-hero__lede"><slot /></p>
+  {/* div, not <p>: the slot takes MDX block content, which emits its own
+      paragraphs and nested <p><p> is invalid HTML. */}
+  <div class="chapter-hero__lede"><slot /></div>
 
   <div class="chapter-hero__pillars">
     {pillars.map((p) => (
@@ -200,9 +202,30 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
     max-width: 62ch;
   }
 
+  .chapter-hero__lede :global(p) {
+    margin: 0 0 0.85rem 0;
+  }
+
+  .chapter-hero__lede :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
   .chapter-hero__lede :global(em) {
     color: var(--phase-light);
     font-style: italic;
+  }
+
+  /* Visually hidden but present in the accessibility tree. */
+  .chapter-hero__time-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .chapter-hero__pillars {

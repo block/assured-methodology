@@ -333,6 +333,26 @@
             links[idx - 1].focus();
           }
         });
+
+        // Focus trap: aria-modal="true" tells SRs the background doesn't
+        // exist, so Tab must cycle within the dialog instead of walking out
+        // into the page behind the backdrop.
+        modal.addEventListener("keydown", function (e) {
+          if (e.key !== "Tab") return;
+          var focusables = Array.prototype.slice.call(
+            modal.querySelectorAll("button, [href], input, select, textarea")
+          ).filter(function (el) { return el.offsetParent !== null; });
+          if (focusables.length === 0) return;
+          var first = focusables[0];
+          var last = focusables[focusables.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        });
       }
 
       // Document-level keydown: register ONCE for the lifetime of the SPA session.
@@ -353,7 +373,9 @@
             closeLive();
             return;
           }
-          if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          // toLowerCase: with CapsLock on, e.key is "K" and the shortcut
+          // would silently stop working.
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
             e.preventDefault();
             var liveTrigger = document.querySelector("[data-search-open]");
             if (liveModal.hidden) {
@@ -368,6 +390,17 @@
     }
 
     init();
-    document.addEventListener("astro:page-load", init);
+    // This is:inline script re-runs on every view transition (data-astro-rerun),
+    // so registering astro:page-load here unguarded would stack one extra init
+    // call per navigation. Register once for the SPA session.
+    if (!window.__siteSearchPageLoadBound) {
+      window.__siteSearchPageLoadBound = true;
+      document.addEventListener("astro:page-load", init);
+      // If the user navigates while the modal is open (clicks a result), the
+      // body scroll lock would otherwise leak onto the next page.
+      document.addEventListener("astro:after-swap", function () {
+        document.body.style.overflow = "";
+      });
+    }
   })();
 </script>

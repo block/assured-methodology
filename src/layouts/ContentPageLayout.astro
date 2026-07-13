@@ -1,4 +1,5 @@
 ---
+import { getCollection } from "astro:content";
 import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
@@ -37,6 +38,33 @@ const {
 const effectiveBreadcrumbs = chromeless ? false : showBreadcrumbs;
 const effectiveTitle = chromeless ? false : showTitleAsH1;
 const effectiveWide = chromeless ? true : wide;
+
+// Build the crumb list ourselves so intermediate crumbs carry real page
+// titles from the docs collection instead of capitalized slugs (which
+// rendered "Triage Vs Ir" and "Mitre"). Long chapter titles are trimmed at
+// the colon ("Alert: Understanding detection logic" → "Alert"). The current
+// page is excluded below (excludeCurrentPage): its H1 renders directly
+// underneath, so repeating it in the trail was pure duplication.
+const docsEntries = effectiveBreadcrumbs ? await getCollection("docs") : [];
+const titleBySlug = new Map(docsEntries.map((e) => [e.slug, e.data.title]));
+const crumbTitle = (slug: string, fallback: string) => {
+  const full = titleBySlug.get(slug);
+  if (!full) return fallback.charAt(0).toUpperCase() + fallback.slice(1);
+  return full.split(":")[0].trim();
+};
+const pathSegments = Astro.url.pathname.split("/").filter(Boolean);
+const crumbs = effectiveBreadcrumbs
+  ? [
+      { text: "Home", href: "/" },
+      ...pathSegments.map((segment, i) => {
+        if (i === 0) return { text: "Docs", href: "/docs/intro" };
+        return {
+          text: crumbTitle(pathSegments.slice(1, i + 1).join("/"), segment),
+          href: `/${pathSegments.slice(0, i + 1).join("/")}`,
+        };
+      }),
+    ]
+  : [];
 ---
 
 <BaseLayout title={title} description={description}>
@@ -50,20 +78,25 @@ const effectiveWide = chromeless ? true : wide;
         </aside>
       )}
 
-      <main class={`content-page__main ${chromeless ? "is-chromeless" : ""}`}>
+      <main id="main" class={`content-page__main ${chromeless ? "is-chromeless" : ""}`}>
         <div data-pagefind-body class={`content-page__main-inner prose ${effectiveWide ? "is-wide" : ""} ${chromeless ? "is-chromeless" : ""}`}>
           {effectiveBreadcrumbs && (
             <div class="content-page__breadcrumbs">
               <Breadcrumbs
-                indexText="Home"
+                crumbs={crumbs}
                 mainBemClass="c-breadcrumbs"
                 ariaLabel="Breadcrumb navigation"
-                linkTextFormat="capitalized"
-                excludeCurrentPage={false}
-                customizeLinks={[{ index: 1, href: "/docs/intro" }]}
+                excludeCurrentPage={true}
               >
                 <span slot="separator">&nbsp;›&nbsp;</span>
-                <span slot="index">🏠</span>
+                <Fragment slot="index">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9.5 12 3l9 6.5"></path>
+                    <path d="M5 8.5V21h14V8.5"></path>
+                    <path d="M10 21v-6h4v6"></path>
+                  </svg>
+                  <span class="crumb-home-label">Home</span>
+                </Fragment>
               </Breadcrumbs>
             </div>
           )}
@@ -139,6 +172,20 @@ const effectiveWide = chromeless ? true : wide;
 
   .content-page__breadcrumbs {
     margin-bottom: 1.5rem;
+  }
+
+  /* Visually hidden "Home" label: the home crumb's accessible name used to be
+     a raw 🏠 emoji; now the SVG is decorative and this text names the link. */
+  .content-page__breadcrumbs :global(.crumb-home-label) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .content-page__title {

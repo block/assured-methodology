@@ -10,10 +10,12 @@ interface Props {
 const { title = "Key Takeaway" } = Astro.props;
 ---
 
-<aside class="assured-callout assured-callout--takeaway">
+{/* div + role="note", not <aside>: same landmark-clutter rationale as
+    Callout.astro. */}
+<div class="assured-callout assured-callout--takeaway" role="note">
   <div class="assured-callout__icon" aria-hidden="true">✅</div>
   <div class="assured-callout__body">
     <p class="assured-callout__title">{title}</p>
     <slot />
   </div>
-</aside>
+</div>

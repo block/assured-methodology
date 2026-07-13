@@ -33,9 +33,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Linked to Russia's GRU and known for aggressive operations. Credential harvesting, malware deployment, destructive attacks against political and military targets. Tied to the 2016 DNC breach and many NATO-related campaigns. Leverages zero-days and weaponized Office documents. Noisier and more direct than APT29; a primary actor in Russian hybrid warfare.",
     "source": "bad-actor"
   },
-  "APT29 Cozy Bear / SVR": {
-    "term": "APT29 Cozy Bear / SVR",
-    "definition": "Sophisticated espionage group associated with Russia's SVR. Stealth and long-term access. Targets governments, think tanks, healthcare, vaccine researchers. One of the groups behind SolarWinds (UNC2452). Custom malware, living-off-the-land, well-crafted spear-phishing. Operations often go undetected for months. Modular tooling, adaptive infrastructure.",
+  "APT29 Cozy Bear / Midnight Blizzard": {
+    "term": "APT29 Cozy Bear / Midnight Blizzard",
+    "definition": "Sophisticated espionage group associated with Russia's SVR. Stealth and long-term access. Targets governments, think tanks, healthcare, vaccine researchers. One of the groups behind SolarWinds (UNC2452). Custom malware, living-off-the-land, well-crafted spear-phishing. Operations often go undetected for months. As Midnight Blizzard (Microsoft's name), breached Microsoft's own corporate email in 2023-2024 by password-spraying a legacy test tenant.",
     "source": "bad-actor"
   },
   "APT33 Iran / aviation + energy": {
@@ -95,12 +95,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Advanced Persistent Threat (APT)": {
     "term": "Advanced Persistent Threat (APT)",
-    "definition": "A prolonged, covert cyberattack by a skilled adversary, often state-sponsored, that gains and maintains unauthorized access to a network.",
-    "source": "bad-term"
-  },
-  "Advanced Persistent Threats (APTs)": {
-    "term": "Advanced Persistent Threats (APTs)",
-    "definition": "Sophisticated cyber attackers, often state-sponsored, who gain and maintain unauthorized access to networks for extended periods while avoiding detection.",
+    "definition": "A sophisticated cyber attacker, often state-sponsored, who gains and maintains unauthorized access to networks for extended periods while avoiding detection.",
     "source": "clear"
   },
   "Adware": {
@@ -283,11 +278,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Microsoft's cloud identity and access management; SSO, MFA, conditional access, and integration with SaaS apps.",
     "source": "cat-tool"
   },
-  "Azure Sentinel UEBA": {
-    "term": "Azure Sentinel UEBA",
-    "definition": "Behavior analytics layered onto Microsoft Sentinel for detecting insider threats and anomalous activity.",
-    "source": "cat-tool"
-  },
   "BITSAdmin": {
     "term": "BITSAdmin",
     "definition": "A command-line tool for managing Background Intelligent Transfer Service (BITS), often monitored for abuse by attackers.",
@@ -370,7 +360,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "BlackCat / ALPHV": {
     "term": "BlackCat / ALPHV",
-    "definition": "Sophisticated ransomware-as-a-service operation, one of the first to use Rust, making detection and analysis harder. Highly customizable Windows / Linux payloads, double-extortion with leak-site shaming. Successor to BlackMatter / REvil. Aggressive targeting of critical infrastructure and high-profile enterprises.",
+    "definition": "Sophisticated ransomware-as-a-service operation, one of the first to use Rust, making detection and analysis harder. Highly customizable Windows / Linux payloads, double-extortion with leak-site shaming. Successor to BlackMatter in the DarkSide lineage; ties to REvil are affiliate overlap, not direct succession. Aggressive targeting of critical infrastructure and high-profile enterprises.",
     "source": "bad-family"
   },
   "Blockchain": {
@@ -400,11 +390,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Botnet": {
     "term": "Botnet",
-    "definition": "Many infected machines (bots) coordinating to a central controller. The rhythm of regular check-ins is what defenders look for. DDoS, credential stuffing, spam, and proxy abuse all ride on this primitive. Modern botnets span PCs, servers, routers, and IoT.",
-    "source": "bad-feature"
-  },
-  "Botnets": {
-    "term": "Botnets",
     "definition": "A network of infected machines (bots) controlled by a central attacker, used for DDoS, spam, credential stuffing, and more.",
     "source": "bad-term"
   },
@@ -415,8 +400,8 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Brute Force": {
     "term": "Brute Force",
-    "definition": "Systematically attempts many password combinations against accounts or services until successful authentication.",
-    "source": "bad-term"
+    "definition": "The opposite of password spraying: one account, many passwords. The attacker cycles through common candidates, password , 123456 , qwerty , letmein , against one locked target. Lockout policies and rate limits exist to defeat this; weak detection lets it grind silently for hours.",
+    "source": "bad-feature"
   },
   "BulletProof Hosting": {
     "term": "BulletProof Hosting",
@@ -465,7 +450,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Cambridge Analytica": {
     "term": "Cambridge Analytica",
-    "definition": "Political consulting firm that improperly harvested data from 87 million Facebook users. Psychological profiling and micro-targeted ads aimed at influencing the 2016 U.S. election and Brexit. Not a traditional cyberattack, but exposed serious flaws in data privacy and third-party app oversight. Triggered global debate about surveillance capitalism and election interference; GDPR enforcement followed.",
+    "definition": "Political consulting firm that improperly harvested data from 87 million Facebook users via a quiz app; the scandal broke in 2018. Psychological profiling and micro-targeted ads aimed at influencing votes, most prominently the 2016 U.S. election (the UK ICO's investigation later concluded its role in Brexit had been overstated). Not a traditional cyberattack, but exposed serious flaws in data privacy and third-party app oversight. Triggered global debate about surveillance capitalism and election interference; GDPR enforcement followed.",
     "source": "bad-campaign"
   },
   "Canary (Thinkst)": {
@@ -501,11 +486,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Chef": {
     "term": "Chef",
     "definition": "Infrastructure-as-code platform enforcing security configurations via recipes and cookbooks.",
-    "source": "cat-tool"
-  },
-  "Chronicle": {
-    "term": "Chronicle",
-    "definition": "Cloud-native security analytics platform from Google Cloud; high-speed search and threat detection at petabyte scale.",
     "source": "cat-tool"
   },
   "Cisco Physical Security": {
@@ -730,7 +710,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Custom Protocols over Non-Standard Ports": {
     "term": "Custom Protocols over Non-Standard Ports",
-    "definition": "Proprietary or disguised protocols on unexpected ports (e.g., SSH on 8888) to evade detection that expects known service behavior.",
+    "definition": "Proprietary or disguised protocols on unexpected ports (e.g., a home-grown C2 protocol on port 8888) to evade detection that expects known service behavior.",
     "source": "bad-term"
   },
   "CyberArk": {
@@ -751,11 +731,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Cybereason": {
     "term": "Cybereason",
     "definition": "EDR/XDR focused on endpoint visibility, malware detection, IR, and deep process-tree forensics.",
-    "source": "cat-tool"
-  },
-  "Cymmetria": {
-    "term": "Cymmetria",
-    "definition": "Deception technology focused on detecting lateral movement via decoys and traps that mimic real assets.",
     "source": "cat-tool"
   },
   "Cynet AutoXDR": {
@@ -790,7 +765,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Darktrace": {
     "term": "Darktrace",
-    "definition": "Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via Antigena.",
+    "definition": "Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via its RESPOND module (formerly Antigena).",
     "source": "cat-tool"
   },
   "Data Aggregation": {
@@ -1130,7 +1105,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Equifax breach": {
     "term": "Equifax breach",
-    "definition": "2017 breach exposing PII (SSNs, birth dates, addresses) for 147 million Americans. Caused by failure to patch Apache Struts (CVE-2017-5638). Attackers operated undetected for weeks. Handling and disclosure drew widespread criticism. Resulted in a historic $700M settlement and regulatory reforms focused on data protection.",
+    "definition": "2017 breach exposing PII (SSNs, birth dates, addresses) for 147 million Americans. Caused by failure to patch Apache Struts (CVE-2017-5638). Attackers operated undetected for roughly 76 days. Handling and disclosure drew widespread criticism. Resulted in a historic $700M settlement and regulatory reforms focused on data protection.",
     "source": "bad-campaign"
   },
   "Eradication": {
@@ -1285,7 +1260,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Follina (CVE-2022-30190)": {
     "term": "Follina (CVE-2022-30190)",
-    "definition": "Zero-click vulnerability in the Microsoft Support Diagnostic Tool (MSDT) triggered via crafted Word documents. Executes code through the ms-msdt protocol handler without macros. Stealthier than VBA-based attacks. Used in phishing campaigns before fully addressed.",
+    "definition": "Vulnerability in the Microsoft Support Diagnostic Tool (MSDT) triggered via crafted Word documents. Executes code through the ms-msdt protocol handler without macros when the document is opened; the RTF variant fires from the Explorer preview pane with no click at all. Stealthier than VBA-based attacks. Used in phishing campaigns before fully addressed.",
     "source": "bad-term"
   },
   "Forcepoint": {
@@ -1328,6 +1303,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Forging Kerberos TGTs to grant unrestricted domain access by impersonating any user.",
     "source": "bad-term"
   },
+  "Google Security Operations (formerly Chronicle)": {
+    "term": "Google Security Operations (formerly Chronicle)",
+    "definition": "Cloud-native security analytics platform from Google Cloud; high-speed search and threat detection at petabyte scale. Chronicle was folded into the Google Security Operations (Google SecOps) brand in 2024.",
+    "source": "cat-tool"
+  },
   "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)": {
     "term": "Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)",
     "definition": "SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.",
@@ -1358,15 +1338,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "HTML Application files that can execute scripts, sometimes abused for malicious purposes.",
     "source": "clear"
   },
-  "HTTP/S C2": {
-    "term": "HTTP/S C2",
-    "definition": "Standard HTTP/HTTPS traffic carrying C2, blending with normal web activity.",
-    "source": "bad-term"
-  },
   "HTTPS C2": {
     "term": "HTTPS C2",
-    "definition": "The beacon hides in normal-looking HTTPS traffic. To a proxy log, a C2 request is identical to any CDN or SaaS request: 200 OK , encrypted body, common-looking hostname. The beacon is indistinguishable from its neighbors at a glance, which is exactly why TLS-aware decryption and JA3 fingerprinting matter.",
-    "source": "bad-feature"
+    "definition": "Standard HTTP/HTTPS traffic carrying C2, blending with normal web activity.",
+    "source": "bad-term"
   },
   "Hash Injection": {
     "term": "Hash Injection",
@@ -1385,7 +1360,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Heartbleed (CVE-2014-0160)": {
     "term": "Heartbleed (CVE-2014-0160)",
-    "definition": "OpenSSL flaw allowing attackers to read up to 64KB of server memory per request, keys, passwords, session tokens. Affected ~17% of internet servers at peak.",
+    "definition": "OpenSSL flaw allowing attackers to read up to 64KB of server memory per request, keys, passwords, session tokens. Affected an estimated ~17% of TLS-enabled web servers at peak.",
     "source": "bad-term"
   },
   "Heuristic Detection": {
@@ -1408,13 +1383,13 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Computing environment that combines on-premises, private cloud, and public cloud services.",
     "source": "clear"
   },
-  "Hyper-Text Transfer Protocol (HTTP)": {
-    "term": "Hyper-Text Transfer Protocol (HTTP)",
+  "Hypertext Transfer Protocol (HTTP)": {
+    "term": "Hypertext Transfer Protocol (HTTP)",
     "definition": "The foundation protocol for data communication on the web.",
     "source": "clear"
   },
-  "Hyper-Text Transfer Protocol Secure (HTTPS)": {
-    "term": "Hyper-Text Transfer Protocol Secure (HTTPS)",
+  "Hypertext Transfer Protocol Secure (HTTPS)": {
+    "term": "Hypertext Transfer Protocol Secure (HTTPS)",
     "definition": "Secure version of HTTP using encryption to protect data in transit.",
     "source": "clear"
   },
@@ -1505,17 +1480,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Insider Threat": {
     "term": "Insider Threat",
-    "definition": "A trusted internal user who intentionally abuses their access to cause harm, steal data, or assist external attackers.",
-    "source": "bad-term"
+    "definition": "A person with authorized access who deliberately misuses it to harm the organization through theft, sabotage, or assisting external attackers. Distinct from insider risk, which also covers unintentional harm from negligence or mistakes.",
+    "source": "clear"
   },
   "Insider Threat Matrix": {
     "term": "Insider Threat Matrix",
     "definition": "A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Useful as a shared vocabulary for describing insider risk and threat.",
-    "source": "clear"
-  },
-  "Insider Threats": {
-    "term": "Insider Threats",
-    "definition": "Personnel with authorized access who deliberately misuse it to harm the organization through theft, sabotage, or assisting external attackers. Distinct from insider risk, which also covers unintentional harm from negligence or mistakes.",
     "source": "clear"
   },
   "Integrated Development Environment (IDE)": {
@@ -1610,12 +1580,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Kaspersky EDR": {
     "term": "Kaspersky EDR",
-    "definition": "Attack-chain visualization, IOC search, sandboxing, and threat-intel integration with centralized management.",
+    "definition": "Attack-chain visualization, IOC search, sandboxing, and threat-intel integration with centralized management. U.S. sales were prohibited by a June 2024 Commerce Department determination; still widely deployed elsewhere.",
     "source": "cat-tool"
   },
   "Kerberoasting": {
     "term": "Kerberoasting",
-    "definition": "Requesting Kerberos service tickets (TGS) for accounts with Service Principal Names (SPNs) and cracking them offline. The ticket portion is encrypted with the service account's NTLM hash, so a weak service-account password becomes a crackable ciphertext, and any user who can authenticate to the domain can request the ticket.",
+    "definition": "Requesting Kerberos service tickets (TGS) for accounts with Service Principal Names (SPNs) and cracking them offline. With the legacy RC4 encryption type the ticket is encrypted using a key equal to the service account's NTLM hash, so a weak service-account password becomes a crackable ciphertext (AES-only accounts crack far more slowly), and any user who can authenticate to the domain can request the ticket.",
     "source": "clear"
   },
   "Kerberos": {
@@ -1640,8 +1610,8 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "LOLBins": {
     "term": "LOLBins",
-    "definition": "\"Living Off the Land Binaries.\" Trusted, signed, ubiquitous, and weaponized for every step of an intrusion. Allowlists wave them through; the binary on disk is fine. The malicious part is the argument line. A process list that looks clean at a glance can have every entry being abused.",
-    "source": "bad-feature"
+    "definition": "Living Off the Land Binaries: trusted, signed system executables (certutil, rundll32, mshta) weaponized so the malicious part is the argument line, not the file on disk. The evasion face of the Living Off The Land technique covered under Execution.",
+    "source": "bad-term"
   },
   "LSTM Networks": {
     "term": "LSTM Networks",
@@ -1748,6 +1718,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Performs actions gradually or in minimal increments to remain under detection thresholds.",
     "source": "bad-term"
   },
+  "Lumma Stealer": {
+    "term": "Lumma Stealer",
+    "definition": "The dominant malware-as-a-service infostealer of the mid-2020s, inheriting RedLine's and Raccoon's market. Harvests browser credentials, cookies, session tokens, and crypto wallets; the resulting logs are sold in bulk and seed downstream intrusions, including the 2024 Snowflake customer breaches. Distributed via malvertising, cracked software, and fake-CAPTCHA ClickFix lures. A May 2025 international takedown seized much of its infrastructure, though rebuilds followed.",
+    "source": "bad-family"
+  },
   "MD5": {
     "term": "MD5",
     "definition": "A widely used hash function that produces a 128-bit hash value, though now considered weak.",
@@ -1835,7 +1810,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Maze": {
     "term": "Maze",
-    "definition": "Pioneer of double extortion, encryption plus data theft to pressure victims. RaaS model with public leak blog. Exploited RDP, phishing, and known vulnerabilities; used Cobalt Strike and Mimikatz internally. Announced retirement in late 2020, but affiliates continued under banners like Egregor and Sekhmet.",
+    "definition": "Pioneer of double extortion, encryption plus data theft to pressure victims. RaaS model with public leak blog. Exploited RDP, phishing, and known vulnerabilities; used Cobalt Strike and Mimikatz internally. Announced retirement in late 2020, but affiliates continued under the Egregor banner (the code-sharing Sekhmet family had operated in parallel).",
     "source": "bad-family"
   },
   "Mean Time To Respond/Resolve (MTTR)": {
@@ -1880,7 +1855,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Microsoft Sentinel": {
     "term": "Microsoft Sentinel",
-    "definition": "Cloud-native SIEM/SOAR; AI-driven analytics across on-prem, cloud, and hybrid with rich connector library.",
+    "definition": "Cloud-native SIEM/SOAR (formerly Azure Sentinel); AI-driven analytics across on-prem, cloud, and hybrid with rich connector library, plus a built-in UEBA module for user and entity behavior analytics.",
     "source": "cat-tool"
   },
   "Microsoft WSUS": {
@@ -2113,15 +2088,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "The process of analyzing data structures or code to extract meaningful information.",
     "source": "clear"
   },
-  "Pass-The-Hash": {
-    "term": "Pass-The-Hash",
-    "definition": "An attack technique that allows an attacker to authenticate to a remote server/service using the underlying NTLM or LM hash of a user's password instead of the password itself.",
-    "source": "clear"
-  },
   "Pass-the-Hash": {
     "term": "Pass-the-Hash",
-    "definition": "The attacker never needs the plaintext password. The NTLM hash from host A authenticates against host B because the protocol treats the hash as the credential. Silent, irreversible until the password is rotated, and the backbone of many lateral-movement campaigns.",
-    "source": "bad-feature"
+    "definition": "An attack technique that allows an attacker to authenticate to a remote server/service using the underlying NTLM or LM hash of a user's password instead of the password itself.",
+    "source": "clear"
   },
   "Pass-the-Ticket": {
     "term": "Pass-the-Ticket",
@@ -2233,11 +2203,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A command-line shell and scripting language built on the .NET framework, commonly used for system administration and potentially for malicious purposes.",
     "source": "clear"
   },
-  "Pre-Exploitation": {
-    "term": "Pre-Exploitation",
-    "definition": "The reconnaissance and scanning phase, where attackers gather intelligence and identify vulnerabilities before launching an attack.",
-    "source": "bad-term"
-  },
   "Prisma Cloud": {
     "term": "Prisma Cloud",
     "definition": "Cloud-native security platform from Palo Alto Networks; workload protection, IaC scanning, compliance, runtime defense.",
@@ -2348,6 +2313,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Malicious software that encrypts a victim's files and demands payment (usually cryptocurrency) for the decryption key. Modern ransomware operations typically pair encryption with data theft, threatening public release if the ransom is not paid (double extortion).",
     "source": "clear"
   },
+  "Reconnaissance": {
+    "term": "Reconnaissance",
+    "definition": "The pre-attack phase where attackers gather intelligence, enumerate exposed services, and identify vulnerabilities before launching an intrusion.",
+    "source": "bad-term"
+  },
   "Recorded Future": {
     "term": "Recorded Future",
     "definition": "Threat-intelligence platform combining machine learning with human analysis across open, dark, and technical sources.",
@@ -2355,7 +2325,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "RedLine": {
     "term": "RedLine",
-    "definition": "Infostealer sold on underground forums. Harvests credentials, browser data, cryptocurrency wallets, and system information. Distributed via cracked software, malvertising, phishing, and fake installers. JSON-over-HTTP/S C2. Customizable and affordable; popular among low-skill actors and initial-access brokers.",
+    "definition": "Infostealer sold on underground forums. Harvests credentials, browser data, cryptocurrency wallets, and system information. Distributed via cracked software, malvertising, phishing, and fake installers. JSON-over-HTTP/S C2. Customizable and affordable; popular among low-skill actors and initial-access brokers. Infrastructure seized in the international Operation Magnus takedown (October 2024).",
     "source": "bad-family"
   },
   "Reflective DLL Injection": {
@@ -2693,11 +2663,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A technique where attackers exploit legitimate applications to load malicious DLLs or code, often bypassing security controls.",
     "source": "clear"
   },
-  "Sideloading": {
-    "term": "Sideloading",
-    "definition": "Loading and executing a malicious DLL or module through a legitimate application to bypass security controls.",
-    "source": "bad-term"
-  },
   "Signature Database": {
     "term": "Signature Database",
     "definition": "A repository of known threat signatures used by security tools.",
@@ -2840,12 +2805,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Stuxnet": {
     "term": "Stuxnet",
-    "definition": "Landmark cyberweapon developed jointly by the U.S. and Israel to disrupt Iran's nuclear enrichment. Multiple zero-days and PLC-specific payloads targeted Siemens controllers at Natanz. Altered centrifuge speeds while reporting normal readings. First malware known to cause real-world industrial damage. Inspired subsequent ICS-targeting malware.",
+    "definition": "Landmark cyberweapon widely attributed to a joint U.S.-Israeli operation (never officially acknowledged) to disrupt Iran's nuclear enrichment. Multiple zero-days and PLC-specific payloads targeted Siemens controllers at Natanz. Altered centrifuge speeds while reporting normal readings. First malware known to cause real-world industrial damage. Inspired subsequent ICS-targeting malware.",
     "source": "bad-campaign"
   },
   "Subdomain Abuse": {
     "term": "Subdomain Abuse",
-    "definition": "Uses legitimate-looking subdomains (e.g., cdn.dropbox.com.evil.example ) to trick filters and users.",
+    "definition": "Abuses subdomains that genuinely belong to trusted services, e.g., attacker tenants like evil.azurewebsites.net or takeover of dangling DNS records, so traffic inherits the parent domain's reputation.",
     "source": "bad-term"
   },
   "Subject": {
@@ -2960,7 +2925,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "TheHive Project": {
     "term": "TheHive Project",
-    "definition": "Open-source IR platform with collaborative case management; integrates with Cortex for automated analysis.",
+    "definition": "IR platform with collaborative case management; integrates with Cortex for automated analysis. TheHive 5 is a commercial product from StrangeBee; the open-source TheHive 4 reached end of life in December 2022.",
     "source": "cat-tool"
   },
   "Third-Party Data Exposure": {
@@ -3063,11 +3028,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "An access-governance term: multiple individually benign roles or permissions that together create excessive, dangerous access (the classic separation-of-duties conflict). A condition attackers hunt for and access reviews exist to catch.",
     "source": "bad-term"
   },
-  "Traffic": {
-    "term": "Traffic",
-    "definition": "The flow of data between devices, systems, or servers on a network.",
-    "source": "clear"
-  },
   "Transport Layer Security (TLS)": {
     "term": "Transport Layer Security (TLS)",
     "definition": "A protocol for encrypting internet communications.",
@@ -3085,7 +3045,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "TrickBot": {
     "term": "TrickBot",
-    "definition": "Began as a banking Trojan, evolved into a modular enterprise-scale framework. Credential theft, recon, ransomware delivery. Often followed Emotet, provided a foothold for Ryuk or Conti. Decentralized infrastructure, encrypted comms, plugins for SMB spread and AD enumeration. Disrupted in 2022 after years of activity.",
+    "definition": "Began as a banking Trojan, evolved into a modular enterprise-scale framework. Credential theft, recon, ransomware delivery. Often followed Emotet, provided a foothold for Ryuk or Conti. Decentralized infrastructure, encrypted comms, plugins for SMB spread and AD enumeration. A coordinated takedown in October 2020 only dented it; the operators wound the botnet down by 2022 as work shifted into Conti.",
     "source": "bad-family"
   },
   "Tripwire": {
@@ -3247,6 +3207,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Volt Typhoon / Salt Typhoon",
     "definition": "Two long-running China-linked campaigns against U.S. critical infrastructure. Volt Typhoon , disclosed May 2023 by Microsoft and CISA, pre-positioned in energy, water, communications, and transportation networks using living-off-the-land techniques for stealthy persistence. Salt Typhoon , disclosed in late 2024, compromised major U.S. telecom carriers' lawful-intercept systems with potential access to call metadata and the federal wiretap apparatus. Together they reframed the boundary between espionage and prepositioning for disruptive action.",
     "source": "bad-campaign"
+  },
+  "Volt Typhoon critical-infrastructure prepositioning": {
+    "term": "Volt Typhoon critical-infrastructure prepositioning",
+    "definition": "Chinese state-sponsored group that pre-positions inside U.S. critical infrastructure (energy, water, communications, transportation) for potential disruptive action rather than day-to-day espionage. Defining tradecraft is living off the land: built-in tools, valid accounts, and hands-on-keyboard operation with almost no malware, which defeats IOC-driven detection. Disclosed May 2023 by Microsoft and CISA; the campaign itself is covered under notable campaigns below.",
+    "source": "bad-actor"
   },
   "Vulnerability": {
     "term": "Vulnerability",

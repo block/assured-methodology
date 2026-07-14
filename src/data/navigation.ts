@@ -383,6 +383,11 @@ export const mainNavigation: NavGroup[] = [
             href: "/docs/teaching",
             status: "live",
           },
+          {
+            title: "Adopting ASSURED",
+            href: "/docs/adoption",
+            status: "live",
+          },
         ],
       },
       {
@@ -493,4 +498,5 @@ export const readingOrder: string[] = [
   "/docs/documentation/closure",
   "/docs/exercises",
   "/docs/teaching",
+  "/docs/adoption",
 ];

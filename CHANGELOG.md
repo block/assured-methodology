@@ -73,6 +73,12 @@ methodology, followed by a fix wave that touched every chapter.
   learner versions, plus a "Teaching ASSURED" facilitator guide with three
   delivery formats, a four-session workshop plan, exercise-running
   mechanics, a close-note rubric, and the common-misconception list.
+- An "Adopting ASSURED in your SOC" guide for team leads: a five-stage
+  rollout arc (pilot, baseline, train, reconcile tooling, operate), seven
+  triage-quality metrics that pair decision quality with speed (escalation
+  acceptance, reopen rate, missed incidents, handoff rework, time-in-phase,
+  pattern-library health, close-note quality), a four-level maturity model,
+  and the duty list the SOC lead owns.
 
 ### Changed
 

@@ -12,10 +12,9 @@ export default defineConfig({
 
   site: 'https://assured-methodology.vercel.app',
   base: '/',
-  redirects: {
-    '/docs/overview': '/docs/intro',
-    '/docs': '/docs/intro',
-  },
+  // Legacy-URL redirects live in vercel.json (server-side 308s), not here:
+  // Astro's static redirects emit meta-refresh stub pages without an <html>
+  // element, and inbound legacy links are a production concern anyway.
 
   integrations: [
     sitemap(),

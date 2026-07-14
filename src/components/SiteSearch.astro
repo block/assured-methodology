@@ -196,9 +196,10 @@
    *     if the listener accumulates).
    *
    * H-USER-2 fix: in dev the pagefind index doesn't exist, so the empty-state message
-   * must reach the user. We probe /pagefind/pagefind-ui.js with HEAD before injecting;
-   * if missing, show the dev-fallback immediately on open() rather than after a silent
-   * failure that leaves Pagefind's UI in place with no results.
+   * must reach the user. The script tag's onerror rejection (loadPagefindUI) is the
+   * missing-index signal; ensureUI catches it and shows the dev-fallback. No separate
+   * availability probe: a serial HEAD request before the script tag just delayed the
+   * first open() in production by a round-trip.
    */
   (function () {
     function init() {
@@ -211,7 +212,6 @@
       closers.forEach(function (c) { c.setAttribute("data-search-bound", "true"); });
 
       var uiInstance = null;
-      var indexCheckPromise = null;
 
       // Resolve the pagefind bundle against the configured base path so a
       // non-root deployment doesn't silently lose search. The base is
@@ -237,14 +237,6 @@
         if (status) status.textContent = message;
       }
 
-      function checkPagefindAvailable() {
-        if (indexCheckPromise) return indexCheckPromise;
-        indexCheckPromise = fetch(pagefindBase + "pagefind-ui.js", { method: "HEAD" })
-          .then(function (r) { return r.ok; })
-          .catch(function () { return false; });
-        return indexCheckPromise;
-      }
-
       function loadPagefindUI() {
         return new Promise(function (resolve, reject) {
           if (window.PagefindUI) { resolve(window.PagefindUI); return; }
@@ -268,11 +260,6 @@
 
       async function ensureUI() {
         if (uiInstance) return;
-        var available = await checkPagefindAvailable();
-        if (!available) {
-          showUnavailableFallback();
-          return;
-        }
         try {
           var PagefindUI = await loadPagefindUI();
           uiInstance = new PagefindUI({

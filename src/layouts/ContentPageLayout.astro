@@ -85,9 +85,51 @@ const crumbs = effectiveBreadcrumbs
       }),
     ]
   : [];
+
+// Structured data. The BreadcrumbList is ours, not the component's
+// (schemaJsonScript={false} below): the component copies each crumb's
+// relative href into @id, and excludeCurrentPage strips the leaf from the
+// schema along with the visible trail. Crawlers want absolute @ids and the
+// full trail including the current page.
+const canonicalHref = new URL(
+  Astro.url.pathname.endsWith("/")
+    ? Astro.url.pathname
+    : `${Astro.url.pathname}/`,
+  Astro.site,
+).href;
+const breadcrumbSchema = effectiveBreadcrumbs
+  ? JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: crumbs.map((crumb, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        item: { "@id": new URL(crumb.href, Astro.site).href, name: crumb.text },
+      })),
+    })
+  : null;
+const articleSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  headline: title,
+  ...(description ? { description } : {}),
+  url: canonicalHref,
+  inLanguage: "en",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "ASSURED Methodology",
+    url: Astro.site?.href,
+  },
+});
 ---
 
 <BaseLayout title={title} description={description}>
+  {/* JSON-LD is valid anywhere in the document; emitting it here keeps
+      HeadSEO free of docs-only concerns. */}
+  <script type="application/ld+json" set:html={articleSchema} />
+  {breadcrumbSchema && (
+    <script type="application/ld+json" set:html={breadcrumbSchema} />
+  )}
   <div class={`content-page ${chromeless ? "is-chromeless" : ""}`}>
     <div class={`content-page__shell ${chromeless ? "is-chromeless" : ""}`}>
       {!chromeless && showToc && headings && headings.length > 0 && (
@@ -107,6 +149,7 @@ const crumbs = effectiveBreadcrumbs
                 mainBemClass="c-breadcrumbs"
                 ariaLabel="Breadcrumb navigation"
                 excludeCurrentPage={true}
+                schemaJsonScript={false}
               >
                 <span slot="separator">&nbsp;›&nbsp;</span>
                 <Fragment slot="index">

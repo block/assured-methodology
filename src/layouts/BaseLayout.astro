@@ -8,6 +8,11 @@ import Header from "@/components/Header.astro";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/inter/wght-italic.css";
 import "@fontsource-variable/jetbrains-mono";
+// Preload the one render-critical font file (Inter latin, upright) so the
+// fetch starts with the HTML instead of after the CSS that declares the
+// @font-face. ?url resolves to the hashed /_astro/ URL of the same file the
+// Fontsource CSS references, so the preload and @font-face always agree.
+import interLatinWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "@/styles/global.css";
 import "@/styles/glossary.css";
 
@@ -23,6 +28,15 @@ const { title, description, ogImage } = Astro.props;
 <html lang="en">
   <head>
     <HeadSEO title={title} description={description} ogImage={ogImage} />
+    {/* crossorigin is required even same-origin: font requests are CORS-mode,
+        and a preload whose mode differs is discarded and fetched twice. */}
+    <link
+      rel="preload"
+      href={interLatinWoff2}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <ClientRouter />
   </head>
   <body class="min-h-screen font-sans antialiased">

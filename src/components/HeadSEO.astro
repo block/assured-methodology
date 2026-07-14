@@ -24,28 +24,39 @@ const fullTitle = title
     ? title
     : `${title} · ${siteName}`
   : siteName;
+
+const websiteSchema = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  alternateName: "ASSURED",
+  url: Astro.site?.href,
+  description:
+    "A structured, repeatable methodology for security event triage.",
+});
 ---
 
 <meta charset="utf-8" />
-<meta name="robots" content="index, follow" />
-<meta name="googlebot" content="index, follow" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+{/* The site is dark-only; theme-color keeps browser chrome (mobile address
+    bar, PWA title bar) on the page's own slate instead of white. The
+    matching color-scheme declaration lives in assured.css. */}
+<meta name="theme-color" content="#0f172a" />
 <meta name="generator" content={Astro.generator} />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
-{/* frame-ancestors is intentionally absent: browsers ignore it in a meta CSP.
-    Framing protection comes from the X-Frame-Options header in vercel.json. */}
-<meta
-  http-equiv="Content-Security-Policy"
-  content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'"
-/>
+{/* The Content-Security-Policy is delivered as a header from vercel.json
+    (headers support frame-ancestors and per-script hashes; a meta CSP
+    can't and would have to allow 'unsafe-inline'). scripts/check-csp.mjs
+    keeps the header's hashes in sync with the built inline scripts. */}
 <link rel="canonical" href={canonicalURL} />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <title>{fullTitle}</title>
-<meta name="title" content={fullTitle} />
 <meta name="description" content={description} />
+<script type="application/ld+json" set:html={websiteSchema} />
 
 <meta property="og:type" content="website" />
+<meta property="og:locale" content="en_US" />
 <meta property="og:site_name" content={siteName} />
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={fullTitle} />

@@ -1,6 +1,21 @@
 @import "tailwindcss";
 @import "./assured.css";
 
+/* Metric-compatible fallback for Inter while the webfont loads
+   (font-display: swap in the Fontsource CSS). Overrides map Arial's box
+   onto Inter's so the swap doesn't reflow the page: values computed from
+   the two fonts' actual tables (Inter upem 2048, ascent 1984, descent 494,
+   line-gap 0; size-adjust from English-frequency-weighted average glyph
+   widths, Inter 0.473em vs Arial 0.441em). */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107.34%;
+  ascent-override: 90.25%;
+  descent-override: 22.47%;
+  line-gap-override: 0%;
+}
+
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -33,8 +48,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
   --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }

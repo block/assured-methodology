@@ -11,11 +11,11 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 
-<SubPageHero phase="risk" parentLetter="R" pillarNumber="01" pillarLabel="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Risk is a structured judgment, not a feeling. One scoring model does the work: ASSURED's Risk-Based Alert Triage Matrix, with MITRE ATT&CK supplying the vocabulary and CVSS supplying severity input where a vulnerability is in play."/>
+<SubPageHero phase="risk" parentLetter="R" pillarNumber="02" pillarLabel="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Risk is a structured judgment, not a feeling. One scoring model does the work: ASSURED's Risk-Based Alert Triage Matrix, with MITRE ATT&CK supplying the vocabulary and CVSS supplying severity input where a vulnerability is in play."/>
 
 <PillNav chapter="risk" label="Risk chapter" current="/docs/risk/framework" items={[
-  { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
   { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood", phase: "risk" },
+  { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
   { label: "The false-positive", href: "/docs/risk/false-positive", phase: "risk" },
 ]}/>
 
@@ -33,7 +33,7 @@ A structured assessment makes Risk repeatable across analysts and incidents: it 
 
 ---
 
-<h2 id="ratm">🎚️ Risk-Based Alert Triage Matrix</h2>
+<h2 id="ratm">Risk-Based Alert Triage Matrix</h2>
 
 The RATM scores alerts across four dimensions, producing a composite rating. It emphasizes technical reality while integrating business context. The four dimensions reduce to the two axes of the triage matrix at the bottom of this page: **asset criticality + business impact make up the impact axis**; **threat actor intent + exploitation &amp; scope, weighted by evidence quality, make up the likelihood axis**. Score the dimensions, reduce them to the two axes, read the default action off the matrix.
 
@@ -96,7 +96,7 @@ The thresholds above are starting defaults. Two adjustments most teams make: (1)
 
 ---
 
-<h2 id="mitre">🎯 MITRE ATT&CK as a risk lens</h2>
+<h2 id="mitre">MITRE ATT&CK as a risk lens</h2>
 
 ATT&CK enters Risk as a structuring vocabulary, not a scoring tool. The framework's value at this phase is naming what was observed so the verdict aligns with the broader <DefineTerm term="Threat" display="threat" /> landscape.
 
@@ -121,7 +121,7 @@ Mapping to <DefineTerm term="MITRE ATT&CK" /> is necessary but not sufficient. T
 
 ---
 
-<h2 id="cvss">📈 CVSS adaptation for triage</h2>
+<h2 id="cvss">CVSS adaptation for triage</h2>
 
 <DefineTerm term="CVSS">Common Vulnerability Scoring System. A numerical score (0 to 10) describing the severity of a vulnerability across exploitability, impact, and contextual factors. Originally designed for vulnerability management; adapted for active-threat prioritization.</DefineTerm> applies structured methodology to assess risk. By considering attack vector, complexity, and the system's impact on confidentiality, integrity, and availability, CVSS provides a standardized approach to prioritize alerts.
 
@@ -174,6 +174,10 @@ The triage matrix is the practical output: impact and likelihood combine into a 
   <div class="matrix-row"><span>Low</span><span>Low</span><span class="matrix-row__action matrix-row__action--p5">P4 · Document and close</span></div>
 </div>
 
+<Callout variant="info" title="Translate the timing anchors to your team model">
+The clock words above are written for a shifted, multi-analyst SOC. On a small or single-person team, translate them without loosening them: "escalate" means engaging whatever your escalation path is (an on-call engineer, an MSSP, an IR retainer), "within shift" means before you stop working the queue today, and "closure within 24 hours" means before the case goes stale. What must survive the translation is the ordering: P1 interrupts whatever you are doing, P2 finishes today, P3 is allowed to wait its turn.
+</Callout>
+
 <Callout variant="warn" title="Know the matrix's failure modes">
 Qualitative impact × likelihood matrices have documented weaknesses (Cox, 2008): range compression (two Medium/Medium cases can differ by orders of magnitude in real loss), ranking reversals near category boundaries, and anchoring on whichever cell was picked first. The matrix earns its place by making the priority call fast, consistent, and explainable, not by being precise. When a case sits near a boundary or the two axes pull in opposite directions, record the reasoning, not just the cell.
 </Callout>
@@ -182,7 +186,7 @@ Qualitative impact × likelihood matrices have documented weaknesses (Cox, 2008)
 The Risk framework produces a verdict the analyst can defend. The RATM rubric does the scoring, ATT&CK names the techniques, and CVSS quantifies <DefineTerm term="Vulnerability" display="vulnerability" /> severity when one is in play. Real triage is four moves: score impact, score likelihood, read the matrix, act on the band. Everything else on this page exists to make those four moves repeatable across analysts.
 </KeyTakeaway>
 
-<ContinueCard current="risk" nextHref="/docs/risk/impact-likelihood" nextLabel="Impact and likelihood" ctaLabel="Read next" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
+<ContinueCard current="risk" nextHref="/docs/risk/false-positive" nextLabel="The value of a false-positive" ctaLabel="Read false-positive" status={{ alert: "live", subject: "live", scope: "live", uncover: "live", risk: "live", escalation: "live", documentation: "live" }}/>
 
 <style>{`
 .fw-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }

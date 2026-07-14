@@ -177,12 +177,12 @@ export const mainNavigation: NavGroup[] = [
         href: "/docs/risk",
         status: "live",
         children: [
-          { title: "Framework", href: "/docs/risk/framework", status: "live" },
           {
             title: "Impact and likelihood",
             href: "/docs/risk/impact-likelihood",
             status: "live",
           },
+          { title: "Framework", href: "/docs/risk/framework", status: "live" },
           {
             title: "The value of a false positive",
             href: "/docs/risk/false-positive",
@@ -516,12 +516,12 @@ export const docsNavigation: NavGroup[] = [
         status: "live",
       },
       { title: "R · Risk", href: "/docs/risk", status: "live" },
-      { title: "   → Framework", href: "/docs/risk/framework", status: "live" },
       {
         title: "   → Impact and likelihood",
         href: "/docs/risk/impact-likelihood",
         status: "live",
       },
+      { title: "   → Framework", href: "/docs/risk/framework", status: "live" },
       {
         title: "   → The value of a false positive",
         href: "/docs/risk/false-positive",

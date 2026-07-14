@@ -72,7 +72,7 @@ Every hop can be wrong: DHCP reassigns, workstations are shared, accounts are bo
 
 ---
 
-## 👤 User accounts
+## User accounts
 
 <DefineTerm term="User" /> accounts produce the earliest and most actionable indicators of compromise. The analyst's job is to evaluate the activity against the account's expected pattern and lifecycle.
 
@@ -108,7 +108,7 @@ Every hop can be wrong: DHCP reassigns, workstations are shared, accounts are bo
   </div>
   <div class="user-subtype">
     <h4>Service accounts</h4>
-    <p>Non-interactive by design. Highly predictable behavior. Interactive logins from a service account are a near-canonical compromise signal.</p>
+    <p>Non-interactive by design. Highly predictable behavior. Interactive logins from a service account are a near-canonical compromise signal. These accounts straddle two categories: analyze the credential and its logons here, as an account, and analyze what it does inside a pipeline or application under <a href="#applications-and-services">Applications and services</a>. A CI/CD service account gets both lenses.</p>
   </div>
   <div class="user-subtype">
     <h4>Administrative accounts</h4>
@@ -130,7 +130,7 @@ Every hop can be wrong: DHCP reassigns, workstations are shared, accounts are bo
 
 ---
 
-## 💻 Endpoints
+## Endpoints
 
 Each <DefineTerm term="Endpoint" display="endpoint" /> is a place where activity happens and a window into the broader environment.
 
@@ -171,7 +171,7 @@ Each <DefineTerm term="Endpoint" display="endpoint" /> is a place where activity
 
 ---
 
-## ⚙️ Applications and services
+## Applications and services
 
 Applications and services are non-human identities that act on behalf of (or alongside) human users.
 
@@ -204,9 +204,21 @@ Applications and services often have broad, persistent access and very predictab
 
 ---
 
-## 🌐 Network identifiers
+## Network identifiers
 
-Network identifiers are how systems decide who is who when they cannot ask a person directly. Each identifier carries different forensic weight.
+Network identifiers are how systems decide who is who when they cannot ask a person directly. Each identifier carries different forensic weight, and most of the analytical work is resolving them into the entities above (the pivot chain in [From identifier to identity](#from-identifier-to-identity)). Two habits carry most of the value: validate that traffic conforms to the protocol its port implies (SSH riding 443 is the classic bypass; port rarity means nothing), and treat every identifier as a pivot key into inventory, DHCP, and identity logs rather than as an answer by itself.
+
+The identifier-by-identifier breakdown, eleven types with their forensic weight and classic abuse patterns, lives in the [reference below](#network-identifier-reference). Skim it once, then return to it during live cases. It is a lookup table, not a lesson to memorize.
+
+---
+
+<KeyTakeaway>
+Each <DefineTerm term="Entity" display="entity" /> type has its own pattern of normal and its own ways of being abused. Strong Subject analysis matches the analytical lens to the type. Treating a service account like a user (or a cloud role like a host) is how attackers go uninvestigated even when their activity is in the logs.
+</KeyTakeaway>
+
+## Network-identifier reference
+
+A lookup table for triage: what each identifier is good for and the abuse pattern to check against it.
 
 <div class="net-grid">
   <div class="net-card">
@@ -254,12 +266,6 @@ Network identifiers are how systems decide who is who when they cannot ask a per
     <p>Persistent identifiers granted to services. Track by issuance date, last-use date, scope, and the originator. Tokens that re-emerge after long silence often indicate compromise.</p>
   </div>
 </div>
-
----
-
-<KeyTakeaway>
-Each <DefineTerm term="Entity" display="entity" /> type has its own pattern of normal and its own ways of being abused. Strong Subject analysis matches the analytical lens to the type. Treating a service account like a user (or a cloud role like a host) is how attackers go uninvestigated even when their activity is in the logs.
-</KeyTakeaway>
 
 <ContinueCard
   current="subject"
@@ -385,12 +391,12 @@ Each <DefineTerm term="Entity" display="entity" /> type has its own pattern of n
   padding: 1rem 1.2rem;
   background: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #38bdf8;
+  border-left: 3px solid #22c55e;
   border-radius: 0.55rem;
 }
 .net-card h4 {
   margin: 0 0 0.3rem 0;
-  color: #7dd3fc;
+  color: #86efac;
   font-size: 0.93rem;
 }
 .net-card p {

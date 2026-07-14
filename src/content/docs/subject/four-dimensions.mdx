@@ -42,7 +42,7 @@ When all four agree (authenticated normally, acted within its permissions, in li
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 The first dimension evaluates how the entity proved who it was. The job is not to assume the <DefineTerm term="Credential" display="credential" /> was used legitimately. The job is to evaluate the credentials themselves and the context they were used in.
 
@@ -131,7 +131,7 @@ Modern intrusions disproportionately route through identity-provider abuse rathe
   </div>
   <div class="cloud-id-card">
     <h4>🌍 Impossible travel</h4>
-    <p>The geolocation signal from step 01, scored provider-side: Entra ID Identity Protection and Okta ThreatInsight flag it directly, so it often arrives pre-detected. Treat as a strong but not conclusive signal, VPN, mobile-carrier routing, and travel-while-active can produce false-positives. Maps to <strong>T1078.004 Valid Accounts: Cloud Accounts</strong>.</p>
+    <p>The geolocation signal from step 01, scored provider-side: Entra ID Identity Protection and Okta ThreatInsight flag it directly, so it often arrives pre-detected. Treat as a strong but not conclusive signal: VPN, mobile-carrier routing, and travel-while-active can produce false-positives. Maps to <strong>T1078.004 Valid Accounts: Cloud Accounts</strong>.</p>
   </div>
   <div class="cloud-id-card">
     <h4>📲 Device-code phishing and AiTM session theft</h4>
@@ -139,9 +139,13 @@ Modern intrusions disproportionately route through identity-provider abuse rathe
   </div>
 </div>
 
+<Callout variant="info" title="The on-prem counterpart: Kerberos tickets and AD delegation">
+Cloud flows get the attention, but most enterprises still run Active Directory, where authentication is ticket-based: a logon yields a Ticket Granting Ticket (TGT), and the TGT buys service tickets for each system the account touches. Two Subject-relevant consequences. First, tickets are credentials: a stolen TGT impersonates the account until it expires with no password ever touched, and a Kerberoasting burst (many RC4 service-ticket requests for SPN-bearing service accounts) is credential theft in progress. Second, delegation is a trust path: a service configured for unconstrained delegation holds the TGTs of everyone who authenticates to it, so "web server compromised" can quietly mean "the admin who logged in last week is captured too." When the entity lives in AD, its delegation configuration and recent ticket-grant pattern belong on the relationship map alongside group memberships.
+</Callout>
+
 ---
 
-## 🔓 Authorization
+## Authorization
 
 Authorization asks whether the action the entity took was permitted, and whether the permissions themselves are appropriate.
 
@@ -179,7 +183,7 @@ When an alert touches an entity's Tier 0 access, Authorization gets weighted dif
 
 ---
 
-## 📊 Behavior
+## Behavior
 
 The behavior dimension compares current activity to the entity's historical norm: not "is this unusual in the environment" (the Alert chapter's question) but "is this unusual for this specific identity." This dimension is deep enough that it has its own sub-page. The [behavioral framework](/docs/subject/behavioral-framework) covers the full workflow, from establishing baselines to peer-group comparison; the four signals below are the short version, worth checking on every entity even when the full framework is not warranted.
 
@@ -216,7 +220,7 @@ The behavior dimension compares current activity to the entity's historical norm
 
 ---
 
-## 🌐 Relationships
+## Relationships
 
 The relationships dimension maps the connections between the entity and other identities, systems, and data. Compromise rarely lives in <DefineTerm term="One Identity" display="one identity" />. It lives in the graph the identity participates in.
 

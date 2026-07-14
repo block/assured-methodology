@@ -11,6 +11,7 @@ import ExampleStepper from "@/components/assured/ExampleStepper.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import Callout from "@/components/assured/Callout.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 <SubPageHero phase="escalation" parentLetter="E" pillarNumber="Example" pillarLabel="Escalation chapter" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="The Escalation phase applied to the finance-team intrusion. Risk delivered the P1 verdict; Escalation produces the handoff."/>
 
@@ -27,7 +28,7 @@ import Callout from "@/components/assured/Callout.astro";
 
   <div data-step class="example-step">
     <h3>Step 1. Confirm criteria met</h3>
-    <p>Pre-defined criteria check: <strong>confirmed malicious activity</strong> ✓, <strong>business-critical systems affected</strong> ✓ (PCI-scoped platform), <strong>lateral movement</strong> ✓ (federated SSO from compromised identity). Three triggers, all confirmed during Uncover. No discretion required; escalation is automatic, and as the callout below this example admits, it was overdue.</p>
+    <p>Pre-defined criteria check: <strong>confirmed malicious activity</strong> ✓, <strong>business-critical systems affected</strong> ✓ (PCI-scoped platform), <strong><DefineTerm term="Lateral Movement" display="lateral movement" /></strong> ✓ (federated SSO from compromised identity). Three triggers, all confirmed during Uncover. No discretion required; escalation is automatic, and as the callout below this example admits, it was overdue.</p>
   </div>
 
   <div data-step class="example-step">
@@ -43,10 +44,10 @@ import Callout from "@/components/assured/Callout.astro";
       <li><strong>Summary:</strong> phishing-driven intrusion, 2 hosts compromised, federated SSO into PCI-scoped platform, P1.</li>
       <li><strong>Timeline:</strong> 09:08 dlin interactive login → 09:11 macro execution and alert fired → 09:23 federated SSO → 14:00 P1 declared.</li>
       <li><strong>Entities:</strong> 3 primary, 3 secondary, 1 downstream system.</li>
-      <li><strong>Evidence chain:</strong> EDR, network, identity, mailbox, SaaS. ATT&CK chain documented.</li>
+      <li><strong>Evidence chain:</strong> <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" />, network, identity, mailbox, SaaS. ATT&CK chain documented.</li>
       <li><strong>Risk verdict:</strong> high impact, high likelihood, P1.</li>
       <li><strong>Containment taken:</strong> dlin's account disabled, two hosts isolated, federated SSO session terminated, all from the pre-authorized immediate-actions list. Cloud platform queries paused. Containment strategy beyond the list is IR's.</li>
-      <li><strong>Artifacts:</strong> file hashes, domain IoCs, screenshot of the originating email, ATT&CK technique chain.</li>
+      <li><strong>Artifacts:</strong> file hashes, domain <DefineTerm term="Indicators of Compromise (IoC)" display="IoCs" />, screenshot of the originating email, ATT&CK technique chain.</li>
       <li><strong>Open questions:</strong> cloud platform vendor response pending; mobile device activity not yet reviewed.</li>
       <li><strong>Communication record:</strong> 14:02 SOC manager paged; 14:08 Tier 2 IR notified; 14:18 compliance flagged (possible PCI exposure); 14:22 legal looped in (GDPR assessment); 14:35 cloud finance platform vendor request opened.</li>
     </ul>
@@ -76,7 +77,7 @@ Hold the packet's own timeline against the [criteria page](/docs/escalation/crit
 
 ## A second scenario: closing the Cursor false-positive at triage
 
-Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-pattern case that began in the Alert chapter has worked through Subject, Scope, Uncover, and Risk, and Risk produced a defensible low-residual-risk verdict. The Escalation phase still runs, but the outcome is different: a documented close at triage, not a transfer to IR. The methodology demands the same rigor for the close as for the escalation. One reading note: this is a different case on a different day. Its 14:03-15:18 timeline below is unrelated to the finance case's 14:02-14:35 notification record above, despite the near-identical clock times.
+Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-pattern case that began in the Alert chapter has worked through Subject, Scope, Uncover, and Risk, and Risk produced a defensible low-residual-risk verdict. The Escalation phase still runs, but the outcome is different: a documented close at triage, not a transfer to IR. The methodology demands the same rigor for the close as for the escalation. The two walkthroughs are also written at different depths on purpose: the finance case above is the summary view (what each step produces), while this one is the deep dive, showing the actual content of the record section by section. One reading note: this is a different case on a different day. Its 14:03-15:18 timeline below is unrelated to the finance case's 14:02-14:35 notification record above, despite the near-identical clock times.
 
 <ChapterExample title="Closing the Cursor case with a documented triage record" scenario="Risk concluded: low residual risk, signed vendor binary, behavioral baseline match, no persistence, no credential access, two named telemetry gaps explicitly accepted. Escalation now produces the close-at-triage record.">
 
@@ -117,7 +118,7 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
 
   <div data-step class="example-step">
     <h3>Step 5. Hand to Documentation</h3>
-    <p>The Documentation phase picks up the closure record and finalizes it as the audit-quality event report. The triage analyst stays available for the closure review but does not continue the case, there is nothing to continue. The detection-engineering ticket becomes a separate workstream owned by that team.</p>
+    <p>The Documentation phase picks up the closure record and finalizes it as the audit-quality event report. The triage analyst stays available for the closure review but does not continue the case: there is nothing to continue. The detection-engineering ticket becomes a separate workstream owned by that team.</p>
   </div>
 
 </ExampleStepper>

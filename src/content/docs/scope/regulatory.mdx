@@ -47,6 +47,19 @@ A triage analyst is not a lawyer and does not need to be one. The regulatory wor
 Which obligations actually apply depends on jurisdiction, contracts, and your organization's role (controller vs. processor, covered entity vs. business associate, merchant vs. service provider). The point of this page is recognition: know when to raise your hand, and how fast. Your privacy and legal teams own the rest.
 </Callout>
 
+<Reveal summary="The four moves, run on the finance-team intrusion" variant="example">
+
+Here is the whole regulatory pass applied to the threaded case from the [working example](/docs/scope/example). It takes minutes, not hours:
+
+1. **Recognize.** The compromised user's federated identity can reach a cloud finance platform that processes vendor payments and stores vendor-contact records. Two regulated classes are plausibly in reach: cardholder data (PCI DSS, *if* any in-scope system sits inside the CDE) and personal data of EU-resident vendor contacts (GDPR). "Can reach" is enough to tag the case; no platform activity has been confirmed yet.
+2. **Commit the timestamps.** Two entries go in the record: when the alert fired (09:11) and when the analyst recognized that regulated data was plausibly in reach. If the DPO later decides the GDPR notification duty applies, the 72-hour math runs from an awareness moment; the analyst's job is to make sure candidate moments are written down, not to pick which one counts.
+3. **Preserve.** The platform's audit logs are requested and held past their rotation schedule, the original `%TEMP%\upd.ps1` artifact and its hash stay intact, and automated cleanup on the proxy logs is paused for the case window.
+4. **Get the owners in.** Compliance (who own the acquirer relationship for the PCI question) and the DPO join the case during Scope, hours before Uncover confirms anything.
+
+What the analyst deliberately does *not* do: decide whether the CDE boundary was actually crossed, decide whether authority notification is required, or contact anyone outside the organization. And the contrast case matters just as much: the same pass on the Cursor false-positive runs, concludes "no regulated data in reach, source code is sensitive but not regulated," and records that conclusion. A documented "none" is a regulatory boundary too.
+
+</Reveal>
+
 ## Six regimes an analyst should recognize
 
 <div class="reg-grid">
@@ -82,7 +95,7 @@ Each regime has three triage implications: <strong>(1)</strong> what data the an
 
 ---
 
-<h2 id="gdpr">🇪🇺 GDPR</h2>
+<h2 id="gdpr">GDPR</h2>
 
 The General Data Protection Regulation covers personal data of people in the EU/EEA regardless of where the processing happens, and "personal data" is broad: IP addresses, device identifiers, location data, and behavioral records all count.
 
@@ -115,7 +128,7 @@ The General Data Protection Regulation covers personal data of people in the EU/
 
 ---
 
-<h2 id="ccpa">🐻 CCPA / CPRA</h2>
+<h2 id="ccpa">CCPA / CPRA</h2>
 
 California's privacy regime covers California residents' personal information, with the CPRA amendments adding a "sensitive personal information" category. Two things matter to a triage analyst: the breach-notification standard and the fact that consumer-rights machinery keeps running while you investigate.
 
@@ -144,7 +157,7 @@ California's privacy regime covers California residents' personal information, w
 
 ---
 
-<h2 id="pci">💳 PCI DSS</h2>
+<h2 id="pci">PCI DSS</h2>
 
 PCI DSS is not a law. It is a contractual standard that flows from the card brands through acquiring banks to merchants and service providers. The consequences of getting it wrong are contractual too: fines passed down by the acquirer, increased audit burden, and in the worst case losing the ability to process cards.
 
@@ -177,7 +190,7 @@ Tag the case PCI-relevant the moment account data is plausibly in reach. Identif
 
 ---
 
-<h2 id="hipaa">🏥 HIPAA</h2>
+<h2 id="hipaa">HIPAA</h2>
 
 HIPAA governs Protected Health Information held by covered entities and their business associates. For a triage analyst the two operative ideas are *minimum necessary* while you investigate, and the *breach-notification machinery* your findings feed.
 
@@ -210,7 +223,7 @@ A breach is "discovered" on the first day it is known (or would have been known 
 
 ---
 
-<h2 id="sox">📊 SOX</h2>
+<h2 id="sox">SOX</h2>
 
 Sarbanes-Oxley governs the integrity of public-company financial reporting. It contains no breach-notification requirement; its bite during an investigation is about records, controls, and where your findings have to flow.
 
@@ -239,7 +252,7 @@ Sarbanes-Oxley governs the integrity of public-company financial reporting. It c
 
 ---
 
-<h2 id="sec">🏛️ SEC cyber disclosure</h2>
+<h2 id="sec">SEC cyber disclosure</h2>
 
 Since December 2023, US public companies disclose material cybersecurity incidents publicly. This is the regime people often mistakenly attribute to SOX; it is the SEC's own cybersecurity disclosure rule.
 

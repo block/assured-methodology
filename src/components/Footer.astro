@@ -1,0 +1,97 @@
+---
+/**
+ * Site-wide footer: version stamp, content-review date, provenance, and
+ * licensing. Rendered by BaseLayout on every page; the only contentinfo
+ * landmark on the site (the easter-egg footer lives inside <main>).
+ */
+import { CONTENT_LAST_REVIEWED, METHODOLOGY_VERSION } from "@/data/version";
+
+const REPO = "https://github.com/block/assured-methodology";
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <p class="site-footer__line">
+      <span class="site-footer__brand">ASSURED</span>
+      <a
+        href={`${REPO}/blob/main/CHANGELOG.md`}
+        target="_blank"
+        rel="noopener noreferrer">v{METHODOLOGY_VERSION}</a
+      >
+      <span class="site-footer__sep" aria-hidden="true">·</span>
+      <span>Content last reviewed {CONTENT_LAST_REVIEWED}</span>
+    </p>
+    <p class="site-footer__line">
+      <span>Created by Timothy Zilber</span>
+      <span class="site-footer__sep" aria-hidden="true">·</span>
+      <a
+        href={`${REPO}/blob/main/LICENSE`}
+        target="_blank"
+        rel="noopener noreferrer">Code MIT</a
+      >
+      <span class="site-footer__sep" aria-hidden="true">·</span>
+      <a
+        href={`${REPO}/blob/main/LICENSE-CONTENT`}
+        target="_blank"
+        rel="noopener noreferrer">Content CC BY 4.0</a
+      >
+      <span class="site-footer__sep" aria-hidden="true">·</span>
+      <a
+        href={`${REPO}/blob/main/CITATION.cff`}
+        target="_blank"
+        rel="noopener noreferrer">Cite this work</a
+      >
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 3rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.4);
+  }
+
+  .site-footer__inner {
+    max-width: 88rem;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+
+  .site-footer__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--assured-text-dim);
+    line-height: 1.6;
+  }
+
+  .site-footer__brand {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--assured-text-muted);
+  }
+
+  .site-footer__sep {
+    color: rgba(148, 163, 184, 0.4);
+  }
+
+  .site-footer__line a {
+    color: var(--assured-text-muted);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .site-footer__line a:hover {
+    color: var(--assured-accent-soft);
+    border-bottom-color: var(--assured-accent-soft);
+  }
+</style>

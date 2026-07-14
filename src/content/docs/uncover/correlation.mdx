@@ -1,0 +1,390 @@
+---
+title: "Correlation and the timeline"
+description: "The verb at the center of Uncover: join keys, clock skew, timeline construction, pivot discipline, and the rules for stopping."
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  parentLetter="U"
+  pillarIndex="02"
+  pillarTotal="05"
+  chapterHref="/docs/uncover"
+  chapterLabel="Uncover"
+  lede="Sources, intel, vocabulary, and tools are nouns. Correlation is the verb: joining events across sources into one ordered, confidence-labeled timeline, pivoting with discipline, and knowing when to stop."
+/>
+
+<PillNav chapter="uncover" label="Uncover chapter" items={[
+  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Correlation & timeline", href: "/docs/uncover/correlation", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+]}/>
+
+The data-sources page tells you where evidence lives. This page teaches what you actually do with it: the mechanics behind sentences like "firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID." That correlation did not happen by staring. It happened because two events shared a join key, their clocks were trustworthy enough to order them, and the analyst was testing a specific hypothesis when they ran the query.
+
+## Join keys: how two events meet
+
+Two events from different sources correlate when they share an identifier inside a plausible time window. These are the keys, and each has a trap:
+
+<div class="joinkey-grid">
+  <div class="joinkey-card">
+    <h4>Host</h4>
+    <p>Hostname, asset ID, or agent ID ties endpoint, network, and directory events together.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> IP is not host identity. DHCP reassigns, VPN pools rotate, NAT aggregates. Join on IP only inside a window where you have verified the lease, or prefer the asset ID.</p>
+  </div>
+  <div class="joinkey-card">
+    <h4>User</h4>
+    <p>Account name or directory SID joins authentication, endpoint, email, and SaaS events.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> the account is not the person. Shared accounts, service accounts, and a second account for the same human all break the assumption. Subject-phase entity work is what keeps this join honest.</p>
+  </div>
+  <div class="joinkey-card">
+    <h4>Process</h4>
+    <p>PID plus host plus time window joins an EDR process event to the network connections and file writes it caused.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> PIDs are recycled. A PID is only unique per boot, per host, while the process lives. Prefer the EDR's globally unique process identifier when the console exposes one.</p>
+  </div>
+  <div class="joinkey-card">
+    <h4>Logon and session IDs</h4>
+    <p>Windows logon IDs, IdP session IDs, and cloud session names tie every action inside one session to the authentication that started it.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> sessions outlive credential changes. A reset password does not kill an already-issued session token, so "we reset the account" does not end this join.</p>
+  </div>
+  <div class="joinkey-card">
+    <h4>Network tuple</h4>
+    <p>Source IP:port to destination IP:port, inside a time window, joins host telemetry to firewall, proxy, and flow logs.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> proxies and NAT collapse many hosts into one source IP. The proxy log, not the firewall log, holds the original client.</p>
+  </div>
+  <div class="joinkey-card">
+    <h4>Artifact hash</h4>
+    <p>A file hash joins sightings across every host and the sandbox report, regardless of filename.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> ubiquity cuts both ways. A hash seen on 4,000 hosts is probably a legitimate binary being abused, not 4,000 infections. Prevalence is context, not a verdict.</p>
+  </div>
+</div>
+
+---
+
+## Clock skew: order is evidence, and clocks lie
+
+Whether the login preceded the download or followed it can decide a verdict, so the ordering itself is evidence, and it is only as good as the clocks that produced it.
+
+<div class="clock-rules">
+  <div class="clock-rule">
+    <span class="clock-rule__num">01</span>
+    <p><strong>Normalize everything to UTC first.</strong> Appliances log local time, cloud logs UTC, endpoints follow their user's timezone. A timeline mixing conventions manufactures false sequences. Convert at the moment you copy the event out, not later.</p>
+  </div>
+  <div class="clock-rule">
+    <span class="clock-rule__num">02</span>
+    <p><strong>Use event time, not ingest time.</strong> The SIEM's index timestamp records when the log arrived, and forwarders batch, retry, and fall behind. Sorting by ingest time can order a Tuesday event after a Wednesday one.</p>
+  </div>
+  <div class="clock-rule">
+    <span class="clock-rule__num">03</span>
+    <p><strong>Pick a spine clock.</strong> Choose the best-synchronized source that spans the case (usually EDR or the cloud provider) as the timeline's backbone, and hang other sources' events off it. Note which source provided each timestamp.</p>
+  </div>
+  <div class="clock-rule">
+    <span class="clock-rule__num">04</span>
+    <p><strong>Treat near-ties across sources as unordered.</strong> Two events from different sources a second apart are simultaneous for reasoning purposes unless you have verified both clocks. If a conclusion depends on which came first inside the skew window, the conclusion needs different evidence.</p>
+  </div>
+</div>
+
+---
+
+## The timeline is the artifact
+
+Correlated evidence goes into one place: a running timeline you build as you investigate, not a cleanup task performed at the end. Memory does not preserve ordering; the artifact does.
+
+Every entry carries the same fields:
+
+<div class="timeline-shape">
+  <div class="timeline-shape__row timeline-shape__row--head">
+    <span>Time (UTC)</span><span>Source</span><span>Entity</span><span>What happened</span><span>Confidence</span>
+  </div>
+  <div class="timeline-shape__row">
+    <span>09:02:11</span><span>Email gateway</span><span>dlin</span><span>Delivery of invoice-themed message with attachment</span><span>Confirmed</span>
+  </div>
+  <div class="timeline-shape__row">
+    <span>09:11:38</span><span>EDR</span><span>FIN-LT-0219</span><span>powershell.exe spawned with encoded command</span><span>Confirmed</span>
+  </div>
+  <div class="timeline-shape__row">
+    <span>09:11:43</span><span>Firewall</span><span>FIN-LT-0219</span><span>Outbound TLS to newly registered domain, joined on host + time to the PowerShell PID</span><span>Corroborated</span>
+  </div>
+  <div class="timeline-shape__row">
+    <span>09:12 to 09:23</span><span>(none)</span><span>FIN-LT-0219</span><span>No proxy telemetry for this host: logging gap, not verified quiet</span><span>Gap</span>
+  </div>
+</div>
+
+Three habits make the artifact trustworthy. Label confidence on every row using the same scale the <a href="/docs/uncover/transition">transition page</a> demands at handoff: confirmed by the source, corroborated across sources, single-source, or inferred. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
+
+---
+
+## Pivot discipline: the hypothesis ledger
+
+A pivot is a query run to test a hypothesis. That definition is the discipline: if you cannot name the hypothesis your current query tests, you are browsing, not investigating.
+
+The working tool is a hypothesis ledger kept next to the timeline. Each hypothesis gets a line: what you think happened, the evidence for it, the evidence against it, and its status.
+
+<div class="ledger-demo">
+  <div class="ledger-row ledger-row--head"><span>Hypothesis</span><span>For</span><span>Against</span><span>Status</span></div>
+  <div class="ledger-row"><span>Macro in the attachment launched the PowerShell stage</span><span>winword.exe parent; decode matches cradle</span><span></span><span class="ledger-status ledger-status--supported">Supported</span></div>
+  <div class="ledger-row"><span>Attacker moved laterally to a second host</span><span></span><span>No new logons from host; no SMB/WMI to peers in window</span><span class="ledger-status ledger-status--refuted">Refuted</span></div>
+  <div class="ledger-row"><span>Cloud finance session was attacker-driven</span><span>Timing proximity to C2</span><span>No token-theft evidence yet</span><span class="ledger-status ledger-status--open">Open</span></div>
+</div>
+
+<div class="pivot-rules">
+  <div class="pivot-rule">
+    <span class="pivot-rule__bullet"></span>
+    <div><strong>Cheapest, most specific query first.</strong> The narrow EDR lookup that can kill a hypothesis in one result runs before the broad SIEM sweep. Expensive queries are for windows that cheap queries have already narrowed.</div>
+  </div>
+  <div class="pivot-rule">
+    <span class="pivot-rule__bullet"></span>
+    <div><strong>Negative results get recorded.</strong> "Queried DNS logs for the domain across the fleet, zero other hosts" moves a hypothesis to refuted and defends the close later. An unrecorded negative result is work that evaporates.</div>
+  </div>
+  <div class="pivot-rule">
+    <span class="pivot-rule__bullet"></span>
+    <div><strong>Refuted stays in the ledger.</strong> The hypothesis you killed is part of the deliverable, the same doctrine that makes a false-positive close a finding rather than a shrug. The Risk phase needs to see what was ruled out, not just what survived.</div>
+  </div>
+  <div class="pivot-rule">
+    <span class="pivot-rule__bullet"></span>
+    <div><strong>New leads become hypotheses, not detours.</strong> Something interesting but unrelated to any open hypothesis gets one ledger line and no queries yet. It is triaged like everything else, not chased because it sparkled.</div>
+  </div>
+</div>
+
+---
+
+## When to stop
+
+The intro names rabbit-holes as a defining junior failure, and Uncover is where they happen. Stopping is a rule-driven decision, not a feeling:
+
+<div class="stop-grid">
+  <div class="stop-card">
+    <h4>🧱 The Scope boundary holds</h4>
+    <p>The entity, time, and infrastructure lines drawn in the Scope phase are the outer wall. Evidence pointing past them is grounds for a documented scope expansion decision, not silent drift into new territory.</p>
+  </div>
+  <div class="stop-card">
+    <h4>📉 Marginal return</h4>
+    <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is dry. Two empty pivots on the same hypothesis is a defensible place to draw the line and move on.</p>
+  </div>
+  <div class="stop-card">
+    <h4>⚖️ Verdict stability</h4>
+    <p>When new evidence no longer changes any hypothesis status, Uncover has done its job. More queries buy confidence theater, not confidence. Write the narrative and hand off to Risk.</p>
+  </div>
+  <div class="stop-card">
+    <h4>🚨 An escalation trigger fires</h4>
+    <p>Hitting an escalation criterion ends Uncover immediately, mid-thread if necessary. Confirmed active compromise belongs to incident response; continuing to dig solo delays the people who own containment.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="The rabbit-hole test">
+At any moment you should be able to answer one question: which open hypothesis does the query on my screen test? A clear answer means you are investigating. No answer means you are exploring, and exploring during triage is time taken from the queue. Log the curiosity as a hunt idea and return to the ledger.
+</Callout>
+
+<Callout variant="info" title="See it run">
+The <a href="/docs/uncover/example">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a false-positive scenario closed with the same rigor as the true positive.
+</Callout>
+
+<KeyTakeaway>
+Correlation is joining events on real keys within honest clocks; the <DefineTerm term="Timeline" display="timeline" /> is the running, confidence-labeled artifact that holds it; the hypothesis ledger keeps every pivot pointed at a question; and the stopping rules end the phase on evidence rather than exhaustion. This is the verb the rest of the chapter's nouns exist to serve.
+</KeyTakeaway>
+
+<ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence" nextLabel="Threat intelligence" nextDescription="Indicator matching, attribution, TTP-driven hunting, validation. How to use intel as a hypothesis source, not a verdict." ctaLabel="Read threat intelligence" />
+
+<style>
+{`
+.joinkey-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .joinkey-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1200px) { .joinkey-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.joinkey-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-top: 3px solid #f97316;
+  border-radius: 0.7rem;
+}
+.joinkey-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+.joinkey-card p { margin: 0 0 0.6rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.89rem; }
+.joinkey-card__trap {
+  margin: 0 !important;
+  padding: 0.65rem 0.9rem;
+  background: rgba(249, 115, 22, 0.07);
+  border: 1px dashed rgba(249, 115, 22, 0.35);
+  border-radius: 0.5rem;
+  font-size: 0.85rem !important;
+}
+.joinkey-card__trap strong { color: #fdba74; }
+
+.clock-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.clock-rule {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+.clock-rule__num {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #f97316, #c2410c);
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.clock-rule p { margin: 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.92rem; }
+.clock-rule strong { color: var(--assured-text); }
+
+.timeline-shape {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 1.5rem 0;
+}
+.timeline-shape__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  padding: 0.8rem 1.1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+  color: var(--assured-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+@media (min-width: 900px) {
+  .timeline-shape__row { grid-template-columns: 0.9fr 0.9fr 0.9fr 2.6fr 0.8fr; gap: 0.9rem; align-items: baseline; }
+}
+.timeline-shape__row--head {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 1.1rem;
+}
+@media (min-width: 900px) {
+  .timeline-shape__row--head { display: grid; }
+  .timeline-shape__row--head span {
+    color: var(--assured-text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.ledger-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 1.5rem 0;
+}
+.ledger-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  padding: 0.8rem 1.1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+  color: var(--assured-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+@media (min-width: 900px) {
+  .ledger-row { grid-template-columns: 1.6fr 1.2fr 1.2fr 0.6fr; gap: 0.9rem; align-items: baseline; }
+}
+.ledger-row--head {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 1.1rem;
+}
+@media (min-width: 900px) {
+  .ledger-row--head { display: grid; }
+  .ledger-row--head span {
+    color: var(--assured-text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+.ledger-status {
+  display: inline-block;
+  padding: 0.14rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ledger-status--supported { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+.ledger-status--refuted   { background: rgba(148, 163, 184, 0.15); color: var(--assured-text-soft); }
+.ledger-status--open      { background: rgba(249, 115, 22, 0.15); color: #fdba74; }
+
+.pivot-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+.pivot-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+.pivot-rule__bullet {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #f97316, #fdba74);
+  margin-top: 0.5rem;
+}
+.pivot-rule strong { color: var(--assured-text); }
+.pivot-rule div { color: var(--assured-text-muted); line-height: 1.55; font-size: 0.93rem; }
+
+.stop-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 768px) { .stop-grid { grid-template-columns: 1fr 1fr; } }
+
+.stop-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f97316;
+  border-radius: 0.7rem;
+}
+.stop-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+.stop-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+`}
+</style>

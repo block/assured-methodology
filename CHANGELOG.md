@@ -29,6 +29,10 @@ methodology, followed by a fix wave that touched every chapter.
   chains, the IMDS pattern, IdP sign-in logs) and macOS parsing coverage
   (launchd lineage, signature chains, notarization) so the Alert chapter can
   parse its own macOS worked example.
+- A "Correlation and the timeline" pillar in Uncover: join keys and their
+  traps, clock-skew rules, the running confidence-labeled timeline, the
+  hypothesis ledger, and stopping rules. Plus XDR, ITDR, CDR, and
+  sandbox/detonation families in the Uncover tool catalog.
 - Verified external citations (CISA, MITRE ATT&CK, NVD, vendor research) on
   160 fact-bearing entries in the B.A.D. glossary.
 - CI hardening: type checking, an internal link checker, a CSP-hash check

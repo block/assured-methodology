@@ -1,6 +1,6 @@
 ---
 title: "Tool integration"
-description: "SIEM, EDR, network analysis, deception, forensics, SOAR, CSPM, data lakes. The tools that make Uncover possible at scale."
+description: "SIEM, EDR, XDR, ITDR, network analysis, deception, sandboxes, forensics, SOAR, CSPM, CDR, data lakes. The tools that make Uncover possible at scale."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -13,8 +13,8 @@ import PillNav from "@/components/assured/PillNav.astro";
 <SubPageHero
   phase="uncover"
   parentLetter="U"
-  pillarIndex="04"
-  pillarTotal="04"
+  pillarIndex="05"
+  pillarTotal="05"
   chapterHref="/docs/uncover"
   chapterLabel="Uncover"
   lede="Uncover at scale depends on tools. Each tool category answers a class of question; reaching for the right one at the right moment is part of the craft."
@@ -22,6 +22,7 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 <PillNav chapter="uncover" label="Uncover chapter" items={[
   { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
+  { label: "Correlation & timeline", href: "/docs/uncover/correlation", phase: "uncover" },
   { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
   { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
   { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
@@ -29,18 +30,22 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 ## The tool families
 
-The Uncover phase touches around ten major tool families. Each has a distinct role, capabilities, and limitations. The methodology asks the analyst to learn the question-to-tool mapping deliberately rather than running every alert through the same SIEM query.
+The Uncover phase touches around fourteen major tool families. Each has a distinct role, capabilities, and limitations. The methodology asks the analyst to learn the question-to-tool mapping deliberately rather than running every alert through the same SIEM query.
 
 <div class="tool-grid">
   <a href="#siem" class="tool-card"><h4>🔎 SIEM</h4><p>Centralized log search and correlation. The investigation's primary query window.</p></a>
   <a href="#edr" class="tool-card"><h4>💻 EDR</h4><p>Process trees, command lines, on-host containment.</p></a>
+  <a href="#xdr" class="tool-card"><h4>🧩 XDR</h4><p>Vendor-stitched correlation across endpoint, identity, email, cloud.</p></a>
+  <a href="#itdr" class="tool-card"><h4>🪪 ITDR</h4><p>Attacks on the identity plane: directories, IdPs, tokens, sessions.</p></a>
   <a href="#network" class="tool-card"><h4>🌐 Network analysis</h4><p>Wire-level observation. Catches what endpoint cannot.</p></a>
   <a href="#ti" class="tool-card"><h4>🧠 Threat intelligence</h4><p>Enrichment and hypothesis generation.</p></a>
   <a href="#deception" class="tool-card"><h4>🍯 Deception</h4><p>Anything that touches deception is suspicious by definition.</p></a>
   <a href="#forensics" class="tool-card"><h4>🔬 Digital forensics</h4><p>Deep host analysis for confirmed cases.</p></a>
+  <a href="#sandbox" class="tool-card"><h4>💣 Sandbox / detonation</h4><p>Run the suspicious thing safely and watch what it does.</p></a>
   <a href="#vuln" class="tool-card"><h4>🛡️ Vulnerability scanners</h4><p>What is exposed and what is patched.</p></a>
   <a href="#soar" class="tool-card"><h4>🤖 SOAR</h4><p>Playbook execution and triage automation.</p></a>
   <a href="#cspm" class="tool-card"><h4>☁️ CSPM</h4><p>Cloud misconfiguration and exposure visibility.</p></a>
+  <a href="#cdr" class="tool-card"><h4>⚡ CDR</h4><p>Runtime cloud detection: control-plane and workload activity, live.</p></a>
   <a href="#lake" class="tool-card"><h4>🏞️ Data lake</h4><p>Scalable retention and ML-friendly analytics.</p></a>
 </div>
 
@@ -98,6 +103,64 @@ SIEM's strength is cross-source correlation. When an investigation needs to know
       <li><strong>False-positives</strong> from behavioral detection misclassifying legitimate admin work.</li>
       <li><strong>Resource demands</strong> for tuning, alert triage, and deep forensic investigation.</li>
       <li><strong>Cost and infrastructure</strong> at scale, especially with diverse endpoint types.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="xdr">XDR</h2>
+
+Extended Detection and Response platforms grow the EDR model outward: endpoint, identity, email, network, and cloud telemetry land in one console, and the vendor's correlation logic stitches related events into a single incident before an analyst opens it. Where a SIEM joins whatever you feed it using rules you wrote, XDR ships pre-built joins across the telemetry the vendor controls.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Cross-domain incident stitching:</strong> the phishing email, the process it spawned, and the sign-in it enabled arrive as one incident, not three alerts.</li>
+      <li><strong>Unified query surface</strong> across endpoint, identity, and email telemetry without per-source query languages.</li>
+      <li><strong>Coordinated response actions:</strong> isolate the host, revoke the session, and purge the email from one place.</li>
+      <li><strong>Less swivel-chair triage</strong> because the joins the analyst would run by hand are pre-computed.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Correlation quality tracks ecosystem coverage:</strong> strongest on the vendor's own sensors, weakest on third-party sources.</li>
+      <li><strong>Opaque stitching logic:</strong> the platform asserts that events belong together; the analyst still verifies the join keys before trusting the story.</li>
+      <li><strong>Vendor lock-in</strong> deepens with every telemetry type routed through one platform.</li>
+      <li><strong>SIEM overlap</strong> creates ambiguity about which system is authoritative for a given question.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="XDR automates the join, not the judgment">
+An XDR incident is a machine-built version of the <a href="/docs/uncover/correlation">correlation</a> this chapter teaches by hand: the same join keys, applied automatically. That makes it a head start, not a verdict. When the stitched incident matters to the outcome, check the joins the way you would check your own.
+</Callout>
+
+---
+
+<h2 id="itdr">ITDR</h2>
+
+Identity Threat Detection and Response tools watch the identity plane itself: directories, identity providers, and the credentials, tokens, and sessions they issue. As attacks shift from breaking endpoints to logging in, ITDR covers the tier where <DefineTerm term="Token Theft" display="token theft" /> and <DefineTerm term="Session Hijack" display="session hijack" /> live and where EDR has no view.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Directory attack detection:</strong> <DefineTerm term="Kerberos" /> ticket abuse, DCSync-style replication requests, suspicious privilege grants.</li>
+      <li><strong>Token and session anomalies:</strong> replayed tokens, impossible-travel sessions, MFA-bypass patterns at the IdP.</li>
+      <li><strong>Attack-path mapping</strong> showing which identities and delegations lead from a foothold to the crown jewels.</li>
+      <li><strong>Identity-native response:</strong> revoke sessions, force reauthentication, disable accounts at the provider.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Coverage bound to integrations:</strong> an IdP or directory the tool does not ingest is an identity blind spot.</li>
+      <li><strong>Service-account noise</strong> in automation-heavy environments demands careful baselining.</li>
+      <li><strong>Posture findings blur with live attacks:</strong> a risky delegation and an active abuse of it arrive in the same queue.</li>
+      <li><strong>Revocation gaps:</strong> long-lived tokens already issued to third-party SaaS can outlive the response action.</li>
     </ul>
   </div>
 </div>
@@ -212,6 +275,33 @@ Digital forensics tools enable comprehensive analysis of compromised systems. Re
 
 ---
 
+<h2 id="sandbox">Sandbox and detonation</h2>
+
+Detonation services run a suspicious file or URL inside an instrumented, disposable environment and record everything it does: the process tree it builds, the domains it calls, the files and registry keys it writes. <DefineTerm term="Sandboxing" display="Sandboxing" /> turns "is this attachment malicious?" from a signature lookup into an observed-behavior question, and its report feeds the timeline directly.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Behavioral verdicts on unknowns:</strong> samples with no signature history still reveal themselves by what they do.</li>
+      <li><strong>IOC extraction:</strong> C2 domains, dropped-file hashes, and mutex names from the run become pivots back into the environment's own telemetry.</li>
+      <li><strong>Safe URL analysis</strong> for phishing triage without touching the link from a production machine.</li>
+      <li><strong>Report artifacts</strong> (process trees, network captures, screenshots) that drop into the investigation record.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Evasion is a built-in adversary feature:</strong> time delays, environment checks, and required user interaction exist precisely to beat detonation.</li>
+      <li><strong>A clean run is weak evidence of benign.</strong> It means the sample did nothing in that environment during that window, nothing more.</li>
+      <li><strong>Targeted samples</strong> keyed to the victim's domain, language, or geography may refuse to run anywhere else.</li>
+      <li><strong>Submission constraints:</strong> file-type and size limits, and data-handling policies for sensitive documents.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
 <h2 id="vuln">Vulnerability scanners</h2>
 
 <DefineTerm term="Vulnerability" /> scanners systematically assess systems, applications, and configurations to identify known weaknesses. They enable analysts to determine exploitability and correlate vulnerabilities with observed threat activity.
@@ -290,6 +380,37 @@ Cloud Security Posture Management tools continuously assess AWS, Azure, GCP envi
     </ul>
   </div>
 </div>
+
+---
+
+<h2 id="cdr">CDR</h2>
+
+Cloud Detection and Response covers what CSPM cannot: live activity. Where CSPM reads static configuration, CDR watches the control plane (<DefineTerm term="AWS CloudTrail" display="CloudTrail" /> and its Azure and GCP equivalents) and workload runtimes for attacks in progress: unusual API sequences, role chaining, containers spawning shells they never spawn.
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h4>✓ Key capabilities</h4>
+    <ul>
+      <li><strong>Control-plane anomaly detection:</strong> API-call sequences, role assumptions, and key usage that break the account's baseline.</li>
+      <li><strong>Workload runtime sensors</strong> for container and serverless behavior that agentless posture tools never see.</li>
+      <li><strong>Identity-to-workload correlation</strong> tying a suspicious role session to the resources it actually touched.</li>
+      <li><strong>Cloud-native response:</strong> revoke keys and sessions, quarantine workloads, snapshot disks for forensics before the evidence recycles.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h4>✗ Common limitations</h4>
+    <ul>
+      <li><strong>Ephemeral evidence:</strong> the container that ran the payload may be gone in minutes; capture has to be part of the detection path.</li>
+      <li><strong>Provider API coverage gaps</strong> in newer or niche services limit what can be observed at all.</li>
+      <li><strong>Multi-cloud inconsistency:</strong> detection depth varies by provider, so identical attacks surface differently.</li>
+      <li><strong>Noisy baselines</strong> in environments where infrastructure legitimately changes constantly.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="CSPM vs CDR in one line">
+CSPM answers "what could go wrong here?" from configuration. CDR answers "what is going wrong right now?" from activity. An Uncover investigation of a cloud alert usually needs the second and consults the first for context.
+</Callout>
 
 ---
 

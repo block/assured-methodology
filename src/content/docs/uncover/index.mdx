@@ -19,10 +19,11 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   pieceNumber={4}
   question="What does the evidence say?"
   pillars={[
-    { num: "01", label: "Data sources",        href: "/docs/uncover/data-sources" },
-    { num: "02", label: "Threat intelligence", href: "/docs/uncover/threat-intelligence" },
-    { num: "03", label: "MITRE ATT&CK",        href: "/docs/uncover/mitre" },
-    { num: "04", label: "Tool integration",    href: "/docs/uncover/tooling" },
+    { num: "01", label: "Data sources",            href: "/docs/uncover/data-sources" },
+    { num: "02", label: "Correlation & timeline",  href: "/docs/uncover/correlation" },
+    { num: "03", label: "Threat intelligence",     href: "/docs/uncover/threat-intelligence" },
+    { num: "04", label: "MITRE ATT&CK",            href: "/docs/uncover/mitre" },
+    { num: "05", label: "Tool integration",        href: "/docs/uncover/tooling" },
   ]}
 >
   Uncover is where the investigation does its work. With Alert, Subject, and Scope established, this phase pulls <DefineTerm term="Telemetry" display="telemetry" />, correlates it, identifies anomalies, and reconstructs the chain of activity from first action to last. The output is a coherent narrative supported by evidence.
@@ -46,6 +47,12 @@ The boundary with Subject is worth stating plainly: Subject was a quick contextu
     </div>
   </div>
   <div class="alert-outcomes__row">
+    <span class="alert-outcomes__icon">🔗</span>
+    <div>
+      <strong>Correlate evidence into one timeline</strong>: join keys, clock skew, confidence labels, the hypothesis ledger, and the rules that say when to stop digging.
+    </div>
+  </div>
+  <div class="alert-outcomes__row">
     <span class="alert-outcomes__icon">🌐</span>
     <div>
       <strong>Use threat intelligence appropriately</strong>: matching, attribution, TTP-driven hunting, and validating intel before acting on it.
@@ -60,14 +67,14 @@ The boundary with Subject is worth stating plainly: Subject was a quick contextu
   <div class="alert-outcomes__row">
     <span class="alert-outcomes__icon">🛠️</span>
     <div>
-      <strong>Choose the right tools at the right step</strong>: SIEM, EDR, network analysis, deception, forensics, vulnerability scanners, SOAR, CSPM, data lakes.
+      <strong>Choose the right tools at the right step</strong>: SIEM, EDR, XDR, ITDR, network analysis, deception, forensics, sandboxes, vulnerability scanners, SOAR, CSPM, CDR, data lakes.
     </div>
   </div>
 </div>
 
 ---
 
-## The four pillars
+## The five pillars
 
 <div class="pillars-grid">
   <a href="/docs/uncover/data-sources" class="pillar pillar--uncover">
@@ -77,25 +84,32 @@ The boundary with Subject is worth stating plainly: Subject was a quick contextu
     <p>The 15 telemetry sources an investigation may pull from. Knowing what each one captures (and does not) is the foundation.</p>
     <span class="pillar__cta">Read →</span>
   </a>
-  <a href="/docs/uncover/threat-intelligence" class="pillar pillar--uncover">
+  <a href="/docs/uncover/correlation" class="pillar pillar--uncover">
     <div class="pillar__num">02</div>
+    <div class="pillar__icon">🔗</div>
+    <h3>Correlation and the timeline</h3>
+    <p>Join keys, clock skew, the running timeline, pivot discipline, stopping rules. The verb at the center of the phase.</p>
+    <span class="pillar__cta">Read →</span>
+  </a>
+  <a href="/docs/uncover/threat-intelligence" class="pillar pillar--uncover">
+    <div class="pillar__num">03</div>
     <div class="pillar__icon">🌐</div>
     <h3>Threat intelligence</h3>
     <p>Indicator matching, attribution, TTP-driven hunting, tiers and validation. How to use intel without being used by it.</p>
     <span class="pillar__cta">Read →</span>
   </a>
   <a href="/docs/uncover/mitre" class="pillar pillar--uncover">
-    <div class="pillar__num">03</div>
+    <div class="pillar__num">04</div>
     <div class="pillar__icon">🎯</div>
     <h3>MITRE ATT&amp;CK</h3>
     <p>Tactics, techniques, procedures. The shared vocabulary for describing what an adversary did and how the chain progressed.</p>
     <span class="pillar__cta">Read →</span>
   </a>
   <a href="/docs/uncover/tooling" class="pillar pillar--uncover">
-    <div class="pillar__num">04</div>
+    <div class="pillar__num">05</div>
     <div class="pillar__icon">🛠️</div>
     <h3>Tool integration</h3>
-    <p>SIEM, EDR, network analysis, deception, forensics, SOAR, CSPM. The tools that make Uncover possible at scale.</p>
+    <p>SIEM, EDR, XDR, ITDR, deception, sandboxes, SOAR, CDR. The tools that make Uncover possible at scale.</p>
     <span class="pillar__cta">Read →</span>
   </a>
 </div>
@@ -138,7 +152,7 @@ Uncover is the longest phase of most investigations, and the one where preparati
 
 .pillars-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(3, 1fr); } }
 .pillar--uncover { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: 0.85rem; color: var(--assured-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .pillar--uncover:hover { transform: translateY(-3px); border-color: #f97316; box-shadow: 0 16px 32px -12px rgba(249, 115, 22, 0.35); }
 .pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(253, 186, 116, 0.7); }

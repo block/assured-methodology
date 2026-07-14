@@ -217,6 +217,11 @@ export const mainNavigation: NavGroup[] = [
             status: "live",
           },
           {
+            title: "Correlation and the timeline",
+            href: "/docs/uncover/correlation",
+            status: "live",
+          },
+          {
             title: "Threat intelligence",
             href: "/docs/uncover/threat-intelligence",
             status: "live",
@@ -426,6 +431,7 @@ export const readingOrder: string[] = [
   "/docs/scope/transition",
   "/docs/uncover",
   "/docs/uncover/data-sources",
+  "/docs/uncover/correlation",
   "/docs/uncover/threat-intelligence",
   "/docs/uncover/mitre",
   "/docs/uncover/tooling",

@@ -215,6 +215,10 @@ The strongest insider triage correlates two streams that often live in separate 
 Technical signals without behavioral context produce false-positives (admins legitimately disable agents, developers legitimately use scripting tools). Behavioral signals without technical context produce HR friction (someone is having a bad month and the SOC opens an investigation). The methodology asks the analyst to wait for both streams to agree before escalating from risk to threat.
 </Callout>
 
+<Callout variant="warn" title="Guardrails: the analyst investigates activity, not people">
+Three rules keep insider analysis defensible. First, presumption of innocence: the SOC does not collect behavioral signals like the list above. They reach the analyst through an HR or manager referral, and the analyst's job is to check whether technical evidence corroborates the referral, not to build a case against a person. Second, document observable facts only: "account jsmith transferred 4.2 GB to an unrecognized external IP at 02:14" survives legal review; "Jane is probably stealing data before she quits" is defamation and employment-law exposure the moment it enters a ticket. Third, mind the base rate: genuine insider threat is rare, and broad indicator lists like these mostly describe innocent people having a hard month. Any single indicator, and most pairs of them, will overwhelmingly flag employees who have done nothing wrong. An indicator justifies looking at telemetry. It never justifies a conclusion.
+</Callout>
+
 ---
 
 ## Mitigation strategies
@@ -251,6 +255,10 @@ Strong insider programs are built from five complementary practices. None of the
 
 <Callout variant="warn" title="Insider investigations need different escalation">
 An insider investigation is one of the few in triage where the analyst should usually <em>not</em> directly engage the subject. Coordinate with HR and legal before the subject becomes aware they are being investigated. Premature exposure can compromise both the security investigation and any subsequent legal action.
+</Callout>
+
+<Callout variant="info" title="Employee privacy is a hard constraint, not a courtesy">
+Insider investigations run inside an envelope of employment and privacy law that varies by jurisdiction. In much of the EU, works councils must be consulted before employee monitoring is deployed or expanded, and GDPR demands proportionality: the least invasive measure that answers the specific question, not a general trawl through a person's digital life. Several US states (Connecticut, Delaware, and New York among them) require notice of employee monitoring. Practically, that means one thing at triage speed: before widening collection on a named person, confirm with legal that the collection is authorized for that purpose, and pull only what the question requires. Evidence gathered outside the envelope can be unusable in any disciplinary or legal proceeding and can turn the organization from investigator into defendant.
 </Callout>
 
 <KeyTakeaway>

@@ -142,6 +142,8 @@ Adversary attribution is the methodical process of connecting observed <DefineTe
 
 ### Confidence levels
 
+Attribution claims use the same LOW / MEDIUM / HIGH scale as every other claim in the case file (the <a href="/docs/documentation/standards#confidence">shared rubric</a>). The grid below translates each level into attribution-specific evidence, so the analyst knows what an attribution claim must rest on before it earns its label.
+
 <div class="confidence-grid">
   <div class="confidence-card confidence-card--low">
     <span class="confidence-card__tag">LOW</span>
@@ -372,26 +374,9 @@ Not all intel is equal. Before acting on a piece of intelligence, validate it ac
   </div>
 </div>
 
-### Confidence ladder
+### One scale, not two
 
-<div class="conf-ladder">
-  <div class="conf-step conf-step--unv">
-    <span class="conf-step__tag">UNVERIFIED</span>
-    <p>Raw intelligence requiring validation before operational use.</p>
-  </div>
-  <div class="conf-step conf-step--low">
-    <span class="conf-step__tag">LOW CONFIDENCE</span>
-    <p>Limited corroboration or from less reliable sources.</p>
-  </div>
-  <div class="conf-step conf-step--med">
-    <span class="conf-step__tag">MEDIUM CONFIDENCE</span>
-    <p>Confirmed by at least one trusted source with supporting context.</p>
-  </div>
-  <div class="conf-step conf-step--high">
-    <span class="conf-step__tag">HIGH CONFIDENCE</span>
-    <p>Verified by multiple trusted sources with direct evidence.</p>
-  </div>
-</div>
+Validated intel is labeled with the same LOW / MEDIUM / HIGH scale used for <a href="#attribution">attribution</a> above and defined once in the <a href="/docs/documentation/standards#confidence">shared rubric</a>: the four checks map directly onto it (corroboration and source reliability drive the level; recency and specificity cap it). The only state this section adds is **unverified**: intel that has not yet been scored against the four checks. Unverified intel can generate hypotheses, but it never drives an operational decision until it has been validated and labeled.
 
 <Callout variant="info" title="Intel is a hypothesis, not a verdict">
 Threat intelligence tells the analyst what to look for. It does not tell them what they have. Validate intel-driven hypotheses against the actual telemetry before acting. The matched IOC is the question, not the answer.
@@ -681,37 +666,5 @@ Threat intelligence makes Uncover faster when used as a hypothesis generator. It
 .validate-card h4 { margin: 0 0 0.4rem 0; color: #7dd3fc; font-size: 0.95rem; }
 .validate-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.88rem; }
 
-.conf-ladder {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.6rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .conf-ladder { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .conf-ladder { grid-template-columns: repeat(4, 1fr); } }
-
-.conf-step {
-  padding: 1rem 1.2rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 4px solid var(--conf-color);
-  border-radius: 0.55rem;
-}
-.conf-step--unv  { --conf-color: #94a3b8; }
-.conf-step--low  { --conf-color: #f59e0b; }
-.conf-step--med  { --conf-color: #c084fc; }
-.conf-step--high { --conf-color: #22c55e; }
-.conf-step__tag {
-  display: inline-block;
-  padding: 0.18rem 0.6rem;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.7);
-  color: var(--conf-color);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  margin-bottom: 0.45rem;
-}
-.conf-step p { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 0.86rem; }
 `}
 </style>

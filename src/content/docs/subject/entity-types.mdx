@@ -60,6 +60,16 @@ Modern environments produce four broad categories of identities. Each one has it
   </div>
 </div>
 
+## From identifier to identity
+
+The alert rarely names a person. It names an IP, a hostname, or an account string, and the analyst resolves that identifier into an entity with a role and an owner before any of the analysis below applies. The pivot chain is mechanical:
+
+1. **IP to host.** Asset inventory or CMDB for static assignments; DHCP lease logs, the VPN concentrator, or the wireless controller for dynamic ones. Match the lease that covers the alert timestamp, not the current one, because the address may have been reassigned since.
+2. **Host to account.** Endpoint agent telemetry, workstation logon events, or VPN session logs show which account was interactive on the host during the window.
+3. **Account to person and role.** The identity provider resolves the account string to a directory record; the HR system resolves the record to a name, team, manager, and employment status.
+
+Every hop can be wrong: DHCP reassigns, workstations are shared, accounts are borrowed. Note the confidence of each hop, because "the IP resolved to jsmith" quietly stacks three separate inferences.
+
 ---
 
 ## 👤 User accounts
@@ -185,6 +195,10 @@ Applications and services often have broad, persistent access and very predictab
   <div class="app-card">
     <h4>Cloud services</h4>
     <p>Managed cloud functions, container orchestration, service meshes. The identity boundary is often a cloud role rather than a credential.</p>
+  </div>
+  <div class="app-card">
+    <h4>OAuth / third-party applications</h4>
+    <p>Apps granted delegated access to user or organizational data through a consent screen. They authenticate with tokens, so password resets and MFA never touch them. Inventory what has been consented and with which scopes; a newly registered app holding broad read scopes is the <a href="/docs/subject/four-dimensions">consent-grant abuse</a> pattern, and revoking consent is the only control that removes the access.</p>
   </div>
 </div>
 

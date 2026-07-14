@@ -136,13 +136,34 @@ Language must be unambiguous, technically accurate, and aligned with the organiz
 
 **Layered detail.** Where necessary, complex technical detail should live in referenced appendices, technical supplements, or attached forensic reports, not in the core narrative. The primary document remains readable; full investigative context is preserved for those who require it. Technical supplements might include packet captures, memory dumps, <DefineTerm term="Malware" display="malware" /> analysis reports, or detailed <DefineTerm term="Log" display="log" /> excerpts.
 
-**Confidence labeling.** When uncertainty exists, documentation explicitly states the confidence level and supporting evidence rather than presenting assumptions as facts. Transparency about knowledge limitations protects credibility and prevents inappropriate actions based on unverified information.
+**Confidence labeling.** When uncertainty exists, documentation explicitly states the confidence level and supporting evidence rather than presenting assumptions as facts, using the shared rubric below. Transparency about knowledge limitations protects credibility and prevents inappropriate actions based on unverified information.
 
 **Active voice.** Passive voice should be avoided when describing actions. "The analyst isolated the host at 14:32 UTC" beats "the host was isolated." Active voice creates clear attribution of actions and decisions, which is essential for accountability, traceability, and <DefineTerm term="Root Cause Analysis" display="root cause analysis" />.
 
 **Professional tone.** Documentation language remains professional and objective. Technical facts and observable behaviors, not subjective judgments or emotional reactions. Even in high-impact events, measured precision supports rational decision-making rather than amplifying organizational stress.
 
 </Reveal>
+
+<h3 id="confidence">The confidence rubric</h3>
+
+Confidence labels appear throughout the methodology: Subject's per-entity verdicts, Uncover's evidence chain, Risk's verdict, attribution claims. The labels only work if every analyst means the same thing by them. This is the shared rubric every page that asks for a high/medium/low label refers to.
+
+<div class="conf-rubric">
+  <div class="conf-level">
+    <span class="conf-level__tag conf-level__tag--high">HIGH</span>
+    <p>Direct evidence from a source trusted for exactly this kind of claim, corroborated by at least one independent source, with the plausible alternative explanations tested and ruled out.</p>
+  </div>
+  <div class="conf-level">
+    <span class="conf-level__tag conf-level__tag--medium">MEDIUM</span>
+    <p>Single-source evidence or strong inference. Alternatives are plausible but less likely, and nothing found so far contradicts the claim. Corroboration would move it to high; a contradiction would break it.</p>
+  </div>
+  <div class="conf-level">
+    <span class="conf-level__tag conf-level__tag--low">LOW</span>
+    <p>Circumstantial, incomplete, or resting on the absence of contrary evidence rather than the presence of supporting evidence. Gaps material to the claim remain open.</p>
+  </div>
+</div>
+
+Two usage rules. Label the **claim**, not the case: a record usually carries several claims at different confidence levels, and flattening them into one label hides exactly the information the next reader needs. And when a claim sits between two levels, **round down**: an overstated "high" costs more at review than an understated "medium".
 
 ---
 
@@ -211,4 +232,13 @@ Compliance with timeliness standards should be regularly assessed and reinforced
 .clarity-card, .timely-card { padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
 .clarity-card h4, .timely-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
 .clarity-card p, .timely-card p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.87rem; }
+
+.conf-rubric { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 900px) { .conf-rubric { grid-template-columns: repeat(3, 1fr); } }
+.conf-level { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
+.conf-level__tag { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 9999px; background: rgba(15, 23, 42, 0.7); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 0.55rem; }
+.conf-level__tag--high { color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+.conf-level__tag--medium { color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+.conf-level__tag--low { color: #f87171; border: 1px solid rgba(248, 113, 113, 0.4); }
+.conf-level p { margin: 0; color: #cbd5e1; line-height: 1.55; font-size: 0.9rem; }
 `}</style>

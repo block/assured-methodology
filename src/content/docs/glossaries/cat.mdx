@@ -539,6 +539,39 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   // if the hero scenery is ever absent.
   // ============================================================
   const catRoot = document.querySelector('.cat-page');
+
+  // ============================================================
+  // Jump-nav landing offset. The nav pins below the header on
+  // larger screens and its height varies as the pill rows wrap,
+  // so measure it and publish --g-jump-offset, which the section
+  // and card scroll-margins read. Where the nav is not pinned
+  // (phones) the CSS fallback value applies.
+  // ============================================================
+  const jumpNav = catRoot ? catRoot.querySelector('.cat-nav') : null;
+  if (jumpNav) {
+    const setJumpOffset = () => {
+      const cs = getComputedStyle(jumpNav);
+      if (cs.position === 'sticky') {
+        const navTop = parseFloat(cs.top) || 0;
+        catRoot.style.setProperty('--g-jump-offset', (navTop + jumpNav.offsetHeight + 12) + 'px');
+      } else {
+        catRoot.style.removeProperty('--g-jump-offset');
+      }
+    };
+    setJumpOffset();
+    // This script sits before the page's style block, so on the initial
+    // parse the nav is not sticky yet; re-measure once parsing finishes.
+    if (document.readyState === 'loading') {
+      _reg(document, 'DOMContentLoaded', setJumpOffset, { once: true });
+    }
+    _reg(window, 'resize', setJumpOffset);
+    if ('ResizeObserver' in window) {
+      const jumpRO = new ResizeObserver(setJumpOffset);
+      jumpRO.observe(jumpNav);
+      _cleanups.push(() => jumpRO.disconnect());
+    }
+  }
+
   if (catRoot) {
     const toolSearch = catRoot.querySelector('[data-cat-search]');
     const toolResults = catRoot.querySelector('[data-cat-results]');
@@ -700,7 +733,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: linear-gradient(170deg, #0a1a35 0%, #0f2655 35%, #0a1a35 70%, #061128 100%);
   color: #dbeafe;
   border-radius: 0;
-  overflow: hidden;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
   min-height: calc(100vh - 64px);
 }
 
@@ -732,7 +767,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   100% { transform: translateY(-10vh); opacity: 0; }
 }
 
-.cat-page > :not(.cat-bg):not(.cat-toast) { position: relative; z-index: 1; }
+/* .cat-nav excluded: position:relative would override its position:sticky */
+.cat-page > :not(.g-bg):not(.cat-toast):not(.cat-nav) { position: relative; z-index: 1; }
 
 /* Hero structure now lives in src/styles/glossary.css (.g-hero*).
    Kept here: only the CAT-specific signature animation (the cat-stage, cat-svg,
@@ -808,7 +844,14 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
   margin: 0 0 2.5rem; padding: 0.85rem;
   background: rgba(10, 26, 53, 0.6); border: 1px solid rgba(30, 58, 138, 0.5);
-  border-radius: 0.85rem; position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(10px);
+  /* top offset pins the nav below the sticky site header, not underneath it. */
+  border-radius: 0.85rem; position: sticky; top: calc(var(--header-height) + 8px); z-index: 5; backdrop-filter: blur(10px);
+}
+/* On phones the wrapped pill rows grow tall enough that pinning them would
+   eat much of the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .cat-nav { position: relative; top: auto; }
 }
 .cat-nav__pill {
   display: inline-flex; align-items: center; gap: 0.35rem;
@@ -822,7 +865,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border-color: #3b82f6; color: #fff;
 }
 
-.cat-section { margin: 0 0 3.5rem; scroll-margin-top: 6rem; }
+/* --g-jump-offset: measured by the page script so jump landings clear
+   the pinned nav, whose height varies as its pill rows wrap. */
+.cat-section { margin: 0 0 3.5rem; scroll-margin-top: var(--g-jump-offset, 6rem); }
 .cat-section__head {
   display: flex; align-items: center; gap: 1.25rem;
   margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;
@@ -939,9 +984,14 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 9999px;
   color: #dbeafe;
-  font-family: inherit; font-size: 0.9rem;
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
 }
 .cat-search:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18); }
+/* WCAG 2.5.5: 44px touch-target floor on touch devices. */
+@media (pointer: coarse) {
+  .cat-nav__pill { min-height: 2.75rem; }
+}
 .cat-search::placeholder { color: #64748b; }
 
 /* Visually hidden but present in the accessibility tree. */
@@ -962,7 +1012,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 }
 
 /* Deep links: land clear of the sticky header, flag the linked card. */
-.cat-tool { scroll-margin-top: 90px; }
+.cat-tool { scroll-margin-top: var(--g-jump-offset, 90px); }
 .cat-tool:target {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);

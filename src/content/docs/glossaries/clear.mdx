@@ -664,6 +664,39 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 
   const page = document.querySelector('.clear-page');
   if (!page) return;
+
+  // ============================================================
+  // Jump-nav landing offset. The nav pins below the header on
+  // larger screens and its height varies as the letter rows wrap,
+  // so measure it and publish --g-jump-offset, which the section
+  // scroll-margins read. Where the nav is not pinned (phones) the
+  // CSS fallback value applies.
+  // ============================================================
+  const jumpNav = page.querySelector('.clear-nav');
+  if (jumpNav) {
+    const setJumpOffset = () => {
+      const cs = getComputedStyle(jumpNav);
+      if (cs.position === 'sticky') {
+        const navTop = parseFloat(cs.top) || 0;
+        page.style.setProperty('--g-jump-offset', (navTop + jumpNav.offsetHeight + 12) + 'px');
+      } else {
+        page.style.removeProperty('--g-jump-offset');
+      }
+    };
+    setJumpOffset();
+    // This script sits before the page's style block, so on the initial
+    // parse the nav is not sticky yet; re-measure once parsing finishes.
+    if (document.readyState === 'loading') {
+      _reg(document, 'DOMContentLoaded', setJumpOffset, { once: true });
+    }
+    _reg(window, 'resize', setJumpOffset);
+    if ('ResizeObserver' in window) {
+      const jumpRO = new ResizeObserver(setJumpOffset);
+      jumpRO.observe(jumpNav);
+      _cleanups.push(() => jumpRO.disconnect());
+    }
+  }
+
   const search = page.querySelector('[data-clear-search]');
   const empty = page.querySelector('[data-clear-empty]');
   const resultsCount = page.querySelector('[data-clear-results]');
@@ -792,7 +825,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: linear-gradient(170deg, #0a0518 0%, #1e1b4b 35%, #0a0518 70%, #0a0518 100%);
   color: #ede9fe;
   border-radius: 0;
-  overflow: hidden;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
   min-height: calc(100vh - 64px);
 }
 
@@ -821,7 +856,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   100% { transform: translateY(20%) skewY(-12deg); opacity: 0; }
 }
 
-.clear-page > :not(.clear-bg):not(.clear-toast) { position: relative; z-index: 1; }
+/* .clear-nav excluded: position:relative would override its position:sticky */
+.clear-page > :not(.g-bg):not(.clear-toast):not(.clear-nav) { position: relative; z-index: 1; }
 
 /* Hero structure now lives in src/styles/glossary.css (.g-hero*).
    Kept here: only the CLEAR-specific spotlight + search + letter-nav styling. */
@@ -836,7 +872,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border: 1px solid rgba(125, 211, 252, 0.4);
   border-radius: 9999px;
   color: #ede9fe;
-  font-family: inherit; font-size: 0.95rem;
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
 }
 .clear-search:focus { outline: none; border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18); }
 .clear-search::placeholder { color: #64748b; }
@@ -889,7 +926,14 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: rgba(10, 20, 40, 0.6);
   border: 1px solid rgba(91, 33, 182, 0.45);
   border-radius: 0.85rem;
-  position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(10px);
+  /* top offset pins the nav below the sticky site header, not underneath it. */
+  position: sticky; top: calc(var(--header-height) + 8px); z-index: 5; backdrop-filter: blur(10px);
+}
+/* On phones the letter grid wraps to ~220px tall; pinning that would eat a
+   quarter of the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .clear-nav { position: relative; top: auto; }
 }
 .clear-nav__letter {
   display: inline-flex; align-items: center; justify-content: center;
@@ -902,7 +946,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 .clear-nav__letter:hover { transform: translateY(-2px); background: rgba(167, 139, 250, 0.3); color: #fff; border-color: #a78bfa; }
 
 /* sections */
-.clear-section { margin: 0 0 2rem; scroll-margin-top: 6rem; }
+/* --g-jump-offset: measured by the page script so jump landings clear
+   the pinned nav, whose height varies as its letter rows wrap. */
+.clear-section { margin: 0 0 2rem; scroll-margin-top: var(--g-jump-offset, 6rem); }
 .clear-section h2 {
   /* Use the site font; keep the violet accent + underline. */
   font-family: inherit;

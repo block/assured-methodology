@@ -111,7 +111,13 @@
     position: relative;
     width: min(640px, 100%);
     max-height: calc(100vh - 6rem);
+    /* dvh tracks iOS Safari's collapsing toolbars; 100vh above is the
+       fallback and would put the panel's bottom edge behind the toolbar. */
+    max-height: calc(100dvh - 6rem);
     overflow: auto;
+    /* Reaching the results' end must not hand the scroll to the page
+       behind the backdrop (iOS ignores body overflow:hidden for touch). */
+    overscroll-behavior: contain;
     background: #0f172a;
     border: 1px solid rgba(148, 163, 184, 0.25);
     border-radius: 0.75rem;

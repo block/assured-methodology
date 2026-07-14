@@ -1836,6 +1836,38 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   if (!page) return;
 
   // ============================================================
+  // Jump-nav landing offset. The nav pins below the header on
+  // larger screens and its height varies as the pill rows wrap,
+  // so measure it and publish --g-jump-offset, which the section
+  // and card scroll-margins read. Where the nav is not pinned
+  // (phones) the CSS fallback value applies.
+  // ============================================================
+  const jumpNav = page.querySelector('.bad-nav');
+  if (jumpNav) {
+    const setJumpOffset = () => {
+      const cs = getComputedStyle(jumpNav);
+      if (cs.position === 'sticky') {
+        const navTop = parseFloat(cs.top) || 0;
+        page.style.setProperty('--g-jump-offset', (navTop + jumpNav.offsetHeight + 12) + 'px');
+      } else {
+        page.style.removeProperty('--g-jump-offset');
+      }
+    };
+    setJumpOffset();
+    // This script sits before the page's style block, so on the initial
+    // parse the nav is not sticky yet; re-measure once parsing finishes.
+    if (document.readyState === 'loading') {
+      _reg(document, 'DOMContentLoaded', setJumpOffset, { once: true });
+    }
+    _reg(window, 'resize', setJumpOffset);
+    if ('ResizeObserver' in window) {
+      const jumpRO = new ResizeObserver(setJumpOffset);
+      jumpRO.observe(jumpNav);
+      _cleanups.push(() => jumpRO.disconnect());
+    }
+  }
+
+  // ============================================================
   // In-page term filter (mirrors the CLEAR glossary's search).
   // Hides non-matching cards; a section with no visible cards
   // collapses; a live region announces the match count. Featured
@@ -1899,11 +1931,15 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   // start paused unless they've explicitly chosen otherwise.
   // ============================================================
   const animToggle = document.querySelector('[data-bad-anim-toggle]');
+  // An SVG timeline runs only when BOTH gates are open: the page-wide
+  // pause toggle above and the viewport gate below (.bad-offscreen).
+  const applySvgTimeline = (svg) => {
+    const paused = page.classList.contains('bad-anims-paused') || svg.classList.contains('bad-offscreen');
+    try { if (paused) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) {}
+  };
   const setAnimsPaused = (paused, persist) => {
     page.classList.toggle('bad-anims-paused', paused);
-    page.querySelectorAll('svg').forEach((svg) => {
-      try { if (paused) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) {}
-    });
+    page.querySelectorAll('svg').forEach(applySvgTimeline);
     if (animToggle) {
       const icon = animToggle.querySelector('.bad-shuffle__icon');
       const label = animToggle.querySelector('.bad-shuffle__text');
@@ -1921,6 +1957,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   const storedAnims = (() => { try { return localStorage.getItem('assured-bad-anims'); } catch (e) { return null; } })();
   if (storedAnims === 'paused' || (storedAnims === null && badReduceMq.matches)) setAnimsPaused(true, false);
   _reg(badReduceMq, 'change', () => { if (badReduceMq.matches) setAnimsPaused(true, false); });
+
+  // Perf: ~165 elements animate infinitely across the page's inline SVGs,
+  // most of them off-screen at any scroll position, and the filter/fill
+  // keyframes run on the main thread. Pause any art outside the viewport
+  // (plus a lead margin so it is already moving when it scrolls in).
+  if ('IntersectionObserver' in window) {
+    const artObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle('bad-offscreen', !entry.isIntersecting);
+        applySvgTimeline(entry.target);
+      });
+    }, { rootMargin: '25% 0px' });
+    page.querySelectorAll('svg').forEach((svg) => artObserver.observe(svg));
+    _cleanups.push(() => artObserver.disconnect());
+  }
 
   // ============================================================
   // CORE: featured cards, all visible by default; shuffle picks one
@@ -2245,7 +2296,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: linear-gradient(170deg, #0a0303 0%, #1a0606 35%, #240a0a 70%, #0a0303 100%);
   color: var(--assured-text-soft);
   border-radius: 0;
-  overflow: hidden;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
   min-height: calc(100vh - 64px);
 }
 
@@ -2317,8 +2370,11 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   100% { transform: translateY(-10vh); opacity: 0; }
 }
 
-/* page content sits above background */
-.bad-page > :not(.bad-bg):not(.bad-toast):not(.bad-secret-pet):not(.bad-bug) {
+/* page content sits above background (.g-bg is the AmbientBackground
+   wrapper; excluding it keeps its position:absolute full-page spread.
+   .bad-nav excluded too: this rule's position:relative would override
+   the nav's position:sticky) */
+.bad-page > :not(.g-bg):not(.bad-toast):not(.bad-secret-pet):not(.bad-bug):not(.bad-nav) {
   position: relative;
   z-index: 1;
 }
@@ -2635,9 +2691,16 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border: 1px solid rgba(127, 29, 29, 0.4);
   border-radius: 0.85rem;
   position: sticky;
-  top: 0.5rem;
+  /* Pin below the sticky site header, not underneath it. */
+  top: calc(var(--header-height) + 8px);
   z-index: 5;
   backdrop-filter: blur(10px);
+}
+/* On phones the wrapped pill rows run ~290px tall; pinning that would eat
+   nearly half the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .bad-nav { position: relative; top: auto; }
 }
 .bad-nav__pill {
   display: inline-flex;
@@ -2664,7 +2727,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 /* ----- Sections ----- */
 .bad-section {
   margin: 0 0 3.5rem;
-  scroll-margin-top: 6rem;
+  /* --g-jump-offset: measured by the page script so jump landings clear
+     the pinned nav, whose height varies as its pill rows wrap. */
+  scroll-margin-top: var(--g-jump-offset, 6rem);
 }
 
 .bad-section__head {
@@ -3523,6 +3588,13 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   animation-play-state: paused !important;
 }
 
+/* Viewport gate (set by the page script's IntersectionObserver): CSS
+   keyframes stop here; the SVG's SMIL timeline stops via pauseAnimations(). */
+.bad-offscreen,
+.bad-offscreen * {
+  animation-play-state: paused !important;
+}
+
 /* Section-header phase links: which ASSURED phase consumes this vocabulary */
 .bad-section__phases { margin: 0.4rem 0 0; font-size: 0.78rem; color: var(--assured-text-dim); }
 .bad-section__phases a { color: #fca5a5; text-decoration: none; border-bottom: 1px solid rgba(248, 113, 113, 0.35); }
@@ -3536,9 +3608,14 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border: 1px solid rgba(248, 113, 113, 0.4);
   border-radius: 9999px;
   color: #fecaca;
-  font-family: inherit; font-size: 0.9rem;
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
 }
 .bad-search:focus { outline: none; border-color: #f87171; box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.18); }
+/* WCAG 2.5.5: 44px touch-target floor on touch devices. */
+@media (pointer: coarse) {
+  .bad-nav__pill { min-height: 2.75rem; }
+}
 .bad-search::placeholder { color: #64748b; }
 
 /* Visually hidden but present in the accessibility tree. */
@@ -3559,7 +3636,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 }
 
 /* Deep links: land clear of the sticky header, flag the linked card. */
-.bad-term, .bad-actor, .bad-campaign, .bad-family { scroll-margin-top: 90px; }
+.bad-term, .bad-actor, .bad-campaign, .bad-family { scroll-margin-top: var(--g-jump-offset, 90px); }
 .bad-term:target, .bad-actor:target, .bad-campaign:target, .bad-family:target {
   border-color: #ef4444;
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);

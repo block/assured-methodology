@@ -80,17 +80,24 @@
   );
   color: var(--g-text);
   border-radius: 0;
-  overflow: hidden;
+  /* clip, not hidden: hidden makes .g-page the scroll container for the
+     sticky jump-navs inside it, and since .g-page never scrolls the navs
+     never pin. clip contains the background art without that side effect. */
+  overflow: clip;
   min-height: calc(100vh - 64px);
 }
 
 /* Exclusions must use the real page-specific class names (.cat-toast,
    .clear-toast, .bad-secret-pet, ...): these overlays are position:fixed
-   children of .g-page and must not be forced into the stacking flow. */
+   children of .g-page and must not be forced into the stacking flow.
+   The jump-navs are excluded too: this rule's position:relative would
+   out-specify their position:sticky (each :not() adds a class's weight). */
 .g-page
   > :not(.g-bg):not(.cat-toast):not(.clear-toast):not(.bad-secret-pet):not(
     .bad-bug
-  ):not(.bad-slime):not(.bad-lose):not(.bad-toast) {
+  ):not(.bad-slime):not(.bad-lose):not(.bad-toast):not(.bad-nav):not(
+    .cat-nav
+  ):not(.clear-nav) {
   position: relative;
   z-index: 1;
 }
@@ -259,7 +266,9 @@
 
 .g-section {
   margin: 0 0 2.5rem;
-  scroll-margin-top: 6rem;
+  /* --g-jump-offset: each glossary's page script measures its pinned
+     jump-nav and sets this on the wrapper so landings clear the nav. */
+  scroll-margin-top: var(--g-jump-offset, 6rem);
 }
 
 .g-section__head {

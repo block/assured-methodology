@@ -123,6 +123,24 @@ methodology, followed by a fix wave that touched every chapter.
 
 ### Fixed
 
+- The glossary jump-navs actually pin while scrolling on larger screens (their
+  position: sticky never engaged) and sit below the site header instead of
+  underneath it; on phones, where the wrapped rows would cover much of the
+  viewport, they scroll with the page. Jump and deep-link landings offset
+  themselves past the pinned nav, whose height varies as its rows wrap, so
+  the target heading is never hidden underneath it.
+- The glossary ambient background layer (grid overlay plus each theme's
+  motion ornament) renders again: a stacking rule matched it by mistake and
+  collapsed it to zero height on all three glossaries.
+- Glossary filter inputs meet the 16px floor below which iOS Safari zooms the
+  page on focus, and small touch controls (chapter pill nav, glossary nav
+  pills, the easter-egg toggle) get a 44px touch-target floor on touch devices.
+- The search modal sizes itself to the dynamic viewport on iOS so its bottom
+  edge is not hidden behind Safari's toolbar, and its scroll no longer chains
+  to the page behind it.
+- The B.A.D. glossary pauses off-screen animated art (roughly 165 elements
+  animated continuously for the life of the page), cutting main-thread work,
+  scroll jank, and battery drain on phones.
 - Internal links use the trailing-slash form Vercel actually serves, removing
   a 308 redirect from every page navigation. Astro dev now rejects the bare
   form and the link checker enforces it at build time.

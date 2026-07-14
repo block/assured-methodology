@@ -25,6 +25,7 @@ export const mainNavigation: NavGroup[] = [
     items: [
       { title: "Introduction", href: "/docs/intro", status: "live" },
       { title: "Fast path", href: "/docs/fast-path", status: "live" },
+      { title: "AI triage", href: "/docs/ai-triage", status: "live" },
       {
         title: "Alert",
         href: "/docs/alert",
@@ -386,6 +387,7 @@ export const mainNavigation: NavGroup[] = [
 export const readingOrder: string[] = [
   "/docs/intro",
   "/docs/fast-path",
+  "/docs/ai-triage",
   "/docs/alert",
   "/docs/alert/detection-mechanisms",
   "/docs/alert/detection-mechanisms/signature",

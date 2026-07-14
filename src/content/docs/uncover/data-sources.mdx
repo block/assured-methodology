@@ -431,6 +431,8 @@ FIM tools record unauthorized or unexpected changes to files, directories, regis
 
 Logs from Secure Email Gateways (SEGs), spam filters, and <DefineTerm term="Phishing" display="phishing" />-detection platforms. Sender domains, attachment hashes, headers, click-through behavior on malicious links. Email is still one of the top initial-access vectors; these logs are invaluable for tracing the origin of many incidents.
 
+The variant these logs are weakest against is the one that carries no payload. <DefineTerm term="Business Email Compromise (BEC)" display="Business email compromise" /> and <DefineTerm term="Pretexting" display="pretexting" /> ask the recipient to act, not to click: a wire transfer to updated account details, a payroll change, gift cards for the "CEO". With no attachment to detonate and no URL to rewrite, the gateway's verdict fields stay quiet, and the signal moves into the metadata it does capture: authentication results on a lookalike domain (which passes SPF and DKIM for itself), display-name and reply-to mismatches, a first-contact flag on a sender claiming an established relationship, or a reply landing inside a legitimate thread because the counterparty's mailbox is compromised (thread hijacking). When the case smells like BEC, read these logs for those fields, then pivot to the <a href="#saas">SaaS audit logs</a> above for the inbox rules and sign-in anomalies that usually travel with it.
+
 <Reveal summary="Key email security data points" variant="info">
 
 - Sender information (email, <DefineTerm term="Domain" display="domain" />, IP, <DefineTerm term="Geolocation" display="geolocation" />)
@@ -448,6 +450,7 @@ Logs from Secure Email Gateways (SEGs), spam filters, and <DefineTerm term="Phis
     <h4>✓ When to use</h4>
     <ul>
       <li>Tracing suspected phishing campaigns or credential harvesting.</li>
+      <li>Investigating BEC and pretexting: authentication results, lookalike domains, reply-to divergence, thread hijacking.</li>
       <li>Reviewing user interaction with malicious links or attachments.</li>
       <li>Identifying targeted users or high-risk email behaviors.</li>
       <li>Correlating email-based attacks with other security events.</li>

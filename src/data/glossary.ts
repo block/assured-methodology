@@ -328,6 +328,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "DFIR tool focused on memory, disk, mobile, and cloud forensics; parses encrypted containers and RAM dumps.",
     "source": "cat-tool"
   },
+  "Benign True Positive": {
+    "term": "Benign True Positive",
+    "definition": "An alert that fired on exactly the activity its detection logic describes, where that activity turns out to be authorized or expected in the local context: a red-team exercise, an admin's sanctioned use of a dual-use tool, a scanner doing its job. The detection worked; the context clears it. Distinct from a false positive, where the logic matched something it should not have. The close still feeds tuning, because the record is what teaches the detection about the local context.",
+    "source": "clear"
+  },
   "BeyondTrust": {
     "term": "BeyondTrust",
     "definition": "Privileged access management; just-in-time access, password vaulting, session monitoring, endpoint privilege management.",
@@ -362,6 +367,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "BlackCat / ALPHV",
     "definition": "Sophisticated ransomware-as-a-service operation, one of the first to use Rust, making detection and analysis harder. Highly customizable Windows / Linux payloads, double-extortion with leak-site shaming. Successor to BlackMatter in the DarkSide lineage; ties to REvil are affiliate overlap, not direct succession. Aggressive targeting of critical infrastructure and high-profile enterprises.",
     "source": "bad-family"
+  },
+  "Blast Radius": {
+    "term": "Blast Radius",
+    "definition": "The set of systems, identities, and data an incident can plausibly reach from its current foothold: everything the compromised entity can touch, authenticate to, or influence. Scope draws boundaries around it, lateral movement grows it, and containment exists to stop it growing.",
+    "source": "clear"
   },
   "Blockchain": {
     "term": "Blockchain",
@@ -416,6 +426,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Business Continuity": {
     "term": "Business Continuity",
     "definition": "The ability of an organization to continue operating and providing services despite disruptions or disasters.",
+    "source": "clear"
+  },
+  "Business Email Compromise (BEC)": {
+    "term": "Business Email Compromise (BEC)",
+    "definition": "Phishing's no-payload variant: an email impersonating an executive, vendor, or counterparty that asks the recipient to move money or change payment details. With no attachment to detonate and no link to rewrite, gateway verdicts stay quiet; the evidence lives in lookalike domains, display-name and reply-to mismatches, and hijacked threads sent from a compromised counterparty's real mailbox. Consistently among the costliest cybercrime categories by reported losses.",
     "source": "clear"
   },
   "Byte Sequence": {
@@ -853,6 +868,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Malware waits for a specific trigger (time, date, keyboard input) before executing, bypassing sandbox environments.",
     "source": "bad-term"
   },
+  "Detection Engineering": {
+    "term": "Detection Engineering",
+    "definition": "The discipline of building, testing, tuning, and retiring detection logic as an engineered product: version-controlled rules, measured false-positive rates, coverage mapped against ATT&CK. Triage feeds it every time a close records why an alert was right or wrong; a SOC without that feedback loop is running detections nobody maintains.",
+    "source": "clear"
+  },
   "Detection Logic": {
     "term": "Detection Logic",
     "definition": "The rule, model, or heuristic that decides whether a given input fires an alert. The logic that produced the alert matters as much as the alert it produced; two engines can name the same alert for very different reasons.",
@@ -988,6 +1008,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "MFA, device trust, and contextual access; widely used for remote access and SaaS protection.",
     "source": "cat-tool"
   },
+  "Dwell Time": {
+    "term": "Dwell Time",
+    "definition": "The interval between initial compromise and detection, measured per incident and tracked as a program metric. The reason retention windows matter (\"did this start before the alert?\") is that dwell time is routinely longer than anyone's comfort; sophisticated intrusions have historically measured it in weeks to months.",
+    "source": "clear"
+  },
   "Dynamic Link Library (DLL)": {
     "term": "Dynamic Link Library (DLL)",
     "definition": "A collection of executable functions or data that can be used by multiple programs.",
@@ -1071,6 +1096,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Endpoint Security": {
     "term": "Endpoint Security",
     "definition": "The processes and technologies used to protect endpoint devices from security threats.",
+    "source": "clear"
+  },
+  "Enrichment": {
+    "term": "Enrichment",
+    "definition": "Adding context to a raw alert or indicator before or during triage: reputation and WHOIS for an IP, owner and criticality for an asset, role and department for a user, a sandbox verdict for a file. Automated enrichment is what SOAR pipelines do best; the analyst's judgment starts where the enrichment stops answering the question.",
     "source": "clear"
   },
   "Enterprise": {
@@ -1207,6 +1237,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Falcon OverWatch",
     "definition": "Managed threat-hunting service on top of CrowdStrike Falcon; 24/7 human-led analysis to validate stealthy intrusions.",
     "source": "cat-tool"
+  },
+  "False Negative": {
+    "term": "False Negative",
+    "definition": "Malicious activity that produced no alert: the detection logic missed it, or no logic covers it. Invisible by definition at triage time, false negatives surface later through hunting, incident investigation, or an external notification, and each one found is a detection-engineering work item. The other half of the confusion matrix from the false positive, and the more expensive half.",
+    "source": "clear"
   },
   "False Positive": {
     "term": "False Positive",
@@ -1576,6 +1611,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Johnson Controls": {
     "term": "Johnson Controls",
     "definition": "Physical security with OpenBlue platform; security plus building automation, with cybersecurity built in.",
+    "source": "cat-tool"
+  },
+  "KAPE": {
+    "term": "KAPE",
+    "definition": "Kroll Artifact Parser and Extractor; free triage tool that collects and parses forensic artifacts from a live system in minutes. A staple for fast evidence capture before (or instead of) full disk imaging.",
     "source": "cat-tool"
   },
   "Kaspersky EDR": {
@@ -2178,6 +2218,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support. Absorbed ForgeRock (acquired by Thoma Bravo, 2023) and now ships its enterprise IAM lifecycle and governance products under the Ping brand.",
     "source": "cat-tool"
   },
+  "Playbook": {
+    "term": "Playbook",
+    "definition": "A predefined, repeatable procedure for handling a specific alert or incident type: the steps, the decision points, the exit criteria. Playbooks encode the SOC's institutional memory so the response does not depend on who is on shift; SOAR platforms automate their mechanical steps. The fast path's pattern library is a playbook collection with discriminators attached.",
+    "source": "clear"
+  },
   "Polymorphic Malware": {
     "term": "Polymorphic Malware",
     "definition": "Malicious software that constantly changes its identifiable features to avoid detection by traditional signature-based security tools.",
@@ -2201,6 +2246,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "PowerShell": {
     "term": "PowerShell",
     "definition": "A command-line shell and scripting language built on the .NET framework, commonly used for system administration and potentially for malicious purposes.",
+    "source": "clear"
+  },
+  "Pretexting": {
+    "term": "Pretexting",
+    "definition": "Social engineering built on an invented scenario rather than a malicious payload: the caller claiming to be IT support, the \"CEO\" emailing about an urgent confidential deal, the vendor with new bank details. The pretext gives the target a plausible reason to comply. The delivery mechanism behind business email compromise and most voice phishing.",
     "source": "clear"
   },
   "Prisma Cloud": {
@@ -2443,6 +2493,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Security monitoring approach using predefined rules to identify suspicious or malicious activity based on specific conditions or patterns.",
     "source": "clear"
   },
+  "Runbook": {
+    "term": "Runbook",
+    "definition": "Step-by-step operational instructions for one concrete task: rotate this credential, isolate this host, pull this log. Narrower than a playbook. A playbook decides what to do; a runbook specifies exactly how to do one of its steps.",
+    "source": "clear"
+  },
   "Rundll32.exe": {
     "term": "Rundll32.exe",
     "definition": "A Windows utility that executes functions in DLL files, sometimes used maliciously.",
@@ -2663,6 +2718,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A technique where attackers exploit legitimate applications to load malicious DLLs or code, often bypassing security controls.",
     "source": "clear"
   },
+  "Sigma": {
+    "term": "Sigma",
+    "definition": "Open, vendor-neutral detection-rule format: write a detection once in YAML, convert it to the query language of whatever SIEM is in use. The de facto standard for sharing detection logic between teams and tools.",
+    "source": "cat-tool"
+  },
   "Signature Database": {
     "term": "Signature Database",
     "definition": "A repository of known threat signatures used by security tools.",
@@ -2832,6 +2892,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Supply Chain Compromise",
     "definition": "Targets third-party software or service providers to insert malicious code or access downstream victims (e.g., SolarWinds).",
     "source": "bad-term"
+  },
+  "Suppression": {
+    "term": "Suppression",
+    "definition": "A deliberate rule that stops a detection from alerting on a defined pattern, host set, or time window: the pressure valve for known noise. Suppression trades visibility for signal, so every suppression carries a documented reason and an owner and gets revisited. An unsuppressed noisy rule burns analysts; an unreviewed suppression hides an intrusion.",
+    "source": "clear"
   },
   "Suricata": {
     "term": "Suricata",
@@ -3058,9 +3123,19 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A type of malware that disguises itself as legitimate software to gain unauthorized access to a system or network.",
     "source": "clear"
   },
+  "True Negative": {
+    "term": "True Negative",
+    "definition": "Benign activity that correctly produced no alert. The silent majority of everything a detection evaluates, and the reason a small false-positive rate still buries a queue once multiplied by volume. Completes the confusion matrix alongside true positive, false positive, and false negative.",
+    "source": "clear"
+  },
   "True Positive": {
     "term": "True Positive",
     "definition": "A security alert that fires on activity that is, on inspection, actual adversary behavior. The opposite of a false-positive, and the case the SOC exists to handle.",
+    "source": "clear"
+  },
+  "Tuning": {
+    "term": "Tuning",
+    "definition": "Adjusting detection logic against observed results: tightening a threshold, adding an exclusion, enriching a rule with context so it stops firing on the environment's normal. Tuning is the routine output of triage closes (the false-positive-as-finding doctrine) and the difference between an alert queue that improves and one that only grows.",
     "source": "clear"
   },
   "Turla FSB / long-running espionage": {
@@ -3158,6 +3233,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Backup and recovery across virtual, physical, and cloud workloads with cloud-mobility options.",
     "source": "cat-tool"
   },
+  "Velociraptor": {
+    "term": "Velociraptor",
+    "definition": "Open-source endpoint-visibility and DFIR platform (stewarded by Rapid7); hunts for and collects artifacts across entire fleets using its VQL query language.",
+    "source": "cat-tool"
+  },
   "Veritas NetBackup": {
     "term": "Veritas NetBackup",
     "definition": "Enterprise-grade backup with broad workload coverage and centralized hybrid-cloud management.",
@@ -3201,6 +3281,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Visual Studio Code": {
     "term": "Visual Studio Code",
     "definition": "Lightweight, extensible code editor from Microsoft; rich ecosystem of extensions for development and security.",
+    "source": "cat-tool"
+  },
+  "Volatility": {
+    "term": "Volatility",
+    "definition": "Open-source memory-forensics framework; extracts processes, network connections, injected code, and credentials from RAM captures. Volatility 3 is the current generation.",
     "source": "cat-tool"
   },
   "Volt Typhoon / Salt Typhoon": {
@@ -3308,10 +3393,20 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Lightweight, fast forensic suite with strong scripting and hex-level analysis for deep investigations.",
     "source": "cat-tool"
   },
+  "XDR (concept)": {
+    "term": "XDR (concept)",
+    "definition": "Extended detection and response: correlates telemetry across endpoint, identity, email, network, and cloud into unified detections and response actions, extending EDR beyond the single host.",
+    "source": "cat-tool"
+  },
   "XZ Utils backdoor": {
     "term": "XZ Utils backdoor",
     "definition": "March 2024. A multi-year social-engineering campaign by a fictitious maintainer (\"Jia Tan\") inserted a stealthy backdoor (CVE-2024-3094) into the xz/liblzma compression library that would have given remote SSH code execution on Linux systems linked against the affected build. Caught by chance by a Microsoft engineer noticing a 500ms slowdown. A defining open-source supply-chain case and the catalyst for renewed maintainer-trust scrutiny.",
     "source": "bad-campaign"
+  },
+  "YARA": {
+    "term": "YARA",
+    "definition": "Open-source pattern-matching engine for identifying and classifying malware: rules describe strings, byte sequences, and conditions that a file or memory region must satisfy. The lingua franca for sharing malware signatures.",
+    "source": "cat-tool"
   },
   "Zeek (formerly Bro)": {
     "term": "Zeek (formerly Bro)",
@@ -3347,6 +3442,11 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "certutil.exe",
     "definition": "A Windows command-line tool used for certificate management and sometimes exploited by attackers for malicious purposes.",
     "source": "clear"
+  },
+  "plaso": {
+    "term": "plaso",
+    "definition": "Open-source engine behind log2timeline; parses disk images and artifacts from many sources into a single super-timeline. The standard tooling for timeline-based forensic analysis.",
+    "source": "cat-tool"
   }
 };
 

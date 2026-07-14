@@ -127,12 +127,15 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Baselining</dt><dd>The process of documenting and measuring normal system behavior over time to identify deviations that might indicate security issues.</dd>
 <dt>Behavior Analytics</dt><dd>The process of collecting and analyzing user and system behavior patterns to identify potential security threats or anomalies.</dd>
 <dt>Behavioral Drift</dt><dd>Gradual changes in normal behavior patterns that may complicate detection of anomalies.</dd>
+<dt>Benign True Positive</dt><dd>An alert that fired on exactly the activity its detection logic describes, where that activity turns out to be authorized or expected in the local context: a red-team exercise, an admin's sanctioned use of a dual-use tool, a scanner doing its job. The detection worked; the context clears it. Distinct from a false positive, where the logic matched something it should not have. The close still feeds tuning, because the record is what teaches the detection about the local context.</dd>
 <dt>Biometric Verification</dt><dd>Authentication method that uses unique biological characteristics like fingerprints or facial recognition.</dd>
 <dt>BITSAdmin</dt><dd>A command-line tool for managing Background Intelligent Transfer Service (BITS), often monitored for abuse by attackers.</dd>
+<dt>Blast Radius</dt><dd>The set of systems, identities, and data an incident can plausibly reach from its current foothold: everything the compromised entity can touch, authenticate to, or influence. Scope draws boundaries around it, lateral movement grows it, and containment exists to stop it growing.</dd>
 <dt>Blockchain</dt><dd>A distributed ledger technology that maintains a secure, decentralized record of transactions, introducing new security considerations for digital assets and smart contracts.</dd>
 <dt>Border Gateway Protocol (BGP)</dt><dd>The protocol managing how packets are routed across the internet between autonomous systems.</dd>
 <dt>Bring Your Own Device (BYOD)</dt><dd>A policy allowing employees to use personal devices for work, which introduces unique security challenges.</dd>
 <dt>Business Continuity</dt><dd>The ability of an organization to continue operating and providing services despite disruptions or disasters.</dd>
+<dt>Business Email Compromise (BEC)</dt><dd>Phishing's no-payload variant: an email impersonating an executive, vendor, or counterparty that asks the recipient to move money or change payment details. With no attachment to detonate and no link to rewrite, gateway verdicts stay quiet; the evidence lives in lookalike domains, display-name and reply-to mismatches, and hijacked threads sent from a compromised counterparty's real mailbox. Consistently among the costliest cybercrime categories by reported losses.</dd>
 <dt>Byte Sequence</dt><dd>An ordered set of bytes in memory or data streams, often analyzed in malware detection or forensics.</dd>
 </dl>
 
@@ -185,6 +188,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Data Retention</dt><dd>The policies and procedures that govern how long data is stored and retained.</dd>
 <dt>Deception Technology</dt><dd>Security tools and techniques that deploy decoys and traps to detect, deflect, and analyze unauthorized system access attempts.</dd>
 <dt>Deep Packet Inspection (DPI)</dt><dd>A technique used to inspect and analyze network traffic to detect and block malicious activity.</dd>
+<dt>Detection Engineering</dt><dd>The discipline of building, testing, tuning, and retiring detection logic as an engineered product: version-controlled rules, measured false-positive rates, coverage mapped against ATT&amp;CK. Triage feeds it every time a close records why an alert was right or wrong; a SOC without that feedback loop is running detections nobody maintains.</dd>
 <dt>Detection Logic</dt><dd>The rule, model, or heuristic that decides whether a given input fires an alert. The logic that produced the alert matters as much as the alert it produced; two engines can name the same alert for very different reasons.</dd>
 <dt>Detection Mechanism</dt><dd>Tools or methods employed to identify security incidents, including signature, anomaly, and behavioral detections.</dd>
 <dt>Device Fingerprint</dt><dd>A unique identifier derived from hardware or software characteristics used to recognize devices.</dd>
@@ -205,6 +209,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Domain Name System Query</dt><dd>A request sent to a DNS server to resolve a domain name into an IP address.</dd>
 <dt>Domain Trusts</dt><dd>Relationships established between domains to allow resource sharing and authentication.</dd>
 <dt>DomainKeys Identified Mail (DKIM)</dt><dd>An email authentication method that verifies message integrity and sender identity.</dd>
+<dt>Dwell Time</dt><dd>The interval between initial compromise and detection, measured per incident and tracked as a program metric. The reason retention windows matter ("did this start before the alert?") is that dwell time is routinely longer than anyone's comfort; sophisticated intrusions have historically measured it in weeks to months.</dd>
 <dt>Dynamic Link Library (DLL)</dt><dd>A collection of executable functions or data that can be used by multiple programs.</dd>
 <dt>Dynamic Prioritization</dt><dd>Adaptive adjustment of alert or incident priority based on contextual risk factors.</dd>
 </dl>
@@ -223,6 +228,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Endpoint</dt><dd>A device that initiates network connections and runs user-facing software: laptop, desktop, server, phone, tablet. Endpoints are where most adversary tradecraft eventually shows up, which is why EDR exists.</dd>
 <dt>Endpoint Detection and Response (EDR)</dt><dd>Security technology that continuously monitors and responds to threats on endpoint devices, providing advanced threat detection and incident response capabilities.</dd>
 <dt>Endpoint Security</dt><dd>The processes and technologies used to protect endpoint devices from security threats.</dd>
+<dt>Enrichment</dt><dd>Adding context to a raw alert or indicator before or during triage: reputation and WHOIS for an IP, owner and criticality for an asset, role and department for a user, a sandbox verdict for a file. Automated enrichment is what SOAR pipelines do best; the analyst's judgment starts where the enrichment stops answering the question.</dd>
 <dt>Enterprise</dt><dd>A large organization or business that operates in multiple locations or countries.</dd>
 <dt>Entitlement Matrix</dt><dd>A framework mapping user roles to their access permissions within systems.</dd>
 <dt>Entity</dt><dd>A person, system, or organization that interacts with or affects a security incident.</dd>
@@ -248,6 +254,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>F</h2>
 
 <dl class="clear-terms">
+<dt>False Negative</dt><dd>Malicious activity that produced no alert: the detection logic missed it, or no logic covers it. Invisible by definition at triage time, false negatives surface later through hunting, incident investigation, or an external notification, and each one found is a detection-engineering work item. The other half of the confusion matrix from the false positive, and the more expensive half.</dd>
 <dt>False Positive</dt><dd>A security alert that fires on activity that is, on inspection, benign. The detection logic matched a pattern that looked malicious but was not. Distinct from a <em>benign true positive</em>, which is real adversary-like activity that does not warrant action in the local context.</dd>
 <dt>False-Premise</dt><dd>An incorrect assumption or conclusion about a security event that leads to improper investigation or response.</dd>
 <dt>Federation</dt><dd>A system allowing users to access multiple independent systems using a single set of credentials.</dd>
@@ -449,10 +456,12 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Persistence</dt><dd>Mechanisms an adversary installs so their access survives reboots, password resets, and partial cleanups: Run keys, scheduled tasks, services, WMI subscriptions, browser extensions. Mature operators plant several anchors so removing one is not enough.</dd>
 <dt>Personally Identifiable Information (PII)</dt><dd>Data that can uniquely identify an individual.</dd>
 <dt>Phishing</dt><dd>Deceptive messages (usually email; sometimes SMS, voice, or chat) that impersonate a trusted sender to lure the recipient into clicking, opening, or entering credentials. The bait is the email; the line is the impersonation; the catch is initial access.</dd>
+<dt>Playbook</dt><dd>A predefined, repeatable procedure for handling a specific alert or incident type: the steps, the decision points, the exit criteria. Playbooks encode the SOC's institutional memory so the response does not depend on who is on shift; SOAR platforms automate their mechanical steps. The fast path's pattern library is a playbook collection with discriminators attached.</dd>
 <dt>Polymorphic Malware</dt><dd>Malicious software that constantly changes its identifiable features to avoid detection by traditional signature-based security tools.</dd>
 <dt>Port</dt><dd>A communication endpoint used by protocols to send and receive data.</dd>
 <dt>Post-Mortem</dt><dd>The structured retrospective an organization runs after a closed incident: timeline, decisions, what worked, what failed, what the team learned. A good post-mortem points back at detection, process, or training gaps. A blameless one names the system, not the person.</dd>
 <dt>PowerShell</dt><dd>A command-line shell and scripting language built on the .NET framework, commonly used for system administration and potentially for malicious purposes.</dd>
+<dt>Pretexting</dt><dd>Social engineering built on an invented scenario rather than a malicious payload: the caller claiming to be IT support, the "CEO" emailing about an urgent confidential deal, the vendor with new bank details. The pretext gives the target a plausible reason to comply. The delivery mechanism behind business email compromise and most voice phishing.</dd>
 <dt>Privilege Escalation</dt><dd>Gaining access at a higher trust level than the actor originally held, by any means: exploiting a bug, abusing a misconfiguration, stealing credentials, impersonating a token, or socially engineering an elevation.</dd>
 <dt>Privileged Access Management (PAM)</dt><dd>Technologies that control and monitor access to critical accounts.</dd>
 <dt>Process</dt><dd>A series of actions or steps taken to achieve a specific goal or task.</dd>
@@ -488,6 +497,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Root Cause Analysis</dt><dd>The process of identifying the underlying cause of a security incident or problem.</dd>
 <dt>Router</dt><dd>A device that forwards data packets between networks.</dd>
 <dt>Rule-Based Detection</dt><dd>Security monitoring approach using predefined rules to identify suspicious or malicious activity based on specific conditions or patterns.</dd>
+<dt>Runbook</dt><dd>Step-by-step operational instructions for one concrete task: rotate this credential, isolate this host, pull this log. Narrower than a playbook. A playbook decides what to do; a runbook specifies exactly how to do one of its steps.</dd>
 <dt>Rundll32.exe</dt><dd>A Windows utility that executes functions in DLL files, sometimes used maliciously.</dd>
 </dl>
 
@@ -532,6 +542,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Structured Threat Information Expression (STIX)</dt><dd>A standardized format for sharing cyber threat intelligence.</dd>
 <dt>Subject</dt><dd>An entity, such as a user or system, that is involved in a security incident or event.</dd>
 <dt>Supply Chain</dt><dd>The network of organizations, people, activities, and resources involved in creating and delivering products, presenting multiple attack vectors for compromising systems or software during development and distribution.</dd>
+<dt>Suppression</dt><dd>A deliberate rule that stops a detection from alerting on a defined pattern, host set, or time window: the pressure valve for known noise. Suppression trades visibility for signal, so every suppression carries a documented reason and an owner and gets revisited. An unsuppressed noisy rule burns analysts; an unreviewed suppression hides an intrusion.</dd>
 <dt>Syslog</dt><dd>A standard protocol for message logging in network devices and systems.</dd>
 <dt>System</dt><dd>A collection of hardware, software, and firmware that work together to perform a specific function or task.</dd>
 <dt>System Binary</dt><dd>Executable files that are part of an operating system or trusted software components.</dd>
@@ -559,7 +570,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Token</dt><dd>A small piece of data or code that is used to authenticate or authorize access to a system or resource.</dd>
 <dt>Transport Layer Security (TLS)</dt><dd>A protocol for encrypting internet communications.</dd>
 <dt>Trojan</dt><dd>A type of malware that disguises itself as legitimate software to gain unauthorized access to a system or network.</dd>
+<dt>True Negative</dt><dd>Benign activity that correctly produced no alert. The silent majority of everything a detection evaluates, and the reason a small false-positive rate still buries a queue once multiplied by volume. Completes the confusion matrix alongside true positive, false positive, and false negative.</dd>
 <dt>True Positive</dt><dd>A security alert that fires on activity that is, on inspection, actual adversary behavior. The opposite of a false-positive, and the case the SOC exists to handle.</dd>
+<dt>Tuning</dt><dd>Adjusting detection logic against observed results: tightening a threshold, adding an exclusion, enriching a rule with context so it stops firing on the environment's normal. Tuning is the routine output of triage closes (the false-positive-as-finding doctrine) and the difference between an alert queue that improves and one that only grows.</dd>
 </dl>
 
 </section>

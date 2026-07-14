@@ -55,6 +55,12 @@ methodology, followed by a fix wave that touched every chapter.
   the Blue Team Handbook, MITRE's 11 Strategies and ATT&CK, OODA, ACH,
   the Diamond Model, and OSCAR, plus the NCSC "Assured" name-adjacency
   note.
+- Glossary depth: thirteen working-vocabulary terms in C.L.E.A.R. (the
+  full confusion matrix, blast radius, dwell time, playbook and runbook,
+  enrichment, tuning, suppression, detection engineering, BEC,
+  pretexting), plus XDR as a concept and Sigma, YARA, Velociraptor, KAPE,
+  plaso, and Volatility in the C.A.T. catalog. Business-email-compromise
+  investigation guidance added to the Uncover email data source.
 
 ### Changed
 

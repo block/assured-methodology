@@ -12,6 +12,10 @@ export default defineConfig({
 
   site: 'https://assured-methodology.vercel.app',
   base: '/',
+  // Vercel serves the trailing-slash form (vercel.json "trailingSlash": true)
+  // and 308-redirects the bare form. "always" makes dev 404 the bare form so
+  // a link written without the slash fails loudly before it ships.
+  trailingSlash: 'always',
   // Legacy-URL redirects live in vercel.json (server-side 308s), not here:
   // Astro's static redirects emit meta-refresh stub pages without an <html>
   // element, and inbound legacy links are a production concern anyway.

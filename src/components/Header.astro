@@ -5,7 +5,10 @@ import { mainNavigation } from "@/data/navigation";
 import { getUrlRelativeToBase } from "@/lib/utils";
 import { isActivePage } from "@/lib/utils";
 
-const currentPath = Astro.url.pathname;
+// Nav hrefs use the trailing-slash form, so normalize the pathname to match.
+const currentPath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
 ---
 
 <header class="header">
@@ -60,7 +63,7 @@ const currentPath = Astro.url.pathname;
                         </span>
                       );
                     }
-                    const childActive = currentPath === child.href || currentPath === child.href + "/";
+                    const childActive = currentPath === child.href;
                     return (
                       <>
                         <a
@@ -70,7 +73,7 @@ const currentPath = Astro.url.pathname;
                           <span class="header__dropdown-title">{child.title}</span>
                         </a>
                         {child.children?.map((leaf) => {
-                          const leafActive = currentPath === leaf.href || currentPath === leaf.href + "/";
+                          const leafActive = currentPath === leaf.href;
                           return (
                             <a
                               href={getUrlRelativeToBase(leaf.href)}
@@ -152,7 +155,7 @@ const currentPath = Astro.url.pathname;
             <div class="header__mobile-sublist">
               {item.children!.map((child) => {
                 if (child.status === "soon") return null;
-                const childActive = currentPath === child.href || currentPath === child.href + "/";
+                const childActive = currentPath === child.href;
                 return (
                   <>
                     <a
@@ -162,7 +165,7 @@ const currentPath = Astro.url.pathname;
                       {child.title}
                     </a>
                     {child.children?.map((leaf) => {
-                      const leafActive = currentPath === leaf.href || currentPath === leaf.href + "/";
+                      const leafActive = currentPath === leaf.href;
                       return (
                         <a
                           href={getUrlRelativeToBase(leaf.href)}

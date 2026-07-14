@@ -123,6 +123,12 @@ methodology, followed by a fix wave that touched every chapter.
 
 ### Fixed
 
+- Internal links use the trailing-slash form Vercel actually serves, removing
+  a 308 redirect from every page navigation. Astro dev now rejects the bare
+  form and the link checker enforces it at build time.
+- The Vercel deploy is pinned to the repo's own build command, so the search
+  index is always generated, and Pagefind's immutable search assets ship with
+  long-lived cache headers.
 - The mobile navigation menu scrolls within the sticky header. Its 81 links
   previously extended thousands of pixels past the viewport with no way to
   reach anything below the first screenful.

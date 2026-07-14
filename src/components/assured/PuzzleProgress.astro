@@ -204,18 +204,14 @@ const phases = [
 
 <script>
   import { onPageReady } from "@/lib/dom";
+  import { QUIZ_PROGRESS_EVENT, readQuizProgress } from "@/lib/progress";
 
-  // Completion ticks. Quiz.astro records finished chapter quizzes in
-  // localStorage; this marks the matching tiles. Runs per page-load so the
-  // strip reflects a quiz finished earlier in the same session.
+  // Completion ticks. Quiz.astro records finished chapter quizzes via
+  // @/lib/progress; this marks the matching tiles. Runs per page-load and
+  // on every progress write, so the compact strip on a quiz's own page
+  // (via ContinueCard) ticks the moment the quiz completes.
   function markCompletedPhases() {
-    let progress: Record<string, unknown> = {};
-    try {
-      const parsed = JSON.parse(localStorage.getItem("assured-quiz-progress") ?? "{}");
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) progress = parsed;
-    } catch {
-      // Storage unavailable: strip stays untick'd, nothing else changes.
-    }
+    const progress = readQuizProgress();
     const tiles = document.querySelectorAll<HTMLAnchorElement>("[data-puzzle-phase]");
     tiles.forEach((tile) => {
       const phase = tile.getAttribute("data-puzzle-phase") ?? "";
@@ -232,4 +228,7 @@ const phases = [
     });
   }
   onPageReady(markCompletedPhases);
+  // Module scope, not inside a bind: processed scripts run once per browser
+  // session, so this registers exactly one listener across navigations.
+  window.addEventListener(QUIZ_PROGRESS_EVENT, markCompletedPhases);
 </script>

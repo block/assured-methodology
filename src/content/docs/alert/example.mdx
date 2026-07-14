@@ -33,11 +33,15 @@ The three cases introduced on this page run through the rest of the methodology.
 </Callout>
 
 <Callout variant="warn" title="The cases are illustrative, not photorealistic">
-Both walkthroughs are cleaner than real telemetry. Live cases have missing parent processes, offset timestamps across log sources, partial coverage on the host you most need, retention windows that end before the staging activity, and one user who didn't enable MFA. The cases are written to teach the methodology cleanly, when you apply them in production, expect to spend additional time reconciling sources, filing tooling-gap tickets, and noting "unable to determine" where the evidence runs out. The methodology is what gives you a place to stand when the data isn't clean; it doesn't pretend the data is.
+All three walkthroughs are cleaner than real telemetry. Live cases have missing parent processes, offset timestamps across log sources, partial coverage on the host you most need, retention windows that end before the staging activity, and one user who didn't enable MFA. The cases are written to teach the methodology cleanly, when you apply them in production, expect to spend additional time reconciling sources, filing tooling-gap tickets, and noting "unable to determine" where the evidence runs out. The methodology is what gives you a place to stand when the data isn't clean; it doesn't pretend the data is.
 </Callout>
 
+## Case A · The finance-team phishing alert
+
+The spine of the whole walkthrough: a phishing-delivered process chain on a finance laptop. Every later chapter's example page picks this case up exactly where the previous phase left it.
+
 <ChapterExample
-  title="Case A · The finance-team phishing alert"
+  title="Case A · The Word-to-PowerShell chain on a finance laptop"
   scenario="A SIEM rule fires at 09:11. On a finance laptop, a Word process opened from Outlook spawned cmd.exe, which spawned PowerShell with -NoProfile -WindowStyle Hidden -EncodedCommand. The destination of the resulting network call is a domain registered four days ago. The named user is dlin, a finance analyst."
 >
 

@@ -24,18 +24,30 @@ export const mainNavigation: NavGroup[] = [
     title: "Main Navigation",
     items: [
       { title: "Introduction", href: "/docs/intro/", status: "live" },
-      { title: "Fast path", href: "/docs/fast-path/", status: "live" },
-      { title: "AI triage", href: "/docs/ai-triage/", status: "live" },
       {
-        title: "Cognitive traps",
-        href: "/docs/cognitive-traps/",
+        title: "Guides",
+        // No overview page: the href reuses the first guide, like Training.
+        href: "/docs/fast-path/",
         status: "live",
-      },
-      { title: "Quick reference", href: "/docs/reference/", status: "live" },
-      {
-        title: "Where ASSURED sits",
-        href: "/docs/positioning/",
-        status: "live",
+        children: [
+          { title: "Fast path", href: "/docs/fast-path/", status: "live" },
+          { title: "AI triage", href: "/docs/ai-triage/", status: "live" },
+          {
+            title: "Cognitive traps",
+            href: "/docs/cognitive-traps/",
+            status: "live",
+          },
+          {
+            title: "Quick reference",
+            href: "/docs/reference/",
+            status: "live",
+          },
+          {
+            title: "Where ASSURED sits",
+            href: "/docs/positioning/",
+            status: "live",
+          },
+        ],
       },
       {
         title: "Alert",

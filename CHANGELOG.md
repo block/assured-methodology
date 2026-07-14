@@ -159,6 +159,37 @@ methodology, followed by a fix wave that touched every chapter.
 - The search modal's close button meets the 44px touch floor, glossary filter
   focus rings survive forced-colors mode, and the evasion-pattern disclosure
   headers use valid summary markup.
+- The desktop nav had outgrown its breakpoint: fifteen top-level links
+  painted over the search and GitHub controls at almost every desktop width.
+  The five guide pages (Fast path, AI triage, Cognitive traps, Quick
+  reference, Where ASSURED sits) now fold into a Guides dropdown, restoring
+  the eleven-item row the 1350px breakpoint was calibrated for.
+- The progress strip on a quiz's own page ticks the moment the chapter quiz
+  completes instead of after a reload; quiz-completion storage now lives in
+  one shared module read by both the quiz and the strip.
+- The first worked case on all seven example pages now appears in the table
+  of contents and its scroll spy; its only heading lived inside the card
+  component, invisible to the TOC.
+- The Training and Glossaries dropdowns no longer open with an "overview"
+  row that mislabeled a child page as a chapter intro and duplicated its
+  link; in the mobile menu those groups render as plain labels instead of
+  links for the same reason.
+- The header highlights the section you are in even when the page is not
+  the section's own hub: Guides, Training, and Glossaries now mark
+  themselves current for every child page.
+- The CDE and PFI hover tooltips on the regulatory-boundaries page show
+  their definitions for the first time; the term text passed as slot
+  children had always replaced the definition body. The DefineTerm doc
+  comment now describes the real precedence (slot, then definition prop,
+  then glossary lookup).
+- Copy that still said "two cases" after Case C landed now counts all
+  three: the Alert transition and example pages, the Documentation
+  templates pointer, and CONTRIBUTING's case-study ask. The Scope example
+  callout, which sits above Case C on its page, now says "two cases so
+  far".
+- Glossary hero ledes are no longer a paragraph nested inside a paragraph;
+  the browser auto-closed the wrapper and dropped the theme tint on the
+  visible text.
 - Internal links use the trailing-slash form Vercel actually serves, removing
   a 308 redirect from every page navigation. Astro dev now rejects the bare
   form and the link checker enforces it at build time.

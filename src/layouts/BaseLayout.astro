@@ -21,14 +21,20 @@ interface Props {
   title?: string | undefined;
   description?: string | undefined;
   ogImage?: URL | undefined;
+  noindex?: boolean | undefined;
 }
 
-const { title, description, ogImage } = Astro.props;
+const { title, description, ogImage, noindex } = Astro.props;
 ---
 
 <html lang="en">
   <head>
-    <HeadSEO title={title} description={description} ogImage={ogImage} />
+    <HeadSEO
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      noindex={noindex}
+    />
     {/* crossorigin is required even same-origin: font requests are CORS-mode,
         and a preload whose mode differs is discarded and fetched twice. */}
     <link

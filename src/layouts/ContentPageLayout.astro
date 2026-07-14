@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
+import { readingOrder } from "@/data/navigation";
 import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
 import BaseLayout from "./BaseLayout.astro";
@@ -39,18 +40,37 @@ const effectiveBreadcrumbs = chromeless ? false : showBreadcrumbs;
 const effectiveTitle = chromeless ? false : showTitleAsH1;
 const effectiveWide = chromeless ? true : wide;
 
+// Prev/next pager: this page's position in the canonical reading order.
+// Pages outside the linear arc (glossaries) are absent from readingOrder
+// and render no pager.
+const pagePath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const orderIndex = readingOrder.indexOf(pagePath);
+const prevHref = orderIndex > 0 ? readingOrder[orderIndex - 1] : null;
+const nextHref =
+  orderIndex >= 0 && orderIndex < readingOrder.length - 1
+    ? readingOrder[orderIndex + 1]
+    : null;
+
 // Build the crumb list ourselves so intermediate crumbs carry real page
 // titles from the docs collection instead of capitalized slugs (which
 // rendered "Triage Vs Ir" and "Mitre"). Long chapter titles are trimmed at
 // the colon ("Alert: Understanding detection logic" → "Alert"). The current
 // page is excluded below (excludeCurrentPage): its H1 renders directly
 // underneath, so repeating it in the trail was pure duplication.
-const docsEntries = effectiveBreadcrumbs ? await getCollection("docs") : [];
-const titleBySlug = new Map(docsEntries.map((e) => [e.slug, e.data.title]));
+const docsEntries =
+  effectiveBreadcrumbs || orderIndex >= 0 ? await getCollection("docs") : [];
+const titleBySlug = new Map(docsEntries.map((e) => [e.id, e.data.title]));
 const crumbTitle = (slug: string, fallback: string) => {
   const full = titleBySlug.get(slug);
   if (!full) return fallback.charAt(0).toUpperCase() + fallback.slice(1);
   return full.split(":")[0].trim();
+};
+// Pager links reuse the same title map: an href's entry id is the path
+// minus the "/docs/" prefix, and crumbTitle's colon-trim keeps chapter
+// index labels short ("Risk: ..." → "Risk").
+const pagerTitle = (href: string) => {
+  const id = href.slice("/docs/".length);
+  return crumbTitle(id, id.split("/").pop() ?? id);
 };
 const pathSegments = Astro.url.pathname.split("/").filter(Boolean);
 const crumbs = effectiveBreadcrumbs
@@ -106,6 +126,23 @@ const crumbs = effectiveBreadcrumbs
           )}
 
           <slot />
+
+          {(prevHref || nextHref) && (
+            <nav class="content-page__pager" aria-label="Reading order" data-pagefind-ignore>
+              {prevHref && (
+                <a class="content-page__pager-link is-prev" href={prevHref} rel="prev">
+                  <span class="content-page__pager-dir">&larr; Previous</span>
+                  <span class="content-page__pager-name">{pagerTitle(prevHref)}</span>
+                </a>
+              )}
+              {nextHref && (
+                <a class="content-page__pager-link is-next" href={nextHref} rel="next">
+                  <span class="content-page__pager-dir">Next &rarr;</span>
+                  <span class="content-page__pager-name">{pagerTitle(nextHref)}</span>
+                </a>
+              )}
+            </nav>
+          )}
         </div>
 
         {/* Outside the data-pagefind-body div so search never indexes it.
@@ -204,6 +241,50 @@ const crumbs = effectiveBreadcrumbs
     line-height: 1.1;
     letter-spacing: -0.015em;
     margin: 0 0 2rem 0;
+  }
+
+  /* Slim prev/next pager. Deliberately quiet: most pages already end with a
+     ContinueCard or transition CTA, so this is a fallback rail, not a hero. */
+  .content-page__pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .content-page__pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 48%;
+    text-decoration: none;
+  }
+
+  .content-page__pager-link.is-next {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .content-page__pager-dir {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8b98ab;
+  }
+
+  .content-page__pager-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    transition: color 0.15s ease;
+  }
+
+  .content-page__pager-link:hover .content-page__pager-name,
+  .content-page__pager-link:focus-visible .content-page__pager-name {
+    color: #5eead4;
   }
 
   .content-page__eggs {

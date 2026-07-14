@@ -1,7 +1,6 @@
 ---
 title: "Introduction to the ASSURED methodology"
 description: "An introduction to ASSURED, a structured, repeatable methodology for security event triage."
-slug: "intro"
 wide: true
 showToc: false
 ---
@@ -12,6 +11,7 @@ import LetterChip from "@/components/assured/LetterChip.astro";
 import AnimatedPhaseDiagram from "@/components/assured/AnimatedPhaseDiagram.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import { timeBudgets, timeBudgetTotals } from "@/data/time-budgets";
 
 <div class="intro-lede">
   <div class="intro-lede__primary">
@@ -33,9 +33,9 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
 
 <div class="intro-section-head">
   <span class="section-overline">The shape of an investigation</span>
-  <h2 class="intro-section-title">Seven components grouped into three phases</h2>
+  <h2 class="intro-section-title">Seven phases grouped into three stages</h2>
   <div class="intro-section-lede">
-    Scroll into the diagram below and the pieces assemble themselves to show how the flow works. Each component contributes specific evidence to the next.
+    Scroll into the diagram below and the pieces assemble themselves to show how the flow works. Each phase contributes specific evidence to the next.
   </div>
 </div>
 
@@ -59,7 +59,7 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
     <div class="intro-phase__num">2</div>
     <div>
       ### Investigation and assessment
-      Pulls in <DefineTerm term="Telemetry" display="telemetry" />, correlates it across systems, and decides how to prioritize what was found. The phase where most of the active investigative work happens.
+      Pulls in <DefineTerm term="Telemetry" display="telemetry" />, correlates it across systems, and decides how to prioritize what was found. The stage where most of the active investigative work happens.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span>
         <span class="intro-phase__chip"><LetterChip letter="R" phase="risk" size="sm" /> Risk</span>
@@ -71,7 +71,7 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
     <div class="intro-phase__num">3</div>
     <div>
       ### Resolution and documentation
-      Produces the handoff to the next tier or the closure record that makes the work survive its ending. The phase where institutional memory gets built.
+      Produces the handoff to the next tier or the closure record that makes the work survive its ending. The stage where institutional memory gets built.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span>
         <span class="intro-phase__chip"><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span>
@@ -169,18 +169,16 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
   </p>
 </div>
 
+{/* Rows render from src/data/time-budgets.ts, the same source that feeds
+    each chapter hero's "On-shift target" chip (the experienced column). */}
 <div class="intro-time-budget">
   <div class="intro-time-budget__row intro-time-budget__row--header">
     <span>Phase</span><span>New (0–6 mo)</span><span>Experienced (1–3 yr)</span><span>Expert (3+ yr)</span>
   </div>
-  <div class="intro-time-budget__row" data-phase="alert"><span><LetterChip letter="A" phase="alert" size="sm" /> Alert</span><span class="intro-time-budget__time">10–20 min</span><span class="intro-time-budget__time">3–8 min</span><span class="intro-time-budget__time">&lt; 2 min</span></div>
-  <div class="intro-time-budget__row" data-phase="subject"><span><LetterChip letter="S" phase="subject" size="sm" /> Subject</span><span class="intro-time-budget__time">20–40 min</span><span class="intro-time-budget__time">8–15 min</span><span class="intro-time-budget__time">3–10 min</span></div>
-  <div class="intro-time-budget__row" data-phase="scope"><span><LetterChip letter="S" phase="scope" size="sm" /> Scope</span><span class="intro-time-budget__time">15–30 min</span><span class="intro-time-budget__time">5–12 min</span><span class="intro-time-budget__time">2–8 min</span></div>
-  <div class="intro-time-budget__row" data-phase="uncover"><span><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span><span class="intro-time-budget__time">45–120 min</span><span class="intro-time-budget__time">20–45 min</span><span class="intro-time-budget__time">10–30 min</span></div>
-  <div class="intro-time-budget__row" data-phase="risk"><span><LetterChip letter="R" phase="risk" size="sm" /> Risk</span><span class="intro-time-budget__time">15–30 min</span><span class="intro-time-budget__time">5–12 min</span><span class="intro-time-budget__time">2–8 min</span></div>
-  <div class="intro-time-budget__row" data-phase="escalation"><span><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span><span class="intro-time-budget__time">15–25 min</span><span class="intro-time-budget__time">5–10 min</span><span class="intro-time-budget__time">3–8 min</span></div>
-  <div class="intro-time-budget__row" data-phase="documentation"><span><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span><span class="intro-time-budget__time">25–45 min</span><span class="intro-time-budget__time">10–20 min</span><span class="intro-time-budget__time">5–12 min</span></div>
-  <div class="intro-time-budget__row intro-time-budget__row--total"><span>End-to-end</span><span class="intro-time-budget__time">~2.5–5 hr</span><span class="intro-time-budget__time">~55–120 min</span><span class="intro-time-budget__time">~25–80 min</span></div>
+  {timeBudgets.map((t) => (
+    <div class="intro-time-budget__row" data-phase={t.phase}><span><LetterChip letter={t.letter} phase={t.phase} size="sm" /> {t.label}</span><span class="intro-time-budget__time">{t.newAnalyst}</span><span class="intro-time-budget__time">{t.experienced}</span><span class="intro-time-budget__time">{t.expert}</span></div>
+  ))}
+  <div class="intro-time-budget__row intro-time-budget__row--total"><span>End-to-end</span><span class="intro-time-budget__time">{timeBudgetTotals.newAnalyst}</span><span class="intro-time-budget__time">{timeBudgetTotals.experienced}</span><span class="intro-time-budget__time">{timeBudgetTotals.expert}</span></div>
 </div>
 
 <Callout variant="info" title="What makes the difference between new and expert">

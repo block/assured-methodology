@@ -1,7 +1,6 @@
 ---
 title: "Documentation templates"
 description: "Alert reporting templates, timeline trackers, and the design principles that make templates efficient. Reduce cognitive load and ensure comprehensive capture."
-slug: "documentation/templates"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -35,6 +34,8 @@ While a core template structure should be universal across the organization, spe
 ## The alert reporting template
 
 A well-designed alert report template captures all essential details consistently to support rapid understanding, <DefineTerm term="Event Correlation" display="event correlation" />, and knowledge reuse. Each report includes the following core fields.
+
+Seven fields is a deliberate ceiling, not a starting point. Every field added beyond these raises the cost of every report the team will ever write, and the fields skipped under pressure are exactly the discriminating ones. Of the seven, two do most of the retrospective work: the initial triage outcome, because it records what the analyst believed with the evidence available at the time, and the escalation decision, because it records the judgment call a reviewer is most likely to second-guess. Fill those two with care; the rest is largely mechanical capture.
 
 <div class="alert-tpl">
   <div class="alert-tpl__row">
@@ -93,7 +94,7 @@ The same template, filled differently for the finance-team phishing case, would 
 
 Maintaining an accurate, timestamped timeline is fundamental to effective documentation. The timeline provides a sequential record of activities, decisions, and communications, supporting retrospective analysis and accountability.
 
-Each timeline entry should contain five components.
+Each timeline entry should contain five components. The five exist because a timeline that only answers "what happened when" is half a record. Timestamp, actor, and action reconstruct the sequence, and anyone with the raw logs could rebuild those. Rationale and outcome are the two components the logs cannot supply, and they are the reason the timeline is written by the analyst instead of exported from the SIEM: rationale preserves why the step made sense at the time, and outcome records whether reality cooperated.
 
 <div class="timeline-grid">
   <div class="timeline-card">

@@ -8,13 +8,11 @@ import ContentPageLayout from "@/layouts/ContentPageLayout.astro";
 export async function getStaticPaths() {
   const docs = await getCollection("docs");
 
-  // Filter for component pages that have a slug in their frontmatter
-  const docDocs = docs.filter((doc) => doc.data.slug);
-
-  return docDocs.map((doc) => ({
-    params: {
-      slug: doc.data.slug || doc.id,
-    },
+  // The entry id is the route: the glob loader derives it from the file
+  // path, or from a frontmatter `slug` override where one is declared
+  // (chapter index pages).
+  return docs.map((doc) => ({
+    params: { slug: doc.id },
     props: doc,
   }));
 }

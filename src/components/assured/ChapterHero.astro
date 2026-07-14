@@ -10,6 +10,7 @@
  * inline markup (<em>, <code>, links) without resorting to set:html.
  */
 import LetterChip from "@/components/assured/LetterChip.astro";
+import { timeOnTargetFor } from "@/data/time-budgets";
 
 type Phase =
   | "alert"
@@ -33,10 +34,12 @@ interface Props {
   totalPieces?: number;
   question: string;
   pillars: Pillar[];
-  /** Optional: override the auto-generated "Phase N · piece M of K" overline. */
-  overlineOverride?: string;
-  /** Optional: target time-on-target for this phase, shown as a chip in the header. */
+  /** Optional override for the on-shift chip. Defaults to the
+   *  experienced-analyst range from time-budgets.ts, the same source the
+   *  intro's time table renders, so the two can never drift apart. */
   timeOnTarget?: string;
+  /** Optional: override the auto-generated "Stage N · piece M of K" overline. */
+  overlineOverride?: string;
 }
 
 const PHASE_COLORS: Record<
@@ -83,9 +86,10 @@ const {
   timeOnTarget,
 } = Astro.props;
 const colors = PHASE_COLORS[phase];
+const timeChip = timeOnTarget ?? timeOnTargetFor(phase);
 const overline =
   overlineOverride ??
-  `Phase ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
+  `Stage ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
 const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; --phase-medium: ${colors.medium};`;
 ---
 
@@ -100,11 +104,11 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
         aria-label wall of text). The clarification that this is a live-shift
         target rather than a reading time is visually-hidden text, so it
         reaches screen readers and is not trapped in a mouse-only title. */}
-    {timeOnTarget && (
+    {timeChip && (
       <span class="chapter-hero__time" role="note">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span class="chapter-hero__time-label">On-shift target</span>
-        <span class="chapter-hero__time-value">{timeOnTarget}</span>
+        <span class="chapter-hero__time-value">{timeChip}</span>
         <span class="chapter-hero__time-sr">Operational target for triaging a live alert, not a reading-time estimate. Complex cases legitimately exceed it.</span>
       </span>
     )}

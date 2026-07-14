@@ -7,7 +7,11 @@ export const collections = {
     schema: z.object({
       title: z.string(),
       description: z.string(),
-      slug: z.string(),
+      // Optional id override, honored by the glob loader's generateId. The
+      // route comes from the entry id, which defaults to the file path, so
+      // most pages must not declare this. Chapter index pages use it to
+      // collapse "risk/index" to "risk".
+      slug: z.string().optional(),
       // When true, the page uses the wide layout. Intended for overview /
       // landing pages that have rich visual sections.
       wide: z.boolean().optional(),

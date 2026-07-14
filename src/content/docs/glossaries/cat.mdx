@@ -1,7 +1,6 @@
 ---
-title: "C.A.T. Glossary"
-description: "Cybersecurity Applications & Tools. The vendor and platform vocabulary that shows up in real security operations."
-slug: "glossaries/cat"
+title: "Security Tool & Platform Reference (the C.A.T. Glossary)"
+description: "A security tool and platform reference: the vendor vocabulary behind EDR, SIEM, SOAR, IAM, and the rest of the SOC stack. The C.A.T. Glossary."
 wide: true
 chromeless: true
 ---
@@ -20,8 +19,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 </AmbientBackground>
 
 <GlossaryHero
-  badge="VENDOR & PLATFORM VOCABULARY"
-  title="The C.A.T. Glossary"
+  badge="THE C.A.T. GLOSSARY · VENDOR & PLATFORM VOCABULARY"
+  title="Security Tool & Platform Reference"
   subParts={[
     { strong: "C" }, "ybersecurity ",
     { strong: "A" }, "pplications & ",
@@ -77,12 +76,15 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   </Fragment>
 
   <Fragment slot="actions">
+    <input type="search" class="cat-search" placeholder="Filter tools..." aria-label="Filter glossary tools" data-cat-search/>
     <button type="button" class="cat-anim-toggle" data-cat-anim-toggle>
       <span class="cat-anim-toggle__icon" aria-hidden="true">⏸️</span>
       <span class="cat-anim-toggle__text">Pause animations</span>
     </button>
+    {/* Visually-hidden live region: announces the match count as the
+        filter runs, since the visual result is only cards disappearing. */}
+    <span class="cat-search-count" data-cat-results aria-live="polite"></span>
   </Fragment>
-
 </GlossaryHero>
 
 {/* Section nav */}
@@ -103,6 +105,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   <a href="#physical" class="cat-nav__pill"><span>🛂</span> Physical security</a>
 </nav>
 
+<div class="cat-empty" data-cat-empty role="status" hidden>No tools matched. Try a different spelling or clear the filter.</div>
+
 {/* 1. Threat intel */}
 <section id="intel" class="cat-section">
   <header class="cat-section__head">
@@ -110,29 +114,30 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Advisories &amp; threat intelligence feeds</h2>
       <p>Sources of curated indicators, campaign reports, and analyst-grade intelligence.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/uncover/threat-intelligence">Uncover</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Abuse.ch</h4><p>Community-driven malware infrastructure tracking; free public feeds for malicious IPs, domains, and hashes. Strong on ransomware family tracking.</p></article>
-    <article class="cat-tool"><h4>AlienVault OTX</h4><p>Collaborative threat-intel exchange aggregating IOCs from a global community, with SIEM/automated integrations.</p></article>
-    <article class="cat-tool"><h4>Anomali ThreatStream</h4><p>Collects, analyzes, and prioritizes threat data with enrichment and risk scoring; integrates with existing security stacks.</p></article>
-    <article class="cat-tool"><h4>CISA Advisories</h4><p>U.S. Cybersecurity and Infrastructure Security Agency advisories on vulnerabilities and active threats, with mitigation guidance.</p></article>
-    <article class="cat-tool"><h4>E-ISAC</h4><p>Electricity sector ISAC; threat intel, IR support, and risk analysis tailored to grid operators.</p></article>
-    <article class="cat-tool"><h4>FBI Flash Reports</h4><p>Rapid high-priority notifications about imminent cyber threats targeting public and private partners.</p></article>
-    <article class="cat-tool"><h4>FS-ISAC</h4><p>Global financial-sector ISAC providing real-time alerts, incident coordination, and member collaboration.</p></article>
-    <article class="cat-tool"><h4>GreyNoise</h4><p>Filters internet background-scan noise so SOCs focus on targeted attacks. IP context with malicious vs. benign classification.</p></article>
-    <article class="cat-tool"><h4>H-ISAC</h4><p>Healthcare-sector ISAC; threat intelligence, incident response coordination, and best practices for clinical environments.</p></article>
-    <article class="cat-tool"><h4>Intel 471</h4><p>Commercial deep/dark-web monitoring with adversary infrastructure, TTP, and threat-actor behavior intelligence.</p></article>
-    <article class="cat-tool"><h4>MITRE ATT&amp;CK</h4><p>Global knowledge base of adversary tactics, techniques, and procedures. The shared vocabulary of modern SOCs.</p></article>
-    <article class="cat-tool"><h4>MS-ISAC</h4><p>Multi-State ISAC for U.S. state, local, tribal, and territorial governments; alerts, IR, and risk management resources.</p></article>
-    <article class="cat-tool"><h4>NCSC (UK)</h4><p>UK National Cyber Security Centre; guidance, threat intelligence, and IR services across public and private sectors.</p></article>
-    <article class="cat-tool"><h4>Microsoft Defender Threat Intelligence (MDTI)</h4><p>Successor to RiskIQ PassiveTotal (acquired by Microsoft, 2021). Aggregates passive DNS, WHOIS, SSL, and infrastructure data for attribution and threat hunting.</p></article>
-    <article class="cat-tool"><h4>PhishTank</h4><p>Community-validated database of phishing URLs; supplies security tools and browsers with up-to-date intelligence.</p></article>
-    <article class="cat-tool"><h4>Recorded Future</h4><p>Threat-intelligence platform combining machine learning with human analysis across open, dark, and technical sources.</p></article>
-    <article class="cat-tool"><h4>Microsoft Defender EASM</h4><p>External Attack Surface Management, the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.</p></article>
-    <article class="cat-tool"><h4>SANS Institute</h4><p>Training, certification, and research; publishes critical threat research and runs the Internet Storm Center.</p></article>
-    <article class="cat-tool"><h4>VirusTotal</h4><p>Free analysis of files and URLs across many AV engines; community sharing and reputation data.</p></article>
-    <article class="cat-tool"><h4>WHOIS</h4><p>Protocol and database of domain registration data; used to investigate suspicious domains and attribution.</p></article>
+    <article id="abuse-ch" class="cat-tool"><h4>Abuse.ch</h4><p>Community-driven malware infrastructure tracking; free public feeds for malicious IPs, domains, and hashes. Strong on ransomware family tracking.</p></article>
+    <article id="alienvault-otx" class="cat-tool"><h4>AlienVault OTX</h4><p>Collaborative threat-intel exchange aggregating IOCs from a global community, with SIEM/automated integrations.</p></article>
+    <article id="anomali-threatstream" class="cat-tool"><h4>Anomali ThreatStream</h4><p>Collects, analyzes, and prioritizes threat data with enrichment and risk scoring; integrates with existing security stacks.</p></article>
+    <article id="cisa-advisories" class="cat-tool"><h4>CISA Advisories</h4><p>U.S. Cybersecurity and Infrastructure Security Agency advisories on vulnerabilities and active threats, with mitigation guidance.</p></article>
+    <article id="e-isac" class="cat-tool"><h4>E-ISAC</h4><p>Electricity sector ISAC; threat intel, IR support, and risk analysis tailored to grid operators.</p></article>
+    <article id="fbi-flash-reports" class="cat-tool"><h4>FBI Flash Reports</h4><p>Rapid high-priority notifications about imminent cyber threats targeting public and private partners.</p></article>
+    <article id="fs-isac" class="cat-tool"><h4>FS-ISAC</h4><p>Global financial-sector ISAC providing real-time alerts, incident coordination, and member collaboration.</p></article>
+    <article id="greynoise" class="cat-tool"><h4>GreyNoise</h4><p>Filters internet background-scan noise so SOCs focus on targeted attacks. IP context with malicious vs. benign classification.</p></article>
+    <article id="h-isac" class="cat-tool"><h4>H-ISAC</h4><p>Healthcare-sector ISAC; threat intelligence, incident response coordination, and best practices for clinical environments.</p></article>
+    <article id="intel-471" class="cat-tool"><h4>Intel 471</h4><p>Commercial deep/dark-web monitoring with adversary infrastructure, TTP, and threat-actor behavior intelligence.</p></article>
+    <article id="mitre-att-ck" class="cat-tool"><h4>MITRE ATT&amp;CK</h4><p>Global knowledge base of adversary tactics, techniques, and procedures. The shared vocabulary of modern SOCs.</p></article>
+    <article id="ms-isac" class="cat-tool"><h4>MS-ISAC</h4><p>Multi-State ISAC for U.S. state, local, tribal, and territorial governments; alerts, IR, and risk management resources.</p></article>
+    <article id="ncsc-uk" class="cat-tool"><h4>NCSC (UK)</h4><p>UK National Cyber Security Centre; guidance, threat intelligence, and IR services across public and private sectors.</p></article>
+    <article id="microsoft-defender-threat-intelligence-mdti" class="cat-tool"><h4>Microsoft Defender Threat Intelligence (MDTI)</h4><p>Successor to RiskIQ PassiveTotal (acquired by Microsoft, 2021). Aggregates passive DNS, WHOIS, SSL, and infrastructure data for attribution and threat hunting.</p></article>
+    <article id="phishtank" class="cat-tool"><h4>PhishTank</h4><p>Community-validated database of phishing URLs; supplies security tools and browsers with up-to-date intelligence.</p></article>
+    <article id="recorded-future" class="cat-tool"><h4>Recorded Future</h4><p>Threat-intelligence platform combining machine learning with human analysis across open, dark, and technical sources.</p></article>
+    <article id="microsoft-defender-easm" class="cat-tool"><h4>Microsoft Defender EASM</h4><p>External Attack Surface Management, the renamed RiskIQ Illuminate (acquired by Microsoft, 2021). Discovers and monitors internet-facing assets, third-party services, and shadow IT.</p></article>
+    <article id="sans-institute" class="cat-tool"><h4>SANS Institute</h4><p>Training, certification, and research; publishes critical threat research and runs the Internet Storm Center.</p></article>
+    <article id="virustotal" class="cat-tool"><h4>VirusTotal</h4><p>Free analysis of files and URLs across many AV engines; community sharing and reputation data.</p></article>
+    <article id="whois" class="cat-tool"><h4>WHOIS</h4><p>Protocol and database of domain registration data; used to investigate suspicious domains and attribution.</p></article>
   </div>
 </section>
 
@@ -143,20 +148,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Cloud &amp; infrastructure monitoring / security</h2>
       <p>Platforms that watch cloud workloads, identities, and posture across multi-account, multi-cloud environments.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/alert">Alert</a> · <a href="/docs/scope/infrastructure">Scope</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>AWS CloudTrail</h4><p>Records and logs API activity within an AWS account, the audit trail for security and forensic work.</p></article>
-    <article class="cat-tool"><h4>AWS CloudWatch</h4><p>Monitoring and observability for AWS resources and applications; metrics, logs, alarms, automation hooks.</p></article>
-    <article class="cat-tool"><h4>Azure AD (Entra ID)</h4><p>Microsoft's cloud identity and access management; SSO, MFA, conditional access, and integration with SaaS apps.</p></article>
-    <article class="cat-tool"><h4>Cloudflare Cloudforce One</h4><p>Cloudflare's threat-research team and intelligence service; produces actionable indicators, campaign tracking, and disruption support against active adversaries.</p></article>
-    <article class="cat-tool"><h4>Forcepoint</h4><p>DLP, cloud security, and insider-threat behavior analytics across endpoints, networks, and cloud applications.</p></article>
-    <article class="cat-tool"><h4>Google Security Operations (formerly Chronicle)</h4><p>Cloud-native security analytics platform from Google Cloud; high-speed search and threat detection at petabyte scale. Chronicle was folded into the Google Security Operations (Google SecOps) brand in 2024.</p></article>
-    <article class="cat-tool"><h4>Microsoft Sentinel</h4><p>Cloud-native SIEM/SOAR (formerly Azure Sentinel); AI-driven analytics across on-prem, cloud, and hybrid with rich connector library, plus a built-in UEBA module for user and entity behavior analytics.</p></article>
-    <article class="cat-tool"><h4>Orca Security</h4><p>Agentless cloud security; full-stack visibility, vulnerability management, and risk prioritization across cloud workloads.</p></article>
-    <article class="cat-tool"><h4>Prisma Cloud</h4><p>Cloud-native security platform from Palo Alto Networks; workload protection, IaC scanning, compliance, runtime defense.</p></article>
-    <article class="cat-tool"><h4>Sysdig</h4><p>Cloud-native security focused on container runtime, Kubernetes monitoring, and cloud workload protection.</p></article>
-    <article class="cat-tool"><h4>WIZ</h4><p>Agentless cloud risk visibility; correlates infra/config/workload data to map attack paths and prioritize risk.</p></article>
+    <article id="aws-cloudtrail" class="cat-tool"><h4>AWS CloudTrail</h4><p>Records and logs API activity within an AWS account, the audit trail for security and forensic work.</p></article>
+    <article id="aws-cloudwatch" class="cat-tool"><h4>AWS CloudWatch</h4><p>Monitoring and observability for AWS resources and applications; metrics, logs, alarms, automation hooks.</p></article>
+    <article id="azure-ad-entra-id" class="cat-tool"><h4>Azure AD (Entra ID)</h4><p>Microsoft's cloud identity and access management; SSO, MFA, conditional access, and integration with SaaS apps.</p></article>
+    <article id="cloudflare-cloudforce-one" class="cat-tool"><h4>Cloudflare Cloudforce One</h4><p>Cloudflare's threat-research team and intelligence service; produces actionable indicators, campaign tracking, and disruption support against active adversaries.</p></article>
+    <article id="forcepoint" class="cat-tool"><h4>Forcepoint</h4><p>DLP, cloud security, and insider-threat behavior analytics across endpoints, networks, and cloud applications.</p></article>
+    <article id="google-security-operations-formerly-chronicle" class="cat-tool"><h4>Google Security Operations (formerly Chronicle)</h4><p>Cloud-native security analytics platform from Google Cloud; high-speed search and threat detection at petabyte scale. Chronicle was folded into the Google Security Operations (Google SecOps) brand in 2024.</p></article>
+    <article id="microsoft-sentinel" class="cat-tool"><h4>Microsoft Sentinel</h4><p>Cloud-native SIEM/SOAR (formerly Azure Sentinel); AI-driven analytics across on-prem, cloud, and hybrid with rich connector library, plus a built-in UEBA module for user and entity behavior analytics.</p></article>
+    <article id="orca-security" class="cat-tool"><h4>Orca Security</h4><p>Agentless cloud security; full-stack visibility, vulnerability management, and risk prioritization across cloud workloads.</p></article>
+    <article id="prisma-cloud" class="cat-tool"><h4>Prisma Cloud</h4><p>Cloud-native security platform from Palo Alto Networks; workload protection, IaC scanning, compliance, runtime defense.</p></article>
+    <article id="sysdig" class="cat-tool"><h4>Sysdig</h4><p>Cloud-native security focused on container runtime, Kubernetes monitoring, and cloud workload protection.</p></article>
+    <article id="wiz" class="cat-tool"><h4>WIZ</h4><p>Agentless cloud risk visibility; correlates infra/config/workload data to map attack paths and prioritize risk.</p></article>
   </div>
 </section>
 
@@ -167,19 +173,20 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Data collection / logging / SIEM</h2>
       <p>Where the logs go to be aggregated, normalized, and queried. The SOC's primary lens.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/alert/detection-mechanisms">Alert</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>ArcSight</h4><p>Long-standing SIEM with strong correlation engine for compliance reporting and forensic analysis.</p></article>
-    <article class="cat-tool"><h4>Cribl</h4><p>Data routing and processing for observability pipelines; filter, enrich, and reduce log data before forwarding.</p></article>
-    <article class="cat-tool"><h4>Elastic Security</h4><p>Unified security on the Elastic Stack; endpoint protection, prebuilt detections, and customizable monitoring.</p></article>
-    <article class="cat-tool"><h4>Exabeam</h4><p>Next-gen SIEM with built-in UEBA; user-behavior timelines and automated investigation workflows.</p></article>
-    <article class="cat-tool"><h4>Fluentd</h4><p>Open-source data collector that unifies log collection and processing across distributed systems via plugins.</p></article>
-    <article class="cat-tool"><h4>IBM QRadar</h4><p>Enterprise SIEM with real-time correlation, ML-assisted prioritization, and broad ecosystem integration.</p></article>
-    <article class="cat-tool"><h4>Logstash</h4><p>Server-side pipeline that ingests, transforms, and forwards data; central to the Elastic Stack.</p></article>
-    <article class="cat-tool"><h4>SIEM (concept)</h4><p>Aggregation and correlation of security event data for centralized detection, compliance, and IR.</p></article>
-    <article class="cat-tool"><h4>Splunk Enterprise Security</h4><p>Premium SIEM on the Splunk platform; correlation searches, ML, prebuilt content for SOC workflows.</p></article>
-    <article class="cat-tool"><h4>Sysmon</h4><p>Windows service that produces rich endpoint telemetry, process creation, network connections, file events, for SIEM ingestion.</p></article>
+    <article id="arcsight" class="cat-tool"><h4>ArcSight</h4><p>Long-standing SIEM with strong correlation engine for compliance reporting and forensic analysis.</p></article>
+    <article id="cribl" class="cat-tool"><h4>Cribl</h4><p>Data routing and processing for observability pipelines; filter, enrich, and reduce log data before forwarding.</p></article>
+    <article id="elastic-security" class="cat-tool"><h4>Elastic Security</h4><p>Unified security on the Elastic Stack; endpoint protection, prebuilt detections, and customizable monitoring.</p></article>
+    <article id="exabeam" class="cat-tool"><h4>Exabeam</h4><p>Next-gen SIEM with built-in UEBA; user-behavior timelines and automated investigation workflows.</p></article>
+    <article id="fluentd" class="cat-tool"><h4>Fluentd</h4><p>Open-source data collector that unifies log collection and processing across distributed systems via plugins.</p></article>
+    <article id="ibm-qradar" class="cat-tool"><h4>IBM QRadar</h4><p>Enterprise SIEM with real-time correlation, ML-assisted prioritization, and broad ecosystem integration.</p></article>
+    <article id="logstash" class="cat-tool"><h4>Logstash</h4><p>Server-side pipeline that ingests, transforms, and forwards data; central to the Elastic Stack.</p></article>
+    <article id="siem-concept" class="cat-tool"><h4>SIEM (concept)</h4><p>Aggregation and correlation of security event data for centralized detection, compliance, and IR.</p></article>
+    <article id="splunk-enterprise-security" class="cat-tool"><h4>Splunk Enterprise Security</h4><p>Premium SIEM on the Splunk platform; correlation searches, ML, prebuilt content for SOC workflows.</p></article>
+    <article id="sysmon" class="cat-tool"><h4>Sysmon</h4><p>Windows service that produces rich endpoint telemetry, process creation, network connections, file events, for SIEM ingestion.</p></article>
   </div>
 </section>
 
@@ -190,24 +197,25 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Endpoint detection &amp; response / endpoint security</h2>
       <p>The agents that watch process trees, file activity, and on-host behavior.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/alert">Alert</a> · <a href="/docs/uncover/data-sources">Uncover</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Bitdefender GravityZone</h4><p>EDR with behavior analysis, anti-exploit, root-cause analysis, and policy-based remediation.</p></article>
-    <article class="cat-tool"><h4>CrowdStrike Falcon</h4><p>Cloud-native EDR with a lightweight agent; combines behavioral analytics, threat intel, and ML.</p></article>
-    <article class="cat-tool"><h4>Cybereason</h4><p>EDR/XDR focused on endpoint visibility, malware detection, IR, and deep process-tree forensics.</p></article>
-    <article class="cat-tool"><h4>Darktrace</h4><p>Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via its RESPOND module (formerly Antigena).</p></article>
-    <article class="cat-tool"><h4>Digital Guardian</h4><p>DLP and endpoint security with context-aware policies for data usage across endpoints, networks, cloud.</p></article>
-    <article class="cat-tool"><h4>Falcon OverWatch</h4><p>Managed threat-hunting service on top of CrowdStrike Falcon; 24/7 human-led analysis to validate stealthy intrusions.</p></article>
-    <article class="cat-tool"><h4>Proofpoint Identity Threat Defense (formerly Illusive)</h4><p>Deception-based identity-threat detection. Plants fake credentials and decoy paths to surface attacker lateral movement. Illusive Networks acquired by Proofpoint, 2022.</p></article>
-    <article class="cat-tool"><h4>Kaspersky EDR</h4><p>Attack-chain visualization, IOC search, sandboxing, and threat-intel integration with centralized management. U.S. sales were prohibited by a June 2024 Commerce Department determination; still widely deployed elsewhere.</p></article>
-    <article class="cat-tool"><h4>Malwarebytes EDR</h4><p>Lightweight EDR with strong remediation; ransomware rollback and post-infection recovery.</p></article>
-    <article class="cat-tool"><h4>Microsoft Defender</h4><p>Antivirus, endpoint protection, EDR (Defender for Endpoint), and XDR ties to Sentinel and Entra ID.</p></article>
-    <article class="cat-tool"><h4>SentinelOne</h4><p>Unified EPP/EDR with behavioral AI, autonomous response, rollback on Windows, and threat-hunting telemetry.</p></article>
-    <article class="cat-tool"><h4>Sophos Intercept X</h4><p>Next-gen AV plus EDR with deep learning and exploit prevention; strong investigation tools for SMB and enterprise.</p></article>
-    <article class="cat-tool"><h4>Symantec (Broadcom)</h4><p>Endpoint protection, email security, DLP, and EDR; global sensor network feeding detection and response.</p></article>
-    <article class="cat-tool"><h4>Trellix Endpoint Security</h4><p>Part of the broader Trellix XDR; detection, investigation, and response with behavioral analytics and forensic timelines.</p></article>
-    <article class="cat-tool"><h4>Trend Micro Vision One</h4><p>XDR correlating telemetry across email, endpoint, server, and cloud workloads.</p></article>
+    <article id="bitdefender-gravityzone" class="cat-tool"><h4>Bitdefender GravityZone</h4><p>EDR with behavior analysis, anti-exploit, root-cause analysis, and policy-based remediation.</p></article>
+    <article id="crowdstrike-falcon" class="cat-tool"><h4>CrowdStrike Falcon</h4><p>Cloud-native EDR with a lightweight agent; combines behavioral analytics, threat intel, and ML.</p></article>
+    <article id="cybereason" class="cat-tool"><h4>Cybereason</h4><p>EDR/XDR focused on endpoint visibility, malware detection, IR, and deep process-tree forensics.</p></article>
+    <article id="darktrace" class="cat-tool"><h4>Darktrace</h4><p>Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via its RESPOND module (formerly Antigena).</p></article>
+    <article id="digital-guardian" class="cat-tool"><h4>Digital Guardian</h4><p>DLP and endpoint security with context-aware policies for data usage across endpoints, networks, cloud.</p></article>
+    <article id="falcon-overwatch" class="cat-tool"><h4>Falcon OverWatch</h4><p>Managed threat-hunting service on top of CrowdStrike Falcon; 24/7 human-led analysis to validate stealthy intrusions.</p></article>
+    <article id="proofpoint-identity-threat-defense-formerly-illusive" class="cat-tool"><h4>Proofpoint Identity Threat Defense (formerly Illusive)</h4><p>Deception-based identity-threat detection. Plants fake credentials and decoy paths to surface attacker lateral movement. Illusive Networks acquired by Proofpoint, 2022.</p></article>
+    <article id="kaspersky-edr" class="cat-tool"><h4>Kaspersky EDR</h4><p>Attack-chain visualization, IOC search, sandboxing, and threat-intel integration with centralized management. U.S. sales were prohibited by a June 2024 Commerce Department determination; still widely deployed elsewhere.</p></article>
+    <article id="malwarebytes-edr" class="cat-tool"><h4>Malwarebytes EDR</h4><p>Lightweight EDR with strong remediation; ransomware rollback and post-infection recovery.</p></article>
+    <article id="microsoft-defender" class="cat-tool"><h4>Microsoft Defender</h4><p>Antivirus, endpoint protection, EDR (Defender for Endpoint), and XDR ties to Sentinel and Entra ID.</p></article>
+    <article id="sentinelone" class="cat-tool"><h4>SentinelOne</h4><p>Unified EPP/EDR with behavioral AI, autonomous response, rollback on Windows, and threat-hunting telemetry.</p></article>
+    <article id="sophos-intercept-x" class="cat-tool"><h4>Sophos Intercept X</h4><p>Next-gen AV plus EDR with deep learning and exploit prevention; strong investigation tools for SMB and enterprise.</p></article>
+    <article id="symantec-broadcom" class="cat-tool"><h4>Symantec (Broadcom)</h4><p>Endpoint protection, email security, DLP, and EDR; global sensor network feeding detection and response.</p></article>
+    <article id="trellix-endpoint-security" class="cat-tool"><h4>Trellix Endpoint Security</h4><p>Part of the broader Trellix XDR; detection, investigation, and response with behavioral analytics and forensic timelines.</p></article>
+    <article id="trend-micro-vision-one" class="cat-tool"><h4>Trend Micro Vision One</h4><p>XDR correlating telemetry across email, endpoint, server, and cloud workloads.</p></article>
   </div>
 </section>
 
@@ -218,17 +226,18 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Forensics / digital evidence / mobile forensics</h2>
       <p>The kit that turns a disk image, a memory dump, or a phone into a defensible report.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/uncover">Uncover</a> · <a href="/docs/escalation/handoff">Escalation</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Autopsy</h4><p>Open-source forensics platform on The Sleuth Kit; timeline analysis, keyword search, file carving, media analysis.</p></article>
-    <article class="cat-tool"><h4>Belkasoft Evidence Center X</h4><p>DFIR tool focused on memory, disk, mobile, and cloud forensics; parses encrypted containers and RAM dumps.</p></article>
-    <article class="cat-tool"><h4>Cellebrite</h4><p>Industry standard for mobile-device extraction and analysis; UFED covers a wide range of devices.</p></article>
-    <article class="cat-tool"><h4>EnCase Forensic</h4><p>Long-standing digital-investigation suite; acquisition, indexing, analysis, and court-admissible reporting.</p></article>
-    <article class="cat-tool"><h4>Magnet AXIOM</h4><p>Forensics across computers, mobile, cloud, IoT; powerful artifact parsing and cross-source correlation.</p></article>
-    <article class="cat-tool"><h4>MSAB</h4><p>Mobile forensics for law enforcement; XRY for extraction, XAMN for evidence visualization, XEC for lab management.</p></article>
-    <article class="cat-tool"><h4>Oxygen Forensic Detective</h4><p>Mobile, cloud, drone, and IoT forensics with deep parsing of app data including secure messengers.</p></article>
-    <article class="cat-tool"><h4>X-Ways Forensics</h4><p>Lightweight, fast forensic suite with strong scripting and hex-level analysis for deep investigations.</p></article>
+    <article id="autopsy" class="cat-tool"><h4>Autopsy</h4><p>Open-source forensics platform on The Sleuth Kit; timeline analysis, keyword search, file carving, media analysis.</p></article>
+    <article id="belkasoft-evidence-center-x" class="cat-tool"><h4>Belkasoft Evidence Center X</h4><p>DFIR tool focused on memory, disk, mobile, and cloud forensics; parses encrypted containers and RAM dumps.</p></article>
+    <article id="cellebrite" class="cat-tool"><h4>Cellebrite</h4><p>Industry standard for mobile-device extraction and analysis; UFED covers a wide range of devices.</p></article>
+    <article id="encase-forensic" class="cat-tool"><h4>EnCase Forensic</h4><p>Long-standing digital-investigation suite; acquisition, indexing, analysis, and court-admissible reporting.</p></article>
+    <article id="magnet-axiom" class="cat-tool"><h4>Magnet AXIOM</h4><p>Forensics across computers, mobile, cloud, IoT; powerful artifact parsing and cross-source correlation.</p></article>
+    <article id="msab" class="cat-tool"><h4>MSAB</h4><p>Mobile forensics for law enforcement; XRY for extraction, XAMN for evidence visualization, XEC for lab management.</p></article>
+    <article id="oxygen-forensic-detective" class="cat-tool"><h4>Oxygen Forensic Detective</h4><p>Mobile, cloud, drone, and IoT forensics with deep parsing of app data including secure messengers.</p></article>
+    <article id="x-ways-forensics" class="cat-tool"><h4>X-Ways Forensics</h4><p>Lightweight, fast forensic suite with strong scripting and hex-level analysis for deep investigations.</p></article>
   </div>
 </section>
 
@@ -239,16 +248,17 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Identity &amp; access management / privilege management</h2>
       <p>Who you are, what you can touch, and how the SOC proves it.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/subject">Subject</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>BeyondTrust</h4><p>Privileged access management; just-in-time access, password vaulting, session monitoring, endpoint privilege management.</p></article>
-    <article class="cat-tool"><h4>CyberArk</h4><p>Market leader in PAM; credential rotation, secret management, session monitoring, secure remote access.</p></article>
-    <article class="cat-tool"><h4>Duo (Cisco)</h4><p>MFA, device trust, and contextual access; widely used for remote access and SaaS protection.</p></article>
-    <article class="cat-tool"><h4>Okta</h4><p>Identity platform with SSO, MFA, lifecycle management, and federation across thousands of apps.</p></article>
-    <article class="cat-tool"><h4>One Identity</h4><p>IGA with lifecycle, RBAC, privileged access governance; unifies AD, Azure AD, and cloud platform identity.</p></article>
-    <article class="cat-tool"><h4>Ping Identity</h4><p>Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support. Absorbed ForgeRock (acquired by Thoma Bravo, 2023) and now ships its enterprise IAM lifecycle and governance products under the Ping brand.</p></article>
-    <article class="cat-tool"><h4>SailPoint</h4><p>Identity governance with least-privilege enforcement, access reviews, and ML-driven anomaly detection.</p></article>
+    <article id="beyondtrust" class="cat-tool"><h4>BeyondTrust</h4><p>Privileged access management; just-in-time access, password vaulting, session monitoring, endpoint privilege management.</p></article>
+    <article id="cyberark" class="cat-tool"><h4>CyberArk</h4><p>Market leader in PAM; credential rotation, secret management, session monitoring, secure remote access.</p></article>
+    <article id="duo-cisco" class="cat-tool"><h4>Duo (Cisco)</h4><p>MFA, device trust, and contextual access; widely used for remote access and SaaS protection.</p></article>
+    <article id="okta" class="cat-tool"><h4>Okta</h4><p>Identity platform with SSO, MFA, lifecycle management, and federation across thousands of apps.</p></article>
+    <article id="one-identity" class="cat-tool"><h4>One Identity</h4><p>IGA with lifecycle, RBAC, privileged access governance; unifies AD, Azure AD, and cloud platform identity.</p></article>
+    <article id="ping-identity" class="cat-tool"><h4>Ping Identity</h4><p>Cloud-first identity for SSO, MFA, and customer IAM; strong hybrid and multi-cloud support. Absorbed ForgeRock (acquired by Thoma Bravo, 2023) and now ships its enterprise IAM lifecycle and governance products under the Ping brand.</p></article>
+    <article id="sailpoint" class="cat-tool"><h4>SailPoint</h4><p>Identity governance with least-privilege enforcement, access reviews, and ML-driven anomaly detection.</p></article>
   </div>
 </section>
 
@@ -259,20 +269,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Intrusion detection &amp; network security</h2>
       <p>Where the wire is inspected. Flow data, deep packet inspection, NIDS, and scanners.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/alert/parsing/network">Alert</a> · <a href="/docs/uncover/data-sources">Uncover</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Cisco Umbrella</h4><p>Cloud-delivered DNS-layer security; blocks malicious domains at resolution time, secures outbound web traffic.</p></article>
-    <article class="cat-tool"><h4>Lansweeper</h4><p>IT asset discovery and inventory; CMDB foundations and continuous visibility into devices, software, and users.</p></article>
-    <article class="cat-tool"><h4>NetFlow</h4><p>Cisco-developed protocol for flow-based monitoring and anomaly detection; metadata about traffic sessions.</p></article>
-    <article class="cat-tool"><h4>Nexpose (Rapid7)</h4><p>Vulnerability management with dynamic scans and exploitability-based prioritization; pairs with Metasploit.</p></article>
-    <article class="cat-tool"><h4>Nessus (Tenable)</h4><p>Vulnerability scanner with authenticated/unauthenticated scans and compliance framework support.</p></article>
-    <article class="cat-tool"><h4>NIDS (concept)</h4><p>Network intrusion detection: inspects traffic for signatures, protocol anomalies, and behavioral indicators.</p></article>
-    <article class="cat-tool"><h4>Snort</h4><p>Open-source NIDS with deep packet inspection and a large community rule set maintained by Cisco Talos.</p></article>
-    <article class="cat-tool"><h4>Suricata</h4><p>Open-source NIDS/IPS with multi-threaded inspection, file extraction, TLS inspection, and JSON output.</p></article>
-    <article class="cat-tool"><h4>Tripwire</h4><p>File-integrity monitoring and change detection; enforces baselines and supports compliance.</p></article>
-    <article class="cat-tool"><h4>Wireshark</h4><p>Open-source packet analyzer; deep protocol decoding for investigation and forensics.</p></article>
-    <article class="cat-tool"><h4>Zeek (formerly Bro)</h4><p>Behavior-focused network monitoring producing structured session logs for SIEM-friendly analytics.</p></article>
+    <article id="cisco-umbrella" class="cat-tool"><h4>Cisco Umbrella</h4><p>Cloud-delivered DNS-layer security; blocks malicious domains at resolution time, secures outbound web traffic.</p></article>
+    <article id="lansweeper" class="cat-tool"><h4>Lansweeper</h4><p>IT asset discovery and inventory; CMDB foundations and continuous visibility into devices, software, and users.</p></article>
+    <article id="netflow" class="cat-tool"><h4>NetFlow</h4><p>Cisco-developed protocol for flow-based monitoring and anomaly detection; metadata about traffic sessions.</p></article>
+    <article id="nexpose-rapid7" class="cat-tool"><h4>Nexpose (Rapid7)</h4><p>Vulnerability management with dynamic scans and exploitability-based prioritization; pairs with Metasploit.</p></article>
+    <article id="nessus-tenable" class="cat-tool"><h4>Nessus (Tenable)</h4><p>Vulnerability scanner with authenticated/unauthenticated scans and compliance framework support.</p></article>
+    <article id="nids-concept" class="cat-tool"><h4>NIDS (concept)</h4><p>Network intrusion detection: inspects traffic for signatures, protocol anomalies, and behavioral indicators.</p></article>
+    <article id="snort" class="cat-tool"><h4>Snort</h4><p>Open-source NIDS with deep packet inspection and a large community rule set maintained by Cisco Talos.</p></article>
+    <article id="suricata" class="cat-tool"><h4>Suricata</h4><p>Open-source NIDS/IPS with multi-threaded inspection, file extraction, TLS inspection, and JSON output.</p></article>
+    <article id="tripwire" class="cat-tool"><h4>Tripwire</h4><p>File-integrity monitoring and change detection; enforces baselines and supports compliance.</p></article>
+    <article id="wireshark" class="cat-tool"><h4>Wireshark</h4><p>Open-source packet analyzer; deep protocol decoding for investigation and forensics.</p></article>
+    <article id="zeek-formerly-bro" class="cat-tool"><h4>Zeek (formerly Bro)</h4><p>Behavior-focused network monitoring producing structured session logs for SIEM-friendly analytics.</p></article>
   </div>
 </section>
 
@@ -283,20 +294,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Incident response / SOAR / automation</h2>
       <p>Where playbooks live, alerts get enriched, and analysts get back their afternoons.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/escalation">Escalation</a> · <a href="/docs/documentation">Documentation</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Cynet AutoXDR</h4><p>XDR with autonomous investigation and remediation playbooks aimed at small-to-mid SOCs.</p></article>
-    <article class="cat-tool"><h4>DFIR ORC</h4><p>Open-source forensic-artifact collector from ANSSI (the French national cyber agency). Runs on Windows endpoints to gather a broad, configurable set of artifacts for offline post-compromise analysis. Not a case-management platform.</p></article>
-    <article class="cat-tool"><h4>Sumo Logic Cloud SOAR (formerly DFLabs IncMan)</h4><p>SOAR with advanced playbooks, threat-intel enrichment, KPI tracking, and human-in-the-loop decisions. DFLabs acquired by Sumo Logic, 2021.</p></article>
-    <article class="cat-tool"><h4>Cortex XSOAR (Palo Alto)</h4><p>Comprehensive SOAR with case management, threat intel, playbook-driven automation, and hundreds of integrations.</p></article>
-    <article class="cat-tool"><h4>ServiceNow SecOps</h4><p>ITSM and security workflow with ticketing, change management, CMDB integration, and security automation.</p></article>
-    <article class="cat-tool"><h4>Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)</h4><p>SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.</p></article>
-    <article class="cat-tool"><h4>SOAR (concept)</h4><p>Security orchestration, automation, and response: define, automate, and orchestrate IR workflows at scale.</p></article>
-    <article class="cat-tool"><h4>Splunk SOAR (formerly Splunk Phantom)</h4><p>SOAR with Python-based playbooks, 300+ integrations, and deep Splunk analytics ties. Phantom acquired by Splunk in 2018 and renamed Splunk SOAR in 2021; Splunk itself acquired by Cisco, 2024.</p></article>
-    <article class="cat-tool"><h4>Swimlane</h4><p>Low-code SOAR for SOC analysts to build automation workflows without deep programming expertise.</p></article>
-    <article class="cat-tool"><h4>TheHive Project</h4><p>IR platform with collaborative case management; integrates with Cortex for automated analysis. TheHive 5 is a commercial product from StrangeBee; the open-source TheHive 4 reached end of life in December 2022.</p></article>
-    <article class="cat-tool"><h4>Tines</h4><p>No-code automation built for security teams; modular "stories" for alert ingestion, enrichment, and response.</p></article>
+    <article id="cynet-autoxdr" class="cat-tool"><h4>Cynet AutoXDR</h4><p>XDR with autonomous investigation and remediation playbooks aimed at small-to-mid SOCs.</p></article>
+    <article id="dfir-orc" class="cat-tool"><h4>DFIR ORC</h4><p>Open-source forensic-artifact collector from ANSSI (the French national cyber agency). Runs on Windows endpoints to gather a broad, configurable set of artifacts for offline post-compromise analysis. Not a case-management platform.</p></article>
+    <article id="sumo-logic-cloud-soar-formerly-dflabs-incman" class="cat-tool"><h4>Sumo Logic Cloud SOAR (formerly DFLabs IncMan)</h4><p>SOAR with advanced playbooks, threat-intel enrichment, KPI tracking, and human-in-the-loop decisions. DFLabs acquired by Sumo Logic, 2021.</p></article>
+    <article id="cortex-xsoar-palo-alto" class="cat-tool"><h4>Cortex XSOAR (Palo Alto)</h4><p>Comprehensive SOAR with case management, threat intel, playbook-driven automation, and hundreds of integrations.</p></article>
+    <article id="servicenow-secops" class="cat-tool"><h4>ServiceNow SecOps</h4><p>ITSM and security workflow with ticketing, change management, CMDB integration, and security automation.</p></article>
+    <article id="google-security-operations-soar-formerly-siemplify-chronicle-soar" class="cat-tool"><h4>Google Security Operations SOAR (formerly Siemplify / Chronicle SOAR)</h4><p>SOAR with case management, playbooks, and analyst dashboards; integrated with Google SecOps (Chronicle) telemetry. Siemplify acquired by Google, 2022; fully integrated into Google SecOps.</p></article>
+    <article id="soar-concept" class="cat-tool"><h4>SOAR (concept)</h4><p>Security orchestration, automation, and response: define, automate, and orchestrate IR workflows at scale.</p></article>
+    <article id="splunk-soar-formerly-splunk-phantom" class="cat-tool"><h4>Splunk SOAR (formerly Splunk Phantom)</h4><p>SOAR with Python-based playbooks, 300+ integrations, and deep Splunk analytics ties. Phantom acquired by Splunk in 2018 and renamed Splunk SOAR in 2021; Splunk itself acquired by Cisco, 2024.</p></article>
+    <article id="swimlane" class="cat-tool"><h4>Swimlane</h4><p>Low-code SOAR for SOC analysts to build automation workflows without deep programming expertise.</p></article>
+    <article id="thehive-project" class="cat-tool"><h4>TheHive Project</h4><p>IR platform with collaborative case management; integrates with Cortex for automated analysis. TheHive 5 is a commercial product from StrangeBee; the open-source TheHive 4 reached end of life in December 2022.</p></article>
+    <article id="tines" class="cat-tool"><h4>Tines</h4><p>No-code automation built for security teams; modular "stories" for alert ingestion, enrichment, and response.</p></article>
   </div>
 </section>
 
@@ -307,20 +319,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Malware analysis / threat simulation / deception</h2>
       <p>Sandboxes for malware, honeypots for attackers, and frameworks for stress-testing defenses.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/uncover">Uncover</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Any.Run</h4><p>Interactive malware sandbox with behavioral and network analysis for collaborative investigation.</p></article>
-    <article class="cat-tool"><h4>Canary (Thinkst)</h4><p>Deception platform deploying low-interaction honeypots that produce high-fidelity alerts on attacker interaction.</p></article>
-    <article class="cat-tool"><h4>Cuckoo Sandbox</h4><p>Open-source automated malware analysis running suspect files in VMs and capturing behavior. Original project unmaintained since ~2017; community forks (CAPEv2, Cuckoo3) carry the approach forward.</p></article>
-    <article class="cat-tool"><h4>CyberTrap</h4><p>Deception platform with realistic traps and decoys to misdirect attackers and surface intrusion attempts.</p></article>
-    <article class="cat-tool"><h4>Mandiant Security Validation (formerly Verodin)</h4><p>Breach-and-attack simulation validating security controls against real-world TTPs. Verodin acquired by FireEye, 2019; renamed 2020; Mandiant acquired by Google Cloud, 2022.</p></article>
-    <article class="cat-tool"><h4>SafeBreach</h4><p>Breach-and-attack simulation continuously testing defenses across the kill chain.</p></article>
-    <article class="cat-tool"><h4>Zscaler Deception (formerly Smokescreen)</h4><p>Deception with decoys and lures mimicking real IT; alerts on engagement and provides attacker-TTP insight. Smokescreen acquired by Zscaler, 2021.</p></article>
-    <article class="cat-tool"><h4>ThreatConnect</h4><p>Threat-intel platform with playbooks for attack simulation, response automation, and intel-driven workflows.</p></article>
-    <article class="cat-tool"><h4>ThreatGRID (Cisco)</h4><p>Cloud sandbox combining behavior analysis with threat intelligence for advanced-malware investigation.</p></article>
-    <article class="cat-tool"><h4>Commvault ThreatWise (formerly TrapX)</h4><p>Deception and threat detection with decoys across endpoints, networks, and cloud. TrapX Security acquired by Commvault, 2022; rebranded as ThreatWise.</p></article>
-    <article class="cat-tool"><h4>Zscaler ThreatLabZ</h4><p>Threat research and malware sandboxing powering Zscaler's cloud security services.</p></article>
+    <article id="any-run" class="cat-tool"><h4>Any.Run</h4><p>Interactive malware sandbox with behavioral and network analysis for collaborative investigation.</p></article>
+    <article id="canary-thinkst" class="cat-tool"><h4>Canary (Thinkst)</h4><p>Deception platform deploying low-interaction honeypots that produce high-fidelity alerts on attacker interaction.</p></article>
+    <article id="cuckoo-sandbox" class="cat-tool"><h4>Cuckoo Sandbox</h4><p>Open-source automated malware analysis running suspect files in VMs and capturing behavior. Original project unmaintained since ~2017; community forks (CAPEv2, Cuckoo3) carry the approach forward.</p></article>
+    <article id="cybertrap" class="cat-tool"><h4>CyberTrap</h4><p>Deception platform with realistic traps and decoys to misdirect attackers and surface intrusion attempts.</p></article>
+    <article id="mandiant-security-validation-formerly-verodin" class="cat-tool"><h4>Mandiant Security Validation (formerly Verodin)</h4><p>Breach-and-attack simulation validating security controls against real-world TTPs. Verodin acquired by FireEye, 2019; renamed 2020; Mandiant acquired by Google Cloud, 2022.</p></article>
+    <article id="safebreach" class="cat-tool"><h4>SafeBreach</h4><p>Breach-and-attack simulation continuously testing defenses across the kill chain.</p></article>
+    <article id="zscaler-deception-formerly-smokescreen" class="cat-tool"><h4>Zscaler Deception (formerly Smokescreen)</h4><p>Deception with decoys and lures mimicking real IT; alerts on engagement and provides attacker-TTP insight. Smokescreen acquired by Zscaler, 2021.</p></article>
+    <article id="threatconnect" class="cat-tool"><h4>ThreatConnect</h4><p>Threat-intel platform with playbooks for attack simulation, response automation, and intel-driven workflows.</p></article>
+    <article id="threatgrid-cisco" class="cat-tool"><h4>ThreatGRID (Cisco)</h4><p>Cloud sandbox combining behavior analysis with threat intelligence for advanced-malware investigation.</p></article>
+    <article id="commvault-threatwise-formerly-trapx" class="cat-tool"><h4>Commvault ThreatWise (formerly TrapX)</h4><p>Deception and threat detection with decoys across endpoints, networks, and cloud. TrapX Security acquired by Commvault, 2022; rebranded as ThreatWise.</p></article>
+    <article id="zscaler-threatlabz" class="cat-tool"><h4>Zscaler ThreatLabZ</h4><p>Threat research and malware sandboxing powering Zscaler's cloud security services.</p></article>
   </div>
 </section>
 
@@ -331,20 +344,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Network &amp; application security testing</h2>
       <p>Scanners, fuzzers, and surface-discovery tools that find the holes before adversaries do.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/risk/impact-likelihood">Risk</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Acunetix</h4><p>Automated web vulnerability scanner for SQLi, XSS, misconfig, and modern-web/SPA technologies.</p></article>
-    <article class="cat-tool"><h4>Burp Suite</h4><p>Industry-leading web app security tooling: intercepting proxy, scanning, manual pentest tools, and extensions.</p></article>
-    <article class="cat-tool"><h4>Censys</h4><p>Internet-wide asset discovery via continuous scanning; SSL/TLS, services, and attack-surface monitoring.</p></article>
-    <article class="cat-tool"><h4>Nikto</h4><p>Open-source web-server scanner for dangerous files, outdated components, and known issues.</p></article>
-    <article class="cat-tool"><h4>Nmap</h4><p>Network discovery and security auditing with rich NSE scripting for service detection.</p></article>
-    <article class="cat-tool"><h4>OWASP ZAP</h4><p>Free, open-source web app security testing with automated and manual capabilities.</p></article>
-    <article class="cat-tool"><h4>Qualys</h4><p>Cloud-based vulnerability management, policy compliance, and web app scanning across enterprise estates.</p></article>
-    <article class="cat-tool"><h4>Shodan</h4><p>Search engine for internet-connected devices; identifies exposed services, outdated software, ICS, IoT.</p></article>
-    <article class="cat-tool"><h4>Tenable</h4><p>Vulnerability management platform; Nessus-based scanning with on-prem, cloud, and hybrid coverage.</p></article>
-    <article class="cat-tool"><h4>W3af</h4><p>Open-source web app scanner combining automated checks with a manual testing framework.</p></article>
-    <article class="cat-tool"><h4>Wapiti</h4><p>Open-source command-line web vulnerability scanner; crawls and injects payloads for common flaws.</p></article>
+    <article id="acunetix" class="cat-tool"><h4>Acunetix</h4><p>Automated web vulnerability scanner for SQLi, XSS, misconfig, and modern-web/SPA technologies.</p></article>
+    <article id="burp-suite" class="cat-tool"><h4>Burp Suite</h4><p>Industry-leading web app security tooling: intercepting proxy, scanning, manual pentest tools, and extensions.</p></article>
+    <article id="censys" class="cat-tool"><h4>Censys</h4><p>Internet-wide asset discovery via continuous scanning; SSL/TLS, services, and attack-surface monitoring.</p></article>
+    <article id="nikto" class="cat-tool"><h4>Nikto</h4><p>Open-source web-server scanner for dangerous files, outdated components, and known issues.</p></article>
+    <article id="nmap" class="cat-tool"><h4>Nmap</h4><p>Network discovery and security auditing with rich NSE scripting for service detection.</p></article>
+    <article id="owasp-zap" class="cat-tool"><h4>OWASP ZAP</h4><p>Free, open-source web app security testing with automated and manual capabilities.</p></article>
+    <article id="qualys" class="cat-tool"><h4>Qualys</h4><p>Cloud-based vulnerability management, policy compliance, and web app scanning across enterprise estates.</p></article>
+    <article id="shodan" class="cat-tool"><h4>Shodan</h4><p>Search engine for internet-connected devices; identifies exposed services, outdated software, ICS, IoT.</p></article>
+    <article id="tenable" class="cat-tool"><h4>Tenable</h4><p>Vulnerability management platform; Nessus-based scanning with on-prem, cloud, and hybrid coverage.</p></article>
+    <article id="w3af" class="cat-tool"><h4>W3af</h4><p>Open-source web app scanner combining automated checks with a manual testing framework.</p></article>
+    <article id="wapiti" class="cat-tool"><h4>Wapiti</h4><p>Open-source command-line web vulnerability scanner; crawls and injects payloads for common flaws.</p></article>
   </div>
 </section>
 
@@ -355,18 +369,19 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Backup &amp; data protection</h2>
       <p>What you actually need <em>before</em> ransomware shows up, backups, immutability, and recovery posture.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/risk/impact-likelihood">Risk</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Acronis Cyber Backup</h4><p>Backup with integrated anti-malware; blockchain-based notarization and broad workload coverage.</p></article>
-    <article class="cat-tool"><h4>Arcserve UDP</h4><p>Unified data protection with replication, HA, and ransomware-resistant immutable storage.</p></article>
-    <article class="cat-tool"><h4>Carbonite</h4><p>Cloud-based backup and DR for SMBs; encrypted transmission, hybrid backup, ransomware features.</p></article>
-    <article class="cat-tool"><h4>Code42 Incydr (now Mimecast)</h4><p>Cloud-native endpoint data protection focused on insider risk and self-service restore. Code42 acquired by Mimecast, July 2024; Incydr folded into the Mimecast platform.</p></article>
-    <article class="cat-tool"><h4>Commvault</h4><p>Unified data management; backup, archive, governance, and SaaS-app protection with AI analytics.</p></article>
-    <article class="cat-tool"><h4>Druva</h4><p>Cloud-native, agentless data protection for endpoints, data center, and cloud workloads.</p></article>
-    <article class="cat-tool"><h4>Rubrik</h4><p>Cloud-native data management; instant recovery, immutable backups, and ransomware detection.</p></article>
-    <article class="cat-tool"><h4>Veeam</h4><p>Backup and recovery across virtual, physical, and cloud workloads with cloud-mobility options.</p></article>
-    <article class="cat-tool"><h4>Veritas NetBackup</h4><p>Enterprise-grade backup with broad workload coverage and centralized hybrid-cloud management.</p></article>
+    <article id="acronis-cyber-backup" class="cat-tool"><h4>Acronis Cyber Backup</h4><p>Backup with integrated anti-malware; blockchain-based notarization and broad workload coverage.</p></article>
+    <article id="arcserve-udp" class="cat-tool"><h4>Arcserve UDP</h4><p>Unified data protection with replication, HA, and ransomware-resistant immutable storage.</p></article>
+    <article id="carbonite" class="cat-tool"><h4>Carbonite</h4><p>Cloud-based backup and DR for SMBs; encrypted transmission, hybrid backup, ransomware features.</p></article>
+    <article id="code42-incydr-now-mimecast" class="cat-tool"><h4>Code42 Incydr (now Mimecast)</h4><p>Cloud-native endpoint data protection focused on insider risk and self-service restore. Code42 acquired by Mimecast, July 2024; Incydr folded into the Mimecast platform.</p></article>
+    <article id="commvault" class="cat-tool"><h4>Commvault</h4><p>Unified data management; backup, archive, governance, and SaaS-app protection with AI analytics.</p></article>
+    <article id="druva" class="cat-tool"><h4>Druva</h4><p>Cloud-native, agentless data protection for endpoints, data center, and cloud workloads.</p></article>
+    <article id="rubrik" class="cat-tool"><h4>Rubrik</h4><p>Cloud-native data management; instant recovery, immutable backups, and ransomware detection.</p></article>
+    <article id="veeam" class="cat-tool"><h4>Veeam</h4><p>Backup and recovery across virtual, physical, and cloud workloads with cloud-mobility options.</p></article>
+    <article id="veritas-netbackup" class="cat-tool"><h4>Veritas NetBackup</h4><p>Enterprise-grade backup with broad workload coverage and centralized hybrid-cloud management.</p></article>
   </div>
 </section>
 
@@ -377,16 +392,17 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Software development &amp; scripting</h2>
       <p>The languages, frameworks, and editors that the rest of security operations runs on top of.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/uncover/tooling">Uncover</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Ansible</h4><p>Open-source automation for config management, deployment, and orchestration via YAML playbooks.</p></article>
-    <article class="cat-tool"><h4>Electron</h4><p>Cross-platform desktop app framework using web technologies; powers Cursor, VS Code, Slack, and more.</p></article>
-    <article class="cat-tool"><h4>Jenkins</h4><p>Open-source CI/CD automation server; builds, tests, and deploys with a vast plugin ecosystem.</p></article>
-    <article class="cat-tool"><h4>Node.js</h4><p>Event-driven JavaScript runtime on V8; backend services, APIs, automation scripts, and tooling.</p></article>
-    <article class="cat-tool"><h4>PowerShell</h4><p>Task automation and configuration shell built on .NET; cross-platform via PowerShell Core.</p></article>
-    <article class="cat-tool"><h4>Python</h4><p>High-level language ubiquitous in security tooling, automation, data analysis, and ML.</p></article>
-    <article class="cat-tool"><h4>Visual Studio Code</h4><p>Lightweight, extensible code editor from Microsoft; rich ecosystem of extensions for development and security.</p></article>
+    <article id="ansible" class="cat-tool"><h4>Ansible</h4><p>Open-source automation for config management, deployment, and orchestration via YAML playbooks.</p></article>
+    <article id="electron" class="cat-tool"><h4>Electron</h4><p>Cross-platform desktop app framework using web technologies; powers Cursor, VS Code, Slack, and more.</p></article>
+    <article id="jenkins" class="cat-tool"><h4>Jenkins</h4><p>Open-source CI/CD automation server; builds, tests, and deploys with a vast plugin ecosystem.</p></article>
+    <article id="node-js" class="cat-tool"><h4>Node.js</h4><p>Event-driven JavaScript runtime on V8; backend services, APIs, automation scripts, and tooling.</p></article>
+    <article id="powershell" class="cat-tool"><h4>PowerShell</h4><p>Task automation and configuration shell built on .NET; cross-platform via PowerShell Core.</p></article>
+    <article id="python" class="cat-tool"><h4>Python</h4><p>High-level language ubiquitous in security tooling, automation, data analysis, and ML.</p></article>
+    <article id="visual-studio-code" class="cat-tool"><h4>Visual Studio Code</h4><p>Lightweight, extensible code editor from Microsoft; rich ecosystem of extensions for development and security.</p></article>
   </div>
 </section>
 
@@ -397,19 +413,20 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <div>
       <h2>Security configuration &amp; patch management</h2>
       <p>Tools that keep the fleet patched, the baselines enforced, and the auditors quiet.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/risk/impact-likelihood">Risk</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Ansible Tower</h4><p>Web-based interface for Ansible automation; RBAC, scheduling, visual dashboards, workflow orchestration.</p></article>
-    <article class="cat-tool"><h4>BigFix (IBM)</h4><p>Endpoint management platform automating patching, compliance, and security configuration at scale.</p></article>
-    <article class="cat-tool"><h4>Chef</h4><p>Infrastructure-as-code platform enforcing security configurations via recipes and cookbooks.</p></article>
-    <article class="cat-tool"><h4>Microsoft Configuration Manager (MECM)</h4><p>Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.</p></article>
-    <article class="cat-tool"><h4>Microsoft WSUS</h4><p>Free Microsoft tool for centrally approving and distributing Windows updates within an organization.</p></article>
-    <article class="cat-tool"><h4>Ninite Pro</h4><p>Automates installation and updates of popular third-party software across many endpoints.</p></article>
-    <article class="cat-tool"><h4>Puppet Enterprise</h4><p>Config management automating patching and continuous compliance through code-defined policies.</p></article>
-    <article class="cat-tool"><h4>Qualys Patch Management</h4><p>Cloud-based patching tied to vulnerability management; prioritizes patches by risk exposure.</p></article>
-    <article class="cat-tool"><h4>SolarWinds Patch Manager</h4><p>Centralized patching for Windows and third-party apps; integrates with WSUS and Microsoft Configuration Manager (MECM/SCCM).</p></article>
-    <article class="cat-tool"><h4>Symantec Endpoint Management</h4><p>Patch management, software distribution, and configuration enforcement across enterprise endpoints.</p></article>
+    <article id="ansible-tower" class="cat-tool"><h4>Ansible Tower</h4><p>Web-based interface for Ansible automation; RBAC, scheduling, visual dashboards, workflow orchestration.</p></article>
+    <article id="bigfix-ibm" class="cat-tool"><h4>BigFix (IBM)</h4><p>Endpoint management platform automating patching, compliance, and security configuration at scale.</p></article>
+    <article id="chef" class="cat-tool"><h4>Chef</h4><p>Infrastructure-as-code platform enforcing security configurations via recipes and cookbooks.</p></article>
+    <article id="microsoft-configuration-manager-mecm" class="cat-tool"><h4>Microsoft Configuration Manager (MECM)</h4><p>Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.</p></article>
+    <article id="microsoft-wsus" class="cat-tool"><h4>Microsoft WSUS</h4><p>Free Microsoft tool for centrally approving and distributing Windows updates within an organization.</p></article>
+    <article id="ninite-pro" class="cat-tool"><h4>Ninite Pro</h4><p>Automates installation and updates of popular third-party software across many endpoints.</p></article>
+    <article id="puppet-enterprise" class="cat-tool"><h4>Puppet Enterprise</h4><p>Config management automating patching and continuous compliance through code-defined policies.</p></article>
+    <article id="qualys-patch-management" class="cat-tool"><h4>Qualys Patch Management</h4><p>Cloud-based patching tied to vulnerability management; prioritizes patches by risk exposure.</p></article>
+    <article id="solarwinds-patch-manager" class="cat-tool"><h4>SolarWinds Patch Manager</h4><p>Centralized patching for Windows and third-party apps; integrates with WSUS and Microsoft Configuration Manager (MECM/SCCM).</p></article>
+    <article id="symantec-endpoint-management" class="cat-tool"><h4>Symantec Endpoint Management</h4><p>Patch management, software distribution, and configuration enforcement across enterprise endpoints.</p></article>
   </div>
 </section>
 
@@ -419,21 +436,22 @@ import QuizItem from "@/components/assured/QuizItem.astro";
     <span class="cat-section__ico">🛂</span>
     <div>
       <h2>Physical security</h2>
-      <p>Cameras, badge readers, intrusion detection, and the tools that bridge physical and cyber.</p>
+      <p>Cameras, badge readers, intrusion detection, and the tools that bridge physical and cyber. In triage this data surfaces almost exclusively in insider cases: badge and camera records corroborate, or contradict, where an account's owner physically was when the account acted.</p>
+      <p class="cat-section__phases">Vocabulary for: <a href="/docs/subject/insider-analysis">Subject</a></p>
     </div>
   </header>
   <div class="cat-tools">
-    <article class="cat-tool"><h4>Avigilon</h4><p>HD surveillance, video analytics, and access control with AI-powered anomaly detection.</p></article>
-    <article class="cat-tool"><h4>Axis Communications</h4><p>Pioneer of network video surveillance; broad IP-camera portfolio with edge analytics.</p></article>
-    <article class="cat-tool"><h4>Bosch Security Systems</h4><p>Surveillance, intrusion detection, access, and fire across enterprise and critical-infrastructure deployments.</p></article>
-    <article class="cat-tool"><h4>Cisco Physical Security</h4><p>Converged networking-plus-security platform unifying surveillance, access, and IoT device management.</p></article>
-    <article class="cat-tool"><h4>Genetec</h4><p>Unified Security Center for video surveillance, access control, and license plate recognition.</p></article>
-    <article class="cat-tool"><h4>Honeywell</h4><p>Integrated physical security: surveillance, access, intrusion detection, alarms across critical infrastructure.</p></article>
-    <article class="cat-tool"><h4>Johnson Controls</h4><p>Physical security with OpenBlue platform; security plus building automation, with cybersecurity built in.</p></article>
-    <article class="cat-tool"><h4>Lenel S2</h4><p>OnGuard access control, video, and alarm management for enterprise environments.</p></article>
-    <article class="cat-tool"><h4>Milestone Systems</h4><p>Open-platform IP video management with broad camera support and rich analytics.</p></article>
-    <article class="cat-tool"><h4>Pelco</h4><p>Surveillance cameras, recorders, and VideoXpert management; rugged builds for outdoor and industrial use.</p></article>
-    <article class="cat-tool"><h4>Vicon Industries</h4><p>End-to-end surveillance with the Valerus VMS platform; open architecture and flexible deployment.</p></article>
+    <article id="avigilon" class="cat-tool"><h4>Avigilon</h4><p>HD surveillance, video analytics, and access control with AI-powered anomaly detection.</p></article>
+    <article id="axis-communications" class="cat-tool"><h4>Axis Communications</h4><p>Pioneer of network video surveillance; broad IP-camera portfolio with edge analytics.</p></article>
+    <article id="bosch-security-systems" class="cat-tool"><h4>Bosch Security Systems</h4><p>Surveillance, intrusion detection, access, and fire across enterprise and critical-infrastructure deployments.</p></article>
+    <article id="cisco-physical-security" class="cat-tool"><h4>Cisco Physical Security</h4><p>Converged networking-plus-security platform unifying surveillance, access, and IoT device management.</p></article>
+    <article id="genetec" class="cat-tool"><h4>Genetec</h4><p>Unified Security Center for video surveillance, access control, and license plate recognition.</p></article>
+    <article id="honeywell" class="cat-tool"><h4>Honeywell</h4><p>Integrated physical security: surveillance, access, intrusion detection, alarms across critical infrastructure.</p></article>
+    <article id="johnson-controls" class="cat-tool"><h4>Johnson Controls</h4><p>Physical security with OpenBlue platform; security plus building automation, with cybersecurity built in.</p></article>
+    <article id="lenel-s2" class="cat-tool"><h4>Lenel S2</h4><p>OnGuard access control, video, and alarm management for enterprise environments.</p></article>
+    <article id="milestone-systems" class="cat-tool"><h4>Milestone Systems</h4><p>Open-platform IP video management with broad camera support and rich analytics.</p></article>
+    <article id="pelco" class="cat-tool"><h4>Pelco</h4><p>Surveillance cameras, recorders, and VideoXpert management; rugged builds for outdoor and industrial use.</p></article>
+    <article id="vicon-industries" class="cat-tool"><h4>Vicon Industries</h4><p>End-to-end surveillance with the Valerus VMS platform; open architecture and flexible deployment.</p></article>
   </div>
 </section>
 
@@ -507,6 +525,47 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   window.__catGlossaryCleanup = () => {
     while (_cleanups.length) { try { _cleanups.pop()(); } catch (e) {} }
   };
+
+  // ============================================================
+  // In-page tool filter (mirrors the CLEAR glossary's search).
+  // Registered before the cat-stage guard so filtering works even
+  // if the hero scenery is ever absent.
+  // ============================================================
+  const catRoot = document.querySelector('.cat-page');
+  if (catRoot) {
+    const toolSearch = catRoot.querySelector('[data-cat-search]');
+    const toolResults = catRoot.querySelector('[data-cat-results]');
+    const toolEmpty = catRoot.querySelector('[data-cat-empty]');
+    const toolCards = Array.from(catRoot.querySelectorAll('.cat-tool'));
+    const toolSections = Array.from(catRoot.querySelectorAll('.cat-section'));
+    const filterTools = (q) => {
+      const query = q.trim().toLowerCase();
+      let total = 0;
+      toolCards.forEach((card) => {
+        const match = query === '' || card.textContent.toLowerCase().includes(query);
+        card.style.display = match ? '' : 'none';
+        if (match) total++;
+      });
+      toolSections.forEach((sec) => {
+        const cards = sec.querySelectorAll('.cat-tool');
+        if (cards.length === 0) return;
+        const anyVisible = Array.prototype.some.call(cards, (c) => c.style.display !== 'none');
+        sec.style.display = query !== '' && !anyVisible ? 'none' : '';
+      });
+      if (toolEmpty) toolEmpty.hidden = total > 0 || query === '';
+      if (toolResults) {
+        toolResults.textContent = query === ''
+          ? ''
+          : total + (total === 1 ? ' tool matches' : ' tools match');
+      }
+    };
+    if (toolSearch) {
+      _reg(toolSearch, 'input', () => filterTools(toolSearch.value));
+      _reg(toolSearch, 'keydown', (e) => {
+        if (e.key === 'Escape') { toolSearch.value = ''; filterTools(''); toolSearch.blur(); }
+      });
+    }
+  }
 
   const stage = document.querySelector('.cat-stage');
   if (!stage) return;
@@ -859,6 +918,48 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 .cat-anim-toggle:hover { border-color: #60a5fa; }
 .cat-anim-toggle:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
 .cat-anim-toggle__icon { font-size: 1.1rem; }
+
+/* Section-header phase links: which ASSURED phase consumes this vocabulary */
+.cat-section__phases { margin: 0.4rem 0 0; font-size: 0.78rem; color: #94a3b8; }
+.cat-section__phases a { color: #93c5fd; text-decoration: none; border-bottom: 1px solid rgba(96, 165, 250, 0.35); }
+.cat-section__phases a:hover { color: #dbeafe; border-bottom-color: #60a5fa; }
+
+/* ----- In-page tool filter + per-tool deep links ----- */
+.cat-search {
+  min-width: 13rem;
+  padding: 0.6rem 1rem;
+  background: rgba(10, 26, 53, 0.7);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 9999px;
+  color: #dbeafe;
+  font-family: inherit; font-size: 0.9rem;
+}
+.cat-search:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18); }
+.cat-search::placeholder { color: #64748b; }
+
+/* Visually hidden but present in the accessibility tree. */
+.cat-search-count {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.cat-empty {
+  margin: 1.5rem auto; padding: 1.5rem;
+  max-width: 42rem;
+  background: rgba(10, 26, 53, 0.55); border: 1px dashed rgba(96, 165, 250, 0.4);
+  border-radius: 0.75rem; text-align: center; color: #93c5fd;
+}
+
+/* Deep links: land clear of the sticky header, flag the linked card. */
+.cat-tool { scroll-margin-top: 90px; }
+.cat-tool:target {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .cat-cat, .cat-tail, .cat-leg, .cat-bubble,

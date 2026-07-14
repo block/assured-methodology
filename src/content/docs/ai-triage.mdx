@@ -90,27 +90,27 @@ The phase map's "verify first" column repeats a small set of failure modes. Lear
 
 <div class="ai-fail-grid">
   <div class="ai-fail">
-    <h4>Fabricated specifics</h4>
+    <h3>Fabricated specifics</h3>
     <p>Hashes, IPs, CVE numbers, and technique IDs that are formatted correctly and do not exist. The tell is a specific claim with no tool output behind it. Rule: every identifier in the record traces to raw telemetry or it does not go in the record.</p>
   </div>
   <div class="ai-fail">
-    <h4>Plausible-but-wrong mappings</h4>
+    <h3>Plausible-but-wrong mappings</h3>
     <p>The technique, actor, or malware family that is <em>near</em> the right answer. These survive review because they are checkable only against the actual behavior, so check them against the actual behavior.</p>
   </div>
   <div class="ai-fail">
-    <h4>Unfounded absence claims</h4>
+    <h3>Unfounded absence claims</h3>
     <p>"No lateral movement was observed" reads as a finding but may mean the assistant never queried the right source. Absence claims require naming the sources searched and the window covered.</p>
   </div>
   <div class="ai-fail">
-    <h4>Stale knowledge as current</h4>
+    <h3>Stale knowledge as current</h3>
     <p>Model training data lags reality by months. Infrastructure attribution, tool capabilities, and actor TTPs change faster than model weights. Anything time-sensitive comes from a live source.</p>
   </div>
   <div class="ai-fail">
-    <h4>Hypothesis mirroring</h4>
+    <h3>Hypothesis mirroring</h3>
     <p>Assistants agree with the framing they are given. Ask "is this Empire?" and the evidence summary leans Empire. State the competing hypotheses and ask what evidence separates them instead; it is the same discipline the <a href="/docs/subject/behavioral-framework/">behavioral framework</a> demands of the analyst's own reasoning.</p>
   </div>
   <div class="ai-fail">
-    <h4>Severity drift in summaries</h4>
+    <h3>Severity drift in summaries</h3>
     <p>Each rewrite nudges hedged language toward certainty. Quote verbatim wherever a claim carries a confidence level; the event record's exact words are the packet's exact words.</p>
   </div>
 </div>
@@ -134,27 +134,27 @@ The same capability shift changes what arrives in the queue. These patterns are 
 
 <div class="ai-abuse-grid">
   <div class="ai-abuse">
-    <h4>Polished phishing at scale</h4>
+    <h3>Polished phishing at scale</h3>
     <p>LLM-written lures killed the grammar heuristic: fluent, personalized, correctly branded mail is now the baseline for bulk campaigns, not the mark of a targeted one. Validation weight shifts to the technical discriminators (sender infrastructure, authentication results, link targets) that <a href="/docs/alert/validation/">Alert validation</a> already prioritizes.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Deepfake voice and video</h4>
+    <h3>Deepfake voice and video</h3>
     <p>Synthetic voice defeats "I recognized the caller" for helpdesk resets and payment authorization. In the widely reported 2024 Hong Kong case, a finance employee approved roughly US$25 million after a video call where every other participant was synthetic. Callback-on-a-known-number and out-of-band verification are process controls, and <DefineTerm term="Vishing (Voice Phishing)" display="vishing" />-driven resets surface in Subject as password resets outside normal patterns.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Prompt injection against internal AI</h4>
+    <h3>Prompt injection against internal AI</h3>
     <p>Any internal assistant that reads mail, documents, or tickets can be steered by content planted where it will read: instructions hidden in an email it summarizes, a document it indexes, a ticket it triages. The delivery mechanism is content, so the alert often looks like the assistant's own identity misbehaving.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Exfiltration through AI channels</h4>
+    <h3>Exfiltration through AI channels</h3>
     <p>Agents hold delegated access to mail, drives, and repos, and their normal behavior is bulk reading. <DefineTerm term="Data Exfiltration" display="Exfiltration" /> through an AI agent's legitimate token looks like the agent doing its job, which makes scope-of-access baselines (what this agent has never touched before) the discriminating signal.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Shadow AI</h4>
+    <h3>Shadow AI</h3>
     <p>Sensitive data pasted into unsanctioned AI tools is a data-handling exposure that behaves like a DLP class of its own: the "attacker" is a well-meaning employee and the destination is a legitimate service. In Scope, it can start a regulatory clock without any intrusion at all.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Machine-speed operations</h4>
+    <h3>Machine-speed operations</h3>
     <p>Agentic tooling compresses attacker timelines on both sides of the keyboard. Time-based intuition ("a human couldn't have done all this in four minutes") stops distinguishing attacker automation from legitimate automation, and starts being a reason to identify <em>which</em> automation. The <a href="/docs/alert/example/">Cursor worked example</a> is an early version of this: an AI-assisted IDE whose normal behavior pattern-matched post-exploitation tooling.</p>
   </div>
 </div>
@@ -204,7 +204,9 @@ AI changes who produces the first draft, not who owns the decision. The assistan
 .ai-fail, .ai-abuse { padding: 1.1rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.6rem; }
 .ai-fail { border-left: 3px solid #f59e0b; }
 .ai-abuse { border-left: 3px solid #ef4444; }
-.ai-fail h4, .ai-abuse h4 { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
+.ai-fail :is(h3, h4), .ai-abuse :is(h3, h4) { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.ai-fail h3, .ai-abuse h3 { font-weight: 600; line-height: inherit; }
 .ai-fail p, .ai-abuse p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 .ai-fail a, .ai-abuse a { color: var(--assured-accent-soft); }
 

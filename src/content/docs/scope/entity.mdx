@@ -61,7 +61,7 @@ Primary entities require immediate, rigorous scrutiny. They are the foundation f
   <div class="primary-card">
     <div class="primary-card__head">
       <span class="primary-card__tag">USER ACCOUNT</span>
-      <h4>👤 User accounts</h4>
+      <h3>👤 User accounts</h3>
     </div>
     <p>Often the initial access vector via credential theft or phishing. Once inside, attackers use the account to escalate and move laterally.</p>
     <ul class="primary-card__bullets">
@@ -74,7 +74,7 @@ Primary entities require immediate, rigorous scrutiny. They are the foundation f
   <div class="primary-card">
     <div class="primary-card__head">
       <span class="primary-card__tag">COMPROMISED ENDPOINT</span>
-      <h4>💻 Endpoints</h4>
+      <h3>💻 Endpoints</h3>
     </div>
     <p>Execution platforms for malware, persistence mechanisms, and attacker tooling. Often hold key forensic artifacts that reveal intrusion methods.</p>
     <ul class="primary-card__bullets">
@@ -87,7 +87,7 @@ Primary entities require immediate, rigorous scrutiny. They are the foundation f
   <div class="primary-card">
     <div class="primary-card__head">
       <span class="primary-card__tag">CLOUD RESOURCES</span>
-      <h4>☁️ Cloud resources</h4>
+      <h3>☁️ Cloud resources</h3>
     </div>
     <p>Common target for privilege escalation, data access, and persistence via misconfigurations or stolen credentials. Abnormal API usage is often the first sign.</p>
     <ul class="primary-card__bullets">
@@ -100,7 +100,7 @@ Primary entities require immediate, rigorous scrutiny. They are the foundation f
   <div class="primary-card">
     <div class="primary-card__head">
       <span class="primary-card__tag">APPLICATIONS</span>
-      <h4>⚙️ Applications</h4>
+      <h3>⚙️ Applications</h3>
     </div>
     <p>Compromised via vulnerabilities, misconfigured APIs, or weak authentication. Often act as pivot points to backend systems and data.</p>
     <ul class="primary-card__bullets">
@@ -121,17 +121,17 @@ Not every primary entity carries the same weight. Three tiers of "high-value" en
 <div class="tier-grid">
   <div class="tier-card tier-card--zero">
     <span class="tier-card__tag">TIER 0</span>
-    <h4>Crown-jewel infrastructure</h4>
+    <h3>Crown-jewel infrastructure</h3>
     <p>Domain controllers, cloud control planes (AWS Organizations management account), security vaults (HashiCorp Vault instances, Azure Key Vault). Compromise at this tier has organization-wide blast radius.</p>
   </div>
   <div class="tier-card tier-card--critical">
     <span class="tier-card__tag">BUSINESS CRITICAL</span>
-    <h4>Revenue and operations systems</h4>
+    <h3>Revenue and operations systems</h3>
     <p>Finance applications (SAP, payment gateways), HR platforms (Workday, ADP), healthcare systems (Epic EHR, PACS servers). Direct impact on business operations and regulated data.</p>
   </div>
   <div class="tier-card tier-card--priv">
     <span class="tier-card__tag">PRIVILEGED</span>
-    <h4>Administrative identities</h4>
+    <h3>Administrative identities</h3>
     <p>Enterprise Admins group members, cloud IAM roles with iam:* permissions, database <code>sa</code> accounts. Capability to bypass controls and rewrite the security posture itself.</p>
   </div>
 </div>
@@ -179,15 +179,15 @@ Secondary entities are not in the alert. They get into scope through analysis of
 
 <div class="techniques-grid">
   <div class="technique-card">
-    <h4>🗺️ Relationship mapping</h4>
+    <h3>🗺️ Relationship mapping</h3>
     <p>Document technical trust relationships: Active Directory two-way trusts, privileged service accounts with elevated access, AWS cross-account roles, Kubernetes service-account tokens. These reveal potential compromise paths the alert did not directly name.</p>
   </div>
   <div class="technique-card">
-    <h4>🔑 Access modeling</h4>
+    <h3>🔑 Access modeling</h3>
     <p>Identify all identities with access during the relevant timeframe: contractors with SSO access, DevOps engineers with privileged cloud roles, recently-terminated employees with lingering credentials. The access model is the immediate-blast-radius estimate.</p>
   </div>
   <div class="technique-card">
-    <h4>🔗 Dependency tracing</h4>
+    <h3>🔗 Dependency tracing</h3>
     <p>Analyze data flows and credential pathways: automated synchronization jobs, cached authentication tickets, cross-account access mechanisms, hardcoded API credentials. Dependencies turn a single compromised identity into a network of potentially-affected systems.</p>
   </div>
 </div>
@@ -212,19 +212,19 @@ Entity scope informs <DefineTerm term="Containment" display="containment" /> dec
 
 <div class="containment-cards">
   <div class="containment-card">
-    <h4>🔌 Host isolation</h4>
+    <h3>🔌 Host isolation</h3>
     <p>Pulling a host from the network stops the compromise but interrupts any production work the host was doing. Validate dependencies before isolating: scheduled jobs, shared services, real-time workloads.</p>
   </div>
   <div class="containment-card">
-    <h4>🔒 Account disable</h4>
+    <h3>🔒 Account disable</h3>
     <p>Disabling a service account can break automation pipelines, sync jobs, or production deployments. Check what depends on the account before disabling; have a rollback plan.</p>
   </div>
   <div class="containment-card">
-    <h4>🚪 Credential rotation</h4>
+    <h3>🚪 Credential rotation</h3>
     <p>Rotating an API key invalidates every consumer of that key. For shared keys, the rotation needs a coordinated cutover across all consumers, or pre-staged replacement credentials.</p>
   </div>
   <div class="containment-card">
-    <h4>📛 DNS/firewall block</h4>
+    <h3>📛 DNS/firewall block</h3>
     <p>Blocking a domain or IP range can stop C2 but may also block legitimate traffic if the indicator is reused infrastructure (cloud-CDN edge IPs, shared SaaS hosts). Validate uniqueness before blocking.</p>
   </div>
 </div>
@@ -311,7 +311,7 @@ Entity scope is the difference between "investigate the <DefineTerm term="User" 
   text-transform: uppercase;
   align-self: flex-start;
 }
-.primary-card__head h4 {
+.primary-card__head :is(h3, h4) {
   margin: 0;
   color: var(--assured-text);
   font-size: 1.1rem;
@@ -364,7 +364,7 @@ Entity scope is the difference between "investigate the <DefineTerm term="User" 
   text-transform: uppercase;
   margin-bottom: 0.55rem;
 }
-.tier-card h4 {
+.tier-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 1rem;
@@ -445,7 +445,7 @@ Entity scope is the difference between "investigate the <DefineTerm term="User" 
   border-left: 3px solid #a855f7;
   border-radius: 0.6rem;
 }
-.technique-card h4 {
+.technique-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #d8b4fe;
   font-size: 0.98rem;
@@ -473,7 +473,7 @@ Entity scope is the difference between "investigate the <DefineTerm term="User" 
   border-left: 3px solid #f59e0b;
   border-radius: 0.6rem;
 }
-.containment-card h4 {
+.containment-card :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #fbbf24;
   font-size: 0.96rem;
@@ -483,6 +483,15 @@ Entity scope is the difference between "investigate the <DefineTerm term="User" 
   color: var(--assured-text-muted);
   line-height: 1.55;
   font-size: 0.88rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.primary-card__head h3,
+.tier-card h3,
+.technique-card h3,
+.containment-card h3 {
+  font-weight: 600;
+  line-height: inherit;
 }
 `}
 </style>

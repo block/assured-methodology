@@ -116,22 +116,22 @@ Formats are only half the story. The behavioral surfaces in this chapter (proces
 <div class="telem-grid">
   <div class="telem-card">
     <span class="telem-card__os">Windows</span>
-    <h4><DefineTerm term="Sysmon" /></h4>
+    <h3><DefineTerm term="Sysmon" /></h3>
     <p>Free Sysinternals driver that logs rich process creations (Event ID 1, with full command line, hashes, and parent), network connections, DLL and driver loads, and more into its own EVTX channel. The de facto standard source for the process and command-line telemetry this chapter teaches, and the usual compensating control when Security 4688 is missing its command line.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">Linux</span>
-    <h4>auditd and eBPF sensors</h4>
+    <h3>auditd and eBPF sensors</h3>
     <p>The kernel audit framework (<code>auditd</code>) records syscall-level events; an <code>execve</code> rule gives you process executions with arguments. Modern EDR and open tooling increasingly use eBPF sensors for the same visibility with less overhead. Either way, output typically flows out as syslog or JSON.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">macOS</span>
-    <h4>Endpoint Security framework and unified log</h4>
+    <h3>Endpoint Security framework and unified log</h3>
     <p>Since macOS 10.15, EDR agents get process, file, and signing telemetry from Apple's <DefineTerm term="Endpoint Security framework">Apple's kernel-supported API (introduced in macOS 10.15) that delivers real-time process execution, file, and code-signing events to security agents. It replaced kernel extensions as the sanctioned way for EDR products to observe macOS activity.</DefineTerm>, which is where a macOS process tree like Case B's comes from. The unified log holds the OS's own high-volume record, queryable with <code>log show</code>.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">Cross-platform</span>
-    <h4>osquery</h4>
+    <h3>osquery</h3>
     <p>Exposes the live state of Windows, macOS, and Linux hosts as SQL tables (processes, users, launch items, listening ports). Strong for point-in-time interrogation and fleet-wide hunting; it complements, rather than replaces, the streaming sources above.</p>
   </div>
 </div>
@@ -378,7 +378,7 @@ Format diversity is the cost of having visibility everywhere. <DefineTerm term="
   margin-bottom: 0.55rem;
 }
 
-.telem-card h4 {
+.telem-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 0.98rem;
@@ -549,5 +549,9 @@ Format diversity is the cost of having visibility everywhere. <DefineTerm term="
   font-size: 0.95rem;
 }
 
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.telem-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

@@ -99,19 +99,19 @@ The seven chapters teach the full arc because that is the skill that has to exis
 
 <div class="ladder-rules">
   <div class="ladder-rule">
-    <h4>⬆️ The ladder is a ratchet</h4>
+    <h3>⬆️ The ladder is a ratchet</h3>
     <p>Any surprise moves the case <strong>up</strong> a level, and it never slides back down mid-case. A failed discriminator at Level 0 makes the alert a Level 1 case. A Level 1 context sweep that finds a second subject, a privileged account, or regulated data makes it Level 2. Down-scoping happens only between cases, never within one.</p>
   </div>
   <div class="ladder-rule">
-    <h4>🚨 Break-glass overrides everything</h4>
+    <h3>🚨 Break-glass overrides everything</h3>
     <p>The ladder governs how much process an alert gets, not when to escalate. A <a href="/docs/escalation/criteria/">canonical escalation criterion</a> confirmed at any level escalates immediately under the break-glass rule, even from inside a five-minute Level 0 check. Depth and urgency are separate decisions.</p>
   </div>
   <div class="ladder-rule">
-    <h4>📚 Level 0 runs on a pattern library, not on memory</h4>
+    <h3>📚 Level 0 runs on a pattern library, not on memory</h3>
     <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive/">tuning feedback</a>.</p>
   </div>
   <div class="ladder-rule">
-    <h4>🤖 Automation moves the starting line, not the bar</h4>
+    <h3>🤖 Automation moves the starting line, not the bar</h3>
     <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment (identity lookups, asset criticality, sandbox verdicts), it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. What automation does not change is the evidentiary bar: the analyst still confirms the discriminators. Enrichment is input to the ladder, never a verdict.</p>
   </div>
 </div>
@@ -168,7 +168,8 @@ Depth is a per-alert decision, made once at intake and revised only upward. Leve
 .ladder-rules { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0 2rem; }
 @media (min-width: 900px) { .ladder-rules { grid-template-columns: 1fr 1fr; } }
 .ladder-rule { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
-.ladder-rule h4 { margin: 0 0 0.45rem; color: var(--assured-text); font-size: 0.97rem; }
+/* level changed for the heading outline; size stays as designed */
+.ladder-rule :is(h3, h4) { margin: 0 0 0.45rem; color: var(--assured-text); font-size: 0.97rem; font-weight: 600; line-height: inherit; }
 .ladder-rule p { margin: 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.9rem; }
 .ladder-rule a { color: var(--assured-accent-soft); }
 

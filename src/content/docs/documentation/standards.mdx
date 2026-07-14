@@ -24,9 +24,9 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 Three standards do most of the work, and they fail in different ways. Format failures are visible immediately: a reviewer opens the record and cannot find the timeline. Clarity failures surface later, when the record is read by someone who was not in the room and the ambiguity has nobody left to resolve it. Timeliness failures are the quietest and the most damaging, because the record looks complete; it is simply wrong in the details nobody can check anymore. If the team can enforce only one of the three, enforce timeliness: format and language can be repaired at review, but detail that was never captured is gone.
 
 <div class="std-grid">
-  <a href="#format" class="std-card"><h4>🧱 Format and structure</h4><p>The same case sections appear in the same order across every record. Templates and field validation enforce it.</p></a>
-  <a href="#clarity" class="std-card"><h4>🔍 Clarity and precision</h4><p>Plain language, named entities, exact timestamps, separated facts vs. analysis, active voice for accountability.</p></a>
-  <a href="#timeliness" class="std-card"><h4>⏱️ Timeliness</h4><p>Documentation as a parallel workflow, not a post-facto task. Real-time capture preserves detail and reasoning.</p></a>
+  <a href="#format" class="std-card"><h3>🧱 Format and structure</h3><p>The same case sections appear in the same order across every record. Templates and field validation enforce it.</p></a>
+  <a href="#clarity" class="std-card"><h3>🔍 Clarity and precision</h3><p>Plain language, named entities, exact timestamps, separated facts vs. analysis, active voice for accountability.</p></a>
+  <a href="#timeliness" class="std-card"><h3>⏱️ Timeliness</h3><p>Documentation as a parallel workflow, not a post-facto task. Real-time capture preserves detail and reasoning.</p></a>
 </div>
 
 ---
@@ -40,47 +40,47 @@ A complete event report contains nine core sections, each with a distinct purpos
 <div class="section-list">
   <div class="section-card">
     <span class="section-card__num">01</span>
-    <h4>Event overview</h4>
+    <h3>Event overview</h3>
     <p>Who, what, when, where, how, at a glance: alert identifier, detection date/time, affected system or environment, plain-language description of observed behavior, current status (resolved / ongoing / escalated).</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">02</span>
-    <h4>Timeline of events</h4>
+    <h3>Timeline of events</h3>
     <p>Chronological breakdown of key actions and decisions: initial alert details, all investigative actions with UTC timestamps, response measures, phase transitions, significant delays or decision points, final resolution.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">03</span>
-    <h4>Origin and scope</h4>
+    <h3>Origin and scope</h3>
     <p>How the event originated and its impact radius, as established at triage: initial access vector as observed, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references. For escalated cases, the engineering-level root-cause analysis is IR's post-incident output; this section records what triage established, and links to IR's conclusion rather than restating it.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">04</span>
-    <h4>Actions taken</h4>
+    <h3>Actions taken</h3>
     <p>Investigative procedures, containment measures, remediation tasks: tools or methods used, responsible individual or team, outcome of each action, timeline of response activities.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">05</span>
-    <h4>Business impact</h4>
+    <h3>Business impact</h3>
     <p>Technical detail translated into organizational consequence: operational disruption, financial impact, regulatory implications, reputational effects, SLA violations, external communication necessities.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">06</span>
-    <h4>Indicators of compromise</h4>
+    <h3>Indicators of compromise</h3>
     <p>Structured listing: network indicators (IPs, domains, URLs), host-based indicators (files, registry keys), email indicators, each with confidence levels and recommended detection logic. The MITRE ATT&CK technique chain rides along in this section but is labeled as behavior (TTPs), not as indicators: an IOC is a forensic artifact, a technique is how the adversary operates.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">07</span>
-    <h4>Lessons learned</h4>
+    <h3>Lessons learned</h3>
     <p>Documentation as an improvement tool: detection gaps identified, process inefficiencies, response challenges, communication breakdowns, successful tactics, organizational weaknesses exposed, technology limitations.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">08</span>
-    <h4>Post-incident recommendations</h4>
+    <h3>Post-incident recommendations</h3>
     <p>Specific, actionable improvements: security control enhancements, detection rule improvements, procedure updates, training requirements, ownership assignments, implementation timelines, success metrics.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">09</span>
-    <h4>Appendices and evidence</h4>
+    <h3>Appendices and evidence</h3>
     <p>Supporting materials: log excerpts (sanitized as needed), system images or snapshots, analysis tool outputs, communication transcripts, related case references, external intelligence reports, chain of custody documentation.</p>
   </div>
 </div>
@@ -122,19 +122,19 @@ The four habits below share one purpose: they remove the reader's need to ask th
 
 <div class="clarity-grid">
   <div class="clarity-card">
-    <h4>📐 Use precise technical terms</h4>
+    <h3>📐 Use precise technical terms</h3>
     <p>Write "T1566.001 spearphishing attachment," not "phishing thing." Records tagged with the terms the SOC actually searches by (ATT&CK IDs, the standard lexicon) are findable later; a case described as "weird email" is not.</p>
   </div>
   <div class="clarity-card">
-    <h4>🧪 Separate facts from analysis</h4>
+    <h3>🧪 Separate facts from analysis</h3>
     <p>"PowerShell spawned from winword.exe at 09:11 UTC" is a fact. "This indicates macro-based initial access" is analysis. Label which is which, so a reviewer can revisit the analysis when new evidence lands without re-litigating the facts.</p>
   </div>
   <div class="clarity-card">
-    <h4>⏰ Include exact timestamps</h4>
+    <h3>⏰ Include exact timestamps</h3>
     <p>UTC, from the source system's own clock, not "around 9am." A cross-source timeline only assembles when EDR, proxy, identity, and mail events can be laid on one axis.</p>
   </div>
   <div class="clarity-card">
-    <h4>⚙️ Document technical details</h4>
+    <h3>⚙️ Document technical details</h3>
     <p>Command syntax, tool versions, configuration parameters, exact error messages. "We queried the EDR" cannot be reproduced or verified; the exact query and its result can.</p>
   </div>
 </div>
@@ -182,19 +182,19 @@ Timeliness is the standard that cannot be retrofitted, which is why it outranks 
 
 <div class="timely-grid">
   <div class="timely-card">
-    <h4>🎯 Captures precise sequence</h4>
+    <h3>🎯 Captures precise sequence</h3>
     <p>Real-time documentation preserves the exact sequence and timing of events while they are occurring. Eliminates reliance on memory or fragmented notes.</p>
   </div>
   <div class="timely-card">
-    <h4>🧠 Preserves reasoning</h4>
+    <h3>🧠 Preserves reasoning</h3>
     <p>Decisions are recorded with the reasoning available at the moment they were made. Months later, the record explains not just what happened but why.</p>
   </div>
   <div class="timely-card">
-    <h4>🤝 Enables seamless handoffs</h4>
+    <h3>🤝 Enables seamless handoffs</h3>
     <p>Shift changes and specialist engagement happen without context loss. The next analyst inherits the current state, not a half-explained narrative.</p>
   </div>
   <div class="timely-card">
-    <h4>🌐 Supports cross-zone coordination</h4>
+    <h3>🌐 Supports cross-zone coordination</h3>
     <p>Critical during incidents spanning time zones, legal holds, and escalations. Timely, verified facts inform organizational decisions and stakeholder communications.</p>
   </div>
 </div>
@@ -224,7 +224,7 @@ Compliance with timeliness standards should be regularly assessed and reinforced
 @media (min-width: 768px) { .std-grid { grid-template-columns: repeat(3, 1fr); } }
 .std-card { display: block; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .std-card:hover { transform: translateY(-3px); border-color: #06b6d4; box-shadow: 0 14px 28px -14px rgba(6, 182, 212, 0.35); }
-.std-card h4 { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 1rem; }
+.std-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 1rem; }
 .std-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
 .section-list { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
@@ -232,15 +232,18 @@ Compliance with timeliness standards should be regularly assessed and reinforced
 @media (min-width: 1100px) { .section-list { grid-template-columns: repeat(3, 1fr); } }
 .section-card { position: relative; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.6rem; }
 .section-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.55); }
-.section-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.95rem; }
+.section-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.95rem; }
 .section-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
 
 .clarity-grid, .timely-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .clarity-grid, .timely-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1100px) { .clarity-grid, .timely-grid { grid-template-columns: repeat(4, 1fr); } }
 .clarity-card, .timely-card { padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
-.clarity-card h4, .timely-card h4 { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
+.clarity-card :is(h3, h4), .timely-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
 .clarity-card p, .timely-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.87rem; }
+
+/* level changed for the heading outline; size stays as designed */
+.std-card h3, .section-card h3, .clarity-card h3, .timely-card h3 { font-weight: 600; line-height: inherit; }
 
 .conf-rubric { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 900px) { .conf-rubric { grid-template-columns: repeat(3, 1fr); } }

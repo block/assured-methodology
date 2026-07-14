@@ -38,19 +38,19 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 <div class="infra-grid">
   <div class="infra-card">
-    <h4>🌐 Network segmentation</h4>
+    <h3>🌐 Network segmentation</h3>
     <p>Subnets, VLANs, firewall zones, and DMZs define logical containment zones. If a host is restricted to a specific VLAN with no routing to external zones, adjacent systems can often be ruled out of scope unless evidence suggests segmentation failure.</p>
   </div>
   <div class="infra-card">
-    <h4>🏛️ System domains</h4>
+    <h3>🏛️ System domains</h3>
     <p>Active Directory forests, Azure AD tenants, LDAP hierarchies. These create structural separation in authentication and policy enforcement. Recognizing domain boundaries prevents premature attribution of behavior across unrelated trust zones.</p>
   </div>
   <div class="infra-card">
-    <h4>☁️ Deployment environments</h4>
+    <h3>☁️ Deployment environments</h3>
     <p>Cloud workloads, on-premises systems, SaaS platforms. Each operates under distinct access, tooling, and forensic constraints. Recognizing which segments belong to which infrastructure class tailors the scope to environments with proper visibility and operational control.</p>
   </div>
   <div class="infra-card">
-    <h4>🌍 Geographic and sovereignty</h4>
+    <h3>🌍 Geographic and sovereignty</h3>
     <p>Data residency rules can prevent moving log data across regions. An investigation may need to be conducted in-region or by a regional team. Multinational organizations often face conflicting jurisdictions in the same case.</p>
   </div>
 </div>
@@ -68,17 +68,17 @@ Access patterns define how identities interact with systems and resources across
 <div class="access-grid">
   <div class="access-card">
     <span class="access-card__num">01</span>
-    <h4>Authentication frameworks</h4>
+    <h3>Authentication frameworks</h3>
     <p>SSO platforms, federated identity brokers, Kerberos-based systems. These determine where authentication events originate and how access is validated. Scope identifies which authentication systems were active during the event window and what logging sources are available, without that mapping, investigations risk extending into environments sharing no credential surface with the subject.</p>
   </div>
   <div class="access-card">
     <span class="access-card__num">02</span>
-    <h4>Authorization structures</h4>
+    <h3>Authorization structures</h3>
     <p><DefineTerm term="RBAC">Role-Based Access Control. Permissions granted to roles rather than individual users; users inherit access through role assignment. The model makes access reviewable at the role level instead of per-user.</DefineTerm>, ABAC, MAC. These impose constraints on what authenticated identities can do and where. Scope accounts for these limitations so the investigation does not over-triage actions that policy would have denied. An authenticated account without write permissions can be excluded from write-only investigations.</p>
   </div>
   <div class="access-card">
     <span class="access-card__num">03</span>
-    <h4>Trust relationships</h4>
+    <h3>Trust relationships</h3>
     <p>Domain trusts, delegated permissions, service principal access, token exchange. These bridge identity across boundaries. Documenting them distinguishes where access naturally extends from where escalation or impersonation would be required. Misinterpreting trust lines is the classic mis-scoping mistake.</p>
   </div>
 </div>
@@ -110,17 +110,17 @@ Scope does not need the tool-by-tool catalog; that lives in <a href="/docs/uncov
 <div class="vis-grid">
   <div class="vis-card">
     <span class="vis-card__num">01</span>
-    <h4>Coverage: which entities does it see?</h4>
+    <h3>Coverage: which entities does it see?</h3>
     <p>The EDR sees managed endpoints, not the OT segment or the unmanaged BYOD phone. Network sensors see what crosses their taps. CSPM sees the cloud accounts it is enrolled in. Any in-scope entity with no tool watching it is a named gap, not an assumption of quiet.</p>
   </div>
   <div class="vis-card">
     <span class="vis-card__num">02</span>
-    <h4>Retention: how far back can it answer?</h4>
+    <h3>Retention: how far back can it answer?</h3>
     <p>SIEM retention is capacity-bounded, endpoint <DefineTerm term="Telemetry" display="telemetry" /> often keeps days to weeks, and SaaS audit history is gated by license tier. If the Scope time window extends past a tool's retention, that stretch of the window is dark and the scope document says so.</p>
   </div>
   <div class="vis-card">
     <span class="vis-card__num">03</span>
-    <h4>Retrieval: can it be queried inside the triage clock?</h4>
+    <h3>Retrieval: can it be queried inside the triage clock?</h3>
     <p>Packet capture may exist but take hours to pull. Disk forensics is retrospective and resource-intensive. Vendor-side SaaS logs need a request channel measured in days. A source that cannot answer within the triage window is a boundary for this phase even if the data exists somewhere.</p>
   </div>
 </div>
@@ -137,27 +137,27 @@ A useful Scope output is an explicit list of what the SOC cannot see for this ca
 
 <div class="invisible-list">
   <div class="invisible-row">
-    <h4>📱 Off-network mobile devices</h4>
+    <h3>📱 Off-network mobile devices</h3>
     <p>Activity that happens when the device is off-corporate-network may be invisible until the device reconnects. MAM telemetry helps, but not all activity reaches it.</p>
   </div>
   <div class="invisible-row">
-    <h4>💼 Personal devices in BYOD</h4>
+    <h3>💼 Personal devices in BYOD</h3>
     <p>Often only see authentication events, not deeper telemetry. App-level activity, file access, and clipboard behavior live outside corporate visibility.</p>
   </div>
   <div class="invisible-row">
-    <h4>🔌 Third-party SaaS without integrated logging</h4>
+    <h3>🔌 Third-party SaaS without integrated logging</h3>
     <p>The SOC sees the authentication; the in-app activity is in the vendor's logs. Deeper investigation requires a vendor request and (usually) a contractual or legal channel.</p>
   </div>
   <div class="invisible-row">
-    <h4>🚪 Air-gapped systems</h4>
+    <h3>🚪 Air-gapped systems</h3>
     <p>May produce no telemetry that reaches the SIEM at all. Investigation requires direct system access, often with physical or operational constraints.</p>
   </div>
   <div class="invisible-row">
-    <h4>🔒 Encrypted traffic without decryption</h4>
+    <h3>🔒 Encrypted traffic without decryption</h3>
     <p>TLS metadata (timing, volume, JA3 fingerprint) is visible; payload content is not. C2 channels riding on legitimate TLS look like other TLS unless inspection is positioned upstream.</p>
   </div>
   <div class="invisible-row">
-    <h4>🪨 Legacy systems without modern agents</h4>
+    <h3>🪨 Legacy systems without modern agents</h3>
     <p>Mainframes, OT/ICS, embedded systems often cannot host EDR. Coverage is via network position or via the system's own audit features, which may be limited.</p>
   </div>
 </div>
@@ -196,7 +196,7 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   border-left: 3px solid #a855f7;
   border-radius: 0.7rem;
 }
-.infra-card h4 {
+.infra-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #d8b4fe;
   font-size: 1rem;
@@ -231,7 +231,7 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   font-weight: 800;
   color: rgba(216, 180, 254, 0.6);
 }
-.access-card h4 {
+.access-card :is(h3, h4) {
   margin: 0 0 0.45rem 0;
   color: #d8b4fe;
   font-size: 1.05rem;
@@ -266,7 +266,7 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   font-weight: 800;
   color: rgba(216, 180, 254, 0.6);
 }
-.vis-card h4 {
+.vis-card :is(h3, h4) {
   margin: 0 0 0.45rem 0;
   color: #d8b4fe;
   font-size: 1.05rem;
@@ -295,7 +295,7 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   border-left: 3px solid #f59e0b;
   border-radius: 0.55rem;
 }
-.invisible-row h4 {
+.invisible-row :is(h3, h4) {
   margin: 0 0 0.3rem 0;
   color: #fbbf24;
   font-size: 0.95rem;
@@ -306,5 +306,9 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   line-height: 1.5;
   font-size: 0.88rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.infra-card h3, .access-card h3, .vis-card h3, .invisible-row h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

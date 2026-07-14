@@ -68,22 +68,22 @@ Recognizing the shapes of normal is the base layer of every behavioral judgment 
 <div class="pattern-grid">
   <div class="pattern-card">
     <span class="pattern-card__tag">⏰ Time</span>
-    <h4>Time-based patterns</h4>
+    <h3>Time-based patterns</h3>
     <p>Users and systems follow predictable daily and weekly schedules. Executives log in during business hours. Backups and batch jobs run during defined maintenance windows. Recognizing temporal cadence is what makes off-hours activity a signal instead of noise.</p>
   </div>
   <div class="pattern-card">
     <span class="pattern-card__tag">🚪 Access</span>
-    <h4>Access patterns</h4>
+    <h3>Access patterns</h3>
     <p>Different roles touch systems in characteristic ways. HR pulls personnel data during review cycles. Developers commit code constantly. Administrators run privileged actions at predictable cadences tied to change windows. The shape of access reveals the role.</p>
   </div>
   <div class="pattern-card">
     <span class="pattern-card__tag">🌍 Location</span>
-    <h4>Location patterns</h4>
+    <h3>Location patterns</h3>
     <p>Most identities connect from a consistent set of geographic origins and network segments. Sales teams roam more than back-office staff. IT uses known VPN endpoints. The pattern is what makes a single login from an unusual place worth investigating.</p>
   </div>
   <div class="pattern-card">
     <span class="pattern-card__tag">💬 Communication</span>
-    <h4>Communication patterns</h4>
+    <h3>Communication patterns</h3>
     <p>Communication volume and channel vary by role. Executives engage broad external networks. Engineering teams use chat heavily during business hours. Sudden changes in who communicates with whom are early signals of insider activity or compromise.</p>
   </div>
 </div>
@@ -101,38 +101,38 @@ A baseline is a reference. Four scales of reference matter, and each catches a d
 <div class="baseline-grid">
   <div class="baseline-card">
     <span class="baseline-card__num">01</span>
-    <h4>Individual baselines</h4>
+    <h3>Individual baselines</h3>
     <p>Per-identity history: login times, system access, communication patterns, command-line activity. Catches deviations from <em>this entity's</em> norm. Most useful for high-impact identities (executives, admins, privileged service accounts).</p>
   </div>
   <div class="baseline-card">
     <span class="baseline-card__num">02</span>
-    <h4>Group baselines</h4>
+    <h3>Group baselines</h3>
     <p>Per-role or per-team expected behavior. Catches drift across an entire role, and contextualizes individual deviations by asking whether peers are doing the same thing. Distinguishes "one developer is acting strange" from "the whole team is in production for the launch."</p>
   </div>
   <div class="baseline-card">
     <span class="baseline-card__num">03</span>
-    <h4>System baselines</h4>
+    <h3>System baselines</h3>
     <p>Performance, usage, and network metrics for hosts and services. Critical for finding compromised infrastructure where the user-level signal is hidden by the system-level activity. Sustained high CPU on a database during a quiet hour is worth a look.</p>
   </div>
   <div class="baseline-card">
     <span class="baseline-card__num">04</span>
-    <h4>Application baselines</h4>
+    <h3>Application baselines</h3>
     <p>Per-application interaction rates, API call volumes, response times, error patterns. Catches data exfiltration that hides as ordinary application traffic. The right baseline catches a 30% query-volume spike from one role even when total volume looks normal.</p>
   </div>
 </div>
 
 <div class="baseline-questions">
-  <h4 class="baseline-questions__head">Three questions of any baseline</h4>
+  <h3 class="baseline-questions__head">Three questions of any baseline</h3>
   <div class="baseline-question">
-    <h4>What window is the baseline built over?</h4>
+    <h3>What window is the baseline built over?</h3>
     <p>Too short and seasonal patterns get missed (finance close at end-of-month, holiday slowdowns). Too long and stale behavior dilutes the signal. Typical starting point: rolling 30 to 90 days, with explicit handling for seasonal events.</p>
   </div>
   <div class="baseline-question">
-    <h4>How is the entity grouped?</h4>
+    <h3>How is the entity grouped?</h3>
     <p>An individual baseline catches deviations from <em>this entity's</em> history. A peer-group baseline catches drift across the role. Both have value; both deserve their own thresholds.</p>
   </div>
   <div class="baseline-question">
-    <h4>What enrichment feeds the baseline?</h4>
+    <h3>What enrichment feeds the baseline?</h3>
     <p>HR data for role context. Business calendars for legitimate off-hours. Change management tickets for planned activity. A baseline without context generates noise that looks like anomaly but is just business.</p>
   </div>
 </div>
@@ -149,23 +149,23 @@ With baselines in place, anomaly detection is the systematic surfacing of deviat
 
 <div class="anomaly-grid">
   <div class="anomaly-card">
-    <h4>🌐 Temporal &amp; geographic anomalies</h4>
+    <h3>🌐 Temporal &amp; geographic anomalies</h3>
     <p>Logins at unusual times or from unfamiliar locations. Rapid succession logins suggest automation. Impossible-travel patterns suggest credential theft. Cross-reference these with the entity's role and historical pattern before scoring.</p>
   </div>
   <div class="anomaly-card">
-    <h4>📊 Pattern deviations</h4>
+    <h3>📊 Pattern deviations</h3>
     <p>Uncharacteristic changes in access frequency or data transfer volume. Spikes or sudden silences without operational cause. Investigate inside the broader context of system health and known business cycles; many "anomalies" turn out to be planned activity.</p>
   </div>
   <div class="anomaly-card">
-    <h4>🚫 Unauthorized resource use</h4>
+    <h3>🚫 Unauthorized resource use</h3>
     <p>Access to systems or data outside the role's normal scope. Source code from an account that has never touched the repo. Customer records from a marketing tool. Even a single anomalous access into sensitive areas is worth investigation.</p>
   </div>
   <div class="anomaly-card">
-    <h4>🔑 Credential-based anomalies</h4>
+    <h3>🔑 Credential-based anomalies</h3>
     <p>Excessive concurrent sessions. Geographically inconsistent logins from the same identity within minutes. Rapid credential resets, especially from unexpected locations. These signal account compromise or lateral movement and require fast correlation with other signals.</p>
   </div>
   <div class="anomaly-card">
-    <h4>📤 Communication abnormalities</h4>
+    <h3>📤 Communication abnormalities</h3>
     <p>Unusual email recipients, unexpected attachment sizes, messaging volumes well outside baseline. These are often the earliest external signals of insider data movement and the latest signals of an external compromise that has reached the email environment.</p>
   </div>
 </div>
@@ -182,23 +182,23 @@ The framework's payoff. Subject-centric triage is the discipline of always evalu
 
 <div class="triage-grid">
   <div class="triage-card">
-    <h4>Alert validation</h4>
+    <h3>Alert validation</h3>
     <p>Correlate the alert against the entity's baselines. The same alert is true positive on one identity and false-positive on another when the baselines say so. Subject-centric validation reduces false-positive rate without losing real signal.</p>
   </div>
   <div class="triage-card">
-    <h4>Insider threat detection</h4>
+    <h3>Insider threat detection</h3>
     <p>Subtle behavioral deviations that match an identity's known patterns of frustration, role change, or staging often surface here. Pattern-based alerts will miss this; entity-based comparison surfaces it.</p>
   </div>
   <div class="triage-card">
-    <h4>Escalation support</h4>
+    <h3>Escalation support</h3>
     <p>The entity's role and access drive escalation. Alerts on privileged or high-value identities escalate faster and to different on-call roles. Subject-centric triage encodes that into the workflow rather than relying on individual judgment.</p>
   </div>
   <div class="triage-card">
-    <h4>Response tailoring</h4>
+    <h3>Response tailoring</h3>
     <p>The depth of follow-up is bounded by the entity's behavioral risk profile. A clean baseline + a low-risk action gets less time. A clean baseline + a high-risk action gets more. The methodology spends investigator effort where it has the most return.</p>
   </div>
   <div class="triage-card">
-    <h4>Event reconstruction</h4>
+    <h3>Event reconstruction</h3>
     <p>Behavioral timelines per entity become the spine of any post-incident write-up. Subject-centric triage produces those timelines as a byproduct of the work, which makes Documentation faster downstream.</p>
   </div>
 </div>
@@ -225,22 +225,22 @@ This section changes altitude: everything above is what the analyst does during 
 <div class="impl-grid">
   <div class="impl-card">
     <span class="impl-card__icon">📡</span>
-    <h4>Capture broad telemetry</h4>
+    <h3>Capture broad telemetry</h3>
     <p>Authentication events, system access, application interactions, network flows. The more dimensions captured, the more deviations the framework can find. Gaps in coverage are gaps in detection.</p>
   </div>
   <div class="impl-card">
     <span class="impl-card__icon">🧩</span>
-    <h4>Integrate contextual data</h4>
+    <h3>Integrate contextual data</h3>
     <p>HR records for role context. Business calendars for legitimate off-hours. Project assignments and change tickets for planned activity. Without context, the framework fires noise during every legitimate organizational change.</p>
   </div>
   <div class="impl-card">
     <span class="impl-card__icon">🔄</span>
-    <h4>Adapt continuously</h4>
+    <h3>Adapt continuously</h3>
     <p>Analyst feedback feeds the framework. Marked false-positives recalibrate thresholds. New attack patterns become new baselines. A behavioral system that is not learning is decaying.</p>
   </div>
   <div class="impl-card">
     <span class="impl-card__icon">🔒</span>
-    <h4>Respect privacy</h4>
+    <h3>Respect privacy</h3>
     <p>Per-entity behavior modeling has implications beyond security. Coordinate with legal, HR, and works councils where relevant. Data minimization, role-based access to the analytics, encryption at rest. The framework's value depends on trust.</p>
   </div>
 </div>
@@ -337,7 +337,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   text-transform: uppercase;
   margin-bottom: 0.45rem;
 }
-.pattern-card h4 {
+.pattern-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 1rem;
@@ -372,7 +372,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   font-weight: 800;
   color: rgba(134, 239, 172, 0.6);
 }
-.baseline-card h4 {
+.baseline-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #86efac;
   font-size: 1rem;
@@ -403,7 +403,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   border-top: 1px solid rgba(148, 163, 184, 0.15);
 }
 .baseline-question:first-of-type { border-top: 0; padding-top: 0; }
-.baseline-question h4 {
+.baseline-question :is(h3, h4) {
   margin: 0 0 0.3rem 0;
   color: var(--assured-text);
   font-size: 0.95rem;
@@ -431,7 +431,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   border-left: 3px solid #f59e0b;
   border-radius: 0.6rem;
 }
-.anomaly-card h4 {
+.anomaly-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #fbbf24;
   font-size: 0.98rem;
@@ -458,7 +458,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   border: 1px solid rgba(34, 197, 94, 0.25);
   border-radius: 0.6rem;
 }
-.triage-card h4 {
+.triage-card :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #86efac;
   font-size: 0.98rem;
@@ -491,7 +491,7 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   display: block;
   margin-bottom: 0.4rem;
 }
-.impl-card h4 {
+.impl-card :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: var(--assured-accent-soft);
   font-size: 0.98rem;
@@ -501,6 +501,18 @@ The behavioral framework is the difference between "an alert fired" and "this sp
   color: var(--assured-text-muted);
   line-height: 1.55;
   font-size: 0.9rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.pattern-card h3,
+.baseline-card h3,
+.baseline-questions__head,
+.baseline-question h3,
+.anomaly-card h3,
+.triage-card h3,
+.impl-card h3 {
+  font-weight: 600;
+  line-height: inherit;
 }
 `}
 </style>

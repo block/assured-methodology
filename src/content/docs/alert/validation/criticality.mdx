@@ -42,15 +42,15 @@ Assets are usually classified into tiers like Critical / High / Medium / Low, or
 
 <div class="criticality-list">
   <div class="criticality-item">
-    <h4>💰 Business value</h4>
+    <h3>💰 Business value</h3>
     <p>Revenue impact if the asset is degraded, customer-facing visibility, contractual obligations. Revenue-generating systems and customer-data stores sit at the top of most classification schemes.</p>
   </div>
   <div class="criticality-item">
-    <h4>📋 Regulatory exposure</h4>
+    <h3>📋 Regulatory exposure</h3>
     <p>Whether the asset stores or processes data covered by HIPAA, PCI DSS, GDPR, SOX, or sector-specific regulation. Compliance-bound systems may demand investigation regardless of where they sit on the tier list.</p>
   </div>
   <div class="criticality-item">
-    <h4>🔌 Network proximity</h4>
+    <h3>🔌 Network proximity</h3>
     <p>An asset that is one hop from a critical system is effectively part of that system for triage purposes. A low-tier workstation that has direct access to the production database is no longer low-tier in practice.</p>
   </div>
 </div>
@@ -61,11 +61,11 @@ User accounts carry their own weight. Two factors define it:
 
 <div class="criticality-list">
   <div class="criticality-item">
-    <h4>🔑 Privilege level</h4>
+    <h3>🔑 Privilege level</h3>
     <p>Standard user, privileged user, service account, executive. Each has a different blast radius if compromised. Service accounts are especially important to model because they often outlive the people who created them.</p>
   </div>
   <div class="criticality-item">
-    <h4>🌐 Access scope</h4>
+    <h3>🌐 Access scope</h3>
     <p>How many systems and how much data the account can touch. A privileged user with narrow scope is less dangerous than a standard user with wide scope. Both are worth weighting.</p>
   </div>
 </div>
@@ -97,15 +97,15 @@ Criticality validation is only as good as the data underneath it. Three sources 
 
 <div class="cmdb-grid">
   <div class="cmdb-card">
-    <h4>📦 Asset inventory</h4>
+    <h3>📦 Asset inventory</h3>
     <p>A CMDB (ServiceNow, custom) or asset platform that knows every system, its classification, its owner, its data sensitivity, and its network position. The inventory should update as the environment changes.</p>
   </div>
   <div class="cmdb-card">
-    <h4>👤 Identity directory</h4>
+    <h3>👤 Identity directory</h3>
     <p>Active Directory, Okta, SailPoint, or equivalent. The directory should know account types, role assignments, group memberships, and the relationships between them. Service accounts should be tagged separately.</p>
   </div>
   <div class="cmdb-card">
-    <h4>📜 Compliance mapping</h4>
+    <h3>📜 Compliance mapping</h3>
     <p>An explicit map of which assets and data flows are covered by which regulations. The map should be authoritative enough that an analyst can rely on it during triage without consulting legal counsel for every alert.</p>
   </div>
 </div>
@@ -150,7 +150,7 @@ Criticality validation is what keeps a SOC's response proportional to risk as th
   border-radius: 0.7rem;
 }
 
-.criticality-item h4 {
+.criticality-item :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #fdba74;
   font-size: 0.95rem;
@@ -179,7 +179,7 @@ Criticality validation is what keeps a SOC's response proportional to risk as th
   border-radius: 0.7rem;
 }
 
-.cmdb-card h4 {
+.cmdb-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 1rem;
@@ -191,5 +191,9 @@ Criticality validation is what keeps a SOC's response proportional to risk as th
   line-height: 1.55;
   font-size: 0.9rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.criticality-item h3, .cmdb-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

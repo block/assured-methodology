@@ -76,23 +76,23 @@ Every hop can be wrong: DHCP reassigns, workstations are shared, accounts are bo
 
 <div class="user-lifecycle">
   <div class="user-lifecycle__row">
-    <h4>Creation and provisioning</h4>
+    <h3>Creation and provisioning</h3>
     <p>Cross-reference account creation against HR onboarding and approved automation. Accounts that appear without a matching workflow are the classic backdoor pattern.</p>
   </div>
   <div class="user-lifecycle__row">
-    <h4>Modification events</h4>
+    <h3>Modification events</h3>
     <p>Privilege grants, group memberships, role changes. Each is a moment where an attacker could be establishing or expanding their access.</p>
   </div>
   <div class="user-lifecycle__row">
-    <h4>Dormancy</h4>
+    <h3>Dormancy</h3>
     <p>Accounts inactive for 30+ days without being deprovisioned are a known soft target. They are credentials with no human watching them.</p>
   </div>
   <div class="user-lifecycle__row">
-    <h4>Termination</h4>
+    <h3>Termination</h3>
     <p>Off-boarded users should lose access across every integrated system within hours of HR's record being updated. Orphaned credentials are how former employees become external attackers.</p>
   </div>
   <div class="user-lifecycle__row">
-    <h4>Password resets</h4>
+    <h3>Password resets</h3>
     <p>Resets outside the normal rotation policy, especially from unexpected locations, can indicate social engineering or account-recovery abuse.</p>
   </div>
 </div>
@@ -134,35 +134,35 @@ Each <DefineTerm term="Endpoint" display="endpoint" /> is a place where activity
 
 <div class="endpoint-patterns">
   <div class="endpoint-card">
-    <h4>Workstations</h4>
+    <h3>Workstations</h3>
     <p>Standard user productivity machines. Compare current activity against the user's historical pattern on this specific device.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Servers</h4>
+    <h3>Servers</h3>
     <p>Mostly service-account driven, predictable workloads, narrow user-interactive activity. Interactive logins on production servers deserve a closer look.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Mobile devices</h4>
+    <h3>Mobile devices</h3>
     <p>Personal and managed. MDM telemetry, MAM data, EMM enrollment status. Off-network activity may be invisible to corporate logging.</p>
   </div>
   <div class="endpoint-card">
-    <h4>IoT and OT</h4>
+    <h3>IoT and OT</h3>
     <p>Limited instrumentation. Often legacy. Trust boundaries depend on segmentation rather than endpoint detection.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Cloud workloads</h4>
+    <h3>Cloud workloads</h3>
     <p>EC2 instances, Kubernetes pods, serverless functions. Short lifetimes mean baselines are statistical, not per-instance.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Network infrastructure</h4>
+    <h3>Network infrastructure</h3>
     <p>Routers, switches, firewalls. Compromise here is rare but high impact. Configuration drift is the most common signal.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Virtual desktops</h4>
+    <h3>Virtual desktops</h3>
     <p>VDI sessions, often accessed via thin clients or BYOD. Attribution is harder because sessions are ephemeral. Watch clipboard transfers, drive mapping, and process execution outside normal user hours.</p>
   </div>
   <div class="endpoint-card">
-    <h4>Developer workstations</h4>
+    <h3>Developer workstations</h3>
     <p>Run compilers, IDEs, repository tools. Broad internal access by design. Behavior that would alarm on a standard endpoint (scripting, sandbox bypass, dynamic loaders) is part of the job. Apply tighter baselines on the developer's history rather than the environment-wide norm.</p>
   </div>
 </div>
@@ -179,27 +179,27 @@ Applications and services often have broad, persistent access and very predictab
 
 <div class="app-grid">
   <div class="app-card">
-    <h4>Business applications</h4>
+    <h3>Business applications</h3>
     <p>ERP, HR, finance, CRM. Sensitive data, predictable workflows, regulatory exposure.</p>
   </div>
   <div class="app-card">
-    <h4>Development tools</h4>
+    <h3>Development tools</h3>
     <p>Source control, CI/CD pipelines, package registries. Often have credentials that can deploy code into production.</p>
   </div>
   <div class="app-card">
-    <h4>System utilities</h4>
+    <h3>System utilities</h3>
     <p>Backup agents, monitoring tools, configuration management. Run continuously, touch many systems, easy to overlook.</p>
   </div>
   <div class="app-card">
-    <h4>Cloud services</h4>
+    <h3>Cloud services</h3>
     <p>Managed cloud functions, container orchestration, service meshes. The identity boundary is often a cloud role rather than a credential.</p>
   </div>
   <div class="app-card">
-    <h4>OAuth / third-party applications</h4>
+    <h3>OAuth / third-party applications</h3>
     <p>Apps granted delegated access to user or organizational data through a consent screen. They authenticate with tokens, so password resets and MFA never touch them. Inventory what has been consented and with which scopes; a newly registered app holding broad read scopes is the <a href="/docs/subject/four-dimensions/">consent-grant abuse</a> pattern, and revoking consent is the only control that removes the access.</p>
   </div>
   <div class="app-card">
-    <h4>AI agents and assistants</h4>
+    <h3>AI agents and assistants</h3>
     <p>Copilots, RAG pipelines, and agentic automation hold delegated access to mail, documents, repos, and tickets, and act at machine speed. Baseline them like service accounts (tight scopes, predictable patterns) but treat their <em>inputs</em> as attack surface too: a prompt-injected assistant misusing its own legitimate token looks like an insider, not an intruder. The <a href="/docs/ai-triage/">AI-assisted triage page</a> covers both directions, the agent as analyst and the agent as subject.</p>
   </div>
 </div>
@@ -224,47 +224,47 @@ A lookup table for triage: what each identifier is good for and the abuse patter
 
 <div class="net-grid">
   <div class="net-card">
-    <h4>IP addresses</h4>
+    <h3>IP addresses</h3>
     <p>Source and destination locators for traffic. Internal IPs map to assets via the inventory; external IPs map to reputation via threat intelligence. Track geolocation, WHOIS ownership, and prior association with malware infrastructure.</p>
   </div>
   <div class="net-card">
-    <h4>Domain names</h4>
+    <h3>Domain names</h3>
     <p>Higher-level naming abstraction often used by attackers to mask infrastructure (typosquatting, fast-flux, DGA). Assess domain age, registrar patterns, resolution frequency, and passive DNS history.</p>
   </div>
   <div class="net-card">
-    <h4>Protocols and ports</h4>
+    <h3>Protocols and ports</h3>
     <p>The signal is protocol/port mismatch, not port rarity: SSH riding port 443 or DNS on an arbitrary high port is the classic bypass pattern, and 443 is the most common port on the internet. Validate that the traffic actually conforms to the protocol the port implies.</p>
   </div>
   <div class="net-card">
-    <h4>MAC addresses</h4>
+    <h3>MAC addresses</h3>
     <p>Lower in the stack but useful for tracking hardware across DHCP changes. MAC randomization, spoofing, or OUI changes over time can indicate NAC evasion or device impersonation.</p>
   </div>
   <div class="net-card">
-    <h4>BGP ASN</h4>
+    <h3>BGP ASN</h3>
     <p>Group IPs by upstream provider. Anomalies include traffic from ASNs linked to bulletproof hosting, rapid ASN reassignment, or geolocation/ASN mismatches that suggest infrastructure churn.</p>
   </div>
   <div class="net-card">
-    <h4>FQDN patterns</h4>
+    <h3>FQDN patterns</h3>
     <p>Algorithmically generated subdomains, excessive subdomain depth, wildcard DNS abuse, or staged-malware delivery domains. Subdomain entropy is one of the strongest cheap signals.</p>
   </div>
   <div class="net-card">
-    <h4>SSL/TLS certificates</h4>
+    <h3>SSL/TLS certificates</h3>
     <p>Examine issuer, validity period, key length, subject common name. Self-signed certs on production hosts, mismatched domains, or very short-lived certificates are classic C2 patterns.</p>
   </div>
   <div class="net-card">
-    <h4>DNS query behavior</h4>
+    <h3>DNS query behavior</h3>
     <p>Queries to external resolvers, uncommon record types (TXT, NULL), unusually high query rates, or high entropy in queried domains can signal covert data exfiltration via DNS.</p>
   </div>
   <div class="net-card">
-    <h4>JA3 / JA4 fingerprints</h4>
+    <h3>JA3 / JA4 fingerprints</h3>
     <p>Hashes of TLS handshake parameters. Detect malicious clients or C2 infrastructure even when IPs and domains rotate. Flag fingerprints that deviate from enterprise baselines. Note that ClientHello extension randomization (Chrome since 2023) degraded JA3; JA4 is the successor, and modern feeds publish both.</p>
   </div>
   <div class="net-card">
-    <h4>URI / URL structures</h4>
+    <h3>URI / URL structures</h3>
     <p>Path depth, encoded parameters, file extensions. Flag unusual paths (e.g., /api/config.zip) or base64-encoded parameters that may indicate phishing kits, staged payloads, or HTTP-based tunneling.</p>
   </div>
   <div class="net-card">
-    <h4>API keys and tokens</h4>
+    <h3>API keys and tokens</h3>
     <p>Persistent identifiers granted to services. Track by issuance date, last-use date, scope, and the originator. Tokens that re-emerge after long silence often indicate compromise.</p>
   </div>
 </div>
@@ -328,7 +328,7 @@ A lookup table for triage: what each identifier is good for and the abuse patter
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 0.55rem;
 }
-.user-lifecycle__row h4 {
+.user-lifecycle__row :is(h3, h4) {
   margin: 0 0 0.3rem 0;
   color: var(--assured-text);
   font-size: 0.98rem;
@@ -359,7 +359,7 @@ A lookup table for triage: what each identifier is good for and the abuse patter
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 0.6rem;
 }
-.user-subtype h4, .endpoint-card h4, .app-card h4 {
+.user-subtype :is(h3, h4), .endpoint-card :is(h3, h4), .app-card :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #86efac;
   font-size: 0.98rem;
@@ -387,7 +387,7 @@ A lookup table for triage: what each identifier is good for and the abuse patter
   border-left: 3px solid #22c55e;
   border-radius: 0.55rem;
 }
-.net-card h4 {
+.net-card :is(h3, h4) {
   margin: 0 0 0.3rem 0;
   color: #86efac;
   font-size: 0.93rem;
@@ -397,6 +397,12 @@ A lookup table for triage: what each identifier is good for and the abuse patter
   color: var(--assured-text-muted);
   line-height: 1.55;
   font-size: 0.86rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.user-lifecycle__row h3, .endpoint-card h3, .app-card h3, .net-card h3 {
+  font-weight: 600;
+  line-height: inherit;
 }
 `}
 </style>

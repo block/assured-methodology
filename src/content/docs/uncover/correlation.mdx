@@ -36,32 +36,32 @@ Two events from different sources correlate when they share an identifier inside
 
 <div class="joinkey-grid">
   <div class="joinkey-card">
-    <h4>Host</h4>
+    <h3>Host</h3>
     <p>Hostname, asset ID, or agent ID ties endpoint, network, and directory events together.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> IP is not host identity. DHCP reassigns, VPN pools rotate, NAT aggregates. Join on IP only inside a window where you have verified the lease, or prefer the asset ID.</p>
   </div>
   <div class="joinkey-card">
-    <h4>User</h4>
+    <h3>User</h3>
     <p>Account name or directory SID joins authentication, endpoint, email, and SaaS events.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> the account is not the person. Shared accounts, service accounts, and a second account for the same human all break the assumption. Subject-phase entity work is what keeps this join honest.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Process</h4>
+    <h3>Process</h3>
     <p>PID plus host plus time window joins an EDR process event to the network connections and file writes it caused.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> PIDs are recycled. A PID is only unique per boot, per host, while the process lives. Prefer the EDR's globally unique process identifier when the console exposes one.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Logon and session IDs</h4>
+    <h3>Logon and session IDs</h3>
     <p>Windows logon IDs, IdP session IDs, and cloud session names tie every action inside one session to the authentication that started it.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> sessions outlive credential changes. A reset password does not kill an already-issued session token, so "we reset the account" does not end this join.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Network tuple</h4>
+    <h3>Network tuple</h3>
     <p>Source IP:port to destination IP:port, inside a time window, joins host telemetry to firewall, proxy, and flow logs.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> proxies and NAT collapse many hosts into one source IP. The proxy log, not the firewall log, holds the original client.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Artifact hash</h4>
+    <h3>Artifact hash</h3>
     <p>A file hash joins sightings across every host and the sandbox report, regardless of filename.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> ubiquity cuts both ways. A hash seen on 4,000 hosts is probably a legitimate binary being abused, not 4,000 infections. Prevalence is context, not a verdict.</p>
   </div>
@@ -162,19 +162,19 @@ The intro names rabbit-holes as a defining junior failure, and Uncover is where 
 
 <div class="stop-grid">
   <div class="stop-card">
-    <h4>🧱 The Scope boundary holds</h4>
+    <h3>🧱 The Scope boundary holds</h3>
     <p>The entity, time, and infrastructure lines drawn in the Scope phase are the outer wall. Evidence pointing past them is grounds for a documented scope expansion decision, not silent drift into new territory.</p>
   </div>
   <div class="stop-card">
-    <h4>📉 Marginal return</h4>
+    <h3>📉 Marginal return</h3>
     <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is dry. Two empty pivots on the same hypothesis is a defensible place to draw the line and move on.</p>
   </div>
   <div class="stop-card">
-    <h4>⚖️ Verdict stability</h4>
+    <h3>⚖️ Verdict stability</h3>
     <p>When new evidence no longer changes any hypothesis status, Uncover has done its job. More queries buy confidence theater, not confidence. Write the narrative and hand off to Risk.</p>
   </div>
   <div class="stop-card">
-    <h4>🚨 An escalation trigger fires</h4>
+    <h3>🚨 An escalation trigger fires</h3>
     <p>Hitting an escalation criterion ends Uncover immediately, mid-thread if necessary. Confirmed active compromise belongs to incident response; continuing to dig solo delays the people who own containment.</p>
   </div>
 </div>
@@ -211,7 +211,8 @@ Correlation is joining events on real keys within honest clocks; the <DefineTerm
   border-top: 3px solid #f97316;
   border-radius: 0.7rem;
 }
-.joinkey-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.joinkey-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
 .joinkey-card p { margin: 0 0 0.6rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.89rem; }
 .joinkey-card__trap {
   margin: 0 !important;
@@ -384,7 +385,8 @@ Correlation is joining events on real keys within honest clocks; the <DefineTerm
   border-left: 3px solid #f97316;
   border-radius: 0.7rem;
 }
-.stop-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.stop-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
 .stop-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 `}
 </style>

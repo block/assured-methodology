@@ -7,8 +7,9 @@ interface Props {
 
 const { headings } = Astro.props;
 
-// Show h1 + h2 in the in-page navigation. h2s are indented.
-const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
+// Show the h2 section heads in the in-page navigation. (The layout renders
+// the page h1 itself, so getHeadings never yields a depth-1 entry.)
+const filtered = headings.filter((h) => h.depth === 2);
 ---
 
 {filtered.length > 0 && (
@@ -17,7 +18,7 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
 
     <ul class="toc__list">
       {filtered.map((heading) => (
-        <li class={`toc__item toc__item--depth-${heading.depth}`}>
+        <li class="toc__item">
           <a
             href={`#${heading.slug}`}
             data-target={heading.slug}
@@ -61,12 +62,6 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
   .toc__item {
     margin: 0;
     padding: 0;
-  }
-
-  .toc__item--depth-2 .toc__link {
-    padding-left: 1.5rem;
-    font-size: 0.8rem;
-    color: #a8b3c4;
   }
 
   .toc__link {

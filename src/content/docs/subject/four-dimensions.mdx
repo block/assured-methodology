@@ -48,21 +48,21 @@ The first dimension evaluates how the entity proved who it was. The job is not t
   <div class="dim-detail__step">
     <span class="dim-detail__num">01</span>
     <div>
-      <h4>Detect anomalies</h4>
+      <h3>Detect anomalies</h3>
       <p>Compare login data, geolocation, and device fingerprints to historical norms. Impossible-travel patterns (a login from two cities 1000 miles apart within 30 minutes), brand-new devices, or sources from anonymizing services are first-pass signals.</p>
     </div>
   </div>
   <div class="dim-detail__step">
     <span class="dim-detail__num">02</span>
     <div>
-      <h4>Validate identity</h4>
+      <h3>Validate identity</h3>
       <p>Cross-reference the account against HR records, identity provider data, and role definitions. A login from an account that has not been provisioned (or that was supposed to be off-boarded last week) is its own story.</p>
     </div>
   </div>
   <div class="dim-detail__step">
     <span class="dim-detail__num">03</span>
     <div>
-      <h4>Investigate the session</h4>
+      <h3>Investigate the session</h3>
       <p>Map the authentication path: source IP, intermediate identity providers, <DefineTerm term="MFA">Multi-factor authentication. A login that required something beyond a password, typically a one-time code, an authenticator app prompt, a security key, or a biometric. MFA materially raises the cost of credential theft, but it can be defeated by phishing, MFA fatigue, or token replay.</DefineTerm> outcome, session tokens issued. Anomalies in any of these reshape the verdict.</p>
     </div>
   </div>
@@ -151,19 +151,19 @@ The dimension is easy to under-evaluate. An action that maps cleanly to the user
 
 <div class="authz-grid">
   <div class="authz-card">
-    <h4>Permission mapping</h4>
+    <h3>Permission mapping</h3>
     <p>Define expected access via a centralized <DefineTerm term="RBAC">Role-Based Access Control. A model where permissions are granted to roles rather than to individual users, and users inherit permissions by being assigned roles. RBAC makes access reviewable at the role level rather than per-user.</DefineTerm> matrix. Periodic entitlement reviews confirm each role still matches its function.</p>
   </div>
   <div class="authz-card">
-    <h4>Privilege management</h4>
+    <h3>Privilege management</h3>
     <p>During triage, evaluate whether the entity's actions exceed its assigned privilege level. Look for elevation, excessive grants, or chained permissions that effectively make the role admin.</p>
   </div>
   <div class="authz-card">
-    <h4>Toxic access pairings</h4>
+    <h3>Toxic access pairings</h3>
     <p>Two permissions that are reasonable individually but dangerous together. The classic finance case: someone with both "approve invoice" and "modify vendor bank account." Each is normal in a role; the combination is fraud risk.</p>
   </div>
   <div class="authz-card">
-    <h4>Administrative oversight</h4>
+    <h3>Administrative oversight</h3>
     <p>Flag administrative activity that happens outside approved change windows. Investigate shared account use or service accounts performing interactive actions; both indicate a workflow that did not follow policy.</p>
   </div>
 </div>
@@ -189,28 +189,28 @@ The behavior dimension compares current activity to the entity's historical norm
   <div class="dim-detail__step">
     <span class="dim-detail__num">01</span>
     <div>
-      <h4>Baseline comparison</h4>
+      <h3>Baseline comparison</h3>
       <p>What does this entity normally do? When? With whom? Sudden access to unfamiliar sensitive systems, operating outside normal hours, or repeating tasks at unusual cadence are all baseline deviations worth investigating.</p>
     </div>
   </div>
   <div class="dim-detail__step">
     <span class="dim-detail__num">02</span>
     <div>
-      <h4>Privilege misuse</h4>
+      <h3>Privilege misuse</h3>
       <p>Actions that suggest elevation or misuse of existing permissions. The entity is allowed to do this, but the way they are doing it (volume, target, timing) is inconsistent with the role's intent.</p>
     </div>
   </div>
   <div class="dim-detail__step">
     <span class="dim-detail__num">03</span>
     <div>
-      <h4>Access scope drift</h4>
+      <h3>Access scope drift</h3>
       <p>Gradual expansion into new systems, tools, or data categories outside the entity's historical norm. Each step alone looks like onboarding. The trajectory is the signal.</p>
     </div>
   </div>
   <div class="dim-detail__step">
     <span class="dim-detail__num">04</span>
     <div>
-      <h4>Behavioral staging</h4>
+      <h3>Behavioral staging</h3>
       <p>Methodical but slow deviations: low-risk systems explored before high-value ones, file collection before exfiltration. Each step normalizes the next.</p>
     </div>
   </div>
@@ -318,10 +318,17 @@ The four dimensions are how an entity becomes a profile. Most Subject failures c
   justify-content: center;
 }
 
-.dim-detail__step h4 {
+.dim-detail__step :is(h3, h4) {
   margin: 0 0 0.3rem 0;
   color: var(--assured-text);
   font-size: 1rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.dim-detail__step h3,
+.authz-card h3 {
+  font-weight: 600;
+  line-height: inherit;
 }
 
 .dim-detail__step p {
@@ -349,7 +356,7 @@ The four dimensions are how an entity becomes a profile. Most Subject failures c
   border-radius: 0.7rem;
 }
 
-.authz-card h4 {
+.authz-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #86efac;
   font-size: 1rem;

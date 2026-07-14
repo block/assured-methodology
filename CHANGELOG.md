@@ -141,6 +141,24 @@ methodology, followed by a fix wave that touched every chapter.
 - The B.A.D. glossary pauses off-screen animated art (roughly 165 elements
   animated continuously for the life of the page), cutting main-thread work,
   scroll jank, and battery drain on phones.
+- The heading outline is now real on every page: about a thousand card titles
+  sat at h4 directly under h2 section heads (51 pages skipped a level, which
+  screen-reader users navigate by), and are now h3 with their rendered look
+  pinned unchanged. The glossary data extraction reads the new tags in
+  lockstep.
+- The table of contents follows the page content in DOM order, so keyboard
+  and screen-reader users reach the chapter before the link rail, and it
+  lists only the chapter's section headings.
+- Contrast lifts on text over the page gradient's light band: the pager's
+  Previous/Next direction labels and the quiz progress labels now clear the
+  4.5:1 floor, as does the C.L.E.A.R. filter placeholder.
+- Pages print faithfully: gradient-clipped headlines no longer print as blank
+  space (the transparent text fill now flips to dark ink in print), and
+  worked-example steppers print every step instead of only the selected one.
+  The same all-steps fallback applies when JavaScript is off.
+- The search modal's close button meets the 44px touch floor, glossary filter
+  focus rings survive forced-colors mode, and the evasion-pattern disclosure
+  headers use valid summary markup.
 - Internal links use the trailing-slash form Vercel actually serves, removing
   a 308 redirect from every page navigation. Astro dev now rejects the bare
   form and the link checker enforces it at build time.

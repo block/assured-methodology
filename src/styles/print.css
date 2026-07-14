@@ -45,6 +45,10 @@
     border-color: #c5cad1 !important;
     animation: none !important;
     transition: none !important;
+    /* Gradient-clipped headlines (home hero accent, glossary titles) set
+       text-fill transparent; with backgrounds stripped they would print as
+       blank space unless the fill comes back too. */
+    -webkit-text-fill-color: #1a1a1a !important;
   }
 
   h1,
@@ -84,6 +88,16 @@
   h3,
   h4 {
     break-after: avoid;
+  }
+
+  /* Worked-example steppers: on screen only the selected step is visible;
+     on paper show every step and drop the tab/arrow chrome. */
+  .stepper__panels [data-step] {
+    display: block !important;
+  }
+  .stepper__tabs,
+  .stepper__controls {
+    display: none !important;
   }
 
   /* Full-width prose; the sidebar column is gone */

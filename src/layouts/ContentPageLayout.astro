@@ -137,14 +137,6 @@ const articleSchema = JSON.stringify({
   )}
   <div class={`content-page ${chromeless ? "is-chromeless" : ""}`}>
     <div class={`content-page__shell ${chromeless ? "is-chromeless" : ""}`}>
-      {!chromeless && showToc && headings && headings.length > 0 && (
-        <aside class="content-page__toc" aria-label="In-page navigation">
-          <div class="content-page__toc-inner">
-            <SimpleTableOfContents headings={headings} />
-          </div>
-        </aside>
-      )}
-
       <main id="main" class={`content-page__main ${chromeless ? "is-chromeless" : ""}`}>
         <div data-pagefind-body class={`content-page__main-inner prose ${effectiveWide ? "is-wide" : ""} ${chromeless ? "is-chromeless" : ""}`}>
           {effectiveBreadcrumbs && (
@@ -203,6 +195,16 @@ const articleSchema = JSON.stringify({
           </button>
         </footer>
       </main>
+
+      {/* After <main> in DOM order so keyboard focus reaches the page content
+          before the TOC links; flex order matches, no CSS swap needed. */}
+      {!chromeless && showToc && headings && headings.length > 0 && (
+        <aside class="content-page__toc" aria-label="In-page navigation">
+          <div class="content-page__toc-inner">
+            <SimpleTableOfContents headings={headings} />
+          </div>
+        </aside>
+      )}
     </div>
   </div>
 </BaseLayout>
@@ -225,7 +227,6 @@ const articleSchema = JSON.stringify({
     display: none;
     flex-shrink: 0;
     width: 16rem;
-    order: 2;
   }
 
   @media (min-width: 1024px) {
@@ -243,7 +244,6 @@ const articleSchema = JSON.stringify({
   .content-page__main {
     flex: 1;
     min-width: 0;
-    order: 1;
     padding: 2rem 0 4rem;
   }
 
@@ -328,7 +328,10 @@ const articleSchema = JSON.stringify({
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #8b98ab;
+    /* #a8b3c4, not the slate-400 dim token: the pager sits over the
+       viewport-fixed gradient, whose light band (#334155) leaves anything
+       darker below the 4.5:1 normal-text floor (WCAG 1.4.3). */
+    color: #a8b3c4;
   }
 
   .content-page__pager-name {

@@ -72,28 +72,28 @@ The single most common parsing task this page exists for: an alert hands you `po
   <div class="decode-step">
     <span class="decode-step__num">1</span>
     <div>
-      <h4>Extract the blob</h4>
+      <h3>Extract the blob</h3>
       <p>Copy the Base64 string out of the alert into a local decoder. Never paste it into a terminal that could execute it, and never run the command to "see what it does." <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a> running locally in a browser tab is the standard tool.</p>
     </div>
   </div>
   <div class="decode-step">
     <span class="decode-step__num">2</span>
     <div>
-      <h4>Decode Base64, then interpret as UTF-16LE</h4>
+      <h3>Decode Base64, then interpret as UTF-16LE</h3>
       <p>This is the gotcha that trips every junior once: <code>-EncodedCommand</code> takes Base64 of <strong>UTF-16LE</strong> text, because that is what Windows means by "Unicode." Decode it as UTF-8 and you get the characters interleaved with null bytes (<code>I·E·X· ·(·N·e·w</code>), which some tools render as gibberish or CJK characters. In CyberChef the recipe is From Base64 followed by Decode Text (UTF-16LE). If your output has a space or dot between every letter, you skipped the second step.</p>
     </div>
   </div>
   <div class="decode-step">
     <span class="decode-step__num">3</span>
     <div>
-      <h4>Read the result, and expect another layer</h4>
+      <h3>Read the result, and expect another layer</h3>
       <p>The example blob above opens with <code>IEX (New-Object ...</code>, the classic download-and-execute-in-memory cradle. Real payloads often nest: the decoded text itself calls <code>FromBase64String</code> plus a Gzip or Deflate decompress, then <code>IEX</code> again. Keep unwinding layers in the decoder until you reach readable intent, and record each layer in your notes.</p>
     </div>
   </div>
   <div class="decode-step">
     <span class="decode-step__num">4</span>
     <div>
-      <h4>Treat what falls out as hot</h4>
+      <h3>Treat what falls out as hot</h3>
       <p>URLs, domains, and IPs inside the decoded payload are live attacker infrastructure until proven otherwise. Do not browse them to check. They are IoCs: record them, look them up in <DefineTerm term="Threat Intelligence" display="threat intelligence" />, and pivot on them in the network telemetry.</p>
     </div>
   </div>
@@ -148,11 +148,11 @@ Sometimes the alert's command-line field is simply empty. The most common reason
 
 <div class="gap-cards">
   <div class="gap-card">
-    <h4>Know your source</h4>
+    <h3>Know your source</h3>
     <p>Security 4688 without the policy: no command line. <DefineTerm term="Sysmon" /> Event ID 1: full command line, parent, and hashes by default. EDR process telemetry: almost always captures it. Which source feeds your console determines what you can parse.</p>
   </div>
   <div class="gap-card">
-    <h4>An empty field is a fact about telemetry</h4>
+    <h3>An empty field is a fact about telemetry</h3>
     <p>Record "command line not captured (4688 policy disabled)" rather than "no command line," and pivot to the sources that do have it. Absence of the field is a visibility gap, not evidence the process ran without arguments.</p>
   </div>
 </div>
@@ -338,7 +338,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   justify-content: center;
 }
 
-.decode-step h4 {
+.decode-step :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #93c5fd;
   font-size: 0.98rem;
@@ -425,7 +425,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   border-radius: 0.7rem;
 }
 
-.gap-card h4 {
+.gap-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #d8b4fe;
   font-size: 0.95rem;
@@ -511,5 +511,9 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   line-height: 1.55;
   font-size: 0.93rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.decode-step h3, .gap-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

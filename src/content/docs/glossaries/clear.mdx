@@ -875,8 +875,15 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
   font-family: inherit; font-size: 1rem;
 }
-.clear-search:focus { outline: none; border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18); }
-.clear-search::placeholder { color: #64748b; }
+/* transparent outline turns solid in forced-colors mode, where the box-shadow ring is stripped */
+.clear-search:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18);
+}
+/* #94a3b8 lifts placeholder contrast on the input background past 4.5:1 (was #64748b, ~3.7:1) */
+.clear-search::placeholder { color: #94a3b8; }
 
 /* Visually hidden but present in the accessibility tree. */
 .clear-search-count {

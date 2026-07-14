@@ -24,7 +24,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 <div class="tier-list">
   <div class="tier-row">
     <span class="tier-row__label">Tier 1</span>
-    <h4>Initial detection and triage</h4>
+    <h3>Initial detection and triage</h3>
     <p>Receives alerts, validates the signal, applies initial triage protocols to categorize events by type and severity. Determines true positive vs. false-positive. The Alert, Subject, and Scope work usually lives here. Escalates anything that meets predefined criteria or exceeds Tier 1 mandate.</p>
     <ul class="tier-row__bullets">
       <li>Alert validation and preliminary risk assessment</li>
@@ -35,7 +35,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   </div>
   <div class="tier-row">
     <span class="tier-row__label">Tier 2</span>
-    <h4>In-depth investigation</h4>
+    <h3>In-depth investigation</h3>
     <p>Security engineers with specialized expertise pick up escalated cases. Conduct deeper technical investigation, develop containment strategies, and create remediation plans for confirmed incidents. Uncover and Risk work usually completes here.</p>
     <ul class="tier-row__bullets">
       <li>Technical analysis with deep forensic capability</li>
@@ -46,7 +46,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   </div>
   <div class="tier-row">
     <span class="tier-row__label">Tier 3</span>
-    <h4>Senior technical escalation</h4>
+    <h3>Senior technical escalation</h3>
     <p>The deepest technical bench: senior analysts and specialists who take the cases Tier 2 cannot close. Malware reverse engineering, memory and disk forensics, sophisticated-adversary investigation, and proactive threat hunting when not working escalations. Tier 3 is still technical work, done by the SOC's most experienced hands.</p>
     <ul class="tier-row__bullets">
       <li>Malware analysis and reverse engineering</li>
@@ -85,27 +85,27 @@ Internal escalation moves the case through Tiers 1 → 2 → 3. Established prot
 
 <div class="stakeholder-grid">
   <div class="stakeholder-card">
-    <h4>🛠️ IT Operations</h4>
+    <h3>🛠️ IT Operations</h3>
     <p>Engaged when system or network-level compromises require configuration changes, patching, or network-wide defensive measures. Containment in production environments often needs IT Ops on the call.</p>
   </div>
   <div class="stakeholder-card">
-    <h4>🧑‍⚖️ Legal &amp; compliance</h4>
+    <h3>🧑‍⚖️ Legal &amp; compliance</h3>
     <p>Engaged when events potentially affect regulated information. Assesses reporting obligations and legal implications. Often early in the timeline for incidents with regulatory exposure.</p>
   </div>
   <div class="stakeholder-card">
-    <h4>🏢 Business units</h4>
+    <h3>🏢 Business units</h3>
     <p>Engaged for business-specific incidents affecting departmental systems or data. Ensures remediation aligns with operational requirements and that affected workflows are restored.</p>
   </div>
   <div class="stakeholder-card">
-    <h4>📢 Communications</h4>
+    <h3>📢 Communications</h3>
     <p>For incidents that may become public. Press, customer, and partner messaging is its own workstream. Legal counsel coordinates with comms before any external disclosure.</p>
   </div>
   <div class="stakeholder-card">
-    <h4>🤝 Vendors</h4>
+    <h3>🤝 Vendors</h3>
     <p>When the incident involves a vendor's product, platform, or data. Vendor disclosure may be required by contract. Coordination follows MSA / DPA terms.</p>
   </div>
   <div class="stakeholder-card">
-    <h4>👮 Law enforcement</h4>
+    <h3>👮 Law enforcement</h3>
     <p>For criminal activity, extortion, or cross-border threats. Engaged through legal counsel, not directly by the SOC. Engagement decisions usually require executive sign-off.</p>
   </div>
 </div>
@@ -122,7 +122,7 @@ These protocols must be documented, regularly tested through tabletop exercises,
 .tier-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
 .tier-row { padding: 1.1rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.6rem; }
 .tier-row__label { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: #a5b4fc; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
-.tier-row h4 { margin: 0 0 0.3rem 0; color: var(--assured-text); font-size: 1rem; }
+.tier-row :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-text); font-size: 1rem; }
 .tier-row p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
 
 .ext { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; }
@@ -135,6 +135,9 @@ These protocols must be documented, regularly tested through tabletop exercises,
 @media (min-width: 768px) { .stakeholder-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1100px) { .stakeholder-grid { grid-template-columns: repeat(3, 1fr); } }
 .stakeholder-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #6366f1; border-radius: 0.55rem; }
-.stakeholder-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
+.stakeholder-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
 .stakeholder-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
+
+/* level changed for the heading outline; size stays as designed */
+.tier-row h3, .stakeholder-card h3 { font-weight: 600; line-height: inherit; }
 `}</style>

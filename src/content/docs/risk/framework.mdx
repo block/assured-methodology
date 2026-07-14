@@ -21,9 +21,9 @@ import PillNav from "@/components/assured/PillNav.astro";
 ## One scoring model, two supporting lenses
 
 <div class="fw-grid">
-  <a href="#ratm" class="fw-card"><h4>🎚️ RATM <span class="fw-card__role">scoring</span></h4><p>Risk-Based Alert Triage Matrix, ASSURED's own scoring model. Four scoring dimensions with a High/Medium/Low rubric, reduced to the impact and likelihood axes of the triage matrix. The verdict you write in the case.</p></a>
-  <a href="#mitre" class="fw-card"><h4>🎯 MITRE ATT&CK <span class="fw-card__role">vocabulary</span></h4><p>Maps observed behaviors to a shared taxonomy of adversary tactics, techniques, and procedures. Names what happened; does not score it.</p></a>
-  <a href="#cvss" class="fw-card"><h4>📈 CVSS <span class="fw-card__role">severity</span></h4><p>Standardized numerical severity for vulnerabilities. An input to the RATM when the alert is exploit-driven, not a verdict on its own.</p></a>
+  <a href="#ratm" class="fw-card"><h3>🎚️ RATM <span class="fw-card__role">scoring</span></h3><p>Risk-Based Alert Triage Matrix, ASSURED's own scoring model. Four scoring dimensions with a High/Medium/Low rubric, reduced to the impact and likelihood axes of the triage matrix. The verdict you write in the case.</p></a>
+  <a href="#mitre" class="fw-card"><h3>🎯 MITRE ATT&CK <span class="fw-card__role">vocabulary</span></h3><p>Maps observed behaviors to a shared taxonomy of adversary tactics, techniques, and procedures. Names what happened; does not score it.</p></a>
+  <a href="#cvss" class="fw-card"><h3>📈 CVSS <span class="fw-card__role">severity</span></h3><p>Standardized numerical severity for vulnerabilities. An input to the RATM when the alert is exploit-driven, not a verdict on its own.</p></a>
 </div>
 
 <Callout variant="info" title="What is borrowed and what is ours">
@@ -38,19 +38,19 @@ The RATM scores alerts across four scoring dimensions, producing a composite rat
 
 <div class="ratm-grid">
   <div class="ratm-card">
-    <h4>Asset criticality</h4>
+    <h3>Asset criticality</h3>
     <p>Is the affected system, user, or service essential to operations, or does it hold sensitive data? High-value assets (production environments, financial systems, PII repositories) warrant greater concern. Requires understanding of both technical function and business value. Inventories with criticality ratings must be reviewed and updated, or risk assessments will misrepresent actual business impact.</p>
   </div>
   <div class="ratm-card">
-    <h4>Threat actor intent</h4>
+    <h3>Threat actor intent</h3>
     <p>Is the alert opportunistic behavior or targeted activity? Sophisticated, deliberate techniques raise priority. Indicators of intent include reconnaissance focused on specific high-value targets, custom malware designed to evade detection, or attack patterns suggesting familiarity with the organization's architecture.</p>
   </div>
   <div class="ratm-card">
-    <h4>Exploitation and scope</h4>
+    <h3>Exploitation and scope</h3>
     <p>Did the exploit succeed? Is lateral movement, persistence, or privilege escalation possible? Verified compromise or multi-host activity escalates risk significantly. The scope dimension evaluates both the current footprint and the potential to expand. Evidence of successful exploitation (command execution, data access, configuration changes) raises the rating.</p>
   </div>
   <div class="ratm-card">
-    <h4>Business impact</h4>
+    <h3>Business impact</h3>
     <p>What downstream effects on availability, integrity, or confidentiality? Could legal or regulatory consequences follow? Business disruption or reputational harm elevates response priority. Translates technical events into terms organizational leadership recognizes: continuity, customer trust, contractual obligations, financial exposure.</p>
   </div>
 </div>
@@ -101,15 +101,15 @@ ATT&CK enters Risk as a structuring vocabulary, not a scoring tool. The framewor
 
 <div class="mitre-risk-grid">
   <div class="mitre-risk-card">
-    <h4>Tactic-level severity weighting</h4>
+    <h3>Tactic-level severity weighting</h3>
     <p>Some tactics carry inherently higher risk than others. Initial Access without follow-on activity is lower risk than confirmed Lateral Movement or Exfiltration. The tactic chain itself shapes priority.</p>
   </div>
   <div class="mitre-risk-card">
-    <h4>Technique-to-actor mapping</h4>
+    <h3>Technique-to-actor mapping</h3>
     <p>Procedures associated with specific threat actors raise the risk weight. Custom tooling or rare techniques generally indicate targeted activity rather than commodity attacks.</p>
   </div>
   <div class="mitre-risk-card">
-    <h4>Coverage gap indicators</h4>
+    <h3>Coverage gap indicators</h3>
     <p>When the observed chain includes techniques the SOC does not yet have detection for, that gap itself is a risk signal, both for this case and for the program.</p>
   </div>
 </div>
@@ -131,17 +131,17 @@ The three metric groups below are the CVSS v3.1 taxonomy, still the most widely 
 <div class="cvss-grid">
   <div class="cvss-card cvss-card--base">
     <span class="cvss-card__tag">BASE</span>
-    <h4>Base score</h4>
+    <h3>Base score</h3>
     <p>Reflects the intrinsic severity. Attack vector, privileges required, impact on confidentiality / integrity / availability. A higher score typically indicates a more critical alert.</p>
   </div>
   <div class="cvss-card cvss-card--temporal">
     <span class="cvss-card__tag">TEMPORAL</span>
-    <h4>Temporal score</h4>
+    <h3>Temporal score</h3>
     <p>Modifies the base score based on current exploitation trends and available mitigation techniques. Adjusts urgency as the threat landscape evolves.</p>
   </div>
   <div class="cvss-card cvss-card--env">
     <span class="cvss-card__tag">ENVIRONMENTAL</span>
-    <h4>Environmental score</h4>
+    <h3>Environmental score</h3>
     <p>Tailors the score to the organization's infrastructure, business priorities, and existing controls. Evaluates whether critical systems are at risk and whether compensating controls reduce overall exposure.</p>
   </div>
 </div>
@@ -188,12 +188,15 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 <ContinueCard current="risk" nextHref="/docs/risk/false-positive/" nextLabel="The value of a false-positive" ctaLabel="Read false-positive" />
 
 <style>{`
+/* level changed for the heading outline; h4-era weight and line-height stay as designed */
+.fw-card :is(h3, h4), .ratm-card :is(h3, h4), .mitre-risk-card :is(h3, h4), .cvss-card :is(h3, h4) { font-weight: 600; line-height: inherit; }
+
 .fw-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .fw-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1100px) { .fw-grid { grid-template-columns: repeat(3, 1fr); } }
 .fw-card { display: block; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .fw-card:hover { transform: translateY(-2px); border-color: #ef4444; box-shadow: 0 12px 24px -14px rgba(239, 68, 68, 0.35); }
-.fw-card h4 { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+.fw-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
 .fw-card__role { display: inline-block; padding: 0.22rem 0.65rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid; }
 /* Distinct colorways per semantic role so the chips read as categories, not decoration. */
 .fw-card:nth-of-type(1) .fw-card__role { /* RATM = scoring (red) */ background: rgba(239, 68, 68, 0.18); color: #fecaca; border-color: rgba(239, 68, 68, 0.5); }
@@ -204,7 +207,7 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 .ratm-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .ratm-grid { grid-template-columns: 1fr 1fr; } }
 .ratm-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.ratm-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
+.ratm-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
 .ratm-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
 .ratm-rubric { display: flex; flex-direction: column; gap: 0.4rem; margin: 1.25rem 0 1.5rem; }
@@ -225,7 +228,7 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 .mitre-risk-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .mitre-risk-grid { grid-template-columns: repeat(3, 1fr); } }
 .mitre-risk-card { padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.55rem; }
-.mitre-risk-card h4 { margin: 0 0 0.35rem 0; color: #fca5a5; font-size: 0.95rem; }
+.mitre-risk-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #fca5a5; font-size: 0.95rem; }
 .mitre-risk-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
 
 .cvss-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
@@ -235,7 +238,7 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 .cvss-card--temporal { --cvss-color: #f59e0b; }
 .cvss-card--env { --cvss-color: var(--assured-accent-soft); }
 .cvss-card__tag { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(15, 23, 42, 0.7); color: var(--cvss-color); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
-.cvss-card h4 { margin: 0 0 0.4rem 0; color: var(--assured-text); font-size: 1rem; }
+.cvss-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-text); font-size: 1rem; }
 .cvss-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
 .matrix-table { display: flex; flex-direction: column; gap: 0.35rem; margin: 1.25rem 0; }

@@ -10,12 +10,12 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="01" pillarTotal="03" chapterHref="/docs/risk" chapterLabel="Risk" lede="Impact and likelihood are independent questions. The analyst answers each one explicitly, weighs each factor deliberately, and the matrix turns the pair into a consistent, explainable priority."/>
+<SubPageHero phase="risk" parentLetter="R" pillarIndex="01" pillarTotal="03" chapterHref="/docs/risk/" chapterLabel="Risk" lede="Impact and likelihood are independent questions. The analyst answers each one explicitly, weighs each factor deliberately, and the matrix turns the pair into a consistent, explainable priority."/>
 
 <PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive", phase: "risk" },
+  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
+  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
+  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
 ]}/>
 
 ## Evaluating impact
@@ -25,25 +25,25 @@ Impact is "if this is real, how bad is it?" Four impact dimensions cover the typ
 <div class="impact-grid">
   <div class="impact-card">
     <span class="impact-card__num">01</span>
-    <h4>📁 Data sensitivity</h4>
+    <h3>📁 Data sensitivity</h3>
     <p>Value and sensitivity of data involved (personal, financial, health). Exposure can lead to identity theft, fraud, legal consequences. Different categories (public → restricted) carry different risk weights when compromised. PII, PHI, payment card data, IP, and authentication credentials sit at the top tier.</p>
     <p class="impact-card__note">Volume also matters. A breach of thousands of customer records is a different scale from a single record, even at the same classification.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">02</span>
-    <h4>⚙️ Operational disruption</h4>
+    <h3>⚙️ Operational disruption</h3>
     <p>How the event affects the organization's ability to function. Direct availability issues, productivity losses, customer-facing service disruption. The criticality of affected systems to core business functions drives this.</p>
     <p class="impact-card__note">Recovery time objectives (RTO) and recovery point objectives (RPO) anchor the operational evaluation. Threatening to exceed these thresholds raises priority materially.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">03</span>
-    <h4>📋 Regulatory &amp; compliance</h4>
+    <h3>📋 Regulatory &amp; compliance</h3>
     <p>Industry and geography-specific legal obligations. GDPR, HIPAA, and PCI DSS each set notification timelines and define what constitutes a reportable incident; SOX and the SEC disclosure rule add financial-reporting and materiality obligations instead of breach-notification clocks. Events triggering reporting requirements typically represent elevated risk.</p>
     <p class="impact-card__note">Different regulatory regimes have different thresholds for materiality and different notification clocks. Scope identified which apply; Risk decides whether the technical evidence meets the threshold.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">04</span>
-    <h4>🪞 Reputational</h4>
+    <h3>🪞 Reputational</h3>
     <p>How the event affects stakeholder perceptions if it became public. Customer trust, partner relationships, investor confidence, market positioning. Reputational damage often outlasts direct operational impact and is harder to quantify and remediate.</p>
     <p class="impact-card__note">Factors include visibility of affected systems, data sensitivity, the organization's existing public profile, and whether the incident suggests negligence vs. sophisticated targeting.</p>
   </div>
@@ -57,27 +57,27 @@ A useful sequencing: data sensitivity sets the floor. Operational disruption and
 
 ## Evaluating likelihood
 
-Likelihood is one question: **how confident are we that this finding is real and malicious?** Score it from evidence quality first. The four factors below calibrate that confidence: sophistication and historical frequency speak to whether the activity plausibly is an attack; exploitability and control coverage speak to whether the claimed attack could actually have succeeded here. The separate question of whether a confirmed attack will continue or spread belongs to the exploitation &amp; scope dimension of the RATM scoring model (covered on the <a href="/docs/risk/framework">framework page</a>), not this axis.
+Likelihood is one question: **how confident are we that this finding is real and malicious?** Score it from evidence quality first. The four factors below calibrate that confidence: sophistication and historical frequency speak to whether the activity plausibly is an attack; exploitability and control coverage speak to whether the claimed attack could actually have succeeded here. The separate question of whether a confirmed attack will continue or spread belongs to the exploitation &amp; scope dimension of the RATM scoring model (covered on the <a href="/docs/risk/framework/">framework page</a>), not this axis.
 
 <div class="likelihood-grid">
   <div class="likelihood-card">
     <span class="likelihood-card__num">01</span>
-    <h4>🎭 Threat actor sophistication</h4>
+    <h3>🎭 Threat actor sophistication</h3>
     <p>Skill level and resources behind the activity. An attack linked to an APT group is more targeted and harder to mitigate than an opportunistic attempt by a commodity actor. Custom tooling, multi-stage operations, and infrastructure investment raise the sophistication score.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">02</span>
-    <h4>🔓 Exploitability</h4>
+    <h3>🔓 Exploitability</h3>
     <p>Whether the attack targets known, easily exploitable vulnerabilities or requires advanced techniques. Public exploits, low complexity, and broad applicability raise likelihood of success. Compensating controls and patch status temper it.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">03</span>
-    <h4>📜 Historical incident frequency</h4>
+    <h3>📜 Historical incident frequency</h3>
     <p>Has the organization experienced similar incidents? Recurrence often signals persistent vulnerabilities or weaknesses. Frequency of past incidents is one of the strongest signals of future ones in the same category.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">04</span>
-    <h4>🛡️ Security control coverage</h4>
+    <h3>🛡️ Security control coverage</h3>
     <p>Effectiveness of firewalls, IDS, endpoint protection, identity controls. Gaps increase the chance of successful compromise; layered, well-maintained controls reduce it. The current state of compensating controls modifies the raw exploitability score.</p>
   </div>
 </div>
@@ -104,19 +104,19 @@ The Risk output combines the two dimensions into a defensible priority. The verd
 
 <div class="verdict-list">
   <div class="verdict-item">
-    <h4>📊 Impact score</h4>
+    <h3>📊 Impact score</h3>
     <p>High / medium / low across the four impact dimensions, with a one-sentence rationale per dimension. The combined impact is the floor of the priority decision.</p>
   </div>
   <div class="verdict-item">
-    <h4>🎯 Likelihood score</h4>
+    <h3>🎯 Likelihood score</h3>
     <p>High / medium / low based on evidence quality, sophistication, exploitability, and control coverage. Confidence in the evidence is part of this score.</p>
   </div>
   <div class="verdict-item">
-    <h4>🚦 Combined priority</h4>
+    <h3>🚦 Combined priority</h3>
     <p>From the triage matrix. Drives escalation timing and resource allocation. Not a number; a defended judgment with named inputs.</p>
   </div>
   <div class="verdict-item">
-    <h4>❓ Open questions</h4>
+    <h3>❓ Open questions</h3>
     <p>What the analyst could not resolve, and what new evidence would change the verdict. This is what makes the verdict defensible later.</p>
   </div>
 </div>
@@ -129,14 +129,14 @@ Recording open questions is the difference between "the analyst was confident" a
 Impact and likelihood are independent. Combine them deliberately. Record the rationale for each. The verdict is not a number; it is a defended judgment with named inputs the next analyst, the audit team, and the post-mortem can verify.
 </KeyTakeaway>
 
-<ContinueCard current="risk" nextHref="/docs/risk/framework" nextLabel="The Risk framework" ctaLabel="Read framework" />
+<ContinueCard current="risk" nextHref="/docs/risk/framework/" nextLabel="The Risk framework" ctaLabel="Read framework" />
 
 <style>{`
 .impact-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
 .impact-card { position: relative; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
 .impact-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.6); }
-.impact-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
+.impact-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
 .impact-card > p { margin: 0 0 0.55rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 .impact-card__note { font-style: italic; padding: 0.5rem 0.85rem; background: rgba(15, 23, 42, 0.6); border-left: 2px solid rgba(252, 165, 165, 0.4); border-radius: 0.35rem; font-size: 0.85rem; }
 
@@ -144,7 +144,7 @@ Impact and likelihood are independent. Combine them deliberately. Record the rat
 @media (min-width: 768px) { .likelihood-grid { grid-template-columns: 1fr 1fr; } }
 .likelihood-card { position: relative; padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
 .likelihood-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.6); }
-.likelihood-card h4 { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
+.likelihood-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
 .likelihood-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
 .likelihood-table { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
@@ -157,6 +157,10 @@ Impact and likelihood are independent. Combine them deliberately. Record the rat
 .verdict-list { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
 @media (min-width: 768px) { .verdict-list { grid-template-columns: 1fr 1fr; } }
 .verdict-item { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.55rem; }
-.verdict-item h4 { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; }
+.verdict-item :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; }
 .verdict-item p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.88rem; }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.impact-card h3, .likelihood-card h3, .verdict-item h3 { font-weight: 600; line-height: inherit; }
 `}</style>

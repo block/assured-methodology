@@ -22,6 +22,14 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
 ---
 
 <div class="stepper" data-stepper>
+  {/* No-JS fallback: the bind script drives .is-active, and without it every
+      panel would stay display:none. Show all steps, drop the dead chrome. */}
+  <noscript>
+    <style is:inline>
+      .stepper__panels [data-step] { display: block !important; }
+      .stepper__tabs, .stepper__controls { display: none !important; }
+    </style>
+  </noscript>
   {/* Tabs pattern completed across markup + script: each tab gets an id and
       aria-controls here; the [data-step] panels are authored in MDX, so the
       bind script assigns their role="tabpanel"/id/aria-labelledby at runtime.
@@ -263,7 +271,9 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
           const url = new URL(window.location.href);
           if (current === 0) url.searchParams.delete("step");
           else url.searchParams.set("step", String(current + 1));
-          history.replaceState(null, "", url);
+          // Keep the ClientRouter's state object: replacing it with null makes
+          // the router's popstate handler skip this entry, which kills Back.
+          history.replaceState(history.state, "", url);
         }
       }
 

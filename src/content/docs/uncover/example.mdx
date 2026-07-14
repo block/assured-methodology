@@ -18,18 +18,20 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   parentLetter="U"
   pillarIndex="Example"
   pillarTotal="Uncover chapter"
-  chapterHref="/docs/uncover"
+  chapterHref="/docs/uncover/"
   chapterLabel="Uncover"
   lede="The Uncover phase applied to the bounded investigation Scope handed off. Five steps that pull evidence from the right sources, correlate it, and produce the narrative the next phases need."
 />
 
 <PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
+  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
 ]}/>
+
+## The first scenario: the finance-team evidence pull
 
 <ChapterExample
   title="Pulling the evidence on the finance-team intrusion"
@@ -103,7 +105,7 @@ T1071.001  Outbound HTTPS to attacker-controlled domain
 T1539      Browser session cookies read from the compromised host
 T1078.004  Valid accounts: federated login to cloud finance platform`}</code></pre>
     <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal.</p>
-    <p>Uncover ends by packaging five artifacts for Risk: the <strong>evidence chain</strong> (the timestamped, ATT&amp;CK-mapped narrative above), the <strong>confirmed entities</strong> (two compromised hosts, the users, the cloud identity, each verdict with its supporting evidence), the <strong>intelligence context</strong> (the dropper hash matches a known campaign at medium confidence; the C2 domain is new), the <strong>coverage gaps</strong> (cloud-platform in-app activity pending from the vendor, BYOD phones invisible), and the <strong>detection gaps</strong> (the rule fired on one host but missed the identical chain on the peer). The <a href="/docs/uncover/transition">transition page</a> shows the full handoff format.</p>
+    <p>Uncover ends by packaging five artifacts for Risk: the <strong>evidence chain</strong> (the timestamped, ATT&amp;CK-mapped narrative above), the <strong>confirmed entities</strong> (two compromised hosts, the users, the cloud identity, each verdict with its supporting evidence), the <strong>intelligence context</strong> (the dropper hash matches a known campaign at medium confidence; the C2 domain is new), the <strong>coverage gaps</strong> (cloud-platform in-app activity pending from the vendor, BYOD phones invisible), and the <strong>detection gaps</strong> (the rule fired on one host but missed the identical chain on the peer). The <a href="/docs/uncover/transition/">transition page</a> shows the full handoff format.</p>
   </div>
 
 </ExampleStepper>
@@ -291,7 +293,7 @@ T1550.004  Cookie replayed from attacker infrastructure at 09:03
 T1564.008  Inbox rule "." hiding payment-themed mail from 09:06
 T1528      OAuth app consented for standing mailbox access at 09:09
 T1114.002  Bulk remote mail collection 09:14-09:26`}</code></pre>
-    <p>The chain confirms active compromise with live persistence (the session and the app grant are both still valid). That is an escalation criterion, and per the <a href="/docs/uncover/correlation">stopping rules</a>, hitting it ends Uncover now: the open items (vendor detail on app reads, final GDPR determination) transfer to the handoff packet as pending rather than blocking the escalation. Uncover packages the evidence chain, the entity verdicts, the intelligence context, and the named gaps, and the case moves.</p>
+    <p>The chain confirms active compromise with live persistence (the session and the app grant are both still valid). That is an escalation criterion, and per the <a href="/docs/uncover/correlation/">stopping rules</a>, hitting it ends Uncover now: the open items (vendor detail on app reads, final GDPR determination) transfer to the handoff packet as pending rather than blocking the escalation. Uncover packages the evidence chain, the entity verdicts, the intelligence context, and the named gaps, and the case moves.</p>
   </div>
 
 </ExampleStepper>
@@ -372,38 +374,11 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
 Uncover combined multiple sources into a chain in every scenario on this page. The finance case built a chain of malicious endpoint techniques. The Cursor case built a chain of role-consistent activity that ruled out malice with explicit confidence. The token-theft case built its chain entirely from identity and tenant logs. The IAM mini-example did the same on the cloud control plane. The methodology demands the same evidence, the same documentation, and the same handoff in all four.
 </KeyTakeaway>
 
-<ContinueCard current="uncover" nextHref="/docs/uncover/quiz" nextLabel="Uncover quiz" ctaLabel="Take the quiz" />
+<ContinueCard current="uncover" nextHref="/docs/uncover/quiz/" nextLabel="Uncover quiz" ctaLabel="Take the quiz" />
 
 <style>
 {`
 .example-step h3 { margin: 0 0 0.85rem 0; color: #fdba74; font-size: 1.2rem; }
-.example-step p { margin: 0 0 0.85rem 0; color: var(--assured-text-muted); line-height: 1.65; }
 .example-step pre { margin: 0 0 1rem 0; font-size: 0.82rem; }
-.example-step strong { color: var(--assured-text); }
-.example-step__list {
-  margin: 0 0 1rem 0;
-  padding-left: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-.example-step__list li { color: var(--assured-text-muted); line-height: 1.6; }
-.example-step__list strong { color: var(--assured-text); }
-.example-step__what-not {
-  margin: 1rem 0;
-  padding: 0.85rem 1.15rem;
-  background: rgba(239, 68, 68, 0.08);
-  border-left: 3px solid rgba(239, 68, 68, 0.5);
-  border-radius: 0.5rem;
-  font-size: 0.92rem;
-  color: var(--assured-text-soft);
-}
-.example-step__what-not strong { color: #fca5a5; }
-.example-step code {
-  background: rgba(15, 23, 42, 0.7);
-  padding: 0.05rem 0.35rem;
-  border-radius: 0.25rem;
-  font-size: 0.88em;
-}
 `}
 </style>

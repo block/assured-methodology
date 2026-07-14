@@ -11,25 +11,25 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="01" pillarTotal="04" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Escalation criteria are pre-defined thresholds. When they are met, the case escalates regardless of analyst judgment in the moment. Criteria turn the SOC's collective wisdom into a default that holds up under pressure."/>
+<SubPageHero phase="escalation" parentLetter="E" pillarIndex="01" pillarTotal="04" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="Escalation criteria are pre-defined thresholds. When they are met, the case escalates regardless of analyst judgment in the moment. Criteria turn the SOC's collective wisdom into a default that holds up under pressure."/>
 
 <PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
 ]}/>
 
 ## Four canonical categories
 
 <div class="cat-grid">
-  <a href="#malicious" class="cat-card"><h4>✅ Confirmed malicious activity</h4><p>Validated IOCs reliably linked to attacker behavior. Triage moves into containment posture.</p></a>
-  <a href="#high-impact" class="cat-card"><h4>💎 High impact / business-critical</h4><p>Systems essential to operations, regulated data, or revenue. Impact-driven escalation independent of evidence depth.</p></a>
-  <a href="#lateral" class="cat-card"><h4>↔️ Lateral movement or exfiltration</h4><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
-  <a href="#campaign" class="cat-card"><h4>🌐 Ongoing or widespread campaign</h4><p>Multiple hosts, users, or sectors. Coordinated activity demanding organization-level response.</p></a>
+  <a href="#malicious" class="cat-card"><h3>✅ Confirmed malicious activity</h3><p>Validated IOCs reliably linked to attacker behavior. Triage moves into containment posture.</p></a>
+  <a href="#high-impact" class="cat-card"><h3>💎 High impact / business-critical</h3><p>Systems essential to operations, regulated data, or revenue. Impact-driven escalation independent of evidence depth.</p></a>
+  <a href="#lateral" class="cat-card"><h3>↔️ Lateral movement or exfiltration</h3><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
+  <a href="#campaign" class="cat-card"><h3>🌐 Ongoing or widespread campaign</h3><p>Multiple hosts, users, or sectors. Coordinated activity demanding organization-level response.</p></a>
 </div>
 
-The four categories as a run-at-every-phase checklist, with sub-checks and the decision rule: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>, also printed on the <a href="/docs/reference">one-page reference</a>.
+The four categories as a run-at-every-phase checklist, with sub-checks and the decision rule: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>, also printed on the <a href="/docs/reference/">one-page reference</a>.
 
 <Callout variant="warn" title="The break-glass rule: a confirmed criterion escalates from any phase">
 The seven phases are a thinking order, not a waiting queue. The moment any canonical criterion is **confirmed**, in Subject, in Uncover, anywhere, the case escalates immediately: page the IR lead, start the warm handoff, and let the remaining phases complete under IR's clock, in parallel with containment. Do not finish the loop first. An investigation that is still revealing new lateral movement is not "not ready to escalate"; it is the definition of a case IR should already own, with triage continuing as scoping support. Suspicion is different: an unconfirmed signal refines Scope and re-runs the loop. Confirmation breaks the glass.
@@ -43,19 +43,19 @@ Escalation is warranted when definitive evidence ties the event to attacker beha
 
 <div class="malicious-grid">
   <div class="malicious-card">
-    <h4>Verified malicious infrastructure</h4>
+    <h3>Verified malicious infrastructure</h3>
     <p>IP addresses or domains associated with known command-and-control servers, phishing sites, or other malicious infrastructure documented in threat-intelligence sources.</p>
   </div>
   <div class="malicious-card">
-    <h4>Malware indicators</h4>
+    <h3>Malware indicators</h3>
     <p>File hashes matching malware or unauthorized tools documented in threat-intelligence databases, with verified malicious functionality.</p>
   </div>
   <div class="malicious-card">
-    <h4>Exploitation evidence</h4>
+    <h3>Exploitation evidence</h3>
     <p>Execution of attacker tools or exploits consistent with known malware families or attacker profiles, showing intentional compromise.</p>
   </div>
   <div class="malicious-card">
-    <h4>MITRE ATT&amp;CK correlation</h4>
+    <h3>MITRE ATT&amp;CK correlation</h3>
     <p>Use of techniques mapped to MITRE ATT&CK tactics such as privilege escalation, persistence, or defense evasion. The framework gives the activity structured context.</p>
   </div>
 </div>
@@ -72,19 +72,19 @@ When an event affects systems essential to operations, <DefineTerm term="Regulat
 
 <div class="impact-targets">
   <div class="impact-target">
-    <h4>🏭 Production environments</h4>
+    <h3>🏭 Production environments</h3>
     <p>Systems directly impacting revenue generation or customer experience. Compromise can result in service degradation, financial losses, and customer dissatisfaction.</p>
   </div>
   <div class="impact-target">
-    <h4>📋 Regulated data repositories</h4>
+    <h3>📋 Regulated data repositories</h3>
     <p>Databases containing PII, PHI, or payment card data. Heightened scrutiny due to compliance violations and mandatory breach-reporting under GDPR and HIPAA, card-brand rules for payment data, and SEC/state disclosure regimes.</p>
   </div>
   <div class="impact-target">
-    <h4>☁️ Cloud infrastructure</h4>
+    <h3>☁️ Cloud infrastructure</h3>
     <p>Cloud environments hosting critical workloads, particularly those with privileged access or extensive connections to organizational data.</p>
   </div>
   <div class="impact-target">
-    <h4>🔑 Identity and access systems</h4>
+    <h3>🔑 Identity and access systems</h3>
     <p>Identity providers (IdPs), authentication services, VPNs. Compromise here could impact the entire organization's secure-access infrastructure, enabling widespread unauthorized access.</p>
   </div>
 </div>
@@ -145,19 +145,19 @@ Attack campaigns requiring rapid escalation indicate sustained adversary presenc
 
 <div class="campaign-grid">
   <div class="campaign-card">
-    <h4>Related alerts across systems</h4>
+    <h3>Related alerts across systems</h3>
     <p>Multiple alerts showing similar IOCs or attack techniques across different systems or locations within a short timeframe suggest coordination by a single threat actor or group.</p>
   </div>
   <div class="campaign-card">
-    <h4>Coordinated attack patterns</h4>
+    <h3>Coordinated attack patterns</h3>
     <p>Distributed phishing campaigns, simultaneous ransomware deployment attempts, or waves of brute force suggest orchestrated activity using sophisticated infrastructure designed for scale.</p>
   </div>
   <div class="campaign-card">
-    <h4>Evasive techniques</h4>
+    <h3>Evasive techniques</h3>
     <p>Polymorphic malware or rapidly evolving techniques suggest adversaries actively modifying their approach to bypass controls, a sign the detections that caught this alert will not keep catching the next one.</p>
   </div>
   <div class="campaign-card">
-    <h4>Threat intelligence context</h4>
+    <h3>Threat intelligence context</h3>
     <p>External intel feeds correlating local detections with known campaigns targeting your industry or region. A local alert that matches an active campaign is rarely the only affected system.</p>
   </div>
 </div>
@@ -170,7 +170,7 @@ Escalating events with these characteristics enables organization-wide defensive
 
 ## Priority levels: P1–P4
 
-The triage matrix in [Risk framework](/docs/risk/framework) outputs a default action; the bands below give those actions their names. P1–P4 is a *priority* scale, how fast someone must act, not a severity taxonomy. Scoring happens in Risk with the RATM rubric; this table only translates the matrix cell into a clock. Map the labels onto your organization's own paging tiers, but keep the semantics.
+The triage matrix in [Risk framework](/docs/risk/framework/) outputs a default action; the bands below give those actions their names. P1–P4 is a *priority* scale, how fast someone must act, not a severity taxonomy. Scoring happens in Risk with the RATM rubric; this table only translates the matrix cell into a clock. Map the labels onto your organization's own paging tiers, but keep the semantics.
 
 <div class="impact-table">
   <div class="it-row it-row--header"><span>Priority</span><span>Matrix cells</span><span>Meaning</span><span>Clock</span></div>
@@ -184,7 +184,7 @@ The triage matrix in [Risk framework](/docs/risk/framework) outputs a default ac
 Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. A criterion confirmed at any phase escalates from that phase, that is the break-glass rule. Use the criteria as the default; override only with documented reasoning grounded in the same evidence Risk evaluated.
 </KeyTakeaway>
 
-<ContinueCard current="escalation" nextHref="/docs/escalation/protocols" nextLabel="Internal and external protocols" ctaLabel="Read protocols" />
+<ContinueCard current="escalation" nextHref="/docs/escalation/protocols/" nextLabel="Internal and external protocols" ctaLabel="Read protocols" />
 
 <style>{`
 .cat-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
@@ -192,13 +192,15 @@ Escalation criteria are the SOC's pre-committed answer to "should I escalate?" F
 @media (min-width: 1100px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
 .cat-card { display: block; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.22); border-left: 3px solid #6366f1; border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
 .cat-card:hover { transform: translateY(-2px); border-color: #6366f1; box-shadow: 0 12px 24px -14px rgba(99, 102, 241, 0.35); }
-.cat-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
+.cat-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
 .cat-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.85rem; }
 
 .malicious-grid, .impact-targets, .campaign-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .malicious-grid, .impact-targets, .campaign-grid { grid-template-columns: 1fr 1fr; } }
 .malicious-card, .impact-target, .campaign-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.6rem; }
-.malicious-card h4, .impact-target h4, .campaign-card h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.97rem; }
+.malicious-card :is(h3, h4), .impact-target :is(h3, h4), .campaign-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.97rem; }
+/* level changed for the heading outline; size stays as designed */
+.cat-card h3, .malicious-card h3, .impact-target h3, .campaign-card h3 { font-weight: 600; line-height: inherit; }
 .malicious-card p, .impact-target p, .campaign-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
 .stages-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }

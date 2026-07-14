@@ -49,7 +49,7 @@ const put = (term, definition, source) => {
 // --- C.A.T.: tool cards --------------------------------------------------
 const cat = readFileSync(paths.cat, "utf8");
 for (const m of cat.matchAll(
-  /<article[^>]*class="cat-tool[^"]*"[^>]*>\s*<h4>([\s\S]*?)<\/h4>\s*<p>([\s\S]*?)<\/p>/g
+  /<article[^>]*class="cat-tool[^"]*"[^>]*>\s*<h3>([\s\S]*?)<\/h3>\s*<p>([\s\S]*?)<\/p>/g
 )) {
   put(m[1], m[2], "cat-tool");
 }
@@ -69,7 +69,7 @@ const badKinds = [
 ];
 for (const [cls, source] of badKinds) {
   const re = new RegExp(
-    `<article[^>]*class="${cls}[^"]*"[^>]*>\\s*<h4>([\\s\\S]*?)<\\/h4>\\s*<p>([\\s\\S]*?)<\\/p>`,
+    `<article[^>]*class="${cls}[^"]*"[^>]*>\\s*<h3>([\\s\\S]*?)<\\/h3>\\s*<p>([\\s\\S]*?)<\\/p>`,
     "g"
   );
   for (const m of bad.matchAll(re)) put(m[1], m[2], source);

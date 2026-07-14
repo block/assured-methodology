@@ -100,6 +100,14 @@ methodology, followed by a fix wave that touched every chapter.
 - The chapter easter-egg engine now ships as one cached, bundled script
   instead of being inlined into every content page, trimming roughly 13 KB
   from each page's HTML.
+- Style rules duplicated verbatim across content pages (outcome rows, pillar
+  and card grids, worked-example steps, download pills) moved to one shared
+  stylesheet; per-chapter color variants stay page-local.
+- C.L.E.A.R. glossary cleanup: 38 generic IT and business dictionary entries
+  removed (Enterprise, Framework, IntelliSense, ROI, and similar) and 54
+  definitions rewritten to their security meaning as used in triage, most
+  notably Process, User, Domain, and API. Every hover-tooltip on the site
+  still resolves.
 - Parsing subtree restructured around an honest taxonomy: one normalization
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual
@@ -115,6 +123,89 @@ methodology, followed by a fix wave that touched every chapter.
 
 ### Fixed
 
+- The glossary jump-navs actually pin while scrolling on larger screens (their
+  position: sticky never engaged) and sit below the site header instead of
+  underneath it; on phones, where the wrapped rows would cover much of the
+  viewport, they scroll with the page. Jump and deep-link landings offset
+  themselves past the pinned nav, whose height varies as its rows wrap, so
+  the target heading is never hidden underneath it.
+- The glossary ambient background layer (grid overlay plus each theme's
+  motion ornament) renders again: a stacking rule matched it by mistake and
+  collapsed it to zero height on all three glossaries.
+- Glossary filter inputs meet the 16px floor below which iOS Safari zooms the
+  page on focus, and small touch controls (chapter pill nav, glossary nav
+  pills, the easter-egg toggle) get a 44px touch-target floor on touch devices.
+- The search modal sizes itself to the dynamic viewport on iOS so its bottom
+  edge is not hidden behind Safari's toolbar, and its scroll no longer chains
+  to the page behind it.
+- The B.A.D. glossary pauses off-screen animated art (roughly 165 elements
+  animated continuously for the life of the page), cutting main-thread work,
+  scroll jank, and battery drain on phones.
+- The heading outline is now real on every page: about a thousand card titles
+  sat at h4 directly under h2 section heads (51 pages skipped a level, which
+  screen-reader users navigate by), and are now h3 with their rendered look
+  pinned unchanged. The glossary data extraction reads the new tags in
+  lockstep.
+- The table of contents follows the page content in DOM order, so keyboard
+  and screen-reader users reach the chapter before the link rail, and it
+  lists only the chapter's section headings.
+- Contrast lifts on text over the page gradient's light band: the pager's
+  Previous/Next direction labels and the quiz progress labels now clear the
+  4.5:1 floor, as does the C.L.E.A.R. filter placeholder.
+- Pages print faithfully: gradient-clipped headlines no longer print as blank
+  space (the transparent text fill now flips to dark ink in print), and
+  worked-example steppers print every step instead of only the selected one.
+  The same all-steps fallback applies when JavaScript is off.
+- The search modal's close button meets the 44px touch floor, glossary filter
+  focus rings survive forced-colors mode, and the evasion-pattern disclosure
+  headers use valid summary markup.
+- The desktop nav had outgrown its breakpoint: fifteen top-level links
+  painted over the search and GitHub controls at almost every desktop width.
+  The five guide pages (Fast path, AI triage, Cognitive traps, Quick
+  reference, Where ASSURED sits) now fold into a Guides dropdown, restoring
+  the eleven-item row the 1350px breakpoint was calibrated for.
+- The progress strip on a quiz's own page ticks the moment the chapter quiz
+  completes instead of after a reload; quiz-completion storage now lives in
+  one shared module read by both the quiz and the strip.
+- The first worked case on all seven example pages now appears in the table
+  of contents and its scroll spy; its only heading lived inside the card
+  component, invisible to the TOC.
+- The Training and Glossaries dropdowns no longer open with an "overview"
+  row that mislabeled a child page as a chapter intro and duplicated its
+  link; in the mobile menu those groups render as plain labels instead of
+  links for the same reason.
+- The header highlights the section you are in even when the page is not
+  the section's own hub: Guides, Training, and Glossaries now mark
+  themselves current for every child page.
+- The CDE and PFI hover tooltips on the regulatory-boundaries page show
+  their definitions for the first time; the term text passed as slot
+  children had always replaced the definition body. The DefineTerm doc
+  comment now describes the real precedence (slot, then definition prop,
+  then glossary lookup).
+- Copy that still said "two cases" after Case C landed now counts all
+  three: the Alert transition and example pages, the Documentation
+  templates pointer, and CONTRIBUTING's case-study ask. The Scope example
+  callout, which sits above Case C on its page, now says "two cases so
+  far".
+- Glossary hero ledes are no longer a paragraph nested inside a paragraph;
+  the browser auto-closed the wrapper and dropped the theme tint on the
+  visible text.
+- Internal links use the trailing-slash form Vercel actually serves, removing
+  a 308 redirect from every page navigation. Astro dev now rejects the bare
+  form and the link checker enforces it at build time.
+- The Vercel deploy is pinned to the repo's own build command, so the search
+  index is always generated, and Pagefind's immutable search assets ship with
+  long-lived cache headers.
+- The mobile navigation menu scrolls within the sticky header. Its 81 links
+  previously extended thousands of pixels past the viewport with no way to
+  reach anything below the first screenful.
+- The browser Back button no longer goes dead after visiting a worked-example
+  page: the example stepper and the table of contents now preserve the
+  view-transition router's history state instead of nulling it.
+- Long unbreakable tokens (registry paths, encoded command lines, dotted log
+  fields) wrap inside inline code, callouts, and quiz prompts instead of
+  forcing whole-page sideways panning on phones. This fixes horizontal
+  overflow on eight pages at phone widths.
 - Worked-example continuity: the two threaded cases (finance-team phishing,
   Cursor IDE false positive) now carry consistent entities, timestamps, and
   verdicts through all seven chapters.

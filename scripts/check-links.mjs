@@ -115,6 +115,14 @@ function main() {
         }
         continue;
       }
+      // Page links must use the trailing-slash form: vercel.json sets
+      // "trailingSlash": true, so the bare form costs a 308 on every click.
+      if (!pathname.endsWith("/")) {
+        broken.push(
+          `${pagePath} -> ${raw} (missing trailing slash; Vercel 308-redirects this)`,
+        );
+        continue;
+      }
       if (fragment && !idsOf(target).has(decodeURIComponent(fragment))) {
         broken.push(`${pagePath} -> ${raw} (no id "${fragment}" on target page)`);
       }

@@ -170,7 +170,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Application Programming Interface (API)": {
     "term": "Application Programming Interface (API)",
-    "definition": "A set of rules and protocols that allows different software systems to communicate with each other.",
+    "definition": "An interface a service exposes for programmatic access, typically authenticated with keys, tokens, or certificates instead of an interactive login. In cloud and SaaS triage the API audit log is often the only record of what a stolen credential actually did, since an attacker holding a valid key or token never touches a login page and sidesteps login-centric controls such as MFA.",
     "source": "clear"
   },
   "Application Shimming": {
@@ -180,7 +180,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Application-Layer Protocol": {
     "term": "Application-Layer Protocol",
-    "definition": "Network protocols that operate at Layer 7 of the OSI model, dealing with application-specific communication (HTTP, SMTP, DNS).",
+    "definition": "A protocol at the top of the network stack that applications speak directly: HTTP, DNS, SMTP, SMB. Triage cares because adversaries tunnel command-and-control and exfiltration through these common protocols to blend with legitimate traffic, which is why destination and payload matter more than port alone.",
     "source": "clear"
   },
   "Arbitrary Commands": {
@@ -255,7 +255,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Autonomous System Number (ASN)": {
     "term": "Autonomous System Number (ASN)",
-    "definition": "A unique identifier assigned to an internet network used for routing traffic between networks.",
+    "definition": "A globally unique number identifying a network routed under a single operator, such as an ISP, cloud provider, or hosting company. During enrichment the ASN behind an IP address tells the analyst who operates it, which is how a connection resolves to a residential ISP, a corporate egress, or a hosting range with a reputation for abuse.",
     "source": "clear"
   },
   "Autopsy": {
@@ -373,11 +373,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "The set of systems, identities, and data an incident can plausibly reach from its current foothold: everything the compromised entity can touch, authenticate to, or influence. Scope draws boundaries around it, lateral movement grows it, and containment exists to stop it growing.",
     "source": "clear"
   },
-  "Blockchain": {
-    "term": "Blockchain",
-    "definition": "A distributed ledger technology that maintains a secure, decentralized record of transactions, introducing new security considerations for digital assets and smart contracts.",
-    "source": "clear"
-  },
   "BlueKeep (CVE-2019-0708)": {
     "term": "BlueKeep (CVE-2019-0708)",
     "definition": "Critical RDP vulnerability allowing remote code execution without authentication. Affects older Windows. \"Wormable\", could self-propagate like WannaCry. Microsoft issued an emergency patch. Highlighted the danger of exposing RDP directly to the internet.",
@@ -390,7 +385,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Border Gateway Protocol (BGP)": {
     "term": "Border Gateway Protocol (BGP)",
-    "definition": "The protocol managing how packets are routed across the internet between autonomous systems.",
+    "definition": "The routing protocol that exchanges reachability information between the autonomous systems that make up the internet. Security-relevant because BGP hijacks and route leaks can silently redirect traffic through attacker-controlled networks, so a connection's destination is not always where the packets actually went.",
     "source": "clear"
   },
   "Bosch Security Systems": {
@@ -425,17 +420,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Business Continuity": {
     "term": "Business Continuity",
-    "definition": "The ability of an organization to continue operating and providing services despite disruptions or disasters.",
+    "definition": "An organization's capacity to keep critical operations running during and after a disruptive incident such as a ransomware outbreak or a destructive attack. In triage, a credible threat to business continuity is part of what raises an alert's risk rating and escalation urgency.",
     "source": "clear"
   },
   "Business Email Compromise (BEC)": {
     "term": "Business Email Compromise (BEC)",
     "definition": "Phishing's no-payload variant: an email impersonating an executive, vendor, or counterparty that asks the recipient to move money or change payment details. With no attachment to detonate and no link to rewrite, gateway verdicts stay quiet; the evidence lives in lookalike domains, display-name and reply-to mismatches, and hijacked threads sent from a compromised counterparty's real mailbox. Consistently among the costliest cybercrime categories by reported losses.",
-    "source": "clear"
-  },
-  "Byte Sequence": {
-    "term": "Byte Sequence",
-    "definition": "An ordered set of bytes in memory or data streams, often analyzed in malware detection or forensics.",
     "source": "clear"
   },
   "CIA Triad": {
@@ -623,29 +613,14 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "The process of combining multiple strings or commands, often used by attackers to bypass security controls or obfuscate malicious code.",
     "source": "clear"
   },
-  "Conditional Logic": {
-    "term": "Conditional Logic",
-    "definition": "Programming or rule-based logic that executes actions based on specific conditions or criteria.",
-    "source": "clear"
-  },
-  "Configuration Management": {
-    "term": "Configuration Management",
-    "definition": "The process of tracking and controlling changes to systems, networks, and applications.",
-    "source": "clear"
-  },
   "Configuration Management Database (CMDB)": {
     "term": "Configuration Management Database (CMDB)",
-    "definition": "Repositories that store information about IT assets and their relationships to support change and incident management.",
-    "source": "clear"
-  },
-  "Container Orchestration": {
-    "term": "Container Orchestration",
-    "definition": "Automated management, scaling, and deployment of containerized applications using platforms like Kubernetes.",
+    "definition": "A database of an organization's systems and services (configuration items) and the relationships between them; during triage an analyst queries it to learn what an alerting system actually is: its owner, business role, criticality, and dependencies. A stale CMDB is a common reason a scoping question takes hours instead of minutes.",
     "source": "clear"
   },
   "Containers": {
     "term": "Containers",
-    "definition": "Lightweight, standalone packages that include everything needed to run a piece of software, introducing unique security challenges in orchestration and isolation.",
+    "definition": "A lightweight workload isolation unit that shares the host operating system's kernel instead of running its own, making its isolation boundary weaker than a virtual machine's. For triage, containers mean ephemeral evidence: a compromised container can be torn down and rescheduled before anyone looks at it, so telemetry shipped off the container is often all that remains.",
     "source": "clear"
   },
   "Containment": {
@@ -690,18 +665,13 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Critical Infrastructure": {
     "term": "Critical Infrastructure",
-    "definition": "Essential systems, networks, or assets that are critical to an organization's operations or national security.",
+    "definition": "Systems and services whose disruption would endanger public safety, economic stability, or national security: power, water, healthcare, financial services, telecommunications, and similar sectors. The United States designates 16 critical infrastructure sectors by presidential directive (PPD-21, reaffirmed by NSM-22) with CISA as national coordinator; organizations in them face heightened nation-state targeting and sector-specific incident-reporting obligations.",
     "source": "clear"
   },
   "Cross-Process Injection": {
     "term": "Cross-Process Injection",
     "definition": "Injecting code into another running process's memory space to hide execution and bypass security controls.",
     "source": "bad-term"
-  },
-  "Cross-System": {
-    "term": "Cross-System",
-    "definition": "Interactions or communications that occur between different systems or platforms within an infrastructure.",
-    "source": "clear"
   },
   "CrowdStrike Falcon": {
     "term": "CrowdStrike Falcon",
@@ -783,11 +753,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Self-learning AI; builds behavioral baselines, detects anomalies, autonomously responds via its RESPOND module (formerly Antigena).",
     "source": "cat-tool"
   },
-  "Data Aggregation": {
-    "term": "Data Aggregation",
-    "definition": "The process of collecting and combining data from multiple sources for analysis, potentially revealing security patterns or threats not visible in isolated data sets.",
-    "source": "clear"
-  },
   "Data Breach": {
     "term": "Data Breach",
     "definition": "The unauthorized access, theft, or exposure of sensitive data.",
@@ -828,14 +793,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A set of tools and processes that help prevent sensitive data from being lost, stolen, or compromised.",
     "source": "clear"
   },
-  "Data Protection": {
-    "term": "Data Protection",
-    "definition": "The processes and technologies used to protect sensitive data from unauthorized access, theft, or damage.",
-    "source": "clear"
-  },
   "Data Retention": {
     "term": "Data Retention",
-    "definition": "The policies and procedures that govern how long data is stored and retained.",
+    "definition": "How long logs, telemetry, and other records are kept before they roll off or are purged. Retention windows bound every investigation: if the intrusion began before the oldest retained log, the earliest attacker activity cannot be reconstructed from logs and may be recoverable only through host or disk forensics, if at all.",
     "source": "clear"
   },
   "Data Staging": {
@@ -855,7 +815,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Deep Packet Inspection (DPI)": {
     "term": "Deep Packet Inspection (DPI)",
-    "definition": "A technique used to inspect and analyze network traffic to detect and block malicious activity.",
+    "definition": "Inspecting the full contents of network packets, payload included, rather than only headers and flow metadata. This is what lets a network sensor see the actual request, file, or command inside the traffic, though pervasive encryption steadily shrinks what it can read.",
     "source": "clear"
   },
   "Defense Evasion": {
@@ -910,7 +870,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Disaster Recovery": {
     "term": "Disaster Recovery",
-    "definition": "The process of restoring systems, networks, and operations after a disaster or major disruption.",
+    "definition": "The capability to restore systems and data after a destructive incident, most often tested by ransomware. Attackers deliberately disable it first, so alerts showing backup deletion, shadow copy removal, or tampering with recovery tooling warrant immediate escalation.",
     "source": "clear"
   },
   "Distributed Denial-of-Service (DDoS)": {
@@ -918,14 +878,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A type of attack where multiple systems are used to flood a targeted system or network with traffic in an attempt to overwhelm it.",
     "source": "clear"
   },
-  "Distribution Pipelines": {
-    "term": "Distribution Pipelines",
-    "definition": "Processes and tools used to deploy software or updates from development to production environments.",
-    "source": "clear"
-  },
   "Domain": {
     "term": "Domain",
-    "definition": "A unique name or identifier for a system, network, or organization on the internet.",
+    "definition": "Either a DNS name like example.com that identifies internet infrastructure, or a Windows Active Directory domain, the identity and authentication boundary attackers aim to own; context makes the sense clear. As an indicator, a DNS domain's age, registrar, and reputation are among the first pivots in triage.",
     "source": "clear"
   },
   "Domain Admin": {
@@ -940,7 +895,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Domain Depth": {
     "term": "Domain Depth",
-    "definition": "The hierarchical level or complexity within a domain namespace or network structure.",
+    "definition": "The number of subdomain levels beneath the registered domain in a fully qualified domain name; a.b.example.com has a depth of two below example.com. Depth is a triage feature: DNS tunneling and machine-generated phishing infrastructure tend to produce long subdomain chains, while most legitimate names stay shallow.",
     "source": "clear"
   },
   "Domain Fronting": {
@@ -960,7 +915,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Domain Name System (DNS)": {
     "term": "Domain Name System (DNS)",
-    "definition": "A system that translates domain names into IP addresses.",
+    "definition": "The distributed system that resolves human-readable names to IP addresses. For an analyst it is one of the richest telemetry sources available: nearly every connection begins with a query, so DNS logs surface C2 lookups, tunneling, DGA noise, and newly registered domains that other data misses.",
     "source": "clear"
   },
   "Domain Name System Exfiltration": {
@@ -975,17 +930,17 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Domain Trusts": {
     "term": "Domain Trusts",
-    "definition": "Relationships established between domains to allow resource sharing and authentication.",
+    "definition": "Authentication relationships between Active Directory domains that let identities in one domain access resources in another. Attackers enumerate and abuse trusts to extend a compromise across domain and forest boundaries, which makes the trust map a lateral-movement map.",
     "source": "clear"
   },
   "Domain-based Message Authentication, Reporting, and Conformance (DMARC)": {
     "term": "Domain-based Message Authentication, Reporting, and Conformance (DMARC)",
-    "definition": "An email validation system to prevent spoofing.",
+    "definition": "An email authentication policy protocol built on SPF and DKIM: the domain owner publishes in DNS how receivers should treat mail that fails alignment (monitor, quarantine, or reject) and where to send reports. During phishing triage, a DMARC failure on mail claiming to come from a trusted domain is strong spoofing evidence.",
     "source": "clear"
   },
   "DomainKeys Identified Mail (DKIM)": {
     "term": "DomainKeys Identified Mail (DKIM)",
-    "definition": "An email authentication method that verifies message integrity and sender identity.",
+    "definition": "An email authentication method in which the sending infrastructure signs selected message headers and a hash of the body with a private key, and receivers verify the signature against a public key published in the signing domain's DNS. A valid signature shows the signing domain took responsibility for the message and that the signed content arrived unaltered; it says nothing about whether the content is safe.",
     "source": "clear"
   },
   "Dridex": {
@@ -1015,7 +970,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Dynamic Link Library (DLL)": {
     "term": "Dynamic Link Library (DLL)",
-    "definition": "A collection of executable functions or data that can be used by multiple programs.",
+    "definition": "A Windows shared library whose code is loaded into a process's address space at runtime. Module-load telemetry matters in triage because attackers run code inside trusted processes by supplying their own DLLs through injection, sideloading, or search-order hijacking.",
     "source": "clear"
   },
   "Dynamic Prioritization": {
@@ -1040,7 +995,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Electron Framework": {
     "term": "Electron Framework",
-    "definition": "An open-source framework for building cross-platform desktop applications using web technologies.",
+    "definition": "A framework for building desktop applications from web technologies; Slack, VS Code, and Cursor are Electron apps. It matters in triage because Electron apps legitimately spawn helper processes with long vendor-standard command lines and sometimes disabled sandboxes, behavior that pattern-matches post-exploitation tooling, while a helper whose parent is not its own main app process is a genuine lineage anomaly.",
     "source": "clear"
   },
   "EmPyre / Empire": {
@@ -1103,19 +1058,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Adding context to a raw alert or indicator before or during triage: reputation and WHOIS for an IP, owner and criticality for an asset, role and department for a user, a sandbox verdict for a file. Automated enrichment is what SOAR pipelines do best; the analyst's judgment starts where the enrichment stops answering the question.",
     "source": "clear"
   },
-  "Enterprise": {
-    "term": "Enterprise",
-    "definition": "A large organization or business that operates in multiple locations or countries.",
-    "source": "clear"
-  },
-  "Entitlement Matrix": {
-    "term": "Entitlement Matrix",
-    "definition": "A framework mapping user roles to their access permissions within systems.",
-    "source": "clear"
-  },
   "Entity": {
     "term": "Entity",
-    "definition": "A person, system, or organization that interacts with or affects a security incident.",
+    "definition": "Any discrete actor or object that evidence can attach to during an investigation: a user account, a host, a process, an IP address, a domain, a file. Triage decomposes an alert into its entities and asks what each one was doing; the same idea gives UEBA its E.",
     "source": "clear"
   },
   "Entropy Scoring": {
@@ -1130,7 +1075,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Ephemeral Computing": {
     "term": "Ephemeral Computing",
-    "definition": "A computing model where resources, such as containers or serverless functions, are temporary and exist only for the duration of a specific task or process.",
+    "definition": "Infrastructure that exists only as long as its task: containers, serverless functions, and autoscaled instances created and destroyed on demand. It matters in triage because the evidence dies with the workload; unless telemetry was shipped off the resource while it lived, there is nothing left to examine by the time the alert is read.",
     "source": "clear"
   },
   "Equifax breach": {
@@ -1165,7 +1110,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Event Context": {
     "term": "Event Context",
-    "definition": "The circumstances and environment surrounding a security event.",
+    "definition": "The surrounding facts that give a security event meaning: who the user is, what the host is for, what happened immediately before and after, and whether the activity is normal for that identity at that time and place. Context is what lets an analyst turn an isolated observation into a verdict.",
     "source": "clear"
   },
   "Event Correlation": {
@@ -1260,7 +1205,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Federation": {
     "term": "Federation",
-    "definition": "A system allowing users to access multiple independent systems using a single set of credentials.",
+    "definition": "Linking identity across independent systems or organizations so that a trusted identity provider authenticates users on behalf of services it does not operate, typically via SAML or OIDC. Matters in triage because every relying service delegates authentication to the identity provider: a compromise there, such as a stolen signing key used to forge assertions (Golden SAML), can mint access to any federated service.",
     "source": "clear"
   },
   "Feedback Loop": {
@@ -1306,11 +1251,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Forensics": {
     "term": "Forensics",
     "definition": "The application of scientific methods to collect, preserve, and analyze digital evidence for security investigations and incident response.",
-    "source": "clear"
-  },
-  "Framework": {
-    "term": "Framework",
-    "definition": "A structured approach or set of guidelines used to build security programs or processes.",
     "source": "clear"
   },
   "Fully Qualified Domain Name (FQDN)": {
@@ -1370,7 +1310,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "HTA Content": {
     "term": "HTA Content",
-    "definition": "HTML Application files that can execute scripts, sometimes abused for malicious purposes.",
+    "definition": "Script content delivered as an HTML Application (.hta file), which Windows executes through mshta.exe with the local user's full privileges rather than inside the browser sandbox. A recurring phishing and living-off-the-land vector, which is why mshta.exe spawning from a browser or email client draws analyst attention.",
     "source": "clear"
   },
   "HTTPS C2": {
@@ -1413,14 +1353,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Integrated physical security: surveillance, access, intrusion detection, alarms across critical infrastructure.",
     "source": "cat-tool"
   },
-  "Hybrid Infrastructure": {
-    "term": "Hybrid Infrastructure",
-    "definition": "Computing environment that combines on-premises, private cloud, and public cloud services.",
-    "source": "clear"
-  },
   "Hypertext Transfer Protocol (HTTP)": {
     "term": "Hypertext Transfer Protocol (HTTP)",
-    "definition": "The foundation protocol for data communication on the web.",
+    "definition": "The request-response protocol that carries most web traffic between clients and servers. Triage-relevant because attacker traffic blends into it: C2 beacons, payload downloads, and exfiltration ride HTTP precisely because it is allowed almost everywhere, and its URIs, headers, and user-agent strings are core investigation fields.",
     "source": "clear"
   },
   "Hypertext Transfer Protocol Secure (HTTPS)": {
@@ -1483,11 +1418,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Industry groups that share cyber threat information.",
     "source": "clear"
   },
-  "Information Technology Service Management (ITSM)": {
-    "term": "Information Technology Service Management (ITSM)",
-    "definition": "Frameworks and tools to manage IT services and processes.",
-    "source": "clear"
-  },
   "Infostealers": {
     "term": "Infostealers",
     "definition": "Software that harvests sensitive data from victims: passwords, cookies, browser history, autofill. Commonly used in initial-access phases of broader attack campaigns.",
@@ -1495,7 +1425,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Infrastructure": {
     "term": "Infrastructure",
-    "definition": "The underlying systems, networks, and architecture that support an organization's operations.",
+    "definition": "The systems, networks, and services that computing runs on. In triage the word points two directions: the organization's infrastructure is what alerts fire on, and attacker infrastructure is the set of C2 servers, domains, and staging hosts an adversary operates, which pivoting on indicators is meant to map.",
     "source": "clear"
   },
   "Initial Access": {
@@ -1525,18 +1455,13 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Integrated Development Environment (IDE)": {
     "term": "Integrated Development Environment (IDE)",
-    "definition": "Software that provides comprehensive facilities to programmers.",
+    "definition": "Software developers use to write, run, and debug code, such as VS Code, Cursor, or IntelliJ. IDEs matter in triage because their normal operation, spawning helper processes, executing scripts, running plugin hosts with sandboxes disabled, and making encrypted outbound calls, routinely pattern-matches post-exploitation behavior on developer workstations.",
     "source": "clear"
   },
   "Intel 471": {
     "term": "Intel 471",
     "definition": "Commercial deep/dark-web monitoring with adversary infrastructure, TTP, and threat-actor behavior intelligence.",
     "source": "cat-tool"
-  },
-  "IntelliSense": {
-    "term": "IntelliSense",
-    "definition": "A code-completion aid commonly found in development environments.",
-    "source": "clear"
   },
   "Intelligence": {
     "term": "Intelligence",
@@ -1545,12 +1470,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Inter-Process Communication": {
     "term": "Inter-Process Communication",
-    "definition": "Mechanisms that allow different processes to communicate within an operating system.",
+    "definition": "Operating system mechanisms that let running processes exchange data, such as named pipes, shared memory, and local sockets. Triage-relevant because malware abuses these channels for command-and-control, privilege escalation, and coordination between implant components; named-pipe telemetry in particular is a staple of EDR detections for tooling like Cobalt Strike.",
     "source": "clear"
   },
   "Internet Protocol (IP) Address": {
     "term": "Internet Protocol (IP) Address",
-    "definition": "A unique address assigned to a device or system on a network.",
+    "definition": "The numeric address a device uses to send and receive network traffic, and one of the most common pivot points in triage: reputation lookups, geolocation, WHOIS ownership, and log correlation all key on it. Treat it as a weak proxy for identity, since NAT, VPNs, proxies, and shared cloud egress can put many actors behind one address.",
     "source": "clear"
   },
   "Internet of Things (IoT)": {
@@ -1572,11 +1497,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "IoT Malware",
     "definition": "Designed to infect Internet of Things devices like routers, cameras, smart appliances. Often used in botnets (e.g., Mirai) due to weak authentication and outdated firmware.",
     "source": "bad-term"
-  },
-  "Isolated Execution Environment": {
-    "term": "Isolated Execution Environment",
-    "definition": "A secure area where code runs isolated from other system components to prevent interference.",
-    "source": "clear"
   },
   "Isolation Forests": {
     "term": "Isolation Forests",
@@ -1640,7 +1560,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Kubernetes": {
     "term": "Kubernetes",
-    "definition": "An open-source system for automating deployment, scaling, and management of containerized applications.",
+    "definition": "The dominant container orchestration platform and an attack surface in its own right: exposed API servers, over-permissioned service account tokens, and container escapes can turn one compromised workload into a path across the cluster. Analysts meet it through Kubernetes audit logs and runtime telemetry, where short-lived pods complicate reconstructing what was running when an alert fired.",
     "source": "clear"
   },
   "LAPSUS$ Okta, Microsoft, Nvidia": {
@@ -1652,11 +1572,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "LOLBins",
     "definition": "Living Off the Land Binaries: trusted, signed system executables (certutil, rundll32, mshta) weaponized so the malicious part is the argument line, not the file on disk. The evasion face of the Living Off The Land technique covered under Execution.",
     "source": "bad-term"
-  },
-  "LSTM Networks": {
-    "term": "LSTM Networks",
-    "definition": "A type of recurrent neural network useful in analyzing sequential data for anomaly detection.",
-    "source": "clear"
   },
   "Lansweeper": {
     "term": "Lansweeper",
@@ -1720,7 +1635,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Log": {
     "term": "Log",
-    "definition": "A record of events, transactions, or activities in a system or network.",
+    "definition": "A timestamped record of an event emitted by a system, application, or security control. Logs are the raw evidence of triage: the alert points at a moment in time, and the surrounding log entries are how the analyst reconstructs what actually happened.",
     "source": "clear"
   },
   "Log Parsing": {
@@ -1803,11 +1718,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Mobile forensics for law enforcement; XRY for extraction, XAMN for evidence visualization, XEC for lab management.",
     "source": "cat-tool"
   },
-  "Machine Learning": {
-    "term": "Machine Learning",
-    "definition": "The use of algorithms and statistical models that enable computer systems to improve their performance on a specific task through experience.",
-    "source": "clear"
-  },
   "Macro-based Execution": {
     "term": "Macro-based Execution",
     "definition": "Using macros embedded in Office documents or other files to execute malicious code once the file is opened.",
@@ -1868,11 +1778,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Data about data: file timestamps, owner, size, hash; an email's headers; a process's parent, command line, and signing certificate. In triage, metadata is often more diagnostic than the content itself.",
     "source": "clear"
   },
-  "Methodology": {
-    "term": "Methodology",
-    "definition": "A systematic framework or approach for conducting security operations or investigations.",
-    "source": "clear"
-  },
   "Microsoft Configuration Manager (MECM)": {
     "term": "Microsoft Configuration Manager (MECM)",
     "definition": "Formerly System Center Configuration Manager (SCCM). Patching, software distribution, and compliance for Windows ecosystems; now part of the Microsoft Intune family alongside cloud-only endpoint management.",
@@ -1903,11 +1808,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Free Microsoft tool for centrally approving and distributing Windows updates within an organization.",
     "source": "cat-tool"
   },
-  "Middleware": {
-    "term": "Middleware",
-    "definition": "Software that connects different applications or systems to enable communication and data exchange.",
-    "source": "clear"
-  },
   "Milestone Systems": {
     "term": "Milestone Systems",
     "definition": "Open-platform IP video management with broad camera support and rich analytics.",
@@ -1927,11 +1827,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Mobile Malware",
     "definition": "Malware targeting mobile devices, often distributed via malicious apps or phishing links. Includes SMS stealers, fake banking apps, mobile RATs.",
     "source": "bad-term"
-  },
-  "Model Training": {
-    "term": "Model Training",
-    "definition": "The process of teaching a machine learning model to recognize patterns using labeled data.",
-    "source": "clear"
   },
   "Mshta.exe": {
     "term": "Mshta.exe",
@@ -1968,20 +1863,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Vulnerability scanner with authenticated/unauthenticated scans and compliance framework support.",
     "source": "cat-tool"
   },
-  "Nested Data": {
-    "term": "Nested Data",
-    "definition": "Data structures where elements contain other data structures, common in logs and JSON.",
-    "source": "clear"
-  },
   "NetFlow": {
     "term": "NetFlow",
     "definition": "Cisco-developed protocol for flow-based monitoring and anomaly detection; metadata about traffic sessions.",
     "source": "cat-tool"
-  },
-  "Network": {
-    "term": "Network",
-    "definition": "A collection of interconnected devices, systems, or servers that communicate with each other.",
-    "source": "clear"
   },
   "Network Access Control (NAC)": {
     "term": "Network Access Control (NAC)",
@@ -1995,7 +1880,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Network Traffic": {
     "term": "Network Traffic",
-    "definition": "The flow of data between devices, systems, or servers on a network.",
+    "definition": "The data moving between hosts on a network, observed as connections, flows, and packets. In triage, traffic metadata (who talked to whom, when, how much, and over which port and protocol) is often the fastest way to confirm or rule out command and control, exfiltration, or lateral movement.",
     "source": "clear"
   },
   "Nexpose (Rapid7)": {
@@ -2018,11 +1903,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Network discovery and security auditing with rich NSE scripting for service detection.",
     "source": "cat-tool"
   },
-  "Node": {
-    "term": "Node",
-    "definition": "A device or system that is connected to a network.",
-    "source": "clear"
-  },
   "Node.js": {
     "term": "Node.js",
     "definition": "Event-driven JavaScript runtime on V8; backend services, APIs, automation scripts, and tooling.",
@@ -2030,7 +1910,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Normalization": {
     "term": "Normalization",
-    "definition": "The process of transforming data into a standard format to improve analysis and comparison.",
+    "definition": "Converting logs and events from different sources into a common field schema so a username, IP, or timestamp means the same thing regardless of which tool recorded it. SIEM correlation rules and cross-source queries depend on it; fields that were never normalized are where searches silently miss.",
     "source": "clear"
   },
   "NotPetya": {
@@ -2042,11 +1922,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "OPM breach",
     "definition": "2015 breach compromising SF-86 background investigation records (and fingerprints) for 21+ million U.S. federal personnel. Attributed to Chinese state-sponsored actors. A goldmine for counterintelligence. Major reforms in U.S. government cybersecurity practices and incident response readiness followed.",
     "source": "bad-campaign"
-  },
-  "OSA Model": {
-    "term": "OSA Model",
-    "definition": "Open Security Architecture model used for designing security frameworks.",
-    "source": "clear"
   },
   "OWASP ZAP": {
     "term": "OWASP ZAP",
@@ -2088,11 +1963,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "2019 supply-chain compromise of the ASUS software update utility. Compromised updates were signed and shipped from ASUS's own servers, reaching hundreds of thousands. Payload activated only on specific targets, suggesting selective espionage. Stolen certificates plus supply-chain trust. Linked to nation-state-capable APT activity.",
     "source": "bad-campaign"
   },
-  "Oracle Cluster File System (OCFS)": {
-    "term": "Oracle Cluster File System (OCFS)",
-    "definition": "A shared file system used in clustered environments.",
-    "source": "clear"
-  },
   "Orca Security": {
     "term": "Orca Security",
     "definition": "Agentless cloud security; full-stack visibility, vulnerability management, and risk prioritization across cloud workloads.",
@@ -2100,7 +1970,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Organizationally Unique Identifier (OUI)": {
     "term": "Organizationally Unique Identifier (OUI)",
-    "definition": "The first 24 bits of a MAC address that identify the manufacturer.",
+    "definition": "The first 24 bits of a MAC address, assigned by the IEEE to a specific organization, typically a hardware vendor. Looking up the OUI turns an unknown MAC into a vendor name when hunting rogue or unmanaged devices, but modern endpoints often randomize their MAC addresses, so a lookup that fails or returns nonsense may indicate privacy randomization rather than a real device identity.",
     "source": "clear"
   },
   "Orphaned Credentials": {
@@ -2125,7 +1995,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Parsing": {
     "term": "Parsing",
-    "definition": "The process of analyzing data structures or code to extract meaningful information.",
+    "definition": "Breaking a raw alert, log line, or command string into its component fields so each can be examined on its own: the user, the host, the action, the time. In triage, parsing the alert is the first move; the details that decide a verdict live in the fields, not in the alert name.",
     "source": "clear"
   },
   "Pass-the-Hash": {
@@ -2170,7 +2040,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Peer Validation": {
     "term": "Peer Validation",
-    "definition": "A method of verifying information or alerts through cross-checking with other sources.",
+    "definition": "Having a second analyst review a triage verdict or escalation decision before it is finalized. A standard SOC quality control, because a fresh set of eyes catches assumptions and confirmation bias the original analyst can no longer see.",
     "source": "clear"
   },
   "Peer-to-Peer (P2P) C2": {
@@ -2186,11 +2056,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Penetration Testing": {
     "term": "Penetration Testing",
     "definition": "A simulated attack on a system or network to test its defenses and identify vulnerabilities.",
-    "source": "clear"
-  },
-  "Permission Mapping": {
-    "term": "Permission Mapping",
-    "definition": "The process of correlating user roles with their granted permissions.",
     "source": "clear"
   },
   "Persistence": {
@@ -2230,7 +2095,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Port": {
     "term": "Port",
-    "definition": "A communication endpoint used by protocols to send and receive data.",
+    "definition": "A 16-bit number from 0 to 65535 carried in TCP and UDP headers that tells a host which service or process the traffic belongs to: 443 for HTTPS, 22 for SSH, 3389 for RDP. In triage, ports are a cheap tell; a standard service on a nonstandard port, or traffic to a port that should not be listening, is worth a second look.",
     "source": "clear"
   },
   "Post-Exploitation": {
@@ -2275,7 +2140,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Process": {
     "term": "Process",
-    "definition": "A series of actions or steps taken to achieve a specific goal or task.",
+    "definition": "A running instance of a program, with a process ID, a parent process, a command line, and the user context it executes under. Process ancestry, meaning which process spawned which, is often the fastest triage signal for whether an execution is routine or suspicious.",
     "source": "clear"
   },
   "Process Doppelganging": {
@@ -2305,12 +2170,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Protected Health Information (PHI)": {
     "term": "Protected Health Information (PHI)",
-    "definition": "Any information about health status, provision of care, or payment.",
+    "definition": "Individually identifiable health information protected under HIPAA: a person's health status, the care they received, or payment for that care, linked to their identity. Alerts touching systems that hold PHI raise the escalation stakes, because exposure carries regulatory breach-notification duties.",
     "source": "clear"
   },
   "Protocol": {
     "term": "Protocol",
-    "definition": "A set of rules and standards that govern communication between devices, systems, or networks.",
+    "definition": "The agreed set of rules two systems use to communicate: HTTP, DNS, SMB, RDP. In triage the protocol tells you what a connection is capable of doing, and a mismatch between the protocol and the port it runs on is a classic tell for tunneling or evasion.",
     "source": "clear"
   },
   "Protocol Tunneling": {
@@ -2395,7 +2260,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Regulatory Requirements": {
     "term": "Regulatory Requirements",
-    "definition": "Laws and policies organizations must follow to ensure compliance and security.",
+    "definition": "The legal and contractual obligations that attach to specific data types and industries, such as GDPR, HIPAA, and PCI DSS (a card-industry standard enforced by contract rather than statute), including breach-notification deadlines. They matter in triage because an incident touching regulated data starts a clock the response has to honor.",
     "source": "clear"
   },
   "Relationship Mapping": {
@@ -2420,17 +2285,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Request for Comments (RFC)": {
     "term": "Request for Comments (RFC)",
-    "definition": "A series of documents that define internet standards and protocols.",
-    "source": "clear"
-  },
-  "Resource Allocation": {
-    "term": "Resource Allocation",
-    "definition": "Assigning personnel, tools, and time to address security tasks or incidents.",
-    "source": "clear"
-  },
-  "Return on Investment (ROI)": {
-    "term": "Return on Investment (ROI)",
-    "definition": "Analysis of security investments comparing the cost of security controls against potential losses from security incidents.",
+    "definition": "The numbered document series in which internet protocols and standards are defined. The one every analyst ends up citing is RFC 1918, which reserves the private address ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) that tell you at a glance whether an IP is internal or external.",
     "source": "clear"
   },
   "Risk": {
@@ -2477,11 +2332,6 @@ export const glossary: Record<string, GlossaryEntry> = {
     "term": "Rootkits",
     "definition": "Malware that hides its presence by subverting the OS or using kernel-level access. Often combined with other malware to maintain stealth and persistence.",
     "source": "bad-term"
-  },
-  "Router": {
-    "term": "Router",
-    "definition": "A device that forwards data packets between networks.",
-    "source": "clear"
   },
   "Rubrik": {
     "term": "Rubrik",
@@ -2565,7 +2415,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Sarbanes-Oxley Act (SOX)": {
     "term": "Sarbanes-Oxley Act (SOX)",
-    "definition": "A law that regulates financial reporting and corporate governance in the United States.",
+    "definition": "A 2002 United States federal law that mandates accurate financial reporting and internal controls at publicly traded companies. It matters to security because its Section 404 internal-control audits pull IT general controls into scope, driving access control, change management, and audit logging requirements on systems that feed financial statements and raising the criticality of those assets during triage.",
     "source": "clear"
   },
   "Scareware": {
@@ -2580,7 +2430,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Schema Normalization": {
     "term": "Schema Normalization",
-    "definition": "The process of organizing data into a structured format to reduce redundancy and improve analysis.",
+    "definition": "Mapping events from different log sources into one common field schema, such as ECS, OCSF, or Splunk CIM, so that a username or source IP carries the same field name in every query. Cross-source correlation in a SIEM depends on it.",
     "source": "clear"
   },
   "Scope": {
@@ -2591,11 +2441,6 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Scope Creep": {
     "term": "Scope Creep",
     "definition": "Uncontrolled expansion of an incident investigation beyond its initial parameters, potentially consuming excessive resources without proportional benefit.",
-    "source": "clear"
-  },
-  "Scope Drift": {
-    "term": "Scope Drift",
-    "definition": "Gradual deviation from the original scope or objectives over time.",
     "source": "clear"
   },
   "Secure Email Gateways (SEG)": {
@@ -2625,7 +2470,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Security In Depth": {
     "term": "Security In Depth",
-    "definition": "A layered security approach that combines multiple controls to protect assets.",
+    "definition": "Layering multiple overlapping controls at the network, endpoint, identity, and monitoring levels so that a single control failing does not mean compromise; more commonly called defense in depth. For triage it means one layer's alert can usually be corroborated or refuted with telemetry from another layer.",
     "source": "clear"
   },
   "Security Information and Event Management (SIEM)": {
@@ -2670,12 +2515,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Server": {
     "term": "Server",
-    "definition": "A computer or device that provides services, resources, or data to other devices or systems on a network.",
+    "definition": "A host whose role is to provide services to other systems rather than to a person at a keyboard. The distinction drives triage: web browsing and office documents are routine on a workstation but anomalous on a server, an interactive server login warrants checking who made it since only administrators should have a reason to, and a compromised server typically exposes data or downstream users at scale.",
     "source": "clear"
   },
   "Server Message Block (SMB)": {
     "term": "Server Message Block (SMB)",
-    "definition": "A network protocol for sharing files and printers.",
+    "definition": "A network protocol for file shares, printer access, and remote administration, native to Windows but also implemented by Samba and NAS appliances, running on TCP port 445 (legacy port 139 over NetBIOS). A staple of lateral movement: administrative shares, PsExec-style remote execution, and exploits such as EternalBlue, used by the WannaCry worm, all travel over SMB.",
     "source": "clear"
   },
   "Serverless Functions": {
@@ -2838,25 +2683,10 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "A two-phase delivery process where a lightweight stager downloads and executes a more complex secondary payload.",
     "source": "bad-term"
   },
-  "Statistical Models": {
-    "term": "Statistical Models",
-    "definition": "Mathematical models that analyze data distributions and relationships to detect anomalies or predict outcomes.",
-    "source": "clear"
-  },
   "Storm-0558 (Microsoft cloud email)": {
     "term": "Storm-0558 (Microsoft cloud email)",
     "definition": "July 2023 intrusion in which a China-aligned actor forged Azure AD access tokens using a stolen Microsoft consumer-MSA signing key, reading emails of ~25 organizations including U.S. State Department and Commerce officials via Outlook Web Access. The key should not have signed enterprise tokens; a validation gap let it. Reshaped how the industry talks about identity-provider key custody, token-binding, and the blast radius of a single signing key.",
     "source": "bad-campaign"
-  },
-  "String Concatenation": {
-    "term": "String Concatenation",
-    "definition": "The operation of joining two or more strings end-to-end.",
-    "source": "clear"
-  },
-  "Structured Query Language (SQL)": {
-    "term": "Structured Query Language (SQL)",
-    "definition": "A programming language used to manage and manipulate data in databases.",
-    "source": "clear"
   },
   "Structured Threat Information Expression (STIX)": {
     "term": "Structured Threat Information Expression (STIX)",
@@ -2933,14 +2763,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Windows service that produces rich endpoint telemetry, process creation, network connections, file events, for SIEM ingestion.",
     "source": "cat-tool"
   },
-  "System": {
-    "term": "System",
-    "definition": "A collection of hardware, software, and firmware that work together to perform a specific function or task.",
-    "source": "clear"
-  },
   "System Binary": {
     "term": "System Binary",
-    "definition": "Executable files that are part of an operating system or trusted software components.",
+    "definition": "An executable that ships with the operating system or other trusted, usually signed, software: cmd.exe, powershell.exe, certutil.exe, rundll32.exe. Central to triage because living-off-the-land attacks abuse these trusted binaries, so the question is rarely whether the binary is legitimate but whether its parent, arguments, and timing are.",
     "source": "clear"
   },
   "System Tampering": {
@@ -3035,12 +2860,12 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Ticket": {
     "term": "Ticket",
-    "definition": "A record or request for assistance or support, often used in help desks or incident response.",
+    "definition": "The case record that tracks an alert or incident through investigation: who owns it, what was found, what verdict was reached, and when it was closed. In a SOC the ticket is both the unit of work in the queue and the documentation trail that escalation, metrics, and future investigations depend on.",
     "source": "clear"
   },
   "Time To Live (TTL)": {
     "term": "Time To Live (TTL)",
-    "definition": "A field that limits the lifespan or hops of data packets in a network.",
+    "definition": "In IP, a hop counter that each router decrements so stray packets are discarded instead of looping forever; in DNS, the number of seconds a resolver may cache a record before re-querying. The DNS sense usually matters most in triage: very short TTLs let attacker infrastructure rotate addresses quickly, as in fast-flux hosting, though CDNs and load balancers use short TTLs legitimately as well.",
     "source": "clear"
   },
   "Time-Based Evasion": {
@@ -3173,19 +2998,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Access to a system, network, or resource without proper authorization or permission.",
     "source": "clear"
   },
-  "Uniform Resource Identifier (URI)": {
-    "term": "Uniform Resource Identifier (URI)",
-    "definition": "A string that identifies a resource on the internet.",
-    "source": "clear"
-  },
   "Uniform Resource Locator (URL)": {
     "term": "Uniform Resource Locator (URL)",
-    "definition": "The address used to access resources on the web.",
-    "source": "clear"
-  },
-  "Unmanaged Teams": {
-    "term": "Unmanaged Teams",
-    "definition": "Groups within an organization that operate without centralized security controls, posing risks.",
+    "definition": "The address of a resource, made up of a scheme (such as http, https, or ftp), a host, and usually a path and query string. In triage the host carries reputation and lookalike-domain signals, while the path and query parameters often reveal the phishing kit, payload, or staging location.",
     "source": "clear"
   },
   "Unstructured Data Exposure": {
@@ -3195,7 +3010,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "User": {
     "term": "User",
-    "definition": "An individual who interacts with a system, network, or application.",
+    "definition": "The identity behind activity on a system: the account that authenticated, launched the process, or received the email. In triage the user field names an account, not necessarily a person; whether the legitimate owner was actually behind the activity is exactly the question stolen credentials raise.",
     "source": "clear"
   },
   "User Account": {
@@ -3213,14 +3028,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Alters HTTP headers to mimic trusted applications or browsers, blending into normal web traffic.",
     "source": "bad-term"
   },
-  "VS Code": {
-    "term": "VS Code",
-    "definition": "Visual Studio Code, a source code editor developed by Microsoft that serves as the foundation for other development tools like Cursor.",
-    "source": "clear"
-  },
   "Variable Expansion": {
     "term": "Variable Expansion",
-    "definition": "Replacing variables in scripts or commands with their actual values during execution.",
+    "definition": "The shell's replacement of a variable reference, such as %TEMP% or $HOME, with its actual value when a command runs. Attackers lean on expansion to obfuscate command lines, so the analyst has to evaluate what the command becomes after expansion, not the literal string that was logged.",
     "source": "clear"
   },
   "Variable Substitution": {
@@ -3255,7 +3065,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Virtual Desktop Infrastructure (VDI)": {
     "term": "Virtual Desktop Infrastructure (VDI)",
-    "definition": "Technology that hosts desktop environments on a central server.",
+    "definition": "Desktop operating systems running as virtual machines on centralized infrastructure, accessed through remote display sessions rather than on the user's own hardware. Triage is harder because pooled host names and shared egress IPs are recycled across users over time, and non-persistent desktops are wiped at logoff, destroying local forensic artifacts unless telemetry is centralized.",
     "source": "clear"
   },
   "Virtual Environment Awareness": {

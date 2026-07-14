@@ -17,7 +17,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="01 · 04"
   pillarTotal="04 families"
-  chapterHref="/docs/alert/detection-mechanisms"
+  chapterHref="/docs/alert/detection-mechanisms/"
   chapterLabel="Detection mechanisms"
   lede="Behavioral analytics looks for correlated, multi-step patterns across users, endpoints, and network activity over time. Where the other three families ask about a single moment, behavioral asks about a movement."
 />
@@ -26,10 +26,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Detection families"
   items={[
-    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
-    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
-    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
-    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature/",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly/",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule/",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral/", phase: "alert" },
   ]}
 />
 
@@ -47,19 +47,19 @@ Anomaly detection fires on a single deviation. Behavioral analytics fires on a s
 
 <div class="behavioral-examples">
   <div class="behavioral-example">
-    <h4>↔️ Lateral movement</h4>
+    <h3>↔️ Lateral movement</h3>
     <p><DefineTerm term="Pass-the-Hash">An attack technique in which an adversary captures a Windows NT hash and uses it to authenticate to other systems without ever knowing the plaintext password.</DefineTerm> or credential reuse traced across endpoints in sequence. Each individual authentication looks valid; the pattern of authentications across hosts is what gives it away.</p>
   </div>
   <div class="behavioral-example">
-    <h4>📈 Privilege escalation chains</h4>
+    <h3>📈 Privilege escalation chains</h3>
     <p>An account moving from standard, to administrative, to domain-level access over the course of hours. Each step is observable; the trajectory is what behavioral analytics surfaces.</p>
   </div>
   <div class="behavioral-example">
-    <h4>📦 Data exfiltration preparation</h4>
+    <h3>📦 Data exfiltration preparation</h3>
     <p>Sensitive database access, followed by archive creation, followed by an outbound connection. Three benign-looking events that together describe staging for exfiltration.</p>
   </div>
   <div class="behavioral-example">
-    <h4>🐢 Insider threat staging</h4>
+    <h3>🐢 Insider threat staging</h3>
     <p>Gradual access expansion that fits no single rule. Each new permission feels small; taken together over weeks it looks like reconnaissance for a future event.</p>
   </div>
 </div>
@@ -97,7 +97,7 @@ What the analyst checks next:
 - **Look for amplifiers.** Behavioral analytics gives the analyst a timeline. The timeline becomes much more or less concerning depending on what *else* was happening during it. Was the user's account also seen from an unfamiliar location? Did the download volume match historical patterns?
 - **Map to a framework.** Behavioral patterns often align cleanly with <DefineTerm term="MITRE ATT&CK">A globally accessible knowledge base of adversary tactics and techniques based on real-world observations. ATT&CK gives security teams a shared vocabulary for describing what an adversary did.</DefineTerm> techniques. Tagging the alert with the relevant techniques helps with handoff and trend analysis.
 
-Behavioral alerts often have higher confidence than anomaly alerts because the platform has already done correlation work the analyst would otherwise have to do by hand. The analyst's job becomes confirming the narrative and deciding the response. When no platform has assembled the narrative, the same chain-thinking is applied manually during validation; that analyst-side strategy is covered in [attack chains and multi-event correlation](/docs/alert/validation/attack-chains).
+Behavioral alerts often have higher confidence than anomaly alerts because the platform has already done correlation work the analyst would otherwise have to do by hand. The analyst's job becomes confirming the narrative and deciding the response. When no platform has assembled the narrative, the same chain-thinking is applied manually during validation; that analyst-side strategy is covered in [attack chains and multi-event correlation](/docs/alert/validation/attack-chains/).
 
 </Reveal>
 
@@ -135,7 +135,7 @@ Behavioral analytics is the only family that natively answers "what is the adver
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/validation"
+  nextHref="/docs/alert/validation/"
   nextLabel="Validation"
   nextDescription="With the detection family understood, the next step is validation: confirming whether the alert is what it claims to be."
   ctaLabel="Read validation"
@@ -162,7 +162,7 @@ Behavioral analytics is the only family that natively answers "what is the adver
   border-radius: 0.7rem;
 }
 
-.behavioral-example h4 {
+.behavioral-example :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #fdba74;
   font-size: 1rem;
@@ -174,5 +174,9 @@ Behavioral analytics is the only family that natively answers "what is the adver
   line-height: 1.55;
   font-size: 0.92rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.behavioral-example h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

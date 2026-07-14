@@ -16,7 +16,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="01 · 01"
   pillarTotal="04 families"
-  chapterHref="/docs/alert/detection-mechanisms"
+  chapterHref="/docs/alert/detection-mechanisms/"
   chapterLabel="Detection mechanisms"
   lede="Signature-based detection is the oldest of the four families. It compares incoming telemetry against a curated library of known-bad indicators and produces a high-confidence alert when something matches."
 />
@@ -25,10 +25,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Detection families"
   items={[
-    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
-    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
-    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
-    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature/",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly/",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule/",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral/", phase: "alert" },
   ]}
 />
 
@@ -44,19 +44,19 @@ The library is not a single thing. A signature engine typically maintains severa
 
 <div class="signature-types">
   <div class="signature-type">
-    <h4>📄 File hashes</h4>
+    <h3>📄 File hashes</h3>
     <p>SHA-256 and MD5 fingerprints for known malware samples. Trivially specific. A single byte change produces a different hash and therefore no alert.</p>
   </div>
   <div class="signature-type">
-    <h4>🧬 Byte sequences</h4>
+    <h3>🧬 Byte sequences</h3>
     <p>Shellcode patterns, exploit-specific opcodes, and packer signatures. More robust to trivial changes than hashes because they match patterns inside the file.</p>
   </div>
   <div class="signature-type">
-    <h4>🗃️ Registry artifacts</h4>
+    <h3>🗃️ Registry artifacts</h3>
     <p>Persistence keys, configuration footprints, and known autorun entries under paths like <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code>.</p>
   </div>
   <div class="signature-type">
-    <h4>🌐 Network indicators</h4>
+    <h3>🌐 Network indicators</h3>
     <p>Domain names, IP addresses, <DefineTerm term="JA3">A fingerprint of a TLS client hello packet. Used to identify the software making a TLS connection (a specific malware family, for example) without decrypting the traffic. JA4 (released 2023 by FoxIO) is the modernized successor with improved entropy across TLS 1.3 and QUIC; many newer detection systems publish both JA3 and JA4 hashes side-by-side.</DefineTerm> / <DefineTerm term="JA4">The 2023 successor to JA3 from FoxIO. A modernized TLS-client fingerprint that handles TLS 1.3 and covers QUIC natively (a leading "q" or "t" in the fingerprint marks QUIC or TCP transport). Part of the broader JA4+ suite, which adds separate fingerprints such as JA4H (HTTP client) and JA4S (TLS server). Often paired with JA3 in modern threat-intel feeds during the transition.</DefineTerm> hashes, and certificate fingerprints associated with command-and-control infrastructure.</p>
   </div>
 </div>
@@ -127,7 +127,7 @@ Signature-based detection is the foundation, not the building. It catches known 
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms/anomaly"
+  nextHref="/docs/alert/detection-mechanisms/anomaly/"
   nextLabel="Anomaly-based detection"
   nextDescription="The opposite of signature-based. Where signature needs to have seen the threat before, anomaly only needs to know what normal looks like in this environment."
   ctaLabel="Read anomaly-based"
@@ -168,10 +168,13 @@ Signature-based detection is the foundation, not the building. It catches known 
   min-width: 0;
 }
 
-.signature-type h4 {
+.signature-type :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #93c5fd;
   font-size: 1rem;
+  /* level changed for the heading outline; size stays as designed */
+  font-weight: 600;
+  line-height: inherit;
 }
 
 .signature-type p {

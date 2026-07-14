@@ -2,23 +2,31 @@
 /**
  * DefineTerm. Inline glossary tooltip.
  *
- * Wraps a term in a subtle dotted underline. On hover (desktop) or tap (touch),
- * a small panel pops up with the definition.
+ * Wraps a term in a subtle dotted underline. Hover, keyboard focus, or
+ * tap/click reveals a small panel with the definition; Esc dismisses it.
+ * The inline text is always `display ?? term`. Slot children never render
+ * inline; they replace the definition body.
  *
- * Two usage modes:
+ * Definition body, first match wins:
  *
- *   1. Auto-lookup (preferred): pass `term` matching a key in src/data/glossary.ts.
- *      The definition is sourced from the central registry.
+ *   1. Slot children, for a one-off definition (markup allowed):
+ *
+ *        <DefineTerm term="high value">An account or system that, if
+ *        compromised, gives the adversary outsized impact.</DefineTerm>
+ *
+ *   2. `definition` prop, a plain string:
+ *
+ *        <DefineTerm term="PFI" definition="A PCI SSC-qualified forensic company..." />
+ *
+ *   3. Auto-lookup (preferred): `term` resolved against src/data/glossary.ts
+ *      via lookupTerm, which is case-, hyphen-, and plural-insensitive. The
+ *      panel title uses the registry's canonical casing.
  *
  *        <DefineTerm term="Lateral Movement" />
- *        <DefineTerm term="Lateral Movement">lateral movement</DefineTerm>   {# custom inline text #}
+ *        <DefineTerm term="Lateral Movement" display="lateral movement" />
  *
- *   2. Explicit override: pass children as the definition body.
- *
- *        <DefineTerm term="Custom Term">My custom definition body.</DefineTerm>
- *
- *   The component honors `display` separately from `term` so the prose can say
- *   "lateral movement" while the registry key is "Lateral Movement".
+ *   `display` changes only the inline text, so the prose can say
+ *   "lateral movement" while the registry key stays "Lateral Movement".
  */
 
 import { lookupTerm } from "@/data/glossary";

@@ -15,7 +15,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="03 · 01"
   pillarTotal="6 pages"
-  chapterHref="/docs/alert/parsing"
+  chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="Parsing has to live with the formats it gets. Four families dominate enterprise telemetry, each with its own conventions, gaps, and gotchas. Normalization is the layer that gives all of them one queryable shape."
 />
@@ -24,12 +24,12 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Parsing pages"
   items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
   ]}
 />
 
@@ -116,22 +116,22 @@ Formats are only half the story. The behavioral surfaces in this chapter (proces
 <div class="telem-grid">
   <div class="telem-card">
     <span class="telem-card__os">Windows</span>
-    <h4><DefineTerm term="Sysmon" /></h4>
+    <h3><DefineTerm term="Sysmon" /></h3>
     <p>Free Sysinternals driver that logs rich process creations (Event ID 1, with full command line, hashes, and parent), network connections, DLL and driver loads, and more into its own EVTX channel. The de facto standard source for the process and command-line telemetry this chapter teaches, and the usual compensating control when Security 4688 is missing its command line.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">Linux</span>
-    <h4>auditd and eBPF sensors</h4>
+    <h3>auditd and eBPF sensors</h3>
     <p>The kernel audit framework (<code>auditd</code>) records syscall-level events; an <code>execve</code> rule gives you process executions with arguments. Modern EDR and open tooling increasingly use eBPF sensors for the same visibility with less overhead. Either way, output typically flows out as syslog or JSON.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">macOS</span>
-    <h4>Endpoint Security framework and unified log</h4>
+    <h3>Endpoint Security framework and unified log</h3>
     <p>Since macOS 10.15, EDR agents get process, file, and signing telemetry from Apple's <DefineTerm term="Endpoint Security framework">Apple's kernel-supported API (introduced in macOS 10.15) that delivers real-time process execution, file, and code-signing events to security agents. It replaced kernel extensions as the sanctioned way for EDR products to observe macOS activity.</DefineTerm>, which is where a macOS process tree like Case B's comes from. The unified log holds the OS's own high-volume record, queryable with <code>log show</code>.</p>
   </div>
   <div class="telem-card">
     <span class="telem-card__os">Cross-platform</span>
-    <h4>osquery</h4>
+    <h3>osquery</h3>
     <p>Exposes the live state of Windows, macOS, and Linux hosts as SQL tables (processes, users, launch items, listening ports). Strong for point-in-time interrogation and fleet-wide hunting; it complements, rather than replaces, the streaming sources above.</p>
   </div>
 </div>
@@ -252,7 +252,7 @@ Whatever schema you adopt, normalization maps diverse vendor-specific fields int
 Normalization also requires flattening nested structures where useful and harmonizing identifiers so automated cross-tool correlation works. Within ASSURED, prioritize normalization of detection <DefineTerm term="Metadata" display="metadata" />, affected entities, and primary observables. Those are the fields downstream phases depend on.
 
 <Callout variant="info" title="Severity, confidence, and priority are three different numbers">
-The detection-metadata bucket carries two fields that read alike and mean different things, and triage adds a third. <strong>Severity</strong> is the detection engineer's estimate of how bad the activity would be if real, set when the rule was written, before your environment entered the picture. <strong>Confidence</strong> is the detector's estimate of how likely the match is to be what it claims: a statement about the rule's precision, not about the threat. <strong>Priority</strong> is what triage produces: the queue position, computed from severity and confidence plus asset context during the <a href="/docs/risk">Risk phase</a>, and the only one of the three the analyst owns. A critical-severity, low-confidence alert on a lab host and a medium-severity, high-confidence alert on a domain controller can rightly land in opposite queue positions.
+The detection-metadata bucket carries two fields that read alike and mean different things, and triage adds a third. <strong>Severity</strong> is the detection engineer's estimate of how bad the activity would be if real, set when the rule was written, before your environment entered the picture. <strong>Confidence</strong> is the detector's estimate of how likely the match is to be what it claims: a statement about the rule's precision, not about the threat. <strong>Priority</strong> is what triage produces: the queue position, computed from severity and confidence plus asset context during the <a href="/docs/risk/">Risk phase</a>, and the only one of the three the analyst owns. A critical-severity, low-confidence alert on a lab host and a medium-severity, high-confidence alert on a domain controller can rightly land in opposite queue positions.
 </Callout>
 
 <Callout variant="info" title="For platform owners, not the triage queue">
@@ -265,7 +265,7 @@ Format diversity is the cost of having visibility everywhere. <DefineTerm term="
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/parsing/command-line"
+  nextHref="/docs/alert/parsing/command-line/"
   nextLabel="Command line analysis"
   nextDescription="Decoding the true intent of process execution. The encoded-command workflow, obfuscation patterns, execution context."
   ctaLabel="Read command line"
@@ -378,7 +378,7 @@ Format diversity is the cost of having visibility everywhere. <DefineTerm term="
   margin-bottom: 0.55rem;
 }
 
-.telem-card h4 {
+.telem-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 0.98rem;
@@ -549,11 +549,9 @@ Format diversity is the cost of having visibility everywhere. <DefineTerm term="
   font-size: 0.95rem;
 }
 
-.principle-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.telem-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

@@ -17,15 +17,15 @@ import Callout from "@/components/assured/Callout.astro";
   parentLetter="A"
   pillarIndex="Example"
   pillarTotal="Alert chapter"
-  chapterHref="/docs/alert"
+  chapterHref="/docs/alert/"
   chapterLabel="Alert"
   lede="Three alerts walked through the Alert phase. One is a real endpoint intrusion, one is a false-positive, and one is a real intrusion that never touches an endpoint at all. All three follow the same methodology. The methodology is what makes the verdict defensible every time."
 />
 
 <PillNav chapter="alert" label="Alert chapter" items={[
-  { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms", phase: "alert" },
-  { label: "Alert validation",     href: "/docs/alert/validation",            phase: "alert" },
-  { label: "Parsing alerts",       href: "/docs/alert/parsing",               phase: "alert" },
+  { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
+  { label: "Alert validation",     href: "/docs/alert/validation/",            phase: "alert" },
+  { label: "Parsing alerts",       href: "/docs/alert/parsing/",               phase: "alert" },
 ]}/>
 
 <Callout variant="info" title="Three cases threaded through every chapter">
@@ -33,11 +33,15 @@ The three cases introduced on this page run through the rest of the methodology.
 </Callout>
 
 <Callout variant="warn" title="The cases are illustrative, not photorealistic">
-Both walkthroughs are cleaner than real telemetry. Live cases have missing parent processes, offset timestamps across log sources, partial coverage on the host you most need, retention windows that end before the staging activity, and one user who didn't enable MFA. The cases are written to teach the methodology cleanly, when you apply them in production, expect to spend additional time reconciling sources, filing tooling-gap tickets, and noting "unable to determine" where the evidence runs out. The methodology is what gives you a place to stand when the data isn't clean; it doesn't pretend the data is.
+All three walkthroughs are cleaner than real telemetry. Live cases have missing parent processes, offset timestamps across log sources, partial coverage on the host you most need, retention windows that end before the staging activity, and one user who didn't enable MFA. The cases are written to teach the methodology cleanly, when you apply them in production, expect to spend additional time reconciling sources, filing tooling-gap tickets, and noting "unable to determine" where the evidence runs out. The methodology is what gives you a place to stand when the data isn't clean; it doesn't pretend the data is.
 </Callout>
 
+## Case A · The finance-team phishing alert
+
+The spine of the whole walkthrough: a phishing-delivered process chain on a finance laptop. Every later chapter's example page picks this case up exactly where the previous phase left it.
+
 <ChapterExample
-  title="Case A · The finance-team phishing alert"
+  title="Case A · The Word-to-PowerShell chain on a finance laptop"
   scenario="A SIEM rule fires at 09:11. On a finance laptop, a Word process opened from Outlook spawned cmd.exe, which spawned PowerShell with -NoProfile -WindowStyle Hidden -EncodedCommand. The destination of the resulting network call is a domain registered four days ago. The named user is dlin, a finance analyst."
 >
 
@@ -87,7 +91,7 @@ Both walkthroughs are cleaner than real telemetry. Live cases have missing paren
     <ul class="example-step__list">
       <li><strong>Named entities.</strong> dlin (user), laptop-finance-09 (host), invoice-records[.]com (external domain), the originating sender (TBD via mail log pull).</li>
       <li><strong>Open questions.</strong> Who else got the email? Did anyone else execute the macro? What did the federated cloud session do, if anything?</li>
-      <li><strong>Confidence.</strong> High on the parent-child chain (complete telemetry, corroborated across process tree, mailbox audit, file system, and network); low on attribution (no actor signature, only TTP-level match to commodity Empire-style tooling). Labels per the <a href="/docs/documentation/standards#confidence">shared rubric</a>.</li>
+      <li><strong>Confidence.</strong> High on the parent-child chain (complete telemetry, corroborated across process tree, mailbox audit, file system, and network); low on attribution (no actor signature, only TTP-level match to commodity Empire-style tooling). Labels per the <a href="/docs/documentation/standards/#confidence">shared rubric</a>.</li>
     </ul>
   </div>
 
@@ -182,7 +186,7 @@ The third case never touches an endpoint. There is no process tree, no command l
   <div data-step class="example-step">
     <h3>Step 1. Read the detection</h3>
     <p>The rule is a two-signal correlation: <strong>an IdP risk event (session token presented from a new autonomous system with a mismatched browser fingerprint)</strong> joined to <strong>a new inbox rule created on the same account within 30 minutes</strong>. Either signal alone is noisy: travel and VPNs trip the first, and users create mail rules all day. Together they describe one specific attack: a stolen session being used, then hidden.</p>
-    <p>The join key is worth noticing before the payload is even open. Nothing here shares a host or a PID. The two events are joined on the <strong>account and the session</strong>, which is exactly how the <a href="/docs/alert/parsing/cloud-identity">cloud and identity parsing page</a> says this class of alert must be read.</p>
+    <p>The join key is worth noticing before the payload is even open. Nothing here shares a host or a PID. The two events are joined on the <strong>account and the session</strong>, which is exactly how the <a href="/docs/alert/parsing/cloud-identity/">cloud and identity parsing page</a> says this class of alert must be read.</p>
   </div>
 
   <div data-step class="example-step">
@@ -222,7 +226,7 @@ The third case never touches an endpoint. There is no process tree, no command l
     <ul class="example-step__list">
       <li><strong>Named entities.</strong> rvega (user), the hijacked session ID, the VPS source IP, the inbox rule named <code>.</code>, the "Mail Backup Sync" OAuth application, and the phishing link's domain from the 08:52 gateway record.</li>
       <li><strong>Open questions.</strong> Who else received the same link? Did anyone else's session present from that ASN? What has the consented app already read? Is the attacker session still alive right now?</li>
-      <li><strong>Confidence.</strong> High on session theft (single session ID across both presentations, corroborated by the fingerprint mismatch and missing MFA ceremony); medium on the AiTM delivery mechanism (inferred from the link click timing, pending the gateway's URL verdict); labels per the <a href="/docs/documentation/standards#confidence">shared rubric</a>.</li>
+      <li><strong>Confidence.</strong> High on session theft (single session ID across both presentations, corroborated by the fingerprint mismatch and missing MFA ceremony); medium on the AiTM delivery mechanism (inferred from the link click timing, pending the gateway's URL verdict); labels per the <a href="/docs/documentation/standards/#confidence">shared rubric</a>.</li>
     </ul>
   </div>
 
@@ -240,7 +244,7 @@ The Alert phase is the anchor for everything that follows. Three different alert
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/quiz"
+  nextHref="/docs/alert/quiz/"
   nextLabel="Chapter quiz"
   nextDescription="Nine questions that test how you would apply the Alert chapter's concepts (detection mechanisms, validation, parsing) to fresh scenarios."
   ctaLabel="Take the quiz"
@@ -248,20 +252,4 @@ The Alert phase is the anchor for everything that follows. Three different alert
 
 <style>{`
 .example-step h3 { margin: 0 0 0.85rem 0; color: #93c5fd; font-size: 1.2rem; }
-.example-step p { margin: 0 0 0.85rem 0; color: var(--assured-text-muted); line-height: 1.65; }
-.example-step strong { color: var(--assured-text); }
-.example-step code { background: rgba(15, 23, 42, 0.7); padding: 0.05rem 0.35rem; border-radius: 0.25rem; font-size: 0.88em; }
-.example-step__list { margin: 0 0 1rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
-.example-step__list li { color: var(--assured-text-muted); line-height: 1.6; }
-.example-step__list strong { color: var(--assured-text); }
-.example-step__what-not {
-  margin: 1rem 0;
-  padding: 0.85rem 1.15rem;
-  background: rgba(239, 68, 68, 0.08);
-  border-left: 3px solid rgba(239, 68, 68, 0.5);
-  border-radius: 0.5rem;
-  font-size: 0.92rem;
-  color: var(--assured-text-soft);
-}
-.example-step__what-not strong { color: #fca5a5; }
 `}</style>

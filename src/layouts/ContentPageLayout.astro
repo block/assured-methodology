@@ -6,6 +6,7 @@ import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/breadcrumbs.css";
+import "../styles/content-patterns.css";
 
 interface Props {
   title: string;
@@ -43,7 +44,11 @@ const effectiveWide = chromeless ? true : wide;
 // Prev/next pager: this page's position in the canonical reading order.
 // Pages outside the linear arc (glossaries) are absent from readingOrder
 // and render no pager.
-const pagePath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+// Internal links use the trailing-slash form Vercel serves, so normalize
+// the build-time pathname the same way before any comparison.
+const pagePath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
 const orderIndex = readingOrder.indexOf(pagePath);
 const prevHref = orderIndex > 0 ? readingOrder[orderIndex - 1] : null;
 const nextHref =
@@ -69,7 +74,7 @@ const crumbTitle = (slug: string, fallback: string) => {
 // minus the "/docs/" prefix, and crumbTitle's colon-trim keeps chapter
 // index labels short ("Risk: ..." → "Risk").
 const pagerTitle = (href: string) => {
-  const id = href.slice("/docs/".length);
+  const id = href.slice("/docs/".length).replace(/\/+$/, "");
   return crumbTitle(id, id.split("/").pop() ?? id);
 };
 const pathSegments = Astro.url.pathname.split("/").filter(Boolean);
@@ -77,10 +82,10 @@ const crumbs = effectiveBreadcrumbs
   ? [
       { text: "Home", href: "/" },
       ...pathSegments.map((segment, i) => {
-        if (i === 0) return { text: "Docs", href: "/docs/intro" };
+        if (i === 0) return { text: "Docs", href: "/docs/intro/" };
         return {
           text: crumbTitle(pathSegments.slice(1, i + 1).join("/"), segment),
-          href: `/${pathSegments.slice(0, i + 1).join("/")}`,
+          href: `/${pathSegments.slice(0, i + 1).join("/")}/`,
         };
       }),
     ]
@@ -132,14 +137,6 @@ const articleSchema = JSON.stringify({
   )}
   <div class={`content-page ${chromeless ? "is-chromeless" : ""}`}>
     <div class={`content-page__shell ${chromeless ? "is-chromeless" : ""}`}>
-      {!chromeless && showToc && headings && headings.length > 0 && (
-        <aside class="content-page__toc" aria-label="In-page navigation">
-          <div class="content-page__toc-inner">
-            <SimpleTableOfContents headings={headings} />
-          </div>
-        </aside>
-      )}
-
       <main id="main" class={`content-page__main ${chromeless ? "is-chromeless" : ""}`}>
         <div data-pagefind-body class={`content-page__main-inner prose ${effectiveWide ? "is-wide" : ""} ${chromeless ? "is-chromeless" : ""}`}>
           {effectiveBreadcrumbs && (
@@ -198,6 +195,16 @@ const articleSchema = JSON.stringify({
           </button>
         </footer>
       </main>
+
+      {/* After <main> in DOM order so keyboard focus reaches the page content
+          before the TOC links; flex order matches, no CSS swap needed. */}
+      {!chromeless && showToc && headings && headings.length > 0 && (
+        <aside class="content-page__toc" aria-label="In-page navigation">
+          <div class="content-page__toc-inner">
+            <SimpleTableOfContents headings={headings} />
+          </div>
+        </aside>
+      )}
     </div>
   </div>
 </BaseLayout>
@@ -220,7 +227,6 @@ const articleSchema = JSON.stringify({
     display: none;
     flex-shrink: 0;
     width: 16rem;
-    order: 2;
   }
 
   @media (min-width: 1024px) {
@@ -238,7 +244,6 @@ const articleSchema = JSON.stringify({
   .content-page__main {
     flex: 1;
     min-width: 0;
-    order: 1;
     padding: 2rem 0 4rem;
   }
 
@@ -323,7 +328,10 @@ const articleSchema = JSON.stringify({
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #8b98ab;
+    /* #a8b3c4, not the slate-400 dim token: the pager sits over the
+       viewport-fixed gradient, whose light band (#334155) leaves anything
+       darker below the 4.5:1 normal-text floor (WCAG 1.4.3). */
+    color: #a8b3c4;
   }
 
   .content-page__pager-name {
@@ -353,6 +361,11 @@ const articleSchema = JSON.stringify({
     padding: 0.4rem 0.95rem;
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  /* WCAG 2.5.5: 44px touch-target floor on touch devices. */
+  @media (pointer: coarse) {
+    .content-page__eggs button { min-height: 2.75rem; }
   }
 
   .content-page__eggs button:hover {

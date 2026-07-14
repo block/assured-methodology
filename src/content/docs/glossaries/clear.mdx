@@ -97,8 +97,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Analyst Burnout</dt><dd>Physical and mental exhaustion experienced by security analysts due to high-stress environments, constant alert monitoring, and pressure to maintain security.</dd>
 <dt>Anomaly</dt><dd>An observation that deviates from an established baseline. Anomalies are statistical, not malicious; an analyst still has to decide whether the deviation matters.</dd>
 <dt>Anomaly-Based Detection</dt><dd>A security detection method that identifies suspicious activity by comparing current behavior against established baselines of normal activity.</dd>
-<dt>Application-Layer Protocol</dt><dd>Network protocols that operate at Layer 7 of the OSI model, dealing with application-specific communication (HTTP, SMTP, DNS).</dd>
-<dt>Application Programming Interface (API)</dt><dd>A set of rules and protocols that allows different software systems to communicate with each other.</dd>
+<dt>Application-Layer Protocol</dt><dd>A protocol at the top of the network stack that applications speak directly: HTTP, DNS, SMTP, SMB. Triage cares because adversaries tunnel command-and-control and exfiltration through these common protocols to blend with legitimate traffic, which is why destination and payload matter more than port alone.</dd>
+<dt>Application Programming Interface (API)</dt><dd>An interface a service exposes for programmatic access, typically authenticated with keys, tokens, or certificates instead of an interactive login. In cloud and SaaS triage the API audit log is often the only record of what a stolen credential actually did, since an attacker holding a valid key or token never touches a login page and sidesteps login-centric controls such as MFA.</dd>
 <dt>Arbitrary Commands</dt><dd>Unauthorized commands that an attacker can execute on a compromised system, often with the same privileges as the compromised application.</dd>
 <dt>Artifacts</dt><dd>Digital evidence or traces left behind by system activity or security incidents, used in forensic analysis and incident investigation.</dd>
 <dt>Asset</dt><dd>Something the organization owns, depends on, or is accountable for: data, a system, an identity, a credential, or a service. An asset's criticality is what turns a generic alert into a prioritized one.</dd>
@@ -112,7 +112,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Authentication</dt><dd>Proving who you are to a system: a password, a hardware token, a biometric, a certificate. Distinct from authorization, which is what that identity is then allowed to do.</dd>
 <dt>Authorization</dt><dd>The process of granting or denying access to resources based on a user's or system's identity and permissions.</dd>
 <dt>Automation</dt><dd>The use of technology to perform security tasks with minimal human intervention, including alert triage, incident response, and threat hunting.</dd>
-<dt>Autonomous System Number (ASN)</dt><dd>A unique identifier assigned to an internet network used for routing traffic between networks.</dd>
+<dt>Autonomous System Number (ASN)</dt><dd>A globally unique number identifying a network routed under a single operator, such as an ISP, cloud provider, or hosting company. During enrichment the ASN behind an IP address tells the analyst who operates it, which is how a connection resolves to a residential ISP, a corporate egress, or a hosting range with a reputation for abuse.</dd>
 </dl>
 
 </section>
@@ -131,12 +131,10 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Biometric Verification</dt><dd>Authentication method that uses unique biological characteristics like fingerprints or facial recognition.</dd>
 <dt>BITSAdmin</dt><dd>A command-line tool for managing Background Intelligent Transfer Service (BITS), often monitored for abuse by attackers.</dd>
 <dt>Blast Radius</dt><dd>The set of systems, identities, and data an incident can plausibly reach from its current foothold: everything the compromised entity can touch, authenticate to, or influence. Scope draws boundaries around it, lateral movement grows it, and containment exists to stop it growing.</dd>
-<dt>Blockchain</dt><dd>A distributed ledger technology that maintains a secure, decentralized record of transactions, introducing new security considerations for digital assets and smart contracts.</dd>
-<dt>Border Gateway Protocol (BGP)</dt><dd>The protocol managing how packets are routed across the internet between autonomous systems.</dd>
+<dt>Border Gateway Protocol (BGP)</dt><dd>The routing protocol that exchanges reachability information between the autonomous systems that make up the internet. Security-relevant because BGP hijacks and route leaks can silently redirect traffic through attacker-controlled networks, so a connection's destination is not always where the packets actually went.</dd>
 <dt>Bring Your Own Device (BYOD)</dt><dd>A policy allowing employees to use personal devices for work, which introduces unique security challenges.</dd>
-<dt>Business Continuity</dt><dd>The ability of an organization to continue operating and providing services despite disruptions or disasters.</dd>
+<dt>Business Continuity</dt><dd>An organization's capacity to keep critical operations running during and after a disruptive incident such as a ransomware outbreak or a destructive attack. In triage, a credible threat to business continuity is part of what raises an alert's risk rating and escalation urgency.</dd>
 <dt>Business Email Compromise (BEC)</dt><dd>Phishing's no-payload variant: an email impersonating an executive, vendor, or counterparty that asks the recipient to move money or change payment details. With no attachment to detonate and no link to rewrite, gateway verdicts stay quiet; the evidence lives in lookalike domains, display-name and reply-to mismatches, and hijacked threads sent from a compromised counterparty's real mailbox. Consistently among the costliest cybercrime categories by reported losses.</dd>
-<dt>Byte Sequence</dt><dd>An ordered set of bytes in memory or data streams, often analyzed in malware detection or forensics.</dd>
 </dl>
 
 </section>
@@ -159,15 +157,11 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Common Vulnerability Scoring System (CVSS)</dt><dd>A standardized way to assess the severity of security vulnerabilities.</dd>
 <dt>Compliance</dt><dd>Adherence to regulatory requirements, industry standards, and security frameworks that govern data protection and system security.</dd>
 <dt>Concatenation</dt><dd>The process of combining multiple strings or commands, often used by attackers to bypass security controls or obfuscate malicious code.</dd>
-<dt>Conditional Logic</dt><dd>Programming or rule-based logic that executes actions based on specific conditions or criteria.</dd>
-<dt>Configuration Management</dt><dd>The process of tracking and controlling changes to systems, networks, and applications.</dd>
-<dt>Configuration Management Database (CMDB)</dt><dd>Repositories that store information about IT assets and their relationships to support change and incident management.</dd>
-<dt>Container Orchestration</dt><dd>Automated management, scaling, and deployment of containerized applications using platforms like Kubernetes.</dd>
-<dt>Containers</dt><dd>Lightweight, standalone packages that include everything needed to run a piece of software, introducing unique security challenges in orchestration and isolation.</dd>
+<dt>Configuration Management Database (CMDB)</dt><dd>A database of an organization's systems and services (configuration items) and the relationships between them; during triage an analyst queries it to learn what an alerting system actually is: its owner, business role, criticality, and dependencies. A stale CMDB is a common reason a scoping question takes hours instead of minutes.</dd>
+<dt>Containers</dt><dd>A lightweight workload isolation unit that shares the host operating system's kernel instead of running its own, making its isolation boundary weaker than a virtual machine's. For triage, containers mean ephemeral evidence: a compromised container can be torn down and rescheduled before anyone looks at it, so telemetry shipped off the container is often all that remains.</dd>
 <dt>Containment</dt><dd>The incident-response phase between detection and eradication: isolate the affected hosts, revoke the compromised credentials, block the C2 destinations, freeze the situation so it stops getting worse while the investigation continues.</dd>
 <dt>Credential</dt><dd>Whatever the system accepts as proof of identity: a password, an API key, an OAuth token, a Kerberos ticket, an NTLM hash. Credentials are the highest-value loot in most intrusions; their theft is usually the pivot point.</dd>
-<dt>Critical Infrastructure</dt><dd>Essential systems, networks, or assets that are critical to an organization's operations or national security.</dd>
-<dt>Cross-System</dt><dd>Interactions or communications that occur between different systems or platforms within an infrastructure.</dd>
+<dt>Critical Infrastructure</dt><dd>Systems and services whose disruption would endanger public safety, economic stability, or national security: power, water, healthcare, financial services, telecommunications, and similar sectors. The United States designates 16 critical infrastructure sectors by presidential directive (PPD-21, reaffirmed by NSM-22) with CISA as national coordinator; organizations in them face heightened nation-state targeting and sector-specific incident-reporting obligations.</dd>
 <dt>Cybercriminals</dt><dd>Individuals or groups who use technology to commit crimes, including data theft, fraud, and system compromise for financial gain.</dd>
 </dl>
 
@@ -179,38 +173,35 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>D</h2>
 
 <dl class="clear-terms">
-<dt>Data Aggregation</dt><dd>The process of collecting and combining data from multiple sources for analysis, potentially revealing security patterns or threats not visible in isolated data sets.</dd>
 <dt>Data Breach</dt><dd>The unauthorized access, theft, or exposure of sensitive data.</dd>
 <dt>Data Exfiltration</dt><dd>The unauthorized transfer of data from a computer or network to an external location or system.</dd>
 <dt>Data Integrity</dt><dd>Ensuring data is accurate, complete, and unaltered during storage, processing, and transmission.</dd>
 <dt>Data Loss Prevention (DLP)</dt><dd>A set of tools and processes that help prevent sensitive data from being lost, stolen, or compromised.</dd>
-<dt>Data Protection</dt><dd>The processes and technologies used to protect sensitive data from unauthorized access, theft, or damage.</dd>
-<dt>Data Retention</dt><dd>The policies and procedures that govern how long data is stored and retained.</dd>
+<dt>Data Retention</dt><dd>How long logs, telemetry, and other records are kept before they roll off or are purged. Retention windows bound every investigation: if the intrusion began before the oldest retained log, the earliest attacker activity cannot be reconstructed from logs and may be recoverable only through host or disk forensics, if at all.</dd>
 <dt>Deception Technology</dt><dd>Security tools and techniques that deploy decoys and traps to detect, deflect, and analyze unauthorized system access attempts.</dd>
-<dt>Deep Packet Inspection (DPI)</dt><dd>A technique used to inspect and analyze network traffic to detect and block malicious activity.</dd>
+<dt>Deep Packet Inspection (DPI)</dt><dd>Inspecting the full contents of network packets, payload included, rather than only headers and flow metadata. This is what lets a network sensor see the actual request, file, or command inside the traffic, though pervasive encryption steadily shrinks what it can read.</dd>
 <dt>Detection Engineering</dt><dd>The discipline of building, testing, tuning, and retiring detection logic as an engineered product: version-controlled rules, measured false-positive rates, coverage mapped against ATT&amp;CK. Triage feeds it every time a close records why an alert was right or wrong; a SOC without that feedback loop is running detections nobody maintains.</dd>
 <dt>Detection Logic</dt><dd>The rule, model, or heuristic that decides whether a given input fires an alert. The logic that produced the alert matters as much as the alert it produced; two engines can name the same alert for very different reasons.</dd>
 <dt>Detection Mechanism</dt><dd>Tools or methods employed to identify security incidents, including signature, anomaly, and behavioral detections.</dd>
 <dt>Device Fingerprint</dt><dd>A unique identifier derived from hardware or software characteristics used to recognize devices.</dd>
 <dt>Digital Forensics</dt><dd>The analysis and examination of digital evidence to investigate and solve crimes or security incidents.</dd>
 <dt>Digital Signatures</dt><dd>Cryptographic techniques that validate the authenticity and integrity of digital messages or documents.</dd>
-<dt>Disaster Recovery</dt><dd>The process of restoring systems, networks, and operations after a disaster or major disruption.</dd>
+<dt>Disaster Recovery</dt><dd>The capability to restore systems and data after a destructive incident, most often tested by ransomware. Attackers deliberately disable it first, so alerts showing backup deletion, shadow copy removal, or tampering with recovery tooling warrant immediate escalation.</dd>
 <dt>Distributed Denial-of-Service (DDoS)</dt><dd>A type of attack where multiple systems are used to flood a targeted system or network with traffic in an attempt to overwhelm it.</dd>
-<dt>Distribution Pipelines</dt><dd>Processes and tools used to deploy software or updates from development to production environments.</dd>
 <dt>DLL Loading</dt><dd>The process of loading Dynamic Link Libraries into a program's memory space, which can be exploited by attackers for malicious code execution.</dd>
 <dt>DLL Search Order Hijacking</dt><dd>A persistence and privilege-escalation technique that places a malicious DLL where an application looks for libraries before the legitimate location, so a trusted, signed binary loads attacker code. Detected by watching for DLLs loaded from application or user-writable directories instead of their expected system paths.</dd>
-<dt>Domain</dt><dd>A unique name or identifier for a system, network, or organization on the internet.</dd>
+<dt>Domain</dt><dd>Either a DNS name like example.com that identifies internet infrastructure, or a Windows Active Directory domain, the identity and authentication boundary attackers aim to own; context makes the sense clear. As an indicator, a DNS domain's age, registrar, and reputation are among the first pivots in triage.</dd>
 <dt>Domain Admin</dt><dd>The most powerful account class in a Windows Active Directory domain: full administrative control over every domain-joined host, every domain user, and the directory itself. Compromise of a Domain Admin account is generally treated as a domain compromise.</dd>
-<dt>Domain-based Message Authentication, Reporting, and Conformance (DMARC)</dt><dd>An email validation system to prevent spoofing.</dd>
+<dt>Domain-based Message Authentication, Reporting, and Conformance (DMARC)</dt><dd>An email authentication policy protocol built on SPF and DKIM: the domain owner publishes in DNS how receivers should treat mail that fails alignment (monitor, quarantine, or reject) and where to send reports. During phishing triage, a DMARC failure on mail claiming to come from a trusted domain is strong spoofing evidence.</dd>
 <dt>Domain Controller</dt><dd>A server that responds to security authentication requests in a Windows domain environment.</dd>
-<dt>Domain Depth</dt><dd>The hierarchical level or complexity within a domain namespace or network structure.</dd>
-<dt>Domain Name System (DNS)</dt><dd>A system that translates domain names into IP addresses.</dd>
+<dt>Domain Depth</dt><dd>The number of subdomain levels beneath the registered domain in a fully qualified domain name; a.b.example.com has a depth of two below example.com. Depth is a triage feature: DNS tunneling and machine-generated phishing infrastructure tend to produce long subdomain chains, while most legitimate names stay shallow.</dd>
+<dt>Domain Name System (DNS)</dt><dd>The distributed system that resolves human-readable names to IP addresses. For an analyst it is one of the richest telemetry sources available: nearly every connection begins with a query, so DNS logs surface C2 lookups, tunneling, DGA noise, and newly registered domains that other data misses.</dd>
 <dt>Domain Name System Exfiltration</dt><dd>A technique where data is covertly sent out of a network using DNS queries.</dd>
 <dt>Domain Name System Query</dt><dd>A request sent to a DNS server to resolve a domain name into an IP address.</dd>
-<dt>Domain Trusts</dt><dd>Relationships established between domains to allow resource sharing and authentication.</dd>
-<dt>DomainKeys Identified Mail (DKIM)</dt><dd>An email authentication method that verifies message integrity and sender identity.</dd>
+<dt>Domain Trusts</dt><dd>Authentication relationships between Active Directory domains that let identities in one domain access resources in another. Attackers enumerate and abuse trusts to extend a compromise across domain and forest boundaries, which makes the trust map a lateral-movement map.</dd>
+<dt>DomainKeys Identified Mail (DKIM)</dt><dd>An email authentication method in which the sending infrastructure signs selected message headers and a hash of the body with a private key, and receivers verify the signature against a public key published in the signing domain's DNS. A valid signature shows the signing domain took responsibility for the message and that the signed content arrived unaltered; it says nothing about whether the content is safe.</dd>
 <dt>Dwell Time</dt><dd>The interval between initial compromise and detection, measured per incident and tracked as a program metric. The reason retention windows matter ("did this start before the alert?") is that dwell time is routinely longer than anyone's comfort; sophisticated intrusions have historically measured it in weeks to months.</dd>
-<dt>Dynamic Link Library (DLL)</dt><dd>A collection of executable functions or data that can be used by multiple programs.</dd>
+<dt>Dynamic Link Library (DLL)</dt><dd>A Windows shared library whose code is loaded into a process's address space at runtime. Module-load telemetry matters in triage because attackers run code inside trusted processes by supplying their own DLLs through injection, sideloading, or search-order hijacking.</dd>
 <dt>Dynamic Prioritization</dt><dd>Adaptive adjustment of alert or incident priority based on contextual risk factors.</dd>
 </dl>
 
@@ -222,23 +213,21 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>E</h2>
 
 <dl class="clear-terms">
-<dt>Electron Framework</dt><dd>An open-source framework for building cross-platform desktop applications using web technologies.</dd>
+<dt>Electron Framework</dt><dd>A framework for building desktop applications from web technologies; Slack, VS Code, and Cursor are Electron apps. It matters in triage because Electron apps legitimately spawn helper processes with long vendor-standard command lines and sometimes disabled sandboxes, behavior that pattern-matches post-exploitation tooling, while a helper whose parent is not its own main app process is a genuine lineage anomaly.</dd>
 <dt>Encoded Payloads</dt><dd>Malicious code or commands that have been transformed into a different format to avoid detection or bypass security controls.</dd>
 <dt>Encryption</dt><dd>The process of converting plaintext data into unreadable ciphertext to protect it from unauthorized access.</dd>
 <dt>Endpoint</dt><dd>A device that initiates network connections and runs user-facing software: laptop, desktop, server, phone, tablet. Endpoints are where most adversary tradecraft eventually shows up, which is why EDR exists.</dd>
 <dt>Endpoint Detection and Response (EDR)</dt><dd>Security technology that continuously monitors and responds to threats on endpoint devices, providing advanced threat detection and incident response capabilities.</dd>
 <dt>Endpoint Security</dt><dd>The processes and technologies used to protect endpoint devices from security threats.</dd>
 <dt>Enrichment</dt><dd>Adding context to a raw alert or indicator before or during triage: reputation and WHOIS for an IP, owner and criticality for an asset, role and department for a user, a sandbox verdict for a file. Automated enrichment is what SOAR pipelines do best; the analyst's judgment starts where the enrichment stops answering the question.</dd>
-<dt>Enterprise</dt><dd>A large organization or business that operates in multiple locations or countries.</dd>
-<dt>Entitlement Matrix</dt><dd>A framework mapping user roles to their access permissions within systems.</dd>
-<dt>Entity</dt><dd>A person, system, or organization that interacts with or affects a security incident.</dd>
+<dt>Entity</dt><dd>Any discrete actor or object that evidence can attach to during an investigation: a user account, a host, a process, an IP address, a domain, a file. Triage decomposes an alert into its entities and asks what each one was doing; the same idea gives UEBA its E.</dd>
 <dt>Entropy Scoring</dt><dd>A method to measure randomness or complexity in data, often used to detect obfuscation or encryption.</dd>
-<dt>Ephemeral Computing</dt><dd>A computing model where resources, such as containers or serverless functions, are temporary and exist only for the duration of a specific task or process.</dd>
+<dt>Ephemeral Computing</dt><dd>Infrastructure that exists only as long as its task: containers, serverless functions, and autoscaled instances created and destroyed on demand. It matters in triage because the evidence dies with the workload; unless telemetry was shipped off the resource while it lived, there is nothing left to examine by the time the alert is read.</dd>
 <dt>Eradication</dt><dd>The phase of incident response focused on completely removing threat actors and malicious artifacts from affected systems.</dd>
 <dt>Escalation Matrix</dt><dd>A predetermined framework defining when and how to elevate security incidents to higher levels of response based on severity and impact.</dd>
 <dt>Evasion</dt><dd>Techniques used by attackers to avoid detection by security tools.</dd>
 <dt>Event</dt><dd>An observable thing that happened: a process executed, a user logged in, a file changed, a packet was sent. Events are what produce alerts when detection logic decides they're interesting. Most events are not alerts; most alerts are events.</dd>
-<dt>Event Context</dt><dd>The circumstances and environment surrounding a security event.</dd>
+<dt>Event Context</dt><dd>The surrounding facts that give a security event meaning: who the user is, what the host is for, what happened immediately before and after, and whether the activity is normal for that identity at that time and place. Context is what lets an analyst turn an isolated observation into a verdict.</dd>
 <dt>Event Correlation</dt><dd>The process of analyzing multiple events across different sources to identify relationships and determine if they are part of a larger security incident.</dd>
 <dt>Event Triage</dt><dd>The phase that sits between detection and incident response: deciding whether an alert is real, whom it concerns, what its blast radius might be, and whether it crosses an escalation threshold. The ASSURED methodology is a structured way to do triage.</dd>
 <dt>Excessive Permissions</dt><dd>User or process privileges beyond what is necessary for their role, increasing security risk.</dd>
@@ -257,13 +246,12 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>False Negative</dt><dd>Malicious activity that produced no alert: the detection logic missed it, or no logic covers it. Invisible by definition at triage time, false negatives surface later through hunting, incident investigation, or an external notification, and each one found is a detection-engineering work item. The other half of the confusion matrix from the false positive, and the more expensive half.</dd>
 <dt>False Positive</dt><dd>A security alert that fires on activity that is, on inspection, benign. The detection logic matched a pattern that looked malicious but was not. Distinct from a <em>benign true positive</em>, which is real adversary-like activity that does not warrant action in the local context.</dd>
 <dt>False-Premise</dt><dd>An incorrect assumption or conclusion about a security event that leads to improper investigation or response.</dd>
-<dt>Federation</dt><dd>A system allowing users to access multiple independent systems using a single set of credentials.</dd>
+<dt>Federation</dt><dd>Linking identity across independent systems or organizations so that a trusted identity provider authenticates users on behalf of services it does not operate, typically via SAML or OIDC. Matters in triage because every relying service delegates authentication to the identity provider: a compromise there, such as a stolen signing key used to forge assertions (Golden SAML), can mint access to any federated service.</dd>
 <dt>Feedback Loop</dt><dd>A process where information from outcomes is used to improve future detection or response.</dd>
 <dt>FIDO2</dt><dd>An authentication standard enabling passwordless login using biometrics or security keys.</dd>
 <dt>File Integrity Monitoring (FIM)</dt><dd>A security control that detects unauthorized changes to files or configurations.</dd>
 <dt>Firewall</dt><dd>A network security system that controls and monitors incoming and outgoing traffic based on predetermined security rules.</dd>
 <dt>Forensics</dt><dd>The application of scientific methods to collect, preserve, and analyze digital evidence for security investigations and incident response.</dd>
-<dt>Framework</dt><dd>A structured approach or set of guidelines used to build security programs or processes.</dd>
 <dt>Fully Qualified Domain Name (FQDN)</dt><dd>The complete domain name specifying its exact location in the DNS hierarchy.</dd>
 </dl>
 
@@ -291,9 +279,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Health Insurance Portability and Accountability Act (HIPAA)</dt><dd>U.S. legislation that sets standards for protecting sensitive patient health information, including specific security and privacy requirements.</dd>
 <dt>Heuristic Detection</dt><dd>A detection method that uses rules and patterns to identify potentially malicious behavior based on common characteristics of malware or attacks.</dd>
 <dt>Honeypot</dt><dd>A decoy system designed to lure attackers and study their tactics.</dd>
-<dt>HTA Content</dt><dd>HTML Application files that can execute scripts, sometimes abused for malicious purposes.</dd>
-<dt>Hybrid Infrastructure</dt><dd>Computing environment that combines on-premises, private cloud, and public cloud services.</dd>
-<dt>Hypertext Transfer Protocol (HTTP)</dt><dd>The foundation protocol for data communication on the web.</dd>
+<dt>HTA Content</dt><dd>Script content delivered as an HTML Application (.hta file), which Windows executes through mshta.exe with the local user's full privileges rather than inside the browser sandbox. A recurring phishing and living-off-the-land vector, which is why mshta.exe spawning from a browser or email client draws analyst attention.</dd>
+<dt>Hypertext Transfer Protocol (HTTP)</dt><dd>The request-response protocol that carries most web traffic between clients and servers. Triage-relevant because attacker traffic blends into it: C2 beacons, payload downloads, and exfiltration ride HTTP precisely because it is allowed almost everywhere, and its URIs, headers, and user-agent strings are core investigation fields.</dd>
 <dt>Hypertext Transfer Protocol Secure (HTTPS)</dt><dd>Secure version of HTTP using encryption to protect data in transit.</dd>
 </dl>
 
@@ -312,20 +299,17 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Indicators of Compromise (IoC)</dt><dd>Atomic, replayable artifacts that, when observed, suggest an intrusion has occurred or is in progress: file hashes, IPs, domains, registry keys, certificate fingerprints, and similar discrete observables. Behavioral patterns (process trees, sequence of actions) are not IoCs; they live one layer up as TTPs.</dd>
 <dt>Information Security</dt><dd>The practices and technologies used to protect information and data from unauthorized access, use, disclosure, disruption, modification, or destruction.</dd>
 <dt>Information Sharing and Analysis Centers (ISACs)</dt><dd>Industry groups that share cyber threat information.</dd>
-<dt>Information Technology Service Management (ITSM)</dt><dd>Frameworks and tools to manage IT services and processes.</dd>
-<dt>Infrastructure</dt><dd>The underlying systems, networks, and architecture that support an organization's operations.</dd>
+<dt>Infrastructure</dt><dd>The systems, networks, and services that computing runs on. In triage the word points two directions: the organization's infrastructure is what alerts fire on, and attacker infrastructure is the set of C2 servers, domains, and staging hosts an adversary operates, which pivoting on indicators is meant to map.</dd>
 <dt>Insider Risk</dt><dd>The potential for harm from individuals with legitimate access arising from mistakes, policy violations, or unsafe habits, not from intent. Distinct from <em>insider threat</em>, which is deliberate.</dd>
 <dt>Insider Threat</dt><dd>A person with authorized access who deliberately misuses it to harm the organization through theft, sabotage, or assisting external attackers. Distinct from insider risk, which also covers unintentional harm from negligence or mistakes.</dd>
 <dt>Insider Threat Matrix</dt><dd>A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Useful as a shared vocabulary for describing insider risk and threat.</dd>
-<dt>Integrated Development Environment (IDE)</dt><dd>Software that provides comprehensive facilities to programmers.</dd>
+<dt>Integrated Development Environment (IDE)</dt><dd>Software developers use to write, run, and debug code, such as VS Code, Cursor, or IntelliJ. IDEs matter in triage because their normal operation, spawning helper processes, executing scripts, running plugin hosts with sandboxes disabled, and making encrypted outbound calls, routinely pattern-matches post-exploitation behavior on developer workstations.</dd>
 <dt>Intelligence</dt><dd>Information gathered and analyzed to understand and predict potential security threats.</dd>
-<dt>IntelliSense</dt><dd>A code-completion aid commonly found in development environments.</dd>
-<dt>Inter-Process Communication</dt><dd>Mechanisms that allow different processes to communicate within an operating system.</dd>
+<dt>Inter-Process Communication</dt><dd>Operating system mechanisms that let running processes exchange data, such as named pipes, shared memory, and local sockets. Triage-relevant because malware abuses these channels for command-and-control, privilege escalation, and coordination between implant components; named-pipe telemetry in particular is a staple of EDR detections for tooling like Cobalt Strike.</dd>
 <dt>Internet of Things (IoT)</dt><dd>Network of physical devices embedded with sensors, software, and connectivity, introducing new security challenges due to their often limited security capabilities.</dd>
-<dt>Internet Protocol (IP) Address</dt><dd>A unique address assigned to a device or system on a network.</dd>
+<dt>Internet Protocol (IP) Address</dt><dd>The numeric address a device uses to send and receive network traffic, and one of the most common pivot points in triage: reputation lookups, geolocation, WHOIS ownership, and log correlation all key on it. Treat it as a weak proxy for identity, since NAT, VPNs, proxies, and shared cloud egress can put many actors behind one address.</dd>
 <dt>Intrusion Detection System (IDS)</dt><dd>Security system that monitors network traffic for suspicious activity and policy violations, generating alerts for potential security incidents.</dd>
 <dt>Intrusion Prevention System (IPS)</dt><dd>Security system that not only detects but actively blocks or prevents identified suspicious activity and policy violations.</dd>
-<dt>Isolated Execution Environment</dt><dd>A secure area where code runs isolated from other system components to prevent interference.</dd>
 <dt>Isolation Forests</dt><dd>A machine learning algorithm used for anomaly detection by isolating anomalies in data.</dd>
 </dl>
 
@@ -352,7 +336,7 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dl class="clear-terms">
 <dt>Kerberoasting</dt><dd>Requesting Kerberos service tickets (TGS) for accounts with Service Principal Names (SPNs) and cracking them offline. With the legacy RC4 encryption type the ticket is encrypted using a key equal to the service account's NTLM hash, so a weak service-account password becomes a crackable ciphertext (AES-only accounts crack far more slowly), and any user who can authenticate to the domain can request the ticket.</dd>
 <dt>Kerberos</dt><dd>A network authentication protocol using tickets to allow secure identity verification.</dd>
-<dt>Kubernetes</dt><dd>An open-source system for automating deployment, scaling, and management of containerized applications.</dd>
+<dt>Kubernetes</dt><dd>The dominant container orchestration platform and an attack surface in its own right: exposed API servers, over-permissioned service account tokens, and container escapes can turn one compromised workload into a path across the cluster. Analysts meet it through Kubernetes audit logs and runtime telemetry, where short-lived pods complicate reconstructing what was running when an alert fired.</dd>
 </dl>
 
 </section>
@@ -370,9 +354,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Likelihood</dt><dd>The probability that a threat will exploit a vulnerability.</dd>
 <dt>Liveness Detection</dt><dd>Techniques used to verify that biometric inputs are from a live person, not a spoof.</dd>
 <dt>Living-Off-The-Land (LotL)</dt><dd>Attack technique utilizing legitimate, built-in system tools and features to conduct malicious activities while evading detection.</dd>
-<dt>Log</dt><dd>A record of events, transactions, or activities in a system or network.</dd>
+<dt>Log</dt><dd>A timestamped record of an event emitted by a system, application, or security control. Logs are the raw evidence of triage: the alert points at a moment in time, and the surrounding log entries are how the analyst reconstructs what actually happened.</dd>
 <dt>Log Parsing</dt><dd>The systematic process of analyzing and extracting relevant information from system, application, and security logs for investigation and threat detection.</dd>
-<dt>LSTM Networks</dt><dd>A type of recurrent neural network useful in analyzing sequential data for anomaly detection.</dd>
 </dl>
 
 </section>
@@ -383,20 +366,16 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>M</h2>
 
 <dl class="clear-terms">
-<dt>Machine Learning</dt><dd>The use of algorithms and statistical models that enable computer systems to improve their performance on a specific task through experience.</dd>
 <dt>Malware</dt><dd>Software whose author intends harm: ransomware, trojans, worms, viruses, spyware, wipers, rootkits, RATs. The B.A.D. glossary catalogs the families in detail.</dd>
 <dt>Mandatory Access Control</dt><dd>An access policy where permissions are centrally controlled and enforced based on classifications.</dd>
 <dt>MD5</dt><dd>A widely used hash function that produces a 128-bit hash value, though now considered weak.</dd>
 <dt>Mean Time To Respond/Resolve (MTTR)</dt><dd>A metric measuring how quickly incidents are resolved.</dd>
 <dt>Metadata</dt><dd>Data about data: file timestamps, owner, size, hash; an email's headers; a process's parent, command line, and signing certificate. In triage, metadata is often more diagnostic than the content itself.</dd>
-<dt>Methodology</dt><dd>A systematic framework or approach for conducting security operations or investigations.</dd>
-<dt>Middleware</dt><dd>Software that connects different applications or systems to enable communication and data exchange.</dd>
 <dt>Mitigation</dt><dd>Action that reduces a risk without eliminating it: a compensating control, a workaround, a temporary block. Distinct from remediation, which fixes the underlying issue.</dd>
 <dt>MITRE ATT&amp;CK</dt><dd>A globally-accessible knowledge base of adversary tactics and techniques based on real-world observations, used for threat modeling and security operations.</dd>
 <dt>MITRE Procedures</dt><dd>Specific implementation methods used by threat actors to accomplish techniques within the ATT&amp;CK framework.</dd>
 <dt>MITRE Tactics</dt><dd>Categories representing the tactical goals of adversaries during an attack, such as initial access, execution, persistence.</dd>
 <dt>MITRE Techniques</dt><dd>Specific methods used by adversaries to achieve tactical goals within the ATT&amp;CK framework.</dd>
-<dt>Model Training</dt><dd>The process of teaching a machine learning model to recognize patterns using labeled data.</dd>
 <dt>Mshta.exe</dt><dd>A Windows utility for executing Microsoft HTML Applications, sometimes exploited by attackers.</dd>
 <dt>Multi-Cloud Environment</dt><dd>Infrastructure utilizing multiple cloud service providers, introducing complex security challenges in maintaining consistent security controls and visibility.</dd>
 <dt>Multi-Factor Authentication (MFA)</dt><dd>Security system requiring two or more verification methods to grant access, combining something you know, have, or are.</dd>
@@ -410,13 +389,10 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>N</h2>
 
 <dl class="clear-terms">
-<dt>Nested Data</dt><dd>Data structures where elements contain other data structures, common in logs and JSON.</dd>
-<dt>Network</dt><dd>A collection of interconnected devices, systems, or servers that communicate with each other.</dd>
 <dt>Network Access Control (NAC)</dt><dd>Security solutions that enforce policies on devices trying to access a network.</dd>
 <dt>Network Segmentation</dt><dd>The division of a network into smaller, isolated segments to improve security and reduce the attack surface.</dd>
-<dt>Network Traffic</dt><dd>The flow of data between devices, systems, or servers on a network.</dd>
-<dt>Node</dt><dd>A device or system that is connected to a network.</dd>
-<dt>Normalization</dt><dd>The process of transforming data into a standard format to improve analysis and comparison.</dd>
+<dt>Network Traffic</dt><dd>The data moving between hosts on a network, observed as connections, flows, and packets. In triage, traffic metadata (who talked to whom, when, how much, and over which port and protocol) is often the fastest way to confirm or rule out command and control, exfiltration, or lateral movement.</dd>
+<dt>Normalization</dt><dd>Converting logs and events from different sources into a common field schema so a username, IP, or timestamp means the same thing regardless of which tool recorded it. SIEM correlation rules and cross-source queries depend on it; fields that were never normalized are where searches silently miss.</dd>
 </dl>
 
 </section>
@@ -429,10 +405,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dl class="clear-terms">
 <dt>Obfuscation</dt><dd>Techniques used to make code, commands, or data difficult to understand or detect, used both by attackers and legitimately for IP protection.</dd>
 <dt>OpenC2</dt><dd>An open standard for command and control of cyber defense components.</dd>
-<dt>Oracle Cluster File System (OCFS)</dt><dd>A shared file system used in clustered environments.</dd>
-<dt>Organizationally Unique Identifier (OUI)</dt><dd>The first 24 bits of a MAC address that identify the manufacturer.</dd>
+<dt>Organizationally Unique Identifier (OUI)</dt><dd>The first 24 bits of a MAC address, assigned by the IEEE to a specific organization, typically a hardware vendor. Looking up the OUI turns an unknown MAC into a vendor name when hunting rogue or unmanaged devices, but modern endpoints often randomize their MAC addresses, so a lookup that fails or returns nonsense may indicate privacy randomization rather than a real device identity.</dd>
 <dt>Orphaned Credentials</dt><dd>Access credentials no longer associated with an active user or process, posing a security risk.</dd>
-<dt>OSA Model</dt><dd>Open Security Architecture model used for designing security frameworks.</dd>
 </dl>
 
 </section>
@@ -444,30 +418,29 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 
 <dl class="clear-terms">
 <dt>Packet Capture Files (PCAP)</dt><dd>Files used to record network traffic for analysis.</dd>
-<dt>Parsing</dt><dd>The process of analyzing data structures or code to extract meaningful information.</dd>
+<dt>Parsing</dt><dd>Breaking a raw alert, log line, or command string into its component fields so each can be examined on its own: the user, the host, the action, the time. In triage, parsing the alert is the first move; the details that decide a verdict live in the fields, not in the alert name.</dd>
 <dt>Pass-the-Hash</dt><dd>An attack technique that allows an attacker to authenticate to a remote server/service using the underlying NTLM or LM hash of a user's password instead of the password itself.</dd>
 <dt>Pass-the-Ticket</dt><dd>Kerberos analog of pass-the-hash. The attacker presents a stolen TGT (Ticket Granting Ticket) or TGS (Ticket Granting Service ticket) to authenticate as that identity against any service in the realm, without ever needing the user's password. Often paired with Mimikatz extraction of LSASS memory. MITRE T1550.003.</dd>
 <dt>Password</dt><dd>A secret word or phrase used to authenticate a user or system.</dd>
 <dt>Patch Management</dt><dd>The process of applying updates and fixes to software and systems to repair vulnerabilities and improve security.</dd>
 <dt>Payment Card Industry Data Security Standard (PCI DSS)</dt><dd>Security standards designed to ensure companies that accept, process, store, or transmit credit card information maintain a secure environment.</dd>
-<dt>Peer Validation</dt><dd>A method of verifying information or alerts through cross-checking with other sources.</dd>
+<dt>Peer Validation</dt><dd>Having a second analyst review a triage verdict or escalation decision before it is finalized. A standard SOC quality control, because a fresh set of eyes catches assumptions and confirmation bias the original analyst can no longer see.</dd>
 <dt>Penetration Testing</dt><dd>A simulated attack on a system or network to test its defenses and identify vulnerabilities.</dd>
-<dt>Permission Mapping</dt><dd>The process of correlating user roles with their granted permissions.</dd>
 <dt>Persistence</dt><dd>Mechanisms an adversary installs so their access survives reboots, password resets, and partial cleanups: Run keys, scheduled tasks, services, WMI subscriptions, browser extensions. Mature operators plant several anchors so removing one is not enough.</dd>
 <dt>Personally Identifiable Information (PII)</dt><dd>Data that can uniquely identify an individual.</dd>
 <dt>Phishing</dt><dd>Deceptive messages (usually email; sometimes SMS, voice, or chat) that impersonate a trusted sender to lure the recipient into clicking, opening, or entering credentials. The bait is the email; the line is the impersonation; the catch is initial access.</dd>
 <dt>Playbook</dt><dd>A predefined, repeatable procedure for handling a specific alert or incident type: the steps, the decision points, the exit criteria. Playbooks encode the SOC's institutional memory so the response does not depend on who is on shift; SOAR platforms automate their mechanical steps. The fast path's pattern library is a playbook collection with discriminators attached.</dd>
 <dt>Polymorphic Malware</dt><dd>Malicious software that constantly changes its identifiable features to avoid detection by traditional signature-based security tools.</dd>
-<dt>Port</dt><dd>A communication endpoint used by protocols to send and receive data.</dd>
+<dt>Port</dt><dd>A 16-bit number from 0 to 65535 carried in TCP and UDP headers that tells a host which service or process the traffic belongs to: 443 for HTTPS, 22 for SSH, 3389 for RDP. In triage, ports are a cheap tell; a standard service on a nonstandard port, or traffic to a port that should not be listening, is worth a second look.</dd>
 <dt>Post-Mortem</dt><dd>The structured retrospective an organization runs after a closed incident: timeline, decisions, what worked, what failed, what the team learned. A good post-mortem points back at detection, process, or training gaps. A blameless one names the system, not the person.</dd>
 <dt>PowerShell</dt><dd>A command-line shell and scripting language built on the .NET framework, commonly used for system administration and potentially for malicious purposes.</dd>
 <dt>Pretexting</dt><dd>Social engineering built on an invented scenario rather than a malicious payload: the caller claiming to be IT support, the "CEO" emailing about an urgent confidential deal, the vendor with new bank details. The pretext gives the target a plausible reason to comply. The delivery mechanism behind business email compromise and most voice phishing.</dd>
 <dt>Privilege Escalation</dt><dd>Gaining access at a higher trust level than the actor originally held, by any means: exploiting a bug, abusing a misconfiguration, stealing credentials, impersonating a token, or socially engineering an elevation.</dd>
 <dt>Privileged Access Management (PAM)</dt><dd>Technologies that control and monitor access to critical accounts.</dd>
-<dt>Process</dt><dd>A series of actions or steps taken to achieve a specific goal or task.</dd>
+<dt>Process</dt><dd>A running instance of a program, with a process ID, a parent process, a command line, and the user context it executes under. Process ancestry, meaning which process spawned which, is often the fastest triage signal for whether an execution is routine or suspicious.</dd>
 <dt>Process Relationships</dt><dd>The connections and interactions between different processes running on a system, including parent-child relationships and inter-process communication.</dd>
-<dt>Protected Health Information (PHI)</dt><dd>Any information about health status, provision of care, or payment.</dd>
-<dt>Protocol</dt><dd>A set of rules and standards that govern communication between devices, systems, or networks.</dd>
+<dt>Protected Health Information (PHI)</dt><dd>Individually identifiable health information protected under HIPAA: a person's health status, the care they received, or payment for that care, linked to their identity. Alerts touching systems that hold PHI raise the escalation stakes, because exposure carries regulatory breach-notification duties.</dd>
+<dt>Protocol</dt><dd>The agreed set of rules two systems use to communicate: HTTP, DNS, SMB, RDP. In triage the protocol tells you what a connection is capable of doing, and a mismatch between the protocol and the port it runs on is a classic tell for tunneling or evasion.</dd>
 </dl>
 
 </section>
@@ -481,12 +454,10 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Ransomware</dt><dd>Malicious software that encrypts a victim's files and demands payment (usually cryptocurrency) for the decryption key. Modern ransomware operations typically pair encryption with data theft, threatening public release if the ransom is not paid (double extortion).</dd>
 <dt>Regsvr32.exe</dt><dd>A Windows utility used to register and unregister DLLs, sometimes exploited by malware.</dd>
 <dt>Regulatory Compliance</dt><dd>Adherence to laws, regulations, and standards governing data protection, privacy, and security requirements for specific industries or data types.</dd>
-<dt>Regulatory Requirements</dt><dd>Laws and policies organizations must follow to ensure compliance and security.</dd>
+<dt>Regulatory Requirements</dt><dd>The legal and contractual obligations that attach to specific data types and industries, such as GDPR, HIPAA, and PCI DSS (a card-industry standard enforced by contract rather than statute), including breach-notification deadlines. They matter in triage because an incident touching regulated data starts a clock the response has to honor.</dd>
 <dt>Relationship Mapping</dt><dd>The process of identifying and visualizing connections between entities like users, systems, or processes.</dd>
 <dt>Reliability Assessment</dt><dd>Evaluating the trustworthiness and accuracy of security data or alerts.</dd>
-<dt>Request for Comments (RFC)</dt><dd>A series of documents that define internet standards and protocols.</dd>
-<dt>Resource Allocation</dt><dd>Assigning personnel, tools, and time to address security tasks or incidents.</dd>
-<dt>Return on Investment (ROI)</dt><dd>Analysis of security investments comparing the cost of security controls against potential losses from security incidents.</dd>
+<dt>Request for Comments (RFC)</dt><dd>The numbered document series in which internet protocols and standards are defined. The one every analyst ends up citing is RFC 1918, which reserves the private address ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) that tell you at a glance whether an IP is internal or external.</dd>
 <dt>Risk</dt><dd>Impact times likelihood, weighted by the analyst's confidence in the evidence. Risk is what turns a finding into a prioritized response; it's the verdict the rest of the team acts on.</dd>
 <dt>Risk Appetite</dt><dd>The amount of risk an organization is willing to accept in pursuit of objectives.</dd>
 <dt>Risk Assessment</dt><dd>Systematic process of evaluating potential risks to system and data security, including likelihood and impact analysis.</dd>
@@ -495,7 +466,6 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Risk Profile</dt><dd>An assessment of risks associated with assets, users, or processes.</dd>
 <dt>Role-Based Access Control (RBAC)</dt><dd>A model that assigns permissions based on user roles.</dd>
 <dt>Root Cause Analysis</dt><dd>The process of identifying the underlying cause of a security incident or problem.</dd>
-<dt>Router</dt><dd>A device that forwards data packets between networks.</dd>
 <dt>Rule-Based Detection</dt><dd>Security monitoring approach using predefined rules to identify suspicious or malicious activity based on specific conditions or patterns.</dd>
 <dt>Runbook</dt><dd>Step-by-step operational instructions for one concrete task: rotate this credential, isolate this host, pull this log. Narrower than a playbook. A playbook decides what to do; a runbook specifies exactly how to do one of its steps.</dd>
 <dt>Rundll32.exe</dt><dd>A Windows utility that executes functions in DLL files, sometimes used maliciously.</dd>
@@ -510,25 +480,24 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 
 <dl class="clear-terms">
 <dt>Sandboxing</dt><dd>Detonating an unknown file or URL inside an isolated environment to observe what it does. Mature malware checks for sandbox-typical signals (small disk, brief uptime, no mouse activity, suspicious driver names) and stays dormant until it sees a real host.</dd>
-<dt>Sarbanes-Oxley Act (SOX)</dt><dd>A law that regulates financial reporting and corporate governance in the United States.</dd>
-<dt>Schema Normalization</dt><dd>The process of organizing data into a structured format to reduce redundancy and improve analysis.</dd>
+<dt>Sarbanes-Oxley Act (SOX)</dt><dd>A 2002 United States federal law that mandates accurate financial reporting and internal controls at publicly traded companies. It matters to security because its Section 404 internal-control audits pull IT general controls into scope, driving access control, change management, and audit logging requirements on systems that feed financial statements and raising the criticality of those assets during triage.</dd>
+<dt>Schema Normalization</dt><dd>Mapping events from different log sources into one common field schema, such as ECS, OCSF, or Splunk CIM, so that a username or source IP carries the same field name in every query. Cross-source correlation in a SIEM depends on it.</dd>
 <dt>Scope</dt><dd>The defined boundaries of a security investigation or incident response, including affected systems, timeframes, and areas of concern.</dd>
 <dt>Scope Creep</dt><dd>Uncontrolled expansion of an incident investigation beyond its initial parameters, potentially consuming excessive resources without proportional benefit.</dd>
-<dt>Scope Drift</dt><dd>Gradual deviation from the original scope or objectives over time.</dd>
 <dt>Secure Email Gateways (SEG)</dt><dd>Security solutions that filter and protect email communications from threats.</dd>
 <dt>Secure Hash Algorithm (SHA)</dt><dd>A family of cryptographic hash functions used for data integrity.</dd>
 <dt>Secure Shell (SSH)</dt><dd>A protocol for secure remote login and command execution.</dd>
 <dt>Secure Sockets Layer (SSL)</dt><dd>A deprecated protocol for encrypting internet communications, replaced by TLS.</dd>
 <dt>Security Control</dt><dd>A measure or mechanism used to prevent, detect, or respond to a security threat or incident.</dd>
-<dt>Security In Depth</dt><dd>A layered security approach that combines multiple controls to protect assets.</dd>
+<dt>Security In Depth</dt><dd>Layering multiple overlapping controls at the network, endpoint, identity, and monitoring levels so that a single control failing does not mean compromise; more commonly called defense in depth. For triage it means one layer's alert can usually be corroborated or refuted with telemetry from another layer.</dd>
 <dt>Security Information and Event Management (SIEM)</dt><dd>Platform that collects, aggregates, and analyzes security data from multiple sources to provide real-time monitoring, correlation, and incident response capabilities.</dd>
 <dt>Security Operations</dt><dd>The people, processes, and technology responsible for monitoring, detecting, investigating, and responding to security threats within an organization.</dd>
 <dt>Security Orchestration, Automation, and Response (SOAR)</dt><dd>Platforms that codify SOC workflows into playbooks: enrich an alert, query telemetry, look up an indicator, open a case, page on-call. SOAR makes the repetitive parts of triage repeatable.</dd>
 <dt>Sender Policy Framework (SPF)</dt><dd>An email validation protocol to prevent sender address forgery.</dd>
 <dt>Sensitive Data</dt><dd>Information that is confidential, proprietary, or regulated, such as personal data, financial information, or intellectual property.</dd>
 <dt>Separation of Duties</dt><dd>A control to prevent fraud by dividing responsibilities among multiple people.</dd>
-<dt>Server</dt><dd>A computer or device that provides services, resources, or data to other devices or systems on a network.</dd>
-<dt>Server Message Block (SMB)</dt><dd>A network protocol for sharing files and printers.</dd>
+<dt>Server</dt><dd>A host whose role is to provide services to other systems rather than to a person at a keyboard. The distinction drives triage: web browsing and office documents are routine on a workstation but anomalous on a server, an interactive server login warrants checking who made it since only administrators should have a reason to, and a compromised server typically exposes data or downstream users at scale.</dd>
+<dt>Server Message Block (SMB)</dt><dd>A network protocol for file shares, printer access, and remote administration, native to Windows but also implemented by Samba and NAS appliances, running on TCP port 445 (legacy port 139 over NetBIOS). A staple of lateral movement: administrative shares, PsExec-style remote execution, and exploits such as EternalBlue, used by the WannaCry worm, all travel over SMB.</dd>
 <dt>Serverless Functions</dt><dd>Cloud-computing execution model where cloud providers manage infrastructure, presenting unique security monitoring and access control challenges.</dd>
 <dt>Side-Loading</dt><dd>A technique where attackers exploit legitimate applications to load malicious DLLs or code, often bypassing security controls.</dd>
 <dt>Signature-Based Detection</dt><dd>Security method that identifies threats by matching observed activity against a database of known malicious patterns or signatures.</dd>
@@ -536,16 +505,12 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Signature Management</dt><dd>The process of updating and maintaining detection signatures in security systems.</dd>
 <dt>Single Sign-On (SSO)</dt><dd>An authentication process allowing a user to access multiple systems with one set of credentials.</dd>
 <dt>Social Engineering</dt><dd>Manipulating people into divulging confidential information or performing actions that compromise security.</dd>
-<dt>Statistical Models</dt><dd>Mathematical models that analyze data distributions and relationships to detect anomalies or predict outcomes.</dd>
-<dt>String Concatenation</dt><dd>The operation of joining two or more strings end-to-end.</dd>
-<dt>Structured Query Language (SQL)</dt><dd>A programming language used to manage and manipulate data in databases.</dd>
 <dt>Structured Threat Information Expression (STIX)</dt><dd>A standardized format for sharing cyber threat intelligence.</dd>
 <dt>Subject</dt><dd>An entity, such as a user or system, that is involved in a security incident or event.</dd>
 <dt>Supply Chain</dt><dd>The network of organizations, people, activities, and resources involved in creating and delivering products, presenting multiple attack vectors for compromising systems or software during development and distribution.</dd>
 <dt>Suppression</dt><dd>A deliberate rule that stops a detection from alerting on a defined pattern, host set, or time window: the pressure valve for known noise. Suppression trades visibility for signal, so every suppression carries a documented reason and an owner and gets revisited. An unsuppressed noisy rule burns analysts; an unreviewed suppression hides an intrusion.</dd>
 <dt>Syslog</dt><dd>A standard protocol for message logging in network devices and systems.</dd>
-<dt>System</dt><dd>A collection of hardware, software, and firmware that work together to perform a specific function or task.</dd>
-<dt>System Binary</dt><dd>Executable files that are part of an operating system or trusted software components.</dd>
+<dt>System Binary</dt><dd>An executable that ships with the operating system or other trusted, usually signed, software: cmd.exe, powershell.exe, certutil.exe, rundll32.exe. Central to triage because living-off-the-land attacks abuse these trusted binaries, so the question is rarely whether the binary is legitimate but whether its parent, arguments, and timing are.</dd>
 </dl>
 
 </section>
@@ -564,8 +529,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <dt>Threat Actor</dt><dd>Individual or group that conducts malicious activities targeting information systems or networks.</dd>
 <dt>Threat Hunting</dt><dd>Proactive analysis that starts from a hypothesis ("if an attacker were here, what would I expect to see?") and searches telemetry for evidence. Distinct from alert triage, which reacts to detections; hunting goes looking for what the detections missed.</dd>
 <dt>Threat Intelligence</dt><dd>Evidence-based knowledge about existing or emerging threats, including context, mechanisms, indicators, implications, and actionable advice.</dd>
-<dt>Ticket</dt><dd>A record or request for assistance or support, often used in help desks or incident response.</dd>
-<dt>Time To Live (TTL)</dt><dd>A field that limits the lifespan or hops of data packets in a network.</dd>
+<dt>Ticket</dt><dd>The case record that tracks an alert or incident through investigation: who owns it, what was found, what verdict was reached, and when it was closed. In a SOC the ticket is both the unit of work in the queue and the documentation trail that escalation, metrics, and future investigations depend on.</dd>
+<dt>Time To Live (TTL)</dt><dd>In IP, a hop counter that each router decrements so stray packets are discarded instead of looping forever; in DNS, the number of seconds a resolver may cache a record before re-querying. The DNS sense usually matters most in triage: very short TTLs let attacker infrastructure rotate addresses quickly, as in fast-flux hosting, though CDNs and load balancers use short TTLs legitimately as well.</dd>
 <dt>Timeline</dt><dd>A chronological record of events, actions, or decisions related to a security incident or event.</dd>
 <dt>Token</dt><dd>A small piece of data or code that is used to authenticate or authorize access to a system or resource.</dd>
 <dt>Transport Layer Security (TLS)</dt><dd>A protocol for encrypting internet communications.</dd>
@@ -584,10 +549,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 
 <dl class="clear-terms">
 <dt>Unauthorized Access</dt><dd>Access to a system, network, or resource without proper authorization or permission.</dd>
-<dt>Uniform Resource Identifier (URI)</dt><dd>A string that identifies a resource on the internet.</dd>
-<dt>Uniform Resource Locator (URL)</dt><dd>The address used to access resources on the web.</dd>
-<dt>Unmanaged Teams</dt><dd>Groups within an organization that operate without centralized security controls, posing risks.</dd>
-<dt>User</dt><dd>An individual who interacts with a system, network, or application.</dd>
+<dt>Uniform Resource Locator (URL)</dt><dd>The address of a resource, made up of a scheme (such as http, https, or ftp), a host, and usually a path and query string. In triage the host carries reputation and lookalike-domain signals, while the path and query parameters often reveal the phishing kit, payload, or staging location.</dd>
+<dt>User</dt><dd>The identity behind activity on a system: the account that authenticated, launched the process, or received the email. In triage the user field names an account, not necessarily a person; whether the legitimate owner was actually behind the activity is exactly the question stolen credentials raise.</dd>
 <dt>User Account</dt><dd>A unique identity or profile used to authenticate and authorize access to a system or resource.</dd>
 <dt>User and Entity Behavior Analytics (UEBA)</dt><dd>Security technology that uses advanced analytics to build standard profiles of user and entity behavior, detecting anomalies that might indicate threats.</dd>
 </dl>
@@ -600,11 +563,10 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 <h2>V</h2>
 
 <dl class="clear-terms">
-<dt>Variable Expansion</dt><dd>Replacing variables in scripts or commands with their actual values during execution.</dd>
+<dt>Variable Expansion</dt><dd>The shell's replacement of a variable reference, such as %TEMP% or $HOME, with its actual value when a command runs. Attackers lean on expansion to obfuscate command lines, so the analyst has to evaluate what the command becomes after expansion, not the literal string that was logged.</dd>
 <dt>Variable Substitution</dt><dd>Programming technique often exploited by attackers to obscure malicious commands by replacing literal values with variables, making detection more difficult.</dd>
-<dt>Virtual Desktop Infrastructure (VDI)</dt><dd>Technology that hosts desktop environments on a central server.</dd>
+<dt>Virtual Desktop Infrastructure (VDI)</dt><dd>Desktop operating systems running as virtual machines on centralized infrastructure, accessed through remote display sessions rather than on the user's own hardware. Triage is harder because pooled host names and shared egress IPs are recycled across users over time, and non-persistent desktops are wiped at logoff, destroying local forensic artifacts unless telemetry is centralized.</dd>
 <dt>Virtual Private Network (VPN)</dt><dd>A secure tunnel that encrypts traffic between a user and a network.</dd>
-<dt>VS Code</dt><dd>Visual Studio Code, a source code editor developed by Microsoft that serves as the foundation for other development tools like Cursor.</dd>
 <dt>Vulnerability</dt><dd>A defect in a system that can be turned into adversary capability if paired with an exploit and exposure: an unpatched CVE, a misconfiguration, a default credential, a logic flaw. Vulnerability without exposure or exploitability is latent; with both, it's a finding.</dd>
 <dt>Vulnerability Management</dt><dd>Systematic practice of identifying, classifying, prioritizing, remediating, and mitigating security vulnerabilities across an organization's systems and software.</dd>
 </dl>
@@ -702,6 +664,39 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 
   const page = document.querySelector('.clear-page');
   if (!page) return;
+
+  // ============================================================
+  // Jump-nav landing offset. The nav pins below the header on
+  // larger screens and its height varies as the letter rows wrap,
+  // so measure it and publish --g-jump-offset, which the section
+  // scroll-margins read. Where the nav is not pinned (phones) the
+  // CSS fallback value applies.
+  // ============================================================
+  const jumpNav = page.querySelector('.clear-nav');
+  if (jumpNav) {
+    const setJumpOffset = () => {
+      const cs = getComputedStyle(jumpNav);
+      if (cs.position === 'sticky') {
+        const navTop = parseFloat(cs.top) || 0;
+        page.style.setProperty('--g-jump-offset', (navTop + jumpNav.offsetHeight + 12) + 'px');
+      } else {
+        page.style.removeProperty('--g-jump-offset');
+      }
+    };
+    setJumpOffset();
+    // This script sits before the page's style block, so on the initial
+    // parse the nav is not sticky yet; re-measure once parsing finishes.
+    if (document.readyState === 'loading') {
+      _reg(document, 'DOMContentLoaded', setJumpOffset, { once: true });
+    }
+    _reg(window, 'resize', setJumpOffset);
+    if ('ResizeObserver' in window) {
+      const jumpRO = new ResizeObserver(setJumpOffset);
+      jumpRO.observe(jumpNav);
+      _cleanups.push(() => jumpRO.disconnect());
+    }
+  }
+
   const search = page.querySelector('[data-clear-search]');
   const empty = page.querySelector('[data-clear-empty]');
   const resultsCount = page.querySelector('[data-clear-results]');
@@ -830,7 +825,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: linear-gradient(170deg, #0a0518 0%, #1e1b4b 35%, #0a0518 70%, #0a0518 100%);
   color: #ede9fe;
   border-radius: 0;
-  overflow: hidden;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
   min-height: calc(100vh - 64px);
 }
 
@@ -859,7 +856,8 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   100% { transform: translateY(20%) skewY(-12deg); opacity: 0; }
 }
 
-.clear-page > :not(.clear-bg):not(.clear-toast) { position: relative; z-index: 1; }
+/* .clear-nav excluded: position:relative would override its position:sticky */
+.clear-page > :not(.g-bg):not(.clear-toast):not(.clear-nav) { position: relative; z-index: 1; }
 
 /* Hero structure now lives in src/styles/glossary.css (.g-hero*).
    Kept here: only the CLEAR-specific spotlight + search + letter-nav styling. */
@@ -874,10 +872,18 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   border: 1px solid rgba(125, 211, 252, 0.4);
   border-radius: 9999px;
   color: #ede9fe;
-  font-family: inherit; font-size: 0.95rem;
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
 }
-.clear-search:focus { outline: none; border-color: #a78bfa; box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18); }
-.clear-search::placeholder { color: #64748b; }
+/* transparent outline turns solid in forced-colors mode, where the box-shadow ring is stripped */
+.clear-search:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18);
+}
+/* #94a3b8 lifts placeholder contrast on the input background past 4.5:1 (was #64748b, ~3.7:1) */
+.clear-search::placeholder { color: #94a3b8; }
 
 /* Visually hidden but present in the accessibility tree. */
 .clear-search-count {
@@ -927,7 +933,14 @@ import QuizItem from "@/components/assured/QuizItem.astro";
   background: rgba(10, 20, 40, 0.6);
   border: 1px solid rgba(91, 33, 182, 0.45);
   border-radius: 0.85rem;
-  position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(10px);
+  /* top offset pins the nav below the sticky site header, not underneath it. */
+  position: sticky; top: calc(var(--header-height) + 8px); z-index: 5; backdrop-filter: blur(10px);
+}
+/* On phones the letter grid wraps to ~220px tall; pinning that would eat a
+   quarter of the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .clear-nav { position: relative; top: auto; }
 }
 .clear-nav__letter {
   display: inline-flex; align-items: center; justify-content: center;
@@ -940,7 +953,9 @@ import QuizItem from "@/components/assured/QuizItem.astro";
 .clear-nav__letter:hover { transform: translateY(-2px); background: rgba(167, 139, 250, 0.3); color: #fff; border-color: #a78bfa; }
 
 /* sections */
-.clear-section { margin: 0 0 2rem; scroll-margin-top: 6rem; }
+/* --g-jump-offset: measured by the page script so jump landings clear
+   the pinned nav, whose height varies as its letter rows wrap. */
+.clear-section { margin: 0 0 2rem; scroll-margin-top: var(--g-jump-offset, 6rem); }
 .clear-section h2 {
   /* Use the site font; keep the violet accent + underline. */
   font-family: inherit;

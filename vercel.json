@@ -1,5 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install --frozen-lockfile",
   "trailingSlash": true,
   "redirects": [
     {
@@ -67,7 +70,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-9dSxrQUpVjI3uXPiUV1lfOgOgbCQ6Thvg1BpRSJpz9k=' 'sha256-XnTTAjoTU2ZHT1dtBPI06O1SiDuUiczDtGoTgy/vv58=' 'sha256-cRcbYUZxVOM9LvkLc87MF7+RR4JXflnFMeRv77e2VXY=' 'sha256-fDYeTC+QfIWybmtdD+Mm+By3Nu0rmReKAFHu+3O3rAM=' 'sha256-nlndrTZRLYWQf+kCfDwzyMK+4oUsJAADVBE+5T/hGQ8='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-ba/OKjQVScGefFrfrDvKenCzGaec9hZZ11QvA4Gktrs=' 'sha256-cRcbYUZxVOM9LvkLc87MF7+RR4JXflnFMeRv77e2VXY=' 'sha256-fDYeTC+QfIWybmtdD+Mm+By3Nu0rmReKAFHu+3O3rAM=' 'sha256-sg2Q2Pa5OMX+UEvg+UgUaxw5mzEg3RSeeopyhIS6QME=' 'sha256-wcAwqNyTV9C3VsHJxs82eZIUQX7ezPlwurmCP38OvJc='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
         }
       ]
     },
@@ -77,6 +80,51 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/pagefind/fragment/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/pagefind/index/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/pagefind/pagefind.(.*).pf_meta",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/pagefind/wasm.(.*).pagefind",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/pagefind/(pagefind|pagefind-ui|pagefind-highlight).(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
         }
       ]
     }

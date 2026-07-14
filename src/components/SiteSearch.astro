@@ -111,7 +111,13 @@
     position: relative;
     width: min(640px, 100%);
     max-height: calc(100vh - 6rem);
+    /* dvh tracks iOS Safari's collapsing toolbars; 100vh above is the
+       fallback and would put the panel's bottom edge behind the toolbar. */
+    max-height: calc(100dvh - 6rem);
     overflow: auto;
+    /* Reaching the results' end must not hand the scroll to the page
+       behind the backdrop (iOS ignores body overflow:hidden for touch). */
+    overscroll-behavior: contain;
     background: #0f172a;
     border: 1px solid rgba(148, 163, 184, 0.25);
     border-radius: 0.75rem;
@@ -144,6 +150,14 @@
     border-radius: 0.35rem;
   }
   .site-search-modal__close:hover { color: var(--assured-text); background: rgba(148, 163, 184, 0.1); }
+
+  /* The 44px touch-target floor (WCAG 2.5.5) the sibling controls get. */
+  @media (pointer: coarse) {
+    .site-search-modal__close {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
 
   /* Visually hidden but present in the accessibility tree. */
   .site-search-modal__status {

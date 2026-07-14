@@ -152,7 +152,10 @@ const {
 
   .quiz__progress-sep,
   .quiz__progress-label {
-    color: var(--assured-text-dim);
+    /* #bfc9d6, not the dim token: these 0.7rem labels sit on a translucent
+       teal pill over the quiz and page gradients, whose lightest composite
+       (about rgb(41, 83, 96)) needs this much to clear 4.5:1. */
+    color: #bfc9d6;
     font-weight: 500;
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -224,13 +227,13 @@ const {
 
 <script>
   import { onPageReady } from "@/lib/dom";
+  import { readQuizProgress, writeQuizProgress } from "@/lib/progress";
 
-  // Chapter-quiz completion persists in localStorage so PuzzleProgress can
-  // show a completion tick across visits. Only the seven phase quizzes are
-  // recorded; glossary quizzes have no tile on the strip. The quiz UI itself
-  // deliberately starts fresh each visit (it is a self-check, not a grade);
-  // "Start over" also clears the stored record.
-  const QUIZ_STORAGE_KEY = "assured-quiz-progress";
+  // Chapter-quiz completion persists via @/lib/progress so PuzzleProgress
+  // can show a completion tick across visits. Only the seven phase quizzes
+  // are recorded; glossary quizzes have no tile on the strip. The quiz UI
+  // itself deliberately starts fresh each visit (it is a self-check, not a
+  // grade); "Start over" also clears the stored record.
   const PHASE_KEYS = new Set([
     "alert",
     "subject",
@@ -244,24 +247,6 @@ const {
   function quizChapter(): string | null {
     const m = window.location.pathname.match(/^\/docs\/([a-z]+)\/quiz\/?$/);
     return m && PHASE_KEYS.has(m[1]) ? m[1] : null;
-  }
-
-  function readQuizProgress(): Record<string, { correct: number; total: number }> {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(QUIZ_STORAGE_KEY) ?? "{}");
-      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-      return {};
-    }
-  }
-
-  function writeQuizProgress(progress: Record<string, { correct: number; total: number }>) {
-    try {
-      localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(progress));
-    } catch {
-      // Storage unavailable (private mode, quota): the quiz still works,
-      // completion just isn't remembered.
-    }
   }
 
   // ClientRouter idempotency: rebind quiz progress tracking on every page-load.

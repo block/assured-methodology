@@ -1,6 +1,6 @@
 ---
 title: "Command line analysis"
-description: "Decode the true intent of process execution. Obfuscation patterns, execution context, and the shapes that signal adversary technique."
+description: "Decode the true intent of process execution. The encoded-command workflow, the flags that abbreviate themselves, the 4688 gap, and execution context."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -15,22 +15,22 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 02"
-  pillarTotal="6 surfaces"
+  pillarTotal="6 pages"
   chapterHref="/docs/alert/parsing"
   chapterLabel="Parsing"
-  lede="Command lines reveal intent. Adversaries use native scripting environments to do real work while looking like legitimate processes. Effective analysis combines inspection, execution context evaluation, and pattern recognition."
+  lede="Command lines reveal intent. Adversaries use native scripting environments to do real work while looking like legitimate processes. Effective analysis means actually decoding what ran, then weighing it against execution context."
 />
 
 <PillNav
   chapter="alert"
-  label="Parsing surfaces"
+  label="Parsing pages"
   items={[
-    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
     { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
     { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
     { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
     { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
   ]}
 />
 
@@ -42,25 +42,120 @@ Common <DefineTerm term="Obfuscation" display="obfuscation" /> patterns observed
   <div class="obfuscation-card">
     <h3>Base64 encoding</h3>
     <code>powershell.exe -EncodedCommand &lt;long-base64-string&gt;</code>
-    <p>The encoded blob hides the actual command from plain-text matching.</p>
+    <p>The encoded blob hides the actual command from plain-text matching. The decode workflow below turns it back into readable intent.</p>
   </div>
   <div class="obfuscation-card">
     <h3>Caret insertion</h3>
     <code>cmd.exe /c e^ch^o "Hello"</code>
-    <p>cmd strips the escape carets before execution, so the command runs normally while breaking naive substring signatures.</p>
+    <p>cmd strips the escape carets before execution, so the command runs normally while breaking naive substring signatures. Interior quotes (<code>w"h"oami</code>) work the same way.</p>
   </div>
   <div class="obfuscation-card">
     <h3>Variable expansion</h3>
     <code>$env:COMSPEC</code>
-    <p>Uses environment variables to mask binary references.</p>
+    <p>Uses environment variables to mask binary references. cmd can even assemble strings from variable substrings (<code>%COMSPEC:~-7,1%</code> extracts a single letter), so the payload never appears literally.</p>
   </div>
 </div>
 
 Adversaries also abuse trusted system binaries: <DefineTerm term="LOLBins" display="LOLBins" /> such as `certutil.exe` for downloads, `regsvr32.exe` for DLL execution, `bitsadmin.exe` for transfers. These leave minimal forensic footprint because the binary itself is signed and trusted.
 
 <Callout variant="warn" title="Educational, not operational">
-The examples in this chapter are illustrative. We deliberately do not show fully working invocation strings. Analysts need to recognize the *shape* of adversary technique, not have a copy-pasteable cookbook. If you need to test detections, use isolated lab environments and sanctioned red-team tools.
+The examples in this chapter are illustrative. We deliberately do not show fully working invocation strings. Analysts need to recognize the *shape* of adversary technique, not have a copy-pasteable cookbook. Decoding what an attacker already ran is defensive analysis, and everything below stays on that side of the line. If you need to test detections, use isolated lab environments and sanctioned red-team tools.
 </Callout>
+
+---
+
+## The decode workflow
+
+The single most common parsing task this page exists for: an alert hands you `powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA...` and the verdict depends on what that blob says. It is encoding, not encryption. There is no key. It decodes locally in seconds, if you know the one gotcha.
+
+<div class="decode-steps">
+  <div class="decode-step">
+    <span class="decode-step__num">1</span>
+    <div>
+      <h4>Extract the blob</h4>
+      <p>Copy the Base64 string out of the alert into a local decoder. Never paste it into a terminal that could execute it, and never run the command to "see what it does." <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a> running locally in a browser tab is the standard tool.</p>
+    </div>
+  </div>
+  <div class="decode-step">
+    <span class="decode-step__num">2</span>
+    <div>
+      <h4>Decode Base64, then interpret as UTF-16LE</h4>
+      <p>This is the gotcha that trips every junior once: <code>-EncodedCommand</code> takes Base64 of <strong>UTF-16LE</strong> text, because that is what Windows means by "Unicode." Decode it as UTF-8 and you get the characters interleaved with null bytes (<code>I·E·X· ·(·N·e·w</code>), which some tools render as gibberish or CJK characters. In CyberChef the recipe is From Base64 followed by Decode Text (UTF-16LE). If your output has a space or dot between every letter, you skipped the second step.</p>
+    </div>
+  </div>
+  <div class="decode-step">
+    <span class="decode-step__num">3</span>
+    <div>
+      <h4>Read the result, and expect another layer</h4>
+      <p>The example blob above opens with <code>IEX (New-Object ...</code>, the classic download-and-execute-in-memory cradle. Real payloads often nest: the decoded text itself calls <code>FromBase64String</code> plus a Gzip or Deflate decompress, then <code>IEX</code> again. Keep unwinding layers in the decoder until you reach readable intent, and record each layer in your notes.</p>
+    </div>
+  </div>
+  <div class="decode-step">
+    <span class="decode-step__num">4</span>
+    <div>
+      <h4>Treat what falls out as hot</h4>
+      <p>URLs, domains, and IPs inside the decoded payload are live attacker infrastructure until proven otherwise. Do not browse them to check. They are IoCs: record them, look them up in <DefineTerm term="Threat Intelligence" display="threat intelligence" />, and pivot on them in the network telemetry.</p>
+    </div>
+  </div>
+</div>
+
+---
+
+## The flags do not spell themselves out
+
+PowerShell accepts any unambiguous prefix of a parameter name. `-e`, `-en`, and `-enc` all mean `-EncodedCommand`. A detection or a triage search that string-matches the full flag name misses every abbreviated form, which is exactly why attackers abbreviate. Parse by meaning, not by literal string.
+
+<div class="flags-table" role="table" aria-label="PowerShell flag abbreviations">
+  <div class="flags-row flags-row--head" role="row">
+    <span role="columnheader">Full parameter</span>
+    <span role="columnheader">Common short forms</span>
+    <span role="columnheader">What it signals</span>
+  </div>
+  <div class="flags-row" role="row">
+    <span role="cell"><code>-EncodedCommand</code></span>
+    <span role="cell"><code>-e</code>, <code>-en</code>, <code>-enc</code>, <code>-ec</code></span>
+    <span role="cell">Payload is Base64 of UTF-16LE. Decode it.</span>
+  </div>
+  <div class="flags-row" role="row">
+    <span role="cell"><code>-NoProfile</code></span>
+    <span role="cell"><code>-nop</code></span>
+    <span role="cell">Skips profile scripts for a clean, fast, unmonitored-feeling start. Common in automation and in attacks alike.</span>
+  </div>
+  <div class="flags-row" role="row">
+    <span role="cell"><code>-WindowStyle Hidden</code></span>
+    <span role="cell"><code>-w hidden</code>, <code>-win h</code></span>
+    <span role="cell">No visible window. Legitimate scheduled scripts use it; so does nearly all malware.</span>
+  </div>
+  <div class="flags-row" role="row">
+    <span role="cell"><code>-NonInteractive</code></span>
+    <span role="cell"><code>-noni</code></span>
+    <span role="cell">No prompt back to a human. Expected from services, notable from a user session.</span>
+  </div>
+  <div class="flags-row" role="row">
+    <span role="cell"><code>-ExecutionPolicy Bypass</code></span>
+    <span role="cell"><code>-ep bypass</code>, <code>-exec bypass</code></span>
+    <span role="cell">Disables script-execution restrictions for this process. Not an exploit (the policy is not a security boundary), but a strong tell of unmanaged script execution.</span>
+  </div>
+</div>
+
+No single flag is a verdict. `-nop -w hidden -enc` together on a workstation, spawned from an Office process, is a very different sentence than the same flags in a signed vendor scheduled task. The combination plus the context decides, and the decoded payload settles it.
+
+---
+
+## When there is no command line to parse
+
+Sometimes the alert's command-line field is simply empty. The most common reason is not evasion; it is configuration. Windows Security Event 4688 records process creations, but its CommandLine field populates only when the "Include command line in process creation events" policy is enabled, and it is off by default. If it was never turned on, every historical event is blank and there is no retroactive fix.
+
+<div class="gap-cards">
+  <div class="gap-card">
+    <h4>Know your source</h4>
+    <p>Security 4688 without the policy: no command line. <DefineTerm term="Sysmon" /> Event ID 1: full command line, parent, and hashes by default. EDR process telemetry: almost always captures it. Which source feeds your console determines what you can parse.</p>
+  </div>
+  <div class="gap-card">
+    <h4>An empty field is a fact about telemetry</h4>
+    <p>Record "command line not captured (4688 policy disabled)" rather than "no command line," and pivot to the sources that do have it. Absence of the field is a visibility gap, not evidence the process ran without arguments.</p>
+  </div>
+</div>
 
 ---
 
@@ -100,6 +195,27 @@ The same PowerShell command from Task Scheduler during a maintenance window is a
 
 ---
 
+## Beyond PowerShell and cmd
+
+The same analysis transfers off Windows; only the vocabulary changes.
+
+<div class="platform-list">
+  <div class="platform-item">
+    <span class="platform-item__bullet"></span>
+    <div>
+      <strong>macOS and Linux pipes.</strong> <code>curl ... | sh</code> and <code>echo &lt;base64&gt; | base64 -d | bash</code> are the download cradle and the encoded command of the Unix world. <code>osascript -e</code> running AppleScript from a non-interactive parent is the macOS counterpart of an Office macro spawning a shell.
+    </div>
+  </div>
+  <div class="platform-item">
+    <span class="platform-item__bullet"></span>
+    <div>
+      <strong>Vendor-standard noise to recognize.</strong> Electron apps launch helpers with flags like <code>--type=utility</code> or <code>--type=renderer</code>. The Alert worked example's Case B command line is exactly this shape: long, odd-looking, and vendor-standard. Knowing the legitimate shapes is what keeps them from eating triage time.
+    </div>
+  </div>
+</div>
+
+---
+
 ## Pattern recognition
 
 Build mental patterns for atypical use of common binaries. These are the shapes you want to recognize before reading the command in detail.
@@ -114,7 +230,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   <div class="pattern-item">
     <span class="pattern-item__bullet"></span>
     <div>
-      <strong>Framework flags.</strong> Command-line flags that suggest framework use: <code>-NoP</code>, <code>-EncodedCommand</code>, <code>-WindowStyle Hidden</code>, <code>-NonInteractive</code>.
+      <strong>Framework flags.</strong> Command-line flags that suggest framework use: <code>-NoP</code>, <code>-EncodedCommand</code> (or any prefix of it), <code>-WindowStyle Hidden</code>, <code>-NonInteractive</code>.
     </div>
   </div>
   <div class="pattern-item">
@@ -126,7 +242,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
 </div>
 
 <KeyTakeaway>
-<DefineTerm term="Command Line Analysis" display="Command line analysis" /> is where <DefineTerm term="Parsing" display="parsing" /> becomes investigation. Decoding what a process is actually doing, past the obfuscation, past the trust signals, anchors everything downstream.
+<DefineTerm term="Command Line Analysis" display="Command line analysis" /> is where <DefineTerm term="Parsing" display="parsing" /> becomes investigation. The decode workflow turns an encoded blob into readable intent, the flag table keeps abbreviations from hiding it, and the 4688 gap reminds you to know what your telemetry actually captured. What the command says, weighed against its context, anchors everything downstream.
 </KeyTakeaway>
 
 <ContinueCard
@@ -183,6 +299,145 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   font-size: 0.85rem;
 }
 
+.obfuscation-card p code {
+  display: inline;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.8em;
+}
+
+.decode-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.decode-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #3b82f6;
+  border-radius: 0.7rem;
+}
+
+.decode-step__num {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #93c5fd;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decode-step h4 {
+  margin: 0 0 0.35rem 0;
+  color: #93c5fd;
+  font-size: 0.98rem;
+}
+
+.decode-step p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+.decode-step a {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.flags-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 1.25rem 0;
+}
+
+.flags-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding: 0.85rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 900px) {
+  .flags-row { grid-template-columns: 1.1fr 1fr 1.9fr; gap: 1rem; align-items: baseline; }
+}
+
+.flags-row--head {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 1.15rem;
+}
+
+@media (min-width: 900px) {
+  .flags-row--head { display: grid; }
+  .flags-row--head span {
+    color: var(--assured-text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.flags-row span {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.flags-row code {
+  font-size: 0.82rem;
+  padding: 0.05rem 0.35rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.3rem;
+}
+
+.gap-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .gap-cards { grid-template-columns: 1fr 1fr; } }
+
+.gap-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #a855f7;
+  border-radius: 0.7rem;
+}
+
+.gap-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #d8b4fe;
+  font-size: 0.95rem;
+}
+
+.gap-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
 .context-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -216,6 +471,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   font-size: 0.92rem;
 }
 
+.platform-list,
 .pattern-list {
   display: flex;
   flex-direction: column;
@@ -223,6 +479,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   margin: 1.25rem 0;
 }
 
+.platform-item,
 .pattern-item {
   display: flex;
   align-items: flex-start;
@@ -233,6 +490,7 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   border-radius: 0.6rem;
 }
 
+.platform-item__bullet,
 .pattern-item__bullet {
   flex-shrink: 0;
   width: 0.6rem;
@@ -242,10 +500,12 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   margin-top: 0.5rem;
 }
 
+.platform-item strong,
 .pattern-item strong {
   color: var(--assured-text);
 }
 
+.platform-item div,
 .pattern-item div {
   color: var(--assured-text-muted);
   line-height: 1.55;

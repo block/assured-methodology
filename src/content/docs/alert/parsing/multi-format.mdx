@@ -1,6 +1,6 @@
 ---
-title: "Multi-format standardization"
-description: "The four log formats parsing has to live with, and how to normalize them into queryable structure."
+title: "Formats and normalization"
+description: "The four log formats parsing has to live with, the platform telemetry behind them, and the schemas that give heterogeneous alerts one queryable shape."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -14,24 +14,28 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 01"
-  pillarTotal="6 surfaces"
+  pillarTotal="6 pages"
   chapterHref="/docs/alert/parsing"
   chapterLabel="Parsing"
-  lede="Parsing has to live with the formats it gets. Four families dominate enterprise telemetry. Each carries its own conventions, gaps, and gotchas."
+  lede="Parsing has to live with the formats it gets. Four families dominate enterprise telemetry, each with its own conventions, gaps, and gotchas. Normalization is the layer that gives all of them one queryable shape."
 />
 
 <PillNav
   chapter="alert"
-  label="Parsing surfaces"
+  label="Parsing pages"
   items={[
-    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
     { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
     { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
     { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
     { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
   ]}
 />
+
+This page covers the plumbing under the behavioral surfaces: the formats telemetry arrives in, the platform sources that generate it, and the normalization that makes it all queryable as one dataset. It is not a surface of adversary behavior. It is the layer that determines whether you can read the surfaces at all.
+
+## The four format families
 
 <div class="formats-grid">
   <div class="format-card format-card--evtx">
@@ -103,6 +107,35 @@ import PillNav from "@/components/assured/PillNav.astro";
   </div>
 </div>
 
+---
+
+## Where the telemetry comes from, per platform
+
+Formats are only half the story. The behavioral surfaces in this chapter (process trees, command lines, file activity) depend on a telemetry source actually recording them, and the source differs by platform. Knowing which source feeds your console tells you what the data can and cannot show.
+
+<div class="telem-grid">
+  <div class="telem-card">
+    <span class="telem-card__os">Windows</span>
+    <h4><DefineTerm term="Sysmon" /></h4>
+    <p>Free Sysinternals driver that logs rich process creations (Event ID 1, with full command line, hashes, and parent), network connections, DLL and driver loads, and more into its own EVTX channel. The de facto standard source for the process and command-line telemetry this chapter teaches, and the usual compensating control when Security 4688 is missing its command line.</p>
+  </div>
+  <div class="telem-card">
+    <span class="telem-card__os">Linux</span>
+    <h4>auditd and eBPF sensors</h4>
+    <p>The kernel audit framework (<code>auditd</code>) records syscall-level events; an <code>execve</code> rule gives you process executions with arguments. Modern EDR and open tooling increasingly use eBPF sensors for the same visibility with less overhead. Either way, output typically flows out as syslog or JSON.</p>
+  </div>
+  <div class="telem-card">
+    <span class="telem-card__os">macOS</span>
+    <h4>Endpoint Security framework and unified log</h4>
+    <p>Since macOS 10.15, EDR agents get process, file, and signing telemetry from Apple's <DefineTerm term="Endpoint Security framework">Apple's kernel-supported API (introduced in macOS 10.15) that delivers real-time process execution, file, and code-signing events to security agents. It replaced kernel extensions as the sanctioned way for EDR products to observe macOS activity.</DefineTerm>, which is where a macOS process tree like Case B's comes from. The unified log holds the OS's own high-volume record, queryable with <code>log show</code>.</p>
+  </div>
+  <div class="telem-card">
+    <span class="telem-card__os">Cross-platform</span>
+    <h4>osquery</h4>
+    <p>Exposes the live state of Windows, macOS, and Linux hosts as SQL tables (processes, users, launch items, listening ports). Strong for point-in-time interrogation and fleet-wide hunting; it complements, rather than replaces, the streaming sources above.</p>
+  </div>
+</div>
+
 <Callout variant="info" title="Data quality is half the work">
 Alerts often arrive without full <DefineTerm term="Metadata" display="metadata" />. Parent process missing, asset identifier truncated, <DefineTerm term="Command Line" display="command line" /> cut off at a byte boundary. Advanced parsing systems integrate enrichment from CMDBs, identity directories (Active Directory, <DefineTerm term="Okta" />), and <DefineTerm term="Threat" display="threat" />-<DefineTerm term="Intelligence" display="intelligence" /> feeds (Mandiant, CrowdStrike, <DefineTerm term="Recorded Future" />) so the structured output is complete enough to act on.
 </Callout>
@@ -167,15 +200,74 @@ That question is trivial when every event uses the same field names. It is hard 
   </div>
 </div>
 
+---
+
+## One shape: schema normalization
+
+<DefineTerm term="Normalization" display="Normalization" /> maps every source's vendor-specific fields into a common schema, so a malicious <DefineTerm term="PowerShell" /> execution reported by the EDR and the related connection logged by the firewall land in the same structure with the same field names. Three open standards are worth knowing. Implementations differ; the goal is the same.
+
+<div class="schema-grid">
+  <div class="schema-card">
+    <span class="schema-card__tag">Rising standard</span>
+    <h3>OCSF</h3>
+    <p>Open Cybersecurity Schema Framework. Vendor-neutral, cloud-friendly, increasingly the default for cross-tool integration. If your platform supports it, prioritize it.</p>
+  </div>
+  <div class="schema-card">
+    <span class="schema-card__tag">Mature</span>
+    <h3>STIX 2.1</h3>
+    <p>Structured Threat Information Expression. Designed for sharing threat intelligence. Strong for indicators and TTPs. Less ergonomic for raw telemetry.</p>
+  </div>
+  <div class="schema-card">
+    <span class="schema-card__tag">Action-oriented</span>
+    <h3>OpenC2</h3>
+    <p>Open Command and Control. Designed for expressing response actions in a portable way. Pairs well with STIX for indicators and OCSF for events.</p>
+  </div>
+</div>
+
+Whatever schema you adopt, normalization maps diverse vendor-specific fields into four buckets:
+
+<div class="principles-grid">
+  <div class="principle-card">
+    <span class="principle-card__num">01</span>
+    <h4>Detection metadata</h4>
+    <p>Alert name, detection logic, severity, confidence. Timestamps standardized to UTC in ISO 8601.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">02</span>
+    <h4>Affected entities</h4>
+    <p>Hostnames, IPs, user accounts, cloud assets, containers. Anything the alert references.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">03</span>
+    <h4>Primary observables</h4>
+    <p>File hashes, domains, URLs, registry keys, <DefineTerm term="IoC">Indicator of Compromise. An artifact that suggests intrusion: a file hash, domain, IP, registry key, or behavioral pattern. IoCs feed signature detection and post-event correlation.</DefineTerm>. The artifacts to correlate against.</p>
+  </div>
+  <div class="principle-card">
+    <span class="principle-card__num">04</span>
+    <h4>Contextual data</h4>
+    <p>MITRE ATT&CK mappings, enrichment tags, kill-chain stage, threat-intelligence annotations.</p>
+  </div>
+</div>
+
+Normalization also requires flattening nested structures where useful and harmonizing identifiers so automated cross-tool correlation works. Within ASSURED, prioritize normalization of detection <DefineTerm term="Metadata" display="metadata" />, affected entities, and primary observables. Those are the fields downstream phases depend on.
+
+<Callout variant="info" title="Severity, confidence, and priority are three different numbers">
+The detection-metadata bucket carries two fields that read alike and mean different things, and triage adds a third. <strong>Severity</strong> is the detection engineer's estimate of how bad the activity would be if real, set when the rule was written, before your environment entered the picture. <strong>Confidence</strong> is the detector's estimate of how likely the match is to be what it claims: a statement about the rule's precision, not about the threat. <strong>Priority</strong> is what triage produces: the queue position, computed from severity and confidence plus asset context during the <a href="/docs/risk">Risk phase</a>, and the only one of the three the analyst owns. A critical-severity, low-confidence alert on a lab host and a medium-severity, high-confidence alert on a domain controller can rightly land in opposite queue positions.
+</Callout>
+
+<Callout variant="info" title="For platform owners, not the triage queue">
+Maintaining the normalization layer is engineering work, not triage work. If you own the pipeline rather than the queue: document and version the mapping logic, test mappings against representative payloads before rollout, review on a cadence so vendor format drift gets caught early, and share ownership across <DefineTerm term="Security Operations" display="security operations" />, data engineering, and tool owners. Tools that help: <DefineTerm term="Logstash" />, <DefineTerm term="Fluentd" />, <DefineTerm term="Cribl" />, and the native normalization in modern SIEMs. The analyst's job is narrower: know which schema your console speaks and what got dropped on the way in.
+</Callout>
+
 <KeyTakeaway>
-Format diversity is the cost of having visibility everywhere. Standardization is the investment that turns that diversity into something an analyst can actually query. The schema-<DefineTerm term="Normalization" display="normalization" /> page later in this chapter covers the standards (OCSF, STIX, <DefineTerm term="OpenC2" />) that make standardization practical.
+Format diversity is the cost of having visibility everywhere. <DefineTerm term="Schema Normalization" display="Schema normalization" /> (OCSF, STIX, <DefineTerm term="OpenC2" />) is the investment that turns that diversity into one queryable dataset. Invisible when it works, painful when it does not, and the foundation every behavioral surface in this chapter builds on.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
   nextHref="/docs/alert/parsing/command-line"
   nextLabel="Command line analysis"
-  nextDescription="Decoding the true intent of process execution. Obfuscation patterns, execution context, recognizable shapes."
+  nextDescription="Decoding the true intent of process execution. The encoded-command workflow, obfuscation patterns, execution context."
   ctaLabel="Read command line"
 />
 
@@ -256,6 +348,49 @@ Format diversity is the cost of having visibility everywhere. Standardization is
   font-size: 0.9rem;
 }
 
+.telem-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .telem-grid { grid-template-columns: 1fr 1fr; } }
+
+.telem-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-accent);
+  border-radius: 0.7rem;
+}
+
+.telem-card__os {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--assured-accent-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
+.telem-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-text);
+  font-size: 0.98rem;
+}
+
+.telem-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
 .story-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -334,5 +469,91 @@ Format diversity is the cost of having visibility everywhere. Standardization is
 }
 
 .benefit-row strong { color: var(--assured-text); }
+
+.schema-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .schema-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.schema-card {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  border-radius: 0.85rem;
+}
+
+.schema-card__tag {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--assured-accent-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.schema-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--assured-text);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+}
+
+.schema-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .principles-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .principles-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.principle-card {
+  position: relative;
+  padding: 1.3rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid #3b82f6;
+  border-radius: 0.7rem;
+}
+
+.principle-card__num {
+  position: absolute;
+  top: 0.9rem;
+  right: 1.1rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(96, 165, 250, 0.6);
+}
+
+.principle-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: #93c5fd;
+  font-size: 0.95rem;
+}
+
+.principle-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
 `}
 </style>

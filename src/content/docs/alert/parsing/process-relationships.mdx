@@ -16,7 +16,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 03"
-  pillarTotal="6 surfaces"
+  pillarTotal="6 pages"
   chapterHref="/docs/alert/parsing"
   chapterLabel="Parsing"
   lede="Operating systems have predictable process lineages. Deviations from those patterns are highly informative. Mapping parent-child chains turns isolated alerts into narratives."
@@ -24,20 +24,20 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 <PillNav
   chapter="alert"
-  label="Parsing surfaces"
+  label="Parsing pages"
   items={[
-    { label: "Multi-format",     href: "/docs/alert/parsing/multi-format",          phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
     { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
     { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
     { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
     { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Schema",           href: "/docs/alert/parsing/schema",                phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
   ]}
 />
 
 ## Normal patterns
 
-These are the lineages that should not surprise you:
+These are the lineages that should not surprise you. On Windows:
 
 <div class="lineage-grid">
   <div class="lineage-card lineage-card--ok">
@@ -56,6 +56,58 @@ These are the lineages that should not surprise you:
     <p>Scheduled task execution: on modern Windows, tasks spawn from svchost.exe running the Schedule service, sometimes via taskhostw.exe. (taskeng.exe was retired in 2015; seeing it on a current build is itself a masquerading red flag.)</p>
   </div>
 </div>
+
+And on macOS, where the Alert chapter's own Case B lives:
+
+<div class="lineage-grid">
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>launchd → &lt;almost everything&gt;</code>
+    <p>launchd is PID 1: macOS's init process, service manager, and scheduler in one. Daemons, agents, and user-launched apps all ultimately descend from it, so "parent is launchd" carries far less signal than "parent is services.exe" does on Windows.</p>
+  </div>
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>Cursor → Cursor Helper (Plugin)</code>
+    <p>Electron and browser apps spawn their helpers (Renderer, GPU, Plugin, Utility) as direct children of the main app process, never of each other. A "helper" whose parent is not its own main app is the macOS lineage anomaly worth your attention.</p>
+  </div>
+  <div class="lineage-card lineage-card--ok">
+    <span class="lineage-card__label">Expected</span>
+    <code>Terminal.app → zsh → &lt;tool&gt;</code>
+    <p>Interactive shell work descends from a terminal. The suspicious mirror image is a GUI app with no business shelling out (a PDF viewer, a chat client) spawning <code>bash</code> or <code>osascript</code>.</p>
+  </div>
+</div>
+
+---
+
+## Reading a macOS tree: signatures and notarization
+
+Case B in the <a href="/docs/alert/example">Alert worked example</a> hands you this tree. Here is how to parse it:
+
+```
+launchd (PID 1)                      Apple platform binary
+  └─ Cursor                          Developer ID: Anysphere, notarized
+       ├─ Cursor Helper              Developer ID: Anysphere, notarized
+       └─ Cursor Helper (Plugin)     Developer ID: Anysphere, notarized
+```
+
+On macOS the tree gives you two extra parse targets that Windows lineage does not: the code-signing chain and notarization status. Together with the install path, they are the exculpatory (or damning) evidence.
+
+<div class="macos-parse">
+  <div class="macos-parse__item">
+    <h4>Signing identity</h4>
+    <p>Apple's own platform binaries (launchd, the system daemons) are signed by Apple's Software Signing certificate. Third-party software is signed with a Developer ID certificate that names the vendor. The parse question is not "is it signed" but "who signed it, and does that match what the binary claims to be." Ad-hoc or missing signatures inside a tree of properly signed processes are the standout.</p>
+  </div>
+  <div class="macos-parse__item">
+    <h4>Notarization</h4>
+    <p>Notarization is Apple's automated malware scan for third-party software distributed outside the App Store; Gatekeeper checks the ticket at first launch. Apple's own OS binaries are not notarized (they do not need to be), so "launchd is not notarized" is expected, while "this vendor app is not notarized" is a real flag on a managed fleet.</p>
+  </div>
+  <div class="macos-parse__item">
+    <h4>Install path</h4>
+    <p>A signed binary running from <code>/Applications</code> where the MDM installed it is baseline. The same binary name running out of <code>~/Library</code>, <code>/tmp</code>, or a mounted DMG is staging. Signature says who built it; path says who put it there.</p>
+  </div>
+</div>
+
+Where does this telemetry come from? EDR agents on macOS consume the Endpoint Security framework for process and signing events; the [formats and normalization page](/docs/alert/parsing/multi-format) covers the per-platform sources. The tells transfer directly: a hollowed-svchost equivalent does not exist on macOS, but "helper with the wrong parent," "signed binary in the wrong path," and "unsigned process in a signed tree" are the same lineage-plus-trust reasoning this page teaches for Windows.
 
 ---
 
@@ -392,6 +444,36 @@ Process relationship analysis bridges single-alert detection and full kill-chain
   color: var(--assured-text-muted);
   line-height: 1.5;
   font-size: 0.88rem;
+}
+
+.macos-parse {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 900px) { .macos-parse { grid-template-columns: repeat(3, 1fr); } }
+
+.macos-parse__item {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid var(--assured-accent);
+  border-radius: 0.7rem;
+}
+
+.macos-parse__item h4 {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-accent-soft);
+  font-size: 0.95rem;
+}
+
+.macos-parse__item p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.89rem;
 }
 
 .chains-stack {

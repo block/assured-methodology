@@ -1,6 +1,6 @@
 ---
 title: "Parsing alerts"
-description: "Turn raw, unstructured detection output into structured investigative input across six surfaces."
+description: "Turn raw, unstructured detection output into structured investigative input: one normalization layer, five behavioral surfaces."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -63,37 +63,37 @@ Good parsing decodes these patterns while preserving the context downstream phas
 
 ---
 
-## The six parsing surfaces
+## One layer, five surfaces
 
-Field extraction is the floor. Advanced parsing reconstructs adversary behavior across six <DefineTerm term="Telemetry" display="telemetry" /> surfaces. Each gets its own page.
+Field extraction is the floor. Above it, advanced parsing reconstructs adversary behavior across five <DefineTerm term="Telemetry" display="telemetry" /> surfaces: command lines, process relationships, network activity, file system activity, and the cloud control plane. Beneath all five sits a normalization layer that is not a behavioral surface at all, but the plumbing that determines whether the surfaces can be read as one dataset. Each gets its own page.
 
 <div class="parsing-surfaces">
   <a href="/docs/alert/parsing/multi-format" class="parsing-surface">
-    <span class="parsing-surface__num">01</span>
+    <span class="parsing-surface__num">The layer</span>
     <span class="parsing-surface__icon">📦</span>
-    <h3>Multi-format standardization</h3>
-    <p>Windows Event Logs, syslog, CEF, JSON. The four formats parsing has to live with, and how to normalize them.</p>
+    <h3>Formats and normalization</h3>
+    <p>Windows Event Logs, syslog, CEF, JSON. The per-platform telemetry sources behind them, and the schemas (OCSF, STIX, OpenC2) that give everything one shape.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
   <a href="/docs/alert/parsing/command-line" class="parsing-surface">
-    <span class="parsing-surface__num">02</span>
+    <span class="parsing-surface__num">01</span>
     <span class="parsing-surface__icon">🖥️</span>
     <h3>Command line analysis</h3>
-    <p>Decode the true intent of process execution. Base64, concatenation, variable expansion. Plus how to read execution context.</p>
+    <p>Decode the true intent of process execution. The encoded-command workflow, Base64 and caret obfuscation, abbreviated flags, the 4688 gap, execution context.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
   <a href="/docs/alert/parsing/process-relationships" class="parsing-surface">
-    <span class="parsing-surface__num">03</span>
+    <span class="parsing-surface__num">02</span>
     <span class="parsing-surface__icon">🔗</span>
     <h3>Process relationships</h3>
-    <p>Parent-child chains and lineage reconstruction. Recognize macro-execution chains, persistence, hollowing, token theft.</p>
+    <p>Parent-child chains and lineage reconstruction on Windows and macOS. Macro-execution chains, persistence, hollowing, token theft, signature chains.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
   <a href="/docs/alert/parsing/network" class="parsing-surface">
-    <span class="parsing-surface__num">04</span>
+    <span class="parsing-surface__num">03</span>
     <span class="parsing-surface__icon">🌐</span>
     <h3>Network correlation</h3>
     <p>Tie host activity to outbound traffic. C2 detection through timing, TLS, DNS, and exfiltration indicators.</p>
@@ -101,18 +101,18 @@ Field extraction is the floor. Advanced parsing reconstructs adversary behavior 
   </a>
 
   <a href="/docs/alert/parsing/file-system" class="parsing-surface">
-    <span class="parsing-surface__num">05</span>
+    <span class="parsing-surface__num">04</span>
     <span class="parsing-surface__icon">📁</span>
     <h3>File system activity</h3>
     <p>Persistence, payload deployment, ransomware staging, exfiltration prep. Tracking the file lifecycle and metadata.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
-  <a href="/docs/alert/parsing/schema" class="parsing-surface">
-    <span class="parsing-surface__num">06</span>
-    <span class="parsing-surface__icon">🧭</span>
-    <h3>Schema normalization</h3>
-    <p>Unified shape for heterogeneous alerts. OCSF, STIX, OpenC2. Governance and sustainability.</p>
+  <a href="/docs/alert/parsing/cloud-identity" class="parsing-surface">
+    <span class="parsing-surface__num">05</span>
+    <span class="parsing-surface__icon">☁️</span>
+    <h3>Cloud and identity logs</h3>
+    <p>The control plane as a surface. CloudTrail record anatomy, role chains and STS, the IMDS pattern, IdP sign-in logs.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 </div>
@@ -161,15 +161,15 @@ Whatever surface you are parsing, the output should populate three buckets:
 ---
 
 <KeyTakeaway>
-Parsing turns raw output into investigative input. Each of the six surfaces gives you a different angle on adversary intent. Combined, they form the technical foundation the rest of ASSURED depends on.
+Parsing turns raw output into investigative input. Each of the five surfaces gives you a different angle on adversary intent, and the normalization layer is what lets you read them as one dataset. Combined, they form the technical foundation the rest of ASSURED depends on.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
   nextHref="/docs/alert/parsing/multi-format"
-  nextLabel="Multi-format standardization"
-  nextDescription="Start with the formats. Windows Event Logs, syslog, CEF, JSON, and the data quality patterns that follow from each."
-  ctaLabel="Begin with multi-format"
+  nextLabel="Formats and normalization"
+  nextDescription="Start with the layer. Windows Event Logs, syslog, CEF, JSON, the per-platform telemetry sources, and the schemas that give them one shape."
+  ctaLabel="Begin with normalization"
 />
 
 <style>

@@ -86,7 +86,7 @@ export const mainNavigation: NavGroup[] = [
             status: "live",
             children: [
               {
-                title: "Multi-format standardization",
+                title: "Formats and normalization",
                 href: "/docs/alert/parsing/multi-format",
                 status: "live",
               },
@@ -111,8 +111,8 @@ export const mainNavigation: NavGroup[] = [
                 status: "live",
               },
               {
-                title: "Schema normalization",
-                href: "/docs/alert/parsing/schema",
+                title: "Cloud and identity logs",
+                href: "/docs/alert/parsing/cloud-identity",
                 status: "live",
               },
             ],
@@ -404,7 +404,7 @@ export const readingOrder: string[] = [
   "/docs/alert/parsing/process-relationships",
   "/docs/alert/parsing/network",
   "/docs/alert/parsing/file-system",
-  "/docs/alert/parsing/schema",
+  "/docs/alert/parsing/cloud-identity",
   "/docs/alert/example",
   "/docs/alert/quiz",
   "/docs/alert/transition",

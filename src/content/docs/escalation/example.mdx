@@ -60,6 +60,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   <div data-step class="example-step">
     <h3>Step 5. Transition cleanly</h3>
     <p>The triage analyst stays on standby for questions but does not continue the investigation. The IR responder owns the case from here. The triage record is locked, the handoff packet is the authoritative reference, and Tier 2 begins work from a complete starting point rather than from scratch.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that "standby" means stop. Running one more query against the compromised hosts after handoff feels helpful, but it forks the record IR just inherited: new access timestamps on evidence, findings that live outside the packet, two investigators pivoting on the same entities without coordination. If a new idea surfaces after the handoff, it goes to the IR owner as a message, not into the environment as a query.</p>
   </div>
 
 </ExampleStepper>
@@ -108,6 +109,7 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
       <li><strong>Open questions:</strong> none requiring further investigation. One detection-engineering improvement ticket created (rule tuning for macOS developer host class).</li>
       <li><strong>Communication record:</strong> SOC manager notified 15:11 (case visibility). Detection-engineering team notified 15:14 (rule-tuning request). No user notification, no compliance notification, no vendor notification.</li>
     </ul>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> what actually makes this close defensible. The 15:18 manager approval distributes accountability; it does not create the defense. If the same alert fires in three weeks and turns out real, the artifact that protects the analyst is this record: five criteria each tied to a named finding, the gaps admitted, the reopening conditions written down. A close that leans on "my lead agreed" instead of the evidence is one personnel change away from indefensible.</p>
   </div>
 
   <div data-step class="example-step">
@@ -194,4 +196,14 @@ Escalation's deliverable is the structured record that survives the case, whethe
 .example-step__list { margin: 0 0 1rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
 .example-step__list li { color: var(--assured-text-muted); line-height: 1.6; }
 .example-step__list strong { color: var(--assured-text); }
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--assured-text-soft);
+}
+.example-step__what-not strong { color: #fca5a5; }
 `}</style>

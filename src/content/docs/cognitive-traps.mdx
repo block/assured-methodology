@@ -1,0 +1,93 @@
+---
+title: "Cognitive traps in triage"
+description: "The eight thinking errors that close real incidents as benign and inflate benign alerts into incidents: anchoring, confirmation bias, tunnel vision, availability, automation bias, the pattern reflex, sunk cost, and deference. Each with its tell and its structural counter."
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+
+Every phase of ASSURED assumes an analyst who reads evidence and updates on it. Under queue pressure, that is not the mind's default. The default is a set of shortcuts that are fast, feel like reasoning, and fail in predictable directions: the wrong story gets picked early, or the right decision gets made late. This page names the eight traps that do the most damage in triage, gives each one a tell you can catch in your own work, and points at the device in the methodology built to counter it.
+
+<Callout variant="info" title="Traps, not character flaws">
+None of these are marks of a weak analyst. They are the standard operating behavior of any mind processing hundreds of similar-looking cases under time pressure, and experience alone does not remove them; it often deepens them, because experience supplies more patterns to match against. The counters below are structural for exactly that reason: a device you run every time beats a bias you promise to watch for.
+</Callout>
+
+## Traps that pick the wrong story
+
+<div class="trap-list">
+  <div class="trap-item">
+    <h3>Anchoring <span class="trap-item__where">bites in Alert, carries everywhere</span></h3>
+    <p><strong>The trap:</strong> the first label you read becomes the reference point everything else adjusts around. An alert titled "Critical: credential dumping detected" is a rule author's shorthand for what the logic <em>tries</em> to catch, but it lands as 90% of a verdict before a single field has been read, and every finding after it gets measured against that starting story.</p>
+    <p><strong>The tell:</strong> your working hypothesis is the alert title with the punctuation changed, and your close note restates the rule name instead of the evidence.</p>
+    <p><strong>The counter:</strong> the Alert phase exists to break the anchor: the alert is <a href="/docs/alert/validation">a claim to validate</a>, not a verdict to confirm. Read the raw fields before the severity. The <a href="/docs/uncover/correlation#pivot-discipline-the-hypothesis-ledger">hypothesis ledger</a> then forces at least one competing explanation to stay alive past the first impression.</p>
+  </div>
+  <div class="trap-item">
+    <h3>Confirmation bias <span class="trap-item__where">bites in Uncover</span></h3>
+    <p><strong>The trap:</strong> once a theory is on the table, queries get designed to prove it. Hits confirm the theory; empty results get explained away as logging gaps; the investigation becomes a search for support rather than a test.</p>
+    <p><strong>The tell:</strong> every pivot you ran today returned "supporting" evidence, the evidence-against column of your ledger is empty, and you cannot name the result that would change your mind.</p>
+    <p><strong>The counter:</strong> the ledger's evidence-against column is not optional decoration; a hypothesis with an empty against-column has not been tested, only decorated. Ask the disconfirming question explicitly: what would this look like if it were benign, and did I run that query? Recording negative results is part of <a href="/docs/uncover/correlation#the-timeline-is-the-artifact">the timeline discipline</a>, and the deeper tradition behind it is ACH, covered on <a href="/docs/positioning">Where ASSURED sits</a>.</p>
+  </div>
+  <div class="trap-item">
+    <h3>Tunnel vision and premature closure <span class="trap-item__where">bites in Uncover and Risk</span></h3>
+    <p><strong>The trap:</strong> the first coherent story wins. Once the narrative feels complete, the remaining work quietly changes from investigating to decorating: new evidence that fits gets added, new evidence that does not fit gets classified as noise.</p>
+    <p><strong>The tell:</strong> your timeline stopped growing an hour ago but your queries have not, and the last three anomalies you found were all filed as unrelated.</p>
+    <p><strong>The counter:</strong> Uncover ends on <a href="/docs/uncover/correlation#when-to-stop">stopping rules</a>, not on narrative satisfaction: the phase closes when the questions are answered or the sources are exhausted, and "the story feels done" is neither. Evidence that does not fit the story goes in the ledger as a live hypothesis, not in the discard pile.</p>
+  </div>
+  <div class="trap-item">
+    <h3>Availability bias <span class="trap-item__where">bites in Subject and Risk</span></h3>
+    <p><strong>The trap:</strong> the most recent or most vivid case becomes the diagnosis for this one. After a month spent on a token-theft incident, every OAuth consent looks like AiTM; the memorable case outweighs the common one because it comes to mind faster, not because it is more likely.</p>
+    <p><strong>The tell:</strong> your likelihood assessment cites a war story ("we saw exactly this in March") instead of this case's own evidence and base rates.</p>
+    <p><strong>The counter:</strong> the <a href="/docs/risk/framework">Risk framework</a> forces likelihood to be argued from the evidence in front of you, and <a href="/docs/subject/behavioral-framework">behavioral baselines</a> replace "what I remember" with "what this entity actually does". The March case earns a line in the ledger as one hypothesis; it does not get to skip the queue.</p>
+  </div>
+</div>
+
+## Traps that mis-time the decision
+
+<div class="trap-list">
+  <div class="trap-item">
+    <h3>Automation bias <span class="trap-item__where">bites in every phase, sharpest with AI assistants</span></h3>
+    <p><strong>The trap:</strong> output that is fluent, complete, and confident reads as verified. A tool verdict, an enrichment score, or an AI-drafted summary gets signed because it <em>looks</em> finished, and looking finished is precisely what these systems are best at.</p>
+    <p><strong>The tell:</strong> you cannot point to the raw field behind a claim you are about to sign. The draft existed, so the box got checked.</p>
+    <p><strong>The counter:</strong> the <a href="/docs/ai-triage#verifying-what-it-hands-you">verification discipline</a> from AI-assisted triage: decoded strings get checked against the raw field, pivot hops against the actual lease and timestamp, rule summaries against the rule logic. The phase-gate signature means the analyst verified the draft, never merely that the draft existed.</p>
+  </div>
+  <div class="trap-item">
+    <h3>The pattern reflex <span class="trap-item__where">bites in Alert and the fast path</span></h3>
+    <p><strong>The trap:</strong> the 200th occurrence of an alert gets the 200th identical close. <DefineTerm term="Alert Fatigue" display="Alert fatigue" /> hardens "it is always the scanner" from an observation into a reflex, and the one time it is not the scanner, the reflex closes it anyway. Recognition replaces checking.</p>
+    <p><strong>The tell:</strong> a close in seconds with no discriminator recorded, on an alert type whose benign rate you would quote as "basically 100%".</p>
+    <p><strong>The counter:</strong> the <a href="/docs/fast-path#the-depth-ladder">depth ladder</a> makes the reflex safe instead of forbidding it: a Level 0 close is legitimate only when the pattern's discriminators are checked and recorded, and the discriminator is exactly the field that separates the scanner from the attacker imitating it. Repetition itself is a finding: alert types that close benign every time are <a href="/docs/risk/false-positive">tuning and suppression work</a>, not a personal endurance test.</p>
+  </div>
+  <div class="trap-item">
+    <h3>Sunk cost <span class="trap-item__where">bites in Risk and Escalation</span></h3>
+    <p><strong>The trap:</strong> three hours into an investigation, "benign" feels like admitting the three hours were wasted, so severity quietly inflates to justify the time. The inverse is just as common: escalating feels like admitting you could not close it, so the case stays open one more query at a time.</p>
+    <p><strong>The tell:</strong> your verdict correlates with time spent rather than evidence found, or you notice you are relieved by an ambiguous result because it justifies continuing.</p>
+    <p><strong>The counter:</strong> the <a href="/docs/escalation/criteria">escalation criteria</a> are pre-committed answers, decided before any time was invested in this case, and the break-glass rule fires them from any phase the moment a criterion confirms. In the other direction, a benign close is not waste: the <a href="/docs/risk/false-positive">false-positive-as-finding doctrine</a> means the three hours bought the SOC a better detection.</p>
+  </div>
+  <div class="trap-item">
+    <h3>Deference <span class="trap-item__where">bites in verdicts and documentation</span></h3>
+    <p><strong>The trap:</strong> a senior analyst's offhand "probably the scanner again", a vendor's Critical badge, or a threat-intel feed's score substitutes for the evidence. Authority and social proof are useful priors and terrible verdicts; both arrive with confidence uncorrelated to this case.</p>
+    <p><strong>The tell:</strong> the close note cites a person or a product where it should cite a log line.</p>
+    <p><strong>The counter:</strong> <a href="/docs/documentation/standards">documentation standards</a> require the record to stand alone: every claim carries how it is known, and confidence labels distinguish "confirmed in the log" from "reported by the tool" from "assumed". A senior's hunch is a hypothesis for the ledger, welcome there and only there, until the evidence promotes it.</p>
+  </div>
+</div>
+
+## Running the counters
+
+Two habits make the counters real rather than aspirational. First, run them on your confident cases, not just your uncertain ones; the traps above are most dangerous precisely when the case feels obvious, because that feeling is what several of them produce. Second, use the worked examples as calibration: each chapter's example includes "what a less experienced analyst could miss" callouts, and nearly every one of those misses is one of these eight traps wearing case-specific clothing.
+
+<KeyTakeaway>The methodology's devices are the debiasing layer: the hypothesis ledger counters anchoring and confirmation, the stopping rules counter tunnel vision, verification-before-signature counters automation bias, discriminators counter the pattern reflex, and pre-committed criteria counter sunk cost. They are not paperwork around the thinking; run every time, they are what keeps the thinking honest.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/ai-triage" class="assured-cta assured-cta--ghost">← AI-assisted triage</a>
+  <a href="/docs/reference" class="assured-cta">The quick reference →</a>
+</div>
+
+<style>{`
+.trap-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
+.trap-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid rgba(239, 68, 68, 0.55); border-radius: 0.7rem; }
+.trap-item h3 { margin: 0 0 0.55rem 0; font-size: 1.05rem; color: var(--assured-text); }
+.trap-item__where { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px; background: rgba(239, 68, 68, 0.14); color: #fca5a5; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
+.trap-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
+.trap-item p:last-child { margin-bottom: 0; }
+.trap-item strong { color: var(--assured-text); }
+`}</style>

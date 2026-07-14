@@ -72,6 +72,7 @@ Both walkthroughs are cleaner than real telemetry. Live cases have missing paren
       <li><strong>File system.</strong> <code>%TEMP%\upd.ps1</code> written at 09:11:44 UTC. SHA-256 captured.</li>
       <li><strong>Identity.</strong> Active session: dlin@corp. Logon type 2 (interactive). MFA satisfied at the 09:08 interactive login.</li>
     </ul>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> reading "MFA satisfied" as evidence the account is safe. MFA proved a human logged in at 09:08; it says nothing about what ran under that session three minutes later. The alert is about post-authentication behavior, and clean authentication does not weaken it.</p>
   </div>
 
   <div data-step class="example-step">
@@ -127,6 +128,7 @@ The same Alert methodology applied to a very different signal. A second alert fi
       <li><strong>Business.</strong> Source code exposure exists, but the binary's runtime behavior is consistent with the vendor's documented operating mode.</li>
     </ul>
     <p>Three of the four context dimensions point away from compromise. The technical dimension has a surface match but is contradicted by deeper context. The methodology calls for continuing the investigation, not closing the alert, the hypothesis is now "likely false-positive, confirm via Subject and Uncover."</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> treating "signed and notarized" as a clear on its own. Signed malware exists, and so do stolen certificates; the signature proves who published the binary, not that its behavior is benign. What carries the weight here is the combination: signature <em>plus</em> system-managed install path <em>plus</em> peer-group baseline <em>plus</em> vendor-documented behavior. Any one of those alone is a weaker claim than it feels.</p>
   </div>
 
   <div data-step class="example-step">
@@ -205,6 +207,7 @@ The third case never touches an endpoint. There is no process tree, no command l
       <li><strong>Consent grant.</strong> 09:09:30 UTC, OAuth consent to an unverified application named "Mail Backup Sync" with offline mailbox-read scopes.</li>
       <li><strong>Identity.</strong> rvega, customer-success lead. No admin roles. Access to the CRM and the shared billing mailbox via group membership.</li>
     </ul>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the session ID field. Read as two sign-ins, 08:47 and 09:03 look like a normal morning plus a VPN; read as one session presented twice with no second authentication ceremony, they are a theft. The single join field is the difference between closing this as travel noise and catching the intrusion.</p>
   </div>
 
   <div data-step class="example-step">
@@ -251,4 +254,14 @@ The Alert phase is the anchor for everything that follows. Three different alert
 .example-step__list { margin: 0 0 1rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
 .example-step__list li { color: var(--assured-text-muted); line-height: 1.6; }
 .example-step__list strong { color: var(--assured-text); }
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--assured-text-soft);
+}
+.example-step__what-not strong { color: #fca5a5; }
 `}</style>

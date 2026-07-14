@@ -89,6 +89,7 @@ Cloud finance platform, federated sign-in, 09:23:07 UTC
   opened:      dlin (09:10) and 2 of the 3 peers
   peer EDR:    1 of the 2 shows the same winword -> cmd -> PowerShell chain`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the second opener. Two peers opened the attachment and only one shows the execution chain, and it is tempting to file the other as clean. Absence of the chain is not evidence of safety until the absence is explained: was the macro blocked, did the payload fail, or is EDR on that host simply not reporting? "Checked, no chain, sensor healthy, macro block confirmed" is a finding. "No alert from that host" is a gap wearing a verdict's clothes.</p>
   </div>
 
   <div data-step class="example-step">
@@ -278,6 +279,7 @@ Case C from the Alert chapter reaches Uncover with a live-adversary boundary: rv
       <li><strong>The phishing domain.</strong> Registered nine days ago, certificate issued the same day, page fingerprint matching a commodity AiTM kit family per current vendor reporting. Medium confidence on the kit identification, high on the infrastructure being purpose-built.</li>
       <li><strong>No outbound mail sent.</strong> The audit log shows no messages sent from the mailbox during the attacker window. The BEC play was interrupted at the collection stage, before any payment-redirect message went out.</li>
     </ul>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> where the "no outbound mail" claim has to come from. Checking the Sent Items folder proves nothing, because an attacker who sends a payment-redirect message deletes it from Sent in the same minute. The audit log records the send event regardless of what the mailbox looks like afterward. Negative claims are only as strong as the source that cannot be cleaned up.</p>
   </div>
 
   <div data-step class="example-step">
@@ -387,6 +389,16 @@ Uncover combined multiple sources into a chain in every scenario on this page. T
 }
 .example-step__list li { color: var(--assured-text-muted); line-height: 1.6; }
 .example-step__list strong { color: var(--assured-text); }
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--assured-text-soft);
+}
+.example-step__what-not strong { color: #fca5a5; }
 .example-step code {
   background: rgba(15, 23, 42, 0.7);
   padding: 0.05rem 0.35rem;

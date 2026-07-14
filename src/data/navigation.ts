@@ -26,6 +26,11 @@ export const mainNavigation: NavGroup[] = [
       { title: "Introduction", href: "/docs/intro", status: "live" },
       { title: "Fast path", href: "/docs/fast-path", status: "live" },
       { title: "AI triage", href: "/docs/ai-triage", status: "live" },
+      {
+        title: "Cognitive traps",
+        href: "/docs/cognitive-traps",
+        status: "live",
+      },
       { title: "Quick reference", href: "/docs/reference", status: "live" },
       {
         title: "Where ASSURED sits",
@@ -399,6 +404,7 @@ export const readingOrder: string[] = [
   "/docs/intro",
   "/docs/fast-path",
   "/docs/ai-triage",
+  "/docs/cognitive-traps",
   "/docs/reference",
   "/docs/positioning",
   "/docs/alert",

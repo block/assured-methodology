@@ -61,6 +61,12 @@ methodology, followed by a fix wave that touched every chapter.
   pretexting), plus XDR as a concept and Sigma, YARA, Velociraptor, KAPE,
   plaso, and Volatility in the C.A.T. catalog. Business-email-compromise
   investigation guidance added to the Uncover email data source.
+- A "Cognitive traps in triage" page: the eight thinking errors that bend
+  triage verdicts (anchoring, confirmation bias, tunnel vision,
+  availability, automation bias, the pattern reflex, sunk cost, and
+  deference), each with its tell and the methodology device that counters
+  it. The "what a less experienced analyst could miss" callouts now run
+  through all seven chapters' worked examples.
 
 ### Changed
 

@@ -26,6 +26,7 @@ import Callout from "@/components/assured/Callout.astro";
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
     <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. The handoff packet maps into it per the crosswalk in Standards: the summary, timeline, entities, evidence chain, verdict, and containment feed sections 01-04 (event overview, timeline, origin &amp; scope, actions taken); the open questions are carried explicitly into recommendations rather than dropped; the communication record lands verbatim in the appendices. The report covers triage's work up to the handoff. The IR responder's findings belong to IR's post-incident report, which this record links to rather than absorbs. Sections 05-09 (business impact, IOCs, lessons learned, post-incident recommendations, appendices) are added during the Documentation phase as the triage-side picture completes.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the temptation to smooth the timeline in hindsight. This case's P1 was declared hours later than the criteria justified, and the honest record keeps that gap visible. Rewriting the narrative so the escalation looks prompt would read better in review, and it would destroy the record's two real uses: the audit trail stops matching the system-of-record timestamps, and the team loses the exact lesson (criteria as tripwires, not end-of-phase checklists) this case exists to teach.</p>
   </div>
 
   <div data-step class="example-step">
@@ -67,6 +68,7 @@ The Cursor IDE Empire-pattern case ended in Escalation as a documented close at 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
     <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, origin &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the false-positive-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-incident recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the known-good marking on the IOC section. A binary hash filed in an incident record without that label tends to migrate: into the intel platform, into a blocklist, into a hunt query someone writes next quarter. Then every developer running the same signed IDE lights up as "matching a known incident artifact." Recording the hash as known-good, in the field where future correlation will find it, is what keeps this false-positive from breeding a family of new ones.</p>
   </div>
 
   <div data-step class="example-step">
@@ -143,4 +145,14 @@ The three scenarios show the same methodology applied to three verdicts. The fin
 <style>{`
 .example-step h3 { margin: 0 0 0.85rem 0; color: var(--assured-accent-soft); font-size: 1.2rem; }
 .example-step p { margin: 0 0 0.85rem 0; color: var(--assured-text-muted); line-height: 1.65; }
+.example-step__what-not {
+  margin: 1rem 0;
+  padding: 0.85rem 1.15rem;
+  background: rgba(239, 68, 68, 0.08);
+  border-left: 3px solid rgba(239, 68, 68, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--assured-text-soft);
+}
+.example-step__what-not strong { color: #fca5a5; }
 `}</style>

@@ -44,6 +44,9 @@ const {
       <span class="quiz__progress-score" data-quiz-progress-score hidden>
         · <span data-quiz-progress-correct>0</span> correct
       </span>
+      {/* Visually-hidden slot inside the live region: the done banner below
+          the quiz body is outside it, so completion is announced here. */}
+      <span class="quiz__done-announce" data-quiz-done-announce></span>
     </div>
   </header>
   <div class="quiz__body">
@@ -157,6 +160,16 @@ const {
     font-size: 0.78rem;
   }
 
+  .quiz__done-announce {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
   .quiz__done {
     display: flex;
     align-items: center;
@@ -206,6 +219,8 @@ const {
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   // ClientRouter idempotency: rebind quiz progress tracking on every page-load.
   // Per-quiz data-quiz-bound marker prevents double-counting if the same DOM
   // survives a transition.
@@ -224,6 +239,7 @@ const {
     const correctEl = quiz.querySelector<HTMLElement>("[data-quiz-progress-correct]");
     const doneEl = quiz.querySelector<HTMLElement>("[data-quiz-done]");
     const doneTextEl = quiz.querySelector<HTMLElement>("[data-quiz-done-text]");
+    const announceEl = quiz.querySelector<HTMLElement>("[data-quiz-done-announce]");
     const resetBtn = quiz.querySelector<HTMLButtonElement>("[data-quiz-reset]");
 
     if (totalEl) totalEl.textContent = String(total);
@@ -237,36 +253,32 @@ const {
       if (countEl) countEl.textContent = String(reviewed);
       if (correctEl) correctEl.textContent = String(correctCount);
       if (scoreEl) scoreEl.hidden = reviewed === 0;
+      const done = reviewed === total;
+      const doneMessage = `Quiz reviewed. ${correctCount} of ${total} correct on first try.`;
       if (doneEl && doneTextEl) {
-        if (reviewed === total) {
-          doneTextEl.textContent = `Quiz reviewed. ${correctCount} of ${total} correct on first try.`;
-          doneEl.hidden = false;
-        } else {
-          doneEl.hidden = true;
-        }
+        doneTextEl.textContent = doneMessage;
+        doneEl.hidden = !done;
       }
+      if (announceEl) announceEl.textContent = done ? doneMessage : "";
     }
 
-    items.forEach((item) => {
-      const correctValue = item.dataset.answer;
-      const options = item.querySelectorAll<HTMLButtonElement>(".quiz-item__option");
-      options.forEach((opt) => {
-        opt.addEventListener("click", () => {
-          if (answered.has(item)) return;
-          answered.add(item);
-          if (opt.dataset.value === correctValue) correctCount++;
-          recompute();
-        });
-      });
+    // QuizItem owns per-item state (answer locking, visuals) and reports
+    // each answer via a bubbling event; this script only aggregates.
+    quiz.addEventListener("quiz-item:answered", (e) => {
+      const item = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-quiz-item]");
+      if (!item || answered.has(item)) return;
+      answered.add(item);
+      if ((e as CustomEvent<{ correct: boolean }>).detail?.correct) correctCount++;
+      recompute();
     });
 
     resetBtn?.addEventListener("click", () => {
-      // Reload the page; cheapest reliable reset given the existing QuizItem script
-      // locks each option after first click.
-      window.location.reload();
+      items.forEach((item) => item.dispatchEvent(new CustomEvent("quiz-item:reset")));
+      answered.clear();
+      correctCount = 0;
+      recompute();
     });
   });
   }
-  bindQuizzes();
-  document.addEventListener("astro:page-load", bindQuizzes);
+  onPageReady(bindQuizzes);
 </script>

@@ -1,7 +1,10 @@
 ---
 /**
  * KeyTakeaway, a "summary, remember this" block at the end of a section.
+ * A Callout takeaway with a default title.
  */
+
+import Callout from "@/components/assured/Callout.astro";
 
 interface Props {
   title?: string;
@@ -10,12 +13,6 @@ interface Props {
 const { title = "Key Takeaway" } = Astro.props;
 ---
 
-{/* div + role="note", not <aside>: same landmark-clutter rationale as
-    Callout.astro. */}
-<div class="assured-callout assured-callout--takeaway" role="note">
-  <div class="assured-callout__icon" aria-hidden="true">✅</div>
-  <div class="assured-callout__body">
-    <p class="assured-callout__title">{title}</p>
-    <slot />
-  </div>
-</div>
+<Callout variant="takeaway" title={title}>
+  <slot />
+</Callout>

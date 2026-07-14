@@ -95,14 +95,14 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
 </style>
 
 <script>
+  import { anchorScrollOffset, onPageReady } from "@/lib/dom";
+
   /*
    * ClientRouter idempotency:
    *   - Scroll-spy state is page-local; each navigation must rebind to the new headings.
    *   - The scroll listener on window is registered ONCE via window.__tocScrollBound and
    *     reads live DOM each tick (so it picks up new headings after view transitions).
    *   - Link click handlers use a per-element data-toc-bound marker.
-   *
-   * Note: DOMContentLoaded fires on initial load only. We must also run on astro:page-load.
    */
   function bindToc() {
     const links = Array.from(
@@ -116,8 +116,10 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
         const el = document.getElementById(target);
         if (!el) return;
         e.preventDefault();
+        // scrollIntoView honors the target's scroll-margin-top, which comes
+        // from the same --anchor-scroll-offset token the spy reads below.
         const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-        window.scrollTo({ top: el.offsetTop - 90, behavior: smooth });
+        el.scrollIntoView({ behavior: smooth, block: "start" });
         history.pushState(null, "", `#${target}`);
       });
     });
@@ -129,10 +131,13 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>(".toc__link"));
     const headings = Array.from(document.querySelectorAll<HTMLElement>("h1[id], h2[id]"));
     if (!links.length || !headings.length) return;
-    const scrollPos = window.scrollY + 120;
+    // Viewport-relative positions, not offsetTop: headings sit inside the
+    // positioned .content-page, so offsetTop is not document-relative.
+    // +1 tolerance: a click-scroll parks the heading exactly on the line.
+    const spyLine = anchorScrollOffset() + 1;
     let active: HTMLElement | null = null;
     for (let i = headings.length - 1; i >= 0; i--) {
-      if (scrollPos >= headings[i].offsetTop) {
+      if (headings[i].getBoundingClientRect().top <= spyLine) {
         active = headings[i];
         break;
       }
@@ -157,6 +162,5 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
     });
   }
 
-  bindToc();
-  document.addEventListener("astro:page-load", bindToc);
+  onPageReady(bindToc);
 </script>

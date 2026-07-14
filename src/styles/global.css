@@ -37,39 +37,6 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo,
     Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
-}
-
-@utility container {
-  margin-inline: auto;
-  padding-inline: 1.5rem;
-
-  @media (width >= 1280px) {
-    max-width: 1280px;
-  }
-  @media (width >= 1536px) {
-    max-width: 1440px;
-  }
 }
 
 @layer base {
@@ -154,14 +121,15 @@
 
   /*
    * H-14 fix: when in-page anchors scroll a heading into view, leave enough room
-   * for the sticky header (64px) + sticky PillNav (~50px) + a small gap. Without
-   * this, jumping to #ratm or any other in-page anchor parks the heading under
-   * the PillNav and the reader sees nav, not the section they jumped to.
+   * for the sticky header + sticky PillNav + a small gap. Without this, jumping
+   * to #ratm or any other in-page anchor parks the heading under the PillNav
+   * and the reader sees nav, not the section they jumped to.
    */
+  h1[id],
   h2[id],
   h3[id],
   h4[id] {
-    scroll-margin-top: 140px;
+    scroll-margin-top: var(--anchor-scroll-offset);
   }
 
   p {

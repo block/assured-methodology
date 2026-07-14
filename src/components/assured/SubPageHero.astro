@@ -21,20 +21,13 @@ type Phase =
 interface Props {
   phase: Phase;
   parentLetter: string;
-  /** Current pillar position (e.g. "01" or "Example"). Replaces the older
-   *  `pillarNumber` prop name, which was confusing, number-like strings AND
-   *  non-numeric labels both flow through here. */
+  /** Current pillar position. Number-like strings render as
+   *  "Pillar N of M"; non-numeric labels (e.g. "Example") render as-is. */
   pillarIndex?: string;
-  /** Total pillars in this chapter (e.g. "04"). Replaces `pillarLabel`. */
+  /** Total pillars in this chapter (e.g. "04"). */
   pillarTotal?: string;
-  /** @deprecated Use `pillarIndex` instead. Kept for backwards compatibility. */
-  pillarNumber?: string;
-  /** @deprecated Use `pillarTotal` instead. Kept for backwards compatibility. */
-  pillarLabel?: string;
   chapterHref: string;
   chapterLabel: string;
-  /** kept for backwards compatibility with existing call sites */
-  title?: string;
   lede?: string;
 }
 
@@ -43,17 +36,13 @@ const {
   parentLetter,
   pillarIndex,
   pillarTotal,
-  pillarNumber,
-  pillarLabel,
   chapterHref,
   chapterLabel,
   lede,
 } = Astro.props;
 
-// Prefer the new prop names; fall back to deprecated aliases so existing
-// MDX call sites continue to work until they're migrated.
-const resolvedIndex = pillarIndex ?? pillarNumber ?? "";
-const resolvedTotal = pillarTotal ?? pillarLabel ?? "";
+const resolvedIndex = pillarIndex ?? "";
+const resolvedTotal = pillarTotal ?? "";
 ---
 
 <aside class={`subpage-hero subpage-hero--${phase}`}>

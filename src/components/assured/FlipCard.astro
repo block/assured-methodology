@@ -210,6 +210,8 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   // ClientRouter idempotency: rebind on every page-load; per-card marker prevents double-bind.
   // Keyboard/AT interaction goes through the two real <button>s (title on the
   // front, "flip back" on the back). The whole-card click stays as a pointer
@@ -252,6 +254,5 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
       });
     });
   }
-  bindFlipCards();
-  document.addEventListener("astro:page-load", bindFlipCards);
+  onPageReady(bindFlipCards);
 </script>

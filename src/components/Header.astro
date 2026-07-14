@@ -198,7 +198,7 @@ const currentPath = Astro.url.pathname;
     width: 100%;
     margin: 0;
     padding: 0 1.5rem;
-    height: 64px;
+    height: var(--header-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -565,6 +565,8 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   // ClientRouter idempotency: bind on both initial load and after every view transition.
   // Marker attribute prevents double-binding when the script re-runs against the same
   // element (e.g., view transition replaces the body but leaves the persistent island).
@@ -582,8 +584,7 @@ const currentPath = Astro.url.pathname;
       if (isOpen) menu?.querySelector<HTMLAnchorElement>("a")?.focus();
     });
   }
-  bindMobileMenu();
-  document.addEventListener("astro:page-load", bindMobileMenu);
+  onPageReady(bindMobileMenu);
 
   // Escape closes the open mobile menu and returns focus to the toggle.
   // Registered once per SPA session (view transitions would stack duplicates);

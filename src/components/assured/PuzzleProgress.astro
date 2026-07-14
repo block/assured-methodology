@@ -1,13 +1,11 @@
 ---
 /**
- * PuzzleProgress, the seven-piece puzzle metaphor.
+ * PuzzleProgress, the seven-phase progress strip.
  *
- * Each letter of A.S.S.U.R.E.D. is a puzzle piece. Pieces "snap into place"
- * as you progress. The `current` prop highlights the active phase, and
- * `completed` is a count or list controlling which pieces appear assembled.
- *
- * This is the central visual identity of the methodology, assembling just
- * enough of the puzzle to know what an alert is.
+ * One linked tile per A.S.S.U.R.E.D. letter, 7-across (4-across on small
+ * screens), with the `current` phase highlighted. Despite the name, the
+ * tiles are rounded rectangles; the interlocking jigsaw art lives in
+ * HeroPuzzle.astro.
  */
 
 interface Props {
@@ -20,11 +18,10 @@ interface Props {
     | "escalation"
     | "documentation"
     | null;
-  status?: Record<string, "live" | "soon">;
   compact?: boolean;
 }
 
-const { current = null, status = {}, compact = false } = Astro.props;
+const { current = null, compact = false } = Astro.props;
 
 const phases = [
   { key: "alert", letter: "A", label: "Alert" },
@@ -40,29 +37,18 @@ const phases = [
 <nav aria-label="ASSURED methodology progress">
   <ul class={`puzzle ${compact ? "puzzle--compact" : ""}`}>
     {phases.map((p) => {
-      const state = status[p.key] ?? "live";
       const isCurrent = current === p.key;
-      const pieceClass = `puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""} ${state === "soon" ? "is-soon" : ""}`;
       return (
         <li>
-          {state === "live" ? (
-            <a
-              href={`/docs/${p.key}`}
-              class={pieceClass}
-              aria-label={`${p.label} phase${isCurrent ? " (current)" : ""}`}
-              aria-current={isCurrent ? "page" : undefined}
-              data-state={state}
-            >
-              <span class="puzzle__letter">{p.letter}</span>
-              <span class="puzzle__label">{p.label}</span>
-            </a>
-          ) : (
-            <span class={pieceClass} data-state={state}>
-              <span class="puzzle__letter" aria-hidden="true">{p.letter}</span>
-              <span class="puzzle__label">{p.label}</span>
-              <span class="puzzle__soon">soon</span>
-            </span>
-          )}
+          <a
+            href={`/docs/${p.key}`}
+            class={`puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""}`}
+            aria-label={`${p.label} phase${isCurrent ? " (current)" : ""}`}
+            aria-current={isCurrent ? "page" : undefined}
+          >
+            <span class="puzzle__letter">{p.letter}</span>
+            <span class="puzzle__label">{p.label}</span>
+          </a>
         </li>
       );
     })}
@@ -145,16 +131,6 @@ const phases = [
 
   .puzzle__piece.is-current::before { opacity: 0.5; }
 
-  .puzzle__piece.is-soon {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .puzzle__piece.is-soon:hover {
-    transform: none;
-    box-shadow: none;
-  }
-
   .puzzle__letter {
     font-size: 2rem;
     font-weight: 800;
@@ -177,21 +153,6 @@ const phases = [
 
   .puzzle--compact .puzzle__label {
     display: none;
-  }
-
-  .puzzle__soon {
-    position: absolute;
-    top: 0.35rem;
-    right: 0.35rem;
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.35);
-    padding: 0.1rem 0.35rem;
-    border-radius: 9999px;
-    font-weight: 700;
   }
 
   /* Per-phase accent colors */

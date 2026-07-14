@@ -214,13 +214,19 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
 </style>
 
 <script>
-  // ClientRouter idempotency: re-runs after each view transition (data-astro-rerun).
-  // Each [data-stepper] is marked once-bound so re-runs are safe on pages we already
-  // visited; new pages get fresh DOM and fresh bindings.
+  import { onPageReady } from "@/lib/dom";
+
+  // ClientRouter idempotency: onPageReady re-runs this bind after each view
+  // transition. Each [data-stepper] is marked once-bound so re-runs are safe
+  // on pages we already visited; new pages get fresh DOM and fresh bindings.
   function bindSteppers() {
     const steppers = document.querySelectorAll<HTMLElement>("[data-stepper]:not([data-stepper-bound])");
     steppers.forEach((root) => {
       root.setAttribute("data-stepper-bound", "true");
+      // Deep-linking: ?step=N (1-based) restores a step on load and follows
+      // the reader as they move. One query param can't address two steppers,
+      // so only the page's first stepper participates.
+      const deepLink = root === document.querySelector("[data-stepper]");
       const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".stepper__tab"));
       const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
       const prev = root.querySelector<HTMLButtonElement>("[data-stepper-prev]");
@@ -253,6 +259,12 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
         if (next) next.setAttribute("aria-disabled", current === total - 1 ? "true" : "false");
         if (progress) progress.textContent = `Step ${current + 1} of ${total}`;
         if (focusTab) tabs[current]?.focus();
+        if (deepLink) {
+          const url = new URL(window.location.href);
+          if (current === 0) url.searchParams.delete("step");
+          else url.searchParams.set("step", String(current + 1));
+          history.replaceState(null, "", url);
+        }
       }
 
       tabs.forEach((tab, i) => {
@@ -278,11 +290,13 @@ const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
         go(current + 1);
       });
 
-      // Initial state
-      go(0);
+      // Initial state, honoring a ?step=N deep link when present.
+      const requested = deepLink
+        ? Number.parseInt(new URLSearchParams(window.location.search).get("step") ?? "", 10)
+        : Number.NaN;
+      go(Number.isNaN(requested) ? 0 : requested - 1);
     });
   }
 
-  bindSteppers();
-  document.addEventListener("astro:page-load", bindSteppers);
+  onPageReady(bindSteppers);
 </script>

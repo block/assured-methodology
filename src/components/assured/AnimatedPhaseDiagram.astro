@@ -317,6 +317,8 @@
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   /*
    * ClientRouter idempotency: a new IntersectionObserver per page-load is fine
    * (the old one is GC'd when the page swaps), but we need to actually re-run
@@ -344,6 +346,5 @@
       observer.observe(d);
     });
   }
-  bindAnimDiagrams();
-  document.addEventListener("astro:page-load", bindAnimDiagrams);
+  onPageReady(bindAnimDiagrams);
 </script>

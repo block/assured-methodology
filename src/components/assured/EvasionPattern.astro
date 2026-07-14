@@ -16,9 +16,6 @@ interface Props {
   title: string;
   description: string;
   caption: string;
-  /** Heading level for the title. The current usage sits under an h3, so h4
-   *  is the default; parameterized so other nestings don't skip levels. */
-  headingLevel?: 3 | 4;
 }
 
 const props = Astro.props;
@@ -28,9 +25,9 @@ const props = Astro.props;
   <summary class="evasion__summary">
     <div class="evasion__head">
       <span class="evasion__icon" aria-hidden="true">{props.icon}</span>
-      {props.headingLevel === 3
-        ? <h3 class="evasion__title">{props.title}</h3>
-        : <h4 class="evasion__title">{props.title}</h4>}
+      {/* A styled span, not a heading: <summary> exposes role=button, which
+          strips heading semantics for AT and clutters the outline. */}
+      <span class="evasion__title">{props.title}</span>
       <span class="evasion__toggle" aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6"></polyline>
@@ -144,10 +141,11 @@ const props = Astro.props;
         <rect x="162" y="60" width="127" height="40" rx="6" fill="rgba(20, 184, 166, 0.18)" stroke="rgba(20, 184, 166, 0.5)" stroke-width="1"/>
         <text x="225" y="50" text-anchor="middle" class="demo-tag" fill="#5eead4">analysts watching</text>
 
-        <!-- 👀 eyes during business hours -->
-        <text x="190" y="84" text-anchor="middle" class="eye-icon">👁️</text>
-        <text x="225" y="84" text-anchor="middle" class="eye-icon">👁️</text>
-        <text x="260" y="84" text-anchor="middle" class="eye-icon">👁️</text>
+        <!-- Watching eyes during business hours. Single-codepoint emoji only:
+             VS16/ZWJ sequences render inconsistently in SVG <text>. -->
+        <text x="190" y="84" text-anchor="middle" class="eye-icon">👀</text>
+        <text x="225" y="84" text-anchor="middle" class="eye-icon">👀</text>
+        <text x="260" y="84" text-anchor="middle" class="eye-icon">👀</text>
 
         <!-- Off-hours danger zone (02:00-04:00, x = 51-83) -->
         <rect class="danger-zone" x="51" y="60" width="32" height="40" rx="6" fill="rgba(239, 68, 68, 0.0)" stroke="rgba(239, 68, 68, 0.0)" stroke-width="1"/>
@@ -183,7 +181,8 @@ const props = Astro.props;
         <!-- Analyst "gate" at the bottom -->
         <line x1="20" y1="155" x2="400" y2="155" stroke="rgba(148, 163, 184, 0.4)" stroke-width="2"/>
         <g class="analyst">
-          <text x="210" y="180" text-anchor="middle" class="analyst-eye">😵‍💫</text>
+          {/* Single-codepoint emoji: ZWJ sequences render inconsistently in SVG text. */}
+          <text x="210" y="180" text-anchor="middle" class="analyst-eye">😵</text>
         </g>
 
       </svg>
@@ -208,14 +207,14 @@ const props = Astro.props;
   }
 
   .evasion[open] {
-    border-color: rgba(239, 68, 68, 0.5);
+    border-color: var(--accent-soft, rgba(239, 68, 68, 0.5));
     border-left-color: var(--accent, #ef4444);
   }
 
-  .evasion--lolbins   { --accent: #3b82f6; }
-  .evasion--hollowing { --accent: #a855f7; }
-  .evasion--timing    { --accent: #f59e0b; }
-  .evasion--fatigue   { --accent: #ef4444; }
+  .evasion--lolbins   { --accent: #3b82f6; --accent-soft: rgba(59, 130, 246, 0.5); }
+  .evasion--hollowing { --accent: #a855f7; --accent-soft: rgba(168, 85, 247, 0.5); }
+  .evasion--timing    { --accent: #f59e0b; --accent-soft: rgba(245, 158, 11, 0.5); }
+  .evasion--fatigue   { --accent: #ef4444; --accent-soft: rgba(239, 68, 68, 0.5); }
 
   .evasion__summary {
     padding: 1.15rem 1.4rem;

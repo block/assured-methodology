@@ -3,6 +3,10 @@
  * QuizItem. A single multiple-choice question rendered inside a <Quiz>.
  * Selecting an option marks correctness, shows the explanation, and
  * disables further changes for that question.
+ *
+ * Owns all per-item state. Notifies the parent Quiz via a bubbling
+ * `quiz-item:answered` CustomEvent (detail: { correct }) and resets when
+ * the item receives a `quiz-item:reset` event.
  */
 
 interface Option {
@@ -267,6 +271,8 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   // ClientRouter idempotency: per-item data-quizitem-bound marker.
   function bindQuizItems() {
     const items = document.querySelectorAll<HTMLElement>(
@@ -305,10 +311,28 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
             feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
             feedback.focus();
           }
+
+          item.dispatchEvent(
+            new CustomEvent("quiz-item:answered", {
+              bubbles: true,
+              detail: { correct: isCorrect },
+            })
+          );
         });
+      });
+
+      item.addEventListener("quiz-item:reset", () => {
+        delete item.dataset.answered;
+        options.forEach((o) => {
+          o.removeAttribute("aria-disabled");
+          o.classList.remove("is-correct", "is-wrong", "is-revealed-correct");
+        });
+        if (feedback) {
+          feedback.hidden = true;
+          feedback.classList.remove("is-correct", "is-wrong");
+        }
       });
     });
   }
-  bindQuizItems();
-  document.addEventListener("astro:page-load", bindQuizItems);
+  onPageReady(bindQuizItems);
 </script>

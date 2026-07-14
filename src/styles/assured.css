@@ -18,12 +18,6 @@
     --assured-bg-2: #334155;
     --assured-bg-3: #475569;
 
-    --assured-surface: rgba(248, 250, 252, 0.96);
-    --assured-surface-soft: rgba(248, 250, 252, 0.1);
-    --assured-surface-strong: rgba(248, 250, 252, 1);
-    --assured-surface-border: rgba(226, 232, 240, 0.5);
-    --assured-surface-border-strong: rgba(148, 163, 184, 0.4);
-
     /* Text on dark slate gradient */
     --assured-text: #f8fafc;
     --assured-text-muted: #cbd5e1;
@@ -66,10 +60,12 @@
     --assured-radius-sm: 0.5rem;
     --assured-radius-lg: 1rem;
 
-    /* Shadows */
-    --assured-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
-    --assured-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
-    --assured-shadow-lg: 0 18px 40px -12px rgba(0, 0, 0, 0.45);
+    /* Sticky-chrome geometry. --anchor-scroll-offset clears the header plus
+       the sticky PillNav with breathing room; it drives the scroll-margin-top
+       rule in global.css and the TOC scroll-spy line, which reads it via
+       getComputedStyle so click landings and spy state can't drift apart. */
+    --header-height: 64px;
+    --anchor-scroll-offset: 140px;
 
     --assured-content-max: 80ch;
   }
@@ -375,46 +371,6 @@
     rgba(34, 197, 94, 0.12),
     rgba(15, 23, 42, 0.6)
   );
-}
-
-/* Stat */
-.assured-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 1.25rem 1rem;
-  border-radius: var(--assured-radius);
-  background: rgba(15, 23, 42, 0.45);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  backdrop-filter: blur(8px);
-}
-
-.assured-stat__value {
-  font-size: 2.5rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--assured-text);
-  background: linear-gradient(135deg, #5eead4, #60a5fa);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Windows High Contrast: forced colors strip the gradient background but not
-   -webkit-text-fill-color, which would leave the value invisible. */
-@media (forced-colors: active) {
-  .assured-stat__value {
-    background: none;
-    -webkit-text-fill-color: currentColor;
-  }
-}
-
-.assured-stat__label {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--assured-text-muted);
-  font-weight: 500;
 }
 
 /* CTA button */

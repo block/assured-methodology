@@ -211,6 +211,8 @@ const panelId = `defterm-${Math.random().toString(36).slice(2, 9)}`;
 </style>
 
 <script>
+  import { onPageReady } from "@/lib/dom";
+
   /*
    * ClientRouter idempotency:
    *   - Trigger click handlers use per-element data-defterm-bound marker.
@@ -312,8 +314,7 @@ const panelId = `defterm-${Math.random().toString(36).slice(2, 9)}`;
     }
   }
 
-  bindDefineTerms();
-  document.addEventListener("astro:page-load", bindDefineTerms);
+  onPageReady(bindDefineTerms);
 
   // Document-level handlers registered once for the SPA session.
   // Without this guard, every view transition stacks another listener and Esc

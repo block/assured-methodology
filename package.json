@@ -6,6 +6,9 @@
     "name": "ASSURED Methodology Team"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=20.3.0"
+  },
   "scripts": {
     "build": "node scripts/extract-glossary.mjs --check && node scripts/check-defineterms.mjs && astro build && pagefind --site dist && node scripts/check-csp.mjs",
     "glossary": "node scripts/extract-glossary.mjs",
@@ -16,6 +19,8 @@
     "format": "biome format --write .",
     "check:terms": "node scripts/check-defineterms.mjs",
     "check:csp": "node scripts/check-csp.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "typecheck": "astro check",
     "lint": "biome check src"
   },
   "dependencies": {
@@ -26,10 +31,10 @@
     "@tailwindcss/vite": "^4.1.8",
     "astro": "^5.18.1",
     "astro-breadcrumbs": "^3.3.1",
-    "sharp": "^0.34.3",
     "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.15.29",
     "pagefind": "^1.5.2",

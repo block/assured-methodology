@@ -91,8 +91,8 @@ This repository uses a dual license:
 
 ## 📞 Support
 
-- **Content or technical issues**: open a GitHub issue
-- **Methodology questions**: use GitHub Discussions
+- **Content or technical issues**: [open a GitHub issue](https://github.com/block/assured-methodology/issues/new/choose)
+- **Methodology questions**: use [GitHub Discussions](https://github.com/block/assured-methodology/discussions)
 - **Collaboration**: contact the author directly
 
 ## 🔗 Related Resources

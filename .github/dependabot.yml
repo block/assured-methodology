@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # Runtime and build dependencies (pnpm resolves through the npm ecosystem).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # One PR per week for routine minor/patch bumps; majors stay separate
+      # so breaking upgrades get individual review.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Pinned action SHAs in .github/workflows.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

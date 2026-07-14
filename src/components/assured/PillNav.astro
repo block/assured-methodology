@@ -37,7 +37,8 @@ const pagePath = Astro.url.pathname.replace(/\/+$/, "") || "/";
 
 /* Auto-appended links so every chapter sub-page surfaces its companion
  * Example / Quiz / Transition pages. The chapter sub-page authors don't
- * need to repeat these in every items={[...]} array.
+ * need to repeat these in every items={[...]} array. Documentation is the
+ * last phase, so its closing page is Closure rather than Transition.
  */
 const chapterTail: Item[] = chapter
   ? [
@@ -47,11 +48,17 @@ const chapterTail: Item[] = chapter
         phase: chapter,
       },
       { label: "Chapter quiz", href: `/docs/${chapter}/quiz`, phase: chapter },
-      {
-        label: "Transition",
-        href: `/docs/${chapter}/transition`,
-        phase: chapter,
-      },
+      chapter === "documentation"
+        ? {
+            label: "Closure",
+            href: "/docs/documentation/closure",
+            phase: chapter,
+          }
+        : {
+            label: "Transition",
+            href: `/docs/${chapter}/transition`,
+            phase: chapter,
+          },
     ]
   : [];
 ---

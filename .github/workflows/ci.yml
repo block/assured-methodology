@@ -32,6 +32,9 @@ jobs:
       - name: Lint (biome)
         run: pnpm exec biome ci src
 
+      - name: Type check (astro check)
+        run: pnpm run typecheck
+
       - name: Glossary registry matches the MDX sources
         run: pnpm run glossary:check
 
@@ -42,3 +45,6 @@ jobs:
       # exist so a failure names the broken contract instead of "build".
       - name: Build site and search index
         run: pnpm build
+
+      - name: Internal links and anchors resolve
+        run: pnpm run check:links

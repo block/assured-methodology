@@ -45,6 +45,11 @@ methodology, followed by a fix wave that touched every chapter.
   contributing guide, issue templates, security policy).
 - Versioning and governance: this changelog, `CITATION.cff`, a real
   `GOVERNANCE.md`, and the version stamp in the site footer.
+- A printable one-page reference: the seven phases with anchor question,
+  deliverable, and exit decision each, the escalation-criteria checklist
+  (also downloadable as a Markdown template), the depth ladder, and the
+  memory hooks. Plus a site-wide print stylesheet so any page prints
+  black-on-white without navigation chrome.
 
 ### Changed
 

@@ -1,0 +1,148 @@
+---
+title: "The one-page reference"
+description: "The seven phases on one card: anchor question, deliverable, and exit decision for each, plus the escalation checklist and the depth ladder. Built to print."
+showToc: false
+---
+
+import LetterChip from "@/components/assured/LetterChip.astro";
+
+<p class="ref-intro">The whole methodology on one card: what each phase asks, what it must produce, and the decision that exits it. Print it with your browser's print dialog (Ctrl+P or Cmd+P); the print stylesheet turns it into a desk card. The <a href="/docs/intro">introduction</a> teaches it; this page only reminds you of it.</p>
+
+<div class="ref-flow" aria-label="The seven phases in order">
+  <span class="ref-flow__stage">Prepare</span>
+  <span class="ref-flow__letters"><LetterChip letter="A" phase="alert" size="sm" /><LetterChip letter="S" phase="subject" size="sm" /><LetterChip letter="S" phase="scope" size="sm" /></span>
+  <span class="ref-flow__arrow" aria-hidden="true">→</span>
+  <span class="ref-flow__stage">Investigate</span>
+  <span class="ref-flow__letters ref-flow__letters--loop"><LetterChip letter="U" phase="uncover" size="sm" /><LetterChip letter="R" phase="risk" size="sm" /><span class="ref-flow__loop">↺ loops with Scope</span></span>
+  <span class="ref-flow__arrow" aria-hidden="true">→</span>
+  <span class="ref-flow__stage">Resolve</span>
+  <span class="ref-flow__letters"><LetterChip letter="E" phase="escalation" size="sm" /><LetterChip letter="D" phase="documentation" size="sm" /></span>
+</div>
+
+<p class="ref-hooks">Memory hooks: the two S's are <strong>who before where</strong>. E is <strong>the decision, not the outcome</strong>; most verdicts close. A confirmed escalation criterion exits from <strong>any</strong> phase (the break-glass rule).</p>
+
+## The seven phases
+
+<div class="ref-phases">
+  <div class="ref-phase ref-phase--alert">
+    <div class="ref-phase__head"><LetterChip letter="A" phase="alert" size="sm" /><a href="/docs/alert">Alert</a><span class="ref-phase__q">What fired, and why?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the validated alert (detection mechanism and its trust level, normalized fields, validation results) plus flagged leads and temporal anchors.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> known-benign pattern with library discriminators → Level 0 five-field close · no real signal → close as false-positive with detection feedback · validated signal → Subject.</p>
+  </div>
+  <div class="ref-phase ref-phase--subject">
+    <div class="ref-phase__head"><LetterChip letter="S" phase="subject" size="sm" /><a href="/docs/subject">Subject</a><span class="ref-phase__q">Who is involved?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the entity map (primary, secondary, downstream), per-entity assessment on the four dimensions, baselines with confidence labels, insider indicators (or "none observed").</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> all four dimensions clean and the alert explained → close with evidence · any dimension dirty or unexplained → Scope · insider pattern → engage HR/legal channel, do not tip the subject.</p>
+  </div>
+  <div class="ref-phase ref-phase--scope">
+    <div class="ref-phase__head"><LetterChip letter="S" phase="scope" size="sm" /><a href="/docs/scope">Scope</a><span class="ref-phase__q">Where are the lines?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the one-page scope: regulatory flags and their clocks, the time window, entity boundaries, and the visibility map (what the tooling cannot see, named).</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> regulated data in reach → start the parallel clocks and engage the owners · boundaries set → Uncover · new evidence later widens the lines → re-scope; the loop is the method working.</p>
+  </div>
+  <div class="ref-phase ref-phase--uncover">
+    <div class="ref-phase__head"><LetterChip letter="U" phase="uncover" size="sm" /><a href="/docs/uncover">Uncover</a><span class="ref-phase__q">What does the evidence say?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the confidence-labeled timeline, the hypothesis ledger with recorded negatives, and the ATT&CK mapping of the reconstructed chain.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> evidence supports a benign explanation → Risk with a close recommendation · malicious chain reconstructed → Risk · criterion confirmed mid-phase → escalate now, finish the phases under IR's clock.</p>
+  </div>
+  <div class="ref-phase ref-phase--risk">
+    <div class="ref-phase__head"><LetterChip letter="R" phase="risk" size="sm" /><a href="/docs/risk">Risk</a><span class="ref-phase__q">How bad is it, and how confident are we?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the impact × likelihood verdict scored on the RATM rubric, the priority from the triage matrix (P1 to P4), and a named confidence level.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> P1 → escalate immediately, warm handoff · P2 → escalate within the shift · P3 → keep working, re-score within 24 hours on a named trigger · P4 → document and close.</p>
+  </div>
+  <div class="ref-phase ref-phase--escalation">
+    <div class="ref-phase__head"><LetterChip letter="E" phase="escalation" size="sm" /><a href="/docs/escalation">Escalation</a><span class="ref-phase__q">Who needs to know, and with what context?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the close-or-escalate decision against the pre-committed criteria, and (on escalate) the nine-section handoff packet that survives the five-minute cold read.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> criterion met → escalate through the protocol tier the criterion names · no criterion met → documented close, a first-class verdict · either way, the reasoning goes in the record.</p>
+  </div>
+  <div class="ref-phase ref-phase--documentation">
+    <div class="ref-phase__head"><LetterChip letter="D" phase="documentation" size="sm" /><a href="/docs/documentation">Documentation</a><span class="ref-phase__q">What did we decide, and what did we learn?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the event report (nine sections), the sanitized share version, links to every related artifact, and the detection-engineering brief.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> record passes closure review → case closed · reviewer requests clarification → fix the record, not the memory of it · exemplary either way → training archive.</p>
+  </div>
+</div>
+
+## The escalation checklist
+
+Run at every phase. Any criterion <strong>confirmed</strong> escalates immediately (break-glass, P1); suspicion refines Scope instead. The full checklist with sub-checks is a template: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>.
+
+<div class="ref-crit">
+  <div class="ref-crit__item">✅ <strong>Confirmed malicious activity.</strong> Verified IOCs, malware, exploitation, corroborated ATT&CK-mapped techniques.</div>
+  <div class="ref-crit__item">💎 <strong>High impact / business-critical.</strong> Production, regulated data, identity infrastructure. Asset profile alone justifies it.</div>
+  <div class="ref-crit__item">↔️ <strong>Lateral movement or exfiltration.</strong> A second host, account, or trust boundary; staging or outbound transfer. Blast radius is growing.</div>
+  <div class="ref-crit__item">🌐 <strong>Ongoing or widespread campaign.</strong> Multiple hosts or users, shared infrastructure or lures, coordinated timing.</div>
+</div>
+
+## The depth ladder
+
+<div class="ref-ladder">
+  <div class="ref-ladder__rung"><strong>Level 0 · Pattern close.</strong> Known-benign pattern, library discriminators pass, five-field record. Minutes.</div>
+  <div class="ref-ladder__rung"><strong>Level 1 · Standard triage.</strong> The seven phases at working depth. Most validated alerts live here.</div>
+  <div class="ref-ladder__rung"><strong>Level 2 · Full investigation.</strong> The complete arc with the nine-section report. Multiple subjects, privilege, regulated data, or anything that survived Level 1 unresolved.</div>
+</div>
+
+Any surprise moves the case <strong>up</strong> a level, never down mid-case. Depth and urgency are separate decisions: break-glass escalates even from inside a Level 0 check. Full rules: <a href="/docs/fast-path">the fast path</a>.
+
+## The templates
+
+<div class="ref-templates">
+  <a href="/templates/pattern-close-record.md" download>⬇ pattern-close-record.md</a>
+  <a href="/templates/alert-report.md" download>⬇ alert-report.md</a>
+  <a href="/templates/handoff-packet.md" download>⬇ handoff-packet.md</a>
+  <a href="/templates/event-report.md" download>⬇ event-report.md</a>
+  <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>
+</div>
+
+<style>{`
+.ref-intro { font-size: 1.02rem; }
+
+.ref-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.85rem; margin: 1.4rem 0 0.9rem 0; padding: 0.9rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
+.ref-flow__stage { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--assured-text-soft); }
+.ref-flow__letters { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ref-flow__arrow { color: var(--assured-text-dim); }
+.ref-flow__loop { font-size: 0.75rem; color: var(--assured-text-dim); margin-left: 0.25rem; }
+
+.ref-hooks { font-size: 0.92rem; color: var(--assured-text-muted); }
+
+.ref-phases { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.ref-phase { padding: 0.95rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--ref-accent, #64748b); border-radius: 0.6rem; }
+.ref-phase--alert { --ref-accent: #3b82f6; }
+.ref-phase--subject { --ref-accent: #22c55e; }
+.ref-phase--scope { --ref-accent: #a855f7; }
+.ref-phase--uncover { --ref-accent: #f97316; }
+.ref-phase--risk { --ref-accent: #ef4444; }
+.ref-phase--escalation { --ref-accent: #6366f1; }
+.ref-phase--documentation { --ref-accent: #14b8a6; }
+.ref-phase__head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-bottom: 0.45rem; }
+.ref-phase__head a { color: var(--assured-text); font-weight: 700; font-size: 1rem; text-decoration: none; }
+.ref-phase__head a:hover { text-decoration: underline; }
+.ref-phase__q { color: var(--assured-text-soft); font-size: 0.9rem; font-style: italic; }
+.ref-phase__out, .ref-phase__decide { margin: 0 0 0.3rem 0; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.55; }
+.ref-phase__decide { margin-bottom: 0; }
+.ref-phase__out strong, .ref-phase__decide strong { color: var(--assured-text); }
+
+.ref-crit { display: grid; grid-template-columns: 1fr; gap: 0.55rem; margin: 1.1rem 0; }
+@media (min-width: 768px) { .ref-crit { grid-template-columns: 1fr 1fr; } }
+.ref-crit__item { padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.22); border-radius: 0.55rem; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.5; }
+.ref-crit__item strong { color: var(--assured-text); }
+
+.ref-ladder { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.1rem 0; }
+.ref-ladder__rung { padding: 0.7rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.5; }
+.ref-ladder__rung strong { color: var(--assured-text); }
+
+.ref-templates { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.1rem 0; }
+.ref-templates a { padding: 0.5rem 0.9rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 0.5rem; color: var(--assured-text); font-size: 0.85rem; font-family: var(--font-mono); text-decoration: none; }
+.ref-templates a:hover { border-color: var(--assured-accent); }
+
+@media print {
+  .ref-intro, .ref-hooks { font-size: 8.5pt; }
+  .ref-flow { padding: 0.4rem 0.7rem; margin: 0.5rem 0; }
+  .ref-phases { gap: 0.35rem; }
+  .ref-phase { padding: 0.45rem 0.7rem; }
+  .ref-phase__head { margin-bottom: 0.15rem; }
+  .ref-phase__out, .ref-phase__decide, .ref-crit__item, .ref-ladder__rung { font-size: 8pt; line-height: 1.4; }
+  .ref-crit { grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+  .ref-crit__item, .ref-ladder__rung { padding: 0.35rem 0.6rem; }
+  .ref-ladder { gap: 0.3rem; }
+  h2 { font-size: 11pt !important; margin: 0.6rem 0 0.4rem 0 !important; }
+}
+`}</style>

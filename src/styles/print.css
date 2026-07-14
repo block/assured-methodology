@@ -1,0 +1,98 @@
+/*
+ * Print stylesheet. The site is dark-on-dark; paper is not. Printing flips
+ * to black-on-white, drops the navigation chrome and interactive components,
+ * and keeps card borders so the teaching layouts survive on paper. The
+ * /docs/reference page is designed around these rules to print as a
+ * one-page card.
+ *
+ * Known limit: closed <details> (Reveal) content does not print; browsers
+ * do not render it. Open a Reveal before printing if you want it on paper.
+ */
+
+@media print {
+  @page {
+    margin: 1.5cm;
+  }
+
+  /* Chrome and interactive components off */
+  .header,
+  .site-footer,
+  .skip-link,
+  .content-page__toc,
+  .content-page__breadcrumbs,
+  .content-page__pager,
+  .content-page__eggs,
+  .pillnav,
+  .continue-card,
+  .quiz,
+  .end-cta {
+    display: none !important;
+  }
+
+  /* Black on white everywhere */
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-color: #c5cad1 !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong {
+    color: #000 !important;
+  }
+
+  a,
+  a * {
+    color: #1a1a1a !important;
+    text-decoration: underline;
+  }
+
+  pre,
+  code {
+    border: 1px solid #c5cad1 !important;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Keep teaching cards intact across page breaks */
+  [class*="card"],
+  [class*="-row"],
+  [class*="step"],
+  blockquote,
+  pre,
+  table {
+    break-inside: avoid;
+  }
+
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+
+  /* Full-width prose; the sidebar column is gone */
+  .content-page__shell {
+    display: block !important;
+    max-width: none !important;
+  }
+  .content-page__main-inner {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}

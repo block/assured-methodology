@@ -169,14 +169,14 @@ The dimension is easy to under-evaluate. An action that maps cleanly to the user
 </div>
 
 <Callout variant="info" title="Tiered access classification">
-Authorization analysis works better when the organization maintains a tiered data classification model that maps to access boundaries. A common pattern:
+Authorization analysis works better when the organization maintains a tiered data classification model that maps to access boundaries. Building that model is data-governance and security-program work, done long before any alert fires; the analyst's job is to know whether one exists and read the alert against it. A common pattern:
 
 - **Tier 0, Crown jewels.** Customer data, financial records, source code for critical systems, secrets. Access is logged, peer-reviewed, and time-bound.
 - **Tier 1, Sensitive operations.** Production <DefineTerm term="Infrastructure" display="infrastructure" />, payment workflows, employee data. Access requires explicit role assignment and is reviewed quarterly.
 - **Tier 2, Standard business.** Internal collaboration tools, project workspaces, day-to-day applications. Default access for the role.
 - **Tier 3, Open.** Public-facing or non-sensitive information. No restriction beyond authentication.
 
-When an alert touches an entity's Tier 0 access, Authorization gets weighted differently than the same alert on Tier 3 access. The methodology bakes this in instead of leaving it to analyst judgment.
+When an alert touches an entity's Tier 0 access, Authorization gets weighted differently than the same alert on Tier 3 access. Where no classification model exists, the analyst approximates the same question by hand for the specific access in front of them: how bad would this be if it were hostile?
 </Callout>
 
 ---
@@ -231,14 +231,14 @@ The relationships dimension maps the connections between the entity and other id
 
 ### Four steps of relationship mapping
 
-<DefineTerm term="Relationship Mapping" display="Relationship mapping" /> is its own small methodology. Four steps, applied in order, turn raw connections into a triage-usable graph.
+<DefineTerm term="Relationship Mapping" display="Relationship mapping" /> is its own small methodology, and its four steps split across two altitudes. Step 01 is platform work: the connection graph is assembled by the identity and analytics layer (the IdP, the SIEM, UEBA tooling) before any alert fires, and no analyst builds it per-case. Steps 02 through 04 are the triage moves, run as queries against that pre-built graph for the entity in question. Knowing which altitude you are at keeps a junior from reading step 01 as their job at minute 12.
 
 <div class="rel-steps">
   <div class="rel-step">
     <span class="rel-step__num">01</span>
     <div>
-      <h4>Analyze connections</h4>
-      <p>Build a detailed map of relationships between users, systems, and data by linking identities and entities. This baseline captures normal communication and access patterns essential for spotting deviations later.</p>
+      <h4>Analyze connections <span class="rel-step__tag">program layer</span></h4>
+      <p>The environment maintains a map of relationships between users, systems, and data, built by linking identities and entities across telemetry. This baseline captures normal communication and access patterns. At triage, the analyst pulls this entity's slice of it, or approximates one from IdP and access logs when no platform maintains it.</p>
     </div>
   </div>
   <div class="rel-step">
@@ -469,6 +469,19 @@ The four dimensions are how an entity becomes a profile. Most Subject failures c
   color: var(--assured-text-muted);
   line-height: 1.6;
   font-size: 0.93rem;
+}
+.rel-step__tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.12rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 `}
 </style>

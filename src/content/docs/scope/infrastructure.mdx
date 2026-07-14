@@ -105,58 +105,23 @@ The investigation goes from "hundreds of possible targets" to "two confirmed acc
 
 Tooling is part of the infrastructure picture. Before <DefineTerm term="Parsing" display="parsing" /> a single <DefineTerm term="Log" display="log" /> or reviewing alerts, analysts must inventory their tooling landscape to establish visibility coverage, identify data gaps, and recognize the fixed investigative boundaries each platform imposes. Tools define the mechanisms, not the actions.
 
-When setting scope, consider each platform's observation and retrieval capabilities. SIEMs, EDRs, packet capture appliances, and <DefineTerm term="Threat" display="threat" /> intel offer distinct perspectives on activity, and recognizing each one's reach and blind spots shapes the investigation's breadth and depth.
+Scope does not need the tool-by-tool catalog; that lives in <a href="/docs/uncover/tooling">Uncover's tooling page</a>, fourteen families with what each brings and where each is blind, and Uncover selects from it once the visibility map is drawn. What Scope needs is the answer to three questions for the tools this case will actually touch.
 
-<div class="tools-grid">
-  <div class="tool-card">
-    <h4>📊 SIEM</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> centralized log aggregation, cross-source correlation, retention. The nerve center.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> retention is capacity-bounded; unsupported log sources create coverage gaps; rule maintenance is an ongoing cost.</p>
+<div class="vis-grid">
+  <div class="vis-card">
+    <span class="vis-card__num">01</span>
+    <h4>Coverage: which entities does it see?</h4>
+    <p>The EDR sees managed endpoints, not the OT segment or the unmanaged BYOD phone. Network sensors see what crosses their taps. CSPM sees the cloud accounts it is enrolled in. Any in-scope entity with no tool watching it is a named gap, not an assumption of quiet.</p>
   </div>
-  <div class="tool-card">
-    <h4>🔍 EDR</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> process lineage, command-line capture, file activity, real-time response actions.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> coverage gaps on non-standard endpoints (IoT, OT, certain Linux distros); tuning sensitivity affects false-positive load.</p>
+  <div class="vis-card">
+    <span class="vis-card__num">02</span>
+    <h4>Retention: how far back can it answer?</h4>
+    <p>SIEM retention is capacity-bounded, endpoint <DefineTerm term="Telemetry" display="telemetry" /> often keeps days to weeks, and SaaS audit history is gated by license tier. If the Scope time window extends past a tool's retention, that stretch of the window is dark and the scope document says so.</p>
   </div>
-  <div class="tool-card">
-    <h4>🌐 Network analysis</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> traffic inspection, protocol decoding, deep packet inspection, retrospective replay.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> high-volume environments stress capture capacity; encrypted traffic remains opaque without decryption infrastructure.</p>
-  </div>
-  <div class="tool-card">
-    <h4>🌍 Threat intelligence</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> external IOC enrichment, TTP mapping to <DefineTerm term="MITRE ATT&CK">A public knowledge base of adversary tactics and techniques observed in real-world attacks. attack.mitre.org</DefineTerm>, campaign attribution.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> feed quality varies; integration friction with SIEM/EDR; over-reliance produces alert fatigue.</p>
-  </div>
-  <div class="tool-card">
-    <h4>🎭 Deception</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> high-fidelity alerts with minimal false-positives. Decoy interaction implies attacker presence.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> coverage depth matters; sophisticated attackers can fingerprint decoys; maintenance overhead as production drifts.</p>
-  </div>
-  <div class="tool-card">
-    <h4>🔬 Digital forensics</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> disk and memory analysis, artifact extraction, timeline reconstruction, chain-of-custody for legal/regulatory.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> retrospective by nature; resource-intensive; environment-specific tooling for cross-OS coverage.</p>
-  </div>
-  <div class="tool-card">
-    <h4>🛡️ Vulnerability scanners</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> known-CVE detection, asset fingerprinting, exploitability scoring, remediation tracking.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> signature-based, no zero-day detection; point-in-time snapshots; potential disruption from active scans.</p>
-  </div>
-  <div class="tool-card">
-    <h4>⚙️ SOAR</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> playbook automation, tool integration, case management, real-time response orchestration.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> playbook maintenance burden; quality dependent on incoming alert fidelity; risk of analyst over-reliance.</p>
-  </div>
-  <div class="tool-card">
-    <h4>☁️ CSPM</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> cloud misconfiguration detection, IAM analysis, compliance mapping, configuration drift alerts.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> blind spots on proprietary/ephemeral services; finding-volume noise; cloud-specific tuning per provider.</p>
-  </div>
-  <div class="tool-card">
-    <h4>🗄️ Security data lake</h4>
-    <p class="tool-card__what"><strong>Brings:</strong> scalable retention beyond SIEM, schema-on-read flexibility, ML-friendly cross-source analytics.</p>
-    <p class="tool-card__limit"><strong>Limits:</strong> normalization engineering cost; query performance without proper indexing; data engineering skill requirement.</p>
+  <div class="vis-card">
+    <span class="vis-card__num">03</span>
+    <h4>Retrieval: can it be queried inside the triage clock?</h4>
+    <p>Packet capture may exist but take hours to pull. Disk forensics is retrospective and resource-intensive. Vendor-side SaaS logs need a request channel measured in days. A source that cannot answer within the triage window is a boundary for this phase even if the data exists somewhere.</p>
   </div>
 </div>
 
@@ -278,37 +243,41 @@ Infrastructure boundaries are the honest map of the SOC's vision. Naming them, n
   font-size: 0.93rem;
 }
 
-.tools-grid {
+.vis-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.85rem;
+  gap: 1rem;
   margin: 1.5rem 0;
 }
-@media (min-width: 768px)  { .tools-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .tools-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 900px) { .vis-grid { grid-template-columns: repeat(3, 1fr); } }
 
-.tool-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 3px solid var(--assured-accent-soft);
-  border-radius: 0.6rem;
+.vis-card {
+  position: relative;
+  padding: 1.4rem 1.55rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  border-radius: 0.85rem;
 }
-.tool-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--assured-accent-soft);
-  font-size: 0.98rem;
+.vis-card__num {
+  position: absolute;
+  top: 1.15rem;
+  right: 1.35rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(216, 180, 254, 0.6);
 }
-.tool-card__what,
-.tool-card__limit {
-  margin: 0 0 0.35rem 0;
+.vis-card h4 {
+  margin: 0 0 0.45rem 0;
+  color: #d8b4fe;
+  font-size: 1.05rem;
+  padding-right: 1.5rem;
+}
+.vis-card p {
+  margin: 0;
   color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.85rem;
+  line-height: 1.6;
+  font-size: 0.93rem;
 }
-.tool-card__what strong { color: #86efac; }
-.tool-card__limit strong { color: #fca5a5; }
-.tool-card__limit { margin-bottom: 0; }
 
 .invisible-list {
   display: grid;

@@ -63,6 +63,14 @@ methodology, followed by a fix wave that touched every chapter.
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual
   decode workflow (UTF-16LE, abbreviated flags, the 4688 command-line gap).
+- Altitude honesty pass: Tier 3 redefined as senior technical escalation
+  with incident command as a separate function; program-level content
+  (telemetry principles, the intel pipeline, dark-web monitoring, insider
+  mitigations, UEBA implementation, court-grade forensics) explicitly
+  scoped to program designers vs. the on-shift analyst; the Scope
+  infrastructure page's tool grid replaced with three visibility questions
+  and a link to the Uncover catalog; threat-intel coverage deduplicated
+  across Uncover via cross-links.
 
 ### Fixed
 

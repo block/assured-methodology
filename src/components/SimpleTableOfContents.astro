@@ -120,7 +120,9 @@ const filtered = headings.filter((h) => h.depth === 1 || h.depth === 2);
         // from the same --anchor-scroll-offset token the spy reads below.
         const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
         el.scrollIntoView({ behavior: smooth, block: "start" });
-        history.pushState(null, "", `#${target}`);
+        // replaceState, and with the router's own state object: a null-state
+        // entry is one Astro's ClientRouter refuses to restore on Back.
+        history.replaceState(history.state, "", `#${target}`);
       });
     });
 

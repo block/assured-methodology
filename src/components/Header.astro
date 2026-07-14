@@ -495,6 +495,12 @@ const currentPath = Astro.url.pathname;
 
   .header__mobile.is-open {
     display: flex;
+    /* The panel lives inside the sticky header, so it must scroll itself:
+       page scroll can never bring its lower links into view. */
+    max-height: calc(100vh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .header__mobile-link {

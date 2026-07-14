@@ -123,6 +123,16 @@ methodology, followed by a fix wave that touched every chapter.
 
 ### Fixed
 
+- The mobile navigation menu scrolls within the sticky header. Its 81 links
+  previously extended thousands of pixels past the viewport with no way to
+  reach anything below the first screenful.
+- The browser Back button no longer goes dead after visiting a worked-example
+  page: the example stepper and the table of contents now preserve the
+  view-transition router's history state instead of nulling it.
+- Long unbreakable tokens (registry paths, encoded command lines, dotted log
+  fields) wrap inside inline code, callouts, and quiz prompts instead of
+  forcing whole-page sideways panning on phones. This fixes horizontal
+  overflow on eight pages at phone widths.
 - Worked-example continuity: the two threaded cases (finance-team phishing,
   Cursor IDE false positive) now carry consistent entities, timestamps, and
   verdicts through all seven chapters.

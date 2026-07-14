@@ -223,9 +223,88 @@ Scenario 2 cleared a signed binary, and it is easy to walk away with the wrong p
 
 ---
 
+## The third case: pulling the evidence on the hijacked session
+
+Case C from the Alert chapter reaches Uncover with a live-adversary boundary: rvega's account, the hijacked session, and the consented OAuth app at full depth, a tenant-wide sweep written into the scope, and a standing trigger to escalate mid-phase on any payment-thread access.
+
+<ChapterExample
+  title="Pulling the evidence on the SaaS token theft"
+  scenario="Scope set the boundary: AiTM session theft with BEC staging, window from 08:00 today held open until containment, 14-day tenant lookback, three primary identity entities, GDPR flagged, finance warned. Every query in this case runs against identity and tenant logs. Uncover begins."
+>
+
+<ExampleStepper steps={["IdP sign-in chain", "Tenant audit reconstruction", "Tenant-wide sweep", "App activity and intel", "Map to ATT&CK"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. The IdP sign-in chain</h3>
+    <p>The identity provider's logs anchor the whole case. One session ID appears twice, and the two presentations disagree on everything except the account.</p>
+    <pre><code>{`IdP sign-in log, rvega
+  08:47:19  interactive sign-in   corporate laptop   home ASN      MFA: satisfied
+  08:52:41  (email gateway: click on "shared document" link, verdict pending at click time)
+  09:03:12  session presented     unknown device     VPS ASN       MFA: none (token reuse)
+            same session ID as 08:47   fingerprint mismatch   geo: different country`}</code></pre>
+    <p>The join is the session ID; the evidence is the mismatch riding on it. No authentication ceremony at 09:03 means the attacker did not log in. They resumed. Confidence: confirmed on token reuse (single-source but structurally unambiguous), corroborated once the tenant audit lines up behind it.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566.002 (Spearphishing Link) → T1557 (Adversary-in-the-Middle) → T1539 (Steal Web Session Cookie) → T1550.004 (Web Session Cookie).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Tenant audit reconstruction</h3>
+    <p>The unified audit log reconstructs what the attacker did with the session, in order:</p>
+    <pre><code>{`Tenant audit log, rvega's mailbox
+  09:06:55  New-InboxRule  name: "."   move to subscriptions folder + mark read
+            conditions: body/subject contains "invoice", "payment", "bank"
+  09:09:30  Consent granted  app: "Mail Backup Sync"  publisher: unverified
+            scopes: offline mailbox read
+  09:14-09:26  bulk mailbox sync via the consented app (aggregate events; ~1,800 items)
+  09:18:02  mailbox search: "remittance"   09:18:40  mailbox search: "wire"`}</code></pre>
+    <p>Each row lands in the running timeline with its source and confidence. The rule and consent events are confirmed; the sync volume is corroborated but item-level detail is pending the vendor request Scope submitted.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1564.008 (Email Hiding Rules) → T1528 (Application Access Token, via the forced consent) → T1114.002 (Remote Email Collection).</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. The tenant-wide sweep</h3>
+    <p>Scope bounded the sweep to two queries, run once, deliberately:</p>
+    <ul class="example-step__list">
+      <li><strong>Sessions from the attacker ASN, all users, 14 days:</strong> one result. Only rvega's session ever presented from that network.</li>
+      <li><strong>Consent grants to the same app ID, all users, 14 days:</strong> one result. Only rvega's mailbox is granted.</li>
+      <li><strong>The second click-through user:</strong> the gateway shows her click at 08:54, but the IdP shows no token issuance and no foreign presentation. She abandoned the fake login page before completing MFA. Recorded as checked and clean, with the negative results written down.</li>
+    </ul>
+    <p>The blast radius statement this produces is what Risk and Escalation will lean on: one account, one session, one app grant, zero lateral spread observed, with the queries that support each "zero" named in the case file.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. App activity and intelligence context</h3>
+    <ul class="example-step__list">
+      <li><strong>What the app read.</strong> Aggregate sync events cover roughly 1,800 messages including the billing threads. Whether specific payment conversations were opened individually is pending vendor detail; the timeline carries that as an explicit gap row, not an assumption either way.</li>
+      <li><strong>The phishing domain.</strong> Registered nine days ago, certificate issued the same day, page fingerprint matching a commodity AiTM kit family per current vendor reporting. Medium confidence on the kit identification, high on the infrastructure being purpose-built.</li>
+      <li><strong>No outbound mail sent.</strong> The audit log shows no messages sent from the mailbox during the attacker window. The BEC play was interrupted at the collection stage, before any payment-redirect message went out.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Map to ATT&CK and trigger the handoff</h3>
+    <pre><code>{`T1566.002  Spearphishing link delivered to 4 customer-success users
+T1557      AiTM proxy captured the session after a legitimate MFA approval
+T1539      Web session cookie stolen at the proxy
+T1550.004  Cookie replayed from attacker infrastructure at 09:03
+T1564.008  Inbox rule "." hiding payment-themed mail from 09:06
+T1528      OAuth app consented for standing mailbox access at 09:09
+T1114.002  Bulk remote mail collection 09:14-09:26`}</code></pre>
+    <p>The chain confirms active compromise with live persistence (the session and the app grant are both still valid). That is an escalation criterion, and per the <a href="/docs/uncover/correlation">stopping rules</a>, hitting it ends Uncover now: the open items (vendor detail on app reads, final GDPR determination) transfer to the handoff packet as pending rather than blocking the escalation. Uncover packages the evidence chain, the entity verdicts, the intelligence context, and the named gaps, and the case moves.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+The token-theft case ran the same five-step Uncover as the endpoint cases with a different spine: the session ID and the account were the join keys, the IdP and tenant audit logs were the primary sources, and the tenant sweep's recorded negative results are what make "it was only one account" a defensible claim instead of a hope.
+</KeyTakeaway>
+
+---
+
 ## A cloud-native mini-example: the IAM role assumption
 
-The two cases above are endpoint-anchored. The same methodology works for cloud-origin alerts where the endpoint is irrelevant, what matters is the API call, the principal, and the role chain. This shorter walkthrough shows how Uncover applies to a 2026-typical cloud alert.
+The endpoint cases and the SaaS case above all started from an alert. The same methodology works for cloud-control-plane alerts where what matters is the API call, the principal, and the role chain. This shorter walkthrough shows how Uncover applies to a 2026-typical cloud alert.
 
 <ChapterExample
   title="An unexpected AssumeRole in AWS at 02:14 UTC"
@@ -288,7 +367,7 @@ The two cases above are endpoint-anchored. The same methodology works for cloud-
 </ChapterExample>
 
 <KeyTakeaway>
-Uncover combined multiple sources into a chain. The first scenario built a chain of malicious techniques. The second built a chain of role-consistent activity that ruled out malice with explicit confidence. The third showed the same methodology applied to a cloud-native alert where the endpoint never entered the picture. The methodology demands the same evidence, the same documentation, and the same handoff in all three cases.
+Uncover combined multiple sources into a chain in every scenario on this page. The finance case built a chain of malicious endpoint techniques. The Cursor case built a chain of role-consistent activity that ruled out malice with explicit confidence. The token-theft case built its chain entirely from identity and tenant logs. The IAM mini-example did the same on the cloud control plane. The methodology demands the same evidence, the same documentation, and the same handoff in all four.
 </KeyTakeaway>
 
 <ContinueCard current="uncover" nextHref="/docs/uncover/quiz" nextLabel="Uncover quiz" ctaLabel="Take the quiz" />

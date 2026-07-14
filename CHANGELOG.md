@@ -33,6 +33,11 @@ methodology, followed by a fix wave that touched every chapter.
   traps, clock-skew rules, the running confidence-labeled timeline, the
   hypothesis ledger, and stopping rules. Plus XDR, ITDR, CDR, and
   sandbox/detonation families in the Uncover tool catalog.
+- A third threaded case on every chapter's worked example: a SaaS-tenant
+  token theft (AiTM phishing, session replay, inbox-hiding rule, OAuth
+  consent persistence) investigated entirely from identity and tenant logs,
+  escalated mid-investigation under the break-glass rule. SaaS audit logs
+  and Kubernetes audit logs added to the Uncover data-source catalog.
 - Verified external citations (CISA, MITRE ATT&CK, NVD, vendor research) on
   160 fact-bearing entries in the B.A.D. glossary.
 - CI hardening: type checking, an internal link checker, a CSP-hash check

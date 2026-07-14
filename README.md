@@ -28,7 +28,7 @@ It is written as a teachable course: seven chapters, each with concept pages, a 
 | **E** | Escalation | Criteria, protocols, triage-vs-IR boundary, the 9-section handoff packet |
 | **D** | Documentation | Standards, templates, pitfalls, closure and downstream uses |
 
-Two threaded cases run through every chapter's worked example: a finance-team phishing intrusion that escalates to IR, and a Cursor IDE false positive that closes at triage. The same methodology produces both verdicts.
+Three threaded cases run through every chapter's worked example: a finance-team phishing intrusion that escalates to IR, a Cursor IDE false positive that closes at triage, and a SaaS-tenant token theft with no endpoint evidence that escalates mid-investigation. The same methodology produces all three verdicts.
 
 Three themed glossaries support the chapters: **B.A.D.** (threat actors, campaigns, malware), **C.A.T.** (vendor and platform vocabulary), and **C.L.E.A.R.** (the analyst lexicon). They total around 670 terms, surfaced inline via hover tooltips.
 
@@ -66,7 +66,7 @@ Contributions are welcome. Fork, branch, make your change, verify with `pnpm bui
 
 - **Technical accuracy**: MITRE technique mappings, regulatory citations, detection-mechanism descriptions
 - **Content refinement**: sharpen wording, fix factual drift, update tool references as the vendor landscape shifts
-- **Case studies**: worked examples beyond the two threaded cases (cloud-native intrusions, identity-provider abuse, supply chain)
+- **Case studies**: worked examples beyond the three threaded cases (container and Kubernetes intrusions, supply chain, ransomware)
 - **Glossary entries**: current threat actors, recent campaigns, new SOC tooling
 - **Quiz items**: application-grade questions that test methodology fluency on fresh scenarios
 

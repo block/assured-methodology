@@ -144,6 +144,68 @@ The first walkthrough produced a P1 escalation. The Cursor case from Uncover wen
 The two scenarios show the two main shapes Risk produces. A high-impact, high-likelihood verdict drives immediate escalation and resource mobilization. A medium-high-impact, low-likelihood verdict still produces a defensible closure, the likelihood is where the benign evidence belongs, with documented residual risk and program-level feedback. Both are correct outputs; both deserve the same rigor in their documentation.
 </Callout>
 
+---
+
+## A third scenario: the token-theft verdict under time pressure
+
+Case C arrives at Risk differently: Uncover ended on an escalation trigger, not on evidence exhaustion. The session and the OAuth grant are live persistence, so the escalation decision is effectively made. Risk still runs, in minutes, because the verdict record is what tells incident response how hard to pull and what to pull first.
+
+<ChapterExample title="Scoring a live identity compromise" scenario="Uncover delivered: confirmed AiTM session theft on rvega's account, an active inbox-hiding rule, a consented OAuth app with standing mailbox access, roughly 1,800 messages synced including billing threads, no outbound mail sent, blast radius one account with recorded negative sweeps. The compromise is live. Risk sets the priority.">
+
+<ExampleStepper steps={["Score impact", "Score likelihood", "Combine via matrix", "Document the verdict", "Hand off to Escalation"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Score impact</h3>
+    <p><strong>High.</strong> Customer personal data has already been read at volume (the sync is a completed data access, not a hypothetical), the mailbox feeds live payment conversations that make wire fraud the natural next move, and a GDPR assessment is open with compliance. Impact does not wait on whether the attacker gets further; the collection that already happened carries the score.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Score likelihood</h3>
+    <p><strong>High, effectively confirmed.</strong> The session join is structurally unambiguous (one session ID, two irreconcilable presentations, no authentication ceremony), the tenant audit corroborates with attacker tradecraft (hiding rule, consent grant, bulk sync), and no benign explanation survived Uncover. This is as close to certainty as triage gets.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Combine via the matrix</h3>
+    <p>High impact × high likelihood = <strong>Escalate immediately. P1.</strong> The matrix confirms what Uncover's trigger already decided; the value Risk adds here is the ordering of the response actions, because identity containment has a sequencing trap.</p>
+
+    <Reveal summary="Why the response ordering matters more than the score" variant="example">
+
+    A password reset alone contains nothing in this case. The attacker holds a session token and an application grant, and neither checks the password again. The pre-authorized immediate actions execute in this order at handoff:
+
+    > 1. **Revoke all sessions** for rvega at the IdP (kills the replayed token).
+    > 2. **Revoke the OAuth grant** for "Mail Backup Sync" (kills the app's standing access; a separate action in a separate admin surface, which is why it gets its own line).
+    > 3. **Disable the inbox rule** and preserve it as evidence.
+    > 4. **Then** reset credentials and re-enroll MFA, with the reset treated as hygiene rather than containment.
+
+    Reversing 1 and 4, the instinctive order, leaves the attacker connected while everyone relaxes because "the password was changed."
+
+    </Reveal>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Document the verdict</h3>
+    <ul class="example-step__list">
+      <li>Impact: <strong>High.</strong> Bulk read of customer data confirmed; payment-fraud staging interrupted before any outbound message.</li>
+      <li>Likelihood: <strong>High.</strong> Session-join evidence plus corroborating tenant artifacts; no surviving benign hypothesis.</li>
+      <li>Priority: <strong>P1.</strong> Live persistence in two forms.</li>
+      <li>Open questions: item-level read detail pending vendor; GDPR determination owned by compliance; the AiTM proxy's capture scope permanently unknowable.</li>
+      <li>Recommended response: the four ordered identity actions above, then a tenant-wide block of the app publisher and a hunt rule for the ASN.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand off to Escalation</h3>
+    <p>Same one-page shape as the finance case, with one addition: the verdict names the time-sensitivity explicitly. Every minute before session revocation is a minute of live mailbox access. Escalation inherits a P1 with a pre-sequenced containment list and a warning about the order.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<KeyTakeaway>
+The token-theft verdict took minutes because Uncover's evidence made it automatic, and that is the point: when the trigger has already fired, Risk's contribution is not the score, it is the ordered, identity-aware response plan that keeps the containment from being theater.
+</KeyTakeaway>
+
 <ContinueCard current="risk" nextHref="/docs/risk/quiz" nextLabel="Risk quiz" ctaLabel="Take the quiz" />
 
 <style>{`

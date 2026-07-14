@@ -179,8 +179,80 @@ The first walkthrough showed Scope refining Subject's rich, expanding map for a 
 The two scenarios show what Scope looks like when the inputs differ. The finance-team intrusion got an expanding, regulated boundary because Subject's map already pointed at lateral movement and a regulated downstream system. The Cursor false-positive got a tight, restrained boundary because Subject's reads agreed on legitimate. Both are correct Scope outcomes for their case. The methodology is the same; what changes is what the evidence permitted.
 </Callout>
 
+---
+
+## A third scenario: scoping the SaaS token-theft case
+
+Case C continues: rvega's hijacked session, the hiding rule, and the consented OAuth app. Scoping an identity case has a property the endpoint cases did not: the compromise is plausibly live while the boundary is being drawn. The session may still be valid, the app grant definitely is, and the inbox rule is working right now. Scope still comes before deep investigation, it just gets drawn fast and with a live adversary assumed.
+
+<ChapterExample
+  title="Drawing the lines around the hijacked session"
+  scenario="Subject handed Scope 3 primary entities (rvega's account, the hijacked session, the OAuth application) + 3 secondary (a second click-through user, the shared billing mailbox, the inbox rule) + the CRM downstream, with the AiTM domain and VPS IP as the originating threat. Nothing on the map is a host. Scope's job is a boundary drawn in identity and tenant terms."
+>
+
+<ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Regulatory check</h3>
+    <p>The mailbox holds customer contract and billing correspondence: names, contacts, account details, some of it for EU residents, so GDPR is flagged and compliance engaged now, before anyone knows what the attacker read. The staging pattern points at payment-redirect fraud, which adds a financial-crime dimension: if a fraudulent payment instruction has already gone out, finance and legal need to know on a different clock than the technical investigation.</p>
+    <p><strong>Decisions:</strong> tag the case GDPR-relevant, engage compliance, and put finance on notice that outbound payment instructions from the customer-success mailboxes need out-of-band verification until the case closes.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Time window</h3>
+    <p>The forward edge of the window is open because the compromise may be live. The backward edge is set by the artifacts: the lure landed at 08:52 today, but consent grants and rules can predate the alert that finally exposed them.</p>
+    <ul class="example-step__list">
+      <li><strong>Primary window:</strong> 08:00 UTC today through current time, held open until containment.</li>
+      <li><strong>Extended check:</strong> 14 days back across the tenant for consent grants to the same application and for inbox rules with the same shape, and 30 days of rvega's sign-in history to confirm today was the first foreign presentation.</li>
+      <li><strong>Retention check:</strong> IdP sign-in logs and the tenant audit log both cover the windows. Noted: mailbox item-level read events exist only at the tenant's current audit tier; if the tier had been lower, the "what did they read" question would be unanswerable.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Entity boundaries</h3>
+    <ul class="example-step__list">
+      <li><strong>Primary:</strong> rvega's account, the hijacked session, the "Mail Backup Sync" OAuth application. Full depth.</li>
+      <li><strong>Secondary:</strong> the second click-through user, the shared billing mailbox, the inbox rule artifact, and the two remaining lure recipients who did not click. Baseline depth, upgraded on any signal.</li>
+      <li><strong>Tenant-wide sweep dimension:</strong> any session presented from the attacker ASN, and any consent grant to the same app ID, across all users. This is a bounded query set, not an open-ended hunt; it is written into the boundary so Uncover runs it once, deliberately.</li>
+      <li><strong>Originating threat:</strong> the AiTM domain and VPS IP, feeding Uncover's intelligence work.</li>
+      <li><strong>Out of scope:</strong> rvega's laptop beyond the already-completed EDR check, and every SaaS tenant with no observed attacker activity, pending the sweep results.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Infrastructure check</h3>
+    <ul class="example-step__list">
+      <li><strong>In scope:</strong> IdP sign-in and risk logs, the tenant unified audit log, the email gateway's click and delivery records, CRM authentication logs.</li>
+      <li><strong>Limited:</strong> the OAuth application's actual read activity is visible only as aggregate sync events at the current audit tier; per-message detail may require a vendor request.</li>
+      <li><strong>Gaps:</strong> the AiTM proxy sits outside the environment entirely; what rvega saw on that page is reconstructable only from the gateway's URL verdict and the phishing kit's known behavior, not from logs.</li>
+    </ul>
+    <p><strong>Decisions:</strong> submit the vendor request for app-activity detail now so it runs in parallel, and record the proxy blind spot as a permanent evidence boundary for this case.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand off to Uncover</h3>
+    <ul class="example-step__list">
+      <li><strong>Threat type:</strong> AiTM session theft with BEC staging.</li>
+      <li><strong>Time:</strong> 08:00 today through containment; 14-day tenant lookback for grants and rules; 30-day sign-in history for rvega.</li>
+      <li><strong>Primary entities:</strong> the account, the session, the app. Full depth.</li>
+      <li><strong>Secondary entities:</strong> second click-through user, billing mailbox, inbox rule, two non-click recipients. Baseline depth.</li>
+      <li><strong>Tenant sweep:</strong> attacker-ASN sessions and same-app consents, all users, one pass.</li>
+      <li><strong>Regulatory:</strong> GDPR flagged, compliance engaged, finance warned on payment instructions.</li>
+      <li><strong>Infrastructure gaps:</strong> app read-detail pending vendor; AiTM proxy permanently invisible.</li>
+      <li><strong>Escalation posture:</strong> the session and app grant are live persistence. Any evidence of payment-thread access or outbound mail moves this case to Escalation immediately, mid-phase.</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="The identity boundary is a query set, not a perimeter">
+The finance case's boundary was drawn around hosts and users. Case C's boundary is drawn around log queries: which sessions, which grants, which mailboxes, over which windows. That is what an infrastructure boundary means when the infrastructure is someone else's cloud, and it is why the tenant sweep is written into the boundary statement instead of left to Uncover's discretion.
+</Callout>
+
 <KeyTakeaway>
-A Scope deliverable fits on one page: time windows, entity list, environment, data sources, regulatory triggers, and the named visibility gaps. Whether the boundary expands like the finance case or stays tight like the Cursor case, Uncover starts with a boundary it can defend later.
+A Scope deliverable fits on one page: time windows, entity list, environment, data sources, regulatory triggers, and the named visibility gaps. Whether the boundary expands like the finance case, stays tight like the Cursor case, or is drawn in queries like the token-theft case, Uncover starts with a boundary it can defend later.
 </KeyTakeaway>
 
 <ContinueCard

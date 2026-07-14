@@ -93,11 +93,50 @@ The Cursor IDE Empire-pattern case ended in Escalation as a documented close at 
 
 </ChapterExample>
 
-<Callout variant="info" title="Two cases, one durable record">
-The two scenarios show the same methodology applied to opposite verdicts. The finance-team intrusion produced an audit-quality record of a real compromise. The Cursor false-positive produced an audit-quality record of why a pattern match wasn't malicious. Both records survive months later. Both train future analysts. The methodology's value isn't that it always reaches the same verdict; it's that it always produces a defensible one.
+---
+
+## A third scenario: closing the token-theft record
+
+The SaaS token-theft case escalated to IR mid-Uncover, so like the finance case, Documentation finalizes the triage-side record and links IR's outputs. What is different is the evidence itself: identity artifacts are ephemeral in ways disk images are not, and the record has to capture them before the platforms age them out.
+
+<ChapterExample title="Finalizing the token-theft event report" scenario="IR owns the active case: the attacker is contained, the vendor detail on app reads is arriving, and compliance is running the GDPR determination. The triage analyst's Documentation phase closes the triage-side record while the identity evidence is still retrievable.">
+
+<ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Capture the record</h3>
+    <p>The nine sections fill from the handoff packet, with one identity-specific discipline: the raw artifacts are exported into the case now, not merely referenced. The IdP's sign-in records, the two session presentations, the inbox-rule definition, and the consent-grant event are all subject to platform retention windows and license tiers that the SOC does not control. A record that points at a log the tenant will age out in 90 days is a record that stops being evidence in 91. The exports, with their retrieval timestamps, go into the appendices.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Sanitize for sharing</h3>
+    <p>This case carries the most sensitive sharing surface of the three: the mailbox contents the attacker synced are customer data, and the record must describe the collection without reproducing it. The report records counts, categories, and thread types ("~1,800 items including billing correspondence"), never message bodies. rvega is pseudonymized in the training version, and the record states plainly that she is a victim, not a suspect, so the training artifact never reads as blame.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Link related artifacts</h3>
+    <p>The record links to: the SIEM alert, the IR ticket, the compliance determination thread (still open at closure; linked as pending), the vendor request and its eventual response, the finance team's out-of-band verification confirmation, and the tenant sweep queries saved as reusable hunts. The pending links are themselves part of the record: an auditor reading it later sees what was still in motion when triage closed its side.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Feed detection engineering</h3>
+    <p>The brief credits what worked and names what was missing: the two-signal correlation rule caught the case and its design should be reused; a consent-grant alert for unverified publishers would have fired at 09:09 independent of the session signal; a session-fingerprint-mismatch detection at the IdP would have fired at 09:03, twelve minutes earlier. Each becomes a ticket. The lure domain and kit fingerprint feed the intel platform for retro-hunting across the estate.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Submit for review</h3>
+    <p>The SOC manager's review flags this record for the training archive alongside the Cursor case: it is the SOC's reference example of an intrusion with no endpoint evidence, and of containment whose ordering mattered more than its speed. The record closes with the compliance and vendor threads explicitly marked as continuing under their own owners.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Three cases, one durable record">
+The three scenarios show the same methodology applied to three verdicts. The finance-team intrusion produced an audit-quality record of a real endpoint compromise. The Cursor false-positive produced an audit-quality record of why a pattern match wasn't malicious. The token theft produced an audit-quality record of an identity compromise, with the ephemeral evidence exported before it could expire. All three survive months later. All three train future analysts. The methodology's value isn't that it always reaches the same verdict; it's that it always produces a defensible one.
 </Callout>
 
-<KeyTakeaway>Documentation closes the loop on both cases the methodology threaded through. Future analysts will reach for the finance-team record when they see a similar Empire-style chain; they will reach for the Cursor record when they see another Electron IDE flagged on the same pattern. Both records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>
+<KeyTakeaway>Documentation closes the loop on all three cases the methodology threaded through. Future analysts will reach for the finance-team record on the next Empire-style chain, the Cursor record on the next Electron IDE pattern match, and the token-theft record on the next impossible sign-in. All three records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>
 
 <ContinueCard current="documentation" nextHref="/docs/documentation/quiz" nextLabel="Documentation quiz" ctaLabel="Take the quiz" />
 

@@ -1,6 +1,6 @@
 ---
 title: "Alert working example"
-description: "Two alerts, two methodologies. A finance-team phishing event and a developer-workstation false-positive, both worked through the Alert phase."
+description: "Three alerts, one methodology. A finance-team phishing event, a developer-workstation false-positive, and a SaaS-tenant token theft, all worked through the Alert phase."
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -19,7 +19,7 @@ import Callout from "@/components/assured/Callout.astro";
   pillarTotal="Alert chapter"
   chapterHref="/docs/alert"
   chapterLabel="Alert"
-  lede="Two alerts walked through the Alert phase. One turns out to be a real intrusion; the other turns out to be a false-positive. Both follow the same methodology. The methodology is what makes the verdict defensible either way."
+  lede="Three alerts walked through the Alert phase. One is a real endpoint intrusion, one is a false-positive, and one is a real intrusion that never touches an endpoint at all. All three follow the same methodology. The methodology is what makes the verdict defensible every time."
 />
 
 <PillNav chapter="alert" label="Alert chapter" items={[
@@ -28,8 +28,8 @@ import Callout from "@/components/assured/Callout.astro";
   { label: "Parsing alerts",       href: "/docs/alert/parsing",               phase: "alert" },
 ]}/>
 
-<Callout variant="info" title="Two cases threaded through every chapter">
-The two cases introduced on this page run through the rest of the methodology. The finance-team phishing case (real intrusion) ends in an escalation to incident response. The Cursor IDE Empire-pattern case (false-positive) ends in a documented close at triage. Both produce a record an auditor can read months later. The Alert chapter is where each case starts.
+<Callout variant="info" title="Three cases threaded through every chapter">
+The three cases introduced on this page run through the rest of the methodology. The finance-team phishing case (real intrusion, endpoint-origin) ends in an escalation to incident response. The Cursor IDE Empire-pattern case (false-positive) ends in a documented close at triage. The SaaS token-theft case (real intrusion, identity-origin, no endpoint evidence at any point) also ends in an escalation, reached by a different evidence path. All three produce a record an auditor can read months later. The Alert chapter is where each case starts.
 </Callout>
 
 <Callout variant="warn" title="The cases are illustrative, not photorealistic">
@@ -160,12 +160,79 @@ The same Alert methodology applied to a very different signal. A second alert fi
 
 </ChapterExample>
 
-<Callout variant="info" title="Two cases, one methodology">
+<Callout variant="info" title="Two cases so far, one methodology">
 Case A produced a hypothesis pointing toward compromise. Case B produced a hypothesis pointing toward false-positive. The Alert phase did not "decide" either. It produced the structured starting point Subject needs in either direction. The methodology is what makes both verdicts defensible, including the eventual close at triage for Case B and the escalation to IR for Case A.
 </Callout>
 
+---
+
+## Case C · The SaaS-tenant token-theft alert
+
+The third case never touches an endpoint. There is no process tree, no command line, no file write. Everything the analyst will ever see lives in the identity provider's sign-in log and the SaaS tenant's audit log, and the methodology has to work anyway.
+
+<ChapterExample
+  title="Case C · The replayed session on the mail tenant"
+  scenario="A SIEM correlation rule fires at 09:15. The identity provider flagged a risky session at 09:03: a session token for rvega, a customer-success lead, was presented from a hosting-provider IP in another country eleven minutes after her normal corporate sign-in, with a different browser fingerprint. Three minutes later, the tenant audit log recorded a new inbox rule on her mailbox. No endpoint alert fired anywhere."
+>
+
+<ExampleStepper steps={["Read the detection", "Validate the signal", "Parse the metadata", "Frame the hypothesis", "Hand to Subject"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Read the detection</h3>
+    <p>The rule is a two-signal correlation: <strong>an IdP risk event (session token presented from a new autonomous system with a mismatched browser fingerprint)</strong> joined to <strong>a new inbox rule created on the same account within 30 minutes</strong>. Either signal alone is noisy: travel and VPNs trip the first, and users create mail rules all day. Together they describe one specific attack: a stolen session being used, then hidden.</p>
+    <p>The join key is worth noticing before the payload is even open. Nothing here shares a host or a PID. The two events are joined on the <strong>account and the session</strong>, which is exactly how the <a href="/docs/alert/parsing/cloud-identity">cloud and identity parsing page</a> says this class of alert must be read.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Validate the signal</h3>
+    <p>The four-dimensional validation:</p>
+    <ul class="example-step__list">
+      <li><strong>Technical.</strong> The 09:03 sign-in reused an existing session token: no password entry, no <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" /> prompt. A legitimate new device would have triggered both. Token reuse without an authentication ceremony is the signature of <DefineTerm term="Session Hijack" display="session hijack" /> via a stolen cookie.</li>
+      <li><strong>Environmental.</strong> rvega's 90-day sign-in baseline is two devices, one city, one ASN. The 09:03 presentation is a first for the ASN, the geography, and the fingerprint. The 08:47 sign-in that preceded it was normal in every dimension.</li>
+      <li><strong>Intelligence.</strong> The source IP belongs to a VPS provider whose ranges appear in current reporting on adversary-in-the-middle (AiTM) phishing kits, which proxy the real login page and capture the session cookie after MFA succeeds.</li>
+      <li><strong>Business.</strong> rvega's mailbox holds customer contract and billing threads. Historically this is the staging ground for payment-redirect fraud, and the mailbox contents are customer personal data with regulatory weight.</li>
+    </ul>
+    <p>All four dimensions point the same direction, and none of them required an endpoint.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Parse the metadata</h3>
+    <p>Structured extraction, from identity and tenant logs instead of a process tree:</p>
+    <ul class="example-step__list">
+      <li><strong>Sign-in chain.</strong> 08:47:19 UTC, corporate laptop, MFA satisfied, home ASN. 08:52:41 UTC, click on a "shared document" link recorded by the email gateway. 09:03:12 UTC, the same session ID presented from the VPS ASN, new fingerprint, no MFA event.</li>
+      <li><strong>Session.</strong> One session ID spans both presentations. That single field is what makes this one story instead of two logins.</li>
+      <li><strong>Tenant audit.</strong> 09:06:55 UTC, new inbox rule named <code>.</code> (a single dot): messages containing "invoice", "payment", or "bank" moved to a subscriptions folder and marked read.</li>
+      <li><strong>Consent grant.</strong> 09:09:30 UTC, OAuth consent to an unverified application named "Mail Backup Sync" with offline mailbox-read scopes.</li>
+      <li><strong>Identity.</strong> rvega, customer-success lead. No admin roles. Access to the CRM and the shared billing mailbox via group membership.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Frame the hypothesis</h3>
+    <p><strong>Working hypothesis:</strong> rvega followed a phishing link to an AiTM proxy that captured her session cookie after a legitimate MFA approval; the attacker replayed the session from a VPS, created an inbox-hiding rule to conceal payment-themed mail, and consented an OAuth application for persistent mailbox access. The pattern matches current business-email-compromise staging: the attacker is positioning to read and eventually redirect payment conversations.</p>
+    <p>As in Case A, this is a hypothesis with named evidence, not a declared incident. The difference is the evidence type: every artifact is an identity or tenant event, and confidence rests on the session join, not on a process chain.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand to Subject</h3>
+    <p>Subject inherits an identity-shaped starting point:</p>
+    <ul class="example-step__list">
+      <li><strong>Named entities.</strong> rvega (user), the hijacked session ID, the VPS source IP, the inbox rule named <code>.</code>, the "Mail Backup Sync" OAuth application, and the phishing link's domain from the 08:52 gateway record.</li>
+      <li><strong>Open questions.</strong> Who else received the same link? Did anyone else's session present from that ASN? What has the consented app already read? Is the attacker session still alive right now?</li>
+      <li><strong>Confidence.</strong> High on session theft (single session ID across both presentations, corroborated by the fingerprint mismatch and missing MFA ceremony); medium on the AiTM delivery mechanism (inferred from the link click timing, pending the gateway's URL verdict); labels per the <a href="/docs/documentation/standards#confidence">shared rubric</a>.</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="Three cases, one methodology">
+Case A pointed toward endpoint compromise, Case B toward false-positive, Case C toward identity compromise with no endpoint in the story at all. The same five moves produced all three: read the detection, validate in four dimensions, parse the metadata, frame the hypothesis, hand off named entities. The evidence types changed; the methodology did not.
+</Callout>
+
 <KeyTakeaway>
-The Alert phase is the anchor for everything that follows. Two alerts that look superficially similar (PowerShell-or-helper behavior with encrypted outbound) produced two very different hypotheses because the detection mechanism, validation, and parsing were applied to each. The same methodology continues on every chapter's example page that follows.
+The Alert phase is the anchor for everything that follows. Three different alerts produced three different hypotheses because the detection mechanism, validation, and parsing were applied to each, and Case C proves the point the parsing chapter makes: when there is no process tree, the identity chain is the spine of the case. All three cases continue on every chapter's example page that follows.
 </KeyTakeaway>
 
 <ContinueCard

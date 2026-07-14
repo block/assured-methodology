@@ -1,6 +1,6 @@
 ---
 title: "Data sources for evidence gathering"
-description: "The 15 telemetry sources an Uncover investigation pulls from. What each one captures, when to reach for it, and where its visibility ends."
+description: "The 17 telemetry sources an Uncover investigation pulls from. What each one captures, when to reach for it, and where its visibility ends."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -66,6 +66,8 @@ Before picking a source, four properties shape whether the evidence gathered wil
   <a href="#network" class="src"><h4>🌐 Network traffic</h4><p>NetFlow, DNS, proxy, firewall. What the wire saw.</p></a>
   <a href="#iam" class="src"><h4>🔑 Identity and access</h4><p>Authentication, SSO, role assumption, privilege grants.</p></a>
   <a href="#cloud" class="src"><h4>☁️ Cloud activity</h4><p>CloudTrail, Azure Activity, GCP audit. API and configuration.</p></a>
+  <a href="#saas" class="src"><h4>🧾 SaaS audit logs</h4><p>Mailbox rules, file sharing, OAuth consents inside each tenant.</p></a>
+  <a href="#k8s" class="src"><h4>⎈ Kubernetes audit</h4><p>API-server events: exec, secret reads, RBAC changes.</p></a>
   <a href="#ti" class="src"><h4>🧠 Threat intelligence</h4><p>IOCs and TTPs from external sources. Hypothesis fuel.</p></a>
   <a href="#vuln" class="src"><h4>🛡️ Vulnerability &amp; patch</h4><p>What is exposed and what is patched.</p></a>
   <a href="#fim" class="src"><h4>📁 File integrity (FIM)</h4><p>Tampering signals for critical files and configs.</p></a>
@@ -79,7 +81,7 @@ Before picking a source, four properties shape whether the evidence gathered wil
 </div>
 
 <Callout variant="info" title="The skill is not memorizing them all">
-The skill is asking "which source could answer this specific question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all fifteen.
+The skill is asking "which source could answer this specific question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all seventeen.
 </Callout>
 
 ---
@@ -254,6 +256,68 @@ Cloud-native logs: <DefineTerm term="AWS CloudTrail" />, Azure Activity Logs, GC
       <li>Rapid provisioning/de-provisioning complicates timeline reconstruction.</li>
       <li>Logging granularity varies across services.</li>
       <li>Cost considerations limit retention and collection scope.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="saas">SaaS audit logs</h2>
+
+Every sanctioned SaaS tenant keeps its own audit trail: the Microsoft 365 unified audit log, Google Workspace audit logs, and the per-app equivalents in Salesforce, Slack, GitHub, and the rest. This is where tenant-level attacker behavior lives: inbox rules created, files shared or mass-downloaded, OAuth applications granted consent, admin settings changed. For a business-email-compromise or token-theft case, this source is the investigation.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Reconstructing what a hijacked session actually did after the IdP alert: mailbox rules, delegations, sharing changes.</li>
+      <li>Investigating OAuth consent abuse: which app was granted which scopes, by whom, when.</li>
+      <li>Detecting exfiltration through sharing links, mass downloads, or third-party sync apps.</li>
+      <li>Auditing admin and configuration changes inside the tenant.</li>
+      <li>Scoping a compromise across every user who touched the same attacker artifact (rule name, app ID, sharing target).</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Audit depth is often license-gated; the events you need most may require the premium tier.</li>
+      <li>Ingestion lag of minutes to hours between the action and its appearance in the log.</li>
+      <li>Default retention is short unless deliberately extended or forwarded to the SIEM.</li>
+      <li>Every app logs in its own schema; cross-app correlation is manual without normalization.</li>
+      <li>Only sanctioned tenants are covered. Shadow SaaS produces no audit trail you can reach.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="The identity chain is the join">
+SaaS audit events rarely share a host or PID with anything. They join to the rest of the case through the identity chain: the user, the session ID, and the source IP and user agent the IdP recorded at sign-in. The <a href="/docs/alert/parsing/cloud-identity">cloud and identity parsing page</a> covers reading that chain.
+</Callout>
+
+---
+
+<h2 id="k8s">Kubernetes audit logs</h2>
+
+The <DefineTerm term="Kubernetes" /> API server can record every request it handles: who ran <code>kubectl exec</code> into which pod, who read which secret, what changed in RBAC, which workloads were created and from which images. Paired with container runtime telemetry, this is the visibility layer for cluster-native attacks that never touch a traditional endpoint.
+
+<div class="src-detail">
+  <div class="src-detail__col src-detail__col--use">
+    <h4>✓ When to use</h4>
+    <ul>
+      <li>Investigating suspected service-account token theft: what did the token do, from which source address?</li>
+      <li>Tracing interactive access into workloads: exec, attach, and port-forward events.</li>
+      <li>Auditing secret reads and RBAC changes around a suspected escalation.</li>
+      <li>Spotting unusual workload creation: cryptominers, privileged pods, unfamiliar images.</li>
+      <li>Reconstructing what a compromised CI/CD credential deployed and when.</li>
+    </ul>
+  </div>
+  <div class="src-detail__col src-detail__col--limit">
+    <h4>✗ Limitations</h4>
+    <ul>
+      <li>Audit logging is off or minimal by default in many distributions; the policy has to be configured before the incident.</li>
+      <li>Volume at scale is enormous; unfiltered policies overwhelm storage and search.</li>
+      <li>Pods are ephemeral: names and IPs recycle in minutes, so capture has to be fast and joins need the pod UID.</li>
+      <li>The API server sees control-plane actions only; in-container process activity needs a runtime sensor.</li>
+      <li>Managed offerings (EKS, GKE, AKS) expose different subsets of the audit stream with different retention.</li>
     </ul>
   </div>
 </div>
@@ -659,7 +723,7 @@ If suspicious system access occurs while badge logs show the account owner was n
 </div>
 
 <KeyTakeaway>
-The skill is not knowing every source by heart. The skill is asking "which source could answer this question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all fifteen. The methodology asks the analyst to choose sources by question, not by habit.
+The skill is not knowing every source by heart. The skill is asking "which source could answer this question?" and reaching for it deliberately. Most investigations need three to five sources in combination, not all seventeen. The methodology asks the analyst to choose sources by question, not by habit.
 </KeyTakeaway>
 
 <ContinueCard current="uncover" nextHref="/docs/uncover/correlation" nextLabel="Correlation and the timeline" nextDescription="Join keys, clock skew, the running timeline, pivot discipline, and the rules for stopping. The verb the sources exist to serve." ctaLabel="Read correlation" />

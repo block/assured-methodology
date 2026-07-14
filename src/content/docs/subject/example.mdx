@@ -228,8 +228,95 @@ The two scenarios show the two main shapes Subject takes. Sometimes Subject expa
 
 ---
 
+## A third scenario: the subject with no device
+
+Case C from the Alert chapter continues here: rvega's session token was stolen through an AiTM phishing proxy and replayed against the mail tenant. Subject's habit of profiling the user and their laptop breaks immediately, because the laptop was never compromised. The subjects of this case are an identity, a session, and an application.
+
+<ChapterExample
+  title="Mapping the identities behind the hijacked session"
+  scenario="Alert handed Subject a user (rvega, customer-success lead), a hijacked session ID, a VPS source IP, an inbox rule named with a single dot, an unverified OAuth application, and a phishing domain. No host is implicated. Subject's job is to profile each of those and find the identities the alert did not name."
+>
+
+<ExampleStepper steps={["Profile the named user", "Profile the non-human subjects", "Apply the four dimensions", "Expand across the tenant", "Hand off to Scope"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Profile the named user</h3>
+    <ul class="example-step__list">
+      <li><strong>Identity verification.</strong> rvega is a provisioned account matching an HR record, customer-success lead, employed four years.</li>
+      <li><strong>Authentication history.</strong> Stable 90-day baseline: two devices, one city, one ASN, MFA on every new session. The 08:47 sign-in fits it. The 09:03 session presentation does not.</li>
+      <li><strong>Authorization.</strong> No admin roles. Mailbox, CRM access via SSO group, and delegate rights on the shared billing mailbox.</li>
+      <li><strong>Behavior.</strong> rvega has never created an inbox rule by API, never consented an OAuth application. Both happened inside twenty minutes.</li>
+    </ul>
+    <p>The user profile splits in two: the human's own activity is clean, and the account's activity after 09:03 is not. Subject records those as two different actors sharing one account, which is exactly what a hijacked session is.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Profile the non-human subjects</h3>
+    <p>With no host to classify, the entity expansion runs across identity objects instead:</p>
+    <ul class="example-step__list">
+      <li><strong>The session.</strong> One session ID, two presentations: corporate laptop at 08:47, VPS at 09:03. Still valid at the time of triage unless revoked. The session, not the password, is the compromised credential.</li>
+      <li><strong>The OAuth application.</strong> "Mail Backup Sync," unverified publisher, consented at 09:09 with offline mailbox-read scopes. It holds its own refresh token, which means it keeps access even if every user session dies.</li>
+      <li><strong>The inbox rule.</strong> Not an identity, but a persistent artifact acting on the mailbox with the account's authority. Profiled and recorded like one.</li>
+      <li><strong>rvega's laptop.</strong> Checked and explicitly cleared: EDR shows the 08:52 link click opened a browser page, nothing was downloaded or executed. The device is a witness, not a subject.</li>
+    </ul>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the OAuth application. Resetting rvega's password and revoking her sessions feels like containment, but the consented app authenticates on its own grant. It is a separate identity with separate credentials, and it survives every user-focused response action.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Apply the four dimensions</h3>
+    <ul class="example-step__list">
+      <li><strong>Authentication.</strong> Abnormal by definition: the 09:03 presentation reused a token with no authentication ceremony. MFA was satisfied once, by the human, through the attacker's proxy.</li>
+      <li><strong>Authorization.</strong> Changed during the window: the consent grant added an application to the tenant with standing mailbox access. Authorization drift is itself evidence here.</li>
+      <li><strong>Behavior.</strong> The post-09:03 actions (rule creation by API, consent grant, mailbox search patterns) match no prior behavior on this account.</li>
+      <li><strong>Relationships.</strong> The account's delegate rights on the shared billing mailbox mean the compromise reaches a mailbox rvega does not own. The new app is a new relationship between the tenant and an external publisher.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Expand across the tenant</h3>
+    <ul class="example-step__list">
+      <li><strong>Other recipients.</strong> The email gateway shows the same "shared document" lure went to four customer-success mailboxes. One other user clicked; her sign-in log shows no foreign session presentation yet.</li>
+      <li><strong>Shared resources.</strong> The billing mailbox rvega can act on becomes a secondary entity: nothing has touched it abnormally yet, but the path exists.</li>
+      <li><strong>Downstream systems.</strong> The CRM is reachable through the same SSO identity. No CRM session from the attacker ASN so far; recorded as an open question, not an assumption.</li>
+    </ul>
+    <p>The map consolidates: 3 primary entities (rvega's account, the hijacked session, the OAuth application) + 3 secondary entities (the second click-through user, the shared billing mailbox, the inbox rule artifact) + 1 downstream system (the CRM), plus the AiTM domain and VPS IP tracked as the originating threat.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Hand off to Scope</h3>
+    <table>
+      <thead>
+        <tr><th>Entity</th><th>Type</th><th>Classification</th><th>Four-dimension verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>rvega</td><td>user</td><td>primary</td><td>Authentication and behavior abnormal after 09:03; the human's own activity clean</td></tr>
+        <tr><td>Hijacked session ID</td><td>session</td><td>primary</td><td>Two presentations, one legitimate, one attacker; possibly still live</td></tr>
+        <tr><td>"Mail Backup Sync" app</td><td>application</td><td>primary</td><td>Unverified publisher, standing mailbox-read grant, independent credentials</td></tr>
+        <tr><td>Second click-through user</td><td>user</td><td>secondary</td><td>Clicked the lure; no foreign session observed yet</td></tr>
+        <tr><td>Shared billing mailbox</td><td>resource</td><td>secondary</td><td>Reachable via rvega's delegate rights; no abnormal access yet</td></tr>
+        <tr><td>Inbox rule "."</td><td>artifact</td><td>secondary</td><td>Active, hiding payment-themed mail since 09:06</td></tr>
+        <tr><td>CRM</td><td>service</td><td>downstream</td><td>Not assessed; same SSO reach</td></tr>
+        <tr><td>AiTM domain + VPS IP</td><td>threat</td><td>originating threat</td><td>Tracked as threat infrastructure, not internal identity</td></tr>
+      </tbody>
+    </table>
+    <ul class="example-step__list">
+      <li><strong>High-value paths.</strong> The billing mailbox and any payment-redirect conversation in it; the CRM through the shared SSO identity.</li>
+      <li><strong>Insider posture.</strong> None. The human is a victim; the account is the vehicle. Recording that distinction protects the person and keeps the investigation aimed at the attacker.</li>
+    </ul>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="The third shape: expansion without a device">
+The finance case expanded from a user to hosts and peers. The developer case contained to one workstation. Case C expands too, but through identity objects: a session, an application grant, a delegate path, a second lure recipient. When there is no device to anchor on, the entity types from the <a href="/docs/subject/entity-types">entity-types page</a> are what keep the expansion systematic instead of improvised.
+</Callout>
+
+---
+
 <KeyTakeaway>
-Subject's verdict is rarely "compromise" or "false-positive" as a binary. It is a structured map of identities with per-dimension assessments and explicit confidence levels. That structure is what lets Scope draw clean boundaries instead of guessing.
+Subject's verdict is rarely "compromise" or "false-positive" as a binary. It is a structured map of identities with per-dimension assessments and explicit confidence levels, whether those identities are users and hosts or sessions and application grants. That structure is what lets Scope draw clean boundaries instead of guessing.
 </KeyTakeaway>
 
 <ContinueCard

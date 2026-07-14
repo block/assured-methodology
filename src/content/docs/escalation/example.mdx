@@ -128,8 +128,62 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
 The Cursor case demonstrates the methodology's hardest call: deciding *not* to escalate when the pattern matches but the evidence does not. Done well, this close is more disciplined than a routine escalation, because the analyst is asking the reader to trust the absence of compromise. The closure record built on the nine handoff-packet sections, the explicit Risk verdict, the named coverage gaps, and the detection-engineering feedback are what make the close defensible months later.
 </Callout>
 
+---
+
+## A third scenario: escalating the token theft from inside Uncover
+
+The finance case's callout admitted its P1 was declared late. Case C, the SaaS token theft, shows the break-glass rule working as written: the escalation fires mid-phase, the moment the criteria are confirmed, while the attacker still holds a live session.
+
+<ChapterExample title="Escalating the hijacked session on the trigger" scenario="At 10:20, inside Uncover, the evidence chain confirmed active compromise with live persistence: a replayed session still valid, an OAuth grant with standing mailbox access, bulk collection already completed. Risk's verdict took minutes and confirmed P1 with an ordered containment list. Escalation begins mid-investigation, by design.">
+
+<ExampleStepper steps={["Confirm criteria met", "Choose the path", "Build the packet", "Notify stakeholders", "Transition cleanly"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Confirm criteria met</h3>
+    <p>Criteria check at 10:20: <strong>confirmed malicious activity</strong> ✓ (the session join plus attacker tradecraft in the tenant audit), <strong>active adversary access</strong> ✓ (the session and app grant are live now), <strong>sensitive data accessed</strong> ✓ (bulk mailbox collection completed at 09:26). Three triggers. Uncover stops mid-thread; the remaining open items travel with the packet as pending instead of delaying it.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Choose the path</h3>
+    <p><strong>Internal:</strong> Tier 2 IR paged at 10:21, warm handoff within minutes. <strong>External:</strong> compliance was engaged during Scope, so the GDPR assessment is already running; finance was warned during Scope to verify payment instructions out-of-band. The vendor request for app read-detail is escalated to urgent.</p>
+    <p>In parallel, the analyst executes the pre-authorized immediate actions in the order Risk specified: 10:24 all sessions revoked at the IdP, 10:26 the OAuth grant revoked, 10:28 the inbox rule disabled and preserved as evidence, 10:31 credential reset and MFA re-enrollment. The ordering is the containment; the reset alone would have contained nothing.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Build the packet</h3>
+    <ul class="example-step__list">
+      <li><strong>Summary:</strong> AiTM session theft on a customer-success account, BEC staging interrupted after bulk collection, before any outbound mail. P1, live persistence contained at 10:26.</li>
+      <li><strong>Timeline:</strong> 08:47 legitimate sign-in → 08:52 lure click → 09:03 token replay from VPS ASN → 09:06 hiding rule → 09:09 OAuth consent → 09:14-09:26 bulk sync → 09:15 alert → 10:20 criteria confirmed, escalation fired → 10:24-10:31 ordered containment.</li>
+      <li><strong>Entities:</strong> 3 primary (account, session, app), 3 secondary, CRM downstream, attacker infrastructure named.</li>
+      <li><strong>Evidence chain:</strong> IdP sign-in log, tenant unified audit, gateway click record, tenant-wide sweep with recorded negative results. ATT&CK chain documented end to end.</li>
+      <li><strong>Risk verdict:</strong> high impact (collection completed), high likelihood (no surviving benign hypothesis), P1.</li>
+      <li><strong>Containment taken:</strong> the four ordered identity actions, all from the pre-authorized list, timestamped. Tenant-wide app-publisher block and ASN hunt rule recommended to IR, not taken unilaterally.</li>
+      <li><strong>Artifacts:</strong> the session's two presentation records, the rule definition, the consent-grant event, the sync aggregates, the phishing URL and kit fingerprint.</li>
+      <li><strong>Open questions:</strong> item-level read detail pending vendor; GDPR determination with compliance; whether any other tenant in the company's estate saw the same lure domain.</li>
+      <li><strong>Communication record:</strong> 10:21 IR paged; 10:23 SOC manager informed; 10:27 compliance updated with the collection volume; 10:33 finance re-confirmed on out-of-band payment verification.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Notify stakeholders</h3>
+    <p>The notification set is wider than a routine P1 because money and regulated data are both in motion: IR owns the technical response, compliance owns the notification clock, finance owns the fraud-prevention posture. Each got a message scoped to what they own, and each message is in the record.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Transition cleanly</h3>
+    <p>IR inherits a contained-but-open case: the attacker is locked out, but what they read, whether the kit harvested the password for later use, and whether other estates saw the lure are all live questions. The triage analyst hands over the packet, walks IR through the containment timestamps, and returns to the queue. The tenant sweep queries transfer with the packet so IR re-runs them on their own cadence instead of reinventing them.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
+
+<Callout variant="info" title="The counter-example to the late P1">
+Hold this timeline against the finance case's. Same methodology, opposite clock discipline: 65 minutes from alert to escalation, with containment executing while the packet was still being written. The difference is not analyst speed; it is that the escalation criteria were treated as tripwires during Uncover instead of as a checklist at the end. This is what the break-glass rule looks like when it works.
+</Callout>
+
 <KeyTakeaway>
-Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff in five steps; the Cursor false-positive produced a close-at-triage record in five steps. Same chapter, same methodology, different verdicts.
+Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff, the Cursor false-positive produced a close-at-triage record, and the token theft produced a mid-phase break-glass escalation with ordered identity containment. Same chapter, same methodology, three different verdicts.
 </KeyTakeaway>
 
 <ContinueCard current="escalation" nextHref="/docs/escalation/quiz" nextLabel="Escalation quiz" ctaLabel="Take the quiz" />

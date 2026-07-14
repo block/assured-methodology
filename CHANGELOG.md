@@ -100,6 +100,9 @@ methodology, followed by a fix wave that touched every chapter.
 - The chapter easter-egg engine now ships as one cached, bundled script
   instead of being inlined into every content page, trimming roughly 13 KB
   from each page's HTML.
+- Style rules duplicated verbatim across content pages (outcome rows, pillar
+  and card grids, worked-example steps, download pills) moved to one shared
+  stylesheet; per-chapter color variants stay page-local.
 - Parsing subtree restructured around an honest taxonomy: one normalization
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual

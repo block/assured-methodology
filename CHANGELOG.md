@@ -177,6 +177,9 @@ methodology, followed by a fix wave that touched every chapter.
 - The header highlights the section you are in even when the page is not
   the section's own hub: Guides, Training, and Glossaries now mark
   themselves current for every child page.
+- The Alert dropdown lists its three sections like every other chapter
+  instead of every subsection page; subsection navigation stays on the
+  section pages themselves.
 - The CDE and PFI hover tooltips on the regulatory-boundaries page show
   their definitions for the first time; the term text passed as slot
   children had always replaced the definition body. The DefineTerm doc

@@ -1,61 +1,58 @@
-/* Custom styles for astro-breadcrumbs to match the site design */
+/*
+ * Site skin for astro-breadcrumbs (mainBemClass="c-breadcrumbs").
+ *
+ * These rules are deliberately un-layered. The .prose typography they
+ * override (link color/underline, li color) lives in @layer base in
+ * assured.css, and un-layered author styles beat layered ones regardless
+ * of specificity, so no !important is needed anywhere in this file.
+ * Tailwind's preflight (also @layer base) already zeroes list margins,
+ * padding, and markers, so the flex row below is the whole layout story.
+ */
 
 .c-breadcrumbs {
   /* Local lift of the global --muted-foreground (215 16% 65%): breadcrumbs
      sit over the light end of the page gradient (#334155), where 65%
      lightness is only ~4.04:1. 71% clears WCAG AA 4.5:1 there. */
   --muted-foreground: 216 20% 71%;
-  color: hsl(var(--muted-foreground));
-  margin-bottom: 1.5rem;
-  width: 100%;
-  overflow: hidden;
 }
 
-.c-breadcrumbs nav {
-  display: block !important;
-  width: 100%;
-}
-
+/* One nowrap row. Long trails scroll horizontally (matters on mobile)
+   with the scrollbar hidden; scrolling still works by touch/wheel. */
 .c-breadcrumbs__crumbs {
-  display: flex !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  gap: 0 !important;
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.c-breadcrumbs__crumbs::-webkit-scrollbar {
+  display: none;
 }
 
 .c-breadcrumbs__crumb {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin: 0;
   font-size: 0.8rem;
-  font-family: var(--font-sans);
   text-transform: uppercase;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  flex-shrink: 0 !important;
 }
 
 .c-breadcrumbs__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   color: hsl(var(--muted-foreground));
-  text-decoration: none;
   font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
   transition: color 0.2s ease;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.375rem !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
 }
 
 .c-breadcrumbs__link:hover {
@@ -63,246 +60,25 @@
   text-decoration: underline;
 }
 
-.c-breadcrumbs__link[aria-current="page"] {
-  color: hsl(var(--foreground));
-  font-weight: 500;
+.c-breadcrumbs__link svg {
+  flex-shrink: 0;
 }
 
 .c-breadcrumbs__separator {
   color: hsl(var(--muted-foreground));
-  padding-left: 1rem;
-  padding-right: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1;
   opacity: 0.7;
-  margin: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
 }
 
-/* Custom separator styling - spaces are already in the HTML */
-.c-breadcrumbs [slot="separator"] {
-  color: hsl(var(--muted-foreground)) !important;
-  font-size: 0.875rem !important;
-  font-weight: 500 !important;
-  opacity: 0.7 !important;
-  margin: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-  padding: 0 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-/* Custom index (home) styling */
-.c-breadcrumbs [slot="index"] {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.375rem !important;
-  color: inherit !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-/* Force all elements to be inline and aligned */
-.c-breadcrumbs * {
-  box-sizing: border-box !important;
-}
-
-.c-breadcrumbs ol,
-.c-breadcrumbs ul {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  list-style: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.c-breadcrumbs li {
-  display: inline-flex !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.c-breadcrumbs a {
-  display: inline-flex !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.c-breadcrumbs span {
-  display: inline-flex !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.c-breadcrumbs svg {
-  display: inline-block !important;
-  vertical-align: middle !important;
-  margin: 0 0.375rem 0 0 !important;
-  flex-shrink: 0 !important;
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .c-breadcrumbs {
-    font-size: 0.8125rem;
+  .c-breadcrumbs__crumb {
+    font-size: 0.75rem;
   }
 
-  .breadcrumb-home-icon,
-  .c-breadcrumbs svg {
-    width: 14px !important;
-    height: 14px !important;
-    margin: 0 0.25rem 0 0 !important;
+  .c-breadcrumbs__link svg {
+    width: 14px;
+    height: 14px;
   }
-
-  /* Allow horizontal scrolling on mobile if needed */
-  .c-breadcrumbs__crumbs {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Integration with prose content - override prose styles aggressively */
-.prose .c-breadcrumbs {
-  font-size: 0.875rem !important;
-  margin-bottom: 1.5rem !important;
-  color: hsl(var(--muted-foreground)) !important;
-  width: 100% !important;
-  overflow: hidden !important;
-}
-
-.prose .c-breadcrumbs * {
-  margin: 0 !important;
-  padding: 0 !important;
-  white-space: nowrap !important;
-}
-
-.prose .c-breadcrumbs ol,
-.prose .c-breadcrumbs ul {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  list-style: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-}
-
-.prose .c-breadcrumbs li {
-  display: inline-flex !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.prose .c-breadcrumbs a {
-  margin: 0 !important;
-  padding: 0 !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.prose .c-breadcrumbs span {
-  margin: 0 !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-.prose .c-breadcrumbs svg,
-.prose .breadcrumb-home-icon {
-  margin: 0 0.375rem 0 0 !important;
-  display: inline-block !important;
-  vertical-align: middle !important;
-  flex-shrink: 0 !important;
-}
-
-/* Ensure no conflicting styles from other components */
-.c-breadcrumbs nav {
-  display: block !important;
-  width: 100% !important;
-}
-
-.c-breadcrumbs nav ol,
-.c-breadcrumbs nav ul {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  gap: 0 !important;
-  white-space: nowrap !important;
-}
-
-/* Additional fixes for slot content */
-.c-breadcrumbs [slot] {
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-}
-
-/* Force inline layout for all breadcrumb content */
-.c-breadcrumbs,
-.c-breadcrumbs * {
-  line-height: 1 !important;
-}
-
-.c-breadcrumbs > * {
-  display: inline-flex !important;
-  align-items: center !important;
-  white-space: nowrap !important;
-}
-
-/* Hide scrollbar but keep functionality */
-.c-breadcrumbs__crumbs::-webkit-scrollbar {
-  height: 0px;
-  background: transparent;
-}
-
-.c-breadcrumbs ol::-webkit-scrollbar,
-.c-breadcrumbs ul::-webkit-scrollbar {
-  height: 0px;
-  background: transparent;
 }

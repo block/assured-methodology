@@ -209,16 +209,24 @@ const crumbs = effectiveBreadcrumbs
     max-width: 96rem;
   }
 
-  /* Keep paragraph text from stretching too wide on the wide pages so reading stays comfortable */
-  .content-page__main-inner.is-wide > p,
-  .content-page__main-inner.is-wide > ul,
-  .content-page__main-inner.is-wide > ol,
-  .content-page__main-inner.is-wide > blockquote {
-    max-width: 60rem;
+  /* Keep prose from stretching across the whole wide shell so reading stays
+     comfortable. The children are slotted MDX, which never carries this
+     component's scope attribute, so they must be :global() — the previous
+     scoped version of this rule compiled to `p[data-astro-cid-*]` and
+     matched nothing. Callouts are top-level MDX too, hence the class here. */
+  .content-page__main-inner.is-wide > :global(p),
+  .content-page__main-inner.is-wide > :global(ul),
+  .content-page__main-inner.is-wide > :global(ol),
+  .content-page__main-inner.is-wide > :global(blockquote),
+  .content-page__main-inner.is-wide > :global(.assured-callout) {
+    max-width: var(--assured-content-max);
   }
 
+  /* 3rem = the wrapper's old 1.5rem plus the 1.5rem breadcrumbs.css used to
+     add on .c-breadcrumbs itself; consolidated here when that file was
+     rewritten, keeping the rendered gap identical. */
   .content-page__breadcrumbs {
-    margin-bottom: 1.5rem;
+    margin-bottom: 3rem;
   }
 
   /* Visually hidden "Home" label: the home crumb's accessible name used to be
@@ -236,7 +244,7 @@ const crumbs = effectiveBreadcrumbs
   }
 
   .content-page__title {
-    font-size: clamp(2rem, 4.5vw, 3.25rem);
+    font-size: var(--assured-type-h1);
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -0.015em;
@@ -278,13 +286,13 @@ const crumbs = effectiveBreadcrumbs
   .content-page__pager-name {
     font-size: 0.92rem;
     font-weight: 600;
-    color: #cbd5e1;
+    color: var(--assured-text-muted);
     transition: color 0.15s ease;
   }
 
   .content-page__pager-link:hover .content-page__pager-name,
   .content-page__pager-link:focus-visible .content-page__pager-name {
-    color: #5eead4;
+    color: var(--assured-accent-soft);
   }
 
   .content-page__eggs {
@@ -305,12 +313,12 @@ const crumbs = effectiveBreadcrumbs
   }
 
   .content-page__eggs button:hover {
-    color: #e2e8f0;
+    color: var(--assured-text-soft);
     border-color: rgba(94, 234, 212, 0.6);
   }
 
   .content-page__eggs button:focus-visible {
-    outline: 2px solid #5eead4;
+    outline: 2px solid var(--assured-accent-soft);
     outline-offset: 2px;
   }
 

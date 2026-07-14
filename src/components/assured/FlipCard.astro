@@ -7,12 +7,14 @@
  * (controlled by the front side) so the layout does not jump on flip.
  *
  * Usage in MDX:
- *   <FlipCard icon="🧩" title="A method for the first 30 minutes" hint="Tap to learn more">
+ *   <FlipCard icon="clock" title="A method for the first 30 minutes" hint="Tap to learn more">
  *     NIST, SANS PICERL, and ATT&CK describe...
  *   </FlipCard>
  */
 
 interface Props {
+  /** A key of `icons` below renders a stroke SVG in the accent color.
+   *  Any other string (legacy emoji at older call sites) renders as text. */
   icon?: string;
   title: string;
   hint?: string;
@@ -20,6 +22,18 @@ interface Props {
 }
 
 const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
+
+// Lucide-style 24px stroke icons (inner markup only; the <svg> wrapper is in
+// the template). Add a key here rather than passing new emoji.
+const icons: Record<string, string> = {
+  clock:
+    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  ladder:
+    '<path d="M8 3v18"/><path d="M16 3v18"/><path d="M8 8h8"/><path d="M8 13h8"/><path d="M8 18h8"/>',
+  repeat:
+    '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+};
+const iconSvg = icon ? icons[icon] : undefined;
 ---
 
 {/*
@@ -36,7 +50,25 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 <div class={`flip-card flip-card--${accent}`} data-flip-card>
   <div class="flip-card__inner">
     <div class="flip-card__face flip-card__face--front">
-      {icon && <div class="flip-card__icon" aria-hidden="true">{icon}</div>}
+      {icon && (
+        <div class="flip-card__icon" aria-hidden="true">
+          {iconSvg ? (
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={iconSvg}
+            />
+          ) : (
+            icon
+          )}
+        </div>
+      )}
       <h3 class="flip-card__title">
         <button type="button" class="flip-card__title-btn" data-flip-toggle aria-expanded="false">{title}</button>
       </h3>
@@ -123,11 +155,11 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
   .flip-card__face--back {
     transform: rotateY(180deg);
     background: linear-gradient(135deg, var(--accent-bg, rgba(20, 184, 166, 0.12)), rgba(15, 23, 42, 0.7));
-    border-color: var(--accent, #5eead4);
-    color: #e2e8f0;
+    border-color: var(--accent, var(--assured-accent-soft));
+    color: var(--assured-text-soft);
   }
 
-  .flip-card--teal   { --accent: #5eead4; --accent-soft: rgba(20, 184, 166, 0.35); --accent-bg: rgba(20, 184, 166, 0.14); }
+  .flip-card--teal   { --accent: var(--assured-accent-soft); --accent-soft: rgba(20, 184, 166, 0.35); --accent-bg: rgba(20, 184, 166, 0.14); }
   .flip-card--blue   { --accent: #93c5fd; --accent-soft: rgba(59, 130, 246, 0.35); --accent-bg: rgba(59, 130, 246, 0.14); }
   .flip-card--green  { --accent: #86efac; --accent-soft: rgba(34, 197, 94, 0.35); --accent-bg: rgba(34, 197, 94, 0.14); }
   .flip-card--purple { --accent: #d8b4fe; --accent-soft: rgba(168, 85, 247, 0.35); --accent-bg: rgba(168, 85, 247, 0.14); }
@@ -140,15 +172,22 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
     box-shadow: 0 14px 32px -16px rgba(0, 0, 0, 0.5);
   }
 
+  /* font-size sizes the legacy emoji passthrough; named icons are SVGs in
+     the card's accent color. */
   .flip-card__icon {
     font-size: 1.85rem;
     line-height: 1.2;
     margin-bottom: 0.85rem;
+    color: var(--accent);
+  }
+
+  .flip-card__icon svg {
+    display: block;
   }
 
   .flip-card__title {
     margin: 0 0 0.65rem 0;
-    color: #f8fafc;
+    color: var(--assured-text);
     font-size: 1.15rem;
     line-height: 1.3;
   }
@@ -166,7 +205,7 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
 
   .flip-card__title-btn:focus-visible,
   .flip-card__hint--back:focus-visible {
-    outline: 2px solid var(--accent, #5eead4);
+    outline: 2px solid var(--accent, var(--assured-accent-soft));
     outline-offset: 4px;
     border-radius: 0.25rem;
   }
@@ -183,7 +222,7 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
   }
 
   .flip-card__hint--back {
-    color: #cbd5e1;
+    color: var(--assured-text-muted);
     font-weight: 500;
     background: none;
     border: 0;
@@ -193,7 +232,7 @@ const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
   }
 
   .flip-card__back-body {
-    color: #cbd5e1;
+    color: var(--assured-text-muted);
     line-height: 1.65;
     font-size: 0.95rem;
     margin-bottom: 0.85rem;

@@ -71,7 +71,7 @@ const resolvedTotal = pillarTotal ?? "";
     border-radius: 0.85rem;
     background: rgba(15, 23, 42, 0.55);
     border: 1px solid rgba(148, 163, 184, 0.22);
-    border-left: 4px solid var(--accent, #14b8a6);
+    border-left: 4px solid var(--accent, var(--assured-accent));
     backdrop-filter: blur(8px);
     position: relative;
     overflow: hidden;
@@ -88,13 +88,15 @@ const resolvedTotal = pillarTotal ?? "";
     pointer-events: none;
   }
 
-  .subpage-hero--alert         { --accent: #3b82f6; --accent-glow: rgba(59, 130, 246, 0.14); }
-  .subpage-hero--subject       { --accent: #22c55e; --accent-glow: rgba(34, 197, 94, 0.14); }
-  .subpage-hero--scope         { --accent: #a855f7; --accent-glow: rgba(168, 85, 247, 0.14); }
-  .subpage-hero--uncover       { --accent: #f97316; --accent-glow: rgba(249, 115, 22, 0.14); }
-  .subpage-hero--risk          { --accent: #ef4444; --accent-glow: rgba(239, 68, 68, 0.14); }
-  .subpage-hero--escalation    { --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.14); }
-  .subpage-hero--documentation { --accent: #14b8a6; --accent-glow: rgba(20, 184, 166, 0.14); }
+  .subpage-hero--alert         { --accent: var(--assured-phase-alert); }
+  .subpage-hero--subject       { --accent: var(--assured-phase-subject); }
+  .subpage-hero--scope         { --accent: var(--assured-phase-scope); }
+  .subpage-hero--uncover       { --accent: var(--assured-phase-uncover); }
+  .subpage-hero--risk          { --accent: var(--assured-phase-risk); }
+  .subpage-hero--escalation    { --accent: var(--assured-phase-escalation); }
+  .subpage-hero--documentation { --accent: var(--assured-phase-documentation); }
+
+  .subpage-hero { --accent-glow: color-mix(in srgb, var(--accent, var(--assured-accent)) 14%, transparent); }
 
   .subpage-hero__top {
     display: flex;
@@ -116,7 +118,7 @@ const resolvedTotal = pillarTotal ?? "";
   .subpage-hero__crumb:hover { opacity: 0.85; }
 
   .subpage-hero__crumb-text {
-    color: #cbd5e1;
+    color: var(--assured-text-muted);
     font-size: 0.85rem;
     font-weight: 600;
     display: inline-flex;
@@ -150,7 +152,7 @@ const resolvedTotal = pillarTotal ?? "";
 
   .subpage-hero__lede {
     margin: 0;
-    color: #cbd5e1;
+    color: var(--assured-text-muted);
     font-size: 1rem;
     line-height: 1.65;
     max-width: 60ch;

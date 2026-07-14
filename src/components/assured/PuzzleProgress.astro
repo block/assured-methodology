@@ -3,9 +3,11 @@
  * PuzzleProgress, the seven-phase progress strip.
  *
  * One linked tile per A.S.S.U.R.E.D. letter, 7-across (4-across on small
- * screens), with the `current` phase highlighted. Despite the name, the
- * tiles are rounded rectangles; the interlocking jigsaw art lives in
- * HeroPuzzle.astro.
+ * screens), with the `current` phase highlighted. Phases whose chapter quiz
+ * has been completed (recorded by Quiz.astro in localStorage under
+ * "assured-quiz-progress") get a client-side completion tick. Despite the
+ * name, the tiles are rounded rectangles; the interlocking jigsaw art lives
+ * in HeroPuzzle.astro.
  */
 
 interface Props {
@@ -45,9 +47,11 @@ const phases = [
             class={`puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""}`}
             aria-label={`${p.label} phase${isCurrent ? " (current)" : ""}`}
             aria-current={isCurrent ? "page" : undefined}
+            data-puzzle-phase={p.key}
           >
             <span class="puzzle__letter">{p.letter}</span>
             <span class="puzzle__label">{p.label}</span>
+            <span class="puzzle__check" data-puzzle-check aria-hidden="true" hidden>✓</span>
           </a>
         </li>
       );
@@ -124,6 +128,39 @@ const phases = [
 
   .puzzle__piece:hover::before { opacity: 0.4; }
 
+  .puzzle__piece.is-done {
+    border-color: rgba(20, 184, 166, 0.45);
+  }
+
+  .puzzle__check {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 9999px;
+    background: rgba(20, 184, 166, 0.25);
+    color: var(--assured-accent-soft);
+    font-size: 0.65rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .puzzle__check[hidden] {
+    display: none;
+  }
+
+  .puzzle--compact .puzzle__check {
+    top: 0.15rem;
+    right: 0.15rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    font-size: 0.55rem;
+  }
+
   .puzzle__piece.is-current {
     border-color: var(--accent);
     box-shadow: 0 0 0 1px var(--accent), 0 10px 30px -10px var(--accent);
@@ -164,3 +201,35 @@ const phases = [
   .puzzle__piece--escalation    { --accent: var(--assured-phase-escalation); }
   .puzzle__piece--documentation { --accent: var(--assured-phase-documentation); }
 </style>
+
+<script>
+  import { onPageReady } from "@/lib/dom";
+
+  // Completion ticks. Quiz.astro records finished chapter quizzes in
+  // localStorage; this marks the matching tiles. Runs per page-load so the
+  // strip reflects a quiz finished earlier in the same session.
+  function markCompletedPhases() {
+    let progress: Record<string, unknown> = {};
+    try {
+      const parsed = JSON.parse(localStorage.getItem("assured-quiz-progress") ?? "{}");
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) progress = parsed;
+    } catch {
+      // Storage unavailable: strip stays untick'd, nothing else changes.
+    }
+    const tiles = document.querySelectorAll<HTMLAnchorElement>("[data-puzzle-phase]");
+    tiles.forEach((tile) => {
+      const phase = tile.getAttribute("data-puzzle-phase") ?? "";
+      const done = Object.prototype.hasOwnProperty.call(progress, phase);
+      tile.classList.toggle("is-done", done);
+      const check = tile.querySelector<HTMLElement>("[data-puzzle-check]");
+      if (check) check.hidden = !done;
+      // Keep aria in sync without stacking suffixes across repeat runs.
+      if (!tile.dataset.baseLabel) tile.dataset.baseLabel = tile.getAttribute("aria-label") ?? "";
+      tile.setAttribute(
+        "aria-label",
+        done ? `${tile.dataset.baseLabel}, quiz completed` : tile.dataset.baseLabel,
+      );
+    });
+  }
+  onPageReady(markCompletedPhases);
+</script>

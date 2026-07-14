@@ -4,6 +4,10 @@
  * option to mark it. The selected option turns green if correct, red if
  * not. The explanation reveals after any answer is selected.
  *
+ * Answering every question on a chapter quiz page records completion in
+ * localStorage ("assured-quiz-progress"), which PuzzleProgress renders as
+ * a tick on that phase's tile. The quiz UI itself starts fresh each visit.
+ *
  * Usage in MDX:
  *   <Quiz title="Check what you've learned">
  *     <QuizItem
@@ -221,6 +225,45 @@ const {
 <script>
   import { onPageReady } from "@/lib/dom";
 
+  // Chapter-quiz completion persists in localStorage so PuzzleProgress can
+  // show a completion tick across visits. Only the seven phase quizzes are
+  // recorded; glossary quizzes have no tile on the strip. The quiz UI itself
+  // deliberately starts fresh each visit (it is a self-check, not a grade);
+  // "Start over" also clears the stored record.
+  const QUIZ_STORAGE_KEY = "assured-quiz-progress";
+  const PHASE_KEYS = new Set([
+    "alert",
+    "subject",
+    "scope",
+    "uncover",
+    "risk",
+    "escalation",
+    "documentation",
+  ]);
+
+  function quizChapter(): string | null {
+    const m = window.location.pathname.match(/^\/docs\/([a-z]+)\/quiz\/?$/);
+    return m && PHASE_KEYS.has(m[1]) ? m[1] : null;
+  }
+
+  function readQuizProgress(): Record<string, { correct: number; total: number }> {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(QUIZ_STORAGE_KEY) ?? "{}");
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeQuizProgress(progress: Record<string, { correct: number; total: number }>) {
+    try {
+      localStorage.setItem(QUIZ_STORAGE_KEY, JSON.stringify(progress));
+    } catch {
+      // Storage unavailable (private mode, quota): the quiz still works,
+      // completion just isn't remembered.
+    }
+  }
+
   // ClientRouter idempotency: rebind quiz progress tracking on every page-load.
   // Per-quiz data-quiz-bound marker prevents double-counting if the same DOM
   // survives a transition.
@@ -247,6 +290,7 @@ const {
 
     const answered = new Set<HTMLElement>();
     let correctCount = 0;
+    const chapter = quizChapter();
 
     function recompute() {
       const reviewed = answered.size;
@@ -260,6 +304,11 @@ const {
         doneEl.hidden = !done;
       }
       if (announceEl) announceEl.textContent = done ? doneMessage : "";
+      if (done && chapter) {
+        const progress = readQuizProgress();
+        progress[chapter] = { correct: correctCount, total };
+        writeQuizProgress(progress);
+      }
     }
 
     // QuizItem owns per-item state (answer locking, visuals) and reports
@@ -276,6 +325,13 @@ const {
       items.forEach((item) => item.dispatchEvent(new CustomEvent("quiz-item:reset")));
       answered.clear();
       correctCount = 0;
+      if (chapter) {
+        const progress = readQuizProgress();
+        if (progress[chapter]) {
+          delete progress[chapter];
+          writeQuizProgress(progress);
+        }
+      }
       recompute();
     });
   });

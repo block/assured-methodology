@@ -103,6 +103,11 @@ methodology, followed by a fix wave that touched every chapter.
 - Style rules duplicated verbatim across content pages (outcome rows, pillar
   and card grids, worked-example steps, download pills) moved to one shared
   stylesheet; per-chapter color variants stay page-local.
+- C.L.E.A.R. glossary cleanup: 38 generic IT and business dictionary entries
+  removed (Enterprise, Framework, IntelliSense, ROI, and similar) and 54
+  definitions rewritten to their security meaning as used in triage, most
+  notably Process, User, Domain, and API. Every hover-tooltip on the site
+  still resolves.
 - Parsing subtree restructured around an honest taxonomy: one normalization
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual

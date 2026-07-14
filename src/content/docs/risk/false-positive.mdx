@@ -48,6 +48,10 @@ Even a clean <DefineTerm term="False Positive" display="false-positive" /> closu
 - **What ruled the case out.** The specific evidence that supported "false-positive."
 - **What to change.** Detection-engineering feedback, baseline adjustments, or knowledge to share with the team.
 
+<Callout variant="warn" title="False-positive or benign true positive? The fork matters">
+Two different verdicts hide under "nothing bad happened," and they route differently. A <strong>false-positive</strong> means the detection misread the activity: the rule claimed adversary behavior and the behavior was not that. The fix is detection-side: tune, refine, or suppress. A <strong>benign true positive</strong> means the detection read the activity correctly and the activity was authorized anyway: a pentest, an admin script, a sanctioned scanner doing exactly what the rule describes. That detection is healthy, and suppressing it would blind the SOC to the real thing. The fix is context-side: an allowlist entry for the sanctioned source, with an expiry date and an owner. Writing "false-positive" on a benign true positive sends the wrong team a ticket and, worse, invites de-tuning a rule that works.
+</Callout>
+
 <Callout variant="info" title="The reflection is the value">
 Closing a case without documenting the reasoning is a missed opportunity. The reflection takes minutes; the value compounds over time as the SOC's collective knowledge grows.
 </Callout>

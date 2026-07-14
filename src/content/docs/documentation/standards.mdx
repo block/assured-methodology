@@ -49,8 +49,8 @@ A complete event report contains nine core sections, each with a distinct purpos
   </div>
   <div class="section-card">
     <span class="section-card__num">03</span>
-    <h4>Root cause and scope</h4>
-    <p>Thorough analysis of how the event originated and its impact radius: initial access vector, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references.</p>
+    <h4>Origin and scope</h4>
+    <p>How the event originated and its impact radius, as established at triage: initial access vector as observed, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references. For escalated cases, the engineering-level root-cause analysis is IR's post-incident output; this section records what triage established, and links to IR's conclusion rather than restating it.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">04</span>
@@ -83,6 +83,10 @@ A complete event report contains nine core sections, each with a distinct purpos
     <p>Supporting materials: log excerpts (sanitized as needed), system images or snapshots, analysis tool outputs, communication transcripts, related case references, external intelligence reports, chain of custody documentation.</p>
   </div>
 </div>
+
+<Callout variant="warn" title="Two nine-section artifacts. The matching count is a coincidence.">
+The <a href="/docs/escalation/handoff">handoff packet</a> also has nine sections, and the two are different artifacts with different jobs: the packet is written mid-case for the next responder; the event report is written at close for the future reader. When a packet exists, it maps into the report rather than becoming it. The case summary feeds the event overview (01). The timeline carries into the timeline (02). Entities and the evidence chain feed origin and scope (03). The Risk verdict and containment actions feed actions taken (04). Artifacts split between IOCs (06) and the appendices (09). Open questions must not be dropped: each is either resolved, with the answer landing in 02 or 03, or carried explicitly into post-incident recommendations (08). The communication record is preserved verbatim in the appendices (09) as the start of the audit trail, and any regulatory notification in it also informs business impact (05).
+</Callout>
 
 <Callout variant="info" title="Balance comprehensiveness with practicality">
 Effective standards capture sufficient detail to support all downstream uses while remaining feasible during real-world events. Standards that are too burdensome lead to compliance shortcuts or documentation delays. Standards that are too simplistic omit critical information. The sweet spot is structured, validated templates with clear required fields and optional ones.
@@ -191,7 +195,7 @@ Documentation must be initiated at the earliest stages of investigation and main
 </div>
 
 <Callout variant="info" title="Documentation is an active part of the workflow">
-Each investigative phase, Alert, Subject, Scope, Uncover, Risk, Escalation, includes associated updates to the event record. As the investigation progresses, documentation reflects evolving understanding, scope expansion or contraction, and refined risk assessments. This progressive approach creates a natural narrative that shows how understanding developed over time, rather than a tidy after-the-fact reconstruction.
+Each investigative phase ends with a concrete update to the event record, and each chapter's transition page details the artifact. The Alert checkpoint writes the validated alert and detection context into the event overview. Subject adds the entity assessments. Scope adds the boundary: entities, time window, systems in and out. Uncover adds the evidence chain with its confidence labels and coverage gaps. Risk adds the verdict and priority. Escalation adds either the handoff packet reference or the closure justification, plus the communication record. Write each update at the phase transition, while the reasoning is current, and the final report becomes an assembly job instead of an after-the-fact reconstruction.
 </Callout>
 
 <Reveal summary="Standards for documentation timeliness" variant="info">
@@ -202,7 +206,7 @@ Organizations should establish clear expectations in policy. There is no industr
 - **Required update frequency** during active investigations (e.g., hourly during incidents, at every phase transition during triage).
 - **Time limits for finalization** after event closure (e.g., 24 hours for routine cases, 5–7 days for major incidents).
 
-Compliance with timeliness standards should be regularly assessed and reinforced through training, performance metrics, and quality reviews. Automation that prompts for documentation updates or extracts information directly from security tools further improves timeliness and reduces analyst burden.
+Compliance with timeliness standards should be regularly assessed and reinforced through training, performance metrics, and quality reviews. Be honest about the precondition: the tighter numbers above (15-minute delay ceilings during active incidents) are not achievable by manual note-taking while also working the incident. They assume automation that timestamps actions, prompts for updates at phase transitions, and pulls tool output into the record directly. Adopt the SLA and the tooling together, or the SLA becomes a fiction that quality reviews learn to ignore.
 
 </Reveal>
 

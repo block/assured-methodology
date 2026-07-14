@@ -33,6 +33,7 @@ import Callout from "@/components/assured/Callout.astro";
   <div data-step class="example-step">
     <h3>Step 2. Choose the path</h3>
     <p><strong>Internal:</strong> Tier 2 incident responder, on-call. <strong>External:</strong> Compliance notified (possible PCI exposure flagged during Scope). Legal counsel looped in (GDPR assessment underway). Cloud finance platform vendor request escalated. No law-enforcement engagement at this stage.</p>
+    <p>In parallel, the analyst executes the SOC's <a href="/docs/escalation/triage-vs-ir">pre-authorized immediate actions</a>: disable dlin's account, isolate the two confirmed hosts, terminate the federated SSO session. The authority comes from the playbook, agreed with IR in advance. Containment beyond that list waits for IR's strategy.</p>
   </div>
 
   <div data-step class="example-step">
@@ -44,7 +45,7 @@ import Callout from "@/components/assured/Callout.astro";
       <li><strong>Entities:</strong> 3 primary, 3 secondary, 1 downstream system.</li>
       <li><strong>Evidence chain:</strong> EDR, network, identity, mailbox, SaaS. ATT&CK chain documented.</li>
       <li><strong>Risk verdict:</strong> high impact, high likelihood, P1.</li>
-      <li><strong>Containment taken:</strong> dlin's account disabled, two hosts isolated, federated SSO session terminated. Cloud platform queries paused.</li>
+      <li><strong>Containment taken:</strong> dlin's account disabled, two hosts isolated, federated SSO session terminated, all from the pre-authorized immediate-actions list. Cloud platform queries paused. Containment strategy beyond the list is IR's.</li>
       <li><strong>Artifacts:</strong> file hashes, domain IoCs, screenshot of the originating email, ATT&CK technique chain.</li>
       <li><strong>Open questions:</strong> cloud platform vendor response pending; mobile device activity not yet reviewed.</li>
       <li><strong>Communication record:</strong> 14:02 SOC manager paged; 14:08 Tier 2 IR notified; 14:18 compliance flagged (possible PCI exposure); 14:22 legal looped in (GDPR assessment); 14:35 cloud finance platform vendor request opened.</li>
@@ -124,7 +125,7 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
 </ChapterExample>
 
 <Callout variant="info" title="Close at triage is not 'just close'">
-The Cursor case demonstrates the methodology's hardest call: deciding *not* to escalate when the pattern matches but the evidence does not. Done well, this close is more disciplined than a routine escalation, because the analyst is asking the reader to trust the absence of compromise. The nine-section record, the explicit Risk verdict, the named coverage gaps, and the detection-engineering feedback are what make the close defensible months later.
+The Cursor case demonstrates the methodology's hardest call: deciding *not* to escalate when the pattern matches but the evidence does not. Done well, this close is more disciplined than a routine escalation, because the analyst is asking the reader to trust the absence of compromise. The closure record built on the nine handoff-packet sections, the explicit Risk verdict, the named coverage gaps, and the detection-engineering feedback are what make the close defensible months later.
 </Callout>
 
 <KeyTakeaway>

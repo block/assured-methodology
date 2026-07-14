@@ -32,11 +32,15 @@
 
 ## 5. Risk verdict
 
-<!-- Impact, likelihood, combined priority, open questions, and recommended
-     response. -->
+<!-- The four RATM dimensions, reduced to impact and likelihood, then the
+     combined priority and recommended response. -->
 
-- Impact:
-- Likelihood:
+- RATM asset criticality (H/M/L):
+- RATM threat actor intent (H/M/L):
+- RATM exploitation & scope (H/M/L):
+- RATM business impact (H/M/L):
+- Impact (criticality + business impact):
+- Likelihood (intent + exploitation, weighted by evidence quality):
 - Priority:
 - Recommended response:
 
@@ -50,9 +54,12 @@
 ## 7. Artifacts
 
 <!-- Relevant log excerpts, IoCs, hashes, screenshots, queries, attached or
-     linked so the next analyst does not have to re-derive them. -->
+     linked so the next analyst does not have to re-derive them. For each
+     artifact, record its custody / preservation state: where the original
+     lives, its identifying hash, and who has handled it so far. -->
 
--
+- Artifact:
+  - Custody / preservation state:
 
 ## 8. Open questions
 

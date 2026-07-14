@@ -114,6 +114,10 @@ Whatever schema you adopt, normalization maps diverse vendor-specific fields int
 
 Normalization also requires flattening nested structures where useful and harmonizing identifiers so automated cross-tool correlation works.
 
+<Callout variant="info" title="Severity, confidence, and priority are three different numbers">
+The detection-metadata bucket carries two fields that read alike and mean different things, and triage adds a third. <strong>Severity</strong> is the detection engineer's estimate of how bad the activity would be if real, set when the rule was written, before your environment entered the picture. <strong>Confidence</strong> is the detector's estimate of how likely the match is to be what it claims: a statement about the rule's precision, not about the threat. <strong>Priority</strong> is what triage produces: the queue position, computed from severity and confidence plus asset context during the <a href="/docs/risk">Risk phase</a>, and the only one of the three the analyst owns. A critical-severity, low-confidence alert on a lab host and a medium-severity, high-confidence alert on a domain controller can rightly land in opposite queue positions.
+</Callout>
+
 ---
 
 ## Operational benefits

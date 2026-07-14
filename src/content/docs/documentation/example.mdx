@@ -20,13 +20,13 @@ import Callout from "@/components/assured/Callout.astro";
   { label: "Pitfalls", href: "/docs/documentation/pitfalls", phase: "documentation" },
 ]}/>
 
-<ChapterExample title="Closing the case durably" scenario="Escalation handed the case to IR. IR contained the intrusion. The triage analyst's Documentation phase produces the record that survives the case.">
+<ChapterExample title="Closing the case durably" scenario="Escalation handed the case to IR, and from that moment IR owns the case: IR contains the intrusion, and IR writes the post-incident report. The triage analyst's Documentation phase finalizes the triage-side event report and links it to IR's outputs, not the other way around.">
 
 <ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. Sections 01-04 (event overview, timeline, root cause &amp; scope, actions taken) carry forward from the handoff packet the analyst built during Escalation, expanded with the IR responder's findings. Sections 05-09 (business impact, IOCs, lessons learned, post-incident recommendations, appendices) are added during the Documentation phase as the full picture becomes clear.</p>
+    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. The handoff packet maps into it per the crosswalk in Standards: the summary, timeline, entities, evidence chain, verdict, and containment feed sections 01-04 (event overview, timeline, origin &amp; scope, actions taken); the open questions are carried explicitly into recommendations rather than dropped; the communication record lands verbatim in the appendices. The report covers triage's work up to the handoff. The IR responder's findings belong to IR's post-incident report, which this record links to rather than absorbs. Sections 05-09 (business impact, IOCs, lessons learned, post-incident recommendations, appendices) are added during the Documentation phase as the triage-side picture completes.</p>
   </div>
 
   <div data-step class="example-step">
@@ -67,7 +67,7 @@ The Cursor IDE Empire-pattern case ended in Escalation as a documented close at 
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, root cause &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the false-positive-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-incident recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
+    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, origin &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the false-positive-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-incident recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
   </div>
 
   <div data-step class="example-step">

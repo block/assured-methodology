@@ -62,6 +62,18 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 The tiered approach ensures proportional response and efficient resource allocation based on incident severity and scope. Tier 1 handles the high-volume, lower-complexity events. Tier 2 brings specialized expertise. Tier 3 mobilizes the full organizational response capability. The line between tiers is clear escalation criteria, not subjective judgment.
 </Callout>
 
+<Callout variant="info" title="The tier model at 3 a.m.">
+The tier language assumes staffed tiers, and most SOCs are not staffed that way around the clock. On nights and weekends the tiers often collapse into one analyst and an on-call rotation. The model still applies; what changes is the transport: escalation means paging the on-call responder, not walking a case to the next desk, and the pre-authorized immediate actions (see <a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a>) matter most in exactly this window, because waiting for a phone to be answered is the cost of not having them. Two practical rules: the page itself carries the case summary and Risk verdict (the five-minute read), and a single analyst who cannot both watch the queue and work a confirmed case escalates on that basis alone. Capacity is a legitimate escalation criterion, not a failure.
+</Callout>
+
+## De-escalation: the path back down
+
+Escalation is not one-way. Two legitimate reverse flows exist, and modeling them keeps the tiers honest.
+
+**Tier 2 can hand a case back.** A rejection is a quality signal with a named reason: the packet lacks the evidence chain, the criteria claimed are not actually met, or the case is really a detection-tuning problem rather than an incident. The case returns to Tier 1 with the reason recorded, the gap gets fixed (or the close gets written), and the reason feeds the same loop as false-positive patterns: repeated rejections for the same gap point at packet quality or criteria calibration, not at an individual analyst.
+
+**Priority can move down as well as up.** A P1 declared on strong initial evidence de-escalates when the evidence weakens under investigation, with the same discipline as the upgrade: a named reason in the record, and every stakeholder who was notified of the escalation notified of the downgrade. A case that can only ever get more severe trains analysts to under-declare in the first place.
+
 ---
 
 ## Beyond the internal tiers: organizational stakeholders

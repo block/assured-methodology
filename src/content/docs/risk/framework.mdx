@@ -127,6 +127,8 @@ Mapping to <DefineTerm term="MITRE ATT&CK" /> is necessary but not sufficient. T
 
 The numerical scoring system (0–10) provides clear thresholds for escalation, with scores grouped into qualitative severity ratings (Low, Medium, High, Critical).
 
+The three metric groups below are the CVSS v3.1 taxonomy, still the most widely deployed in scanners and feeds. CVSS v4.0 (released 2023) reworks the same ideas: the Temporal group becomes Threat metrics, and a Supplemental group is added. The triage guidance on this page applies to both versions.
+
 <div class="cvss-grid">
   <div class="cvss-card cvss-card--base">
     <span class="cvss-card__tag">BASE</span>
@@ -148,6 +150,8 @@ The numerical scoring system (0–10) provides clear thresholds for escalation, 
 <Callout variant="warn" title="When CVSS misleads">
 A CVSS 9.8 on an asset that is not exposed, not in use, or already mitigated by compensating controls deserves a different response than the same score on a production system. Use CVSS as input, then weight it by the context Subject and Scope provided. The base score is a starting point; the environmental score is what matters for the triage decision.
 </Callout>
+
+CVSS is also no longer the only prioritization signal. <strong>EPSS</strong> (Exploit Prediction Scoring System) estimates the probability that a vulnerability will be exploited in the wild within the next 30 days, and <strong>CISA's KEV catalog</strong> lists vulnerabilities with confirmed active exploitation. When a triage case pivots on a vulnerability, KEV membership or a high EPSS score is usually a stronger urgency signal than the CVSS base score alone: a 9.8 nobody exploits matters less this shift than a 7.2 being actively used.
 
 ---
 

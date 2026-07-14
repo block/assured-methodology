@@ -39,6 +39,19 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
   <div data-step class="example-step">
     <h3>Step 3. Combine via the matrix</h3>
     <p>High impact × high likelihood = <strong>Escalate immediately.</strong> The matrix says P1. The decision is automatic; the work is to produce the handoff package for incident response.</p>
+
+    <Reveal summary="The RATM record behind the two axes" variant="example">
+
+    The two axes reduce from the four RATM dimensions (<a href="/docs/risk/framework#ratm">framework</a>). The record as written in the case:
+
+    > **Asset criticality: High.** laptop-finance-09 is a user-class endpoint, but the compromised identity federates into the PCI-scoped payment platform, a regulated-data store.
+    > **Threat actor intent: Medium.** Spear-phish with a finance-role lure and a four-day-old C2 domain; the dropper hash matches a known campaign at medium confidence. Attribution is unconfirmed, so per the calibration note the score stays Medium with the upgrade path recorded.
+    > **Exploitation &amp; scope: High.** Execution confirmed on two hosts, credential theft with observed reuse (the federated SSO session), lateral reach into the SaaS platform.
+    > **Business impact: High.** Possible PCI exposure and a plausible GDPR clock. Confirmation is owned by compliance, but the possibility alone anchors High.
+
+    Reduction: asset criticality + business impact make the <strong>impact axis: High</strong>. Threat actor intent + exploitation &amp; scope, weighted by the multi-source evidence quality, make the <strong>likelihood axis: High</strong>. The Medium intent score does not drag likelihood down, because likelihood measures confidence that the activity is real and malicious, and the confirmed exploitation carries that question.
+
+    </Reveal>
   </div>
 
   <div data-step class="example-step">
@@ -49,7 +62,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
       <li>Likelihood: <strong>High.</strong> Multi-source evidence; clean ATT&CK mapping.</li>
       <li>Priority: <strong>P1.</strong> Escalate immediately.</li>
       <li>Open questions: vendor-side activity on the cloud platform pending; mobile device activity may be unmonitored.</li>
-      <li>Recommended response: contain the two confirmed hosts, rotate dlin's credentials, isolate the federated SSO session, notify compliance.</li>
+      <li>Recommended response: contain the two confirmed hosts, rotate dlin's credentials, isolate the federated SSO session, notify compliance. The host isolations and session kill sit on the SOC's pre-authorized immediate-actions list, so they execute at handoff without waiting for IR; the rest of the containment strategy is IR's call.</li>
     </ul>
   </div>
 

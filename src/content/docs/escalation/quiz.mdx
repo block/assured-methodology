@@ -1,6 +1,6 @@
 ---
 title: "Escalation chapter quiz"
-description: "Seven questions on criteria, protocols, the triage vs IR distinction, and the handoff packet."
+description: "Ten questions on criteria, tiers, the triage vs IR distinction, close at triage, and the handoff packet."
 slug: "escalation/quiz"
 ---
 
@@ -10,7 +10,7 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarNumber="Quiz" pillarLabel="Escalation chapter" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Seven questions on Escalation. Push your thinking on criteria, the triage vs IR distinction, and the handoff packet."/>
+<SubPageHero phase="escalation" parentLetter="E" pillarNumber="Quiz" pillarLabel="Escalation chapter" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Ten questions on Escalation. Push your thinking on criteria, tiers, the triage vs IR distinction, close at triage, and the handoff packet."/>
 
 <PillNav chapter="escalation" label="Escalation chapter" current="/docs/escalation/quiz" items={[
   { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
@@ -58,6 +58,31 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
+    prompt="A handoff packet has all nine sections filled in. What does the methodology still require before it is declared ready?"
+    options={[
+      { value: "signoff", label: "Manager sign-off, a spell-check pass, and a severity re-score against the current queue." },
+      { value: "tests",   label: "Three tests: readable in five minutes, names the next decision, survives a cold read by an uninvolved analyst." },
+      { value: "reviews", label: "Peer review, then compliance review, then legal review, in that order." },
+      { value: "format",  label: "Nothing. Nine completed sections is the definition of ready; extra gates delay the handoff." },
+    ]}
+    answer="tests"
+    explanation="Completeness is structural; actionability is functional, and a complete packet can still fail it. The case summary plus Risk verdict should orient the receiving tier in under five minutes. The packet should tee up the specific decision the next tier must make ('isolate the second host', 'engage compliance'), not just describe the case. And an analyst with no prior context should be able to continue the work without the author in the room. The practical check for that last test: hand the packet to an uninvolved peer, and if they cannot state the verdict in one sentence after five minutes, it is not done."
+  />
+
+  <QuizItem
+    prompt="In the three-tier SOC model, where is the decision usually made that a case becomes a declared incident?"
+    options={[
+      { value: "t1",   label: "Tier 1, since it owns the initial true-positive versus false-positive verdict." },
+      { value: "t2",   label: "Tier 2, where escalated cases get deep technical investigation and containment planning." },
+      { value: "t3",   label: "Tier 3, since declaring an incident mobilizes legal, communications, and executives." },
+      { value: "auto", label: "No tier. Declaration is automatic the moment any escalation criterion is met." },
+    ]}
+    answer="t2"
+    explanation="Tier 1 receives and validates alerts, closes false-positives with detection feedback, and usually carries the Alert, Subject, and Scope work; meeting an escalation criterion moves the case up, but that is escalation, not declaration. Tier 2 brings the specialized investigation depth (Uncover and Risk usually complete here) and holds the decision on whether the case becomes a declared incident. Tier 3 is the cross-functional response once a high-impact incident exists: full IR orchestration, legal and communications engagement, executive briefing. The bar for 'escalate' and the bar for 'declared incident' are different, and keeping them separate is what the tier boundaries encode."
+    hint="Meets-a-criterion and is-an-incident are two different bars."
+  />
+
+  <QuizItem
     prompt="When does law enforcement get engaged?"
     options={[
       { value: "always", label: "For every confirmed incident, since unreported intrusions can create liability later." },
@@ -91,6 +116,18 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="escalate"
     explanation="Confirmed lateral movement is one of the four canonical criteria, and the break-glass rule fires the moment a criterion is confirmed, from any phase. A spreading compromise is IR's problem to contain while investigation continues. The dynamic loop still matters: refining Scope and re-running Uncover is exactly the scoping support IR needs next, but it happens in parallel under IR's clock, not as a precondition for escalating. Deferring escalation through a full loop iteration while a compromise spreads is the failure mode the criteria exist to prevent."
+  />
+
+  <QuizItem
+    prompt="Risk returns a defensible low-residual-risk verdict on a suspicious-binary case. What does the Escalation phase produce?"
+    options={[
+      { value: "skip",   label: "Nothing. Escalation only runs when a case escalates; a false-positive verdict skips the phase." },
+      { value: "note",   label: "A one-line closure note. Documented rigor is reserved for the cases that go to IR." },
+      { value: "record", label: "A close-at-triage record with the same rigor as a handoff: closure criteria checked, targeted notifications, full closure record." },
+      { value: "review", label: "A courtesy IR review, because a human responder should double-check any close on a pattern-match alert." },
+    ]}
+    answer="record"
+    explanation="Escalation still runs; the outcome is a documented close instead of a transfer. The worked example checks five closure criteria (no confirmed malicious activity, no impact to business-critical systems, no lateral movement, no persistence or credential access, residual risk explicitly bounded), each backed by Uncover findings. Notifications are quiet and targeted: the SOC manager for shift visibility, detection engineering with the rule-tuning ticket, nobody else, because loud notices for a documented false-positive train the team to discount future ones. The closure record is built on the nine handoff-packet sections. The close is arguably the harder discipline, since the analyst is asking a future reader to trust the absence of compromise."
   />
 
   <QuizItem

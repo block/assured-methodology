@@ -1,6 +1,6 @@
 ---
 title: "Subject chapter quiz"
-description: "Eight questions on the four dimensions, entity types, behavioral framework, insider analysis, and the Subject working examples."
+description: "Ten questions on the four dimensions, entity types, behavioral framework, insider analysis, the working examples, and the Scope handoff."
 slug: "subject/quiz"
 ---
 
@@ -17,7 +17,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   pillarLabel="Subject chapter"
   chapterHref="/docs/subject"
   chapterLabel="Subject"
-  lede="Eight questions across the Subject chapter. Push your thinking on identity, baselining, the insider distinction, and the matrix phases."
+  lede="Ten questions across the Subject chapter. Push your thinking on identity, baselining, network identifiers, the insider distinction, and the Scope handoff."
 />
 
 <PillNav
@@ -68,7 +68,20 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "test",      label: "Probably the on-call engineer running a manual test with the account's credentials." },
     ]}
     answer="compromise"
-    explanation="Service accounts have predictable, non-interactive behavior by design. Interactive logins on a service account almost always mean the credential is being used in a way it was not intended for, and that is a high-confidence Subject signal."
+    explanation="Service accounts have predictable, non-interactive behavior by design, which makes an interactive login a high-confidence Subject signal: the credential is being used outside its designed lane. It is a signal, not proof. Break-glass procedures and an admin troubleshooting with the service credential produce the same event, so the next check is who initiated the session and whether a sanctioned reason (a change ticket, a break-glass record) exists."
+  />
+
+  <QuizItem
+    prompt="An egress alert flags a workstation making sustained connections to an external host on port 443. What is the entity-type question to ask about this network identifier?"
+    options={[
+      { value: "rare",    label: "How rare port 443 is in the environment. Uncommon ports are the primary tunneling signal." },
+      { value: "conform", label: "Whether the traffic actually conforms to the protocol the port implies. SSH or DNS riding 443 is the classic bypass." },
+      { value: "rep",     label: "Whether the destination IP has a clean reputation. A clean score clears the connection." },
+      { value: "defer",   label: "None yet. Protocol analysis is deep-evidence work that belongs to Uncover, not Subject." },
+    ]}
+    answer="conform"
+    explanation="Port 443 is the most common port on the internet, so rarity carries no signal at all. The signal is protocol/port mismatch: traffic on 443 that is not actually TLS, or DNS on an arbitrary high port, is the classic bypass pattern, because attackers pick common ports precisely to blend in. Reputation helps but does not clear anything; a clean destination means only that it has not been caught yet."
+    hint="Attackers choose common ports on purpose."
   />
 
   <QuizItem
@@ -131,6 +144,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="context"
     explanation="A signature match alone is not Subject's verdict. The four dimensions plus access scope plus operational risk produce the picture. A signed, vendor-installed, peer-baselined binary running in a documented configuration on a developer workstation reads very differently from the same activity from an unsigned binary in a user-writable directory. Subject's job is to record that distinction defensibly, not to react to the signature alone."
+  />
+
+  <QuizItem
+    prompt="Subject hands its entity map to Scope. Which entities belong on it?"
+    options={[
+      { value: "named",      label: "Only the entity named in the alert. The map is a pointer; Scope rebuilds the rest." },
+      { value: "suspicious", label: "Every entity with a suspicious finding. Cleared entities are dropped to keep the map actionable." },
+      { value: "all",        label: "Primary, secondary, and downstream entities, each with its dimension assessment, including the ones ruled out." },
+      { value: "human",      label: "The human identities only. Service accounts and hosts are infrastructure, tracked elsewhere." },
+    ]}
+    answer="all"
+    explanation="The map carries three rings: primary entities directly named or implicated, secondary entities connected through trust paths (service accounts, federated identities, peers on the same host), and downstream entities the implicated identities can reach, each with its authentication, authorization, behavior, and relationships assessment. Confidence labels ride alongside in the baselines-and-deviations artifact, using the shared rubric. And ruled-out entities stay on the map, because examined-and-cleared is a finding: dropping them invites the next phase to spend depth re-answering a question Subject already closed."
+    hint="Think about what Scope would have to redo if the map only listed the suspicious entities."
   />
 
 </Quiz>

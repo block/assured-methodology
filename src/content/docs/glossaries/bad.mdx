@@ -8,6 +8,8 @@ chromeless: true
 
 import AmbientBackground from "@/components/assured/AmbientBackground.astro";
 import GlossaryHero from "@/components/assured/GlossaryHero.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
 
 <div class="bad-page g-page" data-theme="bad">
 
@@ -1720,6 +1722,63 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     <article class="bad-term"><h4>Vishing (Voice Phishing)</h4><p>Phone calls or voicemails impersonating authority figures or institutions to extract credentials or prompt unsafe actions.</p></article>
     <article class="bad-term"><h4>Whaling</h4><p>Spear phishing targeting high-profile individuals like executives, often for financial fraud or data theft.</p></article>
   </div>
+</section>
+
+{/* Self-check */}
+<section id="selfcheck" class="bad-section">
+
+<Quiz title="B.A.D. self-check" subtitle="Four questions on the adversarial vocabulary. No grades; the point is retention.">
+
+  <QuizItem
+    prompt="Why does Pass-the-Hash work without the attacker ever cracking a password?"
+    options={[
+      { value: "weak",     label: "Because NTLM hashes are weak enough to reverse into the plaintext in seconds." },
+      { value: "protocol", label: "Because the protocol treats the hash itself as the credential; host B accepts the hash stolen from host A." },
+      { value: "mfa",      label: "Because password authentication is skipped entirely whenever MFA is not enforced." },
+      { value: "keylog",   label: "It does not; Pass-the-Hash refers to keylogging the password as the user types it." },
+    ]}
+    answer="protocol"
+    explanation="The NTLM hash is the credential. An attacker who reads a hash from one host's memory can authenticate to other hosts with it directly; the plaintext never enters the picture, so password strength is irrelevant. That is what makes the technique silent, the backbone of lateral-movement campaigns, and irreversible until the password (and with it the hash) is rotated."
+  />
+
+  <QuizItem
+    prompt="An attacker obtains the krbtgt account hash in an Active Directory domain. What can they do, and what is the only real fix?"
+    options={[
+      { value: "one",   label: "Impersonate that one service account until its ticket expires; the fix is disabling the account." },
+      { value: "forge", label: "Forge Kerberos TGTs that authenticate as anyone, indefinitely; the fix is rotating the krbtgt password twice." },
+      { value: "crack", label: "Crack it offline into the domain-admin password; the fix is a stronger password policy." },
+      { value: "read",  label: "Passively read Kerberos traffic; the fix is enforcing encryption on the domain controllers." },
+    ]}
+    answer="forge"
+    explanation="The krbtgt hash signs every Ticket Granting Ticket in the domain, so holding it lets the attacker mint tickets as any user, with any lifetime: the Golden Ticket. Forged tickets are self-contained, so changing user passwords does nothing. The only fix is rotating the krbtgt password twice, because a single rotation leaves the previous key valid for ticket validation. That double rotation is rare and disruptive, which is exactly why the technique is prized for persistence."
+  />
+
+  <QuizItem
+    prompt="Malware using a Domain Generation Algorithm defeats static domain blocklists. How?"
+    options={[
+      { value: "fast",     label: "It rotates through thousands of pre-registered domains faster than blocklists update." },
+      { value: "computes", label: "It computes a fresh candidate list from a seed each day; the attacker registers just one, and only that one resolves." },
+      { value: "tor",      label: "It routes C2 over Tor, so there is no domain to block in the first place." },
+      { value: "ip",       label: "It connects by raw IP address, and blocklists only match domain names." },
+    ]}
+    answer="computes"
+    explanation="The malware and the attacker share the algorithm and the seed. Each day or hour the malware computes the same candidate list the attacker does, tries them all, and reaches whichever single name the attacker actually registered. Blocking yesterday's domains accomplishes nothing because tomorrow's list is already different. Detection shifts to the pattern itself: bursts of failed lookups for algorithmically random names."
+  />
+
+  <QuizItem
+    prompt="What distinguishes password spraying from a classic brute-force attack?"
+    options={[
+      { value: "speed",   label: "Speed: spraying uses GPU clusters, while brute force runs on a single machine." },
+      { value: "inverse", label: "The shape is inverted: a few common passwords tried against many accounts, staying under lockout thresholds." },
+      { value: "offline", label: "Spraying happens offline against a stolen hash database; brute force is live." },
+      { value: "svc",     label: "Spraying targets service accounts only, because they cannot be locked out." },
+    ]}
+    answer="inverse"
+    explanation="Classic brute force hammers one account with many passwords and trips the lockout in minutes. Spraying inverts the shape: one or two plausible passwords against hundreds of accounts, then a pause, then the next password. Each account sees so few failures that lockouts never fire, which is why detection depends on looking across accounts (many usernames, one source, the same interval) rather than at any single one."
+  />
+
+</Quiz>
+
 </section>
 
 {/* Closing */}

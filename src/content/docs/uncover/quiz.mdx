@@ -1,6 +1,6 @@
 ---
 title: "Uncover chapter quiz"
-description: "Eight questions on data sources, threat intelligence, MITRE ATT&CK, tooling, and the Risk handoff."
+description: "Twelve questions on data sources, threat intelligence, attribution confidence, MITRE ATT&CK, tooling, and the Risk handoff."
 slug: "uncover/quiz"
 ---
 
@@ -10,7 +10,7 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="uncover" parentLetter="U" pillarNumber="Quiz" pillarLabel="Uncover chapter" chapterHref="/docs/uncover" chapterLabel="Uncover" lede="Eight questions on Uncover. Push your thinking on evidence, intel, ATT&CK, tool selection, and the handoff to Risk."/>
+<SubPageHero phase="uncover" parentLetter="U" pillarNumber="Quiz" pillarLabel="Uncover chapter" chapterHref="/docs/uncover" chapterLabel="Uncover" lede="Twelve questions on Uncover. Push your thinking on evidence, intel, attribution, ATT&CK, query order, and the handoff to Risk."/>
 
 <PillNav chapter="uncover" label="Uncover chapter" current="/docs/uncover/quiz" items={[
   { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
@@ -31,6 +31,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="validate"
     explanation="Threat intelligence is most useful as a hypothesis. The matched domain is a starting point, not a verdict. Validate against the actual telemetry (which process, which user, which pattern) before acting."
+  />
+
+  <QuizItem
+    prompt="A dropper hash matches a known campaign's tooling, and nothing else links the case to that actor. What confidence label can attribution carry in the case file?"
+    options={[
+      { value: "high",   label: "HIGH. A hash match is exact by definition; hashes do not collide in practice." },
+      { value: "medium", label: "MEDIUM. One solid technical indicator sits in the middle of the scale." },
+      { value: "low",    label: "LOW. An isolated indicator with real potential for coincidental overlap; a lead, not a claim." },
+      { value: "none",   label: "None. Attribution is not a triage-phase activity and does not belong in the case file." },
+    ]}
+    answer="low"
+    explanation="One indicator in one category is LOW, and the reason is not hash collisions: shared, sold, and leaked tooling means the same dropper turns up in unrelated hands, so the overlap can be coincidental even though the match is exact. What lifts the label is correlation across diverse categories: if the C2 infrastructure and the TTP chain also match the same campaign, the claim earns MEDIUM. Attribution stays in the case file at its honest label, because promoting low-confidence attribution into operational decisions is the most common attribution failure mode."
+    hint="The match is exact. The question is what else could explain it."
   />
 
   <QuizItem
@@ -55,6 +68,30 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="edr"
     explanation="EDR captures process creation events that show whether a file was executed, and a few days is comfortably inside a typical retention window. FIM tells you the file exists or was modified, but not whether it ran. SIEM aggregates from other sources. One caveat worth knowing: for questions like did this ever run, beyond the EDR retention window, the answer lives in whatever long-term store (SIEM or data lake) archives the EDR telemetry."
+  />
+
+  <QuizItem
+    prompt="An investigation needs both an EDR process timeline and a SIEM-wide authentication search. Which query runs first?"
+    options={[
+      { value: "siem",     label: "The SIEM search. It covers everything, so it can only shrink the work the EDR query has to do." },
+      { value: "edr",      label: "The EDR query. The cheapest, most specific query runs first and narrows the window for the broad one." },
+      { value: "parallel", label: "Both at once. Serializing queries wastes wall-clock time in a phase measured in minutes." },
+      { value: "either",   label: "Whichever tool is already open. Query order does not change the evidence that comes back." },
+    ]}
+    answer="edr"
+    explanation="The tooling pattern is cheapest or most specific first. The EDR query is scoped to one host and returns fast, and its result narrows the time window and the entities, which turns the SIEM search from an everything-scan into a targeted pull. Running both at once sounds efficient, but the broad query's parameters depend on the narrow query's result: launched unanchored, the SIEM search returns a haystack that costs more analyst time than the parallelism saved."
+  />
+
+  <QuizItem
+    prompt="A suspected intrusion may have started six weeks ago, but the SOC's EDR retains 14 days of telemetry. Which data-source principle is at stake?"
+    options={[
+      { value: "coverage",  label: "Comprehensive coverage: the endpoint layer has a blind spot adversaries can exploit." },
+      { value: "context",   label: "Contextual analysis: EDR alone cannot tell the story without identity and network logs." },
+      { value: "depth",     label: "Historical depth: a source that retains days cannot answer whether this started before the alert." },
+      { value: "integrity", label: "Data integrity: telemetry past its retention window no longer holds up as evidence." },
+    ]}
+    answer="depth"
+    explanation="Retention shapes what is even possible to investigate. Sophisticated intrusions unfold over weeks or months, and a source holding 14 days cannot answer 'did this start before the alert?' no matter how well the query is written. The practical moves are knowing where the longer archive lives (the SIEM or data lake that retains the EDR feed) and, where none does, recording the unanswerable window as a coverage gap instead of treating silence as evidence of absence."
   />
 
   <QuizItem
@@ -105,6 +142,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     answer="joins"
     explanation="Correlation is defensible when independent sources agree on the keys that identify the event: the host, the time, and the connection endpoints. A timestamp alone can collide, hosts make many simultaneous connections, and the proxy adds what EDR cannot see (the URI, TLS details, and bytes transferred). The worked example does exactly this: the firewall session matching the EDR network event to the second is what turns two log lines into one attributed action."
     hint="One matching field is coincidence-prone. Which fields together identify the event?"
+  />
+
+  <QuizItem
+    prompt="GuardDuty flags an engineer's 02:14 UTC AssumeRole into a role normally used only by CI, with read access to a regulated bucket. CloudTrail shows eight reads of quarterly-export files, no ListBucket reconnaissance, no writes, corporate VPN egress throughout. The IdP shows a FIDO2 login from the registered device with no token-replay or consent-grant indicators. What does Uncover conclude?"
+    options={[
+      { value: "confirm", label: "Compromise confirmed. An off-hours assumption of a CI role touching regulated data is conclusive." },
+      { value: "benign",  label: "Likely a benign manual export, at medium confidence until the user confirms, with the evidence documented." },
+      { value: "insider", label: "Insider threat. The clean identity surface proves the engineer did it personally, so the act was deliberate misuse." },
+      { value: "image",   label: "Nothing yet. Without an endpoint forensic image, cloud logs cannot support a verdict either way." },
+    ]}
+    answer="benign"
+    explanation="Each attacker pattern that would explain an unexpected role assumption (token theft, consent-grant abuse, AiTM phishing) has a place the evidence would appear, and every one reads clean: a fresh STS session from a FIDO2-backed login on the registered device, no reconnaissance, no writes, sizes consistent with the quarterly export. That supports off-hours manual export at high technical confidence, medium overall until the user confirms. The insider option inverts the vocabulary: an engineer doing their own job outside the normal pipeline is a detection-tuning finding, not a threat verdict. And cloud-anchored cases are decided on cloud-native sources; there is no endpoint in the story to image."
+    hint="List the attacker explanations, then ask what evidence each would leave."
   />
 
   <QuizItem

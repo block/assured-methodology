@@ -1,6 +1,6 @@
 ---
 title: "Scope chapter quiz"
-description: "Eight questions on regulatory, time, entity, infrastructure boundaries, and the Uncover handoff."
+description: "Eleven questions on regulatory, time, entity, infrastructure boundaries, restraint, and the Uncover handoff."
 slug: "scope/quiz"
 ---
 
@@ -17,7 +17,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   pillarLabel="Scope chapter"
   chapterHref="/docs/scope"
   chapterLabel="Scope"
-  lede="Eight questions on Scope. Push your thinking on boundaries, regulatory clocks, entity prioritization, and the Uncover handoff."
+  lede="Eleven questions on Scope. Push your thinking on boundaries, restraint, regulatory clocks, entity prioritization, and the Uncover handoff."
 />
 
 <PillNav chapter="scope" label="Scope chapter" current="/docs/scope/quiz" items={[
@@ -54,6 +54,18 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
+    prompt="An alert on a build-pipeline service account smells like possible supply-chain compromise. What historical window does Scope set?"
+    options={[
+      { value: "24h", label: "1 to 24 hours. Service accounts are high-volume, and a tight window keeps the queries tractable." },
+      { value: "72h", label: "24 to 72 hours, the standard intrusion window that fits most confirmed compromises." },
+      { value: "months", label: "1 to 6 months. The compromise may predate the alert by weeks, and earlier silent activity matters." },
+      { value: "year", label: "3 to 12 months, the insider window, because a pipeline acting maliciously is an insider by definition." },
+    ]}
+    answer="months"
+    explanation="The window follows the threat type, not a default. Supply-chain compromises often predate their first alert by weeks or months: the malicious component may have shipped in an update long since deployed. The 1-to-6-month window is bounded by what the SOC actually retains, and if retention falls short, the gap is documented in the Scope output rather than ignored."
+  />
+
+  <QuizItem
     prompt="The Subject phase identified seven identities connected to the alert. How many should be primary in scope?"
     options={[
       { value: "all", label: "All seven at full depth. Anything less leaves a potentially compromised identity unexamined." },
@@ -63,6 +75,18 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="depends"
     explanation="Primary entities are those directly involved in the alert. Secondary entities are connected but not in the alert. The split keeps investigation depth proportional to evidence rather than spending equal time on every identity in the map."
+  />
+
+  <QuizItem
+    prompt="Alert and Subject both lean false-positive on a developer-workstation alert, but the user's account can reach a dozen other systems. How does Scope draw the boundary?"
+    options={[
+      { value: "broad", label: "Wide: add every reachable system as a secondary entity. Broad scope is cheap insurance while the verdict is not final." },
+      { value: "narrow", label: "Narrow: the user, the workstation, the flagged binary. Reachable-but-unevidenced systems stay out, with the expansion path documented." },
+      { value: "sample", label: "Split the difference: add the three most sensitive reachable systems as secondaries." },
+      { value: "skip", label: "Skip the boundary: a probable false-positive does not need formal scoping." },
+    ]}
+    answer="narrow"
+    explanation="This is restraint scoping, and it is as much a Scope skill as expansion. Access alone is topology, not evidence, and every entity added spends Uncover's depth where there is no signal. The narrow boundary is defensible precisely because the expansion path exists: if Uncover surfaces evidence touching another system, the decision tree grows the boundary with a documented justification. Sprawl on a false-positive-leaning case is how a fast close becomes a five-hour one."
   />
 
   <QuizItem
@@ -111,6 +135,18 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="recognize"
     explanation="PCI DSS is contractual: card-brand rules require prompt notification of suspected account-data compromise through the acquirer, and a PFI may later re-examine everything preserved in the first hours. A compliant environment guarantees 12 months of audit logs with 3 months immediately available (Req. 10.5.1), but stopping rotation is still the analyst's job. And investigative access into the CDE follows the same least-privilege controls as any other access: defaulting to full access is exactly backwards."
+  />
+
+  <QuizItem
+    prompt="A US SOC investigates a compromised account belonging to an employee in Germany, with the relevant logs stored in an EU region. What does Scope's sovereignty boundary require?"
+    options={[
+      { value: "move", label: "Copy the EU logs into the US SIEM. Centralized analysis beats jurisdictional caution during an active case." },
+      { value: "inregion", label: "Check residency constraints before moving data; the investigation may need to run in-region or through a regional team." },
+      { value: "legal-later", label: "Proceed normally. Sovereignty is a legal-team concern that begins after triage closes." },
+      { value: "anonymize", label: "Strip usernames from the logs before transfer; anonymized data is exempt from residency rules." },
+    ]}
+    answer="inregion"
+    explanation="Data-residency rules can prevent moving log data across regions, and employee-privacy regimes can restrict what is examined at all. Scope is where that constraint is recognized, because discovering it mid-Uncover means evidence already moved where it should not have. The pseudonymization distractor fails for a reason worth knowing: data that can be re-linked to a person generally remains personal data under GDPR, so stripping usernames does not lift the constraint."
   />
 
   <QuizItem

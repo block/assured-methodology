@@ -8,6 +8,8 @@ chromeless: true
 
 import AmbientBackground from "@/components/assured/AmbientBackground.astro";
 import GlossaryHero from "@/components/assured/GlossaryHero.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
 
 <div class="cat-page g-page" data-theme="cat">
 
@@ -433,6 +435,50 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
     <article class="cat-tool"><h4>Pelco</h4><p>Surveillance cameras, recorders, and VideoXpert management; rugged builds for outdoor and industrial use.</p></article>
     <article class="cat-tool"><h4>Vicon Industries</h4><p>End-to-end surveillance with the Valerus VMS platform; open architecture and flexible deployment.</p></article>
   </div>
+</section>
+
+<section id="selfcheck" class="cat-section">
+
+<Quiz title="C.A.T. self-check" subtitle="Three questions on the tool categories. The name on the slide should map to a category you can reason about.">
+
+  <QuizItem
+    prompt="Perimeter logs show constant scanning from the internet, and you need to know which sources are targeting you specifically versus scanning everyone. Which tool answers that?"
+    options={[
+      { value: "greynoise",  label: "GreyNoise, which classifies internet background-scan noise." },
+      { value: "virustotal", label: "VirusTotal, which analyzes the traffic across many AV engines." },
+      { value: "phishtank",  label: "PhishTank, which holds the community-validated database of scanner IPs." },
+      { value: "whois",      label: "WHOIS, which reveals who registered the scanning infrastructure." },
+    ]}
+    answer="greynoise"
+    explanation="GreyNoise exists for exactly this cut: it classifies internet-wide background-scan noise so the SOC can subtract it and focus on activity aimed at them specifically. VirusTotal is multi-engine file and URL analysis, PhishTank is a community-validated phishing-URL database, and WHOIS is domain registration data useful for attribution. None of the other three tells you whether a scanner is hitting everyone or just you."
+  />
+
+  <QuizItem
+    prompt="Strip away the vendor names: what is the SIEM category, as a concept?"
+    options={[
+      { value: "edr",     label: "An agent on every endpoint recording process, file, and network activity." },
+      { value: "agg",     label: "Aggregation and correlation of security event data for centralized detection, compliance, and IR." },
+      { value: "soar",    label: "Automated playbooks that execute response actions when detections fire." },
+      { value: "scanner", label: "Scheduled scanning of assets for known vulnerabilities and misconfigurations." },
+    ]}
+    answer="agg"
+    explanation="The SIEM is the aggregation and correlation layer: telemetry from endpoints, network, identity, and cloud lands in one place where correlation rules, search, and reporting run across all of it. The distractors are its neighbors: EDR is the endpoint agent that feeds it, SOAR is the automation layer that acts on what it finds, and vulnerability scanning is a separate discipline. Vendor suites blur these lines constantly, which is why the category behind the product name is the useful thing to hold onto."
+  />
+
+  <QuizItem
+    prompt="An investigation needs to know exactly which AWS API calls a principal made last Tuesday. Which source holds that record?"
+    options={[
+      { value: "cloudwatch", label: "AWS CloudWatch, the monitoring, metrics, and alarms layer." },
+      { value: "cloudtrail", label: "AWS CloudTrail, the API-activity audit trail for the account." },
+      { value: "guardduty",  label: "GuardDuty, which stores the raw API calls behind each finding it raises." },
+      { value: "app",        label: "The application's own logs; AWS does not record API calls centrally." },
+    ]}
+    answer="cloudtrail"
+    explanation="CloudTrail records API activity within the account: who called what, when, from where. That makes it the audit trail for cloud security and forensic work, and the first pull in a cloud-anchored investigation. CloudWatch is the operations layer (metrics, logs, alarms), and a detection service like GuardDuty raises findings from telemetry but is not itself the audit record."
+  />
+
+</Quiz>
+
 </section>
 
 <footer class="cat-foot">

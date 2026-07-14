@@ -8,6 +8,8 @@ chromeless: true
 
 import AmbientBackground from "@/components/assured/AmbientBackground.astro";
 import GlossaryHero from "@/components/assured/GlossaryHero.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
 
 <div class="clear-page g-page" data-theme="clear">
 
@@ -618,6 +620,50 @@ import GlossaryHero from "@/components/assured/GlossaryHero.astro";
 <dl class="clear-terms">
 <dt>Zero-Day Vulnerability</dt><dd>A vulnerability for which no patch is yet available, either because the vendor has not shipped one or because the vendor does not yet know the bug exists. Called "zero-day" because that is the number of days defenders have had to prepare. Exploitation is not a definitional prerequisite; a zero-day can exist before any exploit appears.</dd>
 </dl>
+
+</section>
+
+<section id="selfcheck" class="clear-section">
+
+<Quiz title="C.L.E.A.R. self-check" subtitle="Three questions on the vocabulary distinctions the lexicon exists to settle.">
+
+  <QuizItem
+    prompt="In the C.L.E.A.R. definition, what is an alert?"
+    options={[
+      { value: "verdict",    label: "The detection engine's verdict that malicious activity occurred." },
+      { value: "hypothesis", label: "The detection engine's hypothesis that something might be malicious; the analyst makes the call." },
+      { value: "event",      label: "Any log line a monitored system emits, malicious or not." },
+      { value: "incident",   label: "A confirmed violation of security policy requiring coordinated response." },
+    ]}
+    answer="hypothesis"
+    explanation="An alert is an automated notification produced when detection logic decides an event might be malicious, anomalous, or in violation of policy. It is a hypothesis, not a verdict; the analyst makes the call. The other options are its neighbors in the vocabulary: raw events are neutral observability data, and an incident is a confirmed violation, or imminent threat of one, typically emerging from one or more alerts."
+  />
+
+  <QuizItem
+    prompt="Telemetry shows a clear deviation from a user's baseline. What does calling it an anomaly commit the analyst to?"
+    options={[
+      { value: "malicious",   label: "That the activity is malicious; anomalies are by definition security-relevant." },
+      { value: "statistical", label: "Only that it is statistically unusual; whether the deviation matters is still the analyst's call." },
+      { value: "escalate",    label: "That the case escalates, since baselines exist precisely to trigger escalation." },
+      { value: "rebuild",     label: "That the baseline was computed incorrectly and needs rebuilding." },
+    ]}
+    answer="statistical"
+    explanation="Anomalies are statistical, not malicious. The word says the observation deviates from an established baseline and nothing more: a new project, a role change, or an attacker can all produce the same deviation. Treating anomalous as a synonym for malicious is how benign unusual behavior gets over-escalated and how analysts learn to distrust the baseline that flagged it."
+  />
+
+  <QuizItem
+    prompt="A user presents a valid password and hardware token, then opens a folder their role should never reach. Which control failed?"
+    options={[
+      { value: "authn",   label: "Authentication: the system misidentified who they are." },
+      { value: "authz",   label: "Authorization: identity was proven correctly, but what that identity may do was wrong." },
+      { value: "both",    label: "Both, since a correct login should make misuse impossible." },
+      { value: "neither", label: "Neither; access to a reachable folder is by definition authorized." },
+    ]}
+    answer="authz"
+    explanation="Authentication is proving who you are: a password, a hardware token, a biometric, a certificate. Authorization is what that proven identity is then allowed to do. Here authentication worked exactly as designed and the failure sits in the permission model. The distinction matters in triage because the evidence lives in different places: identity logs answer who it was, while entitlement and access-control configuration answer why the folder was reachable at all."
+  />
+
+</Quiz>
 
 </section>
 

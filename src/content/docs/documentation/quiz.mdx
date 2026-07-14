@@ -1,6 +1,6 @@
 ---
 title: "Documentation chapter quiz"
-description: "Seven questions on standards, templates, pitfalls, and the downstream value of documentation."
+description: "Ten questions on standards, custody, sanitization, pitfalls, and the downstream value of documentation."
 slug: "documentation/quiz"
 ---
 
@@ -10,7 +10,7 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarNumber="Quiz" pillarLabel="Documentation chapter" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Seven questions on Documentation. The final chapter of the methodology."/>
+<SubPageHero phase="documentation" parentLetter="D" pillarNumber="Quiz" pillarLabel="Documentation chapter" chapterHref="/docs/documentation" chapterLabel="Documentation" lede="Ten questions on Documentation. The final chapter of the methodology."/>
 
 <PillNav chapter="documentation" label="Documentation chapter" current="/docs/documentation/quiz" items={[
   { label: "Standards", href: "/docs/documentation/standards", phase: "documentation" },
@@ -78,6 +78,43 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     ]}
     answer="negative"
     explanation="Omitting negative findings is one of the classic documentation pitfalls. 'Persistence checked: none found, here is what was examined' is what lets a reviewer trust the closure, lets the case re-open without re-doing the work, and defends the analyst if persistence later surfaces through a gap the check could not see. A record that only lists positive findings reads as an investigation that never looked."
+  />
+
+  <QuizItem
+    prompt="An analyst pulls a suspicious binary off a host into a personal scratch directory while working the case, then uploads it to the case-management system at close. What happened to the artifact?"
+    options={[
+      { value: "fine",  label: "Nothing, as long as the file's contents did not change between acquisition and upload." },
+      { value: "break", label: "The chain of custody broke: a stretch of the artifact's history has no custodian, no re-verified hash, no access log." },
+      { value: "hash",  label: "It is fine if the analyst hashes the file at upload; the hash is what proves integrity." },
+      { value: "ir",    label: "Nothing at triage. Chain of custody is an IR responsibility that starts at escalation." },
+    ]}
+    answer="break"
+    explanation="The chain is the continuous, time-stamped trail from acquisition onward: identifier, acquisition details, every transfer with re-verification, access log, disposal. A personal scratch directory is one of the most common silent breaks, because for that stretch nobody can show who touched the file. A hash at upload proves nothing about the gap before it; the hash has to be recorded at acquisition and re-verified at each move. In practice a gap usually goes to the weight the evidence carries rather than automatic exclusion, but it invites challenge. And custody starts at acquisition, not escalation: if the case might end with IR or external counsel, treat every artifact as evidence from the moment it is collected."
+    hint="What can the analyst prove about the file's history during the scratch-directory stretch?"
+  />
+
+  <QuizItem
+    prompt="A closure record includes full log excerpts containing customer PII, on the reasoning that the excerpts are the evidence. What does the standard say?"
+    options={[
+      { value: "keep",     label: "Keep them. Inside a security system of record, completeness beats privacy." },
+      { value: "sanitize", label: "Sanitize what the record does not need. A record can be complete and still be a data exposure." },
+      { value: "prose",    label: "Drop the excerpts and describe them in prose; raw logs never belong in the record." },
+      { value: "encrypt",  label: "Encrypt the record at rest, which makes the PII question moot." },
+    ]}
+    answer="sanitize"
+    explanation="Sanitization mistakes are a named pitfall: a record holding PII, regulated data, or sensitive operational detail that should not live in the documentation system is complete and unusable for compliance reasons at the same time. The appendix standard is log excerpts sanitized as needed, with the originals preserved under access control and chain of custody where they belong. Dropping the evidence entirely fails in the other direction, and encryption at rest does not change who can read the record through the system it lives in."
+  />
+
+  <QuizItem
+    prompt="A record reads: 'PowerShell spawned from winword.exe at 09:11 UTC, indicating macro-based initial access.' What does the clarity standard say about this sentence?"
+    options={[
+      { value: "good",    label: "It is exactly right. One sentence carrying observation and conclusion is efficient documentation." },
+      { value: "split",   label: "Split and label the halves: the process event is a fact, the initial-access reading is analysis." },
+      { value: "fact",    label: "Delete the second half. Analysis belongs to IR; triage records facts only." },
+      { value: "passive", label: "The problem is voice, not content. Rewrite it in passive voice for objectivity." },
+    ]}
+    answer="split"
+    explanation="The first half is a fact: observable, timestamped, checkable against telemetry. The second half is analysis, a reading of the fact that could change. The standard asks for both, labeled as which is which, so a reviewer can revisit the analysis when new evidence lands without re-litigating the facts. Fused together, a wrong conclusion contaminates a correct observation. Triage records absolutely include analysis (that reasoning is what the replay test depends on), and the voice rule points the other way: active voice, naming who did what."
   />
 
   <QuizItem

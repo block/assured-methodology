@@ -21,9 +21,9 @@ import EvasionPattern from "@/components/assured/EvasionPattern.astro";
   pieceNumber={1}
   question="What fired, and why?"
   pillars={[
-    { num: "01", label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms" },
-    { num: "02", label: "Alert validation",     href: "/docs/alert/validation" },
-    { num: "03", label: "Parsing alerts",       href: "/docs/alert/parsing" },
+    { num: "01", label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/" },
+    { num: "02", label: "Alert validation",     href: "/docs/alert/validation/" },
+    { num: "03", label: "Parsing alerts",       href: "/docs/alert/parsing/" },
   ]}
 >
   Before identifying the subject, scoping the investigation, or pulling <DefineTerm term="Telemetry" display="telemetry" />, the analyst's first job is to understand the alert itself.
@@ -124,7 +124,7 @@ Understanding these patterns is what separates a checkbox investigation from a r
 ASSURED splits Alert into three sub-pages, one per pillar.
 
 <div class="pillars-grid">
-  <a href="/docs/alert/detection-mechanisms" class="pillar">
+  <a href="/docs/alert/detection-mechanisms/" class="pillar">
     <div class="pillar__num">01</div>
     <div class="pillar__icon">🔍</div>
     <h3>Detection mechanisms</h3>
@@ -132,7 +132,7 @@ ASSURED splits Alert into three sub-pages, one per pillar.
     <span class="pillar__cta">Read →</span>
   </a>
 
-  <a href="/docs/alert/validation" class="pillar">
+  <a href="/docs/alert/validation/" class="pillar">
     <div class="pillar__num">02</div>
     <div class="pillar__icon">✅</div>
     <h3>Alert validation</h3>
@@ -140,7 +140,7 @@ ASSURED splits Alert into three sub-pages, one per pillar.
     <span class="pillar__cta">Read →</span>
   </a>
 
-  <a href="/docs/alert/parsing" class="pillar">
+  <a href="/docs/alert/parsing/" class="pillar">
     <div class="pillar__num">03</div>
     <div class="pillar__icon">🔧</div>
     <h3>Parsing alerts</h3>
@@ -188,20 +188,20 @@ Investigations that fail rarely fail at Uncover. They fail at Alert. Analysts mo
 
 <div class="strategic-grid">
   <div class="strategic-card">
-    <h4>🎯 Precision classification</h4>
+    <h3>🎯 Precision classification</h3>
     <p>Separates legitimate operations, policy violations, and adversary activity. Fewer false-positives, better-targeted response.</p>
   </div>
   <div class="strategic-card">
-    <h4>📐 Cleaner scope</h4>
+    <h3>📐 Cleaner scope</h3>
     <p>Knowing the detection mechanism means you know what telemetry the engine saw. And what it did not. That shapes the next phases.</p>
   </div>
   <div class="strategic-card">
-    <h4>🔽 False-positive triage</h4>
+    <h3>🔽 False-positive triage</h3>
     <p>Catch benign activity early. Feed the reasoning back into detection logic so future alerts get sharper.</p>
   </div>
   <div class="strategic-card">
-    <h4>⚡ Faster decisions</h4>
-    <p>Structured analysis cuts decision time. Mean time to closure for false-positives drops. Mean time to escalation for real threats drops too. Speed is only half the story; the <a href="/docs/adoption#measuring-triage-quality">quality metrics</a> that pair with it keep fast from meaning sloppy.</p>
+    <h3>⚡ Faster decisions</h3>
+    <p>Structured analysis cuts decision time. Mean time to closure for false-positives drops. Mean time to escalation for real threats drops too. Speed is only half the story; the <a href="/docs/adoption/#measuring-triage-quality">quality metrics</a> that pair with it keep fast from meaning sloppy.</p>
   </div>
 </div>
 
@@ -217,7 +217,7 @@ The Alert phase is not about deciding *whether* something is malicious. It is ab
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms"
+  nextHref="/docs/alert/detection-mechanisms/"
   nextLabel="Detection mechanisms"
   nextDescription="Signature, anomaly, rule-based, behavioral. Four families of detection, each with its own confidence profile and failure modes."
   ctaLabel="Read detection mechanisms"
@@ -340,10 +340,13 @@ The Alert phase is not about deciding *whether* something is malicious. It is ab
   border-radius: 0.85rem;
 }
 
-.strategic-card h4 {
+/* level changed for the heading outline; size stays as designed */
+.strategic-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-text);
   font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .strategic-card p {

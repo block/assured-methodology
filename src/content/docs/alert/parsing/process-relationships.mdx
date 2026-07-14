@@ -17,7 +17,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="03 · 03"
   pillarTotal="6 pages"
-  chapterHref="/docs/alert/parsing"
+  chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="Operating systems have predictable process lineages. Deviations from those patterns are highly informative. Mapping parent-child chains turns isolated alerts into narratives."
 />
@@ -26,12 +26,12 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Parsing pages"
   items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
   ]}
 />
 
@@ -81,7 +81,7 @@ And on macOS, where the Alert chapter's own Case B lives:
 
 ## Reading a macOS tree: signatures and notarization
 
-Case B in the <a href="/docs/alert/example">Alert worked example</a> hands you this tree. Here is how to parse it:
+Case B in the <a href="/docs/alert/example/">Alert worked example</a> hands you this tree. Here is how to parse it:
 
 ```
 launchd (PID 1)                      Apple platform binary
@@ -94,20 +94,20 @@ On macOS the tree gives you two extra parse targets that Windows lineage does no
 
 <div class="macos-parse">
   <div class="macos-parse__item">
-    <h4>Signing identity</h4>
+    <h3>Signing identity</h3>
     <p>Apple's own platform binaries (launchd, the system daemons) are signed by Apple's Software Signing certificate. Third-party software is signed with a Developer ID certificate that names the vendor. The parse question is not "is it signed" but "who signed it, and does that match what the binary claims to be." Ad-hoc or missing signatures inside a tree of properly signed processes are the standout.</p>
   </div>
   <div class="macos-parse__item">
-    <h4>Notarization</h4>
+    <h3>Notarization</h3>
     <p>Notarization is Apple's automated malware scan for third-party software distributed outside the App Store; Gatekeeper checks the ticket at first launch. Apple's own OS binaries are not notarized (they do not need to be), so "launchd is not notarized" is expected, while "this vendor app is not notarized" is a real flag on a managed fleet.</p>
   </div>
   <div class="macos-parse__item">
-    <h4>Install path</h4>
+    <h3>Install path</h3>
     <p>A signed binary running from <code>/Applications</code> where the MDM installed it is baseline. The same binary name running out of <code>~/Library</code>, <code>/tmp</code>, or a mounted DMG is staging. Signature says who built it; path says who put it there.</p>
   </div>
 </div>
 
-Where does this telemetry come from? EDR agents on macOS consume the Endpoint Security framework for process and signing events; the [formats and normalization page](/docs/alert/parsing/multi-format) covers the per-platform sources. The tells transfer directly: a hollowed-svchost equivalent does not exist on macOS, but "helper with the wrong parent," "signed binary in the wrong path," and "unsigned process in a signed tree" are the same lineage-plus-trust reasoning this page teaches for Windows.
+Where does this telemetry come from? EDR agents on macOS consume the Endpoint Security framework for process and signing events; the [formats and normalization page](/docs/alert/parsing/multi-format/) covers the per-platform sources. The tells transfer directly: a hollowed-svchost equivalent does not exist on macOS, but "helper with the wrong parent," "signed binary in the wrong path," and "unsigned process in a signed tree" are the same lineage-plus-trust reasoning this page teaches for Windows.
 
 ---
 
@@ -132,7 +132,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
   <div class="chain-row" data-chain="rogue-script">
     <div class="chain-row__head">
       <span class="chain-row__icon">🧨</span>
-      <h4>Rogue script execution</h4>
+      <h3>Rogue script execution</h3>
     </div>
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
@@ -167,7 +167,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
   <div class="chain-row" data-chain="registry">
     <div class="chain-row__head">
       <span class="chain-row__icon">🗝️</span>
-      <h4>Registry manipulation for persistence</h4>
+      <h3>Registry manipulation for persistence</h3>
     </div>
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
@@ -197,7 +197,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
   <div class="chain-row" data-chain="service">
     <div class="chain-row__head">
       <span class="chain-row__icon">⚙️</span>
-      <h4>Unauthorized service creation</h4>
+      <h3>Unauthorized service creation</h3>
     </div>
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
@@ -227,7 +227,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
   <div class="chain-row" data-chain="hollowing">
     <div class="chain-row__head">
       <span class="chain-row__icon">🥚</span>
-      <h4>Process hollowing</h4>
+      <h3>Process hollowing</h3>
     </div>
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
@@ -255,7 +255,7 @@ Five chains an analyst should recognize on sight. Each one has a characteristic 
   <div class="chain-row" data-chain="token-theft">
     <div class="chain-row__head">
       <span class="chain-row__icon">🎭</span>
-      <h4>Token theft and impersonation</h4>
+      <h3>Token theft and impersonation</h3>
     </div>
     <div class="chain-row__viz">
       <svg viewBox="0 0 420 60" class="chain-viz">
@@ -316,15 +316,15 @@ Process tree visualization makes anomalies obvious. Three categories of tooling 
 
 <div class="tools-grid">
   <div class="tool-card">
-    <h4>Sysinternals Process Explorer</h4>
+    <h3>Sysinternals Process Explorer</h3>
     <p>Detailed local tree analysis and thread inspection. Good for ad-hoc investigation on a single host.</p>
   </div>
   <div class="tool-card">
-    <h4>System Informer (formerly Process Hacker)</h4>
+    <h3>System Informer (formerly Process Hacker)</h3>
     <p>Lightweight alternative for in-depth lineage mapping and thread inspection. Open source; the project was renamed System Informer in 2022 and continues active development.</p>
   </div>
   <div class="tool-card">
-    <h4>EDR consoles</h4>
+    <h3>EDR consoles</h3>
     <p>CrowdStrike Falcon, SentinelOne, Microsoft Defender XDR all provide real-time tree visualization with historical playback at scale.</p>
   </div>
 </div>
@@ -339,7 +339,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
   <div class="evasion-detail">
     <div class="evasion-detail__head">
       <span class="evasion-detail__icon">🪤</span>
-      <h4>DLL search order hijacking</h4>
+      <h3>DLL search order hijacking</h3>
     </div>
     <p>
       A <DefineTerm term="DLL">Dynamic Link Library. A shared library that Windows loads into a process at runtime to provide functions the process uses. Programs name the DLLs they need; Windows finds them by searching a defined order of directories.</DefineTerm> is loaded by a legitimate binary from one of several search paths in a defined order. An adversary places a malicious DLL earlier in that order than the real one. The legitimate, signed binary loads the malicious DLL instead of the real one, executing attacker code under the trust of the original program.
@@ -352,7 +352,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
   <div class="evasion-detail">
     <div class="evasion-detail__head">
       <span class="evasion-detail__icon">👻</span>
-      <h4>Fileless execution</h4>
+      <h3>Fileless execution</h3>
     </div>
     <p>
       <DefineTerm term="fileless">An execution model that runs the malicious payload entirely from memory, without ever writing it to disk. Common techniques include PowerShell loading code via reflection, WMI event subscriptions whose consumers execute script payloads (the MOF defining them is compiled into the WMI repository at persistence time), and .NET assemblies loaded straight into memory.</DefineTerm> attacks run their payload from memory, never landing on disk. Disk-based detections (file hashes, AV scans, file integrity monitoring) see nothing. The process tree shows only legitimate parents (often PowerShell or WMI).
@@ -365,7 +365,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
   <div class="evasion-detail">
     <div class="evasion-detail__head">
       <span class="evasion-detail__icon">📑</span>
-      <h4>Alternate data streams (ADS)</h4>
+      <h3>Alternate data streams (ADS)</h3>
     </div>
     <p>
       NTFS supports multiple data streams per file. The default stream is what most tools and users see. An <DefineTerm term="alternate data stream">A secondary data stream attached to an NTFS file. The primary stream is what you see in Explorer. The alternate stream is invisible to most tools but can be opened and executed directly. Used historically to hide payloads inside otherwise innocuous files.</DefineTerm> can hide a payload inside a normal-looking file, and the malicious code can be invoked directly from the stream.
@@ -378,7 +378,7 @@ Adversaries who understand process tree analysis design their tradecraft to look
   <div class="evasion-detail">
     <div class="evasion-detail__head">
       <span class="evasion-detail__icon">🛠️</span>
-      <h4>LOLBin-only chains</h4>
+      <h3>LOLBin-only chains</h3>
     </div>
     <p>
       The adversary uses only trusted system binaries (<DefineTerm term="LOLBins" display="LOLBins" /> such as <code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>, <code>rundll32</code>) to download, decode, and execute attacker code. No malicious file is ever written to disk by the adversary, and no signature on any of the binaries is wrong.
@@ -395,7 +395,7 @@ Process relationship analysis bridges single-alert detection and full kill-chain
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/parsing/network"
+  nextHref="/docs/alert/parsing/network/"
   nextLabel="Network correlation"
   nextDescription="Tie host activity to outbound traffic. C2 detection through timing, TLS, DNS, and exfiltration indicators."
   ctaLabel="Read network correlation"
@@ -463,7 +463,7 @@ Process relationship analysis bridges single-alert detection and full kill-chain
   border-radius: 0.7rem;
 }
 
-.macos-parse__item h4 {
+.macos-parse__item :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-accent-soft);
   font-size: 0.95rem;
@@ -502,7 +502,7 @@ Process relationship analysis bridges single-alert detection and full kill-chain
   font-size: 1.3rem;
 }
 
-.chain-row h4 {
+.chain-row :is(h3, h4) {
   margin: 0;
   color: #fca5a5;
   font-size: 1rem;
@@ -576,7 +576,7 @@ Process relationship analysis bridges single-alert detection and full kill-chain
   border-radius: 0.7rem;
 }
 
-.tool-card h4 {
+.tool-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-accent-soft);
   font-size: 0.95rem;
@@ -613,7 +613,7 @@ Process relationship analysis bridges single-alert detection and full kill-chain
 
 .evasion-detail__icon { font-size: 1.3rem; }
 
-.evasion-detail h4 {
+.evasion-detail :is(h3, h4) {
   margin: 0;
   color: #d8b4fe;
   font-size: 1.02rem;
@@ -635,5 +635,14 @@ Process relationship analysis bridges single-alert detection and full kill-chain
 }
 
 .evasion-detail__tell strong { color: #d8b4fe; }
+
+/* level changed for the heading outline; size stays as designed (weight and line-height pinned to the h4 baseline) */
+.macos-parse__item h3,
+.chain-row h3,
+.tool-card h3,
+.evasion-detail h3 {
+  font-weight: 600;
+  line-height: inherit;
+}
 `}
 </style>

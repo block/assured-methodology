@@ -15,8 +15,8 @@ The highest-value areas, in rough priority order:
    *Content correction* issue template.
 2. **Content refinement**: sharpen wording, fix factual drift, update tool
    references as the vendor landscape shifts.
-3. **Case studies**: worked examples beyond the two threaded cases
-   (cloud-native intrusions, identity-provider abuse, supply chain).
+3. **Case studies**: worked examples beyond the three threaded cases,
+   in areas like cloud-native intrusions and supply chain.
 4. **Glossary entries**: current threat actors, recent campaigns, new SOC
    tooling.
 5. **Quiz items**: application-grade questions that test methodology

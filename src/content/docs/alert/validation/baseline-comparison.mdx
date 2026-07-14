@@ -16,7 +16,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="02 · 01"
   pillarTotal="03 strategies"
-  chapterHref="/docs/alert/validation"
+  chapterHref="/docs/alert/validation/"
   chapterLabel="Validation"
   lede="Compare the alert against a dynamic behavioral baseline. Was this user logged in at this time historically? Does this host normally talk to that destination? Does the process tree look like the entity's usual activity?"
 />
@@ -25,9 +25,9 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Validation strategies"
   items={[
-    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison", phase: "alert" },
-    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains",       phase: "alert" },
-    { label: "Criticality",         href: "/docs/alert/validation/criticality",         phase: "alert" },
+    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison/", phase: "alert" },
+    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains/",       phase: "alert" },
+    { label: "Criticality",         href: "/docs/alert/validation/criticality/",         phase: "alert" },
   ]}
 />
 
@@ -43,19 +43,19 @@ Baseline platforms such as <DefineTerm term="Microsoft Sentinel" /> UEBA, Splunk
 
 <div class="baseline-fields">
   <div class="baseline-field">
-    <h4>🕐 Temporal patterns</h4>
+    <h3>🕐 Temporal patterns</h3>
     <p>When the entity is active. Hours, days, week, month, season. Daily standups, end-of-quarter pushes, holiday slowdowns, and overnight maintenance windows all show up in the temporal model.</p>
   </div>
   <div class="baseline-field">
-    <h4>🔗 Communication graph</h4>
+    <h3>🔗 Communication graph</h3>
     <p>Who the entity talks to. Internal systems, external destinations, peer accounts, and recurring collaborators. Each edge in the graph has its own typical cadence.</p>
   </div>
   <div class="baseline-field">
-    <h4>📊 Volume metrics</h4>
+    <h3>📊 Volume metrics</h3>
     <p>How much the entity does. Bytes transferred, queries issued, processes spawned, files touched. Volume baselines catch staged exfiltration before it leaves the building.</p>
   </div>
   <div class="baseline-field">
-    <h4>🧩 Behavioral signatures</h4>
+    <h3>🧩 Behavioral signatures</h3>
     <p>Which actions the entity typically takes. The process tree of a developer's laptop looks nothing like the process tree of an accountant's, and the baseline captures that without anyone having to write a rule.</p>
   </div>
 </div>
@@ -105,7 +105,7 @@ Baseline comparison is the validation strategy that pays the best dividends per 
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/validation/attack-chains"
+  nextHref="/docs/alert/validation/attack-chains/"
   nextLabel="Attack chains and multi-event correlation"
   nextDescription="The second strategy: link discrete events into sequences that reveal adversary intent across time."
   ctaLabel="Read attack chains"
@@ -130,7 +130,7 @@ Baseline comparison is the validation strategy that pays the best dividends per 
   border-radius: 0.7rem;
 }
 
-.baseline-field h4 {
+.baseline-field :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: var(--assured-accent-soft);
   font-size: 1rem;
@@ -142,5 +142,9 @@ Baseline comparison is the validation strategy that pays the best dividends per 
   line-height: 1.55;
   font-size: 0.92rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.baseline-field h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

@@ -9,7 +9,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 AI assistants are in the SOC now: copilots bolted onto the SIEM, agentic triage inside the <DefineTerm term="SOAR (concept)" display="SOAR" />, chat panes in the EDR console. Every major security vendor ships one, and they are genuinely good at the mechanical majority of triage work: parsing, enrichment, correlation, summarization, first-draft writing. A methodology that pretends they don't exist is not describing the desk analysts actually sit at.
 
-ASSURED does not need a new phase for AI. The seven phases were designed to structure human attention, and they work unchanged when a machine produces the first draft, because every phase already separates the two kinds of work an assistant forces you to distinguish: **assembly**, which AI does fast and mostly well, and **judgment**, which stays with the analyst at every phase gate. The <a href="/docs/intro">intro's</a> strategic-automation goal drew this boundary for SOAR playbooks; an LLM assistant is the same boundary with a much more persuasive interface.
+ASSURED does not need a new phase for AI. The seven phases were designed to structure human attention, and they work unchanged when a machine produces the first draft, because every phase already separates the two kinds of work an assistant forces you to distinguish: **assembly**, which AI does fast and mostly well, and **judgment**, which stays with the analyst at every phase gate. The <a href="/docs/intro/">intro's</a> strategic-automation goal drew this boundary for SOAR playbooks; an LLM assistant is the same boundary with a much more persuasive interface.
 
 ## The operating rule: AI drafts, the analyst decides
 
@@ -24,7 +24,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
 <div class="ai-phase" data-phase="alert">
   <div class="ai-phase__head"><span class="ai-phase__letter">A</span><h3>Alert</h3></div>
   <div class="ai-phase__cols">
-    <div><h4>AI drafts</h4><p>Parses and normalizes the raw alert, decodes encoded command lines, summarizes what the detection rule fires on, and proposes pattern-library candidates for a <a href="/docs/fast-path">fast-path</a> close.</p></div>
+    <div><h4>AI drafts</h4><p>Parses and normalizes the raw alert, decodes encoded command lines, summarizes what the detection rule fires on, and proposes pattern-library candidates for a <a href="/docs/fast-path/">fast-path</a> close.</p></div>
     <div><h4>Analyst decides</h4><p>The validation verdict (real signal or false positive) and the depth decision: which rung of the ladder this alert gets.</p></div>
     <div><h4>Verify first</h4><p>Every decoded string against the raw field, and the rule summary against the actual rule logic. Models describe what a rule <em>probably</em> does; the detection engineering doc says what it does.</p></div>
   </div>
@@ -34,7 +34,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
   <div class="ai-phase__head"><span class="ai-phase__letter">S</span><h3>Subject</h3></div>
   <div class="ai-phase__cols">
     <div><h4>AI drafts</h4><p>Assembles the entity map: runs the identifier-to-identity pivots, pulls directory and HR context, timelines the account's recent activity.</p></div>
-    <div><h4>Analyst decides</h4><p>The <a href="/docs/subject/four-dimensions">four-dimension assessment</a> and whether the resolved identity is actually the right one.</p></div>
+    <div><h4>Analyst decides</h4><p>The <a href="/docs/subject/four-dimensions/">four-dimension assessment</a> and whether the resolved identity is actually the right one.</p></div>
     <div><h4>Verify first</h4><p>Each pivot hop's evidence: the DHCP lease that covers the alert timestamp, not the current one. Assistants merge identities that share a name and present the merge as fact.</p></div>
   </div>
 </div>
@@ -51,7 +51,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
 <div class="ai-phase" data-phase="uncover">
   <div class="ai-phase__head"><span class="ai-phase__letter">U</span><h3>Uncover</h3></div>
   <div class="ai-phase__cols">
-    <div><h4>AI drafts</h4><p>Query generation across SIEM and EDR, evidence collection, first-pass <a href="/docs/uncover/mitre">ATT&amp;CK mappings</a>, threat-intel enrichment summaries.</p></div>
+    <div><h4>AI drafts</h4><p>Query generation across SIEM and EDR, evidence collection, first-pass <a href="/docs/uncover/mitre/">ATT&amp;CK mappings</a>, threat-intel enrichment summaries.</p></div>
     <div><h4>Analyst decides</h4><p>The confidence label on every link in the evidence chain, and accept or reject on each technique mapping.</p></div>
     <div><h4>Verify first</h4><p>Technique IDs against the observed behavior: plausible-but-wrong mappings are the canonical LLM failure. And intel currency: the model's training data is months old, so check the live feed, not the model's memory.</p></div>
   </div>
@@ -69,7 +69,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
 <div class="ai-phase" data-phase="escalation">
   <div class="ai-phase__head"><span class="ai-phase__letter">E</span><h3>Escalation</h3></div>
   <div class="ai-phase__cols">
-    <div><h4>AI drafts</h4><p>Assembles the <a href="/docs/escalation/handoff">handoff packet</a> from the event record and drafts the notification messages.</p></div>
+    <div><h4>AI drafts</h4><p>Assembles the <a href="/docs/escalation/handoff/">handoff packet</a> from the event record and drafts the notification messages.</p></div>
     <div><h4>Analyst decides</h4><p>Escalate or close, which tier, and who gets woken up.</p></div>
     <div><h4>Verify first</h4><p>That the packet's claims match the record verbatim. Summarization drifts on severity words: "suspected compromise" becomes "compromise confirmed" one paraphrase at a time, and the IR team plans against the drifted version.</p></div>
   </div>
@@ -78,7 +78,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
 <div class="ai-phase" data-phase="documentation">
   <div class="ai-phase__head"><span class="ai-phase__letter">D</span><h3>Documentation</h3></div>
   <div class="ai-phase__cols">
-    <div><h4>AI drafts</h4><p>Timeline assembly from tool output, formatting into the <a href="/docs/documentation/templates">templates</a>, a first-draft narrative.</p></div>
+    <div><h4>AI drafts</h4><p>Timeline assembly from tool output, formatting into the <a href="/docs/documentation/templates/">templates</a>, a first-draft narrative.</p></div>
     <div><h4>Analyst decides</h4><p>The reasoning record: why each decision was made, not just what was done, and the closure justification.</p></div>
     <div><h4>Verify first</h4><p>Every timestamp against tool output, and no invented precision. A model asked for a timeline will produce one even where the logs have gaps; the gaps are findings, not formatting problems.</p></div>
   </div>
@@ -90,33 +90,33 @@ The phase map's "verify first" column repeats a small set of failure modes. Lear
 
 <div class="ai-fail-grid">
   <div class="ai-fail">
-    <h4>Fabricated specifics</h4>
+    <h3>Fabricated specifics</h3>
     <p>Hashes, IPs, CVE numbers, and technique IDs that are formatted correctly and do not exist. The tell is a specific claim with no tool output behind it. Rule: every identifier in the record traces to raw telemetry or it does not go in the record.</p>
   </div>
   <div class="ai-fail">
-    <h4>Plausible-but-wrong mappings</h4>
+    <h3>Plausible-but-wrong mappings</h3>
     <p>The technique, actor, or malware family that is <em>near</em> the right answer. These survive review because they are checkable only against the actual behavior, so check them against the actual behavior.</p>
   </div>
   <div class="ai-fail">
-    <h4>Unfounded absence claims</h4>
+    <h3>Unfounded absence claims</h3>
     <p>"No lateral movement was observed" reads as a finding but may mean the assistant never queried the right source. Absence claims require naming the sources searched and the window covered.</p>
   </div>
   <div class="ai-fail">
-    <h4>Stale knowledge as current</h4>
+    <h3>Stale knowledge as current</h3>
     <p>Model training data lags reality by months. Infrastructure attribution, tool capabilities, and actor TTPs change faster than model weights. Anything time-sensitive comes from a live source.</p>
   </div>
   <div class="ai-fail">
-    <h4>Hypothesis mirroring</h4>
-    <p>Assistants agree with the framing they are given. Ask "is this Empire?" and the evidence summary leans Empire. State the competing hypotheses and ask what evidence separates them instead; it is the same discipline the <a href="/docs/subject/behavioral-framework">behavioral framework</a> demands of the analyst's own reasoning.</p>
+    <h3>Hypothesis mirroring</h3>
+    <p>Assistants agree with the framing they are given. Ask "is this Empire?" and the evidence summary leans Empire. State the competing hypotheses and ask what evidence separates them instead; it is the same discipline the <a href="/docs/subject/behavioral-framework/">behavioral framework</a> demands of the analyst's own reasoning.</p>
   </div>
   <div class="ai-fail">
-    <h4>Severity drift in summaries</h4>
+    <h3>Severity drift in summaries</h3>
     <p>Each rewrite nudges hedged language toward certainty. Quote verbatim wherever a claim carries a confidence level; the event record's exact words are the packet's exact words.</p>
   </div>
 </div>
 
 <Callout variant="warn" title="Provenance is the whole game">
-One rule covers all six failure modes: the assistant's output is a lead, and tool output is evidence. The <a href="/docs/documentation/standards">documentation standards</a> require every claim in the record to cite the telemetry behind it, which is exactly the requirement that makes AI-drafted records safe: a draft that cannot cite its sources is not done, it is unstarted.
+One rule covers all six failure modes: the assistant's output is a lead, and tool output is evidence. The <a href="/docs/documentation/standards/">documentation standards</a> require every claim in the record to cite the telemetry behind it, which is exactly the requirement that makes AI-drafted records safe: a draft that cannot cite its sources is not done, it is unstarted.
 </Callout>
 
 ## The assistant is attack surface
@@ -134,42 +134,42 @@ The same capability shift changes what arrives in the queue. These patterns are 
 
 <div class="ai-abuse-grid">
   <div class="ai-abuse">
-    <h4>Polished phishing at scale</h4>
-    <p>LLM-written lures killed the grammar heuristic: fluent, personalized, correctly branded mail is now the baseline for bulk campaigns, not the mark of a targeted one. Validation weight shifts to the technical discriminators (sender infrastructure, authentication results, link targets) that <a href="/docs/alert/validation">Alert validation</a> already prioritizes.</p>
+    <h3>Polished phishing at scale</h3>
+    <p>LLM-written lures killed the grammar heuristic: fluent, personalized, correctly branded mail is now the baseline for bulk campaigns, not the mark of a targeted one. Validation weight shifts to the technical discriminators (sender infrastructure, authentication results, link targets) that <a href="/docs/alert/validation/">Alert validation</a> already prioritizes.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Deepfake voice and video</h4>
+    <h3>Deepfake voice and video</h3>
     <p>Synthetic voice defeats "I recognized the caller" for helpdesk resets and payment authorization. In the widely reported 2024 Hong Kong case, a finance employee approved roughly US$25 million after a video call where every other participant was synthetic. Callback-on-a-known-number and out-of-band verification are process controls, and <DefineTerm term="Vishing (Voice Phishing)" display="vishing" />-driven resets surface in Subject as password resets outside normal patterns.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Prompt injection against internal AI</h4>
+    <h3>Prompt injection against internal AI</h3>
     <p>Any internal assistant that reads mail, documents, or tickets can be steered by content planted where it will read: instructions hidden in an email it summarizes, a document it indexes, a ticket it triages. The delivery mechanism is content, so the alert often looks like the assistant's own identity misbehaving.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Exfiltration through AI channels</h4>
+    <h3>Exfiltration through AI channels</h3>
     <p>Agents hold delegated access to mail, drives, and repos, and their normal behavior is bulk reading. <DefineTerm term="Data Exfiltration" display="Exfiltration" /> through an AI agent's legitimate token looks like the agent doing its job, which makes scope-of-access baselines (what this agent has never touched before) the discriminating signal.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Shadow AI</h4>
+    <h3>Shadow AI</h3>
     <p>Sensitive data pasted into unsanctioned AI tools is a data-handling exposure that behaves like a DLP class of its own: the "attacker" is a well-meaning employee and the destination is a legitimate service. In Scope, it can start a regulatory clock without any intrusion at all.</p>
   </div>
   <div class="ai-abuse">
-    <h4>Machine-speed operations</h4>
-    <p>Agentic tooling compresses attacker timelines on both sides of the keyboard. Time-based intuition ("a human couldn't have done all this in four minutes") stops distinguishing attacker automation from legitimate automation, and starts being a reason to identify <em>which</em> automation. The <a href="/docs/alert/example">Cursor worked example</a> is an early version of this: an AI-assisted IDE whose normal behavior pattern-matched post-exploitation tooling.</p>
+    <h3>Machine-speed operations</h3>
+    <p>Agentic tooling compresses attacker timelines on both sides of the keyboard. Time-based intuition ("a human couldn't have done all this in four minutes") stops distinguishing attacker automation from legitimate automation, and starts being a reason to identify <em>which</em> automation. The <a href="/docs/alert/example/">Cursor worked example</a> is an early version of this: an AI-assisted IDE whose normal behavior pattern-matched post-exploitation tooling.</p>
   </div>
 </div>
 
 ## AI agents as subjects
 
-When the entity behind an alert is itself an AI agent (a copilot with delegated mailbox access, a RAG pipeline's service identity, an agentic automation with tool permissions), Subject analysis applies with one adjustment: the agent is a service-account-shaped identity whose <em>inputs</em> are part of the attack surface. A prompt-injected assistant misusing its own legitimate token looks like an insider, not an intruder, so the four dimensions get asked about the agent's data diet as well as its credentials. The <a href="/docs/subject/entity-types#applications-and-services">entity-types page</a> covers where these identities sit in the taxonomy.
+When the entity behind an alert is itself an AI agent (a copilot with delegated mailbox access, a RAG pipeline's service identity, an agentic automation with tool permissions), Subject analysis applies with one adjustment: the agent is a service-account-shaped identity whose <em>inputs</em> are part of the attack surface. A prompt-injected assistant misusing its own legitimate token looks like an insider, not an intruder, so the four dimensions get asked about the agent's data diet as well as its credentials. The <a href="/docs/subject/entity-types/#applications-and-services">entity-types page</a> covers where these identities sit in the taxonomy.
 
 <KeyTakeaway>
 AI changes who produces the first draft, not who owns the decision. The assistant assembles: parsing, pivots, enrichment, packet and timeline drafts. The analyst verifies against raw telemetry and signs at each phase gate: the validation verdict, the identity, the boundary, the confidence labels, the risk verdict, the escalation call, the reasoning record. And the assistant itself is attack surface: it reads attacker-controlled content, so its inputs get provenance-graded and its actions stay behind the human gate.
 </KeyTakeaway>
 
 <div class="end-cta">
-  <a href="/docs/fast-path" class="assured-cta assured-cta--ghost">← The fast path</a>
-  <a href="/docs/alert" class="assured-cta">Start the methodology: Alert →</a>
+  <a href="/docs/fast-path/" class="assured-cta assured-cta--ghost">← The fast path</a>
+  <a href="/docs/alert/" class="assured-cta">Start the methodology: Alert →</a>
 </div>
 
 <style>{`
@@ -204,7 +204,9 @@ AI changes who produces the first draft, not who owns the decision. The assistan
 .ai-fail, .ai-abuse { padding: 1.1rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.6rem; }
 .ai-fail { border-left: 3px solid #f59e0b; }
 .ai-abuse { border-left: 3px solid #ef4444; }
-.ai-fail h4, .ai-abuse h4 { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
+.ai-fail :is(h3, h4), .ai-abuse :is(h3, h4) { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.ai-fail h3, .ai-abuse h3 { font-weight: 600; line-height: inherit; }
 .ai-fail p, .ai-abuse p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 .ai-fail a, .ai-abuse a { color: var(--assured-accent-soft); }
 

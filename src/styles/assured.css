@@ -86,9 +86,11 @@
     /* Sticky-chrome geometry. --anchor-scroll-offset clears the header plus
        the sticky PillNav with breathing room; it drives the scroll-margin-top
        rule in global.css and the TOC scroll-spy line, which reads it via
-       getComputedStyle so click landings and spy state can't drift apart. */
+       getComputedStyle so click landings and spy state can't drift apart.
+       Sized for the tallest case: PillNav items at their 44px coarse-pointer
+       touch-target floor. */
     --header-height: 64px;
-    --anchor-scroll-offset: 140px;
+    --anchor-scroll-offset: 148px;
 
     --assured-content-max: 80ch;
   }
@@ -220,6 +222,9 @@
     padding: 0.1em 0.35em;
     border-radius: 0.35em;
     font-size: 0.92em;
+    /* Registry paths, base64 blobs, and dotted log fields have no break
+       points; without this they force whole-page panning on phones. */
+    overflow-wrap: anywhere;
   }
 
   .prose hr {
@@ -346,6 +351,7 @@
 .assured-callout__body {
   flex: 1;
   color: var(--assured-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .assured-callout__title {
@@ -487,6 +493,12 @@
   letter-spacing: 0.04em;
   margin-bottom: 0.75rem;
   color: var(--assured-text);
+}
+
+/* The heading is an h3 for the document outline (its section head is an h2);
+   pin the h4-era top margin so .prose h3's larger one does not win. */
+.prose .assured-pros-cons__heading {
+  margin-top: 1.5rem;
 }
 
 .assured-pros-cons__col--pro .assured-pros-cons__heading {

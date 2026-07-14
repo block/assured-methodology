@@ -9,13 +9,13 @@ import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="Transition" pillarTotal="Escalation to Documentation" chapterHref="/docs/escalation" chapterLabel="Escalation" lede="Documentation is not a distinct final phase; it is a continuous, embedded practice that spans the entire lifecycle of a security event. The transition from Escalation to Documentation is the moment the methodology formalizes what has already been recorded throughout."/>
+<SubPageHero phase="escalation" parentLetter="E" pillarIndex="Transition" pillarTotal="Escalation to Documentation" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="Documentation is not a distinct final phase; it is a continuous, embedded practice that spans the entire lifecycle of a security event. The transition from Escalation to Documentation is the moment the methodology formalizes what has already been recorded throughout."/>
 
 <PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff", phase: "escalation" },
+  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
+  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
+  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
+  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
 ]}/>
 
 <Callout variant="info" title="Six phases complete. The last begins.">
@@ -24,7 +24,7 @@ Alert through Escalation produced the investigation and the response handoff. Do
 
 ## Documentation is continuous, not final
 
-Documentation began at Alert and evolved alongside the investigation: the timeline, the containment record, and the stakeholder communications were captured as they happened, not reconstructed afterwards. Why the methodology insists on that, and what the practice looks like day to day, is the <a href="/docs/documentation">Documentation chapter</a>'s own subject. This page covers only the handoff.
+Documentation began at Alert and evolved alongside the investigation: the timeline, the containment record, and the stakeholder communications were captured as they happened, not reconstructed afterwards. Why the methodology insists on that, and what the practice looks like day to day, is the <a href="/docs/documentation/">Documentation chapter</a>'s own subject. This page covers only the handoff.
 
 ---
 
@@ -35,43 +35,47 @@ By the time Escalation has run its course, much of the documentation is already 
 <div class="handoff-grid">
   <div class="handoff-card">
     <span class="handoff-card__num">01</span>
-    <h4>The nine-section packet</h4>
+    <h3>The nine-section packet</h3>
     <p>Case summary, timeline, entities, evidence chain, Risk verdict, containment actions, artifacts, open questions, communication record. Already structured by Escalation.</p>
   </div>
   <div class="handoff-card">
     <span class="handoff-card__num">02</span>
-    <h4>Escalation rationale</h4>
+    <h3>Escalation rationale</h3>
     <p>Why the case crossed the criteria threshold. The specific evidence supporting the decision. This becomes part of the audit record.</p>
   </div>
   <div class="handoff-card">
     <span class="handoff-card__num">03</span>
-    <h4>Stakeholder engagement record</h4>
+    <h3>Stakeholder engagement record</h3>
     <p>Who was engaged, when, what they were told, what they decided. The communication record that survives the case.</p>
   </div>
   <div class="handoff-card">
     <span class="handoff-card__num">04</span>
-    <h4>Open improvement items</h4>
+    <h3>Open improvement items</h3>
     <p>Detection-engineering gaps, process inefficiencies, tooling limitations identified during the response. Each one becomes a tracked action.</p>
   </div>
 </div>
 
-What Documentation does with this handoff, verifying completeness against the <a href="/docs/documentation/standards">standards</a>, applying consistent terminology, and quality-controlling the record before closure, is covered in the chapter itself. The case closes only when that quality bar is passed.
+What Documentation does with this handoff, verifying completeness against the <a href="/docs/documentation/standards/">standards</a>, applying consistent terminology, and quality-controlling the record before closure, is covered in the chapter itself. The case closes only when that quality bar is passed.
 
 <KeyTakeaway>Escalation moved the case forward. Documentation makes it durable. The transition is not a new task; it is the formalization of work that has been continuous throughout the lifecycle. Documentation is the phase that says "the case is complete," and it does so by quality-controlling what the rest of the methodology has already captured.</KeyTakeaway>
 
 <PuzzleProgress current="escalation" />
 
 <div class="end-cta">
-  <a href="/docs/escalation" class="assured-cta assured-cta--ghost">← Back to Escalation overview</a>
-  <a href="/docs/documentation" class="assured-cta">Continue to Documentation →</a>
+  <a href="/docs/escalation/" class="assured-cta assured-cta--ghost">← Back to Escalation overview</a>
+  <a href="/docs/documentation/" class="assured-cta">Continue to Documentation →</a>
 </div>
 
 <style>{`
 @media (min-width: 1100px) { .handoff-grid { grid-template-columns: repeat(4, 1fr); } }
 .handoff-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
 .handoff-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.55); }
-.handoff-card h4 { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.93rem; }
+.handoff-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.93rem; }
 .handoff-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
 
 .end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.handoff-card h3 { font-weight: 600; line-height: inherit; }
 `}</style>

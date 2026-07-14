@@ -23,7 +23,9 @@ const props = Astro.props;
 
 <details class={`evasion evasion--${props.pattern}`}>
   <summary class="evasion__summary">
-    <div class="evasion__head">
+    {/* Spans, not div/p: <summary> permits only phrasing (and heading)
+        content; the CSS display values recreate the block layout. */}
+    <span class="evasion__head">
       <span class="evasion__icon" aria-hidden="true">{props.icon}</span>
       {/* A styled span, not a heading: <summary> exposes role=button, which
           strips heading semantics for AT and clutters the outline. */}
@@ -35,8 +37,8 @@ const props = Astro.props;
         <span class="evasion__toggle-text evasion__toggle-text--closed">See how it works</span>
         <span class="evasion__toggle-text evasion__toggle-text--open">Hide</span>
       </span>
-    </div>
-    <p class="evasion__desc">{props.description}</p>
+    </span>
+    <span class="evasion__desc">{props.description}</span>
   </summary>
 
   <div class="evasion__demo">
@@ -277,6 +279,7 @@ const props = Astro.props;
   .evasion[open] .evasion__toggle-text--open   { display: inline; }
 
   .evasion__desc {
+    display: block;
     margin: 0;
     color: var(--assured-text-muted);
     line-height: 1.55;

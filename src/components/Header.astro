@@ -2,10 +2,21 @@
 import Brand from "@/components/Brand.astro";
 import SiteSearch from "@/components/SiteSearch.astro";
 import { mainNavigation } from "@/data/navigation";
+import type { NavItem } from "@/data/navigation";
 import { getUrlRelativeToBase } from "@/lib/utils";
 import { isActivePage } from "@/lib/utils";
 
-const currentPath = Astro.url.pathname;
+// Nav hrefs use the trailing-slash form, so normalize the pathname to match.
+const currentPath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+
+// A group is active when the current page lives anywhere in its subtree.
+// Guides, Training, and Glossaries children sit at sibling paths, so the
+// parent's href prefix alone cannot see them.
+const isActiveSection = (item: NavItem): boolean =>
+  isActivePage(item.href, currentPath) ||
+  (item.children?.some(isActiveSection) ?? false);
 ---
 
 <header class="header">
@@ -15,7 +26,7 @@ const currentPath = Astro.url.pathname;
 
       <nav class="header__nav" aria-label="Primary">
         {mainNavigation[0].items.map((item) => {
-          const isActive = isActivePage(item.href, currentPath);
+          const isActive = isActiveSection(item);
           if (item.status === "soon") {
             return (
               <span class="header__link header__link--soon">
@@ -31,6 +42,11 @@ const currentPath = Astro.url.pathname;
           // fake roles made screen readers promise menu semantics the keyboard
           // never delivered; honest links inside the nav landmark need none.
           if (item.children && item.children.length > 0) {
+            // Guides, Training, and Glossaries have no overview page: their
+            // parent href reuses a child's page, so an "overview" row there
+            // would mislabel that page as a chapter intro and duplicate the
+            // child's link.
+            const hasOverviewPage = !item.children.some((child) => child.href === item.href);
             return (
               <div class="header__menu-item">
                 <a
@@ -44,13 +60,15 @@ const currentPath = Astro.url.pathname;
                   </svg>
                 </a>
                 <div class="header__dropdown">
-                  <a
-                    href={getUrlRelativeToBase(item.href)}
-                    class="header__dropdown-link header__dropdown-link--overview"
-                  >
-                    <span class="header__dropdown-title">{item.title} overview</span>
-                    <span class="header__dropdown-sub">Chapter intro and outcomes</span>
-                  </a>
+                  {hasOverviewPage && (
+                    <a
+                      href={getUrlRelativeToBase(item.href)}
+                      class="header__dropdown-link header__dropdown-link--overview"
+                    >
+                      <span class="header__dropdown-title">{item.title} overview</span>
+                      <span class="header__dropdown-sub">Chapter intro and outcomes</span>
+                    </a>
+                  )}
                   {item.children.map((child) => {
                     if (child.status === "soon") {
                       return (
@@ -60,7 +78,7 @@ const currentPath = Astro.url.pathname;
                         </span>
                       );
                     }
-                    const childActive = currentPath === child.href || currentPath === child.href + "/";
+                    const childActive = currentPath === child.href;
                     return (
                       <>
                         <a
@@ -70,7 +88,7 @@ const currentPath = Astro.url.pathname;
                           <span class="header__dropdown-title">{child.title}</span>
                         </a>
                         {child.children?.map((leaf) => {
-                          const leafActive = currentPath === leaf.href || currentPath === leaf.href + "/";
+                          const leafActive = currentPath === leaf.href;
                           return (
                             <a
                               href={getUrlRelativeToBase(leaf.href)}
@@ -129,7 +147,7 @@ const currentPath = Astro.url.pathname;
   <!-- Mobile menu -->
   <nav class="header__mobile" id="header-mobile-menu" data-mobile-menu aria-label="Mobile">
     {mainNavigation[0].items.map((item) => {
-      const isActive = isActivePage(item.href, currentPath);
+      const isActive = isActiveSection(item);
       if (item.status === "soon") {
         return (
           <span class="header__mobile-link header__mobile-link--soon">
@@ -140,19 +158,30 @@ const currentPath = Astro.url.pathname;
       }
       // Render nested children for items that have them (chapters, glossaries).
       const hasChildren = item.children && item.children.length > 0;
+      // Groups without an overview page (parent href reuses a child's) get a
+      // plain group label: a "Guides" link directly above an identical "Fast
+      // path" link would duplicate the destination under a misleading name.
+      const isGroupLabel =
+        hasChildren && item.children!.some((child) => child.href === item.href);
       return (
         <div class="header__mobile-group">
-          <a
-            href={getUrlRelativeToBase(item.href)}
-            class={`header__mobile-link ${isActive ? "is-active" : ""}`}
-          >
-            {item.title}
-          </a>
+          {isGroupLabel ? (
+            <span class={`header__mobile-link header__mobile-link--label ${isActive ? "is-active" : ""}`}>
+              {item.title}
+            </span>
+          ) : (
+            <a
+              href={getUrlRelativeToBase(item.href)}
+              class={`header__mobile-link ${isActive ? "is-active" : ""}`}
+            >
+              {item.title}
+            </a>
+          )}
           {hasChildren && (
             <div class="header__mobile-sublist">
               {item.children!.map((child) => {
                 if (child.status === "soon") return null;
-                const childActive = currentPath === child.href || currentPath === child.href + "/";
+                const childActive = currentPath === child.href;
                 return (
                   <>
                     <a
@@ -162,7 +191,7 @@ const currentPath = Astro.url.pathname;
                       {child.title}
                     </a>
                     {child.children?.map((leaf) => {
-                      const leafActive = currentPath === leaf.href || currentPath === leaf.href + "/";
+                      const leafActive = currentPath === leaf.href;
                       return (
                         <a
                           href={getUrlRelativeToBase(leaf.href)}
@@ -224,8 +253,9 @@ const currentPath = Astro.url.pathname;
     flex-wrap: nowrap;
   }
 
-  /* Eleven top-level items fit only from ~1350px up, even with compact spacing;
-     below that the hamburger menu takes over (the nav used to paint over the
+  /* Eleven top-level items (the five guide pages fold into the Guides
+     dropdown) fit only from ~1350px up, even with compact spacing; below
+     that the hamburger menu takes over (the nav used to paint over the
      search and GitHub controls when it was shown any narrower). */
   @media (min-width: 1350px) {
     .header__nav { display: flex; }
@@ -495,6 +525,12 @@ const currentPath = Astro.url.pathname;
 
   .header__mobile.is-open {
     display: flex;
+    /* The panel lives inside the sticky header, so it must scroll itself:
+       page scroll can never bring its lower links into view. */
+    max-height: calc(100vh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .header__mobile-link {
@@ -518,6 +554,10 @@ const currentPath = Astro.url.pathname;
   .header__mobile-link--soon {
     color: var(--assured-text-dim);
     opacity: 0.7;
+  }
+
+  .header__mobile-link--label {
+    cursor: default;
   }
 
   .header__mobile-group {

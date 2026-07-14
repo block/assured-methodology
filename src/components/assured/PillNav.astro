@@ -33,7 +33,9 @@ interface Props {
 
 const { label = "Jump to", items, sticky = true, chapter } = Astro.props;
 
-const pagePath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const pagePath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
 
 /* Auto-appended links so every chapter sub-page surfaces its companion
  * Example / Quiz / Transition pages. The chapter sub-page authors don't
@@ -44,19 +46,19 @@ const chapterTail: Item[] = chapter
   ? [
       {
         label: "Working example",
-        href: `/docs/${chapter}/example`,
+        href: `/docs/${chapter}/example/`,
         phase: chapter,
       },
-      { label: "Chapter quiz", href: `/docs/${chapter}/quiz`, phase: chapter },
+      { label: "Chapter quiz", href: `/docs/${chapter}/quiz/`, phase: chapter },
       chapter === "documentation"
         ? {
             label: "Closure",
-            href: "/docs/documentation/closure",
+            href: "/docs/documentation/closure/",
             phase: chapter,
           }
         : {
             label: "Transition",
-            href: `/docs/${chapter}/transition`,
+            href: `/docs/${chapter}/transition/`,
             phase: chapter,
           },
     ]
@@ -153,6 +155,11 @@ const chapterTail: Item[] = chapter
   }
 
   .pillnav__items::-webkit-scrollbar { display: none; }
+
+  /* WCAG 2.5.5: 44px touch-target floor on touch devices. */
+  @media (pointer: coarse) {
+    .pillnav__item { min-height: 2.75rem; }
+  }
 
   .pillnav__item {
     flex-shrink: 0;

@@ -15,17 +15,17 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="U"
   pillarIndex="02"
   pillarTotal="05"
-  chapterHref="/docs/uncover"
+  chapterHref="/docs/uncover/"
   chapterLabel="Uncover"
   lede="Sources, intel, vocabulary, and tools are nouns. Correlation is the verb: joining events across sources into one ordered, confidence-labeled timeline, pivoting with discipline, and knowing when to stop."
 />
 
 <PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling", phase: "uncover" },
+  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
+  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
+  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
+  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
+  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
 ]}/>
 
 The data-sources page tells you where evidence lives. This page teaches what you actually do with it: the mechanics behind sentences like "firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID." That correlation did not happen by staring. It happened because two events shared a join key, their clocks were trustworthy enough to order them, and the analyst was testing a specific hypothesis when they ran the query.
@@ -36,32 +36,32 @@ Two events from different sources correlate when they share an identifier inside
 
 <div class="joinkey-grid">
   <div class="joinkey-card">
-    <h4>Host</h4>
+    <h3>Host</h3>
     <p>Hostname, asset ID, or agent ID ties endpoint, network, and directory events together.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> IP is not host identity. DHCP reassigns, VPN pools rotate, NAT aggregates. Join on IP only inside a window where you have verified the lease, or prefer the asset ID.</p>
   </div>
   <div class="joinkey-card">
-    <h4>User</h4>
+    <h3>User</h3>
     <p>Account name or directory SID joins authentication, endpoint, email, and SaaS events.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> the account is not the person. Shared accounts, service accounts, and a second account for the same human all break the assumption. Subject-phase entity work is what keeps this join honest.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Process</h4>
+    <h3>Process</h3>
     <p>PID plus host plus time window joins an EDR process event to the network connections and file writes it caused.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> PIDs are recycled. A PID is only unique per boot, per host, while the process lives. Prefer the EDR's globally unique process identifier when the console exposes one.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Logon and session IDs</h4>
+    <h3>Logon and session IDs</h3>
     <p>Windows logon IDs, IdP session IDs, and cloud session names tie every action inside one session to the authentication that started it.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> sessions outlive credential changes. A reset password does not kill an already-issued session token, so "we reset the account" does not end this join.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Network tuple</h4>
+    <h3>Network tuple</h3>
     <p>Source IP:port to destination IP:port, inside a time window, joins host telemetry to firewall, proxy, and flow logs.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> proxies and NAT collapse many hosts into one source IP. The proxy log, not the firewall log, holds the original client.</p>
   </div>
   <div class="joinkey-card">
-    <h4>Artifact hash</h4>
+    <h3>Artifact hash</h3>
     <p>A file hash joins sightings across every host and the sandbox report, regardless of filename.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> ubiquity cuts both ways. A hash seen on 4,000 hosts is probably a legitimate binary being abused, not 4,000 infections. Prevalence is context, not a verdict.</p>
   </div>
@@ -118,7 +118,7 @@ Every entry carries the same fields:
   </div>
 </div>
 
-Three habits make the artifact trustworthy. Label confidence on every row using the same scale the <a href="/docs/uncover/transition">transition page</a> demands at handoff: confirmed by the source, corroborated across sources, single-source, or inferred. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
+Three habits make the artifact trustworthy. Label confidence on every row using the same scale the <a href="/docs/uncover/transition/">transition page</a> demands at handoff: confirmed by the source, corroborated across sources, single-source, or inferred. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
 
 ---
 
@@ -162,19 +162,19 @@ The intro names rabbit-holes as a defining junior failure, and Uncover is where 
 
 <div class="stop-grid">
   <div class="stop-card">
-    <h4>🧱 The Scope boundary holds</h4>
+    <h3>🧱 The Scope boundary holds</h3>
     <p>The entity, time, and infrastructure lines drawn in the Scope phase are the outer wall. Evidence pointing past them is grounds for a documented scope expansion decision, not silent drift into new territory.</p>
   </div>
   <div class="stop-card">
-    <h4>📉 Marginal return</h4>
+    <h3>📉 Marginal return</h3>
     <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is dry. Two empty pivots on the same hypothesis is a defensible place to draw the line and move on.</p>
   </div>
   <div class="stop-card">
-    <h4>⚖️ Verdict stability</h4>
+    <h3>⚖️ Verdict stability</h3>
     <p>When new evidence no longer changes any hypothesis status, Uncover has done its job. More queries buy confidence theater, not confidence. Write the narrative and hand off to Risk.</p>
   </div>
   <div class="stop-card">
-    <h4>🚨 An escalation trigger fires</h4>
+    <h3>🚨 An escalation trigger fires</h3>
     <p>Hitting an escalation criterion ends Uncover immediately, mid-thread if necessary. Confirmed active compromise belongs to incident response; continuing to dig solo delays the people who own containment.</p>
   </div>
 </div>
@@ -184,14 +184,14 @@ At any moment you should be able to answer one question: which open hypothesis d
 </Callout>
 
 <Callout variant="info" title="See it run">
-The <a href="/docs/uncover/example">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a false-positive scenario closed with the same rigor as the true positive.
+The <a href="/docs/uncover/example/">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a false-positive scenario closed with the same rigor as the true positive.
 </Callout>
 
 <KeyTakeaway>
 Correlation is joining events on real keys within honest clocks; the <DefineTerm term="Timeline" display="timeline" /> is the running, confidence-labeled artifact that holds it; the hypothesis ledger keeps every pivot pointed at a question; and the stopping rules end the phase on evidence rather than exhaustion. This is the verb the rest of the chapter's nouns exist to serve.
 </KeyTakeaway>
 
-<ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence" nextLabel="Threat intelligence" nextDescription="Indicator matching, attribution, TTP-driven hunting, validation. How to use intel as a hypothesis source, not a verdict." ctaLabel="Read threat intelligence" />
+<ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence/" nextLabel="Threat intelligence" nextDescription="Indicator matching, attribution, TTP-driven hunting, validation. How to use intel as a hypothesis source, not a verdict." ctaLabel="Read threat intelligence" />
 
 <style>
 {`
@@ -211,7 +211,8 @@ Correlation is joining events on real keys within honest clocks; the <DefineTerm
   border-top: 3px solid #f97316;
   border-radius: 0.7rem;
 }
-.joinkey-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.joinkey-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
 .joinkey-card p { margin: 0 0 0.6rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.89rem; }
 .joinkey-card__trap {
   margin: 0 !important;
@@ -384,7 +385,8 @@ Correlation is joining events on real keys within honest clocks; the <DefineTerm
   border-left: 3px solid #f97316;
   border-radius: 0.7rem;
 }
-.stop-card h4 { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; }
+/* level changed for the heading outline; size stays as designed */
+.stop-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
 .stop-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 `}
 </style>

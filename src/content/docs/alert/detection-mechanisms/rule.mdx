@@ -16,7 +16,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="01 · 03"
   pillarTotal="04 families"
-  chapterHref="/docs/alert/detection-mechanisms"
+  chapterHref="/docs/alert/detection-mechanisms/"
   chapterLabel="Detection mechanisms"
   lede="Rule-based detection uses expert-defined conditional logic. Most rules follow an if-then pattern that combines multiple indicators, contextual parameters, and timing constraints to describe a specific scenario worth investigating."
 />
@@ -25,10 +25,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Detection families"
   items={[
-    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
-    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
-    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
-    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature/",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly/",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule/",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral/", phase: "alert" },
   ]}
 />
 
@@ -42,15 +42,15 @@ Rules let security teams encode their own institutional knowledge and their own 
 
 <div class="rule-examples">
   <div class="rule-example">
-    <h4>⚠️ Office macro execution</h4>
+    <h3>⚠️ Office macro execution</h3>
     <p><strong>If</strong> a Microsoft Office process spawns PowerShell <strong>and</strong> establishes an outbound network connection within 60 seconds, <strong>then</strong> fire a high-severity alert.</p>
   </div>
   <div class="rule-example">
-    <h4>🚪 Sensitive system access from unmanaged device</h4>
+    <h3>🚪 Sensitive system access from unmanaged device</h3>
     <p><strong>If</strong> a user accesses three or more sensitive systems <strong>and</strong> the source device is not enrolled in the asset inventory, <strong>then</strong> trigger an investigation.</p>
   </div>
   <div class="rule-example">
-    <h4>🔑 Privilege escalation with bulk access</h4>
+    <h3>🔑 Privilege escalation with bulk access</h3>
     <p><strong>If</strong> an account is granted elevated privileges <strong>and</strong> performs bulk data access <strong>within</strong> an hour <strong>and</strong> the activity is outside business hours, <strong>then</strong> escalate to the on-call engineer.</p>
   </div>
 </div>
@@ -124,7 +124,7 @@ Rule-based detection is the team's institutional knowledge made executable. Trea
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms/behavioral"
+  nextHref="/docs/alert/detection-mechanisms/behavioral/"
   nextLabel="Behavioral analytics"
   nextDescription="The final family. Multi-event sequence analysis that catches the patterns no single event would reveal."
   ctaLabel="Read behavioral analytics"
@@ -147,7 +147,7 @@ Rule-based detection is the team's institutional knowledge made executable. Trea
   border-radius: 0.7rem;
 }
 
-.rule-example h4 {
+.rule-example :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #d8b4fe;
   font-size: 1rem;
@@ -163,5 +163,9 @@ Rule-based detection is the team's institutional knowledge made executable. Trea
 .rule-example strong {
   color: var(--assured-text);
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.rule-example h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

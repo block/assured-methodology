@@ -17,7 +17,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="01 · 02"
   pillarTotal="04 families"
-  chapterHref="/docs/alert/detection-mechanisms"
+  chapterHref="/docs/alert/detection-mechanisms/"
   chapterLabel="Detection mechanisms"
   lede="Anomaly-based detection builds a model of what normal looks like in this environment and flags activity that deviates from it. The model does not need to know what the threat is, only what normal is."
 />
@@ -26,10 +26,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Detection families"
   items={[
-    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature",  phase: "alert" },
-    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly",    phase: "alert" },
-    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule",       phase: "alert" },
-    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral", phase: "alert" },
+    { label: "Signature",  href: "/docs/alert/detection-mechanisms/signature/",  phase: "alert" },
+    { label: "Anomaly",    href: "/docs/alert/detection-mechanisms/anomaly/",    phase: "alert" },
+    { label: "Rule",       href: "/docs/alert/detection-mechanisms/rule/",       phase: "alert" },
+    { label: "Behavioral", href: "/docs/alert/detection-mechanisms/behavioral/", phase: "alert" },
   ]}
 />
 
@@ -47,19 +47,19 @@ Anomaly detection trades precision for breadth. A signature engine fires rarely 
 
 <div class="anomaly-examples">
   <div class="anomaly-example">
-    <h4>🕒 Unusual authentication times</h4>
+    <h3>🕒 Unusual authentication times</h3>
     <p>An administrative login at 03:00 from an account that historically logs in between 09:00 and 17:00. The deviation is from <em>this user's</em> historical pattern, not a global rule.</p>
   </div>
   <div class="anomaly-example">
-    <h4>📤 Atypical data transfer volumes</h4>
+    <h3>📤 Atypical data transfer volumes</h3>
     <p>A file server moves 2 GB outbound when its baseline is single-digit megabytes per day. The traffic itself is over an allowed channel; the volume is the deviation.</p>
   </div>
   <div class="anomaly-example">
-    <h4>⚙️ Abnormal process behavior</h4>
+    <h3>⚙️ Abnormal process behavior</h3>
     <p><code>powershell.exe</code> launching <code>python.exe</code> on an endpoint where that combination has never been observed. Both binaries are legitimate; the relationship is what is new.</p>
   </div>
   <div class="anomaly-example">
-    <h4>🚪 Authentication pattern shifts</h4>
+    <h3>🚪 Authentication pattern shifts</h3>
     <p>Rapid lateral authentication attempts across multiple endpoints within seconds. Each attempt is legitimate-looking; the rate and breadth are anomalous.</p>
   </div>
 </div>
@@ -67,7 +67,7 @@ Anomaly detection trades precision for breadth. A signature engine fires rarely 
 **Representative platforms:** <DefineTerm term="Microsoft Sentinel" /> UEBA, <DefineTerm term="Darktrace" />, <DefineTerm term="Exabeam" /> Advanced Analytics, <DefineTerm term="Elastic Security" /> ML, Securonix.
 
 <Callout variant="info" title="Supervised classifiers: the family's sibling">
-Not every machine-learned detection is anomaly detection. Cloud EDR verdicts like "Cloud ML: malicious, confidence 87%" come from supervised classifiers trained on labeled malware corpora, not on your environment's baseline. On the grid from the [family overview](/docs/alert/detection-mechanisms), they sit beside signature (single-event, but learned rather than written). Treat them as probabilistic signatures: valuable signal, but calibrate trust to the stated confidence and corroborate, because a classifier inherits its training data's blind spots.
+Not every machine-learned detection is anomaly detection. Cloud EDR verdicts like "Cloud ML: malicious, confidence 87%" come from supervised classifiers trained on labeled malware corpora, not on your environment's baseline. On the grid from the [family overview](/docs/alert/detection-mechanisms/), they sit beside signature (single-event, but learned rather than written). Treat them as probabilistic signatures: valuable signal, but calibrate trust to the stated confidence and corroborate, because a classifier inherits its training data's blind spots.
 </Callout>
 
 ---
@@ -139,7 +139,7 @@ Anomaly detection is the counterweight to signature detection. Signature needs t
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms/rule"
+  nextHref="/docs/alert/detection-mechanisms/rule/"
   nextLabel="Rule-based detection"
   nextDescription="The family that encodes institutional knowledge: if-then logic combining multiple indicators into scenarios worth flagging."
   ctaLabel="Read rule-based"
@@ -166,10 +166,13 @@ Anomaly detection is the counterweight to signature detection. Signature needs t
   border-radius: 0.7rem;
 }
 
-.anomaly-example h4 {
+.anomaly-example :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #86efac;
   font-size: 1rem;
+  /* level changed for the heading outline; size stays as designed */
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .anomaly-example p {

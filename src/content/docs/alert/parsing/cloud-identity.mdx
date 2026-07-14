@@ -15,7 +15,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="A"
   pillarIndex="03 · 06"
   pillarTotal="6 pages"
-  chapterHref="/docs/alert/parsing"
+  chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="On an endpoint the unit of behavior is the process. In the cloud it is the API call, and the lineage that matters is a chain of identities, not a tree of processes. This surface has its own anatomy, and modern intrusions live on it."
 />
@@ -24,12 +24,12 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="alert"
   label="Parsing pages"
   items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity",        phase: "alert" },
+    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
+    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
+    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
+    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
+    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
+    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
   ]}
 />
 
@@ -61,27 +61,27 @@ Every management API call becomes one JSON event. Most fields are noise for tria
 
 <div class="field-cards">
   <div class="field-card">
-    <h4><code>eventSource</code> + <code>eventName</code></h4>
+    <h3><code>eventSource</code> + <code>eventName</code></h3>
     <p>The verb. Which service, which API call. Reads (<code>List*</code>, <code>Describe*</code>, <code>Get*</code>) are reconnaissance; writes (<code>Create*</code>, <code>Put*</code>, <code>Attach*</code>, <code>Update*</code>) change the environment. A burst of reads followed by a policy write is the cloud version of recon-then-privilege-escalation.</p>
   </div>
   <div class="field-card">
-    <h4><code>userIdentity</code></h4>
+    <h3><code>userIdentity</code></h3>
     <p>The actor, and the field juniors misread most. <code>type</code> tells you whether this was a long-lived IAM user, an assumed role, root, or a service. For <code>AssumedRole</code>, the ARN names both the role and the session; <code>sessionContext.sessionIssuer</code> names where the session came from.</p>
   </div>
   <div class="field-card">
-    <h4><code>accessKeyId</code> prefix</h4>
+    <h3><code>accessKeyId</code> prefix</h3>
     <p><code>AKIA</code> means long-term IAM user credentials; <code>ASIA</code> means temporary credentials issued by <DefineTerm term="STS">AWS Security Token Service. The AWS service that issues temporary credentials when an identity assumes a role. STS credentials expire on a schedule (minutes to hours) and carry an ASIA key prefix, distinguishing them from long-term AKIA user keys.</DefineTerm>. Long-term keys showing up in new places are a bigger deal than short-lived ones, and stolen <code>ASIA</code> creds have a built-in expiry clock that shapes the attacker's tempo.</p>
   </div>
   <div class="field-card">
-    <h4><code>sourceIPAddress</code> + <code>userAgent</code></h4>
+    <h3><code>sourceIPAddress</code> + <code>userAgent</code></h3>
     <p>Where the call physically came from and what tool made it. A role that normally acts from a VPC CIDR via an SDK suddenly acting from a residential IP via <code>aws-cli</code> is a story in two fields. Console sessions, SDKs, and Terraform all have recognizable agent strings.</p>
   </div>
   <div class="field-card">
-    <h4><code>errorCode</code></h4>
+    <h3><code>errorCode</code></h3>
     <p>Failures are telemetry. A spray of <code>AccessDenied</code> across many services from one identity is permission enumeration: the attacker mapping what the stolen credential can do. Silence after the spray means they found what works.</p>
   </div>
   <div class="field-card">
-    <h4><code>mfaAuthenticated</code></h4>
+    <h3><code>mfaAuthenticated</code></h3>
     <p>Inside <code>sessionContext.attributes</code>. Whether this session was backed by <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" />. Sensitive actions from non-MFA sessions deserve a harder look, especially where policy says they should be impossible.</p>
   </div>
 </div>
@@ -166,7 +166,7 @@ For identity-provider alerts (<DefineTerm term="Okta" />, <DefineTerm term="Azur
 </div>
 
 <Callout variant="info" title="Where this shows up in the worked examples">
-The <a href="/docs/uncover/example">Uncover chapter's worked example</a> runs this exact surface end to end: a GuardDuty finding, the CloudTrail pivot, and the IdP cross-check. This page gives you the field-level anatomy that walkthrough assumes.
+The <a href="/docs/uncover/example/">Uncover chapter's worked example</a> runs this exact surface end to end: a GuardDuty finding, the CloudTrail pivot, and the IdP cross-check. This page gives you the field-level anatomy that walkthrough assumes.
 </Callout>
 
 <KeyTakeaway>
@@ -175,7 +175,7 @@ The control plane is a first-class parsing surface. Read the verb (<code>eventNa
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/example"
+  nextHref="/docs/alert/example/"
   nextLabel="Alert working example"
   nextDescription="Three cases worked side by side through the Alert phase: a real phishing intrusion, a developer-workstation false-positive, and a SaaS token theft read entirely from identity logs. All three threads continue on every later chapter's example."
   ctaLabel="See the worked examples"
@@ -201,13 +201,13 @@ The control plane is a first-class parsing surface. Read the verb (<code>eventNa
   border-radius: 0.7rem;
 }
 
-.field-card h4 {
+.field-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;
   color: #fdba74;
   font-size: 0.92rem;
 }
 
-.field-card h4 code {
+.field-card :is(h3, h4) code {
   font-size: 0.85em;
   padding: 0.05rem 0.3rem;
   background: rgba(15, 23, 42, 0.7);
@@ -331,5 +331,9 @@ The control plane is a first-class parsing surface. Read the verb (<code>eventNa
   line-height: 1.55;
   font-size: 0.93rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.field-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

@@ -16,7 +16,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   parentLetter="S"
   pillarIndex="02"
   pillarTotal="04"
-  chapterHref="/docs/scope"
+  chapterHref="/docs/scope/"
   chapterLabel="Scope"
   lede="The time window an investigation runs over is a decision, not a default. Different threat types deserve different windows, and choosing deliberately keeps the work bounded and the evidence defensible."
 />
@@ -25,10 +25,10 @@ import PillNav from "@/components/assured/PillNav.astro";
   chapter="scope"
   label="Scope chapter"
   items={[
-    { label: "Regulatory",     href: "/docs/scope/regulatory",     phase: "scope" },
-    { label: "Time",           href: "/docs/scope/time",           phase: "scope" },
-    { label: "Entity",         href: "/docs/scope/entity",         phase: "scope" },
-    { label: "Infrastructure", href: "/docs/scope/infrastructure", phase: "scope" },
+    { label: "Regulatory",     href: "/docs/scope/regulatory/",     phase: "scope" },
+    { label: "Time",           href: "/docs/scope/time/",           phase: "scope" },
+    { label: "Entity",         href: "/docs/scope/entity/",         phase: "scope" },
+    { label: "Infrastructure", href: "/docs/scope/infrastructure/", phase: "scope" },
   ]}
 />
 
@@ -126,19 +126,19 @@ The real-time window's job is different from the historical one. Historical anal
 
 <div class="realtime-grid">
   <div class="realtime-card">
-    <h4>🏃 Lateral movement attempts</h4>
+    <h3>🏃 Lateral movement attempts</h3>
     <p>Immediately after detection, watch for privilege escalation, credential reuse, or attempts to move into adjacent systems. Real-time monitoring of authentication systems is essential when credential theft is suspected.</p>
   </div>
   <div class="realtime-card">
-    <h4>⏰ Scheduled or periodic execution</h4>
+    <h3>⏰ Scheduled or periodic execution</h3>
     <p>Tasks that did not fire during the initial detection window but are configured to run later. Scheduled tasks, cron jobs, service abuse, and beacon callback intervals all deserve attention in real-time.</p>
   </div>
   <div class="realtime-card">
-    <h4>🚨 Retaliatory actions</h4>
+    <h3>🚨 Retaliatory actions</h3>
     <p>Log tampering, process termination, disabling of security tooling. These are signals that the attacker is aware of detection and is reacting. (Account lockouts, by contrast, are usually brute-force side effects or defender containment, not attacker retaliation.) Capturing them in real time both preserves evidence and informs the response posture.</p>
   </div>
   <div class="realtime-card">
-    <h4>🌐 C2 / beacon follow-up</h4>
+    <h3>🌐 C2 / beacon follow-up</h3>
     <p>For malware events with implants or beacons, outbound traffic and DNS patterns should be tracked across the environment in real time. Additional infected systems or fallback infrastructure often surface this way.</p>
   </div>
 </div>
@@ -174,7 +174,7 @@ The right window depends on the threat: hours to a day for fast-moving attacks, 
 
 <ContinueCard
   current="scope"
-  nextHref="/docs/scope/entity"
+  nextHref="/docs/scope/entity/"
   nextLabel="Entity boundaries"
   nextDescription="Primary and secondary entities, relationship mapping, access modeling, dependency tracing."
   ctaLabel="Read entity boundaries"
@@ -258,7 +258,7 @@ The right window depends on the threat: hours to a day for fast-moving attacks, 
   border-left: 3px solid #38bdf8;
   border-radius: 0.6rem;
 }
-.realtime-card h4 {
+.realtime-card :is(h3, h4) {
   margin: 0 0 0.35rem 0;
   color: #7dd3fc;
   font-size: 0.97rem;
@@ -296,5 +296,9 @@ The right window depends on the threat: hours to a day for fast-moving attacks, 
   line-height: 1.55;
   font-size: 0.88rem;
 }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.realtime-card h3 { font-weight: 600; line-height: inherit; }
 `}
 </style>

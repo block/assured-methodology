@@ -67,6 +67,12 @@ methodology, followed by a fix wave that touched every chapter.
   deference), each with its tell and the methodology device that counters
   it. The "what a less experienced analyst could miss" callouts now run
   through all seven chapters' worked examples.
+- A training pack: three hands-on exercise packets (a full-arc print-server
+  intrusion, a benign-true-positive consent case, a timed Level 0 drill)
+  with artifacts, phased tasks, sealed answer keys, and downloadable
+  learner versions, plus a "Teaching ASSURED" facilitator guide with three
+  delivery formats, a four-session workshop plan, exercise-running
+  mechanics, a close-note rubric, and the common-misconception list.
 
 ### Changed
 

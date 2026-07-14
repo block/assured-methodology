@@ -369,6 +369,23 @@ export const mainNavigation: NavGroup[] = [
         ],
       },
       {
+        title: "Training",
+        href: "/docs/exercises",
+        status: "live",
+        children: [
+          {
+            title: "Hands-on exercises",
+            href: "/docs/exercises",
+            status: "live",
+          },
+          {
+            title: "Teaching ASSURED",
+            href: "/docs/teaching",
+            status: "live",
+          },
+        ],
+      },
+      {
         title: "Glossaries",
         href: "/docs/glossaries/bad",
         status: "live",
@@ -474,4 +491,6 @@ export const readingOrder: string[] = [
   "/docs/documentation/example",
   "/docs/documentation/quiz",
   "/docs/documentation/closure",
+  "/docs/exercises",
+  "/docs/teaching",
 ];

@@ -1,0 +1,200 @@
+---
+title: "Hands-on exercises"
+description: "Three scenario packets for practicing the full ASSURED arc: a print-server intrusion worked phase by phase, a benign-true-positive consent case, and a timed Level 0 pattern-close drill. Each with artifacts, tasks, and an answer key."
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+
+Reading a methodology and running one are different skills, and the gap between them only closes on cases. The three packets on this page are synthetic cases built for practice: realistic artifacts, tasks phased to the seven letters, and an answer key that stays sealed until you have written your own answers. They are deliberately not the three worked-example cases from the chapters, whose verdicts you already know.
+
+## How to work a packet
+
+<ul class="ex-howto">
+  <li><strong>Write before you peek.</strong> Work every task in writing, actual close-note sentences, not mental bullet points. The traps this practice exists to catch (see <a href="/docs/cognitive-traps">Cognitive traps</a>) live in the gap between "I basically know" and what ends up on the page.</li>
+  <li><strong>Use the real templates.</strong> Where a task asks for a record, fill the corresponding <a href="/docs/documentation/templates">downloadable template</a>. The friction is the training.</li>
+  <li><strong>Then open the key.</strong> Each key gives a model answer and names the traps planted in the packet. Your answer does not need to match it; it needs to survive comparison with it.</li>
+  <li><strong>In a group, debrief out loud.</strong> The <a href="/docs/teaching">teaching guide</a> has session plans, timings, and debrief questions for running these as workshops.</li>
+</ul>
+
+<div class="tpl-downloads">
+  <a href="/templates/exercise-print-server.md" download>⬇ exercise-print-server.md</a>
+  <a href="/templates/exercise-migration-consent.md" download>⬇ exercise-migration-consent.md</a>
+  <a href="/templates/exercise-level0-drill.md" download>⬇ exercise-level0-drill.md</a>
+</div>
+
+The downloads are learner packets: briefing, artifacts, and tasks, with no keys. Print them or drop them in your case-management sandbox; the keys live only on this page.
+
+---
+
+## Exercise 1 · The print server's new scheduled task
+
+<p class="ex-meta"><span class="ex-tag">Full arc</span> <span class="ex-tag">Guided</span> <span class="ex-tag">60-90 minutes</span></p>
+
+**Briefing.** Sunday, 03:41 UTC. You are the on-shift analyst. One alert is in the queue.
+
+<pre><code>{`SIEM alert, 03:41:02 UTC
+  rule:      Scheduled task created by service account (rule-4698-svc)
+  severity:  Medium
+  host:      prt-01 (Windows Server 2019, print services)
+  event:     4698 (scheduled task created)
+  task name: \\Microsoft\\Windows\\UpdateHealth
+  action:    powershell.exe -NoP -W Hidden -EncodedCommand JAB3AGMAPQBOAGUA...
+  principal: svc-printmgmt`}</code></pre>
+
+Pulling the host's authentication log and the proxy log for context gives you two more artifacts:
+
+<pre><code>{`Authentication log excerpt, prt-01
+  03:22:17  4624  logon type 3 (network)            svc-printmgmt  from 10.20.8.114 (wkst-hr-22)
+  03:24:05  4624  logon type 10 (RemoteInteractive)  svc-printmgmt  from 10.20.8.114 (wkst-hr-22)
+  90-day baseline: svc-printmgmt appears on prt-01 as a service logon only;
+  no interactive or RDP logons on record`}</code></pre>
+
+<pre><code>{`Proxy log excerpt
+  03:44:51  prt-01  CONNECT files-cdn-sync[.]net:443  allowed  bytes_out=2.1 MB
+  90-day baseline: prt-01 outbound is Windows Update and print-vendor telemetry only`}</code></pre>
+
+**Tasks.** Work each phase in order. Write your answers before opening the key.
+
+<ol class="ex-tasks">
+  <li><strong>Alert.</strong> State the claim the rule makes, and which detection mechanism this is. What is your first parsing action on the alert payload? Which of the three artifacts carries the most validation weight, and why?</li>
+  <li><strong>Subject.</strong> The named principal is a service account. Who acted? List the candidate answers and the evidence that discriminates between them. Run the four dimensions on what you decide the subject is.</li>
+  <li><strong>Scope.</strong> Draw the initial boundary: entities, time window, and lookback. Name one thing you are deliberately leaving out of scope, and the observation that would pull it in.</li>
+  <li><strong>Uncover.</strong> List the sources you would pull, in order, with the question each answers. What are the two questions your timeline must answer before Risk can score this? Where does your hypothesis ledger stand: what is the leading hypothesis, and what is the strongest surviving alternative?</li>
+  <li><strong>Risk.</strong> Score impact and likelihood separately, one paragraph of justification each. What does the matrix say?</li>
+  <li><strong>Escalation.</strong> Which canonical criteria are confirmed, and by which artifact? At what moment in your investigation should escalation have fired, and under which rule?</li>
+  <li><strong>Documentation.</strong> Write the record's summary paragraph. Then write one detection-engineering feedback item this case earns, and say which event it targets.</li>
+</ol>
+
+<Reveal summary="Answer key: Exercise 1" variant="example">
+
+**Alert.** The rule claims a service account created a scheduled task, a rule-based detection on event 4698. First parsing action: decode the command. The base64 resolves to a downloader that pulls a payload from files-cdn-sync[.]net, the same domain in the proxy artifact. The heaviest validation artifact is the authentication log: logon type 10 means someone opened an interactive RDP desktop as a service account, and the baseline says that has never happened in 90 days. Task-creation alerts are common; a service account with an RDP session is the anomaly that carries the case.
+
+**Subject.** The principal on the alert is svc-printmgmt, but a service account is a credential, not an actor. Candidates: (a) an administrator legitimately using the account, (b) an automation process on wkst-hr-22, (c) a human attacker who has obtained the account's credentials and is operating from wkst-hr-22. The logon type discriminates: services and automation authenticate with network or service logons, not RemoteInteractive sessions at 03:24 on a Sunday. The working subject is whoever controls wkst-hr-22, acting through stolen or shared service-account credentials. Four dimensions on that composite subject: authentication abnormal (first RDP in 90 days), authorization abnormal (an HR workstation has no business path to a print server), behavior abnormal (task creation, encoded PowerShell), relationships now spanning two hosts and one service identity.
+
+**Scope.** Entities: prt-01, svc-printmgmt, wkst-hr-22, and wkst-hr-22's assigned user as a distinct fourth entity whose own compromise is now the leading question. Window: 03:00 UTC to now for the active intrusion, with a longer lookback (7 days minimum) on wkst-hr-22, because the workstation was compromised at some earlier, unknown time. Deliberately out: the other print servers and every other host svc-printmgmt can reach, until Uncover produces evidence of contact; the observation that pulls them in is any successful authentication from either compromised host.
+
+**Uncover.** Sources in order: EDR on wkst-hr-22 (how was it compromised, what else has it touched), the decoded payload and EDR on prt-01 (what the task actually does), domain authentication logs filtered on svc-printmgmt and on wkst-hr-22 as source (lateral spread), proxy history for both hosts (C2 and staging). The timeline's two required answers: how did wkst-hr-22 obtain service-account credentials, and what has executed on prt-01 since 03:24. Leading hypothesis: hands-on-keyboard lateral movement from a compromised workstation, with the scheduled task as persistence. Strongest surviving alternative at the start: an administrator doing undocumented weekend maintenance from a borrowed desk; it dies quickly (no change ticket, HR workstation, encoded downloader), and the ledger records why.
+
+**Risk.** Impact high: an attacker with working service-account credentials and interactive access on a server is positioned to reach anything that account and host can touch; print servers commonly hold broad connectivity plus credential material in spooler and vendor services. Likelihood high: the chain (unexplained RDP, task named to mimic an OS component, encoded downloader, outbound to a domain absent from a 90-day baseline) is multi-source and has no surviving benign explanation. High × high: escalate immediately.
+
+**Escalation.** Confirmed criteria: lateral movement (the RDP hop from wkst-hr-22 to prt-01, confirmed the moment the authentication log was read and baselined), and confirmed malicious activity (the decoded downloader plus the outbound transfer). Under the break-glass rule, escalation fires during validation or early Uncover, at the moment the RDP hop is confirmed as unexplainable, not after the phases complete. Working the rest of the arc after that point happens under IR's clock, as scoping support.
+
+**Documentation.** Summary model: "Interactive RDP session as service account svc-printmgmt from HR workstation wkst-hr-22 to print server prt-01 at 03:24 UTC Sunday, followed by creation of a persistence task masquerading as an OS component and an encoded PowerShell downloader with confirmed outbound transfer to a domain outside the host's 90-day baseline. Assessed as hands-on-keyboard lateral movement from a previously compromised workstation; escalated on the lateral-movement criterion." Detection feedback: the 4698 rule fired at persistence, late in the chain. The earlier, cheaper signal is the authentication event: interactive or RemoteInteractive logons (types 2 and 10) by any svc-* principal should alert on their own. That rule would have fired at 03:24, seventeen minutes before this one.
+
+**Traps planted in this packet.** Anchoring: the alert names a Medium-severity task-creation event, and the task's OS-flavored name invites a "Windows doing Windows things" dismissal. The case pivots on an artifact the alert never mentions. Availability: if your last service-account case was a misconfigured backup job, candidate (b) feels more likely than the evidence supports. The logon type is the discriminator that beats both.
+
+</Reveal>
+
+---
+
+## Exercise 2 · The consent grant in the migration window
+
+<p class="ex-meta"><span class="ex-tag">Full arc</span> <span class="ex-tag">Less guidance</span> <span class="ex-tag">45-60 minutes</span></p>
+
+**Briefing.** Tuesday, 10:05 UTC. The queue hands you an identity alert.
+
+<pre><code>{`IdP alert, 10:05:33 UTC
+  rule:      OAuth consent granted to unverified publisher (rule-oauth-unv)
+  severity:  High
+  account:   adm-jkoh (IT administration)
+  app:       "SharePoint Migration Manager"   publisher: unverified
+  scopes:    Sites.FullControl.All, offline_access
+  consent:   10:02:14 UTC, interactive, MFA satisfied, corporate device`}</code></pre>
+
+<pre><code>{`Tenant audit excerpt, 10:00-10:40 UTC
+  10:12-10:38  bulk file reads by app "SharePoint Migration Manager"
+               ~14,000 items across 6 site collections
+               source IP range: 198.51.100.32/28`}</code></pre>
+
+<pre><code>{`Change-management system, search result
+  CHG-4182  "SharePoint tenant migration, wave 3 of 5"
+            window: Tuesday 09:00-17:00 UTC
+            executed by: adm-jkoh
+            vendor: CloudShift Migrations Ltd
+            vendor doc: migration traffic sources 198.51.100.32/28`}</code></pre>
+
+**Tasks.** Same seven phases, fewer hints. This packet's questions are shorter on purpose; the discipline being trained is verification.
+
+<ol class="ex-tasks">
+  <li><strong>Alert.</strong> The rule fired on exactly what its logic describes. What kind of verdict is still open, and what vocabulary from the <a href="/docs/glossaries/clear">C.L.E.A.R. glossary</a> names it?</li>
+  <li><strong>Subject → Uncover.</strong> The change ticket looks like it explains everything. List every claim in the ticket you can independently verify against the two log artifacts, and verify each one. Then list the checks the artifacts <em>cannot</em> satisfy, and where you would go for each.</li>
+  <li><strong>Risk.</strong> Write the verdict paragraph, including what stops this from being a close-on-sight.</li>
+  <li><strong>Escalation → Documentation.</strong> There are two more migration waves scheduled. What artifact should this close produce so waves 4 and 5 cost five minutes instead of an hour, and which two fields in it must be re-verified every wave rather than assumed?</li>
+</ol>
+
+<Reveal summary="Answer key: Exercise 2" variant="example">
+
+**Alert.** The detection is correct: an unverified-publisher app did receive tenant-level consent. The open question is context, and the verdict this is heading toward is a benign true positive: the logic matched exactly what it describes, and the local context (a sanctioned migration) clears it. That is not a false-positive, and recording the difference matters, because a false-positive verdict would send tuning feedback against a rule that is working.
+
+**Subject → Uncover.** Verifiable claims, verified: the ticket's executor matches the consenting account (adm-jkoh on both); the consent timestamp sits inside the ticket's window (10:02 inside 09:00-17:00); the app's activity source range matches the vendor's documented range (198.51.100.32/28 on both); the consent ceremony is consistent with a human administrator (interactive, MFA, corporate device), not a hijacked session. Checks the artifacts cannot satisfy: whether the app's publisher identity is actually CloudShift's registered application rather than a lookalike display name, which requires the app ID from the vendor's onboarding doc or a call to the vendor, because display names are attacker-choosable; whether adm-jkoh actually performed the consent, which one out-of-band message to the ticket owner settles; and whether the read volume matches the wave's expected site collections, which the migration runbook answers. The name-versus-identity check is the load-bearing one: timing an attack inside someone else's maintenance window, with a plausibly named app, is an established adversary pattern.
+
+**Risk.** Model verdict: "Impact if hostile would be high (tenant-wide file read with standing access), but likelihood is low: the consent's principal, timing, source range, and ceremony all match an approved change record, and the app identity was confirmed against the vendor's registered application ID rather than its display name. Assessed as benign true positive: sanctioned migration activity correctly flagged by a correctly-broad detection. Residual risk: the standing consent outlives the migration; a decommission check is scheduled with the ticket's closure." The close-on-sight stopper: until the app ID and the executor were verified, the ticket was a hypothesis, not an explanation. A change ticket in the search results is a fact about the change-management system, not about the consent event.
+
+**Escalation → Documentation.** The close should produce a pattern-library entry ("OAuth consent by IT admin during documented migration wave") so waves 4 and 5 are Level 0 closes against named discriminators. The two fields that must be re-verified every wave: the consenting principal against the wave's ticket executor, and the application ID against the vendor's registered app. The fields that may be inherited: the vendor's source range and the window structure. An entry whose discriminators are "there was a ticket" will eventually close the real thing.
+
+**Traps planted in this packet.** Deference and premature closure: the change ticket radiates authority, and everything after it reads as confirmation. The packet is passed only by treating the ticket as one more claim to verify. Automation bias variant: the vendor's own doc supplied the IP range, and the range matching proves the traffic is from the vendor's infrastructure, not that the app is the vendor's app.
+
+</Reveal>
+
+---
+
+## Exercise 3 · The Level 0 drill
+
+<p class="ex-meta"><span class="ex-tag">Fast path</span> <span class="ex-tag">Timed: 5 minutes</span></p>
+
+**Briefing.** Set a five-minute timer. This is a queue-speed drill for the <a href="/docs/fast-path">fast path</a>: one recurring alert, one pattern-library entry, one decision.
+
+<pre><code>{`EDR alert, 02:47:10 UTC
+  rule:      Possible cryptomining: sustained CPU >90% for 30m
+             + persistent outbound TLS to non-allowlisted host
+  host:      ci-build-14 (group: ci-build-agents)
+  process:   bazel (build toolchain), CPU 96% sustained
+  outbound:  cache.buildcache-vendor.io:443, persistent, 41 min`}</code></pre>
+
+<pre><code>{`Pattern library entry PTN-017: "Nightly CI compile load on build agents"
+  owner: detection-engineering    review date: current
+  discriminators:
+    1. host is a member of group ci-build-agents
+    2. top process is the build toolchain (bazel or gradle)
+    3. outbound destination is the vendor build-cache endpoint named in this entry
+       (cache.buildcache-vendor.io)
+    4. activity falls in the nightly pipeline window, 01:30-04:30 UTC`}</code></pre>
+
+**Task.** Decide whether this alert qualifies for a Level 0 close. If it does, fill the five fields of the <a href="/templates/pattern-close-record.md" download>pattern-close record</a>, checking each discriminator against the artifact, not from memory. If it does not, say which discriminator failed and what level the case moves to. Then, timer off: write one sentence for each discriminator describing the alert that would fail it.
+
+<Reveal summary="Answer key: Exercise 3" variant="example">
+
+**The close.** All four discriminators check against the artifact: ci-build-14 is in ci-build-agents (1 ✓), the top process is bazel (2 ✓), the destination string matches the entry's named endpoint (3 ✓), and 02:47 falls inside 01:30-04:30 (4 ✓). This is a legitimate Level 0 close: pattern PTN-017, checks recorded as the four observations above, verdict "expected nightly CI load, matches documented pattern," disposition closed with analyst and timestamp. Total honest time: under three minutes, and every field filled from the artifact.
+
+**The failures that force Level 1.** (1) The same alert on wkst-hr-22: a host outside the group means the pattern does not apply at all, whatever else matches. (2) Top process xmrig, or anything that is not the named toolchain: the load is real but the worker is wrong. (3) Destination cache.buildcache-vendor.io.cdn-relay[.]net or any string that merely contains the endpoint: the discriminator is an exact match to the entry's named host, and lookalike suffixing is exactly how miners hide in CI. (4) The identical alert at 14:00: nightly load at midafternoon is a schedule anomaly the pattern does not cover. Any failure moves the case up the ladder, and per the ladder rules it does not slide back down mid-case.
+
+**The trap being drilled.** The pattern reflex: by the twentieth night, the reflex is to close on the rule name alone. The five-minute close stays defensible only because the discriminators were checked against this alert's fields. The one that rusts first is (3), because "the destination looked right" and "the destination string equals the entry's named endpoint" feel identical at queue speed and are not.
+
+</Reveal>
+
+<Callout variant="info" title="Writing your own packets">
+These three follow a reusable shape: a briefing an analyst would actually receive, artifacts with the discriminating detail buried in a boring field, tasks phased to the letters, and a key that names the planted traps. Closed cases from your own queue, sanitized per the <a href="/docs/documentation/example">Documentation example's</a> sharing discipline, make better packets than anything synthetic; the <a href="/docs/teaching">teaching guide</a> covers turning a real case into an exercise.
+</Callout>
+
+<KeyTakeaway>The methodology is learned in the writing: the close note that has to cite an artifact, the ledger that has to hold an alternative, the discriminator that has to be checked against the field instead of the memory. Three packets is a start; a team that converts one real case a month into a packet builds a training library no course can sell them.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/documentation/closure" class="assured-cta assured-cta--ghost">← Methodology complete</a>
+  <a href="/docs/teaching" class="assured-cta">The teaching guide →</a>
+</div>
+
+<style>{`
+.ex-howto { margin: 1.25rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.ex-howto li { color: var(--assured-text-muted); line-height: 1.6; }
+.ex-howto strong { color: var(--assured-text); }
+.ex-meta { margin: 0.25rem 0 1rem; }
+.ex-tag { display: inline-block; margin-right: 0.5rem; padding: 0.15rem 0.6rem; border-radius: 9999px; background: rgba(20, 184, 166, 0.14); color: var(--assured-accent-soft); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.ex-tasks { margin: 1rem 0 1.25rem; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.65rem; }
+.ex-tasks li { color: var(--assured-text-muted); line-height: 1.65; }
+.ex-tasks strong { color: var(--assured-text); }
+.tpl-downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.25rem 0 1rem; }
+.tpl-downloads a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 9999px; background: rgba(6, 182, 212, 0.08); color: #67e8f9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; text-decoration: none; }
+.tpl-downloads a:hover { background: rgba(6, 182, 212, 0.16); border-color: rgba(6, 182, 212, 0.55); }
+`}</style>

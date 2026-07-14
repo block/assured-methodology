@@ -1,0 +1,104 @@
+---
+title: "Where ASSURED sits"
+description: "Honest positioning against NIST 800-61r3, SANS PICERL and SEC450, the SOC books, and the analyst's thinking tools (OODA, ACH, the Diamond Model, OSCAR)."
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+
+ASSURED did not invent triage, and the field around it is full of work worth reading. This page is the map: what each neighboring framework, course, and thinking tool actually covers, where it is excellent, and where the gap sits that ASSURED fills. If a claim on this page makes you want to read the source instead, follow the link; that is the point of a related-work section.
+
+## The claim, stated carefully
+
+The defensible claim is narrow: **no widely adopted, named, freely available, public methodology specific to event triage exists.** The incident-response lifecycles assume you already know what you are looking at. The strongest triage training is commercial courseware. The best books are books: static, unversioned, not citable as a shared standard. Vendor triage guides are locked to their tools. ASSURED's bid is to be the open, named, versioned, teachable standard for the work between an alert firing and the close-or-escalate decision. That is the whole claim; everything below is credit where it is due.
+
+## The lifecycles and standards
+
+<div class="pos-list">
+  <div class="pos-item">
+    <h3>NIST SP 800-61r3 <span class="pos-item__kind">incident-response recommendations</span></h3>
+    <p><strong>What it is:</strong> the U.S. standard for incident-response, revised in April 2025 to restructure around the CSF 2.0 functions. Its <a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener noreferrer">r3 revision</a> deliberately dropped r2's step-by-step detection-and-analysis guidance, stating that lifecycle-level operational detail is no longer feasible to maintain in a single static publication.</p>
+    <p><strong>How it relates:</strong> that retreat is the strongest argument for something like ASSURED existing. 800-61 tells an organization what its IR program must cover; it now explicitly leaves the alert-by-alert <em>how</em> to each organization. ASSURED is one published answer to the how, ending exactly where 800-61's response lifecycle takes ownership: the <a href="/docs/escalation/handoff">handoff</a>.</p>
+  </div>
+  <div class="pos-item">
+    <h3>SANS PICERL <span class="pos-item__kind">IR lifecycle</span></h3>
+    <p><strong>What it is:</strong> the six-phase incident-response process (Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned) that most IR teams can recite, and for good reason: it survives contact with real incidents.</p>
+    <p><strong>How it relates:</strong> triage is a slice of Identification, and PICERL does not decompose that slice. ASSURED's seven phases are, roughly, Identification expanded to full resolution, with the explicit rule that a confirmed criterion hands the case to the PICERL-shaped process mid-phase. See <a href="/docs/escalation/triage-vs-ir">Triage vs. IR</a> for the boundary in detail.</p>
+  </div>
+  <div class="pos-item">
+    <h3>MITRE ATT&amp;CK <span class="pos-item__kind">knowledge base</span></h3>
+    <p><strong>What it is:</strong> the <a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">public catalog</a> of adversary tactics and techniques observed in the wild, and the industry's shared vocabulary for describing attacker behavior.</p>
+    <p><strong>How it relates:</strong> a vocabulary, not a process. ATT&CK tells you what the behavior you found is called and what tends to come before and after it; it does not tell you how to run the investigation that finds it. ASSURED uses ATT&CK inside <a href="/docs/uncover/mitre">Uncover</a> as the mapping layer for reconstructed chains.</p>
+  </div>
+</div>
+
+## The training and the books
+
+<div class="pos-list">
+  <div class="pos-item">
+    <h3>SANS SEC450 <span class="pos-item__kind">commercial course</span></h3>
+    <p><strong>What it is:</strong> <a href="https://www.sans.org/cyber-security-courses/blue-team-fundamentals-security-operations-analysis/" target="_blank" rel="noopener noreferrer">Blue Team Fundamentals: Security Operations and Analysis</a>, SANS's SOC-analyst course, and the closest neighbor to ASSURED in intent: structured, bias-aware alert triage, prioritization, and analysis under pressure.</p>
+    <p><strong>How it relates:</strong> if your organization can send analysts through it, do; the instruction is excellent. The difference is form, not respect: SEC450 is paywalled courseware an individual takes once, not an open standard a team can adopt, cite, version, and hold each other to. ASSURED is free, public, versioned, and citable, which is what a shared methodology has to be.</p>
+  </div>
+  <div class="pos-item">
+    <h3>Crafting the InfoSec Playbook <span class="pos-item__kind">book, 2015</span></h3>
+    <p><strong>What it is:</strong> the <a href="https://www.oreilly.com/library/view/crafting-the-infosec/9781491913598/" target="_blank" rel="noopener noreferrer">O'Reilly book</a> on playbook-driven detection and response: build a library of plays, run alerts through them, handle false-positives as a first-class outcome.</p>
+    <p><strong>How it relates:</strong> its play-library discipline is the direct ancestor of what ASSURED's <a href="/docs/fast-path">fast path</a> calls the pattern library, and its false-positive seriousness anticipates the <a href="/docs/risk/false-positive">false-positive-as-finding doctrine</a>. It is a decade old and book-shaped, but the thinking holds up; read it.</p>
+  </div>
+  <div class="pos-item">
+    <h3>Blue Team Handbook: SOC, SIEM, and Threat Hunting <span class="pos-item__kind">field reference</span></h3>
+    <p><strong>What it is:</strong> Don Murdoch's dense, practical desk reference for SOC operations: use cases, SIEM engineering, metrics, hunting.</p>
+    <p><strong>How it relates:</strong> a reference, not a methodology; it answers "what should I know about X" rather than "what do I do next with this alert." It pairs well with ASSURED the way a dictionary pairs with a writing course.</p>
+  </div>
+  <div class="pos-item">
+    <h3>MITRE's 11 Strategies of a World-Class Cybersecurity Operations Center <span class="pos-item__kind">free book, 2022</span></h3>
+    <p><strong>What it is:</strong> <a href="https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-security-operations-center" target="_blank" rel="noopener noreferrer">MITRE's freely available book</a> on building and running a SOC: staffing, tiering, tooling, metrics, program design.</p>
+    <p><strong>How it relates:</strong> it operates one level up. 11 Strategies designs the SOC; ASSURED runs one function inside it (the triage desk). The program-level content ASSURED deliberately scopes away from the on-shift analyst is exactly the altitude 11 Strategies covers well.</p>
+  </div>
+</div>
+
+## The thinking tools
+
+<div class="pos-list">
+  <div class="pos-item">
+    <h3>OODA <span class="pos-item__kind">decision cycle</span></h3>
+    <p><strong>What it is:</strong> John Boyd's Observe, Orient, Decide, Act loop, the general-purpose model for decision-making under adversarial pressure.</p>
+    <p><strong>How it relates:</strong> ASSURED is a domain-specific instantiation: Alert through Uncover observe and orient, Risk decides, Escalation acts, and the Scope → Uncover → Risk loop is the re-orientation cycle. OODA explains why the loop exists; ASSURED specifies what each turn of it produces.</p>
+  </div>
+  <div class="pos-item">
+    <h3>ACH <span class="pos-item__kind">analytic technique</span></h3>
+    <p><strong>What it is:</strong> Richards Heuer's <a href="https://en.wikipedia.org/wiki/Analysis_of_competing_hypotheses" target="_blank" rel="noopener noreferrer">Analysis of Competing Hypotheses</a>, from CIA intelligence tradecraft: enumerate the explanations, test evidence against all of them, and privilege disconfirmation over confirmation.</p>
+    <p><strong>How it relates:</strong> Uncover's <a href="/docs/uncover/correlation">hypothesis ledger</a> is ACH scaled to triage speed: competing explanations held open, negatives recorded, refuted stays refuted. If the ledger feels useful, ACH is the deeper well it draws from.</p>
+  </div>
+  <div class="pos-item">
+    <h3>The Diamond Model <span class="pos-item__kind">intrusion-analysis model</span></h3>
+    <p><strong>What it is:</strong> the 2013 <a href="https://apps.dtic.mil/sti/citations/ADA586960" target="_blank" rel="noopener noreferrer">Caltagirone, Pendergast, and Betz paper</a> modeling every intrusion event as adversary, capability, infrastructure, and victim, with pivots along the edges.</p>
+    <p><strong>How it relates:</strong> a lens for the analysis inside Uncover, especially attribution and infrastructure pivoting. ASSURED covers the workflow around the lens: when to pick it up, what the output feeds, and when to stop pivoting.</p>
+  </div>
+  <div class="pos-item">
+    <h3>OSCAR <span class="pos-item__kind">forensics methodology</span></h3>
+    <p><strong>What it is:</strong> Obtain information, Strategize, Collect evidence, Analyze, Report, from Davidoff and Ham's network-forensics work, <a href="https://www.dropzone.ai/blog/why-socs-rely-on-oscar-a-proven-investigative-framework" target="_blank" rel="noopener noreferrer">applied by some SOCs</a> to alert investigations.</p>
+    <p><strong>How it relates:</strong> the nearest open neighbor by shape. OSCAR structures the investigation itself, roughly ASSURED's Uncover through Documentation; it does not carry the triage-specific decisions around it (validation, subject resolution, scoping, escalation criteria, the depth ladder). The two are compatible: an OSCAR-trained analyst will recognize Uncover immediately.</p>
+  </div>
+</div>
+
+<Callout variant="warn" title="A name adjacency worth knowing">
+The UK's National Cyber Security Centre operates <a href="https://www.ncsc.gov.uk/section/products-services/assured-services" target="_blank" rel="noopener noreferrer">"Assured" schemes</a>: NCSC-assured services, consultancies, and training marks. This ASSURED methodology has no affiliation with the NCSC or its assurance schemes; the shared word is coincidence. When searching, "ASSURED triage" or "ASSURED methodology" finds this project.
+</Callout>
+
+<KeyTakeaway>The field has excellent IR lifecycles, excellent commercial training, excellent books, and excellent thinking tools. What it did not have is an open, named, versioned methodology for the triage work specifically, and 800-61r3's deliberate retreat from operational detail widened that gap rather than closing it. ASSURED claims the gap, not the field.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/intro" class="assured-cta assured-cta--ghost">← The introduction</a>
+  <a href="/docs/alert" class="assured-cta">Start the methodology: Alert →</a>
+</div>
+
+<style>{`
+.pos-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
+.pos-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-accent); border-radius: 0.7rem; }
+.pos-item h3 { margin: 0 0 0.55rem 0; font-size: 1.05rem; color: var(--assured-text); }
+.pos-item__kind { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px; background: rgba(20, 184, 166, 0.14); color: var(--assured-accent-soft); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
+.pos-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
+.pos-item p:last-child { margin-bottom: 0; }
+.pos-item strong { color: var(--assured-text); }
+`}</style>

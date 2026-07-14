@@ -50,6 +50,11 @@ methodology, followed by a fix wave that touched every chapter.
   (also downloadable as a Markdown template), the depth ladder, and the
   memory hooks. Plus a site-wide print stylesheet so any page prints
   black-on-white without navigation chrome.
+- A "Where ASSURED sits" positioning page engaging the related work:
+  NIST 800-61r3, SANS PICERL and SEC450, Crafting the InfoSec Playbook,
+  the Blue Team Handbook, MITRE's 11 Strategies and ATT&CK, OODA, ACH,
+  the Diamond Model, and OSCAR, plus the NCSC "Assured" name-adjacency
+  note.
 
 ### Changed
 

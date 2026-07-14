@@ -93,6 +93,9 @@ methodology, followed by a fix wave that touched every chapter.
   interactive components, reduced-motion support.
 - Mobile presentation, information architecture, navigation, typography, and
   design-token consolidation.
+- The chapter easter-egg engine now ships as one cached, bundled script
+  instead of being inlined into every content page, trimming roughly 13 KB
+  from each page's HTML.
 - Parsing subtree restructured around an honest taxonomy: one normalization
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual

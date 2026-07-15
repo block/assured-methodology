@@ -119,6 +119,11 @@ methodology, followed by a fix wave that touched every chapter.
   layer (the former multi-format and schema pages, merged) plus five
   behavioral surfaces; the command-line page rebuilt around the actual
   decode workflow (UTF-16LE, abbreviated flags, the 4688 command-line gap).
+- The linear reading arc flows section-to-section: the Alert chapter's
+  thirteen subsection reference pages step out of the previous/next pager
+  (they are reached from their section pages and render no pager of their
+  own), so reading straight through no longer detours into deep reference
+  material.
 - Altitude honesty pass: Tier 3 redefined as senior technical escalation
   with incident command as a separate function; program-level content
   (telemetry principles, the intel pipeline, dark-web monitoring, insider
@@ -171,6 +176,11 @@ methodology, followed by a fix wave that touched every chapter.
   The five guide pages (Fast path, AI triage, Cognitive traps, Quick
   reference, Where ASSURED sits) now fold into a Guides dropdown, restoring
   the eleven-item row the 1350px breakpoint was calibrated for.
+- Laptops get the desktop navigation instead of the phone menu: the
+  eleven-link header now fits from 1240px up, using tighter spacing and an
+  icon-only search trigger at laptop widths (1240 to 1449px), with the full
+  search label returning at 1450px. The hamburger menu is reserved for
+  phones and tablets.
 - The progress strip on a quiz's own page ticks the moment the chapter quiz
   completes instead of after a reload; quiz-completion storage now lives in
   one shared module read by both the quiz and the strip.
@@ -186,7 +196,8 @@ methodology, followed by a fix wave that touched every chapter.
   themselves current for every child page.
 - The Alert dropdown lists its three sections like every other chapter
   instead of every subsection page; subsection navigation stays on the
-  section pages themselves.
+  section pages themselves. The mobile menu now matches, and its section
+  rows stay highlighted while reading a subsection.
 - The CDE and PFI hover tooltips on the regulatory-boundaries page show
   their definitions for the first time; the term text passed as slot
   children had always replaced the definition body. The DefineTerm doc

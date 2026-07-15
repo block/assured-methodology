@@ -439,8 +439,9 @@ export const mainNavigation: NavGroup[] = [
 /**
  * Canonical linear reading order for the docs. Single source of truth for
  * the prev/next pager rendered by ContentPageLayout. Hrefs must match entry
- * routes. Pages outside the linear arc (glossaries) are deliberately absent
- * and render no pager.
+ * routes. Pages outside the linear arc (glossaries, and the Alert subsection
+ * reference pages reached from their section hubs) are deliberately absent
+ * and render no pager, keeping the arc section-to-section.
  */
 export const readingOrder: string[] = [
   "/docs/intro/",
@@ -451,21 +452,8 @@ export const readingOrder: string[] = [
   "/docs/positioning/",
   "/docs/alert/",
   "/docs/alert/detection-mechanisms/",
-  "/docs/alert/detection-mechanisms/signature/",
-  "/docs/alert/detection-mechanisms/anomaly/",
-  "/docs/alert/detection-mechanisms/rule/",
-  "/docs/alert/detection-mechanisms/behavioral/",
   "/docs/alert/validation/",
-  "/docs/alert/validation/baseline-comparison/",
-  "/docs/alert/validation/attack-chains/",
-  "/docs/alert/validation/criticality/",
   "/docs/alert/parsing/",
-  "/docs/alert/parsing/multi-format/",
-  "/docs/alert/parsing/command-line/",
-  "/docs/alert/parsing/process-relationships/",
-  "/docs/alert/parsing/network/",
-  "/docs/alert/parsing/file-system/",
-  "/docs/alert/parsing/cloud-identity/",
   "/docs/alert/example/",
   "/docs/alert/quiz/",
   "/docs/alert/transition/",

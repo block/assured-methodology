@@ -16,7 +16,7 @@ function initChapterEggs() {
   if (window.__assuredEggCleanup) {
     try {
       window.__assuredEggCleanup();
-    } catch (e) {}
+    } catch {}
   }
   const _cleanups = [];
   function _reg(target, ev, fn) {
@@ -29,7 +29,7 @@ function initChapterEggs() {
     while (_cleanups.length) {
       try {
         _cleanups.pop()();
-      } catch (e) {}
+      } catch {}
     }
   };
 
@@ -39,7 +39,7 @@ function initChapterEggs() {
   function eggsEnabled() {
     try {
       return localStorage.getItem("assured-eggs") !== "off";
-    } catch (e) {
+    } catch {
       return true;
     }
   }
@@ -57,7 +57,7 @@ function initChapterEggs() {
     _reg(eggToggle, "click", () => {
       try {
         localStorage.setItem("assured-eggs", eggsEnabled() ? "off" : "on");
-      } catch (e) {}
+      } catch {}
       renderEggToggle();
     });
   }

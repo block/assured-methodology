@@ -83,6 +83,13 @@ methodology, followed by a fix wave that touched every chapter.
   acceptance, reopen rate, missed incidents, handoff rework, time-in-phase,
   pattern-library health, close-note quality), a four-level maturity model,
   and the duty list the SOC lead owns.
+- Two more build gates: the reading order that drives every page's
+  previous/next pager must cover exactly the content pages that exist, and
+  the glossary source must be structurally sound (no empty entries, no term
+  defined twice within one glossary or spelled two ways anywhere, matched
+  term markup, and every C.L.E.A.R. entry filed under the right letter in
+  alphabetical order). Either failing now fails the build naming the exact
+  file and entry.
 
 ### Changed
 
@@ -177,6 +184,9 @@ methodology, followed by a fix wave that touched every chapter.
 - The header highlights the section you are in even when the page is not
   the section's own hub: Guides, Training, and Glossaries now mark
   themselves current for every child page.
+- The Alert dropdown lists its three sections like every other chapter
+  instead of every subsection page; subsection navigation stays on the
+  section pages themselves.
 - The CDE and PFI hover tooltips on the regulatory-boundaries page show
   their definitions for the first time; the term text passed as slot
   children had always replaced the definition body. The DefineTerm doc
@@ -211,6 +221,14 @@ methodology, followed by a fix wave that touched every chapter.
   verdicts through all seven chapters.
 - Deployment identity (canonical Vercel domain), SEO metadata, structured
   data, server-side redirects, and site search.
+- The favicon is the ASSURED puzzle mark on the site's slate tile instead of
+  the Astro starter rocket, shipped at every size browsers ask for: SVG,
+  multi-size ICO, Apple touch icon, and web-app manifest icons for Android
+  home screens.
+- The 404 page points lost visitors at the introduction and the quick
+  reference instead of dead-ending, and tells search engines not to index it
+  (Vercel serves the underlying /404.html file with a 200 status, which had
+  left it indexable).
 
 ## [1.0.0] - 2026-05-15
 

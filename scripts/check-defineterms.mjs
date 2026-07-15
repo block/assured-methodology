@@ -36,6 +36,17 @@ function loadGlossaryKeys() {
   for (const m of src.matchAll(/^\s+"?term"?: "((?:[^"\\]|\\.)*)",?$/gm)) {
     keys.add(m[1].replace(/\\"/g, '"'));
   }
+  // Every record also carries a `source` field. If the counts diverge, the
+  // term regex above stopped matching the generated format (or a hand edit
+  // duplicated a key) and lookups would run against a partial key set.
+  const records = [...src.matchAll(/^\s+"?source"?: /gm)].length;
+  if (keys.size !== records) {
+    console.error(
+      `check-defineterms: parsed ${keys.size} term key(s) but glossary.ts holds ` +
+        `${records} record(s); regenerate with scripts/extract-glossary.mjs or fix the key regex.`,
+    );
+    process.exit(1);
+  }
   return keys;
 }
 

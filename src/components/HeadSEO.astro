@@ -3,6 +3,7 @@ interface Props {
   title?: string | undefined;
   description?: string | undefined;
   ogImage?: URL | undefined;
+  noindex?: boolean | undefined;
 }
 
 // Canonical URLs use a trailing slash to match Vercel's serving behavior
@@ -17,7 +18,7 @@ const canonicalURL = new URL(canonicalPathname, Astro.site);
 // page-relative reference turns into /docs/intro/og-image.png and 404s.
 const ogImage = Astro.props.ogImage ?? new URL("og-image.png", Astro.site);
 
-const { title, description } = Astro.props;
+const { title, description, noindex } = Astro.props;
 const siteName = "ASSURED Methodology";
 const fullTitle = title
   ? title.includes("ASSURED")
@@ -49,10 +50,20 @@ const websiteSchema = JSON.stringify({
     can't and would have to allow 'unsafe-inline'). scripts/check-csp.mjs
     keeps the header's hashes in sync with the built inline scripts. */}
 <link rel="canonical" href={canonicalURL} />
+{/* favicon.ico carries sizes="32x32" so Chrome prefers the SVG icon;
+    without a sizes hint Chrome picks the .ico regardless of order.
+    The manifest's PNG icons live in /site.webmanifest. */}
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
+{/* Error pages opt out of indexing explicitly: unknown paths return a real
+    404 status, but Vercel serves the literal file /404.html with a 200, so
+    the page is otherwise reachable at an indexable URL. */}
+{noindex && <meta name="robots" content="noindex" />}
 <script is:inline type="application/ld+json" set:html={websiteSchema} />
 
 <meta property="og:type" content="website" />

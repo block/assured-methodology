@@ -7,30 +7,44 @@
     "lineEnding": "lf",
     "lineWidth": 80,
     "attributePosition": "auto",
-    "ignore": [
-      "**/*.min.js",
-      "**/*.min.css",
-      "**/dist/",
-      "**/node_modules/",
-      "**/pnpm-lock.yaml",
-      "**/.netlify/",
-      "**/.astro/",
-      "**/.github/"
+    "includes": [
+      "**",
+      "!**/*.min.js",
+      "!**/*.min.css",
+      "!**/dist/",
+      "!**/node_modules/",
+      "!**/pnpm-lock.yaml",
+      "!**/.netlify/",
+      "!**/.astro/",
+      "!**/.github/"
     ]
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
+    }
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "preset": "recommended"
     }
   },
   "javascript": {
-    "globals": [
-      "Astro"
-    ],
+    "globals": ["Astro"],
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
@@ -44,8 +58,19 @@
     }
   },
   "files": {
-    "ignore": [
-      "src/data/glossary.ts"
-    ]
-  }
+    "includes": ["**", "!**/src/data/glossary.ts"]
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }

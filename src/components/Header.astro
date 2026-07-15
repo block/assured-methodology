@@ -171,27 +171,17 @@ const isActiveSection = (item: NavItem): boolean =>
             <div class="header__mobile-sublist">
               {item.children!.map((child) => {
                 if (child.status === "soon") return null;
-                const childActive = currentPath === child.href;
+                // Sections only, like the desktop dropdown: Alert's leaf pages
+                // are reached from their section page. Prefix-match so a
+                // section row stays lit while reading one of its subsections.
+                const childActive = isActivePage(child.href, currentPath);
                 return (
-                  <>
-                    <a
-                      href={getUrlRelativeToBase(child.href)}
-                      class={`header__mobile-sublink ${childActive ? "is-active" : ""}`}
-                    >
-                      {child.title}
-                    </a>
-                    {child.children?.map((leaf) => {
-                      const leafActive = currentPath === leaf.href;
-                      return (
-                        <a
-                          href={getUrlRelativeToBase(leaf.href)}
-                          class={`header__mobile-sublink header__mobile-sublink--sub ${leafActive ? "is-active" : ""}`}
-                        >
-                          {leaf.title}
-                        </a>
-                      );
-                    })}
-                  </>
+                  <a
+                    href={getUrlRelativeToBase(child.href)}
+                    class={`header__mobile-sublink ${childActive ? "is-active" : ""}`}
+                  >
+                    {child.title}
+                  </a>
                 );
               })}
             </div>
@@ -244,10 +234,12 @@ const isActiveSection = (item: NavItem): boolean =>
   }
 
   /* Eleven top-level items (the five guide pages fold into the Guides
-     dropdown) fit only from ~1350px up, even with compact spacing; below
-     that the hamburger menu takes over (the nav used to paint over the
-     search and GitHub controls when it was shown any narrower). */
-  @media (min-width: 1350px) {
+     dropdown) need about 1200px of content width even at the tightest
+     spacing with an icon-only search, so the desktop nav starts at 1240px
+     (laptops keep it; Windows scrollbars eat ~17px of the media-query
+     width). Below that the hamburger menu takes over, since the nav used
+     to paint over the search and GitHub controls when shown any narrower. */
+  @media (min-width: 1240px) {
     .header__nav { display: flex; }
   }
 
@@ -266,8 +258,17 @@ const isActiveSection = (item: NavItem): boolean =>
     white-space: nowrap;
   }
 
+  /* Tightest tier, for laptop widths: minimal spacing and a slightly
+     smaller label size; SiteSearch drops to icon-only over the same range. */
+  @media (min-width: 1240px) and (max-width: 1449px) {
+    .header__inner { padding: 0 1.5rem; gap: 1rem; }
+    .header__left { gap: 0.85rem; }
+    .header__link { padding: 0.45rem 0.3rem; font-size: 0.86rem; }
+    .header__nav { gap: 0.1rem; }
+  }
+
   /* Compact spacing until the viewport can hold the roomier layout. */
-  @media (min-width: 1350px) and (max-width: 1549px) {
+  @media (min-width: 1450px) and (max-width: 1549px) {
     .header__left { gap: 1.25rem; }
     .header__link { padding: 0.45rem 0.35rem; }
     .header__nav { gap: 0.15rem; }
@@ -468,7 +469,7 @@ const isActiveSection = (item: NavItem): boolean =>
     cursor: pointer;
   }
 
-  @media (min-width: 1350px) {
+  @media (min-width: 1240px) {
     .header__menu-btn { display: none; }
   }
 
@@ -479,7 +480,7 @@ const isActiveSection = (item: NavItem): boolean =>
 
   /* 44px touch-target floor for the header's icon controls on touch devices
      and narrow screens (WCAG 2.5.5; the audit measured ~32px). */
-  @media (max-width: 1349px), (pointer: coarse) {
+  @media (max-width: 1239px), (pointer: coarse) {
     .header__icon,
     .header__menu-btn {
       min-width: 2.75rem;
@@ -571,11 +572,6 @@ const isActiveSection = (item: NavItem): boolean =>
   .header__mobile-sublink.is-active {
     color: var(--assured-accent-soft);
     background: rgba(20, 184, 166, 0.12);
-  }
-
-  .header__mobile-sublink--sub {
-    margin-left: 1rem;
-    font-size: 0.82rem;
   }
 </style>
 

@@ -39,6 +39,21 @@ const EXEMPT_ROUTES = new Set([
   "/docs/glossaries/bad/",
   "/docs/glossaries/cat/",
   "/docs/glossaries/clear/",
+  // Alert subsection reference pages: reached from their section hubs, not
+  // part of the section-to-section reading arc.
+  "/docs/alert/detection-mechanisms/signature/",
+  "/docs/alert/detection-mechanisms/anomaly/",
+  "/docs/alert/detection-mechanisms/rule/",
+  "/docs/alert/detection-mechanisms/behavioral/",
+  "/docs/alert/validation/baseline-comparison/",
+  "/docs/alert/validation/attack-chains/",
+  "/docs/alert/validation/criticality/",
+  "/docs/alert/parsing/multi-format/",
+  "/docs/alert/parsing/command-line/",
+  "/docs/alert/parsing/process-relationships/",
+  "/docs/alert/parsing/network/",
+  "/docs/alert/parsing/file-system/",
+  "/docs/alert/parsing/cloud-identity/",
 ]);
 
 function* mdxFiles(dir) {

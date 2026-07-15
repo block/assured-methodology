@@ -63,7 +63,9 @@ function idsIn(html) {
 
 function hrefsIn(html) {
   const hrefs = [];
-  for (const m of html.matchAll(/<a\b[^>]*\bhref\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
+  for (const m of html.matchAll(
+    /<a\b[^>]*\bhref\s*=\s*("([^"]*)"|'([^']*)')/gi,
+  )) {
     hrefs.push(decodeEntities(m[2] ?? m[3]));
   }
   return hrefs;
@@ -78,7 +80,8 @@ function main() {
   const files = htmlFiles(DIST);
   const idCache = new Map(); // html file -> Set of ids
   const idsOf = (file) => {
-    if (!idCache.has(file)) idCache.set(file, idsIn(readFileSync(file, "utf8")));
+    if (!idCache.has(file))
+      idCache.set(file, idsIn(readFileSync(file, "utf8")));
     return idCache.get(file);
   };
 
@@ -97,13 +100,17 @@ function main() {
       // Same-page fragment ("#risk-matrix") or bare "#" (top of page).
       if (pathname === "") {
         if (fragment && !idsOf(file).has(decodeURIComponent(fragment))) {
-          broken.push(`${pagePath} -> ${raw} (no id "${fragment}" on this page)`);
+          broken.push(
+            `${pagePath} -> ${raw} (no id "${fragment}" on this page)`,
+          );
         }
         continue;
       }
 
       if (!pathname.startsWith("/")) {
-        broken.push(`${pagePath} -> ${raw} (relative link; use a root-relative path)`);
+        broken.push(
+          `${pagePath} -> ${raw} (relative link; use a root-relative path)`,
+        );
         continue;
       }
 
@@ -124,13 +131,17 @@ function main() {
         continue;
       }
       if (fragment && !idsOf(target).has(decodeURIComponent(fragment))) {
-        broken.push(`${pagePath} -> ${raw} (no id "${fragment}" on target page)`);
+        broken.push(
+          `${pagePath} -> ${raw} (no id "${fragment}" on target page)`,
+        );
       }
     }
   }
 
   if (broken.length === 0) {
-    console.log(`check-links: OK (${checked} internal links across ${files.length} pages)`);
+    console.log(
+      `check-links: OK (${checked} internal links across ${files.length} pages)`,
+    );
     return;
   }
   for (const b of broken.sort()) console.error(`check-links: BROKEN ${b}`);

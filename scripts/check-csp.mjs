@@ -63,7 +63,9 @@ function main() {
     .flatMap((h) => h.headers ?? [])
     .find((h) => h.key === "Content-Security-Policy");
   if (!rule) {
-    console.error("check-csp: no Content-Security-Policy header in vercel.json");
+    console.error(
+      "check-csp: no Content-Security-Policy header in vercel.json",
+    );
     process.exit(1);
   }
 
@@ -86,7 +88,11 @@ function main() {
       .split(/\s+/)
       .slice(1)
       .filter((src) => !src.startsWith("'sha256-"));
-    directives[scriptIdx] = ["script-src", ...keep, ...[...built.keys()].sort()].join(" ");
+    directives[scriptIdx] = [
+      "script-src",
+      ...keep,
+      ...[...built.keys()].sort(),
+    ].join(" ");
     rule.value = directives.join("; ");
     writeFileSync(VERCEL_JSON, `${JSON.stringify(config, null, 2)}\n`);
     console.log(`check-csp: wrote ${built.size} script hashes to vercel.json`);

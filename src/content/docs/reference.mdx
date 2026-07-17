@@ -27,7 +27,7 @@ import LetterChip from "@/components/assured/LetterChip.astro";
   <div class="ref-phase ref-phase--alert">
     <div class="ref-phase__head"><LetterChip letter="A" phase="alert" size="sm" /><a href="/docs/alert/">Alert</a><span class="ref-phase__q">What fired, and why?</span></div>
     <p class="ref-phase__out"><strong>Produce:</strong> the validated alert (detection mechanism and its trust level, normalized fields, validation results) plus flagged leads and temporal anchors.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> known-benign pattern with library discriminators → Level 0 five-field close · no real signal → close as false-positive with detection feedback · validated signal → Subject.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> known-benign pattern, discriminators and eligibility gate proven → Level 0 five-field close · no real signal → close as false-positive with detection feedback · validated signal → Subject.</p>
   </div>
   <div class="ref-phase ref-phase--subject">
     <div class="ref-phase__head"><LetterChip letter="S" phase="subject" size="sm" /><a href="/docs/subject/">Subject</a><span class="ref-phase__q">Who is involved?</span></div>
@@ -47,7 +47,7 @@ import LetterChip from "@/components/assured/LetterChip.astro";
   <div class="ref-phase ref-phase--risk">
     <div class="ref-phase__head"><LetterChip letter="R" phase="risk" size="sm" /><a href="/docs/risk/">Risk</a><span class="ref-phase__q">How bad is it, and how confident are we?</span></div>
     <p class="ref-phase__out"><strong>Produce:</strong> the impact × likelihood verdict scored on the RATM rubric, the priority from the triage matrix (P1 to P4), and a named confidence level.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> P1 → escalate immediately, warm handoff · P2 → escalate within the shift · P3 → keep working, re-score within 24 hours on a named trigger · P4 → document and close.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> P1 → escalate immediately, warm handoff · P2 → escalate within the shift · P3 → keep working, re-score within 24 hours on a named trigger (High/Low: the tightened high-impact clock, hours not 24) · P4 → document and close.</p>
   </div>
   <div class="ref-phase ref-phase--escalation">
     <div class="ref-phase__head"><LetterChip letter="E" phase="escalation" size="sm" /><a href="/docs/escalation/">Escalation</a><span class="ref-phase__q">Who needs to know, and with what context?</span></div>
@@ -67,7 +67,7 @@ Run at every phase. Any criterion <strong>confirmed</strong> escalates immediate
 
 <div class="ref-crit">
   <div class="ref-crit__item">✅ <strong>Confirmed malicious activity.</strong> Verified IOCs, malware, exploitation, corroborated ATT&CK-mapped techniques.</div>
-  <div class="ref-crit__item">💎 <strong>High impact / business-critical.</strong> Production, regulated data, identity infrastructure. Asset profile alone justifies it.</div>
+  <div class="ref-crit__item">💎 <strong>High impact / business-critical.</strong> Confirmed malicious or unauthorized activity touching production, regulated data, or identity infrastructure; escalate before the evidence picture is complete. Asset profile alone never breaks glass; it tightens the clock (Risk's override rules): missing evidence reads High/Medium (P2, within shift), benign-leaning evidence High/Low (P3, tightened clock).</div>
   <div class="ref-crit__item">↔️ <strong>Lateral movement or exfiltration.</strong> A second host, account, or trust boundary; staging or outbound transfer. Blast radius is growing.</div>
   <div class="ref-crit__item">🌐 <strong>Ongoing or widespread campaign.</strong> Multiple hosts or users, shared infrastructure or lures, coordinated timing.</div>
 </div>
@@ -75,9 +75,9 @@ Run at every phase. Any criterion <strong>confirmed</strong> escalates immediate
 ## The depth ladder
 
 <div class="ref-ladder">
-  <div class="ref-ladder__rung"><strong>Level 0 · Pattern close.</strong> Known-benign pattern, library discriminators pass, five-field record. Minutes.</div>
+  <div class="ref-ladder__rung"><strong>Level 0 · Pattern close.</strong> Known-benign pattern, library discriminators pass, eligibility gate proven from source systems (unknown fails it), five-field record. Minutes.</div>
   <div class="ref-ladder__rung"><strong>Level 1 · Standard triage.</strong> The seven phases at working depth. Most validated alerts live here.</div>
-  <div class="ref-ladder__rung"><strong>Level 2 · Full investigation.</strong> The complete arc with the nine-section report. Multiple subjects, privilege, regulated data, or anything that survived Level 1 unresolved.</div>
+  <div class="ref-ladder__rung"><strong>Level 2 · Full arc.</strong> The seven phases at full depth with the nine-section report. Multiple subjects, privilege, regulated data, or anything that survived Level 1 unresolved.</div>
 </div>
 
 Any surprise moves the case <strong>up</strong> a level, never down mid-case. Depth and urgency are separate decisions: break-glass escalates even from inside a Level 0 check. Full rules: <a href="/docs/fast-path/">the fast path</a>.
@@ -86,6 +86,7 @@ Any surprise moves the case <strong>up</strong> a level, never down mid-case. De
 
 <div class="ref-templates">
   <a href="/templates/pattern-close-record.md" download>⬇ pattern-close-record.md</a>
+  <a href="/templates/pattern-entry.md" download>⬇ pattern-entry.md</a>
   <a href="/templates/alert-report.md" download>⬇ alert-report.md</a>
   <a href="/templates/handoff-packet.md" download>⬇ handoff-packet.md</a>
   <a href="/templates/event-report.md" download>⬇ event-report.md</a>

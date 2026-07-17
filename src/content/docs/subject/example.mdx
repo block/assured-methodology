@@ -61,7 +61,7 @@ import Callout from "@/components/assured/Callout.astro";
     <ul class="example-step__list">
       <li><strong>The host.</strong> laptop-finance-09 is a managed corporate device, enrolled in the EDR, with a baseline of activity matching dlin's role.</li>
       <li><strong>The machine account.</strong> laptop-finance-09 is domain-joined, so it has its own computer account that authenticates to domain services independently of dlin. Anything running as SYSTEM on the host speaks as that account, so its recent activity becomes part of the picture.</li>
-      <li><strong>The Outlook session.</strong> The parent process of the PowerShell invocation. Each Outlook session has its own token, mailbox identity, and audit trail.</li>
+      <li><strong>The Outlook session.</strong> The root of the process chain that led to the PowerShell invocation. Each Outlook session has its own token, mailbox identity, and audit trail.</li>
       <li><strong>The cloud identity.</strong> dlin's federated SSO identity for the cloud-based finance reporting platform. Has the same recent-login pattern as the on-premises account.</li>
     </ul>
     <p>One named user has become five identities: the user account, the host, the machine account, the Outlook session, and the federated cloud identity. The Outlook session is assessed as part of dlin's own primary investigation, same principal, same token chain, which leaves four distinct entities to profile. Three get full primary depth (dlin, the laptop, dlin's federated cloud identity); the machine account gets secondary depth. Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
@@ -132,7 +132,7 @@ import Callout from "@/components/assured/Callout.astro";
 </ChapterExample>
 
 <KeyTakeaway>
-The Subject phase turned one named <DefineTerm term="User" display="user" /> into a map of 3 primary entities + 3 secondary entities + 1 downstream system, plus the external originating sender tracked as the originating threat. That expansion is the whole point. Without Subject, the investigation would have stayed on one user and one host. With Subject, it knows to follow the trust paths.
+The Subject phase turned one named <DefineTerm term="User" display="user" /> into a map of 3 primary entities + 3 secondary entities + 1 downstream system, plus the external sender tracked as the originating threat. That expansion is the whole point. Without Subject, the investigation would have stayed on one user and one host. With Subject, it knows to follow the trust paths.
 </KeyTakeaway>
 
 ---
@@ -207,7 +207,7 @@ The first walkthrough showed Subject <em>expanding outward</em> from a single na
     </ul>
 
     <Reveal summary="Subject's verdict and the Scope handoff" variant="example">
-      <p><strong>Subject's conclusion:</strong> false-positive with explicit caveats. The activity matches a known Empire-style pattern in the detection logic but is consistent with the documented operating mode of a signed, trusted, role-appropriate application running on a high-trust developer workstation.</p>
+      <p><strong>Subject's conclusion:</strong> benign true positive with explicit caveats. The detection logic read the behavior correctly — the activity matches a known Empire-style pattern — and that behavior is consistent with the documented operating mode of a signed, trusted, role-appropriate application running on a high-trust developer workstation.</p>
       <p><strong>What Subject hands to Scope:</strong></p>
       <ul>
         <li><strong>Primary entities:</strong> the developer, the laptop, the Cursor Helper binary. All read clean across four dimensions.</li>
@@ -216,7 +216,7 @@ The first walkthrough showed Subject <em>expanding outward</em> from a single na
         <li><strong>Open question for Uncover:</strong> are there detection rules that should be tuned for Cursor's plugin-host pattern so this stops firing repeatedly? Yes, but that is improvement work, not investigation work.</li>
         <li><strong>Insider posture:</strong> none observed. Normal behavior for this role.</li>
       </ul>
-      <p>This handoff is what a "false-positive" looks like when written properly. Not "dismissed." Documented.</p>
+      <p>This handoff is what a benign close looks like when written properly. Not "dismissed." Documented.</p>
     </Reveal>
   </div>
 
@@ -318,14 +318,14 @@ The finance case expanded from a user to hosts and peers. The developer case con
 ---
 
 <KeyTakeaway>
-Subject's verdict is rarely "compromise" or "false-positive" as a binary. It is a structured map of identities with per-dimension assessments and explicit confidence levels, whether those identities are users and hosts or sessions and application grants. That structure is what lets Scope draw clean boundaries instead of guessing.
+Subject's verdict is rarely "compromise" or "benign" as a binary. It is a structured map of identities with per-dimension assessments and explicit confidence levels, whether those identities are users and hosts or sessions and application grants. That structure is what lets Scope draw clean boundaries instead of guessing.
 </KeyTakeaway>
 
 <ContinueCard
   current="subject"
   nextHref="/docs/subject/quiz/"
   nextLabel="Subject chapter quiz"
-  nextDescription="Eight questions on the four dimensions, entity types, behavioral framework, and insider analysis."
+  nextDescription="Ten questions on the four dimensions, entity types, behavioral framework, insider analysis, the working examples, and the Scope handoff."
   ctaLabel="Take the chapter quiz"
 />
 

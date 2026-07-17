@@ -88,13 +88,17 @@ const resolvedTotal = pillarTotal ?? "";
     pointer-events: none;
   }
 
-  .subpage-hero--alert         { --accent: var(--assured-phase-alert); }
-  .subpage-hero--subject       { --accent: var(--assured-phase-subject); }
-  .subpage-hero--scope         { --accent: var(--assured-phase-scope); }
-  .subpage-hero--uncover       { --accent: var(--assured-phase-uncover); }
-  .subpage-hero--risk          { --accent: var(--assured-phase-risk); }
-  .subpage-hero--escalation    { --accent: var(--assured-phase-escalation); }
-  .subpage-hero--documentation { --accent: var(--assured-phase-documentation); }
+  /* --accent colors the border/decoration; --accent-text is the 300-level
+     soft token reserved for text, so the 0.7rem pillar chip holds >= 4.5:1
+     (WCAG 2.2 SC 1.4.3) at both gradient extremes (#334155 / #0f172a). Base
+     500s measured 3.23-4.00:1 for escalation/scope/risk. */
+  .subpage-hero--alert         { --accent: var(--assured-phase-alert); --accent-text: var(--assured-phase-alert-soft); }
+  .subpage-hero--subject       { --accent: var(--assured-phase-subject); --accent-text: var(--assured-phase-subject-soft); }
+  .subpage-hero--scope         { --accent: var(--assured-phase-scope); --accent-text: var(--assured-phase-scope-soft); }
+  .subpage-hero--uncover       { --accent: var(--assured-phase-uncover); --accent-text: var(--assured-phase-uncover-soft); }
+  .subpage-hero--risk          { --accent: var(--assured-phase-risk); --accent-text: var(--assured-phase-risk-soft); }
+  .subpage-hero--escalation    { --accent: var(--assured-phase-escalation); --accent-text: var(--assured-phase-escalation-soft); }
+  .subpage-hero--documentation { --accent: var(--assured-phase-documentation); --accent-text: var(--assured-phase-documentation-soft); }
 
   .subpage-hero { --accent-glow: color-mix(in srgb, var(--accent, var(--assured-accent)) 14%, transparent); }
 
@@ -138,7 +142,7 @@ const resolvedTotal = pillarTotal ?? "";
     border-radius: 9999px;
     background: rgba(15, 23, 42, 0.7);
     border: 1px solid var(--accent);
-    color: var(--accent);
+    color: var(--accent-text, var(--accent));
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.06em;

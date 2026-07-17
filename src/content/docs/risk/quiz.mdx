@@ -76,7 +76,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "close", label: "Close as a false-positive. Signature matches without behavior are noise." },
     ]}
     answer="continue"
-    explanation="Impact answers what is at stake if the finding is real; likelihood answers how confident you are that it is real. High impact with weak evidence is neither an escalation (that would let stakes inflate confidence) nor a closure (that would let weak evidence excuse a crown-jewel case). The matrix keeps it under active investigation with an explicit trigger to re-score."
+    explanation="Impact answers what is at stake if the finding is real; likelihood answers how confident you are that it is real. High impact with weak evidence is neither an escalation (that would let stakes inflate confidence) nor a closure (that would let weak evidence excuse a crown-jewel case). Two qualifiers from the override rules: this Low is legitimate only because the evidence was examined and leans benign — if likelihood were 'low' because telemetry was missing, unknown scores Medium and the cell becomes High/Medium, P2 within the shift. And a High-impact P3 runs the tightened high-impact clock: re-score within hours, not 24, with the queue lead aware."
   />
 
   <QuizItem
@@ -92,7 +92,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="A SOC sees the same false-positive alert fire repeatedly across multiple developer workstations. What is the right response?"
+    prompt="A SOC sees the same alert fire repeatedly across multiple developer workstations, and every investigation closes benign. What is the right response?"
     options={[
       { value: "close", label: "Keep closing them individually with full records. Each case stands on its own evidence." },
       { value: "suppress", label: "Suppress the rule entirely. A rule this noisy costs more attention than it could return." },
@@ -100,19 +100,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "escalate", label: "Escalate the volume to leadership so the detection budget conversation happens upstream." },
     ]}
     answer="feedback"
-    explanation="A single false-positive is a closure with feedback. A pattern of false-positives on the same asset class is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression with an owner and a review cadence, not for individual repeat closures or wholesale rule removal."
+    explanation="A single benign fire is a closure with feedback. A pattern of benign fires on the same asset class — whether false positives or benign true positives — is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression with an owner and a review cadence, not for individual repeat closures or wholesale rule removal."
   />
 
   <QuizItem
-    prompt="The Risk verdict for the Cursor IDE case (false-positive) reads 'low residual risk, no escalation required.' What value does the documented closure provide?"
+    prompt="The Risk verdict for the Cursor IDE case (benign true positive) reads 'low residual risk, no escalation required.' What value does the documented closure provide?"
     options={[
-      { value: "none", label: "None. A false-positive that never escalated produced nothing the organization can use." },
+      { value: "none", label: "None. A benign close that never escalated produced nothing the organization can use." },
       { value: "audit", label: "An audit checkbox: evidence the queue is worked, with no investigative value beyond that." },
       { value: "all", label: "A defensible record, detection feedback, a coverage-gap question, and re-openable context." },
       { value: "metric", label: "A throughput metric: closed cases are how triage capacity gets measured and staffed." },
     ]}
     answer="all"
-    explanation="A documented false-positive closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, about coverage gaps in macOS PCAP and USB monitoring), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."
+    explanation="A documented benign closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, about coverage gaps in macOS PCAP and USB monitoring), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."
   />
 
 </Quiz>

@@ -13,16 +13,24 @@
 - [ ] Verified malicious infrastructure: IPs or domains tied to known C2, phishing, or attacker infrastructure in threat-intelligence sources
 - [ ] Malware indicators: file hashes matching documented malware or unauthorized tools with verified malicious functionality
 - [ ] Exploitation evidence: attacker tools or exploits executed, consistent with known malware families or attacker profiles
-- [ ] ATT&CK correlation: techniques mapped to tactics such as privilege escalation, persistence, or defense evasion, corroborated by more than one data point
+- [ ] ATT&CK correlation: techniques mapped to tactics such as privilege escalation, persistence, or defense impairment, corroborated by more than one data point
 
 ## 2. High impact / business-critical systems affected
 
+Confirmed here means confirmed malicious or unauthorized activity touching one
+of these asset classes; the asset profile alone does not confirm the criterion.
+
 - [ ] Production systems directly supporting revenue or customer experience
 - [ ] Regulated data repositories: PII, PHI, or payment card data in reach (mandatory breach-notification clocks may apply)
+- [ ] Cloud infrastructure hosting critical workloads, especially with privileged access or broad connections to organizational data
 - [ ] Identity and access infrastructure: domain controllers, IdP, PKI, secrets management
 - [ ] Systems whose disruption causes substantial operational, financial, or reputational harm
 
-Impact-driven escalation is justified by the asset profile alone, before the technical evidence is complete.
+Once confirmed, escalate before the evidence picture is complete; nobody waits
+to quantify blast radius on a crown jewel. An unconfirmed case on these assets
+instead runs the Risk framework's override rules: missing-evidence uncertainty
+floors at P2 (within shift); benign-leaning evidence continues at P3 on the
+tightened high-impact clock (hours, not 24).
 
 ## 3. Lateral movement or exfiltration
 
@@ -49,6 +57,7 @@ Blast radius is growing; containment timing is now urgent.
 Priority clocks (from the Risk triage matrix): P1 escalate immediately with a
 warm handoff; P2 escalate within the shift with a complete packet; P3
 investigate to closure or re-score within 24 hours with a named trigger for
-raising priority; P4 document and close in the standard queue. De-escalation
+raising priority (High/Low runs the tightened high-impact clock: hours, not
+24); P4 document and close in the standard queue. De-escalation
 is legitimate: a priority moves down with a named reason and the same
 stakeholder notification the upgrade got.

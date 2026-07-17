@@ -143,7 +143,12 @@ const chapterTail: Item[] = chapter
     flex: 1;
     min-width: 0;
     overflow-x: auto;
-    scrollbar-width: none;
+    /* Thin themed scrollbar instead of a hidden one: mouse users need a
+       visible affordance that more pills sit off-screen (keyboard users get
+       focus auto-scroll; touch users scroll natively). Nothing renders when
+       the row fits. */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -154,7 +159,12 @@ const chapterTail: Item[] = chapter
     flex-shrink: 0;
   }
 
-  .pillnav__items::-webkit-scrollbar { display: none; }
+  .pillnav__items::-webkit-scrollbar { height: 6px; }
+  .pillnav__items::-webkit-scrollbar-track { background: transparent; }
+  .pillnav__items::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+  }
 
   /* WCAG 2.5.5: 44px touch-target floor on touch devices. */
   @media (pointer: coarse) {

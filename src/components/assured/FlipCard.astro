@@ -46,8 +46,27 @@ const iconSvg = icon ? icons[icon] : undefined;
   readers flatten the whole back face into the button's accessible name.
   The face that is rotated away also gets inert + aria-hidden (managed by the
   script) so its content leaves the tab order and the accessibility tree.
+
+  Progressive enhancement: the server HTML ships the back face fully
+  reachable (no inert/aria-hidden); the bind script applies the hidden state
+  before any interaction is possible. Without JS the noscript style below
+  stacks both faces in linear flow so the teaching content is readable.
 */}
 <div class={`flip-card flip-card--${accent}`} data-flip-card>
+  <noscript>
+    <style is:inline>
+      /* No-JS fallback: the flip buttons are dead and the back face is
+         rotated away, so lay both faces out as a linear stack and drop the
+         interactive hint chrome. These styles never apply once scripts run. */
+      .flip-card { min-height: 0 !important; }
+      .flip-card__inner { display: block !important; cursor: auto !important; }
+      .flip-card__face { min-height: 0 !important; }
+      .flip-card__face--back { transform: none !important; margin-top: 0.85rem; }
+      .flip-card__hint { display: none !important; }
+      .flip-card__title-btn { cursor: default !important; }
+      .flip-card__back-body { margin-bottom: 0 !important; }
+    </style>
+  </noscript>
   <div class="flip-card__inner">
     <div class="flip-card__face flip-card__face--front">
       {icon && (
@@ -80,7 +99,10 @@ const iconSvg = icon ? icons[icon] : undefined;
         </svg>
       </span>
     </div>
-    <div class="flip-card__face flip-card__face--back" inert aria-hidden="true">
+    {/* No inert/aria-hidden here: the bind script adds them (inert cannot be
+        undone by CSS, so baking it into server HTML would make the back face
+        permanently unreachable without JS). */}
+    <div class="flip-card__face flip-card__face--back">
       <div class="flip-card__back-body">
         <slot />
       </div>
@@ -267,6 +289,12 @@ const iconSvg = icon ? icons[icon] : undefined;
       const titleBtn = card.querySelector<HTMLButtonElement>("[data-flip-toggle]");
       const backBtn = card.querySelector<HTMLButtonElement>("[data-flip-back]");
       if (!inner || !front || !back || !titleBtn || !backBtn) return;
+
+      // The server ships the back face reachable so no-JS readers get the
+      // content; now that the flip controls work, hide the rotated-away face
+      // from the tab order and the accessibility tree.
+      back.toggleAttribute("inert", true);
+      back.setAttribute("aria-hidden", "true");
 
       function setFlipped(flipped: boolean, moveFocus: boolean) {
         inner!.classList.toggle("is-flipped", flipped);

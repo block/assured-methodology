@@ -69,7 +69,7 @@ The library is not a single thing. A signature engine typically maintains severa
 
 <Reveal summary="Walk through a typical signature hit" variant="example" open={true}>
 
-An EDR endpoint reports the following alert:
+An <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" /> endpoint reports the following alert:
 
 ```
 Alert: Malicious file detected
@@ -80,7 +80,7 @@ Path: C:\Users\jdoe\Downloads\invoice.exe
 Initiating process: explorer.exe
 ```
 
-The analyst's first question is which family fired. The "Detection: Signature match" field answers it. This is a deterministic match against a known-bad hash, which means the engine is highly confident the file is what it says it is.
+The analyst's first question is which family fired. The "Detection: Signature match" field answers it. This is a deterministic match against a known-bad hash, which means the engine is highly confident the file is what it says it is. That is a claim about the artifact's identity, not yet a verdict on the event: how fresh and well-sourced the indicator is, whether the hash belongs to a dual-use tool, and whether the file ever ran are still open questions — which is exactly what the next checks establish.
 
 What the analyst checks next:
 
@@ -99,10 +99,10 @@ Notice what <DefineTerm term="Signature-Based Detection" display="signature-base
 
 <StrengthsLimitations
   strengths={[
-    "Very low false-positive rate on exact indicator matches: a known-bad hash or verified C2 domain is almost always real. Generic heuristic AV detections are noisier and need corroboration.",
+    "Very low false-positive rate on exact indicator matches: a fresh, well-sourced known-bad hash or verified C2 domain almost always identifies the artifact correctly. Whether the event is malicious still depends on the indicator's age, source, and the artifact's dual-use status; generic heuristic AV detections are noisier and need corroboration.",
     "Lightweight at runtime, with minimal performance impact on endpoints and network sensors.",
     "Transparent and auditable. The analyst can point at the signature and explain exactly why the alert fired.",
-    "Fast. A signature match gives a high-confidence answer immediately, which is critical during fast-moving incidents.",
+    "Fast. A signature match gives an immediate, unambiguous answer about what matched, which is critical during fast-moving incidents.",
   ]}
   limitations={[
     "Blind to novel threats. Zero-day exploits and polymorphic malware slip past until a signature is published.",

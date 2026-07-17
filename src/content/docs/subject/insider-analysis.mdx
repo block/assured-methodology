@@ -48,7 +48,7 @@ The vocabulary matters. The two words mean different things, and the response di
 </div>
 
 <Callout variant="info" title="Why the distinction matters">
-Treating all insider activity as <DefineTerm term="Threat" display="threat" /> poisons the relationship with the rest of the organization and produces investigations that find nothing useful. Treating all insider activity as risk misses the rare but consequential intentional cases. The methodology asks the analyst to start with risk and escalate to threat only when the evidence supports it.
+Treating all insider activity as <DefineTerm term="Threat" display="threat" /> poisons the relationship with the rest of the organization and produces investigations that find nothing useful. Treating all insider activity as risk misses the rare but consequential intentional cases. The methodology asks the analyst to start with risk and escalate to threat only when the evidence supports it. Two boundaries on the vocabulary: the label is a hypothesis about intent, revisable as evidence arrives, and definitions vary — NIST's insider-threat definition includes <em>unwitting</em> insiders, so calibrate to your organization's usage. And whichever vocabulary applies, the label never delays response: confirmed harmful activity is contained and escalated on act, asset, and impact, with intent resolved in parallel.
 </Callout>
 
 <div class="case-study">
@@ -68,7 +68,7 @@ Investigation found no malicious intent. The behavior stemmed from frustration w
 
 The remediation focused on the underlying friction: the approved sharing workflow was redesigned to take 4 minutes per exchange (down from 27), and a tailored process was added for marketing's specific collaboration needs. Compliance improved 92% within 30 days.
 
-This is insider <em>risk</em>, not threat. The investigation pivoted from forensics to process improvement. Treating it as threat would have produced an enforcement action that did not actually fix the cause.
+This is insider <em>risk</em>, not threat, and the label decided the lasting fix, not the immediate response: the exposure was scoped, contained, and run through the notification question before anyone weighed motive. With that handled, the investigation pivoted from forensics to process improvement. Treating it as threat would have produced an enforcement action that did not actually fix the cause.
 
 </Reveal>
 
@@ -180,7 +180,7 @@ The <DefineTerm term="Insider Threat Matrix">A public framework maintained at in
 
 ### Behavioral vs technical indicators
 
-The strongest insider triage correlates two streams that often live in separate teams: human signals (HR, manager observations) and technical signals (logs, telemetry). Either stream alone produces noise. Together they produce signal.
+The strongest insider triage correlates two streams that often live in separate teams: human signals (HR, manager observations) and technical signals (logs, telemetry). Correlated, they sharpen the risk-versus-threat label — and only the label; response rides on act, asset, and impact, never on the streams agreeing.
 
 <div class="indicator-split">
   <div class="indicator-column indicator-column--behavioral">
@@ -209,8 +209,8 @@ The strongest insider triage correlates two streams that often live in separate 
   </div>
 </div>
 
-<Callout variant="info" title="Neither stream is enough alone">
-Technical signals without behavioral context produce false-positives (admins legitimately disable agents, developers legitimately use scripting tools). Behavioral signals without technical context produce HR friction (someone is having a bad month and the SOC opens an investigation). The methodology asks the analyst to wait for both streams to agree before escalating from risk to threat.
+<Callout variant="info" title="Correlation sharpens the label; harm triggers the response">
+Technical signals without behavioral context produce benign fires (admins legitimately disable agents, developers legitimately use scripting tools — correct detections of authorized behavior). Behavioral signals without technical context produce HR friction (someone is having a bad month and the SOC opens an investigation). Correlating the two streams is how the <em>label</em> gets sharper: risk versus threat, mistake versus intent. The label never gates the response. The moment technical evidence confirms harmful activity — data leaving, controls disabled, evidence destroyed, sabotage in motion — the case escalates on act, asset, and impact under the standard <a href="/docs/escalation/criteria/">escalation criteria</a>, whether or not any behavioral signal exists, and containment does not wait for HR context. Motive gets investigated in parallel by the people authorized to hold it. The two-stream rule governs the opposite direction: behavioral signals alone, without technical corroboration, never open an enforcement case.
 </Callout>
 
 <Callout variant="warn" title="Guardrails: the analyst investigates activity, not people">
@@ -260,7 +260,7 @@ Insider investigations run inside an envelope of employment and privacy law that
 </Callout>
 
 <KeyTakeaway>
-Insider analysis is the fourth pillar of Subject and the one most likely to involve people outside the SOC. The methodology applies the same four dimensions but with adjusted expectations and a different escalation path. Start with risk. Escalate to threat only with evidence.
+Insider analysis is the fourth pillar of Subject and the one most likely to involve people outside the SOC. The methodology applies the same four dimensions but with adjusted expectations and a different escalation path. Start with risk; move the label to threat only with evidence. Confirmed harm responds on act, asset, and impact under either label.
 </KeyTakeaway>
 
 <ContinueCard
@@ -469,7 +469,7 @@ Insider analysis is the fourth pillar of Subject and the one most likely to invo
   right: 1.1rem;
   font-size: 0.7rem;
   font-weight: 800;
-  color: rgba(134, 239, 172, 0.55);
+  color: rgba(134, 239, 172, 0.7); /* >= 4.5:1 over the card at both gradient ends */
 }
 .mitigation-card :is(h3, h4) {
   margin: 0 0 0.4rem 0;

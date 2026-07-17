@@ -4,6 +4,7 @@ import type { MarkdownHeading } from "astro";
 import { Breadcrumbs } from "astro-breadcrumbs";
 import SimpleTableOfContents from "@/components/SimpleTableOfContents.astro";
 import { readingOrder } from "@/data/navigation";
+import { stableId } from "@/lib/stable-id";
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/breadcrumbs.css";
 import "../styles/content-patterns.css";
@@ -148,6 +149,7 @@ const articleSchema = JSON.stringify({
                 ariaLabel="Breadcrumb navigation"
                 excludeCurrentPage={true}
                 schemaJsonScript={false}
+                id={stableId("breadcrumbs", Astro.url.pathname)}
               >
                 <span slot="separator">&nbsp;›&nbsp;</span>
                 <Fragment slot="index">

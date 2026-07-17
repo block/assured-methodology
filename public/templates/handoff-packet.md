@@ -4,6 +4,24 @@
      (https://assured-methodology.vercel.app/docs/escalation/handoff).
      Target: the whole packet is readable in five minutes. -->
 
+## Case metadata
+
+<!-- The packet identifies itself before it explains itself: which case, who
+     wrote it, when, who owns the next action, and why it escalated. The
+     criterion is the canonical category that fired (confirmed malicious
+     activity / high impact / lateral movement or exfiltration / ongoing
+     campaign) under the break-glass rule, or the triage-matrix cell that
+     mandated escalation (e.g. High/Medium: P2, within shift). -->
+
+- Case ID:
+- Prepared by (triage analyst):
+- Prepared at (UTC):
+- Handed to (receiving team, and the named owner of the next action):
+- Escalation criterion met (canonical category or matrix cell), with a
+  one-line rationale citing the confirming evidence:
+- Material AI use (assistant and version, and which sections began as AI
+  drafts; "none" if unassisted):
+
 ## 1. Case summary
 
 <!-- One paragraph. What happened, what is known, what the triage analyst

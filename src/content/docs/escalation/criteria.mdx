@@ -24,12 +24,12 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 <div class="cat-grid">
   <a href="#malicious" class="cat-card"><h3>✅ Confirmed malicious activity</h3><p>Validated IOCs reliably linked to attacker behavior. Triage moves into containment posture.</p></a>
-  <a href="#high-impact" class="cat-card"><h3>💎 High impact / business-critical</h3><p>Systems essential to operations, regulated data, or revenue. Impact-driven escalation independent of evidence depth.</p></a>
+  <a href="#high-impact" class="cat-card"><h3>💎 High impact / business-critical</h3><p>Confirmed malicious or unauthorized activity touching systems essential to operations, regulated data, or revenue. Escalates before the evidence picture is complete.</p></a>
   <a href="#lateral" class="cat-card"><h3>↔️ Lateral movement or exfiltration</h3><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
   <a href="#campaign" class="cat-card"><h3>🌐 Ongoing or widespread campaign</h3><p>Multiple hosts, users, or sectors. Coordinated activity demanding organization-level response.</p></a>
 </div>
 
-The four categories as a run-at-every-phase checklist, with sub-checks and the decision rule: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>, also printed on the <a href="/docs/reference/">one-page reference</a>.
+The four categories as a run-at-every-phase checklist, with sub-checks and the decision rule: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>, also printed on the <a href="/docs/reference/">one-page reference</a>. The checklist rephrases this page's signs as checkable observations; the categories and the decision rule are identical.
 
 <Callout variant="warn" title="The break-glass rule: a confirmed criterion escalates from any phase">
 The seven phases are a thinking order, not a waiting queue. The moment any canonical criterion is **confirmed**, in Subject, in Uncover, anywhere, the case escalates immediately: page the IR lead, start the warm handoff, and let the remaining phases complete under IR's clock, in parallel with containment. Do not finish the loop first. An investigation that is still revealing new lateral movement is not "not ready to escalate"; it is the definition of a case IR should already own, with triage continuing as scoping support. Suspicion is different: an unconfirmed signal refines Scope and re-runs the loop. Confirmation breaks the glass.
@@ -56,7 +56,7 @@ Escalation is warranted when definitive evidence ties the event to attacker beha
   </div>
   <div class="malicious-card">
     <h3>MITRE ATT&amp;CK correlation</h3>
-    <p>Use of techniques mapped to MITRE ATT&CK tactics such as privilege escalation, persistence, or defense evasion. The framework gives the activity structured context.</p>
+    <p>Use of techniques mapped to MITRE ATT&CK tactics such as privilege escalation, persistence, or defense impairment. The framework gives the activity structured context.</p>
   </div>
 </div>
 
@@ -68,7 +68,9 @@ When evaluating potential malicious activity, security analysts must correlate m
 
 <h2 id="high-impact">High impact / business-critical systems affected</h2>
 
-When an event affects systems essential to operations, <DefineTerm term="Regulatory Compliance" display="regulatory compliance" />, or <DefineTerm term="Sensitive Data" display="sensitive data" /> protection, the asset profile alone justifies escalation, before the technical evidence is complete. Business-critical systems support mission-critical services, store regulated data, or perform functions whose disruption could cause substantial operational, financial, or reputational harm.
+When confirmed malicious or unauthorized activity touches systems essential to operations, <DefineTerm term="Regulatory Compliance" display="regulatory compliance" />, or <DefineTerm term="Sensitive Data" display="sensitive data" /> protection, the case escalates before the evidence picture is complete: nobody waits to quantify blast radius on a crown jewel. Business-critical systems support mission-critical services, store regulated data, or perform functions whose disruption could cause substantial operational, financial, or reputational harm.
+
+What this criterion is not: asset value by itself. An unvalidated alert on a domain controller has not confirmed anything, and paging IR on asset profile alone floods the escalation path with weak cases until nobody answers the page. What the asset profile does do, deterministically, is tighten the clock under the <a href="/docs/risk/framework/">Risk framework's override rules</a>: a validated-but-unresolved high-impact case floors at P2 when the uncertainty comes from missing evidence, and a benign-leaning one continues at P3 on the tightened high-impact clock, never the standard 24 hours. Same facts, same action, whichever page the analyst read first.
 
 <div class="impact-targets">
   <div class="impact-target">
@@ -176,12 +178,12 @@ The triage matrix in [Risk framework](/docs/risk/framework/) outputs a default a
   <div class="it-row it-row--header"><span>Priority</span><span>Matrix cells</span><span>Meaning</span><span>Clock</span></div>
   <div class="it-row"><span class="it-row__label">P1</span><span>High impact / High likelihood, or any break-glass confirmation</span><span>Confirmed or near-certain compromise with major impact. IR owns it.</span><span>Escalate immediately: page IR, warm handoff in minutes, packet completes in parallel.</span></div>
   <div class="it-row"><span class="it-row__label">P2</span><span>High / Medium · Medium / High</span><span>Strong case short of a confirmed crisis; needs IR attention, not a war room.</span><span>Escalate within the shift, with a complete handoff packet.</span></div>
-  <div class="it-row"><span class="it-row__label">P3</span><span>High / Low · Medium / Medium · Low / High</span><span>Unresolved, or real but low-stakes. Stays with triage under active work.</span><span>Investigate to closure or re-score within 24 hours; named trigger for raising priority.</span></div>
+  <div class="it-row"><span class="it-row__label">P3</span><span>High / Low · Medium / Medium · Low / High</span><span>Unresolved, or real but low-stakes. Stays with triage under active work.</span><span>Investigate to closure or re-score within 24 hours; named trigger for raising priority. High / Low runs the tightened high-impact clock (hours, not 24) per the Risk override rules.</span></div>
   <div class="it-row"><span class="it-row__label">P4</span><span>Medium / Low · Low / Medium · Low / Low</span><span>Likely benign or negligible impact.</span><span>Standard queue; document and close.</span></div>
 </div>
 
 <KeyTakeaway>
-Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. A criterion confirmed at any phase escalates from that phase, that is the break-glass rule. Use the criteria as the default; override only with documented reasoning grounded in the same evidence Risk evaluated.
+Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. A criterion confirmed at any phase escalates from that phase; that is the break-glass rule. Use the criteria as the default; override only with documented reasoning grounded in the same evidence Risk evaluated.
 </KeyTakeaway>
 
 <ContinueCard current="escalation" nextHref="/docs/escalation/protocols/" nextLabel="Internal and external protocols" ctaLabel="Read protocols" />
@@ -206,7 +208,7 @@ Escalation criteria are the SOC's pre-committed answer to "should I escalate?" F
 .stages-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .stages-grid { grid-template-columns: repeat(4, 1fr); } }
 .stage-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
-.stage-card__num { position: absolute; top: 0.85rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.6); }
+.stage-card__num { position: absolute; top: 0.85rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
 .stage-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
 .stage-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
 

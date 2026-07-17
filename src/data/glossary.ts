@@ -95,7 +95,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Advanced Persistent Threat (APT)": {
     "term": "Advanced Persistent Threat (APT)",
-    "definition": "A sophisticated cyber attacker, often state-sponsored, who gains and maintains unauthorized access to networks for extended periods while avoiding detection.",
+    "definition": "A sophisticated, well-resourced adversary, often state-sponsored, that gains and maintains prolonged, covert unauthorized access to a network while avoiding detection. The term names the actor; the campaign it runs is APT activity.",
     "source": "clear"
   },
   "Adware": {
@@ -338,9 +338,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Privileged access management; just-in-time access, password vaulting, session monitoring, endpoint privilege management.",
     "source": "cat-tool"
   },
-  "BigFix (IBM)": {
-    "term": "BigFix (IBM)",
-    "definition": "Endpoint management platform automating patching, compliance, and security configuration at scale.",
+  "BigFix (HCL)": {
+    "term": "BigFix (HCL)",
+    "definition": "Endpoint management platform automating patching, compliance, and security configuration at scale. Originally an IBM product; acquired by HCL in 2019.",
     "source": "cat-tool"
   },
   "Binary Obfuscation": {
@@ -685,7 +685,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "Cuckoo Sandbox": {
     "term": "Cuckoo Sandbox",
-    "definition": "Open-source automated malware analysis running suspect files in VMs and capturing behavior. Original project unmaintained since ~2017; community forks (CAPEv2, Cuckoo3) carry the approach forward.",
+    "definition": "Open-source automated malware analysis running suspect files in VMs and capturing behavior. The original project's final release was 2.0.7 (2019) and it is no longer maintained; community successors (CAPEv2, Cuckoo3) carry the approach forward.",
     "source": "cat-tool"
   },
   "Custom Encryption Protocols": {
@@ -818,9 +818,9 @@ export const glossary: Record<string, GlossaryEntry> = {
     "definition": "Inspecting the full contents of network packets, payload included, rather than only headers and flow metadata. This is what lets a network sensor see the actual request, file, or command inside the traffic, though pervasive encryption steadily shrinks what it can read.",
     "source": "clear"
   },
-  "Defense Evasion": {
-    "term": "Defense Evasion",
-    "definition": "Techniques used to avoid detection and interference from security tools, including obfuscation, disabling defenses, and mimicking legitimate activity.",
+  "Defense Impairment": {
+    "term": "Defense Impairment",
+    "definition": "ATT&CK tactic: breaking security mechanisms, pipelines, and tooling so defenders cannot see or trust what is happening — disabling security tools, modifying firewalls, tampering with logging and trust controls. With Stealth, one of the two successors to the Defense Evasion tactic retired in ATT&CK v19 (April 2026).",
     "source": "bad-term"
   },
   "Delayed Execution": {
@@ -2681,6 +2681,11 @@ export const glossary: Record<string, GlossaryEntry> = {
   "Staged Payloads": {
     "term": "Staged Payloads",
     "definition": "A two-phase delivery process where a lightweight stager downloads and executes a more complex secondary payload.",
+    "source": "bad-term"
+  },
+  "Stealth": {
+    "term": "Stealth",
+    "definition": "ATT&CK tactic: hiding and concealing actions so they appear as normal behavior, through obfuscation, masquerading, process injection, and indicator removal. With Defense Impairment, one of the two successors to the Defense Evasion tactic retired in ATT&CK v19 (April 2026).",
     "source": "bad-term"
   },
   "Storm-0558 (Microsoft cloud email)": {

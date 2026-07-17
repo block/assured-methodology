@@ -6,6 +6,29 @@
      different artifact from the escalation handoff packet; when a packet
      exists, map it in per the crosswalk on the Standards page. -->
 
+## Decision header
+
+<!-- The authoritative close-out, above the nine sections: who decided what,
+     at what priority and confidence, when, and how the draft was produced.
+     Verdict axes as in the Level 0 pattern-close record. Detection
+     correctness: did the rule correctly detect the behavior it looks for?
+     Activity disposition: benign-confirmed / authorized / malicious /
+     undetermined; a correct detection of benign behavior is a benign true
+     positive, not a false positive. Confidence uses the shared high / medium /
+     low rubric on the Standards page; between levels, round down. -->
+
+- Final verdict, detection correctness:
+- Final verdict, activity disposition (one line of justification):
+- Priority at close (P1-P4), with the matrix cell (e.g. High/Medium) or named
+  override (break-glass, high-impact clock, documented downgrade) that
+  produced it:
+- Evidence confidence (high / medium / low):
+- Open uncertainty (what remains unresolved at close; "none" must be earned):
+- Prepared by (analyst):
+- Prepared at (UTC):
+- Material AI use (assistant and version, and which sections began as AI
+  drafts; "none" if unassisted):
+
 ## 1. Event overview
 
 <!-- Who, what, when, where, how, at a glance. -->
@@ -64,7 +87,7 @@
 
 -
 
-## 8. Post-incident recommendations
+## 8. Post-event recommendations
 
 <!-- Specific, actionable improvements with ownership and timelines. Carry
      forward any open questions from the handoff packet that were not

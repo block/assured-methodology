@@ -36,7 +36,10 @@ const phases = [
 ] as const;
 ---
 
-<nav aria-label="ASSURED methodology progress">
+{/* Distinct labels: chapter pages render both the full strip and the
+    compact one (via ContinueCard); identical nav landmark names fail
+    axe landmark-unique and blur AT landmark navigation. */}
+<nav aria-label={compact ? "ASSURED methodology progress (compact)" : "ASSURED methodology progress"}>
   <ul class={`puzzle ${compact ? "puzzle--compact" : ""}`}>
     {phases.map((p) => {
       const isCurrent = current === p.key;
@@ -99,7 +102,11 @@ const phases = [
     text-decoration: none;
     color: var(--assured-text);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    overflow: hidden;
+    /* No overflow:hidden here: it silently truncated the longer labels
+       ("Documentation") whenever a tile fell below its content size — the
+       tile stays square via aspect-ratio but may grow for wrapped labels
+       (with visible overflow, content height wins over the ratio). The
+       ::before gradient clips itself via border-radius:inherit instead. */
     isolation: isolate;
     aspect-ratio: 1;
   }
@@ -114,6 +121,7 @@ const phases = [
     content: "";
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     background: linear-gradient(135deg, var(--accent, transparent) 0%, transparent 70%);
     opacity: 0.18;
     z-index: -1;
@@ -186,10 +194,43 @@ const phases = [
     letter-spacing: 0.02em;
     color: var(--assured-text-soft);
     text-align: center;
+    /* Labels could always reach across the tile's horizontal padding (the
+       flex column centers them); keep that reach explicitly via negative
+       margins so a label that fits the tile stays on one line, and wrap —
+       hyphenating where the dictionary allows — only when even the full
+       tile width is too narrow. overflow-wrap alone would shrink the
+       label's fit-content width to the padded content box and wrap the
+       longer labels on tiles where they previously fit. */
+    margin-inline: -0.5rem;
+    max-width: calc(100% + 1rem);
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
 
   .puzzle--compact .puzzle__label {
     display: none;
+  }
+
+  /* Sub-420px: the 4-across tiles are too narrow for a square that holds a
+     2rem letter plus a label ("Documentation" alone needs ~92px), so this
+     tier trades the square for a compact content-sized tile with a smaller
+     letter and label. */
+  @media (max-width: 419px) {
+    .puzzle__piece {
+      aspect-ratio: auto;
+      padding: 0.65rem 0.35rem 0.6rem;
+    }
+
+    .puzzle__letter {
+      font-size: 1.5rem;
+    }
+
+    .puzzle__label {
+      font-size: 0.68rem;
+      margin-top: 0.3rem;
+      margin-inline: -0.35rem;
+      max-width: calc(100% + 0.7rem);
+    }
   }
 
   /* Per-phase accent colors */

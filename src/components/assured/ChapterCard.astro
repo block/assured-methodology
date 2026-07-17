@@ -5,6 +5,8 @@
  * Marks chapters as live or "coming soon" so the navigation matches reality.
  */
 
+import { stableId } from "@/lib/stable-id";
+
 interface Props {
   letter: string;
   phase:
@@ -32,17 +34,22 @@ const {
   topics = [],
 } = Astro.props;
 
-const Tag = status === "live" && href ? "a" : "div";
-const titleId = `chapter-card-${Math.random().toString(36).slice(2, 9)}`;
-// aria-labelledby: without it the whole-card link's accessible name is the
-// full card text (title + description + every topic), which is what screen
-// readers announce for each link in the chapter grid.
-const tagProps = Tag === "a" ? { href, "aria-labelledby": titleId } : {};
+const isLinked = status === "live" && !!href;
+const titleId = stableId("chapter-card", Astro.url.pathname);
+// The card's link lives on the visible "Read chapter" CTA and stretches over
+// the whole card via ::after, so every pixel stays clickable. Its accessible
+// name chains the h3 title and the link's own text (aria-labelledby), which
+// keeps announcements concise — no description or topic-chip readout — while
+// containing the visible "Read chapter" label voice-control users speak
+// (WCAG 2.5.3 Label in Name). The previous whole-card <a> named only by the
+// title tripped label-content-name-mismatch, because the description and
+// topics remained visible link text excluded from the name.
+const ctaId = `${titleId}-cta`;
 ---
 
-<Tag class={`chapter-card chapter-card--${phase} chapter-card--${status}`} {...tagProps}>
+<div class={`chapter-card chapter-card--${phase} chapter-card--${status}`}>
   <div class="chapter-card__head">
-    <span class={`assured-letter assured-letter--${phase}`}>{letter}</span>
+    <span class={`assured-letter assured-letter--${phase}`} aria-hidden="true">{letter}</span>
     <div class="chapter-card__title-wrap">
       <h3 class="chapter-card__title" id={titleId}>{title}</h3>
       {status === "soon" && (
@@ -65,16 +72,16 @@ const tagProps = Tag === "a" ? { href, "aria-labelledby": titleId } : {};
     </ul>
   )}
 
-  {status === "live" && href && (
-    <span class="chapter-card__cta">
+  {isLinked && (
+    <a href={href} class="chapter-card__cta" id={ctaId} aria-labelledby={`${titleId} ${ctaId}`}>
       Read chapter
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M5 12h14"></path>
         <path d="M13 5l7 7-7 7"></path>
       </svg>
-    </span>
+    </a>
   )}
-</Tag>
+</div>
 
 <style>
   .chapter-card {
@@ -189,6 +196,28 @@ const tagProps = Tag === "a" ? { href, "aria-labelledby": titleId } : {};
     color: var(--accent);
     font-weight: 600;
     font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  /* Stretched link: the CTA anchor's ::after covers the card (the card is
+     position:relative), preserving the old whole-card <a>'s click target
+     while only the title + CTA form the link's accessible name. */
+  .chapter-card__cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Keyboard focus ring wraps the whole card, where the old whole-card
+     link's UA ring sat. Browsers without :has() keep the CTA's own UA
+     focus ring instead (neither rule applies). */
+  .chapter-card:has(.chapter-card__cta:focus-visible) {
+    outline: 2px solid var(--accent, var(--assured-accent-soft));
+    outline-offset: 2px;
+  }
+
+  .chapter-card:has(.chapter-card__cta:focus-visible) .chapter-card__cta {
+    outline: none;
   }
 
   .chapter-card--live:hover .chapter-card__cta svg {

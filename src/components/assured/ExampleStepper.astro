@@ -13,12 +13,14 @@
  *   </ExampleStepper>
  */
 
+import { stableId } from "@/lib/stable-id";
+
 interface Props {
   steps: string[];
 }
 
 const { steps } = Astro.props;
-const idBase = `stepper-${Math.random().toString(36).slice(2, 9)}`;
+const idBase = stableId("stepper", Astro.url.pathname);
 ---
 
 <div class="stepper" data-stepper>

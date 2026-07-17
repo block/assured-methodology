@@ -174,7 +174,7 @@ Authorization analysis works better when the organization maintains a tiered dat
 - **Tier 0, Crown jewels.** Customer data, financial records, source code for critical systems, secrets. Access is logged, peer-reviewed, and time-bound.
 - **Tier 1, Sensitive operations.** Production <DefineTerm term="Infrastructure" display="infrastructure" />, payment workflows, employee data. Access requires explicit role assignment and is reviewed quarterly.
 - **Tier 2, Standard business.** Internal collaboration tools, project workspaces, day-to-day applications. Default access for the role.
-- **Tier 3, Open.** Public-facing or non-sensitive information. No restriction beyond authentication.
+- **Tier 3, Open.** Public-facing or non-sensitive information. Unrestricted: any authenticated employee can reach the internal portion, and the rest is public by design.
 
 When an alert touches an entity's Tier 0 access, Authorization gets weighted differently than the same alert on Tier 3 access. Where no classification model exists, the analyst approximates the same question by hand for the specific access in front of them: how bad would this be if it were hostile?
 </Callout>
@@ -220,11 +220,11 @@ The behavior dimension compares current activity to the entity's historical norm
 
 ## Relationships
 
-The relationships dimension maps the connections between the entity and other identities, systems, and data. Compromise rarely lives in <DefineTerm term="One Identity" display="one identity" />. It lives in the graph the identity participates in.
+The relationships dimension maps the connections between the entity and other identities, systems, and data. Compromise rarely lives in one identity. It lives in the graph the identity participates in.
 
 <Callout variant="info" title="What relationships look like in telemetry">
 - **Communication patterns.** Who this entity emails, messages, or shares documents with.
-- **Authentication graph.** Which systems this entity logs into, and which other entities <DefineTerm term="Log" display="log" /> into the same systems.
+- **Authentication graph.** Which systems this entity logs into, and which other entities log into the same systems.
 - **Access dependencies.** Which downstream services this entity's actions affect (a developer who deploys → which production systems get changes).
 - **Trust relationships.** Federated identity providers, service principals the entity assumes, API keys the entity owns.
 </Callout>
@@ -423,7 +423,7 @@ The four dimensions are how an entity becomes a profile. Most Subject failures c
   right: 1.1rem;
   font-size: 0.7rem;
   font-weight: 800;
-  color: rgba(134, 239, 172, 0.55);
+  color: rgba(134, 239, 172, 0.7); /* >= 4.5:1 over the card at both gradient ends */
 }
 .technique-card h4 {
   margin: 0 0 0.35rem 0;

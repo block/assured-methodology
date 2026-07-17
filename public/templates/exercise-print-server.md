@@ -60,9 +60,9 @@ Work each phase in order, in writing.
 5. **Risk.** Score impact and likelihood separately, one paragraph of
    justification each. What does the matrix say?
 
-6. **Escalation.** Which canonical criteria are confirmed, and by which
-   artifact? At what moment in your investigation should escalation have
-   fired, and under which rule?
+6. **Escalation.** Which canonical criteria are confirmed by a supplied
+   artifact, and which are one query away? When does escalation fire, and
+   under which rule?
 
 7. **Documentation.** Write the record's summary paragraph. Then write one
    detection-engineering feedback item this case earns, and say which event

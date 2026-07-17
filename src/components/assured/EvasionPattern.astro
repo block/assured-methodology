@@ -213,10 +213,15 @@ const props = Astro.props;
     border-left-color: var(--accent, #ef4444);
   }
 
-  .evasion--lolbins   { --accent: #3b82f6; --accent-soft: rgba(59, 130, 246, 0.5); }
-  .evasion--hollowing { --accent: #a855f7; --accent-soft: rgba(168, 85, 247, 0.5); }
-  .evasion--timing    { --accent: #f59e0b; --accent-soft: rgba(245, 158, 11, 0.5); }
-  .evasion--fatigue   { --accent: #ef4444; --accent-soft: rgba(239, 68, 68, 0.5); }
+  /* --accent colors borders and decoration; --accent-text is the lighter
+     400-level of the same hue reserved for text, so the 16px/400 title and
+     0.78rem toggle hold >= 4.5:1 (WCAG 2.2 SC 1.4.3) over the rgba(15,23,42,
+     0.55) surface at both gradient extremes (#334155 / #0f172a), including
+     the summary hover tint. Base 500s measured 3.64-3.92:1. */
+  .evasion--lolbins   { --accent: #3b82f6; --accent-soft: rgba(59, 130, 246, 0.5); --accent-text: #60a5fa; }
+  .evasion--hollowing { --accent: #a855f7; --accent-soft: rgba(168, 85, 247, 0.5); --accent-text: #c084fc; }
+  .evasion--timing    { --accent: #f59e0b; --accent-soft: rgba(245, 158, 11, 0.5); --accent-text: #f59e0b; }
+  .evasion--fatigue   { --accent: #ef4444; --accent-soft: rgba(239, 68, 68, 0.5); --accent-text: #f87171; }
 
   .evasion__summary {
     padding: 1.15rem 1.4rem;
@@ -252,14 +257,14 @@ const props = Astro.props;
   }
 
   .evasion[open] .evasion__title {
-    color: var(--accent);
+    color: var(--accent-text, var(--accent));
   }
 
   .evasion__toggle {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: var(--accent);
+    color: var(--accent-text, var(--accent));
     font-weight: 600;
     font-size: 0.78rem;
     letter-spacing: 0.02em;
@@ -469,6 +474,7 @@ const props = Astro.props;
     .demo--hollowing .legit-code,
     .demo--hollowing .mal-code,
     .demo--hollowing .container rect,
+    .demo--hollowing .sig-badge text,
     .demo--timing .attacker,
     .demo--timing .danger-zone,
     .demo--timing .eye-icon,
@@ -478,5 +484,54 @@ const props = Astro.props;
       opacity: 1;
     }
     .demo--hollowing .mal-code { opacity: 0; }
+    /* Meaningful static frames: the dots are authored at cy=0 (half-clipped
+       at the top edge unless the fall animation moves them), and the
+       danger-zone is authored with alpha-0 fill/stroke that only the pulse
+       keyframes ever raise. */
+    .demo--fatigue .dot {
+      transform: translateY(78px);
+    }
+    .demo--timing .danger-zone {
+      fill: rgba(239, 68, 68, 0.18);
+      stroke: rgba(239, 68, 68, 0.55);
+    }
+  }
+
+  /* Printing without JS (the script below can't run): closed <details>
+     content is skipped by the renderer. ::details-content is the standard
+     override where supported; browsers without it fall back to printing the
+     summary only. Static demo frames are normalized in print.css. */
+  @media print {
+    .evasion::details-content {
+      content-visibility: visible !important;
+      display: block !important;
+    }
   }
 </style>
+
+<script>
+  /*
+   * Closed <details> content does not render for printing. Open every
+   * evasion panel on beforeprint and restore the reader's state afterwards.
+   * Window-level listeners bind once per browser session (processed scripts
+   * run once); the panels are queried at print time, so DOM swapped in by
+   * the ClientRouter is picked up without any rebinding.
+   */
+  const PRINT_OPENED = "data-print-opened";
+  window.addEventListener("beforeprint", () => {
+    document
+      .querySelectorAll<HTMLDetailsElement>("details.evasion:not([open])")
+      .forEach((panel) => {
+        panel.setAttribute(PRINT_OPENED, "true");
+        panel.open = true;
+      });
+  });
+  window.addEventListener("afterprint", () => {
+    document
+      .querySelectorAll<HTMLDetailsElement>(`details.evasion[${PRINT_OPENED}]`)
+      .forEach((panel) => {
+        panel.removeAttribute(PRINT_OPENED);
+        panel.open = false;
+      });
+  });
+</script>

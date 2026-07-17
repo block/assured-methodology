@@ -5,6 +5,98 @@ Notable changes to the ASSURED methodology and its site. The format follows
 follow the policy in [GOVERNANCE.md](GOVERNANCE.md). The current version is
 stamped in the site footer.
 
+## [1.2.0] - 2026-07-16
+
+The assurance release: a full accuracy, accessibility, and release-assurance
+pass across every chapter, the shipped templates, and the site, with each
+fix pinned by a regression gate in the build.
+
+### Added
+
+- AI-assisted triage now opens with a mandatory admission gate: data
+  classification, provider approval, and tool authorization must all pass
+  before any AI use on a case, with an explicit non-AI path when they don't.
+- Level 0 eligibility is enforceable in the shipped record: the pattern
+  close record carries a three-check eligibility gate (an unknown fails it),
+  a new pattern-entry template establishes owner and review date for every
+  library pattern, and the timed drill now proves the gate with an
+  inventory artifact.
+- Decision and provenance metadata in the shipped templates: the event
+  report opens with a decision header (two-axis verdict, priority with the
+  matrix cell or named override, confidence, author, UTC time, material AI
+  use) and the handoff packet opens with case metadata (case ID, owner, the
+  fired escalation criterion with rationale, AI use).
+- A four-check stopping rule for correlation (pivot validity, coverage,
+  alternatives considered, consequence of being wrong), replacing the bare
+  "two empty pivots" heuristic.
+- Regression gates in the build: 22 content contracts and 14
+  engineering contracts pin the load-bearing sentence or mechanism of every
+  fix, a contrast gate recomputes 112 WCAG measurements from the live
+  source colors, and a release-time determinism gate proves two cold-cache
+  builds are byte-identical.
+
+### Changed
+
+- Risk, likelihood, and Escalation now form one deterministic decision
+  contract: a single reduction from impact and likelihood to action, with
+  three named overrides (a confirmed escalation criterion, the high-impact
+  clock-tightening rule, and the unknown-is-not-Low rule), aligned across
+  the risk framework, the escalation criteria, the quick reference, and the
+  escalation checklist template.
+- Verdict vocabulary is two-axis (detection correctness crossed with
+  activity disposition), retiring bare "false positive" as a closure label;
+  the Cursor IDE threaded case is relabeled a benign true positive through
+  all seven chapters.
+- Insider-threat guidance no longer waits for streams to agree: confirmed
+  harm escalates on act, asset, and impact regardless of HR context, and
+  the two-stream agreement rule is restricted to behavioral-only
+  enforcement decisions.
+- The AWS regulated-data worked example closes on independent evidence
+  (CloudTrail, access analysis) instead of subject self-attestation, and
+  its quiz is re-keyed to match.
+- ATT&CK mappings brought current with v19 and verified against the
+  primary sources: session-cookie replay remapped to T1550.004, retired
+  tactic naming removed, taxonomy references updated.
+- Cloud-identity and network parsing lessons separate observation from
+  inference: provider-aware field semantics with federation caveats, named
+  benign twins for each suspicious pattern, and decisive follow-up queries;
+  containment language is criteria-driven rather than presumed.
+- Regulatory summaries corrected against primary sources: GDPR territorial
+  scope routed through the Article 3 nexus tests to DPO/counsel, SEC
+  retention duties scoped to Rule 2-06's actual reach, legal hold framed as
+  counsel-directed.
+- Detection-family taxonomy is multi-label with a local calibration
+  checklist; exercise answer keys are artifact-traceable, grade "cannot
+  determine yet" as a correct answer where the artifacts run out, and
+  penalize asserting beyond the evidence.
+- Glossary accuracy: BigFix attributed to HCL, Cuckoo sandbox dating fixed,
+  an unsupported password-reuse statistic dropped, the APT definition
+  aligned across glossaries.
+
+### Fixed
+
+- Normal-size text over the page gradient and card surfaces now clears the
+  WCAG 4.5:1 contrast floor everywhere it was failing: evasion-pattern
+  accents, hero soft text, chapter watermark numerals across seventeen
+  pages, and the 404 page.
+- Quiz explanations, flip-card backs, and the phase diagram are fully
+  readable without JavaScript and in print; this pass caught and fixed a
+  Tailwind cascade-layer inversion that had silently disabled the quiz
+  print/no-JS fallback while the rules sat present in the CSS.
+- Keyboard and voice navigation: Escape dismisses the header dropdowns,
+  chapter-card accessible names contain their visible "Read chapter" label,
+  and the progress-strip labels render unclipped at 320px.
+- Builds are byte-for-byte reproducible: five sources of per-build random
+  IDs (component ID mints and the breadcrumb nav) replaced with
+  deterministic equivalents, so a release can be attested against its
+  source.
+- Dependency advisories reduced from thirteen to six via version-scoped
+  overrides; the remaining six sit in dev-server/SSR code paths that are
+  unreachable in the fully prerendered static deployment.
+- Threaded-case continuity: localized timeline, terminology, and handoff
+  drift corrected across the three cases (~30 pages), with the case facts
+  now pinned by build contracts.
+
 ## [1.1.0] - 2026-07-13
 
 The review release: a full independent technical and editorial review of the
@@ -248,5 +340,6 @@ Uncover, Risk, Escalation, Documentation), each with concept pages, a worked
 example, a quiz, and a transition; three glossaries (B.A.D., C.A.T.,
 C.L.E.A.R.); two threaded cases; site search.
 
+[1.2.0]: https://github.com/block/assured-methodology/releases/tag/v1.2.0
 [1.1.0]: https://github.com/block/assured-methodology/releases/tag/v1.1.0
 [1.0.0]: https://github.com/block/assured-methodology/releases/tag/v1.0.0

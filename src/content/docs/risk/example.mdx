@@ -63,7 +63,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
       <li>Likelihood: <strong>High.</strong> Multi-source evidence; clean ATT&CK mapping.</li>
       <li>Priority: <strong>P1.</strong> Escalate immediately.</li>
       <li>Open questions: vendor-side activity on the cloud platform pending; mobile device activity may be unmonitored.</li>
-      <li>Recommended response: contain the two confirmed hosts, rotate dlin's credentials, isolate the federated SSO session, notify compliance. The host isolations and session kill sit on the SOC's pre-authorized immediate-actions list, so they execute at handoff without waiting for IR; the rest of the containment strategy is IR's call.</li>
+      <li>Recommended response: contain the two confirmed hosts, rotate dlin's credentials, revoke the federated SSO session, notify compliance. The host isolations and session revocation sit on the SOC's pre-authorized immediate-actions list, so they execute at handoff without waiting for IR; the rest of the containment strategy is IR's call.</li>
     </ul>
   </div>
 
@@ -80,7 +80,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 ---
 
-## A second scenario: the Cursor IDE false-positive verdict
+## A second scenario: the Cursor IDE benign-true-positive verdict
 
 The first walkthrough produced a P1 escalation. The Cursor case from Uncover went the other way. Risk's job there is to record a defensible <em>low residual risk</em> verdict so the closure is durable.
 
@@ -124,7 +124,7 @@ The first walkthrough produced a P1 escalation. The Cursor case from Uncover wen
     >
     > Based on the totality of the evidence, the behavior is assessed as **non-malicious** and attributable to approved operational tooling. The low residual risk does not warrant escalation or further investigation at this time.
 
-    This is what a defensible <DefineTerm term="False Positive" display="false-positive" /> closure reads like. Not "dismissed." Structured, evidenced, signed.
+    This is what a defensible <DefineTerm term="Benign True Positive" display="benign-true-positive" /> closure reads like. Not "dismissed." Structured, evidenced, signed.
 
     </Reveal>
   </div>
@@ -133,7 +133,7 @@ The first walkthrough produced a P1 escalation. The Cursor case from Uncover wen
     <h3>Step 5. Hand off to Escalation</h3>
     <p>Escalation receives a "no escalation required" handoff from Risk. The methodology still treats this as a formal handoff because Documentation will draw from it and because the closure becomes the artifact that defends the case if the same alert fires again.</p>
     <ul class="example-step__list">
-      <li><strong>Verdict:</strong> false-positive, low residual risk.</li>
+      <li><strong>Verdict:</strong> benign true positive (detection correct, activity benign), low residual risk.</li>
       <li><strong>Open questions for the program:</strong> are the macOS PCAP / USB monitoring gaps acceptable for the developer-workstation population? This is a program-level question, not an investigation-level one.</li>
       <li><strong>Detection-engineering feedback:</strong> rule is over-broad for macOS developer workstations running Electron-based IDEs. Tuned variant requested.</li>
     </ul>

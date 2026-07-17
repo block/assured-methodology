@@ -77,16 +77,16 @@ Cloud finance platform, federated sign-in, 09:23:07 UTC
   principal:  dlin          session: existing SSO state, no new MFA prompt
   user_agent: does not match dlin's browser (compared against the morning's sign-ins)
   laptop interactive activity at 09:23: none (no window focus, no input events)`}</code></pre>
-    <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1078.004 (Valid Accounts: Cloud Accounts).</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1550.004 (Use Alternate Authentication Material: Web Session Cookie).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Mail and SaaS</h3>
-    <p>Mailbox audit confirms the originating email: vendor-themed subject, a ZIP attachment carrying a macro-laden Word document (the container is how the file arrived without the Mark of the Web that would have triggered Microsoft's default macro block). Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → winword.exe → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
+    <p>Mailbox audit confirms the originating email: vendor-themed subject, a ZIP attachment carrying a macro-laden Word document (a container chosen because many third-party extractors do not propagate the Mark of the Web, though Windows Explorer does; here the extracted document carried no mark, so Microsoft's default macro block never engaged). Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → winword.exe → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
     <pre><code>{`Mailbox audit, message trace
   subject:     Overdue invoice: remittance required
   from:        accounts@invoice-records[.]com
-  attachment:  invoice.zip -> invoice.doc (macro-enabled; ZIP strips Mark of the Web)
+  attachment:  invoice.zip -> invoice.doc (macro-enabled; extracted without Mark of the Web)
   recipients:  dlin + 3 finance-team members
   opened:      dlin (09:10) and 2 of the 3 peers
   peer EDR:    1 of the 2 shows the same winword -> cmd -> PowerShell chain`}</code></pre>
@@ -103,7 +103,7 @@ T1059.001  PowerShell execution invoked from macro
 T1105      Ingress tool transfer: second-stage payload pulled from external domain
 T1071.001  Outbound HTTPS to attacker-controlled domain
 T1539      Browser session cookies read from the compromised host
-T1078.004  Valid accounts: federated login to cloud finance platform`}</code></pre>
+T1550.004  Stolen web session cookie replayed for federated access to cloud finance platform`}</code></pre>
     <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal.</p>
     <p>Uncover ends by packaging five artifacts for Risk: the <strong>evidence chain</strong> (the timestamped, ATT&amp;CK-mapped narrative above), the <strong>confirmed entities</strong> (two compromised hosts, the users, the cloud identity, each verdict with its supporting evidence), the <strong>intelligence context</strong> (the dropper hash matches a known campaign at medium confidence; the C2 domain is new), the <strong>coverage gaps</strong> (cloud-platform in-app activity pending from the vendor, BYOD phones invisible), and the <strong>detection gaps</strong> (the rule fired on one host but missed the identical chain on the peer). The <a href="/docs/uncover/transition/">transition page</a> shows the full handoff format.</p>
   </div>
@@ -118,7 +118,7 @@ Uncover combined <DefineTerm term="Endpoint" display="endpoint" />, network, ide
 
 ---
 
-## A second scenario: confirming a false-positive on the developer workstation
+## A second scenario: confirming a benign true positive on the developer workstation
 
 The first walkthrough showed Uncover building a positive narrative: this is the chain, here are the techniques, here is what to do next. Real triage often runs the other direction. The hypothesis is "compromise"; the evidence has to either confirm it or rule it out with explicit confidence. The methodology demands the same rigor on both paths.
 
@@ -190,7 +190,7 @@ The first walkthrough showed Uncover building a positive narrative: this is the 
     <h3>Step 5. Verdict and handoff</h3>
     <p>Uncover ends with a structured, defensible verdict.</p>
     <ul class="example-step__list">
-      <li><strong>Verdict:</strong> false-positive with explicit caveats. The detection logic correctly flagged a process behavior pattern that overlaps with Empire tradecraft, but the full investigation shows the behavior is consistent with a signed, role-appropriate IDE running in its documented configuration.</li>
+      <li><strong>Verdict:</strong> benign true positive with explicit caveats. Detection axis: correct — the logic flagged a process-behavior pattern that genuinely occurred and overlaps with Empire tradecraft. Disposition axis: benign — the full investigation shows the behavior is consistent with a signed, role-appropriate IDE running in its documented configuration.</li>
       <li><strong>Confidence:</strong> high on the binary identity, network destinations, and user behavior. Medium on full coverage due to the macOS PCAP and USB monitoring gaps; mitigated by absence of corroborating signals.</li>
       <li><strong>ATT&CK chain:</strong> none. No techniques observed beyond legitimate development activity.</li>
       <li><strong>Detection feedback:</strong> the rule that fired is too broad for macOS developer workstations running Electron-based IDEs. A tuned variant that incorporates binary signature, install path, and runtime context would have suppressed this alert. Feature request opened.</li>
@@ -199,7 +199,7 @@ The first walkthrough showed Uncover building a positive narrative: this is the 
 
     <Reveal summary="What this Uncover deliverable proves" variant="example">
 
-    A <DefineTerm term="False Positive" display="false-positive" /> verdict that meets the methodology's standard is not "dismissed." It is documented, evidenced, and bounded. The case has:
+    A <DefineTerm term="Benign True Positive" display="benign-true-positive" /> verdict that meets the methodology's standard is not "dismissed." It is documented, evidenced, and bounded. The case has:
 
     - Defensible scope (Scope's boundary)
     - Defensible subject reads (Subject's per-<DefineTerm term="Entity" display="entity" /> assessments)
@@ -207,7 +207,7 @@ The first walkthrough showed Uncover building a positive narrative: this is the 
     - A detection-engineering <DefineTerm term="Feedback Loop" display="feedback loop" /> (the over-broad rule)
     - A teed-up Risk question (acceptable coverage gaps?)
 
-    That is what a fully written false-positive looks like. The investigation can be re-opened with full context if new signals appear. Without this kind of write-up, the same alert will fire again next week and the analyst will start from zero.
+    That is what a fully written benign close looks like. The investigation can be re-opened with full context if new signals appear. Without this kind of write-up, the same alert will fire again next week and the analyst will start from zero.
 
     </Reveal>
   </div>
@@ -324,7 +324,7 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
       <li><strong>02:13:58 UTC.</strong> <code>sts:GetCallerIdentity</code> from the user. Source IP resolves to a corporate VPN egress.</li>
       <li><strong>02:14:02 UTC.</strong> <code>sts:AssumeRole</code> for <code>arn:aws:iam::&lt;account&gt;:role/ci-data-export</code>, session name <code>local-investigation-2026-05-12</code>.</li>
       <li><strong>02:14–02:31 UTC.</strong> Eight <code>s3:GetObject</code> calls against <code>regulated-pii-bucket</code>, all against keys matching <code>quarterly-export/*</code>.</li>
-      <li><strong>Baseline check.</strong> The user has assumed <em>other</em> roles regularly, but not <code>ci-data-export</code>. The role is technically grantable to anyone in the <code>data-engineers</code> group; it's just rarely used outside CI.</li>
+      <li><strong>Baseline check.</strong> The user has assumed <em>other</em> roles regularly, but not <code>ci-data-export</code>. The role is technically assumable by anyone in the <code>data-engineers</code> group; it's just rarely used outside CI.</li>
     </ul>
     <p><strong>Mapped to ATT&CK:</strong> <strong>T1078.004 Valid Accounts: Cloud Accounts</strong> + <strong>T1530 Data from Cloud Storage</strong>.</p>
   </div>
@@ -336,9 +336,9 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
       <li>SSO login at 02:13:14 UTC, FIDO2 second factor satisfied, registered device matches the user's laptop.</li>
       <li>No <strong>impossible travel</strong> signal, same geographic region as their typical sign-in.</li>
       <li>No <strong>OAuth consent grant</strong> events in the prior 14 days; no new app authorizations.</li>
-      <li>No <strong>token-replay</strong> indicators: the AWS API calls use credentials minted by this fresh STS session, not a long-lived access key.</li>
+      <li>No <strong>stale-credential</strong> indicators: the AWS API calls use credentials minted by this fresh STS session, not a long-lived access key.</li>
     </ul>
-    <p>The identity surface reads clean. The attacker patterns that would explain "unexpected role assumption", token theft, consent abuse, AiTM phishing, all show no corroborating evidence.</p>
+    <p>The identity surface reads clean, and it is worth being precise about what that buys. It makes the specific patterns checked (impossible travel, consent abuse, old-key reuse) less likely. It does not establish who was at the keyboard, and a fresh STS session is not a non-replayable one: temporary credentials are still credentials, and a session minted seconds ago can be lifted from the engineer's laptop and replayed from anywhere while it lives. Clean authentication lowers the odds of some compromise paths; it is not evidence of authorization.</p>
   </div>
 
   <div data-step class="example-step">
@@ -347,23 +347,24 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
     <ul class="example-step__list">
       <li><strong>Eight objects read.</strong> All from <code>quarterly-export/</code>. No <code>s3:ListBucket</code> reconnaissance. No traversal into other prefixes.</li>
       <li><strong>No write, no delete.</strong> No new objects created. No <code>s3:DeleteObject</code>. No bucket-policy or ACL changes.</li>
-      <li><strong>Egress check.</strong> The session's source IP is the same corporate VPN throughout. No anomalous data-transfer destination.</li>
-      <li><strong>Object size.</strong> Total ~120 MB across the eight keys, consistent with quarterly export files; not a bulk-exfil signature.</li>
+      <li><strong>Source check.</strong> The session's source IP is the same corporate VPN throughout. That proves where the API calls came from; it says nothing about where the 120 MB went after it landed on the laptop. Destination is a separate question CloudTrail cannot answer.</li>
+      <li><strong>Object size.</strong> Total ~120 MB across the eight keys, consistent with quarterly export files. Consistency with an export is not evidence of an authorized export; the same eight files are what a data thief with this role would take.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Verdict and gaps</h3>
-    <p>The hypothesis going in was "unexpected role use on regulated data." The evidence supports a more boring read:</p>
+    <p>The hypothesis going in was "unexpected role use on regulated data." The evidence has confirmed the unexpected role use; what it has not done is authorize it:</p>
     <ul class="example-step__list">
-      <li><strong>Likely verdict:</strong> off-hours manual export by the engineer (confirmed via Slack DM after the on-shift IR opened a quick check). Consistent with quarterly-export work that normally runs in the CI pipeline.</li>
-      <li><strong>Why the DM was safe here, and when it is not:</strong> the rule is that the analyst does not contact the subject while compromise is still plausibly live. If the account is attacker-controlled, the message either tips the attacker or asks them to vouch for themselves. The DM went out only after step 2 ruled the identity surface clean at high confidence. Reverse the order and the same message becomes a tip-off.</li>
-      <li><strong>Loose end chased:</strong> the role session was named <code>local-investigation-2026-05-12</code>, which does not describe export work. The engineer's answer: a reused shell helper stamps that session name by default. Worth asking every time, because a session name that misdescribes its own activity is also a cheap attacker disguise.</li>
-      <li><strong>Confidence:</strong> high on the technical evidence. Medium until the user confirms (which they did, ~15 min into Uncover).</li>
+      <li><strong>Verdict:</strong> confirmed policy/control violation, intent and authorization unresolved. A human interactively assumed a role that exists for a CI pipeline and read regulated data with it. That fact does not soften if the human turns out to be well-meaning; the role boundary was crossed either way. The two live hypotheses are "engineer doing quarterly-export work by hand" and "someone or something operating through the engineer's session," and nothing gathered so far separates them.</li>
+      <li><strong>What the subject's answer is worth:</strong> the on-shift IR opened a quick check and the engineer replied over Slack: manual export, CI was backed up. That answer is a lead to verify, never the verification. If the session is attacker-operated, the DM asks the attacker to vouch for themselves; if the engineer is a malicious insider, it asks the suspect. Contact also carries the tip-off rule: the analyst does not message the subject while compromise is plausibly live, and step 2's clean identity surface made contact acceptable, not conclusive.</li>
+      <li><strong>What closes the case instead:</strong> independent evidence on four points. An approved work item or change ticket for a manual export, verified with its owner, not the subject. The data owner's confirmation that this export, by this person, was authorized. Where the 120 MB went after the laptop and under what retention (the destination CloudTrail cannot show). And device-level confirmation that the session originated from the engineer's own interactive use. Until those land, the case stays open at its original priority.</li>
+      <li><strong>Loose end chased:</strong> the role session was named <code>local-investigation-2026-05-12</code>, which does not describe export work. The engineer's answer: a reused shell helper stamps that session name by default. Plausible, and checkable against the helper's repo, because a session name that misdescribes its own activity is also a cheap attacker disguise.</li>
+      <li><strong>Confidence:</strong> high that the access occurred as reconstructed; low-to-medium on the benign explanation until the independent authorization and destination evidence arrives. The subject's own confirmation moves the second number very little.</li>
       <li><strong>Coverage gaps:</strong> the S3 data-events trail is on for <code>regulated-pii-bucket</code>; it would NOT be on for buckets without explicit data-event logging. This is a detection-engineering note, not a blocker for this case.</li>
-      <li><strong>Detection-tuning suggestion:</strong> add an "automation-only" tag to roles like <code>ci-data-export</code> so manual assumption fires a lower-noise informational signal instead of GuardDuty's high-severity alert. Feeds the false-positive-into-feedback loop.</li>
+      <li><strong>Detection feedback:</strong> the alert did exactly its job: it caught a human using an automation-only role against regulated data, which is a real control violation even in the benign-explanation branch. The correct tuning is to tag roles like <code>ci-data-export</code> "automation-only" so manual assumption fires with that context attached, at urgency this event keeps earning. Downgrading this signal to informational because one case ended benign would tune away the only high-signal detection on that boundary.</li>
     </ul>
-    <p>This is what Uncover looks like when the case is cloud-anchored: same methodology, different sources (CloudTrail, IdP logs, S3 data events), same standard of evidence.</p>
+    <p>This is what Uncover looks like when the case is cloud-anchored: same methodology, different sources (CloudTrail, IdP logs, S3 data events), same standard of evidence. And the standard is the point: a confirmed control violation with a friendly explanation is still a confirmed control violation until someone other than the subject authorizes it.</p>
   </div>
 
 </ExampleStepper>

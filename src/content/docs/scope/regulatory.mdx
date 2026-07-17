@@ -49,7 +49,7 @@ Which obligations actually apply depends on jurisdiction, contracts, and your or
 
 Here is the whole regulatory pass applied to the threaded case from the [working example](/docs/scope/example/). It takes minutes, not hours:
 
-1. **Recognize.** The compromised user's federated identity can reach a cloud finance platform that processes vendor payments and stores vendor-contact records. Two regulated classes are plausibly in reach: cardholder data (PCI DSS, *if* any in-scope system sits inside the CDE) and personal data of EU-resident vendor contacts (GDPR). "Can reach" is enough to tag the case; no platform activity has been confirmed yet.
+1. **Recognize.** The compromised user's federated identity can reach a cloud finance platform that processes vendor payments and stores vendor-contact records. Two regulated classes are plausibly in reach: cardholder data (PCI DSS, *if* any in-scope system sits inside the CDE) and personal data of EU-resident vendor contacts (GDPR, *if* an Article 3 nexus attaches — the DPO's call, not the analyst's). "Can reach" is enough to tag the case; no platform activity has been confirmed yet.
 2. **Commit the timestamps.** Two entries go in the record: when the alert fired (09:11) and when the analyst recognized that regulated data was plausibly in reach. If the DPO later decides the GDPR notification duty applies, the 72-hour math runs from an awareness moment; the analyst's job is to make sure candidate moments are written down, not to pick which one counts.
 3. **Preserve.** The platform's audit logs are requested and held past their rotation schedule, the original `%TEMP%\upd.ps1` artifact and its hash stay intact, and automated cleanup on the proxy logs is paused for the case window.
 4. **Get the owners in.** Compliance (who own the acquirer relationship for the PCI question) and the DPO join the case during Scope, hours before Uncover confirms anything.
@@ -63,7 +63,7 @@ What the analyst deliberately does *not* do: decide whether the CDE boundary was
 <div class="reg-grid">
   <a href="#gdpr" class="reg-card">
     <h3>🇪🇺 GDPR</h3>
-    <p>Personal data of people in the EU/EEA, wherever it is processed. 72-hour authority notification from awareness of a breach.</p>
+    <p>Personal data where an Article 3 nexus exists: an EU/EEA establishment, offering goods or services to people in the EU, or monitoring their behavior. 72-hour authority notification from awareness of a breach.</p>
   </a>
   <a href="#ccpa" class="reg-card">
     <h3>🐻 CCPA / CPRA</h3>
@@ -79,7 +79,7 @@ What the analyst deliberately does *not* do: decide whether the CDE boundary was
   </a>
   <a href="#sox" class="reg-card">
     <h3>📊 SOX</h3>
-    <p>Public-company financial-reporting controls. 7-year record retention, segregation of duties that survives the incident, control-deficiency reporting.</p>
+    <p>Public-company financial-reporting controls. Preservation duties (§802; Rule 2-06 covers accountants' audit records), segregation of duties that survives the incident, control-deficiency reporting.</p>
   </a>
   <a href="#sec" class="reg-card">
     <h3>🏛️ SEC disclosure</h3>
@@ -95,7 +95,7 @@ Each regime has three triage implications: <strong>(1)</strong> what data the an
 
 <h2 id="gdpr">GDPR</h2>
 
-The General Data Protection Regulation covers personal data of people in the EU/EEA regardless of where the processing happens, and "personal data" is broad: IP addresses, device identifiers, location data, and behavioral records all count.
+The General Data Protection Regulation applies where one of Article 3's nexus tests is met: the processing happens in the context of an EU/EEA establishment of the controller or processor, wherever the processing itself occurs (Art. 3(1)); a non-EU organization offers goods or services to people who are in the EU (Art. 3(2)(a)); or a non-EU organization monitors the behavior of people in the EU (Art. 3(2)(b)). A non-EU company that merely holds an EU visitor's data, with none of those hooks, is not automatically in scope — and that determination is not the analyst's to make. The analyst records the candidate facts (whose data, where the subjects are, what the organization's EU footprint and targeting look like) and routes the call to the DPO or counsel. "Personal data" itself is broad: IP addresses, device identifiers, location data, and behavioral records all count.
 
 <div class="reg-detail">
   <div class="reg-detail__card">
@@ -233,8 +233,8 @@ Sarbanes-Oxley governs the integrity of public-company financial reporting. It c
   </div>
   <div class="reg-detail__card">
     <span class="reg-detail__num">02</span>
-    <h3>Records: 7 years, and destruction is criminal</h3>
-    <p>Section 802 criminalizes destroying or altering records to impede an investigation, and SEC Rule 2-06 requires audit and review records to be retained for 7 years. Once an incident on financial systems is plausible, nothing gets deleted, rotated away, or "cleaned up"; preservation is the safest default and the legal-hold section below applies with force.</p>
+    <h3>Records: destruction is criminal; retention is scoped</h3>
+    <p>Section 802 criminalizes destroying or altering records to impede a federal investigation. SEC Rule 2-06 is narrower than its reputation: it requires <em>accountants</em> to retain audit and review workpapers and related records for seven years — it is not a universal seven-year rule for incident records or operational logs. Neither rule stops every log rotation the moment an incident looks financial. What they mean for triage: alter or delete nothing yourself, flag the case to counsel early, and preserve identified relevant records under an authorized legal hold (below) whose scope counsel decides, not the analyst.</p>
   </div>
   <div class="reg-detail__card">
     <span class="reg-detail__num">03</span>
@@ -287,7 +287,7 @@ Two more boundary-setters that are not regulator-driven but bind just as hard.
   <div class="reg-detail__card">
     <span class="reg-detail__num">01</span>
     <h3>Legal hold</h3>
-    <p>Once litigation or a regulatory proceeding is reasonably anticipated, a duty to preserve relevant evidence attaches, and spoliation (FRCP 37(e) in US federal court) can cost more than the underlying incident. Counsel issues the hold; the analyst's job is to flag when an investigation looks like it is heading that way and to stop anything that destroys data by default: log rotation, ephemeral infrastructure teardown, automated cleanup jobs.</p>
+    <p>Once litigation or a regulatory proceeding is reasonably anticipated, a duty to preserve relevant evidence attaches, and spoliation (FRCP 37(e) in US federal court) can cost more than the underlying incident. Counsel issues the hold and decides its scope; the analyst's job is to flag when an investigation looks like it is heading that way and to inventory what destroys relevant data by default — log rotation, ephemeral infrastructure teardown, automated cleanup jobs — so those specific processes can be suspended for the identified systems under the hold. Suspension is a scoped, authorized action, not something the analyst switches off fleet-wide on their own authority.</p>
   </div>
   <div class="reg-detail__card">
     <span class="reg-detail__num">02</span>
@@ -383,7 +383,7 @@ Regulatory frameworks are part of the boundary the investigation is conducted wi
   right: 1.2rem;
   font-size: 0.72rem;
   font-weight: 800;
-  color: rgba(216, 180, 254, 0.6);
+  color: rgba(216, 180, 254, 0.7); /* >= 4.5:1 over the card at both gradient ends */
 }
 .reg-detail__card :is(h3, h4) {
   margin: 0 0 0.4rem 0;

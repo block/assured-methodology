@@ -77,7 +77,7 @@ Hold the packet's own timeline against the [criteria page](/docs/escalation/crit
 
 ---
 
-## A second scenario: closing the Cursor false-positive at triage
+## A second scenario: closing the Cursor benign true positive at triage
 
 Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-pattern case that began in the Alert chapter has worked through Subject, Scope, Uncover, and Risk, and Risk produced a defensible low-residual-risk verdict. The Escalation phase still runs, but the outcome is different: a documented close at triage, not a transfer to IR. The methodology demands the same rigor for the close as for the escalation. The two walkthroughs are also written at different depths on purpose: the finance case above is the summary view (what each step produces), while this one is the deep dive, showing the actual content of the record section by section. One reading note: this is a different case on a different day. Its 14:03-15:18 timeline below is unrelated to the finance case's 14:02-14:35 notification record above, despite the near-identical clock times.
 
@@ -116,7 +116,7 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
 
   <div data-step class="example-step">
     <h3>Step 4. Notify the right people</h3>
-    <p>Quiet, targeted, and traceable. The SOC manager gets shift visibility. Detection engineering gets the rule-tuning ticket with the specific signal that produced the false-positive. Nobody else needs to be told; loud notifications for a documented false-positive close train the team to discount future ones.</p>
+    <p>Quiet, targeted, and traceable. The SOC manager gets shift visibility. Detection engineering gets the rule-tuning ticket with the specific signal that produced the benign fire. Nobody else needs to be told; loud notifications for a documented benign close train the team to discount future ones.</p>
   </div>
 
   <div data-step class="example-step">
@@ -144,7 +144,7 @@ The finance case's callout admitted its P1 was declared late. Case C, the SaaS t
 
   <div data-step class="example-step">
     <h3>Step 1. Confirm criteria met</h3>
-    <p>Criteria check at 10:20: <strong>confirmed malicious activity</strong> ✓ (the session join plus attacker tradecraft in the tenant audit), <strong>active adversary access</strong> ✓ (the session and app grant are live now), <strong>sensitive data accessed</strong> ✓ (bulk mailbox collection completed at 09:26). Three triggers. Uncover stops mid-thread; the remaining open items travel with the packet as pending instead of delaying it.</p>
+    <p>Criteria check at 10:20, against the <a href="/docs/escalation/criteria/">canonical categories</a>: <strong>confirmed malicious activity</strong> ✓ (the session join plus attacker tradecraft in the tenant audit), <strong>high impact</strong> ✓ (a regulated customer-correspondence mailbox, bulk-collected at 09:26), <strong>exfiltration</strong> ✓ (the OAuth app's sync pulled that mailbox content out to attacker infrastructure). Three triggers. The live session and standing grant are not a fourth criterion; they are the urgency multiplier on all three. Uncover stops mid-thread; the remaining open items travel with the packet as pending instead of delaying it.</p>
   </div>
 
   <div data-step class="example-step">
@@ -187,7 +187,7 @@ Hold this timeline against the finance case's. Same methodology, opposite clock 
 </Callout>
 
 <KeyTakeaway>
-Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff, the Cursor false-positive produced a close-at-triage record, and the token theft produced a mid-phase break-glass escalation with ordered identity containment. Same chapter, same methodology, three different verdicts.
+Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff, the Cursor benign true positive produced a close-at-triage record, and the token theft produced a mid-phase break-glass escalation with ordered identity containment. Same chapter, same methodology, three different verdicts.
 </KeyTakeaway>
 
 <ContinueCard current="escalation" nextHref="/docs/escalation/quiz/" nextLabel="Escalation quiz" ctaLabel="Take the quiz" />

@@ -108,17 +108,17 @@ Every entry carries the same fields:
     <span>09:02:11</span><span>Email gateway</span><span>dlin</span><span>Delivery of invoice-themed message with attachment</span><span>Confirmed</span>
   </div>
   <div class="timeline-shape__row">
-    <span>09:11:38</span><span>EDR</span><span>FIN-LT-0219</span><span>powershell.exe spawned with encoded command</span><span>Confirmed</span>
+    <span>09:11:41</span><span>EDR</span><span>laptop-finance-09</span><span>powershell.exe spawned with encoded command</span><span>Confirmed</span>
   </div>
   <div class="timeline-shape__row">
-    <span>09:11:43</span><span>Firewall</span><span>FIN-LT-0219</span><span>Outbound TLS to newly registered domain, joined on host + time to the PowerShell PID</span><span>Corroborated</span>
+    <span>09:11:43</span><span>Firewall</span><span>laptop-finance-09</span><span>Outbound TLS to newly registered domain, joined on host + time to the PowerShell PID</span><span>Corroborated</span>
   </div>
   <div class="timeline-shape__row">
-    <span>09:12 to 09:23</span><span>(none)</span><span>FIN-LT-0219</span><span>No proxy telemetry for this host: logging gap, not verified quiet</span><span>Gap</span>
+    <span>09:23 onward</span><span>(none)</span><span>cloud finance platform</span><span>No in-app telemetry yet: vendor logs requested but not landed, a gap, not verified quiet</span><span>Gap</span>
   </div>
 </div>
 
-Three habits make the artifact trustworthy. Label confidence on every row using the same scale the <a href="/docs/uncover/transition/">transition page</a> demands at handoff: confirmed by the source, corroborated across sources, single-source, or inferred. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
+Three habits make the artifact trustworthy. Label provenance on every row: confirmed by the source, corroborated across sources, single-source, or inferred. Those labels map onto the shared LOW/MEDIUM/HIGH confidence rubric the <a href="/docs/uncover/transition/">transition page</a> demands at handoff. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
 
 ---
 
@@ -167,7 +167,7 @@ The intro names rabbit-holes as a defining junior failure, and Uncover is where 
   </div>
   <div class="stop-card">
     <h3>📉 Marginal return</h3>
-    <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is dry. Two empty pivots on the same hypothesis is a defensible place to draw the line and move on.</p>
+    <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is going dry — two empty pivots on the same hypothesis is the cue to run the dry-thread checklist below. An empty result only counts as evidence of absence after the checklist says the emptiness is real.</p>
   </div>
   <div class="stop-card">
     <h3>⚖️ Verdict stability</h3>
@@ -179,12 +179,16 @@ The intro names rabbit-holes as a defining junior failure, and Uncover is where 
   </div>
 </div>
 
+<Callout variant="warn" title="Before you call a thread dry: four checks">
+An empty pivot is only meaningful if the query could have found something. Before closing a hypothesis on empty results, confirm: <strong>(1) Query validity</strong> — the query ran without error and returns rows for a known-good control (the same query against an entity that definitely has activity). A silently wrong field name looks identical to a clean host. <strong>(2) Telemetry coverage</strong> — the source actually collects for this entity over this window: sensor healthy, log source onboarded, retention reaches back far enough. A coverage gap is a finding to record, not an absence of activity. <strong>(3) Alternatives</strong> — the remaining plausible route for the hypothesis has been queried, not just the first one (a different source, join key, or window that could also confirm it). <strong>(4) Consequence</strong> — what closing this thread wrongly would cost. On a high-impact subject, unresolved uncertainty does not close quietly: record the gap and route it through Risk's override rules, where unknown is not Low. Two empty pivots plus these four checks is a defensible stop. Two empty pivots alone is a guess.
+</Callout>
+
 <Callout variant="info" title="The rabbit-hole test">
 At any moment you should be able to answer one question: which open hypothesis does the query on my screen test? A clear answer means you are investigating. No answer means you are exploring, and exploring during triage is time taken from the queue. Log the curiosity as a hunt idea and return to the ledger.
 </Callout>
 
 <Callout variant="info" title="See it run">
-The <a href="/docs/uncover/example/">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a false-positive scenario closed with the same rigor as the true positive.
+The <a href="/docs/uncover/example/">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a benign true positive closed with the same rigor as the intrusion.
 </Callout>
 
 <KeyTakeaway>

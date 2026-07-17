@@ -27,7 +27,7 @@ import Callout from "@/components/assured/Callout.astro";
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. The handoff packet maps into it per the crosswalk in Standards: the summary, timeline, entities, evidence chain, verdict, and containment feed sections 01-04 (event overview, timeline, origin &amp; scope, actions taken); the open questions are carried explicitly into recommendations rather than dropped; the communication record lands verbatim in the appendices. The report covers triage's work up to the handoff. The IR responder's findings belong to IR's post-incident report, which this record links to rather than absorbs. Sections 05-09 (business impact, IOCs, lessons learned, post-incident recommendations, appendices) are added during the Documentation phase as the triage-side picture completes.</p>
+    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. The handoff packet maps into it per the crosswalk in Standards: the summary, timeline, entities, evidence chain, verdict, and containment feed sections 01-04 (event overview, timeline, origin &amp; scope, actions taken); the open questions are carried explicitly into recommendations rather than dropped; the communication record lands verbatim in the appendices. The report covers triage's work up to the handoff. The IR responder's findings belong to IR's post-incident report, which this record links to rather than absorbs. Sections 05-09 (business impact, IOCs, lessons learned, post-event recommendations, appendices) are added during the Documentation phase as the triage-side picture completes.</p>
     <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the temptation to smooth the timeline in hindsight. This case's P1 was declared hours later than the criteria justified, and the honest record keeps that gap visible. Rewriting the narrative so the escalation looks prompt would read better in review, and it would destroy the record's two real uses: the audit trail stops matching the system-of-record timestamps, and the team loses the exact lesson (criteria as tripwires, not end-of-phase checklists) this case exists to teach.</p>
   </div>
 
@@ -43,7 +43,7 @@ import Callout from "@/components/assured/Callout.astro";
 
   <div data-step class="example-step">
     <h3>Step 4. Feed detection engineering</h3>
-    <p>The case surfaced two detection gaps and one false-positive opportunity. The triage analyst writes a short detection-engineering brief: which rules fired (and how usefully), which patterns were missed, and what changes would prevent or sharpen detection next time. The brief becomes a ticket in the detection-engineering queue.</p>
+    <p>The case surfaced two detection gaps and one rule-precision opportunity. The triage analyst writes a short detection-engineering brief: which rules fired (and how usefully), which patterns were missed, and what changes would prevent or sharpen detection next time. The brief becomes a ticket in the detection-engineering queue.</p>
   </div>
 
   <div data-step class="example-step">
@@ -59,18 +59,18 @@ import Callout from "@/components/assured/Callout.astro";
 
 ---
 
-## A second scenario: closing the Cursor false-positive durably
+## A second scenario: closing the Cursor benign true positive durably
 
-The Cursor IDE Empire-pattern case ended in Escalation as a documented close at triage. Documentation now finalizes that record, same nine-section event report, same standards, same review. The lesson is that *false-positives deserve documentation too*. The event report for a "no incident" verdict carries forward into detection-engineering tickets, training, and the audit trail that proves the SOC closed for the right reasons.
+The Cursor IDE Empire-pattern case ended in Escalation as a documented close at triage. Documentation now finalizes that record, same nine-section event report, same standards, same review. The lesson is that *benign closes deserve documentation too*. The event report for a "no incident" verdict carries forward into detection-engineering tickets, training, and the audit trail that proves the SOC closed for the right reasons.
 
-<ChapterExample title="Finalizing the Cursor false-positive record" scenario="Escalation produced the close-at-triage record. Documentation finalizes the event report so the close survives a year of detection-rule changes and a quarterly auditor read.">
+<ChapterExample title="Finalizing the Cursor benign-true-positive record" scenario="Escalation produced the close-at-triage record. Documentation finalizes the event report so the close survives a year of detection-rule changes and a quarterly auditor read.">
 
 <ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, origin &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the false-positive-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-incident recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the known-good marking on the IOC section. A binary hash filed in an incident record without that label tends to migrate: into the intel platform, into a blocklist, into a hunt query someone writes next quarter. Then every developer running the same signed IDE lights up as "matching a known incident artifact." Recording the hash as known-good, in the field where future correlation will find it, is what keeps this false-positive from breeding a family of new ones.</p>
+    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, origin &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the benign-close-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-event recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the known-good marking on the IOC section. A binary hash filed in an incident record without that label tends to migrate: into the intel platform, into a blocklist, into a hunt query someone writes next quarter. Then every developer running the same signed IDE lights up as "matching a known incident artifact." Recording the hash as known-good, in the field where future correlation will find it, is what keeps this benign fire from breeding a family of new ones.</p>
   </div>
 
   <div data-step class="example-step">
@@ -85,12 +85,12 @@ The Cursor IDE Empire-pattern case ended in Escalation as a documented close at 
 
   <div data-step class="example-step">
     <h3>Step 4. Feed detection engineering</h3>
-    <p>The case surfaced one over-broad detection rule and one improvement opportunity. The triage analyst writes a brief: the rule that fired, why it matches on macOS Electron IDEs, what a tuned variant would incorporate (binary signature, install path, runtime context), and what the false-positive rate trajectory should look like after tuning. The brief becomes a ticket in the detection-engineering queue, traceable back to this case and to any future cases that fire on a similarly tuned rule.</p>
+    <p>The case surfaced one over-broad detection rule and one improvement opportunity. The triage analyst writes a brief: the rule that fired, why it matches on macOS Electron IDEs, what a tuned variant would incorporate (binary signature, install path, runtime context), and what the benign-fire rate trajectory should look like after tuning. The brief becomes a ticket in the detection-engineering queue, traceable back to this case and to any future cases that fire on a similarly tuned rule.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Submit for review</h3>
-    <p>The record is submitted for closure review. A false-positive record is reviewed by the SOC manager with the same eye an escalation record gets, perhaps with extra attention, because false-positive close records are how the SOC's discipline gets calibrated. The reviewer either accepts the record, requests clarification, or flags it as a training case. This one is flagged for training.</p>
+    <p>The record is submitted for closure review. A benign-close record is reviewed by the SOC manager with the same eye an escalation record gets, perhaps with extra attention, because benign-close records are how the SOC's discipline gets calibrated. The reviewer either accepts the record, requests clarification, or flags it as a training case. This one is flagged for training.</p>
   </div>
 
 </ExampleStepper>
@@ -137,7 +137,7 @@ The SaaS token-theft case escalated to IR mid-Uncover, so like the finance case,
 </ChapterExample>
 
 <Callout variant="info" title="Three cases, one durable record">
-The three scenarios show the same methodology applied to three verdicts. The finance-team intrusion produced an audit-quality record of a real endpoint compromise. The Cursor false-positive produced an audit-quality record of why a pattern match wasn't malicious. The token theft produced an audit-quality record of an identity compromise, with the ephemeral evidence exported before it could expire. All three survive months later. All three train future analysts. The methodology's value isn't that it always reaches the same verdict; it's that it always produces a defensible one.
+The three scenarios show the same methodology applied to three verdicts. The finance-team intrusion produced an audit-quality record of a real endpoint compromise. The Cursor benign true positive produced an audit-quality record of why correctly detected behavior wasn't malicious. The token theft produced an audit-quality record of an identity compromise, with the ephemeral evidence exported before it could expire. All three survive months later. All three train future analysts. The methodology's value isn't that it always reaches the same verdict; it's that it always produces a defensible one.
 </Callout>
 
 <KeyTakeaway>Documentation closes the loop on all three cases the methodology threaded through. Future analysts will reach for the finance-team record on the next Empire-style chain, the Cursor record on the next Electron IDE pattern match, and the token-theft record on the next impossible sign-in. All three records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>

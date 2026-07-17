@@ -45,6 +45,10 @@ The expensive failure mode is the big-bang rollout: rename every queue, retrofit
 
 Speed metrics measure how fast the queue moves; they say nothing about whether the verdicts were right. Mean time to detect, respond, or close are worth tracking, but as *paired* metrics only: speed with no quality check optimizes for confident, fast, wrong. The metrics below measure decision quality, and each one carries its failure mode, because any metric made a target gets gamed.
 
+<Callout variant="info" title="Translate the IR-coupled metrics to your team model">
+Several metrics below are written as if a separate IR function receives the escalations. On a small or single-person team, translate the counterparty without dropping the measurement: "IR accepts" means whoever your escalation path engages (an on-call engineer, an MSSP, an IR retainer) agrees the case warranted it, and "IR comes back with questions" means the packet's next reader had to ask for something it should have contained, even when that reader is you a week later. What must survive the translation is the independence: the quality of an escalation decision is judged by its receiver, not its author.
+</Callout>
+
 <div class="adopt-list">
   <div class="adopt-item adopt-item--metric">
     <h3>Escalation acceptance <span class="adopt-item__tag">quality of the E decision</span></h3>

@@ -107,15 +107,15 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="An analyst is investigating a possible compromise on a macOS developer workstation. The user's role legitimately involves scripting, IDE plugin processes, and encrypted outbound traffic. What does the methodology require Uncover to produce if the evidence supports a false-positive verdict?"
+    prompt="An analyst is investigating a possible compromise on a macOS developer workstation. The user's role legitimately involves scripting, IDE plugin processes, and encrypted outbound traffic. What does the methodology require Uncover to produce if the evidence supports a benign verdict?"
     options={[
-      { value: "dismiss", label: "Nothing beyond the closure itself. A false-positive verdict ends the Uncover obligation." },
+      { value: "dismiss", label: "Nothing beyond the closure itself. A benign verdict ends the Uncover obligation." },
       { value: "evidenced", label: "The same rigor as a positive finding: evidence chain, confidence, coverage gaps, feedback." },
-      { value: "shorten", label: "A one-line entry, 'false-positive, developer tooling', in the case notes before closing." },
+      { value: "shorten", label: "A one-line entry, 'benign, developer tooling', in the case notes before closing." },
       { value: "escalate", label: "An escalation anyway; surface-suspicious activity should get an IR review before closing." },
     ]}
     answer="evidenced"
-    explanation="A false-positive verdict that meets the methodology's standard is not dismissed. It is documented, evidenced, and bounded. That documentation is what lets the case re-open with full context if new signals appear, and what produces the detection-engineering feedback that prevents the same alert from firing repeatedly."
+    explanation="A benign verdict that meets the methodology's standard is not dismissed. It is documented, evidenced, and bounded — including which axis cleared it: here the rule detected exactly the behavior it describes, and the disposition is benign, a benign true positive. That documentation is what lets the case re-open with full context if new signals appear, and what produces the detection-engineering feedback that prevents the same alert from firing repeatedly."
   />
 
   <QuizItem
@@ -123,11 +123,11 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     options={[
       { value: "isolate", label: "Isolate the compromised host before the adversary can react to detection." },
       { value: "notify", label: "Start regulator notification if the evidence shows regulated data was touched." },
-      { value: "binary", label: "Close with confidence, or push back to Scope to expand. Risk decides; it does not act." },
+      { value: "binary", label: "Close with confidence, escalate, or push back to Scope to expand. Risk decides; it does not act." },
       { value: "tune", label: "Tune the detection rule that fired so the same alert stops consuming the queue." },
     ]}
     answer="binary"
-    explanation="Risk is the analytical checkpoint, not the response phase. Its job is to evaluate whether Uncover's evidence is sufficient to close the case or whether the investigation needs to expand. Containment, notification, and detection tuning happen in later phases (Escalation, Documentation) once Risk's verdict supports them."
+    explanation="Risk is the analytical checkpoint, not the response phase. Its job is to evaluate whether Uncover's evidence is sufficient to close the case, warrants escalation, or means the investigation needs to expand back through Scope. Containment, notification, and detection tuning happen in later phases (Escalation, Documentation) once Risk's verdict supports them."
     hint="Risk is not response."
   />
 
@@ -148,13 +148,13 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     prompt="GuardDuty flags an engineer's 02:14 UTC AssumeRole into a role normally used only by CI, with read access to a regulated bucket. CloudTrail shows eight reads of quarterly-export files, no ListBucket reconnaissance, no writes, corporate VPN egress throughout. The IdP shows a FIDO2 login from the registered device with no token-replay or consent-grant indicators. What does Uncover conclude?"
     options={[
       { value: "confirm", label: "Compromise confirmed. An off-hours assumption of a CI role touching regulated data is conclusive." },
-      { value: "benign",  label: "Likely a benign manual export, at medium confidence until the user confirms, with the evidence documented." },
-      { value: "insider", label: "Insider threat. The clean identity surface proves the engineer did it personally, so the act was deliberate misuse." },
+      { value: "benign",  label: "Likely a benign manual export; message the engineer, and their confirmation plus the clean identity surface closes the case." },
+      { value: "violation", label: "A confirmed control violation with intent unresolved: a human used an automation-only role on regulated data, and only independent authorization and destination evidence can close it." },
       { value: "image",   label: "Nothing yet. Without an endpoint forensic image, cloud logs cannot support a verdict either way." },
     ]}
-    answer="benign"
-    explanation="Each attacker pattern that would explain an unexpected role assumption (token theft, consent-grant abuse, AiTM phishing) has a place the evidence would appear, and every one reads clean: a fresh STS session from a FIDO2-backed login on the registered device, no reconnaissance, no writes, sizes consistent with the quarterly export. That supports off-hours manual export at high technical confidence, medium overall until the user confirms. The insider option inverts the vocabulary: an engineer doing their own job outside the normal pipeline is a detection-tuning finding, not a threat verdict. And cloud-anchored cases are decided on cloud-native sources; there is no endpoint in the story to image."
-    hint="List the attacker explanations, then ask what evidence each would leave."
+    answer="violation"
+    explanation="The clean identity surface does real work: it makes token theft, consent-grant abuse, and AiTM phishing less likely, because each would leave marks that are absent. But it answers who authenticated, not who authorized. A human interactively using a CI-only role against regulated data is a control violation in every branch, including the friendly one, and a fresh STS session is still a replayable credential while it lives. The subject's own Slack confirmation is a lead, not closure; what closes the case is an approved work item verified with its owner, the data owner's authorization, and where the 120 MB went after the laptop. Compromise-confirmed overclaims the same evidence in the other direction, and there is no endpoint in the story to image."
+    hint="Separate two questions the evidence answers differently: who authenticated, and who authorized."
   />
 
   <QuizItem

@@ -57,29 +57,29 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
   />
 
   <QuizItem
-    prompt="Which detection family is most likely to fire when an adversary uses living-off-the-land binaries with no custom malware?"
+    prompt="An adversary uses living-off-the-land binaries with no custom malware. Which detection approach is built to catch this, and what form does it usually take in practice?"
     options={[
-      { value: "signature",  label: "Signature-based" },
-      { value: "anomaly",    label: "Anomaly-based" },
-      { value: "rule",       label: "Rule-based" },
-      { value: "behavioral", label: "Behavioral analytics" },
+      { value: "signature",  label: "Signature-based: the binaries' hashes will match threat-intelligence indicators." },
+      { value: "anomaly",    label: "Anomaly-based: each individual LOLBin execution will deviate far enough from baseline to flag." },
+      { value: "behavioral", label: "Behavioral analytics: the multi-event sequence is the detectable artifact — and in practice it is often encoded as a hand-written rule, making the detection both rule-based and behavioral." },
+      { value: "rule",       label: "Rule-based exclusively: sequence-aware engines cannot evaluate signed binaries." },
     ]}
     answer="behavioral"
-    explanation="Signature engines see only signed, trusted binaries. Anomaly engines may not flag because the individual events fall within tolerance. Rule engines can fire if a rule is well-written for the pattern, but they require someone to have written that rule. Behavioral analytics is the family designed for multi-step adversary patterns built from legitimate-looking pieces."
-    hint="Think about what each family is naturally good at and what each one is naturally blind to."
+    explanation="Every binary in the chain is signed and individually unremarkable, so hashes match nothing bad and single events sit inside tolerance. What is detectable is the sequence — the parent-child chain and its context. And the family label is honestly plural here: a deterministic Sigma-style rule that encodes that chain is rule-based by construction and behavioral by content. Name both when both apply; what matters for triage is reading the logic that fired, not picking its one true family."
+    hint="Think about which layer of the activity is actually abnormal — the binaries, the single events, or the sequence."
   />
 
   <QuizItem
     prompt="A signature engine reports an exact match on a known-bad SHA-256. At the same moment, a UEBA engine flags the same host for 'unusual process activity'. Before any investigation, how should the analyst calibrate trust in the two signals?"
     options={[
       { value: "equal",     label: "Treat both equally; every alert deserves identical skepticism until validated." },
-      { value: "signature", label: "The exact-match signature hit carries high default confidence; the anomaly is genuine signal but ambiguous until corroborated." },
+      { value: "signature", label: "The signature hit carries the higher prior, pending a check of the indicator's freshness, source, and local prevalence; the anomaly is genuine signal but ambiguous until corroborated." },
       { value: "anomaly",   label: "The anomaly deserves more trust; it is learned from this environment while signatures are generic." },
       { value: "recent",    label: "Whichever engine was tuned most recently reflects current adversary technique and should be trusted more." },
     ]}
     answer="signature"
-    explanation="This is the trust-calibration table from the detection-mechanisms page. Signature means high confidence on exact indicator matches with narrow scope; anomaly means genuine but ambiguous signal that almost always needs corroboration before action. Treating them equally throws away the provenance information the alerts already carry."
-    hint="The chapter assigns each detection family a default confidence before any investigation begins."
+    explanation="This is the trust-calibration posture from the detection-mechanisms page. The mechanism label sets a prior, not a verdict: an exact indicator match starts with the higher prior because it is precise about the artifact, but converting that prior into confidence requires the calibration facts — is the indicator fresh, from a credible source, and rare in this environment, or is it a stale hash on a dual-use tool? The anomaly is genuine but ambiguous signal that almost always needs corroboration. Treating the two alerts identically throws away provenance; treating the signature label as proof skips the rule-reading the label is supposed to prompt."
+    hint="The chapter assigns each detection family a starting posture — a prior, not a verdict."
   />
 
   <QuizItem
@@ -136,12 +136,12 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     prompt="What is the Alert phase's deliverable to the rest of the methodology?"
     options={[
       { value: "verdict",     label: "A verdict on whether the alert is malicious, with the reasoning that supports it." },
-      { value: "structured",  label: "A structured, validated, parsed record, plus an entity list and an investigation plan." },
+      { value: "structured",  label: "The validated alert itself, plus honest lead lists: leads for Subject and Uncover, and flags for Scope, Risk, and Escalation." },
       { value: "containment", label: "A containment recommendation for the affected host, ready for IR to execute." },
       { value: "report",      label: "A written report for the security manager summarizing what fired and why it matters." },
     ]}
     answer="structured"
-    explanation="Alert produces three things: a structured record of what the engine saw, a validation result that says whether the signal is real, and a parsed metadata set that the next phases can query. Verdicts and containment are downstream phases. Reports are documentation. The Alert phase's job is to make the next analyst's work fast and accurate, not to draw conclusions."
+    explanation="Alert produces three deliverables: the validated alert (detection-mechanism analysis, structured data, validation results, telemetry correlation), the leads for Subject and Uncover (baseline anomalies, spotted correlations, intel hits, temporal anchors), and the flags for Scope, Risk, and Escalation. Only the first is finished work; the other two are honest lead lists. Verdicts and containment are downstream phases. Reports are documentation. The Alert phase's job is to make the next analyst's work fast and accurate, not to draw conclusions."
   />
 
 </Quiz>

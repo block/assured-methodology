@@ -52,7 +52,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   <div class="mitre-card">
     <span class="mitre-card__tag">Tactics</span>
     <h3>The why</h3>
-    <p>The adversary's strategic objectives. Categories representing the "why" behind each phase of an attack. Things like Initial Access, Persistence, Defense Evasion, Impact.</p>
+    <p>The adversary's strategic objectives. Categories representing the "why" behind each phase of an attack. Things like Initial Access, Persistence, Stealth, Impact.</p>
   </div>
   <div class="mitre-card">
     <span class="mitre-card__tag">Techniques</span>
@@ -81,9 +81,9 @@ Every ATT&CK identifier resolves to a canonical page at <a href="https://attack.
 
 ---
 
-## The 14 tactics
+## The 15 tactics
 
-Enterprise ATT&CK defines 14 tactics: the strategic objectives an adversary pursues during an intrusion. The twelve below are the ones you can observe in your own telemetry; the callout after the grid covers the two pre-intrusion tactics. Adversaries rarely progress linearly through them, and they may revisit phases multiple times during a single campaign. Identifying which tactic you are observing is what tells you which countermeasures apply.
+Enterprise ATT&CK defines 15 tactics: the strategic objectives an adversary pursues during an intrusion. The thirteen below are the ones you can observe in your own telemetry; the callout after the grid covers the two pre-intrusion tactics. Adversaries rarely progress linearly through them, and they may revisit phases multiple times during a single campaign. Identifying which tactic you are observing is what tells you which countermeasures apply. One recent change worth knowing when you read older material: v19 (April 2026) split the long-standing Defense Evasion tactic into <strong>Stealth</strong> (hiding and blending in) and <strong>Defense Impairment</strong> (breaking the defenses themselves) — reports and detection rules written before then still say "Defense Evasion."
 
 <div class="tactics-grid">
   <div class="tactic-card">
@@ -108,8 +108,13 @@ Enterprise ATT&CK defines 14 tactics: the strategic objectives an adversary purs
   </div>
   <div class="tactic-card">
     <span class="tactic-card__id">TA0005</span>
-    <h3>Defense evasion</h3>
-    <p>Avoiding detection. Disabling tools, obfuscating files, leveraging legitimate credentials.</p>
+    <h3>Stealth</h3>
+    <p>Hiding and concealing actions to look like normal behavior. Obfuscation, masquerading, process injection, indicator removal.</p>
+  </div>
+  <div class="tactic-card">
+    <span class="tactic-card__id">TA0112</span>
+    <h3>Defense impairment</h3>
+    <p>Breaking security mechanisms and tooling so defenders can't see or trust what's happening. Disabling tools, firewall changes, killing logging.</p>
   </div>
   <div class="tactic-card">
     <span class="tactic-card__id">TA0006</span>
@@ -193,11 +198,19 @@ Hundreds of techniques exist across the matrix. These are the ones an analyst sh
     </ul>
   </div>
   <div class="tech-row">
-    <h3>Defense evasion</h3>
+    <h3>Stealth</h3>
     <ul>
       <li><span class="tech-id">T1027</span> Obfuscated Files or Information</li>
       <li><span class="tech-id">T1070</span> Indicator Removal</li>
       <li><span class="tech-id">T1055</span> Process Injection</li>
+    </ul>
+  </div>
+  <div class="tech-row">
+    <h3>Defense impairment</h3>
+    <ul>
+      <li><span class="tech-id">T1685</span> Disable or Modify Tools</li>
+      <li><span class="tech-id">T1686</span> Disable or Modify System Firewall</li>
+      <li><span class="tech-id">T1556</span> Modify Authentication Process</li>
     </ul>
   </div>
   <div class="tech-row">

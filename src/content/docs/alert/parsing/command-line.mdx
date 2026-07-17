@@ -15,7 +15,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 02"
-  pillarTotal="6 pages"
+  pillarTotal="06 pages"
   chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="Command lines reveal intent. Adversaries use native scripting environments to do real work while looking like legitimate processes. Effective analysis means actually decoding what ran, then weighing it against execution context."
@@ -103,7 +103,7 @@ The single most common parsing task this page exists for: an alert hands you `po
 
 ## The flags do not spell themselves out
 
-PowerShell accepts any unambiguous prefix of a parameter name. `-e`, `-en`, and `-enc` all mean `-EncodedCommand`. A detection or a triage search that string-matches the full flag name misses every abbreviated form, which is exactly why attackers abbreviate. Parse by meaning, not by literal string.
+PowerShell accepts abbreviated parameter prefixes: `-e`, `-en`, and `-enc` all resolve to `-EncodedCommand`, even though `-ExecutionPolicy` shares the `-e` prefix. A detection or a triage search that string-matches the full flag name misses every abbreviated form, which is exactly why attackers abbreviate. Parse by meaning, not by literal string.
 
 <div class="flags-table" role="table" aria-label="PowerShell flag abbreviations">
   <div class="flags-row flags-row--head" role="row">

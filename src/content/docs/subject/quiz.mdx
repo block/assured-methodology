@@ -91,7 +91,7 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "scope",    label: "Direction: insider risk comes from inside, insider threat from outside partners." },
     ]}
     answer="intent"
-    explanation="The distinction is about intent. Most insider risk is unintentional (mistakes, workarounds, policy violations). Insider threat is intentional. The methodology takes risk seriously as a category of its own and reserves the 'threat' designation for cases where evidence supports it. That distinction shapes escalation and how the rest of the organization is engaged."
+    explanation="The distinction is about intent. Most insider risk is unintentional (mistakes, workarounds, policy violations). Insider threat is intentional, and the methodology reserves that designation for cases where evidence supports it. Two calibrations: the label is a revisable hypothesis, not a verdict (and NIST's insider-threat definition includes unwitting actors, so check your organization's vocabulary), and the label shapes who gets engaged, never whether confirmed harmful activity gets a response. Containment and escalation trigger on act, asset, and impact; intent is resolved in parallel."
   />
 
   <QuizItem
@@ -116,19 +116,19 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "af",       label: "Anti-forensics. Destroying evidence of the act after the fact is its own section." },
     ]}
     answer="af"
-    explanation="The matrix organizes insider tradecraft into sections: motive (why), means (what made it possible), preparation (setting it up), infringement (the harmful act, here the bulk export), and anti-forensics (concealing or destroying evidence afterward). History-clearing and deleting staged archives are textbook anti-forensics, and their presence upgrades the case: accidental insiders do not scrub evidence."
+    explanation="The matrix organizes insider tradecraft into sections: motive (why), means (what made it possible), preparation (setting it up), infringement (the harmful act, here the bulk export), and anti-forensics (concealing or destroying evidence afterward). History-clearing and deleting staged archives are textbook anti-forensics, and their presence upgrades the case: deliberate evidence destruction is among the strongest intent signals available. It still gets verified rather than assumed — scheduled cleanup jobs, retention scripts, and shell configurations that trim history all exist, so the analyst confirms the mechanism was manual before treating the cleanup as a confession."
   />
 
   <QuizItem
     prompt="A marketing team under deadline converted confidential documents into image files to get them past a slow approval tool and shared them externally, exposing customer data. What does Subject classify this as?"
     options={[
       { value: "threat",    label: "Insider threat. Customer data was deliberately moved outside the boundary; intent is irrelevant." },
-      { value: "risk",      label: "Insider risk. No malicious intent, harm driven by tool friction; the fix is process, not enforcement." },
+      { value: "risk",      label: "Insider risk: no intent to harm. The exposure is still contained, clocked, and reported; the lasting fix is process." },
       { value: "neither",   label: "Neither. Data exposure through sanctioned sharing channels is a DLP tuning problem, not Subject's." },
       { value: "escalate",  label: "Both at once. Classify as insider threat by default until the investigation proves otherwise." },
     ]}
     answer="risk"
-    explanation="Insider risk is unintentional behavior that causes harm. The workaround was about getting work done past a slow tool, not about stealing data. The methodology calls this risk so the response is process improvement, a faster approved sharing path, instead of enforcement, which would add friction without fixing the cause. (The scenario is an illustrative composite, not a published incident.)"
+    explanation="Insider risk is the right label: the workaround was about getting work done past a slow tool, not about stealing data. But the label only decides the long-term fix, not the immediate response. Customer data left the boundary through a deliberate control bypass, so the exposure is scoped and contained, the regulatory notification question is asked (a notification clock does not care about motive), and the DLP bypass is recorded as a confirmed policy violation. What the risk classification changes is what happens after: process improvement, a faster approved sharing path, instead of an enforcement action that would add friction without fixing the cause. (The scenario is an illustrative composite, not a published incident.)"
     hint="The vocabulary matters. Risk and threat are not interchangeable."
   />
 

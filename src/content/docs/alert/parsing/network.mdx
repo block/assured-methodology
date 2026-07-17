@@ -15,7 +15,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 04"
-  pillarTotal="6 pages"
+  pillarTotal="06 pages"
   chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="Network correlation links host-level events to network telemetry. Adversaries depend on outbound communication for command-and-control, lateral movement, and data exfiltration. Correlation surfaces that traffic by tying it back to the process that initiated it."
@@ -34,7 +34,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   ]}
 />
 
-A single <DefineTerm term="PowerShell" /> process may look legitimate. A burst of HTTPS <DefineTerm term="Network Traffic" display="traffic" /> may look harmless. Together, they reveal that the PowerShell process is <DefineTerm term="Beaconing" display="beaconing" /> to a newly registered <DefineTerm term="Domain" display="domain" />. The picture changes.
+A single <DefineTerm term="PowerShell" /> process may look legitimate. A burst of HTTPS <DefineTerm term="Network Traffic" display="traffic" /> may look harmless. Together, they show the process making regular, automated connections to a newly registered <DefineTerm term="Domain" display="domain" /> — the shape of <DefineTerm term="Beaconing" display="beaconing" />, and a hypothesis neither event earned alone. The picture changes.
 
 ## Two perspectives, one picture
 
@@ -72,14 +72,14 @@ Correlation reveals three signals that, in isolation, are not decisive:
 2. Within seconds, the host established encrypted HTTPS sessions to a domain registered 48 hours earlier.
 3. The destination has low prevalence in historical DNS data, and the TLS client fingerprint (<DefineTerm term="JA3" />/<DefineTerm term="JA4" />) does not match any browser or approved tool in the environment.
 
-Together they describe initial compromise and command-and-control. The correlation is the alert.
+Keep the two layers separate. What is *observed*: off-hours execution, a 48-hour-old domain, low prevalence, an unrecognized client fingerprint. What is *inferred*: initial compromise and command-and-control. The combination earns that as the working hypothesis — the correlation is the alert — but it is the start of the investigation, not its verdict.
 
-<Reveal summary="Why no single signal was decisive">
+<Reveal summary="Why no single signal was decisive — and what decides">
 - PowerShell at 03:00 could be a developer working late.
 - HTTPS to a new domain could be a new SaaS tool.
 - Low-prevalence destinations exist legitimately.
 
-Each indicator on its own would be tuned out as noise. The combination crosses the threshold.
+Each indicator on its own would be tuned out as noise. The combination crosses the alerting threshold — and the whole set still has a benign twin: a contractor's late-night run of a just-installed vendor CLI against the vendor's freshly launched endpoint matches all three. The decisive follow-ups separate the twins: what launched the process (parent, user, scheduled task, or interactive session), whether the cadence holds a fixed machine interval over hours, who registered and operates the destination, and whether anything else in the fleet talks to it.
 </Reveal>
 
 </CaseStudy>
@@ -129,7 +129,7 @@ Four primary surfaces, each with its own signal patterns:
   </div>
 </div>
 
-A finance workstation that normally talks only to internal ERP systems and then initiates TLS sessions to a low-reputation cloud storage provider outside business hours is a clear data-<DefineTerm term="Exfiltration" display="exfiltration" /> signal.
+A finance workstation that normally talks only to internal ERP systems and then initiates TLS sessions to a low-reputation cloud storage provider outside business hours is a strong <DefineTerm term="Exfiltration" display="exfiltration" /> hypothesis — and only that until questions the metadata cannot answer get answered: what actually transferred (volume approximates content only where DLP or object-level logs exist), and whether anyone authorized a new destination, because a sanctioned backup migration or vendor onboarding produces this exact trace. The decisive queries: the process that opened the sessions, transfer volume against the host's own baseline, and whether the destination tenant belongs to the organization or a contracted vendor.
 
 ---
 
@@ -161,7 +161,7 @@ Three dimensions to weigh on every connection:
   </div>
 </div>
 
-A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern. Do not require the shady certificate, though: modern commodity C2 fronts with valid certificates from free CAs or hides behind CDNs, which is why domain age, prevalence, and TLS client fingerprints (JA3/JA4) carry more weight than certificate hygiene. Without combining process-level context, network <DefineTerm term="Metadata" display="metadata" />, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
+A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern — and an internal tool polling a just-provisioned dev endpoint can match it field for field, which is why the pattern opens an investigation rather than closing one; the process's parent and the destination's owner are the queries that split the two. Do not require the shady certificate, though: modern commodity C2 fronts with valid certificates from free CAs or hides behind CDNs, which is why domain age, prevalence, and TLS client fingerprints (JA3/JA4) carry more weight than certificate hygiene. Without combining process-level context, network <DefineTerm term="Metadata" display="metadata" />, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
 
 ---
 
@@ -188,10 +188,10 @@ Adversaries hide C2 inside legitimate protocols (HTTPS, DNS). The automation und
   </div>
 </div>
 
-An internal database <DefineTerm term="Server" display="server" /> that suddenly sends gigabytes of zipped data to a generic cloud storage provider at 02:30 is a strong signal of active data theft. Even if the channel is encrypted, the volume, timing, and destination characterize the intent.
+An internal database <DefineTerm term="Server" display="server" /> that suddenly sends gigabytes of zipped data to a generic cloud storage provider at 02:30 is a strong signal that data is leaving — and a hypothesis of theft, not proof of it. Volume, timing, and destination establish that something large moved somewhere unusual; they cannot establish intent, and a DBA's ad-hoc backup to a newly provisioned storage tenant leaves the identical trace. What separates the cases: a change record or maintenance window, ownership of the destination, and the process and identity that initiated the transfer. If those come back empty on a database server, escalate on the evidence you have — an unexplained bulk transfer from a high-value asset meets criteria without a motive attached.
 
 <KeyTakeaway>
-Network correlation moves you from isolated alerts to unified adversary visibility. Identify the intrusion before <DefineTerm term="Lateral Movement" display="lateral movement" />. Map the chain from initial <DefineTerm term="Execution" display="execution" /> to external communication. <DefineTerm term="Containment" /> becomes a question of when, not if.
+Network correlation moves you from isolated alerts to unified adversary visibility. State what you observed separately from what you infer, name the benign twin, and run the query that separates them. Map the chain from initial <DefineTerm term="Execution" display="execution" /> to external communication before <DefineTerm term="Lateral Movement" display="lateral movement" /> widens it. <DefineTerm term="Containment" /> is a criteria decision, not an inevitability: it triggers when escalation criteria confirm, not whenever traffic looks strange.
 </KeyTakeaway>
 
 <ContinueCard

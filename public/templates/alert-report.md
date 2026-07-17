@@ -23,8 +23,11 @@
 
 ## Initial triage outcome
 
-<!-- True positive / false-positive / inconclusive, with a concise
-     justification grounded in observable behavior and detection logic. -->
+<!-- Two axes: detection correctness (correct / incorrect) and activity
+     disposition (malicious / benign / inconclusive), with a concise
+     justification grounded in observable behavior and detection logic.
+     A correct detection of authorized behavior is a benign true
+     positive, not a false positive. -->
 
 - Classification:
 - Justification:

@@ -36,6 +36,12 @@ A structured assessment makes Risk repeatable across analysts and incidents: it 
 
 The RATM scores alerts across four scoring dimensions, producing a composite rating. It emphasizes technical reality while integrating business context. The four scoring dimensions reduce to the two axes of the triage matrix at the bottom of this page: **asset criticality + business impact make up the impact axis**; **threat actor intent + exploitation &amp; scope, weighted by evidence quality, make up the likelihood axis**. Score the dimensions, reduce them to the two axes, read the default action off the matrix.
 
+The reduction is deterministic, so two analysts working the same facts land on the same cell:
+
+- **Impact is the higher of asset criticality and business impact.** A crown-jewel system with no business effect observed *yet* still scores High, because impact answers "if this is real, how bad," not "how bad so far."
+- **Likelihood starts at evidence confidence and is only calibrated downward or sideways by the other dimensions, never raised above what the evidence supports.** Threat actor intent and exploitation &amp; scope inform the score; sophistication is not a substitute for evidence. The <a href="/docs/risk/impact-likelihood/">impact + likelihood page</a> defines the axis.
+- **Unknown is not Low.** A dimension that cannot be assessed because telemetry or context is missing scores Medium at minimum, and the gap is recorded as an open question. "We could not check" never reads the matrix from the same cell as "we checked and it is clean."
+
 <div class="ratm-grid">
   <div class="ratm-card">
     <h3>Asset criticality</h3>
@@ -65,7 +71,7 @@ The four scoring dimensions above are the categories. The table below is the ope
   </div>
   <div class="ratm-rubric__row">
     <span class="ratm-rubric__dim">Asset criticality</span>
-    <span>Crown-jewel system; regulated-data store (PCI, PHI, PII); revenue-affecting service.</span>
+    <span>Crown-jewel system; regulated-data store (PCI, PHI, PII); revenue-affecting service. Score the highest-value asset in confirmed reach, not just the entry point: a user-class endpoint whose compromised identity reaches a regulated store scores on the store.</span>
     <span>Business-critical but not regulated; internal-tooling backbone; broad-access shared service.</span>
     <span>Dev / sandbox / test environment; user-class endpoint with no privileged role; isolated workstation.</span>
   </div>
@@ -101,8 +107,8 @@ ATT&CK enters Risk as a structuring vocabulary, not a scoring tool. The framewor
 
 <div class="mitre-risk-grid">
   <div class="mitre-risk-card">
-    <h3>Tactic-level severity weighting</h3>
-    <p>Some tactics carry inherently higher risk than others. Initial Access without follow-on activity is lower risk than confirmed Lateral Movement or Exfiltration. The tactic chain itself shapes priority.</p>
+    <h3>Tactic-level stage context</h3>
+    <p>How far the <em>confirmed</em> chain has progressed shapes priority: Initial Access without follow-on activity is a smaller case than confirmed Lateral Movement or Exfiltration. The stage must be evidenced, not inferred from a technique's name; a tactic label alone never raises the score.</p>
   </div>
   <div class="mitre-risk-card">
     <h3>Technique-to-actor mapping</h3>
@@ -147,7 +153,7 @@ The three metric groups below are the CVSS v3.1 taxonomy, still the most widely 
 </div>
 
 <Callout variant="warn" title="When CVSS misleads">
-A CVSS 9.8 on an asset that is not exposed, not in use, or already mitigated by compensating controls deserves a different response than the same score on a production system. Use CVSS as input, then weight it by the context Subject and Scope provided. The base score is a starting point; the environmental score is what matters for the triage decision.
+FIRST, which maintains CVSS, is explicit that the Base score measures the severity of a vulnerability, not the risk of an event that involves it. A CVSS 9.8 on an asset that is not exposed, not in use, or already mitigated by compensating controls deserves a different response than the same score on a production system. Use CVSS as input, then weight it by the context Subject and Scope provided. The base score is a starting point; the environmental score, and the RATM around it, is what makes the triage decision.
 </Callout>
 
 CVSS is also no longer the only prioritization signal. <strong>EPSS</strong> (Exploit Prediction Scoring System) estimates the probability that a vulnerability will be exploited in the wild within the next 30 days, and <strong>CISA's KEV catalog</strong> lists vulnerabilities with confirmed active exploitation. When a triage case pivots on a vulnerability, KEV membership or a high EPSS score is usually a stronger urgency signal than the CVSS base score alone: a 9.8 nobody exploits matters less this shift than a 7.2 being actively used.
@@ -164,14 +170,35 @@ The triage matrix is the practical output: impact and likelihood combine into a 
   </div>
   <div class="matrix-row"><span>High</span><span>High</span><span class="matrix-row__action matrix-row__action--p1">P1 · Escalate immediately</span></div>
   <div class="matrix-row"><span>High</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p2">P2 · Escalate within shift</span></div>
-  <div class="matrix-row"><span>High</span><span>Low</span><span class="matrix-row__action matrix-row__action--p3">P3 · Continue investigation; raise priority if evidence strengthens</span></div>
+  <div class="matrix-row"><span>High</span><span>Low</span><span class="matrix-row__action matrix-row__action--p3">P3 · Continue investigation on the high-impact clock (override rules below); raise priority if evidence strengthens</span></div>
   <div class="matrix-row"><span>Medium</span><span>High</span><span class="matrix-row__action matrix-row__action--p2">P2 · Escalate within shift</span></div>
   <div class="matrix-row"><span>Medium</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p3">P3 · Investigate to closure within 24 hours</span></div>
   <div class="matrix-row"><span>Medium</span><span>Low</span><span class="matrix-row__action matrix-row__action--p4">P4 · Standard queue</span></div>
   <div class="matrix-row"><span>Low</span><span>High</span><span class="matrix-row__action matrix-row__action--p3">P3 · Confirm and close; a real but low-impact finding. Remediate cheaply, tune the control if it keeps firing</span></div>
   <div class="matrix-row"><span>Low</span><span>Medium</span><span class="matrix-row__action matrix-row__action--p4">P4 · Standard queue; close after light investigation</span></div>
-  <div class="matrix-row"><span>Low</span><span>Low</span><span class="matrix-row__action matrix-row__action--p5">P4 · Document and close</span></div>
+  <div class="matrix-row"><span>Low</span><span>Low</span><span class="matrix-row__action matrix-row__action--p4">P4 · Document and close</span></div>
 </div>
+
+### The override rules: when the matrix is not the last word
+
+The matrix cell is the **default** action. Exactly three overrides can modify it, applied in this order, and the case record names the rule that fired. These are the same rules the <a href="/docs/escalation/criteria/">Escalation criteria</a> page enforces; there is one contract, stated here, consumed there.
+
+<div class="override-list">
+  <div class="override-item">
+    <h4>1 · Break-glass, up to P1, from any phase</h4>
+    <p>Any escalation criterion <strong>confirmed</strong> makes the case P1 immediately, whatever the cell: confirmed malicious activity, confirmed malicious or unauthorized activity touching a business-critical asset, confirmed lateral movement or exfiltration, or a confirmed active campaign. Confirmation means evidence, not asset value: a crown-jewel alert with nothing validated yet has not broken glass.</p>
+  </div>
+  <div class="override-item">
+    <h4>2 · The high-impact clock, tightening P3</h4>
+    <p>A High-impact case never idles on uncertainty. If likelihood is genuinely Low because the evidence affirmatively leans benign, the High/Low cell stands at P3, but on a tightened clock: re-score within hours, not the standard 24 (calibrate the exact number, keep it a small fraction), with named upgrade triggers and the queue lead or asset owner aware the case exists. If likelihood is "Low" only because evidence is missing or unobtainable, that is Unknown, which scores Medium under the reduction rule, and the case reads High/Medium: P2, escalate within the shift.</p>
+  </div>
+  <div class="override-item">
+    <h4>3 · De-escalation is explicit</h4>
+    <p>A priority moves down only with a named reason recorded in the case and the same stakeholder notification the upgrade would get. Silent decay is how a P2 becomes nobody's problem.</p>
+  </div>
+</div>
+
+Run the hardest case through the contract to see it hold: a domain controller alert with weak, incomplete evidence. Impact High (asset criticality). Evidence missing, not benign-leaning, so likelihood reads Medium, the cell is High/Medium, and the action is P2 within the shift, on every page of this site. If instead the evidence is present and points benign, it is High/Low: P3 on the tightened clock. Neither branch waits 24 hours, and neither branch pages IR at 3 a.m. on asset value alone.
 
 <Callout variant="info" title="Translate the timing anchors to your team model">
 The clock words above are written for a shifted, multi-analyst SOC. On a small or single-person team, translate them without loosening them: "escalate" means engaging whatever your escalation path is (an on-call engineer, an MSSP, an IR retainer), "within shift" means before you stop working the queue today, and "closure within 24 hours" means before the case goes stale. What must survive the translation is the ordering: P1 interrupts whatever you are doing, P2 finishes today, P3 is allowed to wait its turn.
@@ -182,7 +209,7 @@ Qualitative impact × likelihood matrices have documented weaknesses (Cox, 2008)
 </Callout>
 
 <KeyTakeaway>
-The Risk framework produces a verdict the analyst can defend. The RATM rubric does the scoring, ATT&CK names the techniques, and CVSS quantifies <DefineTerm term="Vulnerability" display="vulnerability" /> severity when one is in play. Real triage is four moves: score impact, score likelihood, read the matrix, act on the band. Everything else on this page exists to make those four moves repeatable across analysts.
+The Risk framework produces a verdict the analyst can defend. The RATM rubric does the scoring, ATT&CK names the techniques, and CVSS quantifies <DefineTerm term="Vulnerability" display="vulnerability" /> severity when one is in play. Real triage is five moves: score impact, score likelihood (unknown is not Low), read the matrix, apply the override rules, act on the band. Everything else on this page exists to make those five moves repeatable across analysts.
 </KeyTakeaway>
 
 <ContinueCard current="risk" nextHref="/docs/risk/false-positive/" nextLabel="The value of a false-positive" ctaLabel="Read false-positive" />
@@ -241,6 +268,11 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 .cvss-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-text); font-size: 1rem; }
 .cvss-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 
+.override-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.override-item { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.55rem; }
+.override-item h4 { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; font-weight: 600; }
+.override-item p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+
 .matrix-table { display: flex; flex-direction: column; gap: 0.35rem; margin: 1.25rem 0; }
 .matrix-row { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 0.75rem; padding: 0.7rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.5rem; align-items: center; color: var(--assured-text-muted); font-size: 0.92rem; }
 .matrix-row--header { background: rgba(15, 23, 42, 0.7); color: var(--assured-text); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem; }
@@ -249,7 +281,6 @@ The Risk framework produces a verdict the analyst can defend. The RATM rubric do
 .matrix-row__action--p2 { color: #f97316; }
 .matrix-row__action--p3 { color: #f59e0b; }
 .matrix-row__action--p4 { color: var(--assured-accent-soft); }
-.matrix-row__action--p5 { color: var(--assured-text-dim); }
 
 /* H-15: collapse to single-column stack on narrow screens. The 3-column grid
  * is unreadable on phones; labels go inline above each value. */

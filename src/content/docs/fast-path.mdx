@@ -32,9 +32,9 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <div>
         <h4>Entry criteria (all required)</h4>
         <ul>
-          <li>A written pattern entry exists, with named discriminators and an owner</li>
+          <li>A written pattern entry exists, with named discriminators, an owner, and a current review date</li>
           <li>Every discriminator checks out; nothing about the alert is novel</li>
-          <li>The subject is not a crown-jewel system or privileged identity</li>
+          <li>The subject passes the eligibility gate, proven from source systems, never assumed: not a crown-jewel system, not a privileged identity, not automation holding sensitive capability (deploy, signing, secrets, repository write; a CI runner can outrank its owner), and no regulated data in reach. <strong>Unknown fails the gate.</strong></li>
         </ul>
       </div>
     </div>
@@ -108,7 +108,7 @@ The seven chapters teach the full arc because that is the skill that has to exis
   </div>
   <div class="ladder-rule">
     <h3>📚 Level 0 runs on a pattern library, not on memory</h3>
-    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive/">tuning feedback</a>.</p>
+    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date; a reusable schema ships as <a href="/templates/pattern-entry.md" download>pattern-entry.md</a>. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive/">tuning feedback</a>.</p>
   </div>
   <div class="ladder-rule">
     <h3>🤖 Automation moves the starting line, not the bar</h3>
@@ -123,9 +123,9 @@ Level 0's entire documentation burden. Anything that cannot be honestly captured
 
 <div class="ff-record">
   <div class="ff-row"><span class="ff-field">1 · Alert</span><span class="ff-desc">Alert ID, detection source, timestamp.</span></div>
-  <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID and name.</span></div>
-  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The discriminators verified, with what was actually observed: not "matches pattern" but "signed vendor binary, expected install path, no persistence."</span></div>
-  <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc"><DefineTerm term="False Positive" display="False-positive" /> or expected behavior, one line of justification.</span></div>
+  <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID and name, with its owner and current review date.</span></div>
+  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The eligibility gate first, each item from its source system (asset criticality, privilege and sensitive capability, regulated-data reach); then the discriminators verified, with what was actually observed: not "matches pattern" but "signed vendor binary, expected install path, no persistence." An unknown gate check ends the Level 0 close right here.</span></div>
+  <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc">Both axes: detection correctness (did the rule detect what it looks for?) and activity disposition (benign-confirmed / authorized / malicious / undetermined, one line of justification; only the first two can close at Level 0). A correct detection of benign behavior is a <DefineTerm term="Benign True Positive" display="benign true positive" />, not a <DefineTerm term="False Positive" display="false-positive" />.</span></div>
   <div class="ff-row"><span class="ff-field">5 · Disposition</span><span class="ff-desc">Closed at Level 0; analyst and time; tuning ticket reference if the rule keeps firing.</span></div>
 </div>
 

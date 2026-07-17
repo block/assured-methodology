@@ -35,7 +35,7 @@ While a core template structure should be universal across the organization, spe
 
 A well-designed alert report template captures all essential details consistently to support rapid understanding, <DefineTerm term="Event Correlation" display="event correlation" />, and knowledge reuse. Each report includes the following core fields.
 
-Seven fields is a deliberate ceiling, not a starting point. Every field added beyond these raises the cost of every report the team will ever write, and the fields skipped under pressure are exactly the discriminating ones. Of the seven, two do most of the retrospective work: the initial triage outcome, because it records what the analyst believed with the evidence available at the time, and the escalation decision, because it records the judgment call a reviewer is most likely to second-guess. Fill those two with care; the rest is largely mechanical capture.
+Seven fields is a deliberate ceiling for the universal core, not a starting point; the specialized variants above add their event-type fields on top, but the core itself does not grow. Every field added to the core raises the cost of every report the team will ever write, and the fields skipped under pressure are exactly the discriminating ones. Of the seven, two do most of the retrospective work: the initial triage outcome, because it records what the analyst believed with the evidence available at the time, and the escalation decision, because it records the judgment call a reviewer is most likely to second-guess. Fill those two with care; the rest is largely mechanical capture.
 
 <div class="alert-tpl">
   <div class="alert-tpl__row">
@@ -52,7 +52,7 @@ Seven fields is a deliberate ceiling, not a starting point. Every field added be
   </div>
   <div class="alert-tpl__row">
     <div class="alert-tpl__field">Initial triage outcome</div>
-    <div class="alert-tpl__desc">Early classification: true positive, false-positive, or inconclusive, with concise justification grounded in observable behaviors and detection logic.</div>
+    <div class="alert-tpl__desc">Early classification on two axes: detection correctness (did the rule fire on the behavior it describes?) and activity disposition (malicious, benign, or inconclusive), with concise justification grounded in observable behaviors and detection logic.</div>
   </div>
   <div class="alert-tpl__row">
     <div class="alert-tpl__field">Affected systems</div>
@@ -70,7 +70,7 @@ Seven fields is a deliberate ceiling, not a starting point. Every field added be
 
 <Reveal summary="Worked example: the Cursor IDE alert report" variant="example">
 
-A completed alert report for the macOS / Cursor IDE <DefineTerm term="False Positive" display="false-positive" /> case, in the standardized format:
+A completed alert report for the macOS / Cursor IDE <DefineTerm term="Benign True Positive" display="benign-true-positive" /> case, in the standardized format:
 
 | Field | Content |
 |---|---|
@@ -82,7 +82,7 @@ A completed alert report for the macOS / Cursor IDE <DefineTerm term="False Posi
 | **Affected systems** | Single developer workstation, source of the alert. |
 | **Actions taken** | 14:08–14:58 UTC: reviewed CrowdStrike <DefineTerm term="Telemetry" display="telemetry" />; execution patterns and network behavior aligned with expected developer activity. Traffic normal in volume / frequency, used standard ports / protocols, no signs of <DefineTerm term="Exfiltration" display="exfiltration" />, <DefineTerm term="Beaconing" display="beaconing" />, or tunneling. 15:10 UTC: risk verdict recorded. 15:18 UTC: closure approved by SOC manager. |
 | **Escalation decision** | Flagged behavior appears to be benign development activity triggering a heuristic rule. No escalation required. |
-| **Final disposition** | False-positive. Activity deemed non-malicious and consistent with developer workflows. |
+| **Final disposition** | Benign true positive. Detection correct: the rule fired on the behavior it describes. Activity non-malicious and consistent with developer workflows. |
 
 The same template, filled differently for the finance-team phishing case, would have produced a P1 escalation record with confirmed malicious classification.
 
@@ -137,6 +137,7 @@ Everything above describes the templates; these are the templates themselves. Ea
 
 <div class="tpl-downloads">
   <a href="/templates/pattern-close-record.md" download>⬇ pattern-close-record.md</a>
+  <a href="/templates/pattern-entry.md" download>⬇ pattern-entry.md</a>
   <a href="/templates/alert-report.md" download>⬇ alert-report.md</a>
   <a href="/templates/handoff-packet.md" download>⬇ handoff-packet.md</a>
   <a href="/templates/event-report.md" download>⬇ event-report.md</a>
@@ -159,22 +160,38 @@ The five-field record from the [fast path](/docs/fast-path/#five-field), the ent
 
 ## 2. Pattern
 - Pattern library entry matched (ID and name):
+- Pattern owner:
+- Pattern review date (must be current; a stale entry fails the gate):
 
 ## 3. Checks
-<!-- Discriminators verified, with what was actually observed. Not "matches
-     pattern"; e.g. "signed vendor binary, expected install path, no
-     persistence". One line each. -->
+### Eligibility gate (all three, each from its source system, never memory)
+<!-- Unknown or unverifiable fails the gate; the alert moves to Level 1. -->
+- Subject asset criticality is not crown-jewel (source):
+- Subject is not a privileged identity, and not automation holding sensitive
+  capability: deploy, signing, secrets, repository write (source):
+- No regulated data (PCI, PHI, PII) in the subject's reach (source):
+
+### Pattern discriminators (all, with what was actually observed)
+<!-- Not "matches pattern"; e.g. "signed vendor binary, expected install
+     path, no persistence". One line each. -->
 -
 
 ## 4. Verdict
-<!-- False-positive or expected behavior, one line of justification. -->
--
+<!-- Both axes. Only benign-confirmed or authorized closes at Level 0:
+     malicious breaks glass, undetermined moves up the ladder. A correct
+     detection of benign behavior is a benign true positive, not a false
+     positive. -->
+- Detection correctness (did the rule detect what it looks for?):
+- Activity disposition (benign-confirmed / authorized / malicious /
+  undetermined, one line of justification):
 
 ## 5. Disposition
 - Closed at Level 0 by (analyst):
 - Closed at (UTC):
 - Tuning ticket, if the rule keeps firing:
 ```
+
+The companion [pattern-entry template](/templates/pattern-entry.md) is the library side of the contract: discriminators, owner, review date, and any pattern-specific eligibility constraints, written down where a wrong pattern can be corrected in one place.
 
 ### Alert report
 
@@ -189,13 +206,14 @@ The seven core fields described above, as a fill-in skeleton.
 
 ## Detection timestamp and source
 - Detected (UTC):
+- Local time (optional):
 - Detection source (tool or control, e.g. EDR / SIEM / CSPM):
 
 ## Activity summary
 <!-- The observable behavior that triggered the alert. -->
 
 ## Initial triage outcome
-- Classification: true positive / false-positive / inconclusive
+- Classification, two axes: detection correctness (correct / incorrect) and activity disposition (malicious / benign / inconclusive)
 - Justification:
 
 ## Affected systems
@@ -214,10 +232,20 @@ The seven core fields described above, as a fill-in skeleton.
 
 ### Nine-section handoff packet
 
-The escalation packet, sections exactly as the [Handoff page](/docs/escalation/handoff/) defines them. Target: readable in five minutes.
+The escalation packet: a case-metadata header, then the sections exactly as the [Handoff page](/docs/escalation/handoff/) defines them. Target: readable in five minutes.
 
 ```markdown
 # Escalation handoff packet
+
+## Case metadata
+- Case ID:
+- Prepared by (triage analyst):
+- Prepared at (UTC):
+- Handed to (receiving team, and the named owner of the next action):
+- Escalation criterion met (canonical category or matrix cell), with a
+  one-line rationale citing the confirming evidence:
+- Material AI use (assistant + version; which sections began as AI drafts;
+  "none" if unassisted):
 
 ## 1. Case summary
 <!-- One paragraph: what happened, what is known, what triage recommends. -->
@@ -263,10 +291,23 @@ The escalation packet, sections exactly as the [Handoff page](/docs/escalation/h
 
 ### Nine-section event report
 
-The closure-time record, sections exactly as the [Standards page](/docs/documentation/standards/#format) defines them. This is a different artifact from the handoff packet above; when a packet exists, map it in per the crosswalk on the Standards page.
+The closure-time record: a decision header (verdict, priority, confidence, provenance), then the nine sections exactly as the [Standards page](/docs/documentation/standards/#format) defines them. This is a different artifact from the handoff packet above; when a packet exists, map it in per the crosswalk on the Standards page.
 
 ```markdown
 # Event report
+
+## Decision header
+- Final verdict, detection correctness:
+- Final verdict, activity disposition (benign-confirmed / authorized /
+  malicious / undetermined, one line of justification):
+- Priority at close (P1-P4), with the matrix cell or named override
+  (break-glass, high-impact clock, documented downgrade) that produced it:
+- Evidence confidence (high / medium / low, shared rubric; round down):
+- Open uncertainty (what remains unresolved at close; "none" must be earned):
+- Prepared by (analyst):
+- Prepared at (UTC):
+- Material AI use (assistant + version; which sections began as AI drafts;
+  "none" if unassisted):
 
 ## 1. Event overview
 - Alert identifier:
@@ -300,7 +341,7 @@ The closure-time record, sections exactly as the [Standards page](/docs/document
 ## 7. Lessons learned
 -
 
-## 8. Post-incident recommendations
+## 8. Post-event recommendations
 <!-- With ownership and timelines. Carry forward any handoff-packet open
      questions not resolved by close. -->
 -
@@ -311,7 +352,7 @@ The closure-time record, sections exactly as the [Standards page](/docs/document
 -
 ```
 
-For a rendered example of this report filled in, see the [Documentation working example](/docs/documentation/example/): the finance-team intrusion, the Cursor false-positive, and the SaaS token theft all walk through filling these nine sections.
+For a rendered example of this report filled in, see the [Documentation working example](/docs/documentation/example/): the finance-team intrusion, the Cursor benign true positive, and the SaaS token theft all walk through filling these nine sections.
 
 <KeyTakeaway>A template is not a constraint; it is scaffolding. Templates make documentation faster, more consistent, and more complete. Time invested in designing the right template saves hours of inconsistent records, and the right alert-reporting template plus a timestamped action timeline cover most of what any audit, post-mortem, or shift handoff will ask for.</KeyTakeaway>
 
@@ -329,7 +370,7 @@ For a rendered example of this report filled in, see the [Documentation working 
 @media (min-width: 768px) { .timeline-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1100px) { .timeline-grid { grid-template-columns: repeat(5, 1fr); } }
 .timeline-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.6rem; }
-.timeline-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.55); }
+.timeline-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.7); /* >= 4.5:1 over the card at both gradient ends */ }
 /* level changed for the heading outline; size stays as designed */
 .timeline-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; font-weight: 600; line-height: inherit; }
 .timeline-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.86rem; }

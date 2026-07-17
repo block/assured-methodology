@@ -14,7 +14,7 @@ import PillNav from "@/components/assured/PillNav.astro";
   phase="alert"
   parentLetter="A"
   pillarIndex="03 · 06"
-  pillarTotal="6 pages"
+  pillarTotal="06 pages"
   chapterHref="/docs/alert/parsing/"
   chapterLabel="Parsing"
   lede="On an endpoint the unit of behavior is the process. In the cloud it is the API call, and the lineage that matters is a chain of identities, not a tree of processes. This surface has its own anatomy, and modern intrusions live on it."
@@ -62,7 +62,7 @@ Every management API call becomes one JSON event. Most fields are noise for tria
 <div class="field-cards">
   <div class="field-card">
     <h3><code>eventSource</code> + <code>eventName</code></h3>
-    <p>The verb. Which service, which API call. Reads (<code>List*</code>, <code>Describe*</code>, <code>Get*</code>) are reconnaissance; writes (<code>Create*</code>, <code>Put*</code>, <code>Attach*</code>, <code>Update*</code>) change the environment. A burst of reads followed by a policy write is the cloud version of recon-then-privilege-escalation.</p>
+    <p>The verb. Which service, which API call. Reads (<code>List*</code>, <code>Describe*</code>, <code>Get*</code>) have the shape of reconnaissance — and of every inventory scanner, cost tool, and monitoring agent in the account, which produce the bulk of them. Writes (<code>Create*</code>, <code>Put*</code>, <code>Attach*</code>, <code>Update*</code>) change the environment. A burst of reads followed by a policy write, from an identity with no history of either, is the cloud shape of recon-then-privilege-escalation: a hypothesis worth the next pivot, not a verdict.</p>
   </div>
   <div class="field-card">
     <h3><code>userIdentity</code></h3>
@@ -78,11 +78,11 @@ Every management API call becomes one JSON event. Most fields are noise for tria
   </div>
   <div class="field-card">
     <h3><code>errorCode</code></h3>
-    <p>Failures are telemetry. A spray of <code>AccessDenied</code> across many services from one identity is permission enumeration: the attacker mapping what the stolen credential can do. Silence after the spray means they found what works.</p>
+    <p>Failures are telemetry. A spray of <code>AccessDenied</code> across many services from one identity has the shape of permission enumeration — someone mapping what a credential can do. Check the identity's baseline first: a misconfigured scanner or a role whose policy just shrank sprays the same way every day. If the spray is genuinely new, treat silence after it as the hypothesis that they found what works, and confirm it by pivoting to what <em>succeeded</em> next — the silence itself proves nothing.</p>
   </div>
   <div class="field-card">
     <h3><code>mfaAuthenticated</code></h3>
-    <p>Inside <code>sessionContext.attributes</code>. Whether this session was backed by <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" />. Sensitive actions from non-MFA sessions deserve a harder look, especially where policy says they should be impossible.</p>
+    <p>Inside <code>sessionContext.attributes</code>. Whether this session was backed by <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" /> <em>as far as AWS saw it</em> — federated sessions report <code>false</code> even when the upstream IdP enforced MFA, because the challenge happened outside AWS. Sensitive actions from non-MFA sessions deserve a harder look, but check the IdP's sign-in log before recording "no MFA" as a fact.</p>
   </div>
 </div>
 
@@ -99,7 +99,7 @@ The cloud equivalent of parent-child lineage is role chaining. An identity assum
   </div>
   <div class="chain-step">
     <span class="chain-step__num">2</span>
-    <p>Search the trail for the <code>AssumeRole</code> call that created that session (match the role ARN and the session name; the session name is attacker-chosen and often a tell in itself).</p>
+    <p>Search the trail for the <code>AssumeRole</code> call that created that session. Join on the stable key: the temporary <code>accessKeyId</code> in your event's <code>userIdentity</code> equals the <code>accessKeyId</code> in the <code>AssumeRole</code> call's <code>responseElements.credentials</code>. The session name is attacker-chosen and nonunique — often a tell worth reading, never a join key.</p>
   </div>
   <div class="chain-step">
     <span class="chain-step__num">3</span>
@@ -142,7 +142,7 @@ For identity-provider alerts (<DefineTerm term="Okta" />, <DefineTerm term="Azur
   <div class="idp-item">
     <span class="idp-item__bullet"></span>
     <div>
-      <strong>Outcome plus MFA result, together.</strong> A success with no MFA event behind it is the signature of session-token replay: the attacker stole a valid cookie (adversary-in-the-middle phishing) and never had to authenticate. The login "succeeded" without any credential being entered.
+      <strong>Outcome plus MFA result, read against sign-in type.</strong> A success with no new MFA event is routine for noninteractive sign-ins — token refreshes, service flows, sessions whose earlier MFA claim still satisfies policy — and providers log those separately from interactive ones. The session-token-replay hypothesis starts when a session shows up with no authentication event behind it at all: a stolen cookie (adversary-in-the-middle phishing) lets the attacker skip authenticating entirely. It stays a hypothesis until corroborated — the same session ID surfacing from a new device or ASN mid-life, or session activity the legitimate device never produced.
     </div>
   </div>
   <div class="idp-item">
@@ -170,14 +170,14 @@ The <a href="/docs/uncover/example/">Uncover chapter's worked example</a> runs t
 </Callout>
 
 <KeyTakeaway>
-The control plane is a first-class parsing surface. Read the verb (<code>eventName</code>), identify the actor (<code>userIdentity</code>, and the role chain behind it), compare where the call came from against where it should come from, and treat failures and missing MFA events as signal. No process tree will come to save you here; the log is all there is.
+The control plane is a first-class parsing surface. Read the verb (<code>eventName</code>), identify the actor (<code>userIdentity</code>, and the role chain behind it, joined on stable identifiers), compare where the call came from against where it should come from, and treat failures and missing MFA events as signal to check against the identity's baseline and the provider's semantics — not as verdicts. No process tree will come to save you here; the log is all there is.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
   nextHref="/docs/alert/example/"
   nextLabel="Alert working example"
-  nextDescription="Three cases worked side by side through the Alert phase: a real phishing intrusion, a developer-workstation false-positive, and a SaaS token theft read entirely from identity logs. All three threads continue on every later chapter's example."
+  nextDescription="Three cases worked side by side through the Alert phase: a real phishing intrusion, a developer-workstation benign true positive, and a SaaS token theft read entirely from identity logs. All three threads continue on every later chapter's example."
   ctaLabel="See the worked examples"
 />
 

@@ -57,7 +57,9 @@ A useful sequencing: data sensitivity sets the floor. Operational disruption and
 
 ## Evaluating likelihood
 
-Likelihood is one question: **how confident are we that this finding is real and malicious?** Score it from evidence quality first. The four factors below calibrate that confidence: sophistication and historical frequency speak to whether the activity plausibly is an attack; exploitability and control coverage speak to whether the claimed attack could actually have succeeded here. The separate question of whether a confirmed attack will continue or spread belongs to the exploitation &amp; scope dimension of the RATM scoring model (covered on the <a href="/docs/risk/framework/">framework page</a>), not this axis.
+Likelihood is one question: **how confident are we that this finding is real and malicious?** Score it from evidence quality first: what the evidence supports is the ceiling, and the four factors below calibrate within it, never above it. Sophistication and historical frequency speak to whether the activity plausibly is an attack; exploitability and control coverage speak to whether the claimed attack could actually have succeeded here. No factor substitutes for evidence: an APT-plausible story with nothing validated is still Low. The separate question of whether a confirmed attack will continue or spread belongs to the exploitation &amp; scope dimension of the RATM scoring model (covered on the <a href="/docs/risk/framework/">framework page</a>), not this axis.
+
+One scoring rule prevents the quietest failure: **unknown is not Low.** Low means the evidence was examined and leans benign. When the evidence cannot be examined, because telemetry is missing, a source is unqueried, or a join failed, the likelihood floor is Medium and the gap goes in the open questions. The framework page's reduction and override rules depend on this distinction: "checked and clean" and "could not check" must never land in the same matrix cell.
 
 <div class="likelihood-grid">
   <div class="likelihood-card">
@@ -84,8 +86,11 @@ Likelihood is one question: **how confident are we that this finding is real and
 
 ### Likelihood indicators at a glance
 
+Evidence quality is the first row because it is the ceiling; the four calibration rows move the score within it, never above it. That is the <a href="/docs/risk/framework/">framework page's</a> reduction rule, read as a table.
+
 <div class="likelihood-table">
   <div class="lt-row lt-row--header"><span>Factor</span><span>Low likelihood</span><span>High likelihood</span></div>
+  <div class="lt-row"><span class="lt-row__label">Evidence quality (ceiling)</span><span>Examined and affirmatively leans benign; unexamined evidence scores Medium, never Low</span><span>Multiple independent sources corroborate malicious behavior</span></div>
   <div class="lt-row"><span class="lt-row__label">Threat actor</span><span>Opportunistic, untargeted, limited resources</span><span>Targeted, persistent, well-resourced</span></div>
   <div class="lt-row"><span class="lt-row__label">Exploitability</span><span>Complex exploitation, requires privileged access</span><span>Simple exploitation, public exploits available</span></div>
   <div class="lt-row"><span class="lt-row__label">Security controls</span><span>Multiple overlapping controls, well-maintained</span><span>Limited or outdated controls, known gaps</span></div>
@@ -109,7 +114,7 @@ The Risk output combines the two dimensions into a defensible priority. The verd
   </div>
   <div class="verdict-item">
     <h3>🎯 Likelihood score</h3>
-    <p>High / medium / low based on evidence quality, sophistication, exploitability, and control coverage. Confidence in the evidence is part of this score.</p>
+    <p>High / medium / low, anchored on evidence quality and calibrated by sophistication, exploitability, and control coverage. Record the evidence-confidence level as its own named line, so a reviewer can tell "weak evidence" apart from "strong evidence of unlikely-malicious activity."</p>
   </div>
   <div class="verdict-item">
     <h3>🚦 Combined priority</h3>
@@ -135,7 +140,7 @@ Impact and likelihood are independent. Combine them deliberately. Record the rat
 .impact-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
 .impact-card { position: relative; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.impact-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.6); }
+.impact-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
 .impact-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
 .impact-card > p { margin: 0 0 0.55rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 .impact-card__note { font-style: italic; padding: 0.5rem 0.85rem; background: rgba(15, 23, 42, 0.6); border-left: 2px solid rgba(252, 165, 165, 0.4); border-radius: 0.35rem; font-size: 0.85rem; }
@@ -143,7 +148,7 @@ Impact and likelihood are independent. Combine them deliberately. Record the rat
 .likelihood-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
 @media (min-width: 768px) { .likelihood-grid { grid-template-columns: 1fr 1fr; } }
 .likelihood-card { position: relative; padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.likelihood-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.6); }
+.likelihood-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
 .likelihood-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
 .likelihood-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 

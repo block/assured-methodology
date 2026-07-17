@@ -17,9 +17,50 @@ Each phase produces a deliverable, and each deliverable has a drafting half and 
 
 This is not a ceremonial distinction. Assistants fail differently from tired humans: a tired human leaves fields blank, while an assistant fills every field with fluent, confident, occasionally fabricated content. Blank fields get caught by review. Fluent wrong answers sail through any review that only checks for completeness. The verification habits below exist because the failure mode moved.
 
+## Before the first prompt: the admission gate
+
+Everything on this page assumes the assistant has already been *admitted*, and admission is an organizational decision, not an analyst's. Case data is among the most sensitive data the organization holds: alert payloads, decoded command lines, identity and HR context, regulated records, credentials the attacker touched. Sending any of it to a model is a disclosure, and letting an agent draft queries is a grant of access. Both get the same gate any other data processor gets, checked **before** the first prompt, not after the first incident.
+
+All seven must hold. If any is unapproved or unknown, the work follows the non-AI path below.
+
+<div class="ai-gate-grid">
+  <div class="ai-gate">
+    <h3>1. Approved provider</h3>
+    <p>The assistant is an organization-approved service for security-operations data, cleared through the same security and procurement review as any processor of sensitive data. A personal account or an unreviewed chat tab is <a href="#ai-on-the-attackers-side">shadow AI</a>, whoever opens it.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>2. Data boundaries by classification</h3>
+    <p>The organization has stated which data classes the approved service may receive. Live credentials, tokens, and keys never go in, in any tier. Regulated records (<DefineTerm term="Personally Identifiable Information (PII)" display="PII" />, PHI, payment data) and personnel/HR context go in only where the approval explicitly covers that class.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>3. Minimization and redaction</h3>
+    <p>The assistant gets the minimum the draft needs. Reference secrets by vault ID, people by role, regulated data by class and count. If the draft works with the redacted version, the unredacted version was never needed.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>4. Retention, training, residency</h3>
+    <p>Contract terms, not vendor marketing, establish that prompts and case data are not retained beyond the operational window, not used to train models, and stored where the organization's data-residency obligations allow.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>5. Least-privilege, read-only tools</h3>
+    <p>An assistant with tool access holds scoped, read-only credentials of its own, never the analyst's. It can query; it cannot close alerts, suppress detections, change configurations, or trigger playbooks. Write actions live behind the phase gate with the human.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>6. Logging and DLP</h3>
+    <p>Prompts and outputs are logged as case activity and the channel sits inside <DefineTerm term="Data Loss Prevention (DLP)" display="DLP" /> coverage. An assistant that would be exempt from the controls that watch every other egress path is not a tool, it is a gap.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>7. Recorded human authorization</h3>
+    <p>Someone accountable authorized this assistant for this data class and tool scope, and the record shows who and when. The event record also notes the assistant and version used and which parts of the record began as AI drafts, so a later reader can weight the provenance.</p>
+  </div>
+</div>
+
+**The redaction test, on a concrete packet.** A case bundle contains a decoded command line embedding a live AWS access key, twelve rows of regulated customer PII the subject exported, the subject's HR context from the Subject phase, and the attacker-authored phishing email. Applying the gate: the access key is **barred** (cite it by vault reference or last four characters; rotate it regardless); the PII rows are **barred** unless the provider is approved for that class, and referenced by class and count either way; the HR context is **barred** from prompts and stays in the governed referral channel; the phishing email may go in **only as clearly delimited untrusted content** for a provider approved for hostile input, because attacker-authored text is a prompt-injection payload as well as evidence. What survives redaction — the decoded command structure, the event sequence, the query drafts — is what the assistant actually needed.
+
+**The non-AI path.** Every drafting task on this page has a manual equivalent in its phase chapter; the assistant is an accelerant, not a dependency. When the gate fails — unknown provider status, an unapproved data class, missing logging, a tool scope nobody can state — the analyst does that step by hand and the queue absorbs the difference. Slower triage is a staffing problem; case evidence in an unapproved model's retention window is an incident.
+
 ## The phase map
 
-What the assistant drafts, what the analyst owns, and the specific check to run before accepting the draft, for each phase.
+What the assistant drafts, what the analyst owns, and the specific check to run before accepting the draft, for each phase. All of it is conditional on the admission gate above: a draft that would need data the gate bars is analyst work, not assistant work.
 
 <div class="ai-phase" data-phase="alert">
   <div class="ai-phase__head"><span class="ai-phase__letter">A</span><h3>Alert</h3></div>
@@ -33,7 +74,7 @@ What the assistant drafts, what the analyst owns, and the specific check to run 
 <div class="ai-phase" data-phase="subject">
   <div class="ai-phase__head"><span class="ai-phase__letter">S</span><h3>Subject</h3></div>
   <div class="ai-phase__cols">
-    <div><h4>AI drafts</h4><p>Assembles the entity map: runs the identifier-to-identity pivots, pulls directory and HR context, timelines the account's recent activity.</p></div>
+    <div><h4>AI drafts</h4><p>Assembles the entity map: runs the identifier-to-identity pivots, pulls directory context (HR context only where the admission gate's data boundaries allow it), timelines the account's recent activity.</p></div>
     <div><h4>Analyst decides</h4><p>The <a href="/docs/subject/four-dimensions/">four-dimension assessment</a> and whether the resolved identity is actually the right one.</p></div>
     <div><h4>Verify first</h4><p>Each pivot hop's evidence: the DHCP lease that covers the alert timestamp, not the current one. Assistants merge identities that share a name and present the merge as fact.</p></div>
   </div>
@@ -164,7 +205,7 @@ The same capability shift changes what arrives in the queue. These patterns are 
 When the entity behind an alert is itself an AI agent (a copilot with delegated mailbox access, a RAG pipeline's service identity, an agentic automation with tool permissions), Subject analysis applies with one adjustment: the agent is a service-account-shaped identity whose <em>inputs</em> are part of the attack surface. A prompt-injected assistant misusing its own legitimate token looks like an insider, not an intruder, so the four dimensions get asked about the agent's data diet as well as its credentials. The <a href="/docs/subject/entity-types/#applications-and-services">entity-types page</a> covers where these identities sit in the taxonomy.
 
 <KeyTakeaway>
-AI changes who produces the first draft, not who owns the decision. The assistant assembles: parsing, pivots, enrichment, packet and timeline drafts. The analyst verifies against raw telemetry and signs at each phase gate: the validation verdict, the identity, the boundary, the confidence labels, the risk verdict, the escalation call, the reasoning record. And the assistant itself is attack surface: it reads attacker-controlled content, so its inputs get provenance-graded and its actions stay behind the human gate.
+AI changes who produces the first draft, not who owns the decision. None of it starts until the admission gate passes: approved provider, bounded and minimized data, retention and training controls, read-only tool scopes, logging, and a recorded authorization; anything unapproved or unknown takes the non-AI path. Past the gate, the assistant assembles: parsing, pivots, enrichment, packet and timeline drafts. The analyst verifies against raw telemetry and signs at each phase gate: the validation verdict, the identity, the boundary, the confidence labels, the risk verdict, the escalation call, the reasoning record. And the assistant itself is attack surface: it reads attacker-controlled content, so its inputs get provenance-graded and its actions stay behind the human gate.
 </KeyTakeaway>
 
 <div class="end-cta">
@@ -199,16 +240,17 @@ AI changes who produces the first draft, not who owns the decision. The assistan
 .ai-phase__cols p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
 .ai-phase__cols a { color: var(--assured-accent-soft); }
 
-.ai-fail-grid, .ai-abuse-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .ai-fail-grid, .ai-abuse-grid { grid-template-columns: 1fr 1fr; } }
-.ai-fail, .ai-abuse { padding: 1.1rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.6rem; }
+.ai-fail-grid, .ai-abuse-grid, .ai-gate-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .ai-fail-grid, .ai-abuse-grid, .ai-gate-grid { grid-template-columns: 1fr 1fr; } }
+.ai-fail, .ai-abuse, .ai-gate { padding: 1.1rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.6rem; }
 .ai-fail { border-left: 3px solid #f59e0b; }
 .ai-abuse { border-left: 3px solid #ef4444; }
-.ai-fail :is(h3, h4), .ai-abuse :is(h3, h4) { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
+.ai-gate { border-left: 3px solid var(--assured-accent); }
+.ai-fail :is(h3, h4), .ai-abuse :is(h3, h4), .ai-gate :is(h3, h4) { margin: 0 0 0.35rem; color: var(--assured-text); font-size: 0.98rem; }
 /* level changed for the heading outline; size stays as designed */
-.ai-fail h3, .ai-abuse h3 { font-weight: 600; line-height: inherit; }
-.ai-fail p, .ai-abuse p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-.ai-fail a, .ai-abuse a { color: var(--assured-accent-soft); }
+.ai-fail h3, .ai-abuse h3, .ai-gate h3 { font-weight: 600; line-height: inherit; }
+.ai-fail p, .ai-abuse p, .ai-gate p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+.ai-fail a, .ai-abuse a, .ai-gate a { color: var(--assured-accent-soft); }
 
 .end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2.5rem 0 1rem; }
 `}</style>

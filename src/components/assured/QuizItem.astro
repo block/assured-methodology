@@ -9,6 +9,8 @@
  * the item receives a `quiz-item:reset` event.
  */
 
+import { stableId } from "@/lib/stable-id";
+
 interface Option {
   value: string;
   label: string;
@@ -23,10 +25,39 @@ interface Props {
 }
 
 const { prompt, options, answer, explanation, hint } = Astro.props;
-const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
+const idBase = stableId("q", Astro.url.pathname);
 ---
 
 <div class="quiz-item" data-quiz-item data-answer={answer}>
+  {/* No-JS fallback (same pattern as ExampleStepper): the bind script is the
+      only thing that unhides the feedback, so without it the explanation
+      would be unreachable. Show it, plainly labeled, after the options.
+      JS-enabled rendering is untouched: noscript content and styles never
+      apply once scripts run. */}
+  <noscript>
+    <style is:inline>
+      /* @layer base: Tailwind's preflight hides [hidden] with an !important
+         rule inside @layer base, and layered !important beats unlayered
+         !important — an unlayered override here silently loses. Same layer,
+         higher specificity wins. */
+      @layer base {
+        .quiz-item__feedback[hidden] { display: block !important; }
+      }
+      .quiz-item__feedback [data-verdict] { display: none !important; }
+      .quiz-item__feedback-label {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.6rem;
+        background: rgba(148, 163, 184, 0.18);
+        color: #bfc9d6;
+      }
+    </style>
+  </noscript>
   <p class="quiz-item__prompt">{prompt}</p>
 
   {hint && (
@@ -61,6 +92,9 @@ const idBase = `q-${Math.random().toString(36).slice(2, 9)}`;
   <div class="quiz-item__feedback" data-feedback hidden tabindex="-1" aria-live="polite">
     <div class="quiz-item__feedback-head">
       <span class="quiz-item__feedback-verdict" data-verdict></span>
+      {/* Static label for the no-JS rendering; the styles live in the
+          noscript block above so nothing leaks into the JS experience. */}
+      <noscript><span class="quiz-item__feedback-label">Explanation</span></noscript>
     </div>
     <p class="quiz-item__feedback-text">{explanation}</p>
   </div>

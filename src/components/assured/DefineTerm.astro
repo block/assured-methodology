@@ -30,6 +30,7 @@
  */
 
 import { lookupTerm } from "@/data/glossary";
+import { stableId } from "@/lib/stable-id";
 
 interface Props {
   /** The term name. Used as the lookup key and (by default) the displayed text. */
@@ -48,7 +49,7 @@ const resolvedDefinition =
   definition ?? (hasExplicitBody ? null : (lookup?.definition ?? null));
 const resolvedTitle = lookup?.term ?? term;
 const displayText = display ?? term;
-const panelId = `defterm-${Math.random().toString(36).slice(2, 9)}`;
+const panelId = stableId("defterm", Astro.url.pathname);
 ---
 
 {/* No aria-haspopup: the panel is a tooltip, not a menu/dialog, and haspopup

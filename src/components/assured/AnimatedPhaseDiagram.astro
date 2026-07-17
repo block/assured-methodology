@@ -11,6 +11,26 @@
 ---
 
 <figure class="anim-diagram" data-anim-diagram>
+  {/* No-JS fallback: the IntersectionObserver is the only thing that adds
+      .is-revealed, and the pre-animation state is opacity 0 — a no-JS
+      desktop reader would get an empty framed box. Force the final frame
+      (the same end-state the reduced-motion block uses). These styles never
+      apply once scripts run, so the JS reveal animation is unchanged. */}
+  <noscript>
+    <style is:inline>
+      .anim-diagram .anim-item,
+      .anim-diagram .anim-arrow-h,
+      .anim-diagram .anim-line,
+      .anim-diagram .anim-feedback-text {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .anim-diagram .anim-feedback-path {
+        stroke-dashoffset: 0 !important;
+      }
+    </style>
+  </noscript>
   <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="anim-diagram-title anim-diagram-desc">
     <title id="anim-diagram-title">ASSURED three-stage flow</title>
     <desc id="anim-diagram-desc">Stage one (Preparation and Context) feeds stage two (Investigation and Assessment), which feeds stage three (Resolution and Documentation). A feedback loop returns insight to the earlier stages.</desc>

@@ -1,12 +1,17 @@
 /*
  * Print stylesheet. The site is dark-on-dark; paper is not. Printing flips
- * to black-on-white, drops the navigation chrome and interactive components,
- * and keeps card borders so the teaching layouts survive on paper. The
- * /docs/reference page is designed around these rules to print as a
- * one-page card.
+ * to black-on-white, drops the navigation chrome, and keeps card borders so
+ * the teaching layouts survive on paper. Interactive teaching components
+ * (quizzes, flip cards, steppers, evasion demos, the phase diagram) print
+ * their full linearized content rather than their screen-only resting
+ * state. The /docs/reference page is designed around these rules to print
+ * as a one-page card.
  *
- * Known limit: closed <details> (Reveal) content does not print; browsers
- * do not render it. Open a Reveal before printing if you want it on paper.
+ * Known limit: closed <details> (Reveal) content does not print when
+ * JavaScript is unavailable; browsers do not render it. EvasionPattern
+ * opens its own panels on beforeprint and ships a ::details-content
+ * override for no-JS printing where supported. Open a Reveal before
+ * printing if you want it on paper.
  */
 
 @media print {
@@ -14,7 +19,7 @@
     margin: 1.5cm;
   }
 
-  /* Chrome and interactive components off */
+  /* Chrome off */
   .header,
   .site-footer,
   .skip-link,
@@ -24,7 +29,6 @@
   .content-page__eggs,
   .pillnav,
   .continue-card,
-  .quiz,
   .end-cta {
     display: none !important;
   }
@@ -98,6 +102,101 @@
   .stepper__tabs,
   .stepper__controls {
     display: none !important;
+  }
+
+  /* Quizzes: print prompts, options, and explanations linearized; drop the
+     live score chrome and the reset control, which are meaningless on
+     paper. The feedback box ships [hidden] until answered on screen, so
+     unhide it; the verdict pill is empty until the script fills it. */
+  .quiz__progress,
+  .quiz__done {
+    display: none !important;
+  }
+  .quiz-item {
+    break-inside: avoid;
+  }
+  /* @layer base: Tailwind's preflight hides [hidden] with an !important rule
+     inside @layer base; layered !important beats unlayered !important, so
+     this override must sit in the same layer (where its higher specificity
+     wins). */
+  @layer base {
+    .quiz-item__feedback[hidden] {
+      display: block !important;
+    }
+  }
+  .quiz-item__feedback-verdict:empty {
+    display: none !important;
+  }
+
+  /* Flip cards: on screen one face is rotated away (and transforms are
+     already stripped above, which would leave the faces stacked on top of
+     each other in the shared grid cell). Lay both faces out linearly and
+     drop the tap-to-flip chrome. */
+  .flip-card {
+    min-height: 0 !important;
+  }
+  .flip-card__inner {
+    display: block !important;
+    transform: none !important;
+  }
+  .flip-card__face {
+    min-height: 0 !important;
+    backface-visibility: visible !important;
+  }
+  .flip-card__face--back {
+    transform: none !important;
+    margin-top: 0.85rem;
+  }
+  .flip-card__hint {
+    display: none !important;
+  }
+
+  /* Animated phase diagram: the pre-reveal state is opacity 0 (the global
+     animation/transition reset above does not restore it). Print the final
+     frame. */
+  .anim-diagram .anim-item,
+  .anim-diagram .anim-arrow-h,
+  .anim-diagram .anim-line,
+  .anim-diagram .anim-feedback-text {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .anim-diagram .anim-feedback-path {
+    stroke-dashoffset: 0 !important;
+  }
+
+  /* Evasion-pattern demos: with animations off, elements authored at
+     opacity 0 / alpha-0 fills / off-canvas positions would print blank.
+     Force the same meaningful static frames the reduced-motion block uses.
+     mal-code stays hidden so the demo prints as the clean "before" state
+     under its still-green signature badge. */
+  .demo--lolbins .binary,
+  .demo--lolbins .lol-arrow-anim,
+  .demo--lolbins .payload,
+  .demo--timing .attacker,
+  .demo--fatigue .dot {
+    opacity: 1 !important;
+  }
+  .demo--fatigue .dot {
+    transform: translateY(78px) !important;
+  }
+  .demo--timing .danger-zone {
+    fill: rgba(239, 68, 68, 0.18) !important;
+    stroke: rgba(239, 68, 68, 0.55) !important;
+  }
+  .demo--hollowing .mal-code {
+    opacity: 0 !important;
+  }
+
+  /* SVG labels in the demos are filled with the light on-dark text tokens;
+     ink them for paper. (Text sitting on colored SVG rects keeps its
+     authored fill: SVG fills print regardless of the browser's
+     print-backgrounds setting.) */
+  .demo-label,
+  .demo-tick,
+  .demo-tag,
+  .anim-feedback-text {
+    fill: #1a1a1a !important;
   }
 
   /* Full-width prose; the sidebar column is gone */

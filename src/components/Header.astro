@@ -26,6 +26,14 @@ const isActiveSection = (item: NavItem): boolean =>
       <nav class="header__nav" aria-label="Primary">
         {mainNavigation[0].items.map((item) => {
           const isActive = isActiveSection(item);
+          // aria-current="page" is only true on the exact page; an ancestor
+          // section link gets "true" so screen readers don't hear "current
+          // page" on every subpage of the section (WAI-ARIA aria-current).
+          const ariaCurrent = isActive
+            ? currentPath === getUrlRelativeToBase(item.href)
+              ? "page"
+              : "true"
+            : undefined;
           if (item.status === "soon") {
             return (
               <span class="header__link header__link--soon">
@@ -51,7 +59,7 @@ const isActiveSection = (item: NavItem): boolean =>
                 <a
                   href={getUrlRelativeToBase(item.href)}
                   class={`header__link header__link--has-menu ${isActive ? "is-active" : ""}`}
-                  aria-current={isActive ? "page" : undefined}
+                  aria-current={ariaCurrent}
                 >
                   {item.title}
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -99,7 +107,7 @@ const isActiveSection = (item: NavItem): boolean =>
             <a
               href={getUrlRelativeToBase(item.href)}
               class={`header__link ${isActive ? "is-active" : ""}`}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={ariaCurrent}
             >
               {item.title}
             </a>
@@ -190,6 +198,26 @@ const isActiveSection = (item: NavItem): boolean =>
       );
     })}
   </nav>
+
+  {/* No-JS fallback: below 1240px the desktop nav is display:none and the
+      mobile menu only opens via the toggle script, leaving no way to reach
+      other pages. Without JavaScript, show the mobile link list in place
+      (the header drops its stickiness so the list reads as a plain
+      top-of-page nav) and hide the toggle that would otherwise do nothing.
+      Desktop (>=1240px) needs nothing: the nav and its dropdowns are pure
+      CSS (:hover/:focus-within). */}
+  <noscript>
+    <style is:inline>
+      /* !important like ExampleStepper's no-JS block: Astro's scoped
+         selectors (.header__mobile[data-astro-cid-*]) outrank these plain
+         class selectors. */
+      @media (max-width: 1239.98px) {
+        .header { position: static !important; }
+        .header__mobile { display: flex !important; }
+        .header__menu-btn { display: none !important; }
+      }
+    </style>
+  </noscript>
 </header>
 
 <style>
@@ -377,6 +405,20 @@ const isActiveSection = (item: NavItem): boolean =>
     transform: translateY(0);
   }
 
+  /* Escape dismisses a hover- or focus-revealed dropdown without moving the
+     pointer or focus (WCAG 1.4.13 dismissable); the script clears the class
+     on mouseleave/focusout so the next reveal works. Must come after the
+     reveal rule: equal specificity, so source order decides. */
+  .header__menu-item.is-dismissed .header__dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+  }
+
+  .header__menu-item.is-dismissed .header__link--has-menu svg {
+    transform: none;
+  }
+
   .header__dropdown-link {
     display: flex;
     flex-direction: column;
@@ -479,7 +521,7 @@ const isActiveSection = (item: NavItem): boolean =>
   }
 
   /* 44px touch-target floor for the header's icon controls on touch devices
-     and narrow screens (WCAG 2.5.5; the audit measured ~32px). */
+     and narrow screens (WCAG 2.5.5; these controls measured ~32px before). */
   @media (max-width: 1239px), (pointer: coarse) {
     .header__icon,
     .header__menu-btn {
@@ -597,19 +639,61 @@ const isActiveSection = (item: NavItem): boolean =>
   }
   onPageReady(bindMobileMenu);
 
-  // Escape closes the open mobile menu and returns focus to the toggle.
-  // Registered once per SPA session (view transitions would stack duplicates);
-  // elements are re-queried live because transitions swap the DOM.
+  // Desktop dropdowns are revealed by pure CSS (:hover/:focus-within); the
+  // Escape handler below adds is-dismissed to close one without moving the
+  // pointer or focus (WCAG 1.4.13). Clear the class once the pointer or
+  // focus leaves the menu item so the next reveal works.
+  function bindDesktopMenus() {
+    const items = document.querySelectorAll<HTMLElement>(
+      ".header__menu-item:not([data-menu-esc-bound])",
+    );
+    items.forEach((item) => {
+      item.setAttribute("data-menu-esc-bound", "true");
+      item.addEventListener("mouseleave", () => item.classList.remove("is-dismissed"));
+      item.addEventListener("focusout", (e) => {
+        if (!item.contains(e.relatedTarget as Node)) item.classList.remove("is-dismissed");
+      });
+    });
+  }
+  onPageReady(bindDesktopMenus);
+
+  // Escape closes exactly one navigation layer: the search dialog owns
+  // Escape while it is open (its handler also stops propagation, but bundle
+  // registration order isn't guaranteed, so guard here too), then the open
+  // mobile menu, then a revealed desktop dropdown. Registered once per SPA
+  // session (view transitions would stack duplicates); elements are
+  // re-queried live because transitions swap the DOM.
   if (!(window as any).__mobileMenuEscBound) {
     (window as any).__mobileMenuEscBound = true;
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
+      const searchModal = document.querySelector<HTMLElement>("[data-search-modal]");
+      if (searchModal && !searchModal.hidden) return;
+
       const openMenu = document.querySelector<HTMLElement>("[data-mobile-menu].is-open");
-      if (!openMenu) return;
-      openMenu.classList.remove("is-open");
-      const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
-      toggle?.setAttribute("aria-expanded", "false");
-      toggle?.focus();
+      if (openMenu) {
+        openMenu.classList.remove("is-open");
+        const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+        toggle?.setAttribute("aria-expanded", "false");
+        toggle?.focus();
+        return;
+      }
+
+      // Desktop dropdowns: dismiss the hover-revealed and/or focus-opened
+      // menu. When Escape is pressed with focus inside the dropdown, focus
+      // returns to the trigger link (disclosure-nav pattern); a hover-only
+      // dismissal leaves focus where it was.
+      const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      const focusItem = active?.closest<HTMLElement>(".header__menu-item") ?? null;
+      const openItems = new Set<HTMLElement>(
+        Array.from(document.querySelectorAll<HTMLElement>(".header__menu-item:hover")),
+      );
+      if (focusItem) openItems.add(focusItem);
+      if (openItems.size === 0) return;
+      openItems.forEach((item) => item.classList.add("is-dismissed"));
+      if (active?.closest(".header__dropdown")) {
+        focusItem?.querySelector<HTMLAnchorElement>(".header__link--has-menu")?.focus();
+      }
     });
   }
 </script>

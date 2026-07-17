@@ -111,6 +111,13 @@ const filtered = headings.filter((h) => h.depth === 2);
         const el = document.getElementById(target);
         if (!el) return;
         e.preventDefault();
+        // Native fragment navigation moves sequential focus to the target;
+        // preventDefault above discards that, so restore it explicitly or
+        // keyboard/AT users resume tabbing from the sidebar.
+        // Focus first, with preventScroll, so the smooth scroll below owns
+        // the movement.
+        if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        el.focus({ preventScroll: true });
         // scrollIntoView honors the target's scroll-margin-top, which comes
         // from the same --anchor-scroll-offset token the spy reads below.
         const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";

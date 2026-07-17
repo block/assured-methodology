@@ -299,6 +299,13 @@
       function open() {
         modal.hidden = false;
         document.body.style.overflow = "hidden";
+        // Focus must land inside the dialog the moment it opens: aria-modal
+        // tells AT the background doesn't exist, and the close button is the
+        // only control guaranteed to exist before Pagefind loads. Without
+        // this, a slow or failed pagefind-ui.js load leaves focus (and Tab)
+        // behind the open dialog.
+        var closeBtn = modal.querySelector(".site-search-modal__close");
+        if (closeBtn) closeBtn.focus();
         ensureUI().then(function () {
           setTimeout(function () {
             var input = uiHost.querySelector("input");
@@ -379,6 +386,10 @@
             if (liveTrigger) liveTrigger.focus();
           }
           if (e.key === "Escape" && !liveModal.hidden) {
+            // Topmost layer only: stop the header's document-level Escape
+            // handler from also closing the menu behind the open dialog on
+            // the same keypress.
+            e.stopImmediatePropagation();
             closeLive();
             return;
           }

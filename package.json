@@ -10,7 +10,7 @@
     "node": ">=20.3.0"
   },
   "scripts": {
-    "build": "node scripts/extract-glossary.mjs --check && node scripts/check-defineterms.mjs && node scripts/check-reading-order.mjs && astro build && node scripts/check-links.mjs && pagefind --site dist && node scripts/check-csp.mjs",
+    "build": "node scripts/extract-glossary.mjs --check && node scripts/check-defineterms.mjs && node scripts/check-content-contracts.mjs && node scripts/check-engineering-contracts.mjs && node scripts/check-contrast.mjs && node scripts/check-reading-order.mjs && astro build && node scripts/check-links.mjs && pagefind --site dist && node scripts/check-csp.mjs",
     "glossary": "node scripts/extract-glossary.mjs",
     "glossary:check": "node scripts/extract-glossary.mjs --check",
     "dev": "astro dev",
@@ -22,7 +22,10 @@
     "check:links": "node scripts/check-links.mjs",
     "check:reading-order": "node scripts/check-reading-order.mjs",
     "typecheck": "astro check",
-    "lint": "biome check src"
+    "lint": "biome check src",
+    "check:contracts": "node scripts/check-content-contracts.mjs && node scripts/check-engineering-contracts.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:determinism": "node scripts/check-build-determinism.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",
@@ -44,5 +47,13 @@
     "remark-gfm": "^4.0.1",
     "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@10.11.1"
+  "packageManager": "pnpm@10.11.1",
+  "pnpm": {
+    "overrides": {
+      "js-yaml@>=4.0.0 <4.2.0": ">=4.2.0 <5",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": ">=13.2.1",
+      "smol-toml@<1.6.1": ">=1.6.1",
+      "vite@>=6.0.0 <6.4.3": ">=6.4.3 <7"
+    }
+  }
 }

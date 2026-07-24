@@ -47,6 +47,11 @@ export const mainNavigation: NavGroup[] = [
             href: "/docs/positioning/",
             status: "live",
           },
+          {
+            title: "Development and evidence",
+            href: "/docs/development/",
+            status: "live",
+          },
         ],
       },
       {
@@ -450,6 +455,7 @@ export const readingOrder: string[] = [
   "/docs/cognitive-traps/",
   "/docs/reference/",
   "/docs/positioning/",
+  "/docs/development/",
   "/docs/alert/",
   "/docs/alert/detection-mechanisms/",
   "/docs/alert/validation/",

@@ -1,0 +1,187 @@
+---
+title: "Development and evidence"
+description: "Where ASSURED came from, how AUSPICED evolved into the current seven-phase structure, how the methodology is used today, and what its evidence does and does not establish."
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+
+Frameworks should show their work. A memorable name and a polished diagram do not explain why the phases exist, whether an earlier design was rejected, where the method has been used, or how much confidence its evidence deserves. This page provides that record for ASSURED.
+
+<Callout variant="info" title="A personal, open methodology">
+ASSURED is an open methodology authored by Timothy Zilber. The employment history below explains the experience that shaped it; it does not disclose an employer's internal security procedures or make ASSURED an official company operating standard.
+</Callout>
+
+## The path into event triage
+
+I did not enter cybersecurity through a direct route. After leaving the Army, I enrolled at ITT Technical Institute. I had considered studying cybersecurity, but chose to build a broader base first through an associate degree in information technology. While studying, I worked for a small trucking company as a systems administrator. The title covered work that was mostly IT support, and the limited growth path pushed me to look for a role where I could develop deeper technical skills.
+
+After graduating, I became a network engineer supporting the Defense Information Systems Agency through a government contract. That work strengthened the networking foundation I still use during investigations, but it offered no clear path into cybersecurity. With a child on the way, I also wanted to move away from the uncertainty of contract work.
+
+I joined Square as a physical security systems administrator because the role needed my network engineering background. Within my first few months, I told my manager that I wanted to move into cybersecurity. He connected me with the lead of the company's security operations team, who arranged a mentor. We met for an hour each week to work through the knowledge and habits the role required.
+
+I returned to school at Western Governors University because its program combined a bachelor's degree with industry certification exams. I earned the degree and about a dozen certifications. Roughly eight months before graduation, I asked the monitoring and triage lead for a more direct way to learn: let me spend one hour each workday on lower-complexity security cases. I would gain supervised experience while the team recovered time for more demanding investigations. The lead agreed. I continued that lateral work until graduation, when the team opened a position and brought me into security operations full time.
+
+<KeyTakeaway title="Why the path matters">This career history is not evidence that ASSURED works. It explains the design pressure behind it: the method was built by someone who had to cross the gap between knowing security concepts and making defensible decisions on real events—and who later wanted to make that gap easier for other analysts to cross.</KeyTakeaway>
+
+## The problem that started the framework
+
+ASSURED began during parental leave after the birth of my second child. I was reading books on incident response and comparing their lifecycle guidance with the alert-by-alert work I had learned on the triage desk.
+
+The material covered incident response well, but event triage usually appeared as a brief part of detection and analysis. That treatment left an operational problem unresolved. An analyst cannot give every alert the time and depth of a confirmed incident. The queue would stop moving. But a weak close can miss the event that should have become an incident, while a weak escalation transfers noise and incomplete work to the response team.
+
+The missing structure was the work between those two points: how to understand the signal, establish who or what is involved, bound the inquiry, collect enough evidence, assess the remaining risk, and make a close-or-escalate decision another person can reconstruct.
+
+## The first design: AUSPICED
+
+The first attempt was **AUSPICED**:
+
+| Letter | Phase |
+| --- | --- |
+| A | Alert |
+| U | User |
+| S | Scope |
+| P | Pattern |
+| I | Investigation |
+| C | Communication |
+| E | Escalation |
+| D | Documentation |
+
+Writing AUSPICED out and trying to use it as a complete flow exposed structural problems. It mixed several different kinds of things: entities to identify, broad work categories, cross-cutting practices, and an outcome. “User” was too narrow for events centered on hosts, service accounts, applications, or cloud resources. “Pattern” described one way of interpreting activity, while “Investigation” was too broad to define what the analyst had to produce. Communication mattered throughout the work rather than at one isolated point. The model named escalation but did not give risk assessment its own decision stage.
+
+A methodology needs more than a list of important activities. Each phase needs an anchor question, a required output, and a reason to hand the work to the next phase. AUSPICED did not meet that bar, so it was replaced rather than preserved for the acronym.
+
+## The redesign into ASSURED
+
+ASSURED retained the parts that held up and reorganized the parts that did not:
+
+| AUSPICED | ASSURED | What changed |
+| --- | --- | --- |
+| Alert | Alert | Retained as the signal-understanding and validation phase. |
+| User | Subject | Expanded beyond people to every entity acting in or affected by the event. |
+| Scope | Scope | Retained, with explicit time, entity, infrastructure, and regulatory boundaries. |
+| Pattern + Investigation | Uncover | Replaced two uneven categories with evidence collection, correlation, hypothesis testing, and reconstruction. |
+| No distinct phase | Risk | Added an explicit assessment between evidence gathering and the final decision. |
+| Communication | Distributed across phases | Moved into escalation protocols, handoff, and documentation, where communication produces an accountable artifact. |
+| Escalation | Escalation | Defined as the deliberate close-or-escalate decision, not a presumption that every case transfers. |
+| Documentation | Documentation | Retained as the durable record of evidence, uncertainty, reasoning, and outcome. |
+
+The result was not a relabeling of the first acronym. It was a change from a collection of activities to seven linked decision stages. The first three establish what is being examined. Uncover and Risk form an investigative loop. Escalation and Documentation turn the analysis into an accountable decision and a reusable record.
+
+ASSURED began as a short internal write-up and expanded as the teaching and operational questions became clearer. The current site adds phase deliverables, transition rules, worked examples, quizzes, a depth ladder for different queue conditions, templates, and adoption guidance. Those additions make the method more testable because a reviewer can inspect what each phase claims to produce.
+
+## The development method
+
+ASSURED was developed through a practitioner design loop, not a formal research study:
+
+<div class="dev-list">
+  <div class="dev-item">
+    <h3>1. Observe the work</h3>
+    <p>Identify the recurring decisions and constraints in event triage: limited time, incomplete telemetry, uncertain meaning, uneven analyst experience, and a consequential close-or-escalate boundary.</p>
+  </div>
+  <div class="dev-item">
+    <h3>2. Make the tacit process explicit</h3>
+    <p>Write the work as named stages so that assumptions, missing steps, and ambiguous handoffs can be seen and challenged.</p>
+  </div>
+  <div class="dev-item">
+    <h3>3. Reject the weak structure</h3>
+    <p>Try the model as a complete workflow. AUSPICED did not provide a coherent enough path, so its structure was replaced rather than defended.</p>
+  </div>
+  <div class="dev-item">
+    <h3>4. Teach and observe</h3>
+    <p>Use ASSURED with developing analysts in a supervised lateral-work program. Watch where learners become more confident, where the language helps, and where the material still needs explanation.</p>
+  </div>
+  <div class="dev-item">
+    <h3>5. Turn claims into artifacts</h3>
+    <p>Give each phase an output, create worked cases and exercises, define closure and escalation criteria, and ship templates that make the method reviewable outside the author's head.</p>
+  </div>
+  <div class="dev-item">
+    <h3>6. Publish for external challenge</h3>
+    <p>Version the methodology, cite adjacent work, expose limitations, and use outside review to correct both the framework and its claims.</p>
+  </div>
+</div>
+
+This process is a legitimate source of practitioner knowledge, but it is not equivalent to empirical validation. The distinction matters.
+
+## Use in the Lateral Work Program
+
+I created the Lateral Work Program because lateral work had opened the door into cybersecurity for me. Informal access depends on finding the right manager, mentor, and team at the right time. A program can make the opportunity deliberate: participants gain supervised exposure to security work, and the receiving team can route appropriate cases to them without giving up ownership of the harder work.
+
+ASSURED is the methodology I teach in that program. It gives participants a shared sequence for approaching tickets and a vocabulary for explaining what they examined, what they found, and why they reached a decision. I have observed participants become more confident and comfortable working and resolving tickets after learning and applying the structure.
+
+That observation is important because teachability is one of ASSURED's design goals. It remains qualitative practitioner observation. Confidence can improve while accuracy does not, and a program led by the framework's author is not an independent test.
+
+## What the current evidence establishes
+
+<div class="evidence-grid">
+  <div class="evidence-card evidence-card--supports">
+    <h3>What exists today</h3>
+    <ul>
+      <li>A documented precursor that was set aside after it did not hold up as a complete workflow.</li>
+      <li>Use of the revised method in a supervised workplace learning program.</li>
+      <li>Observed growth in learner confidence and comfort resolving tickets.</li>
+      <li>Worked examples, exercises, answer keys, phase deliverables, and copy-ready records.</li>
+      <li>A public version history and an open channel for outside review.</li>
+    </ul>
+  </div>
+  <div class="evidence-card evidence-card--limits">
+    <h3>What is not established yet</h3>
+    <ul>
+      <li>Published participant counts, cohort details, or pre-training baselines.</li>
+      <li>A measured improvement in decision accuracy, investigation time, or documentation quality.</li>
+      <li>A comparison with another methodology or with unstructured triage.</li>
+      <li>Independent replication in other organizations or tool environments.</li>
+      <li>A controlled, peer-reviewed evaluation of the seven-phase model.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="warn" title="Current evidence status">
+ASSURED is practice-derived, teachable, and in active use. It has not yet been evaluated through a controlled or comparative study. The site's worked examples test whether the framework can express varied cases; they do not prove that it improves real-world outcomes or outperforms another approach.
+</Callout>
+
+## Relationship to Investigation Theory
+
+The reading that prompted ASSURED was not a systematic literature review, and it missed important public work by Chris Sanders and collaborators. That omission has been corrected in the <a href="/docs/positioning/">related-work map</a>.
+
+Sanders's <a href="https://chrissanders.org/training/investigationtheory/" target="_blank" rel="noopener noreferrer">Investigation Theory</a> directly addresses tool-independent security investigation, the difficulty of transferring tacit analyst knowledge, evidence selection, investigative questions, decisions, bias, and reporting. His public <a href="https://chrissanders.org/publications/" target="_blank" rel="noopener noreferrer">books, papers, and presentations</a> cover analyst cognition and mental models in depth.
+
+The 2019 paper <a href="https://www.chrissanders.org/wp-content/uploads/2020/03/Creative-Choices-Developing-a-Theory-of-Divergence-Convergence-and-Intuition-in-Security-Analysts.pdf" target="_blank" rel="noopener noreferrer"><em>Creative Choices</em></a>, written with Stef Rand, also demonstrates the kind of derivation record a framework should provide. The authors used a mixed-method, grounded theory and survey-based approach. Sixteen analysts completed interviews and scenario work, and the resulting observations formed the Ambiguity-Driven Convergence model.
+
+ASSURED was not derived from Investigation Theory, but independent development does not make adjacent work irrelevant. The two overlap on evidence, questions, bias, and the goal of making analyst reasoning teachable. Investigation Theory goes deeper into how investigators think and learn. ASSURED contributes a narrower operational workflow for carrying one security event from its initial alert to a documented close or an incident-response handoff.
+
+## The validation work ahead
+
+The next stage is to convert practitioner observation into evidence that others can inspect:
+
+1. Publish the number of learners, cohorts, and instructional periods, using aggregate data that does not expose employees or investigations.
+2. Assess the same scenarios before and after instruction with the rubric already used in the <a href="/docs/teaching/">teaching guide</a>.
+3. Have reviewers who did not teach the participant score the work.
+4. Measure decision quality and documentation alongside speed. The <a href="/docs/adoption/#measuring-triage-quality">adoption guide</a> already defines escalation acceptance, reopen rate, missed incidents, handoff rework, time-in-phase, pattern-library health, and close-note quality.
+5. Compare ASSURED-guided work with the team's prior process or another explicit approach.
+6. Invite independent teams to reproduce the training and publish both positive and negative findings.
+7. Record substantive changes and the evidence that prompted them in the public changelog.
+
+Until that work exists, ASSURED's claims should remain proportionate: it is an open, structured, versioned, and teachable practitioner methodology with promising applied use—not a proven universal standard.
+
+<KeyTakeaway>ASSURED came from an observed operating problem, survived the replacement of an earlier design, and is now used to teach developing analysts. That history establishes provenance and practical relevance. It does not substitute for outcome measurement, comparison, independent replication, or peer review; those are the next stage of the work.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/positioning/" class="assured-cta assured-cta--ghost">← Where ASSURED sits</a>
+  <a href="/docs/alert/" class="assured-cta">Start the methodology: Alert →</a>
+</div>
+
+<style>{`
+.dev-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
+.dev-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-accent); border-radius: 0.7rem; }
+.dev-item h3 { margin: 0 0 0.45rem 0; font-size: 1.05rem; color: var(--assured-text); }
+.dev-item p { margin: 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
+.evidence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+.evidence-card { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
+.evidence-card--supports { border-top: 3px solid rgba(20, 184, 166, 0.75); }
+.evidence-card--limits { border-top: 3px solid rgba(245, 158, 11, 0.75); }
+.evidence-card h3 { margin: 0 0 0.65rem 0; font-size: 1.05rem; color: var(--assured-text); }
+.evidence-card ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.evidence-card li { color: var(--assured-text-muted); line-height: 1.55; font-size: 0.93rem; }
+@media (max-width: 760px) { .evidence-grid { grid-template-columns: 1fr; } }
+`}</style>

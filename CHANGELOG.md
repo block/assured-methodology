@@ -5,6 +5,27 @@ Notable changes to the ASSURED methodology and its site. The format follows
 follow the policy in [GOVERNANCE.md](GOVERNANCE.md). The current version is
 stamped in the site footer.
 
+## [Unreleased]
+
+### Added
+
+- A "Development and evidence" page documenting the author's path into
+  event triage, the AUSPICED precursor, the structural redesign into
+  ASSURED, applied use in the Lateral Work Program, the practitioner design
+  loop, current evidence limits, and a concrete validation roadmap.
+- Investigation Theory and Chris Sanders's public research to the
+  related-work map, including the derivation method behind the
+  Ambiguity-Driven Convergence model.
+
+### Changed
+
+- Replaced the universal absence claim in "Where ASSURED sits" with a
+  narrower, inspectable contribution claim: ASSURED is one open, named,
+  versioned operational workflow with explicit phase outputs and a
+  close-or-escalate boundary.
+- Expanded the README author history and linked the public provenance and
+  evidence record.
+
 ## [1.2.0] - 2026-07-16
 
 The assurance release: a full accuracy, accessibility, and release-assurance

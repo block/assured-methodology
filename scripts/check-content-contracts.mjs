@@ -27,6 +27,28 @@ const ROOT = new URL("..", import.meta.url).pathname;
  */
 const CONTRACTS = [
   {
+    id: "development-evidence",
+    file: "src/content/docs/development.mdx",
+    why: "the provenance page must preserve both the AUSPICED history and the empirical-evidence limit",
+    mustContain: [
+      "The first attempt was **AUSPICED**",
+      "has not yet been evaluated through a controlled or comparative study",
+      "Investigation Theory",
+    ],
+  },
+  {
+    id: "related-work-investigation-theory",
+    file: "src/content/docs/positioning.mdx",
+    why: "the related-work map must credit Investigation Theory and avoid a universal absence claim",
+    mustContain: [
+      "Investigation Theory and Chris Sanders's public work",
+      "a universal claim that no other methodology exists cannot",
+    ],
+    mustNotContain: [
+      "no widely adopted, named, freely available, public methodology specific to event triage exists",
+    ],
+  },
+  {
     id: "ai-admission-gate",
     file: "src/content/docs/ai-triage.mdx",
     why: "AI use requires the admission gate before any workflow guidance",

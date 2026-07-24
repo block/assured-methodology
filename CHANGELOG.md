@@ -5,6 +5,56 @@ Notable changes to the ASSURED methodology and its site. The format follows
 follow the policy in [GOVERNANCE.md](GOVERNANCE.md). The current version is
 stamped in the site footer.
 
+## [Unreleased]
+
+### Added
+
+- A "Development and evidence" page documenting the author's path into
+  event triage, the AUSPICED precursor, the structural redesign into
+  ASSURED, applied use in the Lateral Work Program, the practitioner design
+  loop, current evidence limits, and a concrete validation roadmap.
+- Investigation Theory and Chris Sanders's public research to the
+  related-work map, including the derivation method behind the
+  Ambiguity-Driven Convergence model and the 2021 dissertation *The
+  Analyst Mindset*.
+- A falsification section on the development page ("What would count
+  against ASSURED") naming the observations that would force the
+  teachability, phase-decomposition, depth-ladder, and generalization
+  claims to change.
+- A plain conflict-of-interest statement and an account of how early
+  feedback reached the framework: no systematic log, mentoree
+  clarifications folded in while teaching, and daily use on the author's
+  own case queue.
+- The program's approximate scale (around a dozen participants) and the
+  dated development timeline, from the October 2023 AUSPICED draft through
+  the 2026 releases.
+- A build gate that fails when the README version badge disagrees with
+  package.json, plus contract pins for the corrected AUSPICED expansion
+  and the falsification section.
+
+### Changed
+
+- Replaced the universal absence claim in "Where ASSURED sits" with a
+  narrower, inspectable contribution claim: ASSURED is one open, named,
+  versioned operational workflow with explicit phase outputs and a
+  close-or-escalate boundary.
+- Corrected the AUSPICED record against the surviving October 2023 draft:
+  the E stood for Enrichment, not Escalation, the precursor named no
+  escalation or risk stage, and it never reached testing; the redesign
+  table now maps all eight original parts.
+- Strengthened the validation roadmap: the scoring rubric will be frozen
+  publicly before any pre/post assessment, and at least one scorer will
+  come from outside the program.
+- Recast outcome wording in the README tagline and the introduction's
+  framing callout as design intent, and adopted Sanders's own
+  "vendor-agnostic" phrasing in the related-work map.
+- Expanded the README author history and linked the public provenance and
+  evidence record.
+
+### Fixed
+
+- The README version badge, stale at 1.1.0 since the 1.2.0 release.
+
 ## [1.2.0] - 2026-07-16
 
 The assurance release: a full accuracy, accessibility, and release-assurance

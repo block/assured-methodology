@@ -1,8 +1,8 @@
 # ASSURED Cybersecurity Methodology
 
-> **A structured, repeatable methodology for security analysts to triage, investigate, and document events with clarity, context, and confidence.**
+> **A structured methodology designed to help security analysts triage, investigate, and document events with clarity, context, and confidence.**
 
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](CHANGELOG.md)
 [![Code License: MIT](https://img.shields.io/badge/Code-MIT-yellow.svg)](LICENSE)
 [![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Documentation](https://img.shields.io/badge/Documentation-Live-blue.svg)](https://assured-methodology.vercel.app)
@@ -87,9 +87,15 @@ This repository uses a dual license:
 
 The methodology is versioned: the current version is stamped in the site footer, releases are recorded in [CHANGELOG.md](CHANGELOG.md), and the bump rules (what counts as a major vs. minor change) live in [GOVERNANCE.md](GOVERNANCE.md). To cite ASSURED in training material, research, or documentation, use [CITATION.cff](CITATION.cff) (GitHub renders it as APA/BibTeX under "Cite this repository").
 
+## 🧭 Development and evidence
+
+The public [Development and evidence](https://assured-methodology.vercel.app/docs/development/) page records the framework's provenance: the author's path into event triage, the AUSPICED precursor and why it was replaced, the redesign into ASSURED, its use in a workplace lateral-development program, the limits of the evidence available today, and the observations that would count against the framework's claims. ASSURED is practice-derived and in active use; it has not yet been evaluated through a controlled or comparative study.
+
 ## 👨‍💻 About the Author
 
-**Timothy Zilber** is a security engineer specializing in event triage and incident response. ASSURED grew out of his experience mentoring analysts through a workplace lateral-development program: teaching event triage exposed the lack of a clear, repeatable methodology for it. Existing frameworks covered incident response at a high level but not the alert-by-alert analysis work that precedes it. ASSURED is the structured method that came out of years of iterating on that training, shared here so the gap he had to cross informally is easier for the next analyst.
+**Timothy Zilber** is a security engineer specializing in event triage and incident response. After leaving the Army, he moved through IT support, network engineering in support of the Defense Information Systems Agency, and physical security systems administration before entering security operations through mentorship and an hour-a-day lateral-work arrangement. He later created a formal Lateral Work Program to make that kind of supervised opportunity available to others.
+
+ASSURED began during parental leave after the birth of his second child, while he was comparing incident-response literature with the alert-by-alert work of event triage. Its first form, AUSPICED, fell apart during writing and never reached use; it was replaced by the seven-phase ASSURED structure. Timothy now teaches ASSURED through the Lateral Work Program and maintains it as an open practitioner methodology.
 
 - 💼 **LinkedIn**: [timothy-zilber](https://linkedin.com/in/timothy-zilber)
 - 📧 **Email**: [tzilber@block.xyz](mailto:tzilber@block.xyz)

@@ -29,12 +29,21 @@ const CONTRACTS = [
   {
     id: "development-evidence",
     file: "src/content/docs/development.mdx",
-    why: "the provenance page must preserve both the AUSPICED history and the empirical-evidence limit",
+    why: "the provenance page must preserve the AUSPICED history, the empirical-evidence limit, and the falsification criteria",
     mustContain: [
       "The first attempt was **AUSPICED**",
       "has not yet been evaluated through a controlled or comparative study",
       "Investigation Theory",
+      "What would count against ASSURED",
+      "The Analyst Mindset",
     ],
+  },
+  {
+    id: "auspiced-expansion",
+    file: "src/content/docs/development.mdx",
+    why: "per the October 2023 draft, AUSPICED's E was Enrichment; it named no escalation phase",
+    mustContain: ["| E | Enrichment |"],
+    mustNotContain: ["| E | Escalation |"],
   },
   {
     id: "related-work-investigation-theory",
@@ -189,6 +198,19 @@ const CONTRACTS = [
     mustContain: ["Display rule"],
   },
 ];
+
+// Computed contract: the README version badge must track package.json, the
+// source of truth for the released version, so the repo's front door never
+// misstates which methodology version is current.
+const pkgVersion = JSON.parse(
+  readFileSync(join(ROOT, "package.json"), "utf8"),
+).version;
+CONTRACTS.push({
+  id: "readme-version-badge",
+  file: "README.md",
+  why: `the README badge must show the released version (${pkgVersion} per package.json)`,
+  mustContain: [`Version-${pkgVersion}-blue.svg`],
+});
 
 let failures = 0;
 

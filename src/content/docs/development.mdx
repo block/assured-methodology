@@ -22,7 +22,7 @@ I joined Square as a physical security systems administrator because the role ne
 
 I returned to school at Western Governors University because its program combined a bachelor's degree with industry certification exams. I earned the degree and about a dozen certifications. Roughly eight months before graduation, I asked the monitoring and triage lead for a more direct way to learn: let me spend one hour each workday on lower-complexity security cases. I would gain supervised experience while the team recovered time for more demanding investigations. The lead agreed. I continued that lateral work until graduation, when the team opened a position and brought me into security operations full time.
 
-<KeyTakeaway title="Why the path matters">This career history is not evidence that ASSURED works. It explains the design pressure behind it: the method was built by someone who had to cross the gap between knowing security concepts and making defensible decisions on real events—and who later wanted to make that gap easier for other analysts to cross.</KeyTakeaway>
+<KeyTakeaway title="Why the path matters">This career history is not evidence that ASSURED works. It explains the design pressure behind it: the method was built by someone who had to cross the gap between knowing security concepts and making defensible decisions on real events, and who later wanted to make that gap easier for other analysts to cross.</KeyTakeaway>
 
 ## The problem that started the framework
 
@@ -34,7 +34,7 @@ The missing structure was the work between those two points: how to understand t
 
 ## The first design: AUSPICED
 
-The first attempt was **AUSPICED**:
+The first attempt was **AUSPICED**. The draft, which survives as a personal document dated October 2023, framed the space as “Identification and Response”: the triage work that runs before incident response takes ownership. It proposed eight parts:
 
 | Letter | Phase |
 | --- | --- |
@@ -44,12 +44,14 @@ The first attempt was **AUSPICED**:
 | P | Pattern |
 | I | Investigation |
 | C | Communication |
-| E | Escalation |
+| E | Enrichment |
 | D | Documentation |
 
-Writing AUSPICED out and trying to use it as a complete flow exposed structural problems. It mixed several different kinds of things: entities to identify, broad work categories, cross-cutting practices, and an outcome. “User” was too narrow for events centered on hosts, service accounts, applications, or cloud resources. “Pattern” described one way of interpreting activity, while “Investigation” was too broad to define what the analyst had to produce. Communication mattered throughout the work rather than at one isolated point. The model named escalation but did not give risk assessment its own decision stage.
+AUSPICED never reached testing. It failed during writing. I worked on the draft over a long stretch and could not get it to hold together. The document grouped the eight parts into two domains and four divisions, each part carrying its own sub-phases, and before long the structure was doing more work than the analyst. Two failures were decisive. I could not define Pattern in a way that separated it from the rest of the investigative work; in the draft, the Investigation section repeats the Pattern section's steps almost word for word. And Communication felt like an odd thing to hold as a discrete stage, because communicating matters throughout the work rather than at one point in a sequence.
 
-A methodology needs more than a list of important activities. Each phase needs an anchor question, a required output, and a reason to hand the work to the next phase. AUSPICED did not meet that bar, so it was replaced rather than preserved for the acronym.
+The deeper problem was that the model mixed several different kinds of things: entities to identify, broad work categories, cross-cutting practices, and supporting activities. “User” was too narrow for events centered on hosts, service accounts, applications, or cloud resources. “Investigation” was too broad to define what the analyst had to produce. Nothing in the model named the close-or-escalate decision the work exists to reach, and risk assessment had no stage of its own.
+
+A methodology needs more than a list of important activities. Each phase needs an anchor question, a required output, and a reason to hand the work to the next phase. AUSPICED did not meet that bar, so it was replaced rather than preserved for the acronym. The unfinished draft, placeholder notes and all, is kept as a record of what the first design got wrong.
 
 ## The redesign into ASSURED
 
@@ -60,15 +62,16 @@ ASSURED retained the parts that held up and reorganized the parts that did not:
 | Alert | Alert | Retained as the signal-understanding and validation phase. |
 | User | Subject | Expanded beyond people to every entity acting in or affected by the event. |
 | Scope | Scope | Retained, with explicit time, entity, infrastructure, and regulatory boundaries. |
-| Pattern + Investigation | Uncover | Replaced two uneven categories with evidence collection, correlation, hypothesis testing, and reconstruction. |
-| No distinct phase | Risk | Added an explicit assessment between evidence gathering and the final decision. |
+| Pattern + Investigation | Uncover | Replaced two categories the draft could not keep apart with evidence collection, correlation, hypothesis testing, and reconstruction. |
 | Communication | Distributed across phases | Moved into escalation protocols, handoff, and documentation, where communication produces an accountable artifact. |
-| Escalation | Escalation | Defined as the deliberate close-or-escalate decision, not a presumption that every case transfers. |
+| Enrichment | Folded into Alert and Uncover | Context and threat-intelligence gathering became part of understanding the signal and collecting evidence, not a separate late stage. |
 | Documentation | Documentation | Retained as the durable record of evidence, uncertainty, reasoning, and outcome. |
+| No distinct phase | Risk | Added an explicit assessment between evidence gathering and the final decision. |
+| No distinct phase | Escalation | Added as the deliberate close-or-escalate decision. AUSPICED ended in enrichment and documentation without ever naming the decision. |
 
 The result was not a relabeling of the first acronym. It was a change from a collection of activities to seven linked decision stages. The first three establish what is being examined. Uncover and Risk form an investigative loop. Escalation and Documentation turn the analysis into an accountable decision and a reusable record.
 
-ASSURED began as a short internal write-up and expanded as the teaching and operational questions became clearer. The current site adds phase deliverables, transition rules, worked examples, quizzes, a depth ladder for different queue conditions, templates, and adoption guidance. Those additions make the method more testable because a reviewer can inspect what each phase claims to produce.
+ASSURED began as a short internal write-up and expanded as the teaching and operational questions became clearer. The public site launched as version 1.0.0 in May 2026, with 1.1.0 and 1.2.0 following in July 2026; the changelog records each release. The current site adds phase deliverables, transition rules, worked examples, quizzes, a depth ladder for different queue conditions, templates, and adoption guidance. Those additions make the method more testable because a reviewer can inspect what each phase claims to produce.
 
 ## The development method
 
@@ -85,7 +88,7 @@ ASSURED was developed through a practitioner design loop, not a formal research 
   </div>
   <div class="dev-item">
     <h3>3. Reject the weak structure</h3>
-    <p>Try the model as a complete workflow. AUSPICED did not provide a coherent enough path, so its structure was replaced rather than defended.</p>
+    <p>Write the model out in full and see whether it holds. AUSPICED failed this step before it ever reached use: the draft could not keep its own categories apart, so the structure was replaced rather than defended.</p>
   </div>
   <div class="dev-item">
     <h3>4. Teach and observe</h3>
@@ -101,15 +104,23 @@ ASSURED was developed through a practitioner design loop, not a formal research 
   </div>
 </div>
 
-This process is a legitimate source of practitioner knowledge, but it is not equivalent to empirical validation. The distinction matters.
+Two honesty notes belong here. First, this loop is a retrospective description: I did not run the six steps against a written plan, and step 4 was not systematically logged while it happened. Second, a practitioner design loop is a legitimate source of practitioner knowledge, but it is not equivalent to empirical validation. The distinction matters.
 
 ## Use in the Lateral Work Program
 
 I created the Lateral Work Program because lateral work had opened the door into cybersecurity for me. Informal access depends on finding the right manager, mentor, and team at the right time. A program can make the opportunity deliberate: participants gain supervised exposure to security work, and the receiving team can route appropriate cases to them without giving up ownership of the harder work.
 
-ASSURED is the methodology I teach in that program. It gives participants a shared sequence for approaching tickets and a vocabulary for explaining what they examined, what they found, and why they reached a decision. I have observed participants become more confident and comfortable working and resolving tickets after learning and applying the structure.
+ASSURED is the methodology I teach in that program. Around a dozen participants have come through it so far. It gives participants a shared sequence for approaching tickets and a vocabulary for explaining what they examined, what they found, and why they reached a decision. I have observed participants become more confident and comfortable working and resolving tickets after learning and applying the structure.
 
 That observation is important because teachability is one of ASSURED's design goals. It remains qualitative practitioner observation. Confidence can improve while accuracy does not, and a program led by the framework's author is not an independent test.
+
+The conflict of interest deserves a plain statement. I created the framework, I co-lead the program, I judge informally how participants are doing, and I maintain this site. Every favorable observation reported here passed through the same interested person. That does not make the observations false, but it is exactly the condition that independent scoring and outside replication exist to correct.
+
+### How feedback reached the framework
+
+I did not keep a systematic log of feedback during the early teaching. I taught the method as I went, and when mentorees asked questions or needed a distinction clarified, I folded those clarifications into how I taught and wrote the material next. In parallel, I started applying the methodology to every ticket I worked myself, structuring my case notes around sections I had to fill in for Alert, Subject, Scope, and Uncover. Working my own queue with those fill-in sections also surfaced day-to-day friction.
+
+That history means the trail from feedback to change is thinner than it should be: I can say what the method looks like after the feedback, but not always which observation changed which part. From this release forward, substantive changes and the observations that prompted them are recorded in the public changelog so the trail no longer depends on memory.
 
 ## What the current evidence establishes
 
@@ -117,8 +128,8 @@ That observation is important because teachability is one of ASSURED's design go
   <div class="evidence-card evidence-card--supports">
     <h3>What exists today</h3>
     <ul>
-      <li>A documented precursor that was set aside after it did not hold up as a complete workflow.</li>
-      <li>Use of the revised method in a supervised workplace learning program.</li>
+      <li>A documented precursor that fell apart during writing and never reached use.</li>
+      <li>Teaching use in a supervised workplace learning program that around a dozen participants have come through, and daily use on the author's own case queue.</li>
       <li>Observed growth in learner confidence and comfort resolving tickets.</li>
       <li>Worked examples, exercises, answer keys, phase deliverables, and copy-ready records.</li>
       <li>A public version history and an open channel for outside review.</li>
@@ -127,9 +138,10 @@ That observation is important because teachability is one of ASSURED's design go
   <div class="evidence-card evidence-card--limits">
     <h3>What is not established yet</h3>
     <ul>
-      <li>Published participant counts, cohort details, or pre-training baselines.</li>
+      <li>Cohort details, instructional periods, or pre-training baselines beyond an approximate participant count.</li>
       <li>A measured improvement in decision accuracy, investigation time, or documentation quality.</li>
       <li>A comparison with another methodology or with unstructured triage.</li>
+      <li>Observation independent of the author: the use seen so far is supervised novices on lower-complexity cases and the author's own production triage.</li>
       <li>Independent replication in other organizations or tool environments.</li>
       <li>A controlled, peer-reviewed evaluation of the seven-phase model.</li>
     </ul>
@@ -142,27 +154,40 @@ ASSURED is practice-derived, teachable, and in active use. It has not yet been e
 
 ## Relationship to Investigation Theory
 
-The reading that prompted ASSURED was not a systematic literature review, and it missed important public work by Chris Sanders and collaborators. That omission has been corrected in the <a href="/docs/positioning/">related-work map</a>.
+This page exists because of a public critique. In July 2026, shortly after ASSURED's 1.2.0 release, Chris Sanders pointed out that the project's related-work claims omitted his prior work and that the site said nothing about how ASSURED was created or tested. He was right on both counts. The reading that prompted ASSURED was not a systematic literature review, and it missed important public work by Sanders and collaborators. The omission has been corrected in the <a href="/docs/positioning/">related-work map</a>, and this page is the answer to the second criticism.
 
 Sanders's <a href="https://chrissanders.org/training/investigationtheory/" target="_blank" rel="noopener noreferrer">Investigation Theory</a> directly addresses tool-independent security investigation, the difficulty of transferring tacit analyst knowledge, evidence selection, investigative questions, decisions, bias, and reporting. His public <a href="https://chrissanders.org/publications/" target="_blank" rel="noopener noreferrer">books, papers, and presentations</a> cover analyst cognition and mental models in depth.
 
 The 2019 paper <a href="https://www.chrissanders.org/wp-content/uploads/2020/03/Creative-Choices-Developing-a-Theory-of-Divergence-Convergence-and-Intuition-in-Security-Analysts.pdf" target="_blank" rel="noopener noreferrer"><em>Creative Choices</em></a>, written with Stef Rand, also demonstrates the kind of derivation record a framework should provide. The authors used a mixed-method, grounded theory and survey-based approach. Sixteen analysts completed interviews and scenario work, and the resulting observations formed the Ambiguity-Driven Convergence model.
 
+Sanders's 2021 doctoral dissertation, <a href="https://chrissanders.org/2021/12/dissertation/" target="_blank" rel="noopener noreferrer"><em>The Analyst Mindset: A Cognitive Skills Assessment of Digital Forensic Analysts</em></a> (Baylor University), extends that record. It used cognitive task analysis interviews with practicing analysts to model diagnostic inquiry, the questioning process an investigator uses to move from a signal to an explanation. That is the standard of documented derivation this page works toward.
+
 ASSURED was not derived from Investigation Theory, but independent development does not make adjacent work irrelevant. The two overlap on evidence, questions, bias, and the goal of making analyst reasoning teachable. Investigation Theory goes deeper into how investigators think and learn. ASSURED contributes a narrower operational workflow for carrying one security event from its initial alert to a documented close or an incident-response handoff.
+
+## What would count against ASSURED
+
+A framework that cannot say what would disprove it is a brand, not a methodology. These are the observations that would force specific claims to change:
+
+- If scenario work scored before and after instruction, by reviewers who did not teach the participant, shows no improvement in decision quality, the teachability claim fails as stated and the training material needs redesign or the claim needs withdrawal.
+- If experienced analysts routinely skip or reorder Subject and Scope with no measurable loss of decision or documentation quality, the seven-phase decomposition is wrong about where the load-bearing boundaries sit, and the phase structure should change.
+- If Level 0 pattern closes show higher reopen or missed-incident rates than full-arc closes on comparable alerts, the depth ladder is miscalibrated and its eligibility gate is too permissive.
+- If independent teams that adopt ASSURED find the phase outputs do not fit their queue without major restructuring, the claim that the workflow generalizes beyond its home environment fails.
+
+If any of these are observed, the changelog will record the observation and the change it forced.
 
 ## The validation work ahead
 
 The next stage is to convert practitioner observation into evidence that others can inspect:
 
-1. Publish the number of learners, cohorts, and instructional periods, using aggregate data that does not expose employees or investigations.
-2. Assess the same scenarios before and after instruction with the rubric already used in the <a href="/docs/teaching/">teaching guide</a>.
-3. Have reviewers who did not teach the participant score the work.
+1. Publish exact learner counts, cohorts, and instructional periods, using aggregate data that does not expose employees or investigations.
+2. Assess the same scenarios before and after instruction with the rubric already used in the <a href="/docs/teaching/">teaching guide</a>, and freeze that rubric publicly before the assessment begins so it cannot drift to fit the results.
+3. Have reviewers who did not teach the participant score the work, including at least one scorer from outside the program.
 4. Measure decision quality and documentation alongside speed. The <a href="/docs/adoption/#measuring-triage-quality">adoption guide</a> already defines escalation acceptance, reopen rate, missed incidents, handoff rework, time-in-phase, pattern-library health, and close-note quality.
 5. Compare ASSURED-guided work with the team's prior process or another explicit approach.
 6. Invite independent teams to reproduce the training and publish both positive and negative findings.
 7. Record substantive changes and the evidence that prompted them in the public changelog.
 
-Until that work exists, ASSURED's claims should remain proportionate: it is an open, structured, versioned, and teachable practitioner methodology with promising applied use—not a proven universal standard.
+Until that work exists, ASSURED's claims should remain proportionate: it is an open, structured, versioned, and teachable practitioner methodology with promising applied use, not a proven universal standard.
 
 <KeyTakeaway>ASSURED came from an observed operating problem, survived the replacement of an earlier design, and is now used to teach developing analysts. That history establishes provenance and practical relevance. It does not substitute for outcome measurement, comparison, independent replication, or peer review; those are the next stage of the work.</KeyTakeaway>
 

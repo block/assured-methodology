@@ -1,0 +1,426 @@
+---
+/**
+ * PriorityMatrix: the impact-by-likelihood triage matrix, rendered from
+ * src/data/priority-matrix.ts so every copy states the same cells.
+ *
+ * Props:
+ *   variant    "full" (default): each cell shows its band and the default
+ *              action, the look of risk/framework.mdx#matrix.
+ *              "compact": band labels only ("P3, high-impact clock"), for
+ *              the desk card (reference.mdx) and print.
+ *   caption    Table caption. Defaults to the framework page's caption
+ *              (full) or a short one (compact).
+ *   highlight  Optional cell to mark, as "Impact/Likelihood" (e.g.
+ *              "High/Low"), for a worked example that reads one cell.
+ *              The marked cell gets aria-current="true" and a visible ring.
+ *   id         Optional id on the wrapper, for deep links.
+ *   interactive  Lets a reader pick a cell and read its band, the E rule's
+ *              move and the default clocks in a live panel under the grid.
+ *              Defaults to on for the full variant without a highlight
+ *              (risk/framework.mdx) and off for the compact desk card.
+ *              Progressive enhancement: the server always renders the
+ *              static table; the script turns each cell into a toggle
+ *              button only once it runs, so without JavaScript, and on
+ *              paper, the grid is exactly the static one.
+ *
+ * Usage:
+ *   import PriorityMatrix from "@/components/assured/PriorityMatrix.astro";
+ *   <PriorityMatrix />
+ *   <PriorityMatrix variant="compact" />
+ *   <PriorityMatrix highlight="High/Low" caption="Case B's cell" />
+ *
+ * Narrow screens collapse the 3x3 grid to a stacked list; each cell carries
+ * its own label. Self-contained styles (pm- prefix), so a page that adopts
+ * the component can drop its hand-written .matrix-grid CSS.
+ */
+
+import {
+  CONFIRMED_DEFINITION,
+  cellFor,
+  clockFor,
+  type Move,
+  parseCellKey,
+  RATINGS,
+  type Rating,
+} from "@/data/priority-matrix";
+
+interface Props {
+  variant?: "full" | "compact";
+  caption?: string;
+  highlight?: string;
+  id?: string;
+  interactive?: boolean;
+}
+
+const { variant = "full", caption, highlight, id } = Astro.props;
+const interactive =
+  Astro.props.interactive ?? (variant === "full" && !highlight);
+
+/** The E rule's move, in the words the rule uses. */
+const MOVE_TEXT: Record<Move, string> = {
+  escalate: "Escalate: the E rule escalates at P1 or P2.",
+  "keep-working":
+    "Keep working to the named re-score trigger, then close or escalate.",
+  close: "Documented close, a first-class verdict.",
+};
+
+const resolvedCaption =
+  caption ??
+  (variant === "full"
+    ? "Triage matrix: impact by likelihood. Each cell gives the priority band and the recommended move."
+    : "Priority by impact (rows) and likelihood (columns).");
+
+const marked = highlight ? parseCellKey(highlight) : null;
+if (highlight && !marked) {
+  throw new Error(
+    `PriorityMatrix: highlight "${highlight}" is not "Impact/Likelihood" (e.g. "High/Low")`,
+  );
+}
+const isMarked = (impact: Rating, likelihood: Rating) =>
+  marked !== null &&
+  marked.impact === impact &&
+  marked.likelihood === likelihood;
+---
+
+<div
+  class:list={["pm-wrap", `pm-wrap--${variant}`]}
+  id={id}
+  data-pm-interactive={interactive ? "" : undefined}
+>
+  <table class:list={["pm-grid", `pm-grid--${variant}`]}>
+    <caption>{resolvedCaption}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Impact</th>
+        {RATINGS.map((l) => <th scope="col">Likelihood {l}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {RATINGS.map((impact) => (
+        <tr>
+          <th scope="row">{impact}</th>
+          {RATINGS.map((likelihood) => {
+            const m = cellFor(impact, likelihood);
+            const on = isMarked(impact, likelihood);
+            const clock = clockFor(m.band);
+            return (
+              <td
+                class:list={["pm-cell", `pm-cell--${m.band.toLowerCase()}`, { "pm-cell--marked": on }]}
+                data-label={m.label}
+                aria-current={on ? "true" : undefined}
+                data-pm-band={interactive ? m.band : undefined}
+                data-pm-move={interactive ? MOVE_TEXT[clock.move] : undefined}
+                data-pm-ack={interactive ? clock.acknowledgeFull : undefined}
+                data-pm-decision={interactive ? clock.decisionFull : undefined}
+              >
+                {variant === "full" ? (
+                  <>
+                    <strong>{m.band}</strong> {m.action}
+                  </>
+                ) : (
+                  <strong>{m.short}</strong>
+                )}
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  {interactive && (
+    <div class="pm-detail" data-pm-detail hidden>
+      <p class="pm-detail__hint" data-pm-hint>
+        Select a cell to see its band, the move the E rule makes, and its
+        default clocks.
+      </p>
+      {/* Filled by the script; polite, so a selection is announced once. */}
+      <div class="pm-detail__body" data-pm-body aria-live="polite"></div>
+      <p class="pm-detail__note">{CONFIRMED_DEFINITION} A confirmed criterion makes the case P1 whatever the cell.</p>
+    </div>
+  )}
+</div>
+
+<style>
+  .pm-wrap {
+    margin: 1.25rem 0;
+    overflow-x: auto;
+  }
+
+  .pm-grid {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0.35rem;
+    color: var(--assured-text-muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .pm-grid caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0 0.35rem 0.4rem;
+    color: var(--assured-text-dim);
+    font-size: 0.8rem;
+  }
+
+  .pm-grid thead th {
+    padding: 0.6rem 0.8rem;
+    background: rgba(15, 23, 42, 0.7);
+    color: var(--assured-text);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.74rem;
+    text-align: left;
+    border-radius: 0.45rem;
+  }
+
+  .pm-grid tbody th {
+    padding: 0.6rem 0.8rem;
+    background: rgba(15, 23, 42, 0.7);
+    color: var(--assured-text);
+    font-weight: 700;
+    text-align: left;
+    vertical-align: top;
+    border-radius: 0.45rem;
+    white-space: nowrap;
+  }
+
+  .pm-cell {
+    padding: 0.7rem 0.85rem;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-top: 3px solid var(--band-color);
+    border-radius: 0.45rem;
+    vertical-align: top;
+  }
+
+  .pm-cell strong {
+    display: block;
+    color: var(--band-color);
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .pm-cell--p1 { --band-color: #ef4444; }
+  .pm-cell--p2 { --band-color: #f97316; }
+  .pm-cell--p3 { --band-color: #f59e0b; }
+  .pm-cell--p4 { --band-color: var(--assured-accent-soft); }
+
+  .pm-cell--marked {
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 2px var(--band-color);
+  }
+
+  /* Compact: band labels only, tighter cells. */
+  .pm-grid--compact {
+    font-size: 0.86rem;
+    border-spacing: 0.25rem;
+  }
+
+  .pm-grid--compact .pm-cell {
+    padding: 0.45rem 0.7rem;
+  }
+
+  .pm-grid--compact .pm-cell strong {
+    display: inline;
+    font-size: 0.86rem;
+    margin: 0;
+  }
+
+  /* Collapse the 3x3 grid to a stacked list on narrow screens; each cell
+     carries its own label. */
+  @media (max-width: 640px) {
+    .pm-grid,
+    .pm-grid tbody,
+    .pm-grid tr,
+    .pm-grid td,
+    .pm-grid tbody th {
+      display: block;
+      width: 100%;
+    }
+
+    .pm-grid thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    .pm-grid tbody th {
+      margin-top: 0.6rem;
+    }
+
+    .pm-cell {
+      margin-top: 0.35rem;
+    }
+
+    .pm-cell::before {
+      content: attr(data-label);
+      display: block;
+      color: var(--assured-text-dim);
+      font-weight: 600;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.2rem;
+    }
+  }
+
+  /* Interactive enhancement (added by the script). The button fills the
+     cell and inherits its look, so the grid reads the same as the static
+     table; the pressed cell gets the marked ring. */
+  .pm-grid :global(.pm-select) {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .pm-cell.is-selectable:hover {
+    background: rgba(15, 23, 42, 0.75);
+  }
+
+  .pm-cell.is-picked {
+    background: rgba(15, 23, 42, 0.85);
+    box-shadow: 0 0 0 2px var(--band-color);
+  }
+
+  .pm-grid :global(.pm-select:focus-visible) {
+    outline: 2px solid var(--assured-accent-soft);
+    outline-offset: 4px;
+    border-radius: 0.25rem;
+  }
+
+  .pm-detail {
+    margin: 0.5rem 0.35rem 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.6rem;
+    background: var(--assured-panel-solid);
+    color: var(--assured-text-muted);
+    font-size: 0.88rem;
+  }
+
+  .pm-detail__hint,
+  .pm-detail__note {
+    margin: 0;
+    color: var(--assured-text-dim);
+    font-size: 0.8rem;
+  }
+
+  .pm-detail__note {
+    margin-top: 0.6rem;
+  }
+
+  .pm-detail__body:empty {
+    display: none;
+  }
+
+  .pm-detail__body :global(dl) {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.3rem 1rem;
+    margin: 0;
+  }
+
+  .pm-detail__body :global(dt) {
+    color: var(--assured-text);
+    font-weight: 700;
+  }
+
+  .pm-detail__body :global(dd) {
+    margin: 0;
+  }
+
+  @media print {
+    .pm-detail {
+      display: none !important;
+    }
+  }
+
+  @media print {
+    .pm-grid {
+      font-size: 7.5pt;
+      line-height: 1.35;
+      border-spacing: 0.15rem;
+    }
+
+    .pm-cell,
+    .pm-grid thead th,
+    .pm-grid tbody th {
+      padding: 0.15rem 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { onPageReady } from "@/lib/dom";
+
+  function bindMatrices() {
+    document
+      .querySelectorAll<HTMLElement>("[data-pm-interactive]:not([data-pm-bound])")
+      .forEach((wrap) => {
+        wrap.setAttribute("data-pm-bound", "true");
+        const detail = wrap.querySelector<HTMLElement>("[data-pm-detail]");
+        const body = wrap.querySelector<HTMLElement>("[data-pm-body]");
+        const hint = wrap.querySelector<HTMLElement>("[data-pm-hint]");
+        if (!detail || !body) return;
+        const buttons: HTMLButtonElement[] = [];
+
+        const show = (cell: HTMLElement, button: HTMLButtonElement) => {
+          for (const b of buttons) {
+            const on = b === button;
+            b.setAttribute("aria-pressed", String(on));
+            b.closest("td")?.classList.toggle("is-picked", on);
+          }
+          const dl = document.createElement("dl");
+          const rows: [string, string][] = [
+            ["Cell", cell.dataset.label ?? ""],
+            ["Band", cell.dataset.pmBand ?? ""],
+            ["Move", cell.dataset.pmMove ?? ""],
+            ["Acknowledge", cell.dataset.pmAck ?? ""],
+            ["Decision", cell.dataset.pmDecision ?? ""],
+          ];
+          for (const [term, value] of rows) {
+            const dt = document.createElement("dt");
+            dt.textContent = term;
+            const dd = document.createElement("dd");
+            dd.textContent = value;
+            dl.append(dt, dd);
+          }
+          body.replaceChildren(dl);
+          if (hint) hint.hidden = true;
+        };
+
+        wrap.querySelectorAll<HTMLElement>("td[data-pm-band]").forEach((cell) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "pm-select";
+          button.setAttribute("aria-pressed", "false");
+          // The cell's own label ("High impact, Low likelihood") plus its
+          // visible content names the button.
+          button.setAttribute(
+            "aria-label",
+            `${cell.dataset.label}: ${cell.textContent?.trim() ?? ""}`,
+          );
+          button.append(...Array.from(cell.childNodes));
+          cell.replaceChildren(button);
+          cell.classList.add("is-selectable");
+          buttons.push(button);
+          button.addEventListener("click", () => show(cell, button));
+        });
+
+        detail.hidden = false;
+      });
+  }
+
+  onPageReady(bindMatrices);
+</script>

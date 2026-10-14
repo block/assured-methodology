@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/pattern-close-record.schema.json",
+  "title": "Level 0 pattern-close record",
+  "description": "The Level 0 pattern-close record. A Level 0 close is an early Escalation decision: it is recorded here with the pattern, the eligibility gate and the verdict.",
+  "x-assured-template": "pattern-close-record.md",
+  "type": "object",
+  "properties": {
+    "alert": {
+      "x-assured-section": "1. Alert",
+      "type": "object",
+      "properties": {
+        "alertId": {
+          "x-assured-prompt": "Alert ID",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Alert ID (or the case ID and every member alert ID)"
+        },
+        "detectionSource": {
+          "x-assured-prompt": "Detection source",
+          "type": "string",
+          "description": "Detection source"
+        },
+        "detectionRule": {
+          "x-assured-prompt": "Detection rule",
+          "$ref": "assured-vocabulary.schema.json#/$defs/ruleRef",
+          "description": "Detection rule (name, ID, and version)"
+        },
+        "detectionTimestamp": {
+          "x-assured-prompt": "Detection timestamp",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Detection timestamp (UTC)"
+        }
+      },
+      "required": [
+        "alertId",
+        "detectionSource",
+        "detectionRule",
+        "detectionTimestamp"
+      ]
+    },
+    "pattern": {
+      "x-assured-section": "2. Pattern",
+      "type": "object",
+      "properties": {
+        "patternLibraryEntryMatched": {
+          "x-assured-prompt": "Pattern library entry matched",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "version"],
+          "description": "Pattern library entry matched (ID, name and version)"
+        },
+        "patternOwner": {
+          "x-assured-prompt": "Pattern owner",
+          "type": "string",
+          "description": "Pattern owner"
+        },
+        "patternReviewDate": {
+          "x-assured-prompt": "Pattern review date",
+          "$ref": "assured-vocabulary.schema.json#/$defs/date",
+          "description": "Pattern review date (must be current; past it, the entry cannot support a Level 0 close and the case moves to Level 1)"
+        },
+        "machineCloseFlagOn": {
+          "x-assured-prompt": "Machine-close flag on the entry",
+          "enum": ["on", "off"],
+          "description": "Machine-close flag on the entry (on / off)"
+        }
+      },
+      "required": [
+        "patternLibraryEntryMatched",
+        "patternOwner",
+        "patternReviewDate",
+        "machineCloseFlagOn"
+      ]
+    },
+    "checks": {
+      "x-assured-section": "3. Checks",
+      "type": "object",
+      "properties": {
+        "eligibilityGate": {
+          "x-assured-section": "Eligibility gate (all three, each from its source system, never from memory)",
+          "type": "object",
+          "properties": {
+            "subjectAssetCriticalityIs": {
+              "x-assured-prompt": "Subject asset criticality is not crown-jewel",
+              "type": "object",
+              "properties": {
+                "holds": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": ["holds", "source"],
+              "description": "Subject asset criticality is not crown-jewel (source, e.g. asset inventory / CMDB tag)"
+            },
+            "subjectIsNotA": {
+              "x-assured-prompt": "Subject is not a privileged identity, and not automation holding sensitive capability",
+              "type": "object",
+              "properties": {
+                "holds": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": ["holds", "source"],
+              "description": "Subject is not a privileged identity, and not automation holding sensitive capability (deploy, signing, secrets, repository write) (source, e.g. role / group / capability inventory)"
+            },
+            "noRegulatedData": {
+              "x-assured-prompt": "No regulated data",
+              "type": "object",
+              "properties": {
+                "holds": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": ["holds", "source"],
+              "description": "No regulated data (PCI, PHI, PII) in the subject's reach: no standing access to a store the data inventory classifies as regulated (source, e.g. data classification)"
+            }
+          },
+          "required": [
+            "subjectAssetCriticalityIs",
+            "subjectIsNotA",
+            "noRegulatedData"
+          ]
+        },
+        "entrySpecificConstraints": {
+          "x-assured-section": "Entry-specific constraints",
+          "type": "object",
+          "properties": {
+            "items": {
+              "x-assured-list": "bulleted",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["items"]
+        },
+        "patternDiscriminators": {
+          "x-assured-section": "Pattern discriminators (all, with what was actually observed)",
+          "type": "object",
+          "properties": {
+            "steps": {
+              "x-assured-list": "numbered",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            }
+          },
+          "required": ["steps"]
+        },
+        "escalationCriteria": {
+          "x-assured-section": "Escalation criteria",
+          "type": "object",
+          "properties": {
+            "escalationCriteriaChecked": {
+              "x-assured-prompt": "Escalation criteria checked",
+              "type": "object",
+              "properties": {
+                "noneConfirmedOrSuspected": {
+                  "type": "boolean",
+                  "const": true
+                }
+              },
+              "required": ["noneConfirmedOrSuspected"],
+              "description": "Escalation criteria checked: none confirmed or suspected (any confirmed criterion fires the escalation tripwire and ends the Level 0 close)"
+            }
+          },
+          "required": ["escalationCriteriaChecked"]
+        }
+      },
+      "required": [
+        "eligibilityGate",
+        "entrySpecificConstraints",
+        "patternDiscriminators",
+        "escalationCriteria"
+      ]
+    },
+    "verdict": {
+      "x-assured-section": "4. Verdict",
+      "type": "object",
+      "properties": {
+        "detection": {
+          "x-assured-prompt": "Detection",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Detection"
+        },
+        "activity": {
+          "x-assured-prompt": "Activity",
+          "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict",
+          "enum": ["authorized (benign true positive)", "benign-confirmed"],
+          "description": "Only benign-confirmed or authorized closes at Level 0."
+        }
+      },
+      "required": ["detection", "activity"]
+    },
+    "closure": {
+      "x-assured-section": "5. Closure",
+      "x-assured-phase": "escalation",
+      "type": "object",
+      "properties": {
+        "closedAtLevel0": {
+          "x-assured-prompt": "Closed at Level 0 by",
+          "type": "string",
+          "description": "The analyst, or the automation on a machine-close entry with its named owner."
+        },
+        "closedAt": {
+          "x-assured-prompt": "Closed at",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Closed at (UTC)"
+        },
+        "keyTimes": {
+          "x-assured-prompt": "Key times",
+          "type": "object",
+          "properties": {
+            "detected": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "acknowledged": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "verdict": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "closed": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "reopened": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["detected", "acknowledged", "verdict", "closed"],
+          "description": "Key times (UTC): detected / acknowledged / verdict / closed / reopened"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which fields began as AI drafts; \"none\" if unassisted)"
+        },
+        "tuningOrVolumeRequest": {
+          "x-assured-prompt": "Tuning or volume request, if the rule keeps firing",
+          "type": "string",
+          "description": "Tuning or volume request, if the rule keeps firing (a scoped exception with an owner and expiry; the rule logic stays intact for a benign true positive)"
+        }
+      },
+      "required": ["closedAtLevel0", "closedAt", "keyTimes", "materialAiUse"]
+    }
+  },
+  "required": ["alert", "pattern", "checks", "verdict", "closure"]
+}

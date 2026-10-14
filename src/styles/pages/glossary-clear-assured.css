@@ -1,0 +1,329 @@
+/* C.L.E.A.R. glossary (/docs/glossaries/clear/) and ASSURED terms
+   (/docs/glossaries/assured/) page styles. Imported from
+   src/content/docs/glossaries/clear.mdx and assured.mdx.
+   Colors come from the [data-theme="clear"] tokens in src/styles/glossary.css,
+   the [data-theme="assured"] tokens below, and the --assured-* tokens in
+   assured.css. Every selector is prefixed .clear-, .at- or
+   [data-theme="assured"], so the sheet is safe to load globally. */
+
+/* ======================================================================
+   C.L.E.A.R. glossary: violet theme + searchable A-Z
+   ====================================================================== */
+
+.clear-page {
+  position: relative;
+  margin: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
+  background: linear-gradient(170deg, var(--g-bg-from) 0%, var(--g-bg-via) 35%, var(--g-bg-mid) 70%, var(--g-bg-from) 100%);
+  color: var(--g-text);
+  border-radius: 0;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
+  min-height: calc(100vh - 64px);
+}
+
+.clear-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.clear-bg__grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(125, 211, 252, 0.06) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(125, 211, 252, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.45;
+}
+.clear-bg__beams { position: absolute; inset: 0; }
+.clear-bg__beams span {
+  position: absolute; width: 2px; height: 140%;
+  background: linear-gradient(to bottom, transparent, rgba(125, 211, 252, 0.4), transparent);
+  opacity: 0.4; animation: clear-beam 18s linear infinite;
+}
+.clear-bg__beams span:nth-child(1) { left: 18%; animation-delay: 0s; }
+.clear-bg__beams span:nth-child(2) { left: 52%; animation-delay: 6s; }
+.clear-bg__beams span:nth-child(3) { left: 78%; animation-delay: 12s; }
+@keyframes clear-beam {
+  0%   { transform: translateY(-50%) skewY(-12deg); opacity: 0; }
+  20%  { opacity: 0.5; }
+  100% { transform: translateY(20%) skewY(-12deg); opacity: 0; }
+}
+
+/* .clear-nav excluded: position:relative would override its position:sticky */
+.clear-page > :not(.g-bg):not(.clear-toast):not(.clear-nav) { position: relative; z-index: 1; }
+
+/* Hero structure lives in src/styles/glossary.css (.g-hero*).
+   Kept here: only the CLEAR-specific spotlight + search + letter-nav styling. */
+
+.clear-search-wrap {
+  display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.75rem;
+}
+.clear-search {
+  flex: 1; min-width: 14rem; max-width: 28rem;
+  padding: 0.7rem 1.1rem;
+  background: rgba(10, 20, 40, 0.7);
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  border-radius: 9999px;
+  color: var(--g-text);
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
+}
+/* transparent outline turns solid in forced-colors mode, where the box-shadow ring is stripped */
+.clear-search:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--g-accent);
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.18);
+}
+/* --assured-text-dim (#94a3b8) keeps placeholder contrast on the input background past 4.5:1 */
+.clear-search::placeholder { color: var(--assured-text-dim); }
+
+/* Visually hidden but present in the accessibility tree. */
+.clear-search-count {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.clear-random {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.7rem 1.25rem;
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(91, 33, 182, 0.5));
+  border: 1px solid rgba(125, 211, 252, 0.5); border-radius: 9999px;
+  color: var(--g-text); font-family: inherit; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+.clear-random__ico { display: inline-flex; }
+.clear-random__ico svg { display: block; width: 1.1em; height: 1.1em; }
+.clear-random:hover { transform: translateY(-2px); border-color: var(--g-accent); box-shadow: 0 12px 24px -10px rgba(167, 139, 250, 0.5); }
+.clear-random.is-rolling { animation: clear-roll 0.4s ease-in-out; }
+@keyframes clear-roll {
+  0%, 100% { transform: rotate(0); }
+  50%      { transform: rotate(360deg) scale(1.1); }
+}
+
+.clear-spotlight {
+  margin: 1.5rem auto 0; max-width: 580px;
+  padding: 1.25rem 1.5rem;
+  background: rgba(10, 20, 40, 0.55);
+  border: 1px dashed rgba(125, 211, 252, 0.35); border-radius: 0.85rem;
+  text-align: left;
+}
+.clear-spotlight__label {
+  color: var(--g-accent-light); font-family: var(--font-mono);
+  font-size: 0.68rem; letter-spacing: 0.12em; font-weight: 800; margin-bottom: 0.45rem;
+}
+.clear-spotlight__term { color: #fff; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+.clear-spotlight__def { color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+
+/* nav letters */
+.clear-nav {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+  margin: 0 0 2rem; padding: 0.85rem;
+  background: rgba(10, 20, 40, 0.6);
+  border: 1px solid var(--g-border);
+  border-radius: 0.85rem;
+  /* top offset pins the nav below the sticky site header, not underneath it. */
+  position: sticky; top: calc(var(--header-height) + 8px); z-index: 5; backdrop-filter: blur(10px);
+}
+/* On phones the letter grid wraps to ~220px tall; pinning that would eat a
+   quarter of the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .clear-nav { position: relative; top: auto; }
+}
+.clear-nav__letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  /* Touch target size: meets WCAG 2.2 SC 2.5.8 (AA) and SC 2.5.5 (AAA). */
+  width: 2.75rem; height: 2.75rem; border-radius: 0.5rem;
+  background: rgba(91, 33, 182, 0.3); border: 1px solid rgba(125, 211, 252, 0.25);
+  color: var(--g-accent-light); text-decoration: none; font-family: var(--font-mono);
+  font-weight: 800; font-size: 1rem; transition: transform 0.15s, background 0.15s, color 0.15s;
+}
+.clear-nav__letter:hover { transform: translateY(-2px); background: rgba(167, 139, 250, 0.3); color: #fff; border-color: var(--g-accent); }
+
+/* sections */
+/* --g-jump-offset: measured by the page script so jump landings clear
+   the pinned nav, whose height varies as its letter rows wrap. */
+.clear-section { margin: 0 0 2rem; scroll-margin-top: var(--g-jump-offset, 6rem); }
+.clear-section h2 {
+  /* Use the site font; keep the violet accent + underline. */
+  font-family: inherit;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--g-accent);
+  margin: 0 0 0.65rem;
+  border-bottom: 2px solid rgba(167, 139, 250, 0.35);
+  padding-bottom: 0.35rem;
+}
+.clear-empty {
+  margin: 1.5rem auto; padding: 1.5rem;
+  background: rgba(10, 20, 40, 0.55); border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 0.75rem; text-align: center; color: var(--assured-text-muted);
+}
+
+/* term/def list */
+.clear-terms {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem 1rem;
+}
+@media (min-width: 900px) {
+  .clear-terms { grid-template-columns: minmax(14rem, 22rem) 1fr; gap: 0.5rem 1.5rem; align-items: baseline; }
+}
+.clear-terms dt {
+  color: var(--g-accent-light); font-weight: 700; font-size: 0.95rem;
+  padding: 0.55rem 0; border-top: 1px solid rgba(167, 139, 250, 0.15);
+}
+.clear-terms dd {
+  margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem;
+  padding: 0.55rem 0; border-top: 1px solid rgba(167, 139, 250, 0.15);
+}
+@media (max-width: 899px) {
+  .clear-terms dt { padding-bottom: 0.25rem; border-top: 1px solid rgba(167, 139, 250, 0.15); }
+  .clear-terms dd { border-top: 0; padding-top: 0; padding-bottom: 0.65rem; }
+}
+.clear-terms dt:hover { color: #fff; }
+/* ASSURED's own coined terms. The tag is generated content so the
+   extractor reads the bare headword from the term element. */
+.clear-tag::after {
+  content: "ASSURED";
+  display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.4rem;
+  background: var(--g-accent); color: var(--g-bg-from); border-radius: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; vertical-align: 0.1em;
+}
+.clear-terms dd a { color: var(--g-accent-light); text-decoration: underline; }
+.clear-terms dd a:hover { color: #fff; }
+
+/* toast */
+.clear-toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, var(--g-accent), #5b21b6);
+  border: 1px solid var(--g-text-muted); border-radius: 9999px;
+  color: #fff; font-family: var(--font-mono);
+  font-size: 0.88rem; font-weight: 600; letter-spacing: 0.04em;
+  box-shadow: 0 14px 36px -10px rgba(167, 139, 250, 0.6); z-index: 1000;
+  animation: clear-toast-in 0.35s ease-out;
+}
+.clear-toast.is-out { animation: clear-toast-out 0.4s ease-in forwards; }
+@keyframes clear-toast-in {
+  from { transform: translateX(-50%) translateY(40px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes clear-toast-out {
+  to { transform: translateX(-50%) translateY(40px); opacity: 0; }
+}
+
+/* zen mode easter egg */
+.clear-page.clear-zen { filter: grayscale(0.6) brightness(1.05); transition: filter 0.6s ease; }
+
+/* footer */
+.clear-foot {
+  margin: 2rem 0 0; padding: 1.25rem 1.5rem;
+  background: rgba(10, 20, 40, 0.55); border: 1px solid var(--g-border);
+  border-radius: 0.75rem; text-align: center;
+}
+.clear-foot p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+.clear-foot p + p { margin-top: 0.65rem; }
+.clear-foot kbd {
+  display: inline-block; padding: 0.05rem 0.4rem;
+  background: rgba(167, 139, 250, 0.2); border: 1px solid rgba(125, 211, 252, 0.4); border-radius: 0.3rem;
+  color: var(--g-text); font-family: var(--font-mono); font-size: 0.85em;
+}
+.clear-foot a { color: var(--g-accent-light); text-decoration: underline; }
+/* Shortcut switch: a real button with aria-pressed, so the single-key
+   shortcuts can be turned off (WCAG 2.2 SC 2.1.4). */
+.clear-shortcut-toggle {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  min-height: 2.75rem; padding: 0.35rem 0.9rem;
+  background: rgba(91, 33, 182, 0.3); border: 1px solid rgba(125, 211, 252, 0.4); border-radius: 9999px;
+  color: var(--g-text); font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+}
+.clear-shortcut-toggle:hover { border-color: var(--g-accent); }
+.clear-shortcut-toggle:focus-visible { outline: 2px solid var(--g-accent-light); outline-offset: 2px; }
+.clear-shortcut-toggle[aria-pressed="true"] { background: rgba(167, 139, 250, 0.35); border-color: var(--g-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .clear-bg__beams span, .clear-random.is-rolling, .clear-toast { animation: none !important; }
+}
+
+/* ======================================================================
+   ASSURED terms: teal theme tokens for the shared glossary chrome
+   ====================================================================== */
+
+[data-theme="assured"] {
+  --g-bg-from: #031417;
+  --g-bg-via: #0b2a30;
+  --g-bg-mid: #061c21;
+  --g-bg-to: #030d10;
+  --g-accent: var(--assured-accent);
+  --g-accent-light: #99f6e4;
+  --g-accent-mid: var(--assured-accent-soft);
+  --g-text: var(--assured-text-soft);
+  --g-text-strong: #f0fdfa;
+  --g-text-muted: var(--assured-text-muted);
+  --g-border: rgba(20, 184, 166, 0.28);
+  --g-border-strong: rgba(94, 234, 212, 0.55);
+  --g-surface: rgba(4, 22, 26, 0.6);
+}
+.at-page .g-section { max-width: 72rem; margin-left: auto; margin-right: auto; }
+.at-page .g-nav { position: relative; }
+/* Line icons in the jump-nav pills and section heads take the glyph size
+   the shared chrome sets with font-size. */
+.at-page .g-nav__ico svg,
+.at-page .g-section__ico svg { display: block; width: 1em; height: 1em; }
+.at-page .g-nav__ico { display: inline-flex; }
+.at-page .g-section__ico { color: var(--g-accent-mid); }
+.at-terms {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 1.5rem;
+}
+@media (min-width: 900px) {
+  .at-terms { grid-template-columns: minmax(12rem, 18rem) 1fr; }
+}
+.at-terms dt {
+  color: var(--g-accent-light);
+  font-weight: 700;
+  font-size: 0.98rem;
+  padding: 0.75rem 0 0.25rem;
+  border-top: 1px solid var(--g-border);
+}
+.at-terms dd {
+  margin: 0;
+  padding: 0 0 0.75rem;
+  color: var(--g-text);
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+@media (min-width: 900px) {
+  .at-terms dt { padding-bottom: 0.75rem; }
+  .at-terms dd { padding-top: 0.75rem; border-top: 1px solid var(--g-border); }
+}
+.at-terms dd p { margin: 0 0 0.4rem; }
+.at-terms dd p:last-child { margin-bottom: 0; }
+.at-terms dd strong { color: var(--g-text-strong); }
+.at-terms a, .at-table a, .at-note a { color: var(--g-accent-light); text-decoration: underline; }
+.at-terms a:hover, .at-table a:hover { color: var(--g-text-strong); }
+.at-where { font-size: 0.82rem; color: var(--g-text-muted); }
+/* Anchor spans sit in the dt so links land on the term, clear of the sticky header. */
+.at-anchor { display: block; position: relative; top: calc(-1 * var(--header-height, 64px) - 12px); visibility: hidden; }
+.at-table-wrap { overflow-x: auto; margin: 1.25rem 0 0.75rem; }
+.at-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; line-height: 1.55; }
+.at-table caption { caption-side: top; text-align: left; color: var(--g-text-muted); font-size: 0.85rem; padding-bottom: 0.5rem; }
+.at-table th, .at-table td { text-align: left; vertical-align: top; padding: 0.6rem 0.75rem; border-top: 1px solid var(--g-border); color: var(--g-text); }
+.at-table thead th { color: var(--g-accent-light); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; border-top: 0; }
+.at-table tbody th { color: var(--g-text-strong); font-weight: 700; }
+.at-table--diff tbody th { white-space: nowrap; }
+.at-note { margin: 1.25rem 0 0; color: var(--g-text); font-size: 0.92rem; line-height: 1.6; }
+.at-sources { margin: 0.5rem 0 0; display: flex; flex-wrap: wrap; gap: 0 1rem; }

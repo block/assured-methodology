@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/subject-summary.schema.json",
+  "title": "Subject handoff",
+  "description": "The seven-section Subject handoff to Scope: header, entity inventory with per-dimension verdicts, confidence summary, open questions, recommended scope parameters, insider posture and regulatory flags. Subject closes nothing on its own.",
+  "x-assured-template": "subject-summary.md",
+  "type": "object",
+  "properties": {
+    "investigationHeader": {
+      "x-assured-section": "1. Investigation header",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID"
+        },
+        "alertIds": {
+          "x-assured-prompt": "Alert ID",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Alert ID (or every member alert ID, for a grouped case)"
+        },
+        "analyst": {
+          "x-assured-prompt": "Analyst",
+          "type": "string",
+          "description": "Analyst"
+        },
+        "preparedAt": {
+          "x-assured-prompt": "Prepared at",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Prepared at (UTC)"
+        },
+        "summary": {
+          "x-assured-prompt": "Summary",
+          "type": "string",
+          "description": "Summary (two sentences: what the alert claims, and what Subject found)"
+        },
+        "escalationTripwire": {
+          "x-assured-prompt": "Escalation tripwire",
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": ["not fired", "fired"]
+            },
+            "criterion": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "caseOwner": {
+              "type": "string",
+              "description": "The SOC, or IR once the tripwire has fired."
+            }
+          },
+          "required": ["status", "caseOwner"],
+          "description": "Escalation tripwire (not fired / fired: criterion, at UTC), and who owns the case (the SOC, or IR once the tripwire has fired)"
+        },
+        "depthLevel": {
+          "x-assured-prompt": "Depth level",
+          "$ref": "assured-vocabulary.schema.json#/$defs/depth",
+          "description": "Depth level (0 / 1 / 2), and any upward moves with their reason"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which sections began as AI drafts; \"none\" if unassisted)"
+        }
+      },
+      "required": [
+        "caseId",
+        "alertIds",
+        "analyst",
+        "preparedAt",
+        "summary",
+        "escalationTripwire",
+        "depthLevel",
+        "materialAiUse"
+      ]
+    },
+    "entityInventory": {
+      "x-assured-section": "2. Entity inventory",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Entity",
+            "Type",
+            "Classification",
+            "Authentication",
+            "Authorization",
+            "Behavior",
+            "Relationships"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "x-assured-column": "Entity",
+                "type": "string"
+              },
+              "type": {
+                "x-assured-column": "Type",
+                "enum": [
+                  "user",
+                  "service account",
+                  "host or device",
+                  "application or OAuth grant",
+                  "session or token",
+                  "resource",
+                  "artifact",
+                  "network identifier",
+                  "threat"
+                ]
+              },
+              "classification": {
+                "x-assured-column": "Classification",
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "downstream",
+                  "originating threat"
+                ]
+              },
+              "authentication": {
+                "x-assured-column": "Authentication",
+                "type": "string",
+                "description": "\"anomalous\" (with one line why), \"examined and cleared\", or \"not examined\" (and why)."
+              },
+              "authorization": {
+                "x-assured-column": "Authorization",
+                "type": "string",
+                "description": "\"anomalous\" (with one line why), \"examined and cleared\", or \"not examined\" (and why)."
+              },
+              "behavior": {
+                "x-assured-column": "Behavior",
+                "type": "string",
+                "description": "\"anomalous\" (with one line why), \"examined and cleared\", or \"not examined\" (and why)."
+              },
+              "relationships": {
+                "x-assured-column": "Relationships",
+                "type": "string",
+                "description": "\"anomalous\" (with one line why), \"examined and cleared\", or \"not examined\" (and why)."
+              }
+            },
+            "required": ["entity", "type", "classification"]
+          }
+        }
+      },
+      "required": ["rows"]
+    },
+    "confidenceSummary": {
+      "x-assured-section": "3. Confidence summary",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Entity",
+            "Verdict",
+            "Baseline behind it (source, period)",
+            "Confidence (high / medium / low)"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "x-assured-column": "Entity",
+                "type": "string"
+              },
+              "verdict": {
+                "x-assured-column": "Verdict",
+                "type": "string"
+              },
+              "baseline": {
+                "x-assured-column": "Baseline behind it (source, period)",
+                "type": "string"
+              },
+              "confidence": {
+                "x-assured-column": "Confidence (high / medium / low)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+              }
+            },
+            "required": ["entity", "verdict", "confidence"]
+          }
+        }
+      },
+      "required": ["rows"]
+    },
+    "openQuestions": {
+      "x-assured-section": "4. Open questions",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "recommendedScopeParameters": {
+      "x-assured-section": "5. Recommended scope parameters",
+      "type": "object",
+      "properties": {
+        "windowPerEntity": {
+          "x-assured-prompt": "Window per entity, anchored to its last known-good point",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "type": "string"
+              },
+              "from": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "lastKnownGood": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Window per entity, anchored to its last known-good point (UTC)"
+        },
+        "environmentalBoundary": {
+          "x-assured-prompt": "Environmental boundary, including what is out and why",
+          "type": "string",
+          "description": "Environmental boundary, including what is out and why"
+        },
+        "lateralMovementCandidates": {
+          "x-assured-prompt": "Lateral-movement candidates",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Lateral-movement candidates (hosts, accounts or services the entities can reach and that a sweep should cover)"
+        }
+      },
+      "required": [
+        "windowPerEntity",
+        "environmentalBoundary",
+        "lateralMovementCandidates"
+      ]
+    },
+    "insiderPosture": {
+      "x-assured-section": "6. Insider posture",
+      "type": "object",
+      "properties": {
+        "insiderThreatMatrixActivity": {
+          "x-assured-prompt": "Activity mapped to the Insider Threat Matrix, or \"none observed\"",
+          "type": "string",
+          "description": "Activity mapped to the Insider Threat Matrix, or \"none observed\""
+        },
+        "insiderProgramReferral": {
+          "x-assured-prompt": "Insider-program referral",
+          "type": "object",
+          "properties": {
+            "exists": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/yesNo"
+            },
+            "holder": {
+              "type": "string",
+              "description": "The referral's holder only; never its content."
+            }
+          },
+          "required": ["exists"],
+          "description": "Insider-program referral (exists: yes / no; if yes, its holder only)"
+        }
+      },
+      "required": ["insiderThreatMatrixActivity", "insiderProgramReferral"]
+    },
+    "regulatoryFlags": {
+      "x-assured-section": "7. Regulatory flags",
+      "type": "object",
+      "properties": {
+        "alertFlagAsWritten": {
+          "x-assured-prompt": "Alert's flag as written",
+          "type": "string",
+          "description": "Alert's flag as written (data reached, or only reachable)"
+        },
+        "dataClassesInReach": {
+          "x-assured-prompt": "Data classes in reach",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Data classes in reach"
+        },
+        "reasonableCause": {
+          "x-assured-prompt": "Timestamp of reasonable cause",
+          "type": "object",
+          "properties": {
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "ownerEngaged": {
+              "type": "string"
+            },
+            "ownerEngagedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["at"],
+          "description": "Timestamp of reasonable cause (UTC), and the owner engaged (who, at UTC)"
+        }
+      },
+      "required": [
+        "alertFlagAsWritten",
+        "dataClassesInReach",
+        "reasonableCause"
+      ]
+    }
+  },
+  "required": [
+    "investigationHeader",
+    "entityInventory",
+    "confidenceSummary",
+    "openQuestions",
+    "recommendedScopeParameters",
+    "insiderPosture",
+    "regulatoryFlags"
+  ]
+}

@@ -1,6 +1,7 @@
 ---
 title: "Scope chapter quiz"
-description: "Eleven questions on regulatory, time, entity, infrastructure boundaries, restraint, and the Uncover handoff."
+description: "Seventeen questions on regulatory clocks, time, entity, infrastructure boundaries, restraint, identity boundaries, and the Uncover handoff."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -11,45 +12,38 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 
 <SubPageHero
   phase="scope"
-  parentLetter="S"
   pillarIndex="Quiz"
-  pillarTotal="Scope chapter"
-  chapterHref="/docs/scope/"
-  chapterLabel="Scope"
-  lede="Eleven questions on Scope. Push your thinking on boundaries, restraint, regulatory clocks, entity prioritization, and the Uncover handoff."
+  lede="Seventeen questions on Scope. Push your thinking on boundaries, restraint, regulatory clocks, processor duties, entity prioritization, identity boundaries, and the Uncover handoff."
 />
 
-<PillNav chapter="scope" label="Scope chapter" items={[
-  { label: "Regulatory", href: "/docs/scope/regulatory/", phase: "scope" },
-  { label: "Time", href: "/docs/scope/time/", phase: "scope" },
-  { label: "Entity", href: "/docs/scope/entity/", phase: "scope" },
-  { label: "Infrastructure", href: "/docs/scope/infrastructure/", phase: "scope" },
-]}/>
+<PillNav chapter="scope" />
 
 <Quiz title="Scope chapter quiz" subtitle="Pick the answer that best matches the methodology.">
 
   <QuizItem
     prompt="A confirmed compromise of a system processing payment card data is detected. The technical investigation will take days. What does Scope require the analyst to do about timing?"
     options={[
-      { value: "wait", label: "Wait until the technical investigation finishes, so the notification is accurate the first time." },
-      { value: "parallel", label: "Engage compliance and start any notification clocks in parallel with the technical work." },
-      { value: "skip", label: "Skip the compliance step during triage; regulatory work begins if the case escalates to IR." },
-      { value: "only-if", label: "Notify only once the investigation confirms data actually left; premature notice causes churn." },
+      { value: "wait", label: "Wait until the technical investigation finishes, so the notification is accurate the first time it goes out." },
+      { value: "skip", label: "Skip the compliance step during triage; regulatory work begins only if the case escalates to IR." },
+      { value: "parallel", label: "Engage compliance now and commit the suspicion timestamp, so any notification clocks run in parallel." },
+      { value: "only-if", label: "Hold notice until the investigation confirms data actually left; premature notice causes churn for all." },
     ]}
     answer="parallel"
-    explanation="PCI breach-notification timelines run independently of the technical investigation. Scope is the phase where regulatory obligations are recognized, and engaging compliance early lets those clocks run in parallel with technical work rather than serially after."
+    explanation="Card-brand rules, not PCI DSS itself, set the notification deadlines, and they are short and run from reasonable suspicion: Visa requires a report within three calendar days, routed through the acquirer, and American Express requires notice immediately and no later than 72 hours. Each brand sets its own rules and acquirer contracts can be stricter, so the figure that binds you (Mastercard's included) comes from your acquirer agreement. That clock runs from suspicion, not from the end of a days-long investigation, so waiting for accuracy or for proof that data left both miss it. Analysts do not start or stop the clocks; law and contract do. Scope's job is to recognize the obligation, engage compliance, and commit the timestamp so compliance can run the clock in parallel with the technical work. Deferring it until a case reaches IR spends days the clock does not give back."
+    source={{ href: "/docs/scope/regulatory/#pci", label: "Regulatory boundaries: PCI DSS" }}
   />
 
   <QuizItem
-    prompt="An alert looks like phishing-driven intrusion. What is the typical historical window for the investigation?"
+    prompt="An alert looks like a phishing-driven intrusion. The message trace shows the lure arrived five days before the alert fired. Where does Scope set the backward edge of the primary window?"
     options={[
-      { value: "hour", label: "The last hour. Phishing plays out in minutes, and a tight window keeps the queries fast." },
-      { value: "24-72", label: "24 to 72 hours, with a 4-week extended look at primary entities to rule out earlier staging." },
-      { value: "year", label: "The last year. Median dwell times mean anything shorter risks missing the real intrusion start." },
-      { value: "default", label: "30 days, always. A standard window keeps cases comparable and the tooling configuration simple." },
+      { value: "artifact", label: "At or before the lure's delivery: the window anchors on the earliest related artifact, not the alert." },
+      { value: "default", label: "At 72 hours before the alert, the top of the phishing default; delivery timing is Uncover's question." },
+      { value: "retention", label: "At the start of retention, so nothing the SOC still holds is left unread in an email-driven intrusion." },
+      { value: "execution", label: "At the first confirmed malicious action, because activity before execution is background noise." },
     ]}
-    answer="24-72"
-    explanation="Phishing-driven intrusion typically progresses within days, but ruling out earlier staging requires a longer look on the primary entities. The two-window pattern (short primary + extended look on primaries) is a common Scope decision for this threat type."
+    answer="artifact"
+    explanation="The window follows the threat type and the evidence, not the alert time. The 24-to-72-hour default for phishing assumes initial access was recent; when the evidence shows the lure landed five days earlier, the backward edge moves to that artifact, and the worked examples pair the primary window with a longer look at the primary entities (4 weeks in the finance-team case) to rule out earlier staging. Stopping at 72 hours cuts off the delivery and everything between it and the alert. Starting at execution misses the delivery and any reconnaissance. Reading back to the start of retention is the opposite error: a window with no evidence-based edge is a fishing expedition."
+    source={{ href: "/docs/scope/time/#choosing-the-historical-window", label: "Time boundaries: choosing the historical window" }}
   />
 
   <QuizItem
@@ -57,11 +51,12 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
     options={[
       { value: "24h", label: "1 to 24 hours. Service accounts are high-volume, and a tight window keeps the queries tractable." },
       { value: "72h", label: "24 to 72 hours, the standard intrusion window that fits most confirmed compromises." },
-      { value: "months", label: "1 to 6 months. The compromise may predate the alert by weeks, and earlier silent activity matters." },
       { value: "year", label: "3 to 12 months, the insider window, because a pipeline acting maliciously is an insider by definition." },
+      { value: "months", label: "1 to 6 months. The compromise may predate the alert by weeks, and earlier silent activity matters." },
     ]}
     answer="months"
-    explanation="The window follows the threat type, not a default. Supply-chain compromises often predate their first alert by weeks or months: the malicious component may have shipped in an update long since deployed. The 1-to-6-month window is bounded by what the SOC actually retains, and if retention falls short, the gap is documented in the Scope output rather than ignored."
+    explanation="The window follows the threat type, not a default. Supply-chain compromises often predate their first alert by weeks or months: the malicious component may have shipped in an update long since deployed. The 1-to-6-month window is bounded by what the SOC actually retains, and if retention falls short, the gap is documented in the Scope output rather than ignored. The insider option borrows the right length of window for the wrong reason: a compromised pipeline is not an insider."
+    source={{ href: "/docs/scope/time/#choosing-the-historical-window", label: "Time boundaries: choosing the historical window" }}
   />
 
   <QuizItem
@@ -73,43 +68,47 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "three", label: "Three, the number one analyst can profile within the Scope phase's time budget." },
     ]}
     answer="depends"
-    explanation="Primary entities are those directly involved in the alert. Secondary entities are connected but not in the alert. The split keeps investigation depth proportional to evidence rather than spending equal time on every identity in the map."
+    explanation="Primary entities are those directly involved in the alert, plus any other credential of the same principal that the compromise could plausibly carry over to (which is why dlin's federated cloud identity is primary in the worked example). Secondary entities are connected through trust paths but not in the alert. The split keeps investigation depth proportional to evidence rather than spending equal time on every identity in the map. A fixed count, high or low, ignores the evidence the split is supposed to follow."
+    source={{ href: "/docs/scope/entity/#primary-vs-secondary", label: "Entity boundaries: primary vs. secondary" }}
   />
 
   <QuizItem
     prompt="Alert and Subject both lean benign on a developer-workstation alert, but the user's account can reach a dozen other systems. How does Scope draw the boundary?"
     options={[
-      { value: "broad", label: "Wide: add every reachable system as a secondary entity. Broad scope is cheap insurance while the verdict is not final." },
-      { value: "narrow", label: "Narrow: the user, the workstation, the flagged binary. Reachable-but-unevidenced systems stay out, with the expansion path documented." },
-      { value: "sample", label: "Split the difference: add the three most sensitive reachable systems as secondaries." },
-      { value: "skip", label: "Skip the boundary: a probable benign close does not need formal scoping." },
+      { value: "narrow", label: "Narrow: the user, the workstation, the flagged process. Unevidenced systems stay out; the expansion path is written." },
+      { value: "broad", label: "Wide: add every reachable system as a secondary entity. Broad scope is cheap insurance while the verdict is still open." },
+      { value: "sample", label: "Split the difference: add the three most sensitive reachable systems as secondaries, and watch only those." },
+      { value: "skip", label: "Skip the formal boundary: a probable benign close does not need scoping, so go straight to Uncover." },
     ]}
     answer="narrow"
-    explanation="This is restraint scoping, and it is as much a Scope skill as expansion. Access alone is topology, not evidence, and every entity added spends Uncover's depth where there is no signal. The narrow boundary is defensible precisely because the expansion path exists: if Uncover surfaces evidence touching another system, the decision tree grows the boundary with a documented justification. Sprawl on a benign-leaning case is how a fast close becomes a five-hour one."
+    explanation="This is restraint scoping, and it is as much a Scope skill as expansion. Access alone is topology, not evidence, and every entity added spends Uncover's depth where there is no signal. The narrow boundary is defensible precisely because the expansion path exists: if Uncover surfaces evidence touching another system, the decision tree grows the boundary with a documented justification. Restraint is not the same as skipping checks: a bounded check that answers the verdict question, like the extension-layer check in the Cursor case, stays in. Sprawl on a benign-leaning case is how a fast close becomes a five-hour one."
+    source={{ href: "/docs/scope/example/#case-b", label: "Scope working example: Case B, the Cursor IDE alert" }}
   />
 
   <QuizItem
-    prompt="An investigation needs in-app activity from a SaaS platform, but the SOC only has authentication logs and gross API metrics. What does Scope require?"
+    prompt="An investigation needs in-app activity from a SaaS platform, but the SOC only has authentication logs and aggregate API call counts. What does Scope require?"
     options={[
-      { value: "ignore", label: "Work with what is available; visibility gaps are universal and not worth documenting." },
-      { value: "document", label: "Name the gap explicitly in the Scope output and submit the vendor data request now." },
+      { value: "ignore", label: "Work with what is available; visibility gaps are universal and not worth a line in the record." },
       { value: "stop", label: "Pause the investigation until the vendor data arrives, so conclusions rest on full evidence." },
-      { value: "guess", label: "Reconstruct the in-app activity from authentication patterns alone." },
+      { value: "guess", label: "Reconstruct the in-app activity from authentication patterns, which is close enough for triage." },
+      { value: "document", label: "Name the gap explicitly in the Scope output and submit the vendor data request now." },
     ]}
     answer="document"
-    explanation="Naming what cannot be seen is part of Scope. It prevents wasted effort on impossible queries, and it lets the analyst submit vendor or external-team requests early so the data arrives in parallel."
+    explanation="Naming what cannot be seen is part of Scope. It prevents wasted effort on impossible queries, it keeps the record from reading a gap as quiet, and it lets the analyst submit vendor or external-team requests early so the data arrives in parallel. Pausing the case for the vendor stalls everything else the boundary allows Uncover to do."
+    source={{ href: "/docs/scope/infrastructure/#naming-what-is-invisible", label: "Infrastructure boundaries: naming what is invisible" }}
   />
 
   <QuizItem
     prompt="A hospital SOC confirms a compromised workstation had access to systems holding PHI. When does HIPAA's 60-day individual-notification clock start?"
     options={[
-      { value: "confirmed", label: "When the technical investigation confirms PHI actually left the covered environment." },
-      { value: "discovery", label: "At discovery: when the workforce knew or reasonably should have known. Maybe the alert." },
-      { value: "case-open", label: "When the privacy officer formally opens a breach case in the compliance system." },
-      { value: "assessment", label: "When counsel signs off on the four-factor risk assessment that a breach occurred." },
+      { value: "confirmed", label: "When the technical investigation confirms that PHI actually left the covered entity's own environment." },
+      { value: "case-open", label: "When the privacy officer formally opens a breach case in the compliance system and assigns an owner." },
+      { value: "discovery", label: "At discovery: when any workforce member knew or reasonably should have known, which can be the alert." },
+      { value: "assessment", label: "When counsel signs off on the four-factor risk assessment concluding that a breach occurred." },
     ]}
     answer="discovery"
-    explanation="The 60-day clock (45 CFR §164.404) runs from discovery, not from confirmation; discovery is a knew-or-should-have-known standard applied to the whole workforce. The alert that starts triage can be the discovery event, which is why Scope commits the timestamp and engages the privacy officer early. The four-factor assessment (§164.402) decides whether notification is required at all; it does not pause the clock."
+    explanation="The 60-day clock (45 CFR §164.404) runs from discovery, not from confirmation; discovery is a knew-or-should-have-known standard applied to the whole workforce. The alert that starts triage can be the discovery event, which is why Scope commits the timestamp and engages the privacy officer early. The four-factor assessment (§164.402) decides whether notification is required at all; it does not pause the clock. Sixty days is the outer limit; the standard is without unreasonable delay."
+    source={{ href: "/docs/scope/regulatory/#hipaa", label: "Regulatory boundaries: HIPAA" }}
   />
 
   <QuizItem
@@ -121,51 +120,133 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
       { value: "wait", label: "Keep scope as-is until Uncover finds evidence of misuse; expansion without evidence is churn." },
     ]}
     answer="add-role"
-    explanation="The IF/THEN decision-tree pattern is Scope's structured way of evolving the boundary. A cloud-role assumption is evidence; the methodology says incorporate it now and document the three-line justification (evidence, risk, required actions) so the expansion is defensible. Waiting for Uncover to surface it would mean Uncover queries outside its own scope to find what Scope should have already framed."
+    explanation="The IF/THEN decision-tree pattern is Scope's structured way of evolving the boundary. A cloud-role assumption is evidence; the methodology says incorporate it now and document the three-line justification (evidence, risk, required actions) so the expansion is defensible. The role itself gets full depth and the resources it can reach start at baseline, upgraded on any signal. Waiting for Uncover to surface it would mean Uncover queries outside its own scope to find what Scope should have already framed."
+    source={{ href: "/docs/scope/entity/#scope-evolution-the-decision-tree", label: "Entity boundaries: the scope decision tree" }}
   />
 
   <QuizItem
     prompt="Scope confirms a compromised identity can reach systems inside the cardholder data environment (CDE). What does the methodology require?"
     options={[
-      { value: "recognize", label: "Tag the case PCI-relevant, preserve CDE audit logs, notify the acquirer-relationship owner." },
-      { value: "full-access", label: "Request full CDE access for the analyst so cardholder-data exposure can be sampled directly." },
+      { value: "full-access", label: "Request full CDE access for the analyst so that cardholder-data exposure can be sampled directly and fast." },
       { value: "wait", label: "Wait for confirmed cardholder-data exfiltration before involving compliance or the acquirer." },
-      { value: "isolate", label: "Isolate every CDE system immediately; PCI requires containment within one hour." },
+      { value: "isolate", label: "Isolate every CDE system immediately; PCI DSS requires containment within one hour of detection." },
+      { value: "recognize", label: "Tag it PCI-relevant, request that CDE logs be held, and tell the acquirer-relationship owner today." },
     ]}
     answer="recognize"
-    explanation="PCI DSS is contractual: card-brand rules require prompt notification of suspected account-data compromise through the acquirer, and a PFI may later re-examine everything preserved in the first hours. A compliant environment guarantees 12 months of audit logs with 3 months immediately available (Req. 10.5.1), but stopping rotation is still the analyst's job. And investigative access into the CDE follows the same least-privilege controls as any other access: defaulting to full access is exactly backwards."
+    explanation="Card-brand clocks run from reasonable suspicion, not confirmation (Visa: a report within three calendar days; American Express: no later than 72 hours), and they reach the brands through the acquirer, so the acquirer-relationship owner hears the same day. A PCI Forensic Investigator may later re-examine everything preserved in the first hours. If the environment actually meets PCI DSS v4.0.1 Req. 10.5.1 (at least 12 months of audit-log history, the most recent three months immediately available), that is the minimum look-back to expect, but a requirement is not a guarantee: verify that the CDE logs for the window exist and were not tampered with before relying on them. Identifying what will rotate or be cleaned up before the case can use it, and requesting the retention extension or hold through the owning team, is still the analyst's job. Investigative access into the CDE follows the same least-privilege controls as any other access: defaulting to full access is exactly backwards."
+    source={{ href: "/docs/scope/regulatory/#pci", label: "Regulatory boundaries: PCI DSS" }}
   />
 
   <QuizItem
     prompt="A US SOC investigates a compromised account belonging to an employee in Germany, with the relevant logs stored in an EU region. What does Scope's sovereignty boundary require?"
     options={[
-      { value: "move", label: "Copy the EU logs into the US SIEM. Centralized analysis beats jurisdictional caution during an active case." },
-      { value: "inregion", label: "Check residency constraints before moving data; the investigation may need to run in-region or through a regional team." },
-      { value: "legal-later", label: "Proceed normally. Sovereignty is a legal-team concern that begins after triage closes." },
-      { value: "anonymize", label: "Strip usernames from the logs before transfer; anonymized data is exempt from residency rules." },
+      { value: "inregion", label: "Check transfer and residency limits before moving data; the work may run in-region or via a regional team." },
+      { value: "move", label: "Copy the EU logs into the US SIEM. Centralized analysis beats jurisdictional caution during an active incident." },
+      { value: "legal-later", label: "Proceed normally. Sovereignty is a legal-team concern that begins only after triage has closed the case." },
+      { value: "anonymize", label: "Strip usernames from the logs before transfer; anonymized data is exempt from cross-border transfer rules." },
     ]}
     answer="inregion"
-    explanation="Data-residency rules can prevent moving log data across regions, and employee-privacy regimes can restrict what is examined at all. Scope is where that constraint is recognized, because discovering it mid-Uncover means evidence already moved where it should not have. The pseudonymization distractor fails for a reason worth knowing: data that can be re-linked to a person generally remains personal data under GDPR, so stripping usernames does not lift the constraint."
+    explanation="Cross-border rules can restrict moving or even remotely viewing log data. GDPR Chapter V treats access from the US as a transfer that needs a valid mechanism (an adequacy decision or standard contractual clauses), some contracts and national laws impose true residency, and for German staff a works-council agreement may limit what can be examined at all. Scope is where that constraint is recognized, because discovering it mid-Uncover means evidence already moved where it should not have. The anonymize option fails because stripping usernames is pseudonymization, not anonymization: data that can be re-linked to a person remains personal data (GDPR Recital 26), so the constraint still applies."
+    source={{ href: "/docs/scope/infrastructure/#five-kinds-of-infrastructure-edge", label: "Infrastructure boundaries: five kinds of infrastructure edge" }}
   />
 
   <QuizItem
-    prompt="The Scope handoff to Uncover should include investigative questions. Why?"
+    prompt="Every handoff in the worked example lists open questions for Uncover. Why does Scope include them?"
     options={[
-      { value: "format", label: "Standard format: the documentation templates require an open-questions section." },
-      { value: "focus", label: "To focus Uncover on the critical unknowns: specific questions drive specific queries." },
-      { value: "audit", label: "For the audit trail: reviewers check that every open question was eventually answered." },
-      { value: "duplicate", label: "Because Uncover cannot read Subject's findings and needs the questions restated." },
+      { value: "format", label: "Standard format: the documentation templates require an open-questions section in every record." },
+      { value: "audit", label: "For the audit trail: reviewers check that every open question was eventually answered in full." },
+      { value: "focus", label: "To point Uncover at the critical unknowns, because specific questions drive specific queries." },
+      { value: "duplicate", label: "Because Uncover cannot read Subject's findings and needs the open items restated for it." },
     ]}
     answer="focus"
-    explanation="Uncover's depth comes from working through specific investigative questions. How did the attacker get in? What systems were touched? Was data moved? Is persistence active? Scope frames those questions before the data is pulled, which is what keeps Uncover from running broad queries and hoping. The questions are how the methodology converts a boundary into actionable analytical effort."
-    hint="Think about what makes the difference between focused triage and unstructured exploration."
+    explanation="Each open question in the worked example maps to a query Uncover can run. Case C's handoff asks what the session and the app actually read, whether the attacker reached payment threads or the CRM, and whether the tenant sweeps surface other sessions, grants or exposed accounts; Uncover answers each one from the audit log and the sweep. Framing the questions before the data is pulled is what keeps Uncover from running broad queries and hoping. The format and audit options describe side effects, not the purpose, and Uncover reads Subject's findings directly."
+    source={{ href: "/docs/scope/transition/#framing-the-uncover-questions", label: "Transition to Uncover: framing the Uncover questions" }}
+  />
+
+  <QuizItem
+    prompt="An identity-only case has no host in question: a replayed session, an OAuth consent grant, and a hiding inbox rule, all in a SaaS tenant. What does the infrastructure boundary consist of?"
+    options={[
+      { value: "laptop", label: "The user's laptop and its network segment, because every identity is used from some device." },
+      { value: "queries", label: "Named log queries over set windows: sessions, grants, rules and mailboxes, plus a tenant sweep." },
+      { value: "tenants", label: "Every SaaS tenant the user can reach, held as downstream until its vendor clears each one." },
+      { value: "none", label: "Nothing formal: identity cases have no perimeter, so Uncover follows the session where it leads." },
+    ]}
+    answer="queries"
+    explanation="When the infrastructure is someone else's cloud, the boundary is a query set: which sessions, which grants, which mailboxes, over which windows. Case C writes the tenant sweep (proxy-IP sign-ins, attacker-ASN sessions, same-app consents, same-shape rules, MFA registrations) into the boundary so Uncover runs it once, deliberately. The laptop option scopes the wrong plane: rvega's laptop was examined and cleared. Holding every reachable tenant in scope is topology, not evidence, and 'no perimeter' is how an identity case sprawls."
+    source={{ href: "/docs/scope/example/#case-c", label: "Scope working example: Case C, the SaaS token theft" }}
+  />
+
+  <QuizItem
+    prompt="Scope wants six months of SaaS audit history for a user, but the platform keeps 90 days. The query for the older period returns no rows. What goes in the record?"
+    options={[
+      { value: "clean", label: "No activity found for the six-month window, since the query ran cleanly and returned no rows." },
+      { value: "later", label: "Nothing yet; a gap only matters if Uncover ends up needing that older period for its verdict." },
+      { value: "shorten", label: "The 90-day result alone, with the window shortened so the boundary matches the data held." },
+      { value: "gap", label: "A named visibility gap for the dark period, recorded as unknown rather than as no activity." },
+    ]}
+    answer="gap"
+    explanation="A query against logs that were never kept returns nothing, and nothing looks exactly like a clean result. That is why Scope checks retention before Uncover runs the query. The dark period is a visibility gap: it is named in the boundary statement, it lowers confidence (unknown is not Low), and it is never written up as 'no activity'. Quietly shortening the window hides the gap the record exists to show, and deferring it leaves Uncover and Risk reading silence as evidence."
+    source={{ href: "/docs/scope/infrastructure/#tools-as-boundaries", label: "Infrastructure boundaries: tools as boundaries" }}
+  />
+
+  <QuizItem
+    prompt="A compromised mailbox holds customer personal data, some of it about people in the EU. Nothing is yet known to have left the tenant. When does GDPR's 72-hour authority-notification clock start?"
+    options={[
+      { value: "awareness", label: "At awareness: when the organization has a reasonable degree of certainty that personal data was compromised." },
+      { value: "exfil", label: "When the investigation confirms exfiltration; with no data leaving the tenant there is no breach to report." },
+      { value: "dpo", label: "When the DPO completes the formal risk assessment and signs off that a notifiable breach has in fact occurred." },
+      { value: "closed", label: "When IR closes the incident, so the authority receives a full and accurate account the first time." },
+    ]}
+    answer="awareness"
+    explanation="Article 33's clock runs from awareness, which the EDPB describes as a reasonable degree of certainty that a security incident has compromised personal data. Unauthorized access is a breach of confidentiality even if nothing left, so 'no exfiltration, no breach' is wrong. The DPO's assessment decides whether to notify, and it has to happen inside the 72 hours, not before they start. In the worked example, Scope records 09:22 as the candidate awareness timestamp in the token-theft case for exactly this reason."
+    source={{ href: "/docs/scope/regulatory/#gdpr", label: "Regulatory boundaries: GDPR" }}
+  />
+
+  <QuizItem
+    prompt="At a US public company, a cyber incident may be material. When is the Form 8-K Item 1.05 disclosure due?"
+    options={[
+      { value: "discovery", label: "Within four business days of the SOC first discovering the incident, whatever its materiality turns out to be." },
+      { value: "72h", label: "Within 72 hours of the first alert, matching the GDPR clock that most privacy programs already track." },
+      { value: "materiality", label: "Within four business days of the materiality determination, which must be made without unreasonable delay." },
+      { value: "complete", label: "Only once the investigation is complete, so that the filing describes the full impact accurately." },
+    ]}
+    answer="materiality"
+    explanation="Item 1.05 runs from the company's determination that the incident is material, and that determination must itself be made without unreasonable delay after discovery. Disclosure counsel and executives make the materiality call, but they make it from the case record: scope of access, data classes, business functions affected. Vague or missing facts slow a determination the SEC expects promptly, which is why Scope commits them early rather than waiting for the investigation to finish."
+    source={{ href: "/docs/scope/regulatory/#sec", label: "Regulatory boundaries: SEC cyber disclosure" }}
+  />
+
+  <QuizItem
+    prompt="A breach exposes personal information of California residents. Under California's breach-notification law as amended effective 1 January 2026, when must residents be notified?"
+    options={[
+      { value: "expedient", label: "In the most expedient time possible, with no fixed deadline, once the investigation is complete." },
+      { value: "30-days", label: "Within 30 calendar days of discovery, with delay only for law enforcement or to scope and restore." },
+      { value: "72h", label: "Within 72 hours of awareness, mirroring GDPR, with the Attorney General notified at the same time." },
+      { value: "60-days", label: "Within 60 days of discovery, the same outer limit that HIPAA sets for individual breach notification." },
+    ]}
+    answer="30-days"
+    explanation="SB 446 amended Cal. Civ. Code §1798.82, effective 1 January 2026: residents must be notified within 30 calendar days of discovery, and delay is allowed only at law enforcement's request or as needed to determine the breach's scope and restore the system's integrity. When more than 500 residents are notified, a sample notice goes to the Attorney General within 15 days of notifying them. The older 'most expedient time possible' wording, with no fixed clock, is out of date. Scope's contribution is the same as for every regime: the discovery timestamp and the categories of personal information in reach."
+    source={{ href: "/docs/scope/regulatory/#ccpa", label: "Regulatory boundaries: California" }}
+  />
+
+  <QuizItem
+    prompt="Your company hosts a customer's personal data as their processor. Scope finds that an attacker plausibly read some of it. What does GDPR Article 33 expect from your side?"
+    options={[
+      { value: "authority", label: "Notify the supervisory authority within 72 hours yourselves, because the breach happened on your systems." },
+      { value: "nothing", label: "Nothing until the customer asks; as a processor, breach notification is wholly the controller's business." },
+      { value: "controller", label: "Tell the controller without undue delay; their 72 hours generally start from your notice to them." },
+      { value: "confirm", label: "Wait until exfiltration is confirmed, then send the customer one complete and accurate breach report." },
+    ]}
+    answer="controller"
+    explanation="Article 33(2) gives a processor one duty: notify the controller without undue delay after becoming aware of the breach. The controller is generally treated as aware once its processor tells it, so its 72 hours start from your notice, and every hour your side sits on the finding comes out of the customer's window. Many data-processing agreements set a shorter contractual deadline that runs from your discovery. Notifying the authority is the controller's call (Art. 33(1)), not yours. Waiting for exfiltration repeats the confirmation error: unauthorized access is already a breach of confidentiality. Scope's part is the same as always: commit the timestamp, and get the privacy owner who holds the agreement into the case."
+    source={{ href: "/docs/scope/regulatory/#gdpr", label: "Regulatory boundaries: GDPR" }}
   />
 
 </Quiz>
 
 <ContinueCard
   current="scope"
-  nextHref="/docs/scope/transition/"
-  nextLabel="Transition to Uncover"
-  ctaLabel="Continue"
+  nextHref="/docs/uncover/"
+  nextLabel="Uncover"
+  nextDescription="The next question: What does the evidence say?"
+  ctaLabel="Continue to Uncover"
 />

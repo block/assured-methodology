@@ -1,0 +1,54 @@
+---
+title: "Field reference"
+shortTitle: "Field reference"
+description: "Look-up material for the desk: how to read each telemetry source, attack chains, per-source cards, tool families, the identity-persistence sweep and the glossaries."
+slug: "field-reference"
+---
+
+import "@/styles/pages/hubs.css";
+import { primaryNavigation } from "@/data/navigation";
+
+export const group = primaryNavigation.find((g) => g.href === "/docs/field-reference/");
+export const telemetry = group.children.find((c) => c.href.endsWith("#reading-telemetry"));
+export const others = group.children.filter((c) => c !== telemetry);
+
+The chapters teach the questions. These pages are what you look up while answering them: how a given log reads, what a source can and cannot see, which tool family holds the answer, and what a term means. None of them is in the reading order; open the one the case in front of you needs.
+
+## Reading telemetry
+
+{telemetry.description} Each page covers one kind of evidence, with the fields to read first and the ways it misleads.
+
+<ul class="hub-grid">
+  {telemetry.children.map((item) => (
+    <li>
+      <a class="hub-card" href={item.href}>
+        <span class="hub-card__title">{item.title}</span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+These pages sit behind [Reading any alert](/docs/alert/parsing/), the nine-step parsing checklist in the Alert chapter.
+
+## Sources, tools and sweeps
+
+<ul class="hub-grid">
+  {others.map((item) => (
+    <li>
+      {item.children ? (
+        <div class="hub-card">
+          <span class="hub-card__title">{item.title}</span>
+          {item.description && <span class="hub-card__desc">{item.description}</span>}
+          <ul class="hub-sublist">
+            {item.children.map((child) => <li><a href={child.href}>{child.title}</a></li>)}
+          </ul>
+        </div>
+      ) : (
+        <a class="hub-card" href={item.href}>
+          <span class="hub-card__title">{item.title}</span>
+          {item.description && <span class="hub-card__desc">{item.description}</span>}
+        </a>
+      )}
+    </li>
+  ))}
+</ul>

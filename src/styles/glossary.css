@@ -1,14 +1,18 @@
 /**
  * Shared glossary chrome.
  *
- * Each glossary (BAD, CAT, CLEAR) gets its theme via `data-theme` on the
- * page-level wrapper. Tokens below switch palette; structural CSS (hero
- * scale, section-head layout, term-grid layout, motion gating) is shared.
+ * Each glossary (BAD, CAT, CLEAR, ASSURED) gets its theme via `data-theme`
+ * on the page-level wrapper. Tokens below switch palette (the ASSURED
+ * glossary keeps its token block in its own page); structural CSS
+ * (hero scale, jump-nav pills, section heads, citation links, footer,
+ * motion gating) is shared. Term layouts are page-specific and live in each
+ * glossary page's own style block.
  *
  * Add a new themed glossary in three steps:
- *   1. Add `[data-theme="newname"]` token block here.
+ *   1. Add a `[data-theme="newname"]` token block here.
  *   2. Wrap the page in `<div class="g-page" data-theme="newname">`.
- *   3. Use <GlossaryHero>, <AmbientBackground>, <SectionHead>, <TermGrid>.
+ *   3. Use <AmbientBackground> and <GlossaryHero>, then the .g-nav,
+ *      .g-section and .g-foot markup the existing glossary pages use.
  */
 
 /* ----------------------------------------------------------------------
@@ -160,7 +164,7 @@
 
 .g-hero__badge span {
   color: var(--g-accent-light);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -248,7 +252,7 @@
   border: 1px solid var(--g-border);
   color: var(--g-text-muted);
   text-decoration: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -316,66 +320,7 @@
 }
 
 /* ----------------------------------------------------------------------
-   Term grid, cards with h4 + p
-   ---------------------------------------------------------------------- */
-
-.g-terms {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-}
-
-@media (min-width: 768px) {
-  .g-terms {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .g-terms {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.g-term {
-  padding: 1.1rem 1.25rem;
-  background: var(--g-surface);
-  border: 1px solid var(--g-border);
-  border-radius: 0.6rem;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-.g-term:hover {
-  transform: translateY(-2px);
-  border-color: var(--g-border-strong);
-}
-
-.g-term h4 {
-  margin: 0 0 0.35rem;
-  color: var(--g-accent-light);
-  font-size: 0.96rem;
-  font-weight: 700;
-}
-
-.g-term p {
-  margin: 0;
-  color: var(--g-text-muted);
-  line-height: 1.5;
-  font-size: 0.88rem;
-}
-
-.g-term p em {
-  font-style: italic;
-  color: var(--g-accent-light);
-}
-
-.g-term--featured {
-  border-color: var(--g-border-strong);
-  background: color-mix(in srgb, var(--g-accent) 10%, var(--g-surface));
-}
-
-/* ----------------------------------------------------------------------
-   Citation links appended to term cards ("Source: ...")
+   Citation links appended to term entries ("Source: ...")
    ---------------------------------------------------------------------- */
 
 .g-cite {
@@ -427,8 +372,7 @@
    ---------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .g-nav__pill,
-  .g-term {
+  .g-nav__pill {
     transition: none;
   }
 }

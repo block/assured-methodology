@@ -1,8 +1,10 @@
 ---
 title: "Network correlation"
-description: "Tie host activity to outbound traffic. Command-and-control detection through timing, TLS, DNS, and exfiltration patterns."
+description: "Tie host activity to network traffic, outbound and east-west. Command-and-control detection through timing, TLS, DNS, and exfiltration patterns."
+techVerified: "2026-10-13"
 ---
 
+import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import CaseStudy from "@/components/assured/CaseStudy.astro";
 import Reveal from "@/components/assured/Reveal.astro";
@@ -10,31 +12,19 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/alert-parsing.css";
 
 <SubPageHero
   phase="alert"
   parentLetter="A"
-  pillarIndex="03 · 04"
-  pillarTotal="06 pages"
-  chapterHref="/docs/alert/parsing/"
-  chapterLabel="Parsing"
-  lede="Network correlation links host-level events to network telemetry. Adversaries depend on outbound communication for command-and-control, lateral movement, and data exfiltration. Correlation surfaces that traffic by tying it back to the process that initiated it."
+  chapterHref="/docs/field-reference/#reading-telemetry"
+  chapterLabel="Field reference: Reading telemetry"
+  lede="Network correlation links host-level events to network telemetry. Adversaries depend on the network for command-and-control and exfiltration (outbound) and for lateral movement (east-west: SMB, RDP, WinRM). Correlation surfaces that traffic by tying it back to the process that initiated it."
 />
 
-<PillNav
-  chapter="alert"
-  label="Parsing pages"
-  items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
-  ]}
-/>
+<PillNav section="/docs/field-reference/#reading-telemetry" phase="alert" />
 
-A single <DefineTerm term="PowerShell" /> process may look legitimate. A burst of HTTPS <DefineTerm term="Network Traffic" display="traffic" /> may look harmless. Together, they show the process making regular, automated connections to a newly registered <DefineTerm term="Domain" display="domain" /> — the shape of <DefineTerm term="Beaconing" display="beaconing" />, and a hypothesis neither event earned alone. The picture changes.
+A single <DefineTerm term="PowerShell" /> process may look legitimate. A burst of HTTPS traffic may look harmless. Together, they show the process making regular, automated connections to a newly registered domain: the shape of <DefineTerm term="Beaconing" display="beaconing" />, and a hypothesis neither event earned alone.
 
 ## Two perspectives, one picture
 
@@ -68,58 +58,99 @@ A single <DefineTerm term="PowerShell" /> process may look legitimate. A burst o
 
 Correlation reveals three signals that, in isolation, are not decisive:
 
-1. The PowerShell process launched outside the <DefineTerm term="User" display="user" />'s normal working hours.
+1. The PowerShell process launched outside the user's normal working hours.
 2. Within seconds, the host established encrypted HTTPS sessions to a domain registered 48 hours earlier.
-3. The destination has low prevalence in historical DNS data, and the TLS client fingerprint (<DefineTerm term="JA3" />/<DefineTerm term="JA4" />) does not match any browser or approved tool in the environment.
+3. The destination has low prevalence in historical DNS data, and the TLS client fingerprint (<DefineTerm term="JA4" />, or legacy <DefineTerm term="JA3" />) has never been seen on this host or elsewhere in the fleet.
 
-Keep the two layers separate. What is *observed*: off-hours execution, a 48-hour-old domain, low prevalence, an unrecognized client fingerprint. What is *inferred*: initial compromise and command-and-control. The combination earns that as the working hypothesis — the correlation is the alert — but it is the start of the investigation, not its verdict.
+Keep the two layers separate. What is *observed*: off-hours execution, a 48-hour-old domain, low prevalence, a never-seen client fingerprint. What is *inferred*: initial compromise and command-and-control. The combination earns that as the working hypothesis (the correlation is the alert), but it is the start of the investigation, not its verdict.
 
-<Reveal summary="Why no single signal was decisive — and what decides">
-- PowerShell at 03:00 could be a developer working late.
+<Reveal summary="Why no single signal was decisive, and what decides">
+- PowerShell at 03:15 could be a developer working late.
 - HTTPS to a new domain could be a new SaaS tool.
 - Low-prevalence destinations exist legitimately.
+- A never-seen fingerprint can be a newly installed tool built on Go, Python or a vendor SDK.
 
-Each indicator on its own would be tuned out as noise. The combination crosses the alerting threshold — and the whole set still has a benign twin: a contractor's late-night run of a just-installed vendor CLI against the vendor's freshly launched endpoint matches all three. The decisive follow-ups separate the twins: what launched the process (parent, user, scheduled task, or interactive session), whether the cadence holds a fixed machine interval over hours, who registered and operates the destination, and whether anything else in the fleet talks to it.
+Each indicator on its own would be tuned out as noise. The combination crosses the alerting threshold. Even so, the whole set has a benign twin: a contractor's late-night run of a just-installed vendor CLI against the vendor's freshly launched endpoint matches all three. The decisive follow-ups separate the twins: what launched the process (parent, user, scheduled task, or interactive session), whether the cadence holds a fixed machine interval over hours, who registered and operates the destination, and whether anything else in the fleet talks to it.
 </Reveal>
 
 </CaseStudy>
 
 ---
 
+## Where each half comes from
+
+Correlation is a join, and a join needs both halves and a key.
+
+- **Process half:** Sysmon Event ID 3 (network connection) and 22 (DNS query), or the EDR's network events. These carry the process, the user, and the <code>ProcessGuid</code>. Sysmon's network logging is off unless the configuration turns it on.
+- **Wire half:** proxy and secure web gateway logs, firewall logs, Zeek <code>conn</code>, <code>dns</code> and <code>ssl</code> logs, NetFlow or IPFIX, and cloud flow logs such as VPC Flow Logs.
+- **The join:** host plus source port plus destination plus a time window. Behind NAT or an explicit proxy, the firewall sees only the translated address or the proxy itself; the proxy log holds the real client. The [correlation join keys](/docs/uncover/correlation/) in Uncover cover the trap in detail.
+
+<Reveal summary="Annotated sample: both halves of one connection" variant="deep-dive">
+
+Trimmed and fictional; the field names are real. The same connection appears as a firewall syslog line on the [formats and normalization page](/docs/alert/parsing/multi-format/).
+
+**Process half, Sysmon Event ID 3 (network connection):**
+
+```text
+UtcTime=2026-03-10 14:22:05.001  ProcessGuid={6a1f0c3e-2b7d-65f0-4c1a-000000001a00}  ProcessId=8128
+Image=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe  User=CORP\jdoe  Protocol=tcp  Initiated=true
+SourceIp=10.20.4.17  SourcePort=51544  DestinationIp=198.51.100.23  DestinationPort=443
+```
+
+**Wire half, Zeek <code>conn.log</code> (JSON output):**
+
+```json
+{"ts":1773152525.004,"uid":"CjX4a21kP0nQ3Vv7Ue","id.orig_h":"10.20.4.17","id.orig_p":51544,
+ "id.resp_h":"198.51.100.23","id.resp_p":443,"proto":"tcp","service":"ssl",
+ "duration":0.41,"orig_bytes":517,"resp_bytes":3870,"conn_state":"SF"}
+```
+
+- The join is the four-tuple (<code>SourceIp</code>/<code>id.orig_h</code>, <code>SourcePort</code>/<code>id.orig_p</code>, destination address and port) within a few seconds. Zeek's <code>ts</code> is epoch seconds in UTC, the connection's start; Sysmon's <code>UtcTime</code> is UTC too, so the 3 ms difference is sensor timing, not skew.
+- The Sysmon half names the process and its <code>ProcessGuid</code>, which links back to the process tree. The Zeek half names nothing on the host.
+- Zeek's <code>uid</code> is the pivot inside Zeek: the same value in <code>ssl.log</code> gives the server name and TLS details for this connection, and <code>dns.log</code> holds the lookup that preceded it.
+- This only works because the Zeek sensor sits inside the NAT boundary. A sensor outside it would see the firewall's public address and a translated port, and the firewall's NAT log would be the bridge.
+
+</Reveal>
+
+<Callout variant="info" title="What the wire still shows">
+TLS 1.3 encrypts the server certificate, and Encrypted Client Hello (ECH, RFC 9849) hides the SNI; DNS over HTTPS takes the lookup away from your DNS logs. Without TLS inspection, certificate properties come from active scans (JARM, JA4X, Certificate Transparency logs) rather than the session itself, and destination identity may reduce to an IP address and a CDN. Know which of these your sensors can still see before you weigh the certificate and SNI signals on this page.
+</Callout>
+
+---
+
 ## Telemetry to analyze
 
-Four primary surfaces, each with its own signal patterns:
+Five telemetry views, each with its own signal patterns:
 
 <div class="telemetry-grid">
   <div class="telemetry-card">
-    <div class="telemetry-card__icon">🔎</div>
+    <div class="telemetry-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
     <h3>DNS queries</h3>
     <ul>
-      <li>Algorithmically generated <DefineTerm term="DGA">Domain Generation Algorithm. A technique where malware computes domain names at runtime so command-and-control servers can rotate quickly to avoid blocklists.</DefineTerm> domains detected via entropy scoring</li>
+      <li>Algorithmically generated (<DefineTerm term="DGA">Domain Generation Algorithm. A technique where malware computes domain names at runtime so command-and-control servers can rotate quickly to avoid blocklists.</DefineTerm>, ATT&CK T1568.002) domains: high-entropy labels, or dictionary-word mashups (<code>cityjulydish.example</code>) that entropy scoring misses. Bursts of NXDOMAIN responses from one process are often the better tell.</li>
       <li>Randomized subdomains</li>
-      <li>Extremely short TTLs or fast-flux patterns</li>
+      <li>Fast-flux patterns (many unrelated IPs across ASNs for one name); short TTLs alone are normal for CDNs and cloud load balancers.</li>
     </ul>
   </div>
   <div class="telemetry-card">
-    <div class="telemetry-card__icon">🔗</div>
+    <div class="telemetry-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
     <h3>Network connections</h3>
     <ul>
-      <li>Traffic to recently observed external destinations</li>
+      <li>Traffic to first-seen external destinations (never contacted by this host or the fleet before)</li>
       <li>Known malicious ranges from threat intelligence</li>
       <li>Unusual port usage, uncommon protocols</li>
     </ul>
   </div>
   <div class="telemetry-card">
-    <div class="telemetry-card__icon">📊</div>
+    <div class="telemetry-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div>
     <h3>Data transfer patterns</h3>
     <ul>
-      <li>Automated beaconing (consistent packet sizes at consistent intervals)</li>
-      <li>Human-driven traffic is irregular and variable</li>
+      <li>Automated beaconing (consistent sizes at consistent intervals, unlike irregular human-driven traffic)</li>
       <li>Sustained large outbound transfers off-hours</li>
     </ul>
   </div>
   <div class="telemetry-card">
-    <div class="telemetry-card__icon">🛡️</div>
+    <div class="telemetry-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
     <h3>Protocol usage</h3>
     <ul>
       <li>Tunneling or obfuscation (DNS over HTTPS bypassing inspection)</li>
@@ -127,9 +158,18 @@ Four primary surfaces, each with its own signal patterns:
       <li>Custom encryption layers</li>
     </ul>
   </div>
+  <div class="telemetry-card">
+    <div class="telemetry-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></div>
+    <h3>East-west traffic</h3>
+    <ul>
+      <li>Workstation-to-workstation SMB, RDP, or WinRM from hosts that never initiate them (ATT&CK T1021)</li>
+      <li>DCOM or remote service creation against many hosts in a short window</li>
+      <li>Kerberos anomalies: a burst of service-ticket requests from one account, or tickets requested with weak (RC4) encryption</li>
+    </ul>
+  </div>
 </div>
 
-A finance workstation that normally talks only to internal ERP systems and then initiates TLS sessions to a low-reputation cloud storage provider outside business hours is a strong <DefineTerm term="Exfiltration" display="exfiltration" /> hypothesis — and only that until questions the metadata cannot answer get answered: what actually transferred (volume approximates content only where DLP or object-level logs exist), and whether anyone authorized a new destination, because a sanctioned backup migration or vendor onboarding produces this exact trace. The decisive queries: the process that opened the sessions, transfer volume against the host's own baseline, and whether the destination tenant belongs to the organization or a contracted vendor.
+A finance workstation that normally talks only to internal ERP systems, suddenly opening TLS sessions to a low-reputation cloud storage provider after hours, is a strong <DefineTerm term="Exfiltration" display="exfiltration" /> hypothesis. It stays a hypothesis until two questions are answered. What actually moved? (Byte counts show volume; only DLP or the storage provider's object logs show content.) Did anyone authorize the destination? A sanctioned backup migration leaves the same trace. The decisive queries: which process opened the sessions, how the volume compares with the host's own baseline, and who owns the destination tenant.
 
 ---
 
@@ -142,242 +182,74 @@ Three dimensions to weigh on every connection:
     <span class="strategy-item__num">01</span>
     <div>
       <h3>Connection metadata</h3>
-      <p>Timestamps, source and destination IPs, ports, session durations, TLS cipher and handshake behavior.</p>
+      <p>Timestamps, source and destination IPs, ports, session durations, TLS cipher and handshake behavior, and TLS client fingerprints (JA4, or legacy JA3).</p>
     </div>
   </div>
   <div class="strategy-item">
     <span class="strategy-item__num">02</span>
     <div>
-      <h3>Payload characteristics</h3>
-      <p>Fixed packet sizes, repetitive transmission intervals, hallmarks of automated beaconing.</p>
+      <h3>Traffic shape</h3>
+      <p>Sizes, intervals, and byte ratios: fixed packet sizes and repetitive transmission intervals are the hallmarks of automated beaconing.</p>
     </div>
   </div>
   <div class="strategy-item">
     <span class="strategy-item__num">03</span>
     <div>
       <h3>Destination reputation</h3>
-      <p>Domain age, prevalence in the environment, threat intelligence overlap, geographic anomalies, TLS client fingerprints (JA3/JA4), certificate provenance.</p>
+      <p>Domain age, prevalence in the environment, threat intelligence overlap, geographic anomalies, certificate provenance.</p>
     </div>
   </div>
 </div>
 
-A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern — and an internal tool polling a just-provisioned dev endpoint can match it field for field, which is why the pattern opens an investigation rather than closing one; the process's parent and the destination's owner are the queries that split the two. Do not require the shady certificate, though: modern commodity C2 fronts with valid certificates from free CAs or hides behind CDNs, which is why domain age, prevalence, and TLS client fingerprints (JA3/JA4) carry more weight than certificate hygiene. Without combining process-level context, network <DefineTerm term="Metadata" display="metadata" />, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
+A PowerShell process repeatedly reaching out via HTTPS to a newly registered domain using a self-signed TLS certificate carrying a generic common name is a classic obfuscated-C2 pattern. An internal tool polling a just-provisioned dev endpoint can match it field for field, which is why the pattern opens an investigation rather than closing one. The process's parent and the destination's owner are the queries that split the two. Do not require the shady certificate, though: modern commodity C2 fronts with valid certificates from free CAs or hides behind CDNs, which is why domain age, prevalence, and a fingerprint rare for this host carry more weight than certificate hygiene. Increasingly, C2 rides on reputable services (Telegram bots, GitHub, Cloudflare tunnels, cloud storage APIs; ATT&CK T1102), where domain age and reputation are useless. There, the questions are which process talks to the service and whether that process ever should. Without combining process-level context, network metadata, and reputation scoring, the same activity might pass for ordinary HTTPS traffic.
 
 ---
 
 ## Command-and-control indicators
 
-Adversaries hide C2 inside legitimate protocols (HTTPS, DNS). The automation underneath leaves fingerprints.
+Adversaries hide C2 inside legitimate protocols (HTTPS, DNS; ATT&CK T1071), and current frameworks (Cobalt Strike, Sliver, Havoc, Mythic) make that the default. The automation underneath leaves fingerprints.
 
 <div class="c2-grid">
   <div class="c2-card">
-    <h3>⏱️ Timing patterns</h3>
-    <p>Frameworks often default to precise beacon intervals. Legitimate traffic rarely has that cadence.</p>
+    <h3>Timing patterns</h3>
+    <p>Some frameworks ship with zero jitter (Cobalt Strike's default) and careless operators leave it; others add jitter by default (Sliver adds up to 30 seconds), and most operators configure it. Plenty of legitimate software also polls on a fixed interval (update checks, agent heartbeats, telemetry), so cadence is a filter, not a verdict. Score periodicity per process and destination (a stable mean interval, consistent sizes, long-lived low-volume connections), baseline and allowlist known pollers, then ask whether that process should be polling that destination at all.</p>
   </div>
   <div class="c2-card">
-    <h3>🔐 TLS certificates</h3>
-    <p>Mismatched, self-signed, or generic-CN certificates still appear on cheap infrastructure, but valid certificates are now the norm for C2. Treat certificate hygiene as weak evidence; client fingerprints (JA3/JA4) identify the connecting software regardless of the certificate.</p>
+    <h3>TLS certificates</h3>
+    <p>Mismatched, self-signed, or generic-CN certificates still appear on cheap infrastructure, but valid certificates are now the norm for C2, so treat certificate hygiene as weak evidence. TLS client fingerprints (prefer JA4; JA3 is degraded by Chrome's extension-order randomization) identify the TLS library and its configuration, not the application. A fingerprint shared with Windows SChannel, Go, or Python tells you little. A rare fingerprint on a host where it has never appeared is the signal.</p>
   </div>
   <div class="c2-card">
-    <h3>🔎 DNS patterns</h3>
-    <p>High-volume queries for random-looking domains (DGA). Rapid IP rotation tied to a single domain (fast-flux). Domains registered in the last 30 days.</p>
+    <h3>DNS patterns</h3>
+    <p>Bursts of failed (NXDOMAIN) lookups for generated domains, whether random-looking or word-based (DGA). Rapid IP rotation tied to a single domain (fast-flux). Domains registered in the last 30 days.</p>
   </div>
   <div class="c2-card">
-    <h3>📤 Exfiltration indicators</h3>
-    <p>Large compressed transfers outside normal hours. Outbound spikes to low-reputation destinations.</p>
+    <h3>Exfiltration indicators</h3>
+    <p>Large compressed transfers outside normal hours. Outbound spikes to low-reputation destinations, or to a cloud storage tenant the organization does not own (ATT&CK T1567.002).</p>
+  </div>
+  <div class="c2-card">
+    <h3>C2 that borrows reputation</h3>
+    <p>When the destination is a reputable SaaS, tunnel or RMM domain, reputation is useless. Pivot on the process (why is powershell or an unsigned binary talking to <code>api.telegram.org</code> or <code>*.trycloudflare.com</code>?), on the tenant (whose OneDrive?), and on sanctioned-tool inventory (is this RMM tool approved here?).</p>
   </div>
 </div>
 
-An internal database <DefineTerm term="Server" display="server" /> that suddenly sends gigabytes of zipped data to a generic cloud storage provider at 02:30 is a strong signal that data is leaving — and a hypothesis of theft, not proof of it. Volume, timing, and destination establish that something large moved somewhere unusual; they cannot establish intent, and a DBA's ad-hoc backup to a newly provisioned storage tenant leaves the identical trace. What separates the cases: a change record or maintenance window, ownership of the destination, and the process and identity that initiated the transfer. If those come back empty on a database server, escalate on the evidence you have — an unexplained bulk transfer from a high-value asset meets criteria without a motive attached.
+An internal database server that suddenly sends gigabytes of zipped data to a generic cloud storage provider at 02:30 is a strong signal that data is leaving. It is a hypothesis of theft, not proof of it. Volume, timing, and destination establish that something large moved somewhere unusual; they cannot establish intent, and a DBA's ad-hoc backup to a newly provisioned storage tenant leaves the identical trace. What separates the cases: a change record or maintenance window, ownership of the destination, and the process and identity that initiated the transfer. If those come back empty on a database server, do not wait for a motive: an unexplained bulk transfer from a high-value asset is High impact at no less than Medium likelihood, so the matrix places the case at P2 or higher, and the Escalation decision escalates on the evidence you have.
+
+## Check yourself
+
+A Zeek <code>conn</code> log shows <code>10.20.4.17</code> opening a TLS session to <code>198.51.100.23:443</code> every 60 seconds, give or take 4, for six hours. The EDR's network events for that host show <code>OneDriveStandaloneUpdater.exe</code> and an unsigned <code>svcupd.exe</code> from <code>%LOCALAPPDATA%</code> both talking to port 443 in that window. Parse it before you open the answer: which half tells you what, and what would you query next?
+
+<Reveal summary="One way to answer">
+The wire half gives the cadence (a 60-second interval with small jitter) but not the process. The process half names two candidates, so join on source port and time to see which process owns the periodic sessions. If it is <code>svcupd.exe</code>, the unsigned binary in a per-user path is the lead: hash it, find its creation event and parent, and check the destination's prevalence across the fleet. If it is the OneDrive updater, the cadence is a known poller, and the question becomes whether that destination belongs to Microsoft. Either way, cadence alone was never the verdict.
+</Reveal>
 
 <KeyTakeaway>
-Network correlation moves you from isolated alerts to unified adversary visibility. State what you observed separately from what you infer, name the benign twin, and run the query that separates them. Map the chain from initial <DefineTerm term="Execution" display="execution" /> to external communication before <DefineTerm term="Lateral Movement" display="lateral movement" /> widens it. <DefineTerm term="Containment" /> is a criteria decision, not an inevitability: it triggers when escalation criteria confirm, not whenever traffic looks strange.
+Network correlation moves you from isolated alerts to unified adversary visibility. State what you observed separately from what you infer, name the benign twin, and run the query that separates them. Map the chain from initial execution to external communication before <DefineTerm term="Lateral Movement" display="lateral movement" /> widens it. <DefineTerm term="Containment" /> is a criteria decision, not an inevitability: it follows an escalation made because a criterion is confirmed or the matrix places the case at P1 or P2, not whenever traffic looks strange.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
   nextHref="/docs/alert/parsing/file-system/"
   nextLabel="File system activity"
-  nextDescription="Persistence, payload deployment, ransomware staging, exfiltration preparation. Tracking the file lifecycle and its metadata."
+  nextDescription="Persistence, payload deployment, ransomware staging, exfiltration staging. Tracking the file lifecycle and its metadata."
   ctaLabel="Read file system"
 />
-
-<style>
-{`
-.perspective-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .perspective-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.perspective-card {
-  padding: 1.5rem 1.75rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 4px solid var(--accent, var(--assured-accent));
-  border-radius: 0.85rem;
-}
-
-.perspective-card--host { --accent: #f97316; }
-.perspective-card--net  { --accent: var(--assured-accent); }
-
-.perspective-card__label {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.7);
-  color: var(--accent);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 0.65rem;
-  border: 1px solid var(--accent);
-}
-
-.perspective-card h3 {
-  margin: 0 0 0.75rem 0;
-  color: var(--assured-text);
-  font-size: 1.05rem;
-}
-
-.perspective-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.perspective-card li {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.9rem;
-}
-
-.telemetry-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px)  { .telemetry-grid { grid-template-columns: 1fr 1fr; } }
-
-.telemetry-card {
-  padding: 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.85rem;
-}
-
-.telemetry-card__icon {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.telemetry-card :is(h3, h4) {
-  margin: 0 0 0.6rem 0;
-  color: var(--assured-accent-soft);
-  font-size: 1rem;
-}
-
-.telemetry-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.telemetry-card li {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.9rem;
-}
-
-.strategy-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.25rem 0;
-}
-
-.strategy-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-
-.strategy-item__num {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--assured-accent), #3b82f6);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.strategy-item :is(h3, h4) {
-  margin: 0 0 0.3rem 0;
-  color: var(--assured-text);
-  font-size: 1rem;
-}
-
-.strategy-item p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-.c2-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 640px)  { .c2-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .c2-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.c2-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #ef4444;
-  border-radius: 0.6rem;
-}
-
-.c2-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #fca5a5;
-  font-size: 0.95rem;
-}
-
-.c2-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.telemetry-card h3, .strategy-item h3, .c2-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

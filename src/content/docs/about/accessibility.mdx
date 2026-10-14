@@ -1,0 +1,32 @@
+---
+title: "Accessibility"
+shortTitle: "Accessibility"
+description: "The site targets WCAG 2.2 AA. What is checked automatically on every build, what the browser tests cover, the known gaps, and how to report a barrier."
+---
+
+The ASSURED site targets conformance with the <a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener noreferrer">Web Content Accessibility Guidelines (WCAG) 2.2</a> at level AA. This page says what is checked, how often, and where the checks stop, so a reader who meets a barrier knows whether it is known.
+
+## Checked on every build
+
+These gates run before the site is built, locally and in CI, and a failure stops the build:
+
+- **Color contrast.** A contrast check recomputes every guarded text color against the panels it sits on, at both ends of the background gradient and through hover tints, from the current source colors. Any pair below 4.5:1 fails.
+- **Keyboard, print and no-JavaScript behavior.** Engineering contracts pin the behaviors that are easy to break silently: header menus are disclosure buttons that Escape dismisses, quiz options are labeled by their prompt, card links carry their visible label in their accessible name, repeated glossary tooltips stop adding tab stops, and quizzes, flip cards, collapsed panels and the phase diagram stay readable without JavaScript and in print.
+- **Headings.** A gate stops new section headings written as raw HTML, which would drop out of the page's table of contents and lose their anchor link.
+
+## Checked in a browser on every change
+
+The CI browser tests load one page of each template type (the home page, the introduction, a chapter index, a worked example, a quiz, a glossary and the one-page reference) and run axe against WCAG 2.2 AA rules; any serious or critical violation fails the run. The same tests walk the keyboard path a reader depends on: the first Tab reaches the skip link and lands on the main content, the search dialog opens from the header and closes on Escape, and answering a quiz item locks it and announces the verdict.
+
+Animated components respect the reduced-motion setting: with it on, the phase diagram, flip cards, steppers and collapsible panels drop their animations and show their content directly.
+
+## Known limitations
+
+- **Coverage is per template, not per page.** axe runs on one page of each type, so a problem specific to one page can get through until someone reports it.
+- **No assistive-technology audit yet.** The site has not had a recorded pass with a screen reader, voice control or screen magnification. Reports from readers who use them are the most useful kind.
+- **Diagrams rely on their text equivalents.** The phase diagram and the decorative SVG art carry a text description or are hidden from assistive technology; the prose and tables around them carry the content.
+- **One color scheme.** The site has a single dark theme, and Windows high-contrast (forced colors) mode is handled only on the glossary pages.
+
+## Report a barrier
+
+Open an issue from the <a href="https://github.com/block/assured-methodology/issues/new/choose" target="_blank" rel="noopener noreferrer">issue chooser</a> and pick the site bug template. Give the page address, what you were trying to do, and the browser, device and any assistive technology you use. A barrier that blocks reading or navigation is treated as a bug, not a suggestion.

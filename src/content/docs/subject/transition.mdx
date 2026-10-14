@@ -1,373 +1,80 @@
 ---
 title: "Transition to Scope"
-description: "What Subject leaves behind, and what Scope picks up. The handoff that turns an entity map into a formal investigation boundary."
+description: "The Subject-to-Scope handoff contract: the seven-section Subject handoff, the close path, what Scope asks next, and how depth changes the handoff."
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
-import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+import "@/styles/pages/subject.css";
 
 <SubPageHero
   phase="subject"
-  parentLetter="S"
   pillarIndex="Transition"
-  pillarTotal="Subject to Scope"
-  chapterHref="/docs/subject/"
-  chapterLabel="Subject"
-  lede="Subject produced a structured map of identities and relationships. Scope turns that map into the formal boundary of the investigation: what is in, what is out, what time window each entity is investigated across, and what evidence the next phase has to gather."
+  lede="Subject leaves a defended map of identities. Scope turns that map into the formal boundary of the investigation. This page is the contract between the two."
 />
 
-<PillNav
-  chapter="subject"
-  label="Subject chapter"
-  items={[
-    { label: "Four dimensions",      href: "/docs/subject/four-dimensions/",     phase: "subject" },
-    { label: "Entity types",         href: "/docs/subject/entity-types/",        phase: "subject" },
-    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework/",phase: "subject" },
-    { label: "Insider analysis",     href: "/docs/subject/insider-analysis/",    phase: "subject" },
-  ]}
-/>
+<PillNav chapter="subject" />
 
-<Callout variant="info" title="Two phases complete. The next begins.">
-Alert answered <em>what fired</em>. Subject answered <em>who acted</em>. Scope answers <em>how much of this matters</em>. The Subject-to-Scope handoff is what stops an investigation from staying frozen on a single user when the activity has already reached three other identities and a downstream cloud workload.
+## The handoff contract
+
+<dl class="handoff-contract">
+  <div class="handoff-contract__row">
+    <dt>Deliverable</dt>
+    <dd>The Subject handoff: the <a href="#the-handoff-itself">seven sections below</a>, under one page. Most of it is structured selection from Subject's notes, not new writing. The chapter's four products map onto it: the entity map is section 2, baselines and deviations with their confidence are section 3, the relationship graph is section 2's classification rings plus the lateral-movement candidates in section 5, and insider indicators are section 6 (insider posture). Template: <a href="/templates/subject-summary.md" download><span aria-hidden="true">⬇ </span>subject-summary.md</a>.</dd>
+  </div>
+  <div class="handoff-contract__row">
+    <dt>Close path</dt>
+    <dd>Subject closes nothing on its own. A clean verdict on all four dimensions is recorded explicitly and handed to Scope as a narrow recommendation; the close itself happens at the Escalation decision (Case B in the <a href="/docs/subject/example/#case-b">working example</a>).</dd>
+  </div>
+  <div class="handoff-contract__row">
+    <dt>What Scope asks</dt>
+    <dd><em>Where are the lines?</em> A window per entity, the environmental boundary, the users in scope, and the regulatory flags. Subject's recommendation is the first draft of each.</dd>
+  </div>
+  <div class="handoff-contract__row">
+    <dt>Depth</dt>
+    <dd>At Level 1, Subject and Scope run as one sweep and the handoff is a few lines in the <a href="/docs/documentation/templates/">alert report</a>. At Level 2, write all seven sections. A clean Subject never moves a case back down a level.</dd>
+  </div>
+  <div class="handoff-contract__row">
+    <dt>You are ready if</dt>
+    <dd>
+      <ul>
+        <li>Every entity examined is on the map, cleared ones included, and every verdict carries a confidence label. A silent gap is not a verdict.</li>
+        <li>Insider posture and regulatory flags are recorded, even when the entry is "none observed".</li>
+      </ul>
+    </dd>
+  </div>
+</dl>
+
+<Callout variant="warn" title="Live compromise does not wait for the handoff">
+If Subject confirms a canonical escalation criterion at High confidence (a hijacked session still valid, an active persistence artifact, data leaving), the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a> fires from Subject: page the IR lead, <a href="/docs/escalation/preserve/">preserve first</a>, and run only the reversible pre-authorized actions. The handoff becomes scoping support under IR's clock. Suspicion is different: an unconfirmed signal refines Scope. Case C in the <a href="/docs/subject/example/#case-c">working example</a> shows the pattern.
 </Callout>
-
-## What the transition is for
-
-Subject ends with a map of identities. Scope's job is to draw lines around that map: which entities are in the investigation, what time window each gets, what depth of analysis each warrants. A clean Subject-to-Scope handoff does three things.
-
-<div class="transition-roles">
-  <div class="transition-role">
-    <span class="transition-role__num">01</span>
-    <div>
-      <h3>Hands forward the entity map</h3>
-      <p>Primary entities, secondary entities, high-value paths. Every identity Subject profiled, with the per-dimension assessment attached.</p>
-    </div>
-  </div>
-  <div class="transition-role">
-    <span class="transition-role__num">02</span>
-    <div>
-      <h3>Surfaces investigation pressure points</h3>
-      <p>Which entities most reward deeper investigation, which are confirmed clean and can be deprioritized, where the highest-impact lateral movement risks live.</p>
-    </div>
-  </div>
-  <div class="transition-role">
-    <span class="transition-role__num">03</span>
-    <div>
-      <h3>Frames the parameters Scope formalizes</h3>
-      <p>Time window, environmental footprint, user context. Scope turns each into an explicit boundary the rest of the investigation respects.</p>
-    </div>
-  </div>
-</div>
-
----
-
-## Four deliverables from Subject
-
-By the time the analyst leaves the Subject phase, they should be carrying four <DefineTerm term="Artifacts" display="artifacts" />. Each one feeds directly into Scope.
-
-<div class="deliverables-grid">
-  <div class="deliverable-card">
-    <h3>🗺️ The entity map</h3>
-    <ul>
-      <li><strong>Primary entities</strong>, identities directly named or implicated by the alert.</li>
-      <li><strong>Secondary entities</strong>, identities the primary entities are connected to (service accounts, federated SSO identities, peers on the same host).</li>
-      <li><strong>Downstream entities</strong>, systems and data the implicated identities can reach.</li>
-      <li><strong>Per-entity dimension assessment</strong>, authentication, authorization, behavior, relationships for each.</li>
-    </ul>
-  </div>
-
-  <div class="deliverable-card">
-    <h3>📊 Baselines and deviations</h3>
-    <ul>
-      <li><strong>Which baseline informed each verdict</strong>, individual, peer-group, or system.</li>
-      <li><strong>The actual values</strong> at the time of triage. Critical for defending decisions in later review.</li>
-      <li><strong>Confidence levels</strong>, high, medium, low per the <a href="/docs/documentation/standards/#confidence">shared rubric</a>. Captures the gap between "we know" and "we believe."</li>
-      <li><strong>Open questions</strong>, what the baseline could not answer. These become Uncover work.</li>
-    </ul>
-  </div>
-
-  <div class="deliverable-card">
-    <h3>🔗 The relationship graph</h3>
-    <ul>
-      <li><strong>Trust paths</strong>, which identities can authenticate as which others (via SSO, role assumption, shared credentials).</li>
-      <li><strong>Communication patterns</strong>, who emailed whom, who shared what, who joined which call.</li>
-      <li><strong>Access dependencies</strong>, which systems each identity can reach if compromised.</li>
-      <li><strong>Lateral movement candidates</strong>, the relationships most worth Uncover-phase investigation.</li>
-    </ul>
-  </div>
-
-  <div class="deliverable-card">
-    <h3>🟡 Insider indicators</h3>
-    <ul>
-      <li><strong>Risk or threat patterns observed</strong>, mapped to the <DefineTerm term="Insider Threat Matrix">A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Subject uses it as a shared lens.</DefineTerm> where applicable.</li>
-      <li><strong>None observed</strong> is itself a worth-recording verdict. It documents the check happened.</li>
-      <li><strong>Escalation triggers</strong>, anything that requires HR, legal, or insider-threat program coordination.</li>
-      <li><strong>Behavioral signals</strong> separate from technical evidence (stress indicators, recent role changes, expressed grievance) where relevant.</li>
-    </ul>
-  </div>
-</div>
-
----
-
-## Three parameters Scope needs
-
-Subject's map is the input. Scope formalizes it across three dimensions. Anticipating those dimensions during Subject is how the handoff stays clean.
-
-<div class="scope-params">
-  <div class="scope-param">
-    <div class="scope-param__head">
-      <span class="scope-param__num">⏱</span>
-      <h3>Time boundaries</h3>
-    </div>
-    <p>The alert has a timestamp. Investigation does not. Scope decides how far back to look (for preparation, staging, access changes that preceded the activity) and how far forward (for cascading effects, follow-on behavior, persistence).</p>
-    <ul class="scope-param__list">
-      <li><strong>Pre-event window.</strong> Subject already surfaced relevant baselines and recent changes. Scope formalizes "look back N days" as a hard boundary.</li>
-      <li><strong>Post-event window.</strong> Has the activity continued? Stopped? Resumed under a different identity? Scope sets the watching window.</li>
-      <li><strong>Per-entity windows.</strong> Different entities deserve different lookbacks. A service account with stable baseline needs less history than a user whose role recently changed.</li>
-    </ul>
-  </div>
-
-  <div class="scope-param">
-    <div class="scope-param__head">
-      <span class="scope-param__num">🌐</span>
-      <h3>Environmental scope</h3>
-    </div>
-    <p>Subject identified which systems each entity touches. Scope decides which of those systems are actually in the investigation. The line is rarely "everything connected to the entity" because most modern environments are too interconnected for that to be useful.</p>
-    <ul class="scope-param__list">
-      <li><strong>Direct systems.</strong> Hosts the implicated identities authenticated against during the relevant window.</li>
-      <li><strong>Connected systems.</strong> Services the direct systems integrate with: APIs, identity providers, deployment pipelines, ticketing systems.</li>
-      <li><strong>Trust-adjacent systems.</strong> Systems that share credentials or trust the same identity provider. May be in scope even if the implicated identity never touched them directly.</li>
-      <li><strong>Out of scope.</strong> What is explicitly NOT being investigated. This is just as important. Without it, the investigation drifts indefinitely.</li>
-    </ul>
-  </div>
-
-  <div class="scope-param">
-    <div class="scope-param__head">
-      <span class="scope-param__num">👥</span>
-      <h3>User context</h3>
-    </div>
-    <p>Subject profiled the named entities. Scope decides which other users to investigate, which can be ruled out, and which need to be informed (without compromising the investigation).</p>
-    <ul class="scope-param__list">
-      <li><strong>Implicated users.</strong> Subject's primary entities, profile already complete.</li>
-      <li><strong>Adjacent users.</strong> Peer-group members, team-mates on the same workflows, others on the same host. Worth a baseline comparison even if no direct evidence ties them in.</li>
-      <li><strong>Affected users.</strong> Anyone whose data or accounts might be exposed by the activity. These often drive notification and regulatory obligations.</li>
-      <li><strong>Notification posture.</strong> Whether to tell users they were involved depends on the investigation type. For insider work, the default is no until coordinated with HR and legal.</li>
-    </ul>
-  </div>
-</div>
-
----
 
 ## The handoff itself
 
-A complete Subject-to-Scope handoff usually fits in a structured artifact the next analyst can act on without re-deriving Subject's work.
+1. **Investigation header:** case and alert IDs, analyst, timestamp, a two-sentence summary, and whether the tripwire has fired (and who owns the case).
+2. **<DefineTerm term="Entity" /> inventory:** one row per identity examined, with type (user, service account, host or device, application or OAuth grant, session or token, resource, artifact, network identifier, threat), classification (primary, secondary, downstream, originating threat) and a per-dimension verdict, which may read "examined and cleared". A non-human identity's row names the person or pipeline behind it ([who is behind this](/docs/subject/non-human-identities/#answering-who-is-behind-this)).
+3. **Confidence summary:** for each implicated entity, the verdict, the baseline behind it and a label on the [shared rubric](/docs/documentation/standards/#confidence).
+4. **Open questions:** each one an explicit Uncover target.
+5. **Recommended scope parameters:** a window per entity anchored to its last known-good point (for a non-human identity, its [last credential rotation](/docs/subject/non-human-identities/#answering-who-is-behind-this)), the environmental boundary (including what is out), and the lateral-movement candidates.
+6. **Insider posture:** activity mapped to the <DefineTerm term="Insider Threat Matrix" display="Insider Threat Matrix" />, or "none observed". Personal context stays with the insider-program owner, HR and legal; it never enters the SOC handoff.
+7. **Regulatory flags:** Alert's flag as written (reached, or only reachable), the data classes in reach, and the timestamp of reasonable cause. Some clocks start at awareness, not confirmation; Scope's [regulatory check](/docs/scope/regulatory/) starts here.
 
-<Reveal summary="The Subject deliverable: a six-section handoff document" variant="example">
+<TemplateEmbed name="subject-summary.md" title="Subject handoff template" collapse />
 
-A clean handoff document has six sections:
-
-1. **Investigation header.** Alert ID, Subject analyst, timestamp, scenario summary in two sentences.
-
-2. **<DefineTerm term="Entity" /> inventory.** Table of every identity Subject profiled. Columns: name, type (<DefineTerm term="User" display="user" /> / service / role / host / network), classification (primary / secondary / downstream), per-dimension verdict.
-
-3. **Confidence summary.** For each implicated entity, what the analyst concluded and how confident they are, labeled per the [shared confidence rubric](/docs/documentation/standards/#confidence). Critical for Scope to know which entities are settled and which need more work.
-
-4. **Open questions.** What Subject could not resolve. These become explicit Uncover-phase targets.
-
-5. **Recommended scope parameters.** First-pass time window, environmental boundary, user context. Scope will refine these but the recommendation accelerates the work.
-
-6. **Insider posture.** Risk or <DefineTerm term="Threat" display="threat" /> indicators observed, escalation triggered or not, who else needs to be in the conversation.
-
-A handoff under one page is the goal. Most of the work is structured selection from Subject's data, not new writing.
-
-</Reveal>
-
----
-
-## Common Subject-to-Scope failure modes
-
-Subject can be done well and still fail at handoff. The following patterns reduce the value of the work.
-
-<div class="failure-grid">
-  <div class="failure-card">
-    <h3>📋 Missing the secondary identities</h3>
-    <p>Subject profiled the named user thoroughly but did not surface the service account, the federated cloud identity, or the SSO trust path. Scope inherits a narrower picture than the data actually supported.</p>
-  </div>
-  <div class="failure-card">
-    <h3>🤐 No confidence statement</h3>
-    <p>"Authentication: normal" without a confidence level. Scope cannot tell whether the verdict is "we checked and verified" or "we did not see anything obviously wrong." These are different states with different implications.</p>
-  </div>
-  <div class="failure-card">
-    <h3>🪤 Implicit out-of-scope</h3>
-    <p>Subject narrowed the investigation by silently not investigating obvious adjacent entities. Scope then has to re-discover those entities and decide whether to include them, often after time has passed.</p>
-  </div>
-  <div class="failure-card">
-    <h3>📭 Missing insider posture</h3>
-    <p>Subject's verdict on insider risk or threat went unrecorded. Scope inherits ambiguity on whether the investigation needs HR/legal coordination, often the wrong moment to be making that call.</p>
-  </div>
-</div>
-
-<Callout variant="warn" title="When in doubt, surface the doubt">
-Subject's handoff should be explicit about what the analyst is unsure of. Scope can work with "we believe but have not confirmed X." Scope struggles with silently incomplete verdicts that look more certain than they are. The point of the handoff is to surface the gaps, not to hide them.
-</Callout>
-
----
+The common failures are silent ones: a secondary identity that never reaches the map, a verdict with no confidence label, adjacent entities left out without a word, and a missing insider-posture line.
 
 <KeyTakeaway>
-Subject produces the map. Scope draws the lines. The cleaner the map, the cleaner the lines. The handoff is structured selection from Subject's work plus three explicit recommendations (time, environment, users) that Scope will formalize. Done well, the next analyst can start work without redoing Subject's analysis.
+Subject produces the map; Scope draws the lines. The handoff is seven sections of structured selection, scaled to the depth level, and a clean verdict is recorded as carefully as a dirty one. When Subject confirms an escalation criterion, the handoff becomes scoping support under IR's clock instead of a gate.
 </KeyTakeaway>
 
-<PuzzleProgress
-  current="subject"
-/>
+<SevenQuestions current="subject" />
 
 <div class="end-cta">
-  <a href="/docs/subject/" class="assured-cta assured-cta--ghost">← Back to Subject overview</a>
-  <a href="/docs/scope/" class="assured-cta">Continue to Scope →</a>
+  <a href="/docs/subject/" class="assured-cta assured-cta--ghost"><span aria-hidden="true">← </span>Back to Subject overview</a>
+  <a href="/docs/subject/quiz/" class="assured-cta">Take the Subject quiz<span aria-hidden="true"> →</span></a>
 </div>
-
-<style>
-{`
-.transition-roles {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.25rem 0 1.75rem;
-}
-@media (min-width: 768px) { .transition-roles { grid-template-columns: repeat(3, 1fr); } }
-
-.transition-role {
-  display: flex;
-  gap: 0.85rem;
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-.transition-role__num {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* level changed for the heading outline; size stays as designed */
-.transition-role :is(h3, h4) {
-  margin: 0 0 0.25rem 0;
-  color: var(--assured-text);
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-.transition-role p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-
-@media (min-width: 768px)  { .deliverables-grid { grid-template-columns: 1fr 1fr; } }
-
-.deliverable-card {
-  padding: 1.4rem 1.55rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  border-radius: 0.85rem;
-}
-/* level changed for the heading outline; size stays as designed */
-.deliverable-card :is(h3, h4) {
-  margin: 0 0 0.75rem 0;
-  color: #86efac;
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-.deliverable-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-.deliverable-card strong { color: var(--assured-text); }
-
-.scope-params {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin: 1.25rem 0;
-}
-
-.scope-param {
-  padding: 1.5rem 1.75rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 4px solid #22c55e;
-  border-radius: 0.85rem;
-}
-
-.scope-param__head {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 0.6rem;
-}
-.scope-param__num {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-.scope-param__head h3 {
-  margin: 0;
-  color: #86efac;
-  font-size: 1.15rem;
-}
-.scope-param > p {
-  margin: 0 0 0.85rem 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-.scope-param__list {
-  margin: 0;
-  padding-left: 1.15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-.scope-param__list strong { color: var(--assured-text); }
-
-/* level changed for the heading outline; size stays as designed */
-.failure-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #fbbf24;
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-.end-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  margin: 2rem 0 1rem;
-}
-`}
-</style>

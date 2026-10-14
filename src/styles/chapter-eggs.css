@@ -1,0 +1,225 @@
+/* ----------------------------------------------------------------------
+   Chapter easter-egg styles (toasts, flashes, confetti, the BREAKGLASS
+   overlay). Loaded on demand by src/scripts/chapter-eggs.js only after a
+   reader turns keyboard eggs on, so the default-off site never fetches
+   them. Global by nature: the script appends these elements to <body>.
+   ---------------------------------------------------------------------- */
+.egg-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  z-index: 9999;
+  padding: 1rem 1.75rem;
+  border-radius: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  max-width: min(92vw, 36rem);
+  text-align: center;
+  line-height: 1.5;
+}
+.egg-toast.is-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+/* Each toast takes its phase's tokens, so Alert is blue, Subject green,
+   Scope purple, Uncover orange, Risk red, Escalation indigo and
+   Documentation cyan, as everywhere else on the site. */
+.egg-toast.alert    { background: linear-gradient(135deg, var(--assured-phase-alert-deep), #0f172a); border-color: var(--assured-phase-alert-soft); }
+.egg-toast.subject  { background: linear-gradient(135deg, var(--assured-phase-subject-deep), #0f172a); border-color: var(--assured-phase-subject-soft); }
+.egg-toast.scope    { background: linear-gradient(135deg, var(--assured-phase-scope-deep), #0f172a); border-color: var(--assured-phase-scope-soft); }
+.egg-toast.uncover  { background: linear-gradient(135deg, var(--assured-phase-uncover-deep), #0f172a); border-color: var(--assured-phase-uncover-soft); }
+.egg-toast.risk     { background: linear-gradient(135deg, var(--assured-phase-risk-deep), #0f172a); border-color: var(--assured-phase-risk-soft); }
+.egg-toast.escal    { background: linear-gradient(135deg, var(--assured-phase-escalation-deep), #0f172a); border-color: var(--assured-phase-escalation-soft); }
+.egg-toast.doc      { background: linear-gradient(135deg, var(--assured-phase-documentation-deep), #0f172a); border-color: var(--assured-phase-documentation-soft); }
+.egg-toast.intro    { background: linear-gradient(135deg, #5b21b6, #312e81); border-color: #c4b5fd; }
+
+.egg-flash {
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.18s ease;
+}
+.egg-flash.is-on { opacity: 1; }
+/* 1s pulse period = at most 1 flash/sec on these full-viewport overlays;
+   faster cycles (0.4-0.5s) approach the WCAG 2.3.1 three-flash threshold. */
+.egg-flash.alert { background: radial-gradient(circle at 50% 50%, rgba(220,38,38,0.55), rgba(127,29,29,0.85)); animation: egg-pulse 1s ease-in-out 2; }
+.egg-flash.risk  { background: radial-gradient(circle at 50% 50%, rgba(250,204,21,0.45), rgba(146,64,14,0.8)); }
+.egg-flash.escal { background: radial-gradient(circle at 50% 50%, rgba(248,113,113,0.5), rgba(127,29,29,0.85)); animation: egg-pulse 1s ease-in-out 2; }
+
+@keyframes egg-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.egg-zoom {
+  animation: egg-zoom-kf 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center center;
+}
+@keyframes egg-zoom-kf {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.egg-boundary {
+  position: fixed; inset: 1.5rem; z-index: 9997;
+  pointer-events: none;
+  border: 3px dashed #6ee7b7;
+  border-radius: 1rem;
+  opacity: 0;
+  animation: egg-bound-kf 1.6s ease-out;
+}
+@keyframes egg-bound-kf {
+  0% { opacity: 0; transform: scale(1.08); }
+  20% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.98); }
+}
+
+.egg-matrix {
+  position: fixed; top: -2rem; z-index: 9996;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #60a5fa;
+  text-shadow: 0 0 8px rgba(96,165,250,0.8);
+  pointer-events: none;
+  user-select: none;
+  animation: egg-fall 2.4s linear forwards;
+  font-size: 1.25rem;
+  white-space: nowrap;
+}
+@keyframes egg-fall {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(105vh); opacity: 0; }
+}
+
+.egg-d20 {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: clamp(8rem, 30vmin, 14rem);
+  height: clamp(8rem, 30vmin, 14rem);
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #92400e, #451a03);
+  border: 4px solid #fcd34d;
+  color: #fef3c7;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: clamp(3rem, 12vmin, 5rem);
+  border-radius: 1rem;
+  clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 60px rgba(252,211,77,0.5);
+  animation: egg-d20-kf 3s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes egg-d20-kf {
+  0%   { transform: translate(-50%, -50%) rotate(0deg) scale(0.2); opacity: 0; }
+  15%  { transform: translate(-50%, -50%) rotate(540deg) scale(1.1); opacity: 1; }
+  35%  { transform: translate(-50%, -50%) rotate(900deg) scale(1); opacity: 1; }
+  90%  { transform: translate(-50%, -50%) rotate(900deg) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(900deg) scale(0.6); opacity: 0; }
+}
+
+.egg-confetti {
+  position: fixed; top: -1rem;
+  width: 0.6rem; height: 1rem;
+  z-index: 9995;
+  pointer-events: none;
+  animation: egg-confetti-kf 3s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+@keyframes egg-confetti-kf {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+.egg-glow-hero h1,
+.egg-glow-hero .content-page__title {
+  animation: egg-glow-kf 1.6s ease-in-out 2;
+}
+@keyframes egg-glow-kf {
+  0%, 100% { text-shadow: none; }
+  50% { text-shadow: 0 0 24px rgba(167,139,250,0.9), 0 0 48px rgba(96,165,250,0.6); color: #fff; }
+}
+
+/* ---------- BREAKGLASS: cracked-screen overlay ---------- */
+.egg-glass {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  animation: egg-glass-show 4.8s ease-out forwards;
+}
+.egg-glass svg { width: 100%; height: 100%; display: block; }
+.egg-glass__crack {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: egg-glass-draw 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes egg-glass-draw { to { stroke-dashoffset: 0; } }
+@keyframes egg-glass-show {
+  0% { opacity: 0; }
+  6% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.egg-glass__impact {
+  animation: egg-glass-impact 0.45s ease-out forwards;
+}
+@keyframes egg-glass-impact {
+  0% { r: 4; opacity: 1; stroke-width: 3; }
+  100% { r: 70; opacity: 0; stroke-width: 0.5; }
+}
+
+/* Screen shake on body (applies to whole layout) */
+.egg-shake { animation: egg-screen-shake 0.55s ease-out; }
+@keyframes egg-screen-shake {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-6px, 3px); }
+  20% { transform: translate(7px, -4px); }
+  30% { transform: translate(-5px, 2px); }
+  40% { transform: translate(4px, -3px); }
+  50% { transform: translate(-3px, 3px); }
+  60% { transform: translate(4px, -3px); }
+  70% { transform: translate(-2px, 1px); }
+  85% { transform: translate(1px, -1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable egg motion outright rather than shortening it (a faster
+     confetti fall is worse for vestibular users, not better). Elements
+     whose keyframes doubled as their visibility get static visible
+     states; the JS removal timers still clean everything up. The
+     opacity-only fades (egg-glass-show, .egg-toast fade, .egg-flash
+     fade) stay: they are not motion. */
+  .egg-toast { transition: opacity 0.3s ease; transform: translateX(-50%) translateY(0); }
+  .egg-glass__crack { animation: none; stroke-dashoffset: 0; }
+  .egg-glass__impact { animation: none; opacity: 0; }
+  .egg-shake { animation: none; }
+  .egg-flash.alert, .egg-flash.escal { animation: none; }
+  .egg-zoom { animation: none; }
+  .egg-boundary { animation: none; opacity: 1; }
+  /* Matrix rain and confetti are also skipped at spawn time by a JS
+     matchMedia gate; animation:none here is belt-and-braces against the
+     inline per-particle animation-duration randomization. */
+  .egg-matrix, .egg-confetti { animation: none !important; opacity: 0; }
+  .egg-d20 { animation: none; }
+  .egg-glow-hero h1, .egg-glow-hero .content-page__title { animation: none; }
+}

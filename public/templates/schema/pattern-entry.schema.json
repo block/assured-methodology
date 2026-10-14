@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/pattern-entry.schema.json",
+  "title": "Pattern-library entry",
+  "description": "A pattern-library entry, governed like code: owner and second-person approver, version history, review date, discriminators, invalidation triggers, reversal threshold and the machine-close flag.",
+  "x-assured-template": "pattern-entry.md",
+  "type": "object",
+  "properties": {
+    "identity": {
+      "x-assured-section": "Identity",
+      "type": "object",
+      "properties": {
+        "patternId": {
+          "x-assured-prompt": "Pattern ID",
+          "type": "string",
+          "pattern": "^PTN-[0-9]+$",
+          "description": "Pattern ID (e.g. PTN-NNN)"
+        },
+        "name": {
+          "x-assured-prompt": "Name",
+          "type": "string",
+          "description": "Name (one line: the benign behavior this documents)"
+        },
+        "owner": {
+          "x-assured-prompt": "Owner",
+          "type": "string",
+          "description": "Owner (person or team accountable for the entry's correctness)"
+        },
+        "approver": {
+          "x-assured-prompt": "Approver",
+          "type": "string",
+          "description": "A second person, not the author or requester."
+        },
+        "versionAndWhatChanged": {
+          "x-assured-prompt": "Version, and what changed from the previous version",
+          "type": "string",
+          "description": "Version, and what changed from the previous version"
+        },
+        "created": {
+          "x-assured-prompt": "Created",
+          "$ref": "assured-vocabulary.schema.json#/$defs/date",
+          "description": "Created (UTC date)"
+        },
+        "reviewDate": {
+          "x-assured-prompt": "Review date",
+          "$ref": "assured-vocabulary.schema.json#/$defs/date",
+          "description": "Review date (the entry's expiry: invalid for Level 0 after this date; by default every 90 days)"
+        }
+      },
+      "required": [
+        "patternId",
+        "name",
+        "owner",
+        "approver",
+        "versionAndWhatChanged",
+        "created",
+        "reviewDate"
+      ]
+    },
+    "theBehavior": {
+      "x-assured-section": "The behavior",
+      "type": "object",
+      "properties": {
+        "theBenignActivityDescribed": {
+          "x-assured-prompt": "The benign activity, described concretely",
+          "type": "string",
+          "description": "The benign activity, described concretely"
+        },
+        "theThreatItMimics": {
+          "x-assured-prompt": "The threat it mimics",
+          "type": "string",
+          "description": "The threat it mimics (what the detection is actually hunting)"
+        },
+        "linkedDetections": {
+          "x-assured-prompt": "Linked detections",
+          "type": "string",
+          "description": "Linked detections (rule name and ID @ version) this pattern typically fires"
+        },
+        "expectedVolume": {
+          "x-assured-prompt": "Expected volume",
+          "type": "string",
+          "description": "Expected volume (closes per week, and the host or identity spread), and the threshold above which a spike forces review"
+        },
+        "evidenceBasis": {
+          "x-assured-prompt": "Evidence basis",
+          "type": "string",
+          "description": "Evidence basis (the cases, vendor documentation, or change records that established the behavior as benign)"
+        }
+      },
+      "required": [
+        "theBenignActivityDescribed",
+        "theThreatItMimics",
+        "linkedDetections",
+        "expectedVolume",
+        "evidenceBasis"
+      ]
+    },
+    "discriminators": {
+      "x-assured-section": "Discriminators",
+      "type": "object",
+      "properties": {
+        "steps": {
+          "x-assured-list": "numbered",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["steps"]
+    },
+    "knownMimicryAndBlind": {
+      "x-assured-section": "Known mimicry and blind spots",
+      "type": "object",
+      "properties": {
+        "howAnAttackerWould": {
+          "x-assured-prompt": "How an attacker would imitate this pattern, and which discriminator still catches the imitation",
+          "type": "string",
+          "description": "How an attacker would imitate this pattern, and which discriminator still catches the imitation"
+        },
+        "validationTest": {
+          "x-assured-prompt": "Validation test",
+          "type": "string",
+          "description": "Validation test (how to generate an imitation the discriminators must catch; run it at each review)"
+        },
+        "blindSpots": {
+          "x-assured-prompt": "Blind spots",
+          "type": "string",
+          "description": "Blind spots (what these discriminators cannot see)"
+        }
+      },
+      "required": ["howAnAttackerWould", "validationTest", "blindSpots"]
+    },
+    "eligibilityConstraints": {
+      "x-assured-section": "Eligibility constraints",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "governance": {
+      "x-assured-section": "Governance",
+      "type": "object",
+      "properties": {
+        "recurrenceThreshold": {
+          "x-assured-prompt": "Recurrence threshold",
+          "type": "string",
+          "description": "Recurrence threshold (e.g. three Level 0 closes on the same entity in seven days force a Level 1 review)"
+        },
+        "invalidationTriggers": {
+          "x-assured-prompt": "Invalidation triggers",
+          "type": "string",
+          "description": "Invalidation triggers (any of these forces immediate re-review; closes move to Level 1 meanwhile): linked rule changed, asset group re-tagged, observed abuse of the pattern, and for AI-matched entries a model, prompt or tool version change; other"
+        },
+        "reversalThreshold": {
+          "x-assured-prompt": "Reversal threshold",
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Reversal threshold (confirmed false closes that suspend the entry automatically until the owner re-reviews it; by default, one)"
+        },
+        "machineCloseFlag": {
+          "x-assured-prompt": "Machine-close flag",
+          "type": "object",
+          "properties": {
+            "flag": {
+              "enum": ["on", "off"],
+              "default": "off"
+            }
+          },
+          "required": ["flag"],
+          "description": "Machine-close flag (default off). Turn it on only when every box holds"
+        },
+        "qaSampleRateForMachineCloses": {
+          "x-assured-prompt": "QA sample rate for machine closes",
+          "type": "object",
+          "properties": {
+            "rate": {
+              "type": "string",
+              "description": "Share of machine closes a human reviews, or \"not applicable\" while the flag is off."
+            },
+            "reviewer": {
+              "type": "string"
+            }
+          },
+          "required": ["rate"],
+          "description": "QA sample rate for machine closes (share of closes a human reviews, and the reviewer; \"not applicable\" while the flag is off)"
+        },
+        "killSwitchOwner": {
+          "x-assured-prompt": "Kill-switch owner",
+          "type": "string",
+          "description": "Kill-switch owner (named person)"
+        },
+        "thisEntry": {
+          "x-assured-checkbox": "this entry, at this version, carries the flag with the approver's sign-off",
+          "type": "boolean",
+          "default": false
+        },
+        "discriminatorsAreEvaluatedByCode": {
+          "x-assured-checkbox": "discriminators are evaluated by code, not by a reader",
+          "type": "boolean",
+          "default": false
+        },
+        "theEligibilityGateIsEnforced": {
+          "x-assured-checkbox": "the eligibility gate is enforced by code on every close",
+          "type": "boolean",
+          "default": false
+        },
+        "humansQaSampleTheMachine": {
+          "x-assured-checkbox": "humans QA-sample the machine closes (rate and reviewer named)",
+          "type": "boolean",
+          "default": false
+        },
+        "reversalAndMissRatesAre": {
+          "x-assured-checkbox": "reversal and miss rates are tracked for this entry",
+          "type": "boolean",
+          "default": false
+        },
+        "aKillSwitchExists": {
+          "x-assured-checkbox": "a kill switch exists, with a named owner",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "recurrenceThreshold",
+        "invalidationTriggers",
+        "reversalThreshold",
+        "machineCloseFlag",
+        "qaSampleRateForMachineCloses",
+        "killSwitchOwner"
+      ]
+    },
+    "history": {
+      "x-assured-section": "History",
+      "type": "object",
+      "properties": {
+        "alertsClosedAgainstThis": {
+          "x-assured-prompt": "Alerts closed against this entry",
+          "type": "string",
+          "description": "Alerts closed against this entry (running count or query link)"
+        },
+        "auditSampleResults": {
+          "x-assured-prompt": "Audit-sample results",
+          "type": "string",
+          "description": "Audit-sample results (date, closes sampled, false closes found)"
+        },
+        "falseCloseReviews": {
+          "x-assured-prompt": "False-close reviews",
+          "type": "string",
+          "description": "False-close reviews (date and outcome, when a close against this entry was later found wrong)"
+        },
+        "versionHistory": {
+          "x-assured-prompt": "Version history",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "date": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/date"
+              },
+              "author": {
+                "type": "string"
+              },
+              "approver": {
+                "type": "string"
+              },
+              "change": {
+                "type": "string"
+              }
+            },
+            "required": ["version", "date", "author", "approver"]
+          },
+          "description": "Version history (version, date, author, approver, change)"
+        },
+        "tuningFeedbackFiled": {
+          "x-assured-prompt": "Tuning feedback filed",
+          "type": "string",
+          "description": "Tuning feedback filed"
+        }
+      },
+      "required": [
+        "alertsClosedAgainstThis",
+        "auditSampleResults",
+        "falseCloseReviews",
+        "versionHistory",
+        "tuningFeedbackFiled"
+      ]
+    }
+  },
+  "required": [
+    "identity",
+    "theBehavior",
+    "discriminators",
+    "knownMimicryAndBlind",
+    "eligibilityConstraints",
+    "governance",
+    "history"
+  ]
+}

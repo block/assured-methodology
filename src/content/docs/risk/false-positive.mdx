@@ -1,6 +1,7 @@
 ---
-title: "The value of investigating a false-positive"
-description: "A closed case is not a wasted case. The reflection on a false-positive sharpens detection and the analyst's instinct."
+title: "What a benign close teaches"
+description: "A closed case is not a wasted case. Reflecting on a benign close, whether a false positive or a benign true positive, sharpens detection and the analyst's instinct."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
@@ -10,29 +11,26 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/risk.css";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="03" pillarTotal="03" chapterHref="/docs/risk/" chapterLabel="Risk" lede="Most alerts close as false-positives. The methodology asks the analyst to treat that closure as a finding, not as a non-event."/>
+<SubPageHero phase="risk" lede="Most alerts close without an incident: sometimes because the rule misfired (a false positive), often because it fired correctly on authorized or expected activity (a benign true positive). The methodology asks the analyst to treat either closure as a finding, not as a non-event."/>
 
-<PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
-]}/>
+<PillNav chapter="risk" />
 
-## Three things a closed false-positive teaches
+## Three things a benign close teaches
 
 <div class="fp-grid">
   <div class="fp-card">
-    <h3>🎯 Detection precision</h3>
-    <p>Every false-positive points at a place where the detection logic could be sharper. Capture which rule fired, what made it noisy, and what change would prevent the same noise next time. This is the feedback the detection team needs.</p>
+    <h3>Detection precision</h3>
+    <p>Every false positive points at a place where the detection logic, or the data it reads, could be sharper. Capture which rule fired, what made it misfire (a logic defect or bad input data), and what change would prevent the same misfire next time. This is the feedback the detection team needs.</p>
   </div>
   <div class="fp-card">
-    <h3>🧠 Analyst instinct</h3>
-    <p>The first false-positive on a new alert type feels productive. The fiftieth feels like waste. Both reactions are useful: the first builds knowledge, the fiftieth is a sign the alert needs to be retired or re-tuned.</p>
+    <h3>Analyst instinct</h3>
+    <p>The first benign close on a new alert type feels productive. The fiftieth feels like waste. Both reactions are useful: the first builds knowledge, and the fiftieth is a sign the alert needs tuning (if the closes are false positives) or a scoped allowlist or pattern entry (if they are benign true positives).</p>
   </div>
   <div class="fp-card">
-    <h3>🌐 Environmental drift</h3>
-    <p>False-positives often surface legitimate operational changes the SOC was not told about. A new automation tool, a new vendor integration, a configuration change. The closed case becomes a feedback channel to other teams.</p>
+    <h3>Environmental drift</h3>
+    <p>Benign closes, false positives and benign true positives alike, often surface legitimate operational changes the SOC was not told about. A new automation tool, a new vendor integration, a configuration change. The closed case becomes a feedback channel to other teams.</p>
   </div>
 </div>
 
@@ -40,87 +38,99 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 ## What to record
 
-Even a clean <DefineTerm term="False Positive" display="false-positive" /> closure should produce:
+Even a clean benign close should produce:
 
+- **The verdict on both axes.** Detection: true positive, <DefineTerm term="False Positive" display="false positive" /> (logic), or false positive (data). Activity: malicious, policy violation, authorized (<DefineTerm term="Benign True Positive" display="benign true positive" />), benign-confirmed, or undetermined. An undetermined activity verdict is not a benign close: it closes only with its gaps named and a reopen trigger written, or the case moves up a level.
 - **What fired and why.** The alert source, the rule, the inputs.
 - **What the analyst checked.** Which dimensions, which sources, which queries.
-- **What ruled the case out.** The specific evidence that supported "false-positive."
-- **What to change.** Detection-engineering feedback, baseline adjustments, or knowledge to share with the team.
+- **What ruled the case out.** The specific evidence that supported the benign verdict.
+- **What to change.** Detection-engineering feedback, a pattern entry, baseline adjustments, or knowledge to share with the team, routed by verdict (below).
 
-<Callout variant="warn" title="False-positive or benign true positive? The fork matters">
-Two different verdicts hide under "nothing bad happened," and they route differently. A <strong>false-positive</strong> means the detection misread the activity: the rule claimed adversary behavior and the behavior was not that. The fix is detection-side: tune, refine, or suppress. A <strong>benign true positive</strong> means the detection read the activity correctly and the activity was authorized anyway: a pentest, an admin script, a sanctioned scanner doing exactly what the rule describes. That detection is healthy, and suppressing it would blind the SOC to the real thing. The fix is context-side: an allowlist entry for the sanctioned source, with an expiry date and an owner. Writing "false-positive" on a benign true positive sends the wrong team a ticket and, worse, invites de-tuning a rule that works.
+<Callout variant="warn" title="False positive or benign true positive? The fork matters">
+Two different verdicts hide under "nothing bad happened," and they route differently. A <strong>false positive</strong> means the detection misread the activity: the rule claimed adversary behavior and the behavior was not that, because the logic is flawed or the input data was wrong. The fix is detection-side: a logic change with a regression test, or a parser or pipeline ticket for bad data. <a href="/docs/cases/case-d/">Case D</a> works a data-caused false positive end to end. A <strong>benign true positive</strong> means the detection read the activity correctly and the activity was authorized anyway: a pentest, an admin script, a sanctioned scanner doing exactly what the rule describes. That detection is healthy, and suppressing it would blind the SOC to the real thing. The fix is context-side: a one-off is documented and closed; a recurring class gets a <a href="/docs/fast-path/">pattern entry</a>, so the alert still fires and closes fast against written discriminators, or, when a silencing control is truly needed, a scoped allowlist entry with an expiry date and an owner. Writing "false positive" on a benign true positive files the wrong kind of ticket (a logic change instead of a scoped, expiring exception) and, worse, invites de-tuning a rule that works.
 </Callout>
 
-<Callout variant="info" title="The reflection is the value">
-Closing a case without documenting the reasoning is a missed opportunity. The reflection takes minutes; the value compounds over time as the SOC's collective knowledge grows.
-</Callout>
+<table class="route-table">
+  <caption>Where each close goes</caption>
+  <thead>
+    <tr><th scope="col">Verdict</th><th scope="col">Route</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Benign true positive, one-off</th><td>Document it in the close.</td></tr>
+    <tr><th scope="row">Benign true positive, recurring class</th><td>A pattern entry (<a href="/templates/pattern-entry.md" download>template</a>), or a scoped, expiring exception keyed to the context that makes it benign (for a tool: its version, the extension or plugin ID, and the destination set), with an owner and re-fire triggers. Never keyed on signer and install path alone.</td></tr>
+    <tr><th scope="row">False positive (logic)</th><td>A logic change plus a regression test proving the rule still fires on the malicious variant.</td></tr>
+    <tr><th scope="row">False positive (data)</th><td>A parser or pipeline ticket, not a rule ticket.</td></tr>
+    <tr><th scope="row">Undetermined</th><td>Not a benign close. Score it with the evidence rules, name the gaps and a re-score trigger, then close with a reopen trigger or move the case up a level (see <a href="/docs/risk/framework/#undetermined">undetermined verdicts</a>).</td></tr>
+  </tbody>
+</table>
+
+The full routing table, the tuning-request template and exception governance are on <a href="/docs/detection-feedback/">Triage and detection engineering</a>.
+
+The reflection is the value. Closing a case without documenting the reasoning is a missed opportunity: the record takes minutes, and its value compounds as the SOC's collective knowledge grows.
 
 ---
 
-## An analyst's reflection on false-positives
+## An analyst's reflection on benign closes
 
-A reflection that bears repeating, from one of the methodology's authors.
+A reflection that bears repeating, from the methodology's author.
 
-<Reveal summary="Early in my career, I approached every alert with the assumption that it was malicious..." variant="info">
+<Reveal summary="Early in my career, I approached security alerts with the default assumption that they represented confirmed malicious activity." variant="info">
 
 Early in my career, I approached security alerts with the default assumption that they represented confirmed malicious activity. My objective, consciously or not, became finding the bad, even if it meant stretching beyond what the data supported. That mindset produced frequent over-scoping, time wasted on benign anomalies, and rabbit holes that undermined my investigative efficiency.
 
 The methodology asks for a deliberate inversion. We are not validating <DefineTerm term="Threat" display="threat" /> assumptions; we are validating the alert. My role is to interpret observed behavior against contextual baselines, technical realities, and environmental constraints, not to assume malice by default.
 
-Alarms are not omniscient. They are designed and tuned by humans, and they inherently reflect imperfect understanding, incomplete data, and an evolving threat landscape. An alert is a starting point, not a conclusion. Even alerts that mimic known adversary techniques may be entirely benign when I examine them within the proper technical and operational context.
+Alerts are not omniscient. They are designed and tuned by humans, and they inherently reflect imperfect understanding, incomplete data, and an evolving threat landscape. An alert is a starting point, not a conclusion. Even alerts that mimic known adversary techniques may be entirely benign when I examine them within the proper technical and operational context.
 
-The triage process is not about proving evil. It is about accurately characterizing risk. Recognizing a false-positive upholds the integrity of the investigative process, minimizes unnecessary disruptions, and preserves resources for the genuinely consequential threats. **Clarity, not escalation, is the primary outcome of effective triage.**
+The triage process is not about proving evil. It is about accurately characterizing risk. Recognizing a benign close for what it is upholds the integrity of the investigative process, minimizes unnecessary disruptions, and preserves resources for the genuinely consequential threats. **Clarity, not escalation, is the primary outcome of effective triage.**
 
 </Reveal>
 
 ---
 
-## When false-positive volume becomes its own signal
+## When benign-close volume becomes its own signal
 
-A single false-positive is a closure with feedback. A pattern of false-positives on the same rule, environment, or asset class is a signal about the detection stack itself.
+A single benign close is a closure with feedback. A pattern of benign closes on the same rule, environment, or asset class is a signal about the detection stack itself. Say which kind each pattern is: false-positive patterns get logic or data fixes; benign-true-positive patterns get context, and the rule stays as written.
 
 <div class="fp-pattern-grid">
   <div class="fp-pattern-card">
-    <h3>🔁 Same rule, repeatedly</h3>
-    <p>The rule is over-broad or mis-tuned. Triggers detection-engineering review and likely a refined variant or suppression.</p>
+    <h3>Same rule, repeatedly</h3>
+    <p>Usually false positives: the rule is over-broad or mis-tuned, or its input data is wrong. Triggers detection-engineering review and a logic change with a regression test, or a parser fix.</p>
   </div>
   <div class="fp-pattern-card">
-    <h3>🏷️ Same asset class</h3>
-    <p>The asset's normal behavior overlaps with the rule's logic. May need an asset-class-aware variant or a baseline-aware suppression.</p>
+    <h3>Same asset class</h3>
+    <p>Either kind. If the rule misreads normal behavior on this class, an asset-class-aware variant. If it reads the behavior correctly and the behavior is sanctioned, a pattern entry or scoped exception for that class.</p>
   </div>
   <div class="fp-pattern-card">
-    <h3>📅 Same time window</h3>
-    <p>A scheduled operational task is firing the rule. Coordinate with the operations team to tag the activity or adjust the rule.</p>
+    <h3>Same time window</h3>
+    <p>Usually benign true positives: a scheduled task doing what the rule describes. Tag or allowlist the job with an owner and expiry; do not loosen the rule.</p>
   </div>
   <div class="fp-pattern-card">
-    <h3>👥 Same user role</h3>
-    <p>The role's legitimate workflow looks suspicious to the rule. A role-aware variant or context-enriched suppression is the fix.</p>
+    <h3>Same user role</h3>
+    <p>Usually benign true positives: the role's legitimate workflow is what the rule describes. A role-aware variant or a context-enriched exception with an owner and expiry is the fix, not a looser rule.</p>
   </div>
 </div>
 
-<Callout variant="warn" title="Suppress with care">
-Suppression is a powerful tool that becomes a detection gap when over-used. The methodology asks for a suppression rationale, a review cadence, and an owner. A suppression that no one ever reviews becomes the place an attacker hides.
+One pattern points the other way. Several low-priority closes on the same account or host within days are not necessarily unrelated benign closes; slow attacks live in that gap. Re-score the entity's recent activity as one case before closing the next alert on it (see <a href="/docs/risk/framework/#entity">watching the entity</a> on the priority matrix page).
+
+<Callout variant="warn" title="Exceptions, suppressions, and tuning">
+Three tools, often confused: an **exception** is narrow and context-based, and the rule still runs; a **suppression** hides the alert; **tuning** changes the logic. Each becomes a detection gap when over-used. Every exception or suppression records its scope (entity- and field-level, never rule-wide), a rationale with the case link, an owner, an approver, an expiry date, storage as code next to the rule, a monitored hit count, and a re-test at expiry proving the rule still fires on the malicious variant. For a sanctioned tool, key it to the context that makes the behavior benign (the tool version, the extension or plugin ID, and the destination set), with re-fire triggers for a version change, a new extension, or a new destination. Never key it on signer and install path alone: code running inside a signed host inherits both. A suppression that no one ever reviews becomes the place an attacker hides. The governance rules in full are under <a href="/docs/detection-feedback/#exception-and-suppression-governance">exception and suppression governance</a>.
 </Callout>
 
-<KeyTakeaway>A closed false-positive is not waste. It is a sharpening signal for the detection stack, the analyst's instinct, and (in volume) the program. The methodology treats every closure as a small contribution to the SOC's institutional knowledge, and treats patterns of closure as targeted feedback for the detection engineering team.</KeyTakeaway>
+## Is the feedback working?
+
+Benign closes only sharpen the stack if someone measures the result. A few numbers per rule are enough to start; the full set, with formulas, is under <a href="/docs/measuring-triage/#detection-health-per-rule-shared-with-detection-engineering">detection health per rule</a>, and the routine for sharing them is in <a href="/docs/detection-feedback/#per-rule-numbers-both-teams-share">per-rule numbers both teams share</a>:
+
+- **Precision:** correct detections over fires, with benign true positives counted as correct. It separates broken logic from noisy-but-correct rules.
+- **Actionability:** fires that needed action over fires. It drives exception and enrichment work.
+- **Alert-to-incident ratio:** how many fires it takes to find one real incident.
+- **Exception inventory:** active exceptions per rule, their age, and how many are past expiry.
+- **Time to tune:** from the request being opened to the change being merged.
+
+<Callout variant="warn" title="Tuning can create false negatives">
+Every logic change risks silencing the malicious variant along with the noise. Keep detections as code, test each change against a known-malicious sample or an emulation run (Atomic Red Team or similar), and treat a rule that suddenly stops firing as a finding, not a relief.
+</Callout>
+
+<KeyTakeaway>A benign close is not waste. Whether the rule misfired or fired correctly on authorized activity, the close is a sharpening signal for the detection stack, the analyst's instinct, and (in volume) the program. Name which kind it is, because the two route to different fixes. The methodology treats every closure as a small contribution to the SOC's institutional knowledge, and treats patterns of closure as targeted feedback for the detection engineering team.</KeyTakeaway>
 
 <ContinueCard current="risk" nextHref="/docs/risk/example/" nextLabel="Risk working example" ctaLabel="See the example" />
-
-<style>{`
-.fp-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .fp-grid { grid-template-columns: repeat(3, 1fr); } }
-.fp-card { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.7rem; }
-.fp-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
-.fp-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
-
-.fp-pattern-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
-@media (min-width: 768px) { .fp-pattern-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .fp-pattern-grid { grid-template-columns: repeat(4, 1fr); } }
-.fp-pattern-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #f59e0b; border-radius: 0.55rem; }
-.fp-pattern-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fbbf24; font-size: 0.93rem; }
-.fp-pattern-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.fp-card h3, .fp-pattern-card h3 { font-weight: 600; line-height: inherit; }
-`}</style>

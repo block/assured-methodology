@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/assured-vocabulary.schema.json",
+  "title": "ASSURED record vocabulary",
+  "description": "Shared definitions for the ASSURED record templates: the two verdict axes, case status, the close-or-escalate decision, priority bands, the matrix cell, ratings, confidence and depth. The enums mirror src/data/priority-matrix.ts; scripts/check-template-schemas.mjs fails when they drift. x-assured-forms lists the wording a template must offer the reader when it is not the enum values themselves.",
+  "$defs": {
+    "detectionVerdict": {
+      "description": "Detection axis: did the rule fire correctly? A correct detection of authorized behavior is a true positive (a benign true positive on the activity axis), never a false positive.",
+      "enum": [
+        "true positive",
+        "false positive (logic)",
+        "false positive (data)"
+      ]
+    },
+    "activityVerdict": {
+      "description": "Activity axis: what was the activity?",
+      "enum": [
+        "malicious",
+        "policy violation",
+        "authorized (benign true positive)",
+        "benign-confirmed",
+        "undetermined"
+      ]
+    },
+    "caseStatus": {
+      "description": "Case status. \"Merged into case\" is a status, not a verdict.",
+      "enum": ["closed", "escalated", "merged into case"]
+    },
+    "escalationDecision": {
+      "description": "The close-or-escalate decision. Made and recorded by the Escalation decision (E); Risk only recommends. Early exits (a Level 0 close, an escalation-tripwire escalation from any phase) are early E decisions.",
+      "enum": ["close", "escalate"]
+    },
+    "escalationBasis": {
+      "description": "Why a case escalated: a canonical criterion confirmed under the escalation tripwire (which makes it P1), the matrix cell at P1 or P2, or an operational route such as capacity.",
+      "enum": [
+        "criterion confirmed (escalation tripwire)",
+        "matrix cell at P1 or P2",
+        "operational route"
+      ],
+      "x-assured-forms": [
+        "escalation tripwire",
+        "P1 or P2",
+        "operational route"
+      ]
+    },
+    "recommendedMove": {
+      "description": "Risk's recommendation. Risk recommends; E decides.",
+      "enum": ["escalate", "keep-working", "close"],
+      "x-assured-forms": []
+    },
+    "priorityBand": {
+      "description": "Priority band from the triage matrix, or P1 from a confirmed criterion. Default clocks: P1 page immediately (no-acknowledgment fallback at 15 minutes); P2 acknowledge within 15 minutes, escalate within 4 hours; P3 re-score within 24 hours on a named trigger (High/Low within hours); P4 documented close within the queue SLA. Adopters tune the clocks.",
+      "enum": ["P1", "P2", "P3", "P4"],
+      "x-assured-forms": []
+    },
+    "matrixCell": {
+      "description": "The triage-matrix cell, written Impact/Likelihood (e.g. High/Medium).",
+      "type": "string",
+      "pattern": "^(High|Medium|Low)/(High|Medium|Low)$"
+    },
+    "override": {
+      "description": "A named override of the matrix cell.",
+      "enum": [
+        "escalation tripwire",
+        "high-impact clock",
+        "documented downgrade"
+      ]
+    },
+    "rating": {
+      "description": "Impact or likelihood rating. Templates abbreviate it H/M/L. Unexamined evidence means low confidence, not low likelihood.",
+      "enum": ["High", "Medium", "Low"],
+      "x-assured-forms": ["H/M/L"]
+    },
+    "confidence": {
+      "description": "Analytic confidence on the shared rubric (documentation/standards). Between levels, round down. \"Confirmed\" means high.",
+      "enum": ["high", "medium", "low"],
+      "x-assured-forms": ["high / medium / low"]
+    },
+    "depthLevel": {
+      "description": "Depth level worked. A case moves up the ladder, never down.",
+      "enum": [0, 1, 2],
+      "x-assured-forms": ["0 / 1 / 2"]
+    },
+    "depth": {
+      "description": "Depth level, with any upward moves and their reasons.",
+      "type": "object",
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/depthLevel"
+        },
+        "upwardMoves": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["level"]
+    },
+    "criterionMark": {
+      "description": "An escalation-criteria checklist box: [S] suspected or [C] confirmed. Leave it out when the box does not apply.",
+      "enum": ["suspected", "confirmed"],
+      "x-assured-forms": ["[S] suspected", "[C] confirmed"]
+    },
+    "yesNo": {
+      "enum": ["yes", "no"],
+      "x-assured-forms": ["yes / no"]
+    },
+    "tlp": {
+      "description": "Traffic Light Protocol label.",
+      "enum": [
+        "TLP:CLEAR",
+        "TLP:GREEN",
+        "TLP:AMBER",
+        "TLP:AMBER+STRICT",
+        "TLP:RED"
+      ],
+      "x-assured-forms": ["TLP"]
+    },
+    "utc": {
+      "description": "A UTC timestamp.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "caseId": {
+      "description": "Case ID, e.g. CASE-YYYYMMDD-NNN.",
+      "type": "string",
+      "pattern": "^CASE-[0-9][0-9-]*$"
+    },
+    "incidentId": {
+      "description": "Incident ID, only if declared, e.g. INC-YYYYMMDD-NNN.",
+      "type": "string",
+      "pattern": "^INC-[0-9][0-9-]*$"
+    },
+    "materialAiUse": {
+      "description": "Assistant and version, and which parts began as AI drafts; \"none\" if unassisted.",
+      "type": "string",
+      "minLength": 1
+    },
+    "ruleRef": {
+      "description": "A detection rule as deployed: name, ID and version.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "version"]
+    },
+    "distribution": {
+      "type": "object",
+      "properties": {
+        "tlp": {
+          "$ref": "#/$defs/tlp"
+        },
+        "limits": {
+          "type": "string"
+        }
+      }
+    },
+    "attackMapping": {
+      "description": "MITRE ATT&CK technique IDs, with the ATT&CK version they were mapped against (e.g. Enterprise v19). Behavior, not indicators.",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "techniques": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^T[0-9]{4}(\\.[0-9]{3})?$"
+          }
+        }
+      },
+      "required": ["version"]
+    }
+  }
+}

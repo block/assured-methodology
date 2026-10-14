@@ -1,0 +1,97 @@
+name: External links
+
+# Weekly check of every external URL in the content and templates. External
+# sites go down, move and rate-limit on their own schedule, so this job never
+# fails a build: it opens (or updates) one tracking issue while links are
+# broken and closes it when they recover. Internal links and anchors are a
+# build gate instead (scripts/check-links.mjs).
+
+on:
+  schedule:
+    - cron: "23 6 * * 1" # Mondays 06:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: external-links
+  cancel-in-progress: true
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    env:
+      ISSUE_TITLE: "External link report"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Reserved example names (.example, example.com, .test, .invalid) never
+      # resolve by design, and the site's own URL is covered by the internal
+      # link gate. 403 and 429 are accepted: several standards bodies and
+      # vendors refuse automated clients, and a rate limit is not a dead link.
+      - name: Check external links
+        id: lychee
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          fail: false
+          failIfEmpty: false
+          format: markdown
+          output: lychee/out.md
+          jobSummary: true
+          args: >-
+            --no-progress
+            --max-concurrency 8
+            --max-retries 3
+            --timeout 30
+            --accept '200..=299,403,429'
+            --scheme https --scheme http
+            --exclude-all-private
+            --exclude '\.example([/:?#]|$)'
+            --exclude '(^|[/.@])example\.(com|net|org)([/:?#]|$)'
+            --exclude '\.(test|invalid|localhost)([/:?#]|$)'
+            --exclude '^https?://assured-methodology\.vercel\.app'
+            './src/content/**/*.mdx'
+            './public/templates/**/*.md'
+            './README.md'
+            './CONTRIBUTING.md'
+            './GOVERNANCE.md'
+            './SECURITY.md'
+            './CHANGELOG.md'
+
+      - name: Open, update or close the tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LYCHEE_EXIT: ${{ steps.lychee.outputs.exit_code }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          existing="$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" \
+            --json number,title --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")"
+
+          if [ "${LYCHEE_EXIT:-0}" = "0" ]; then
+            echo "All external links resolved."
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "All external links resolved in [the latest weekly run]($RUN_URL). Closing."
+              gh issue close "$existing"
+            fi
+            exit 0
+          fi
+
+          {
+            echo "The weekly external-link check found links that did not resolve."
+            echo "This issue is updated by each run and closed automatically once every link resolves."
+            echo
+            echo "Run: $RUN_URL"
+            echo
+            head -c 60000 lychee/out.md
+          } > lychee/issue.md
+
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file lychee/issue.md
+            echo "Updated issue #$existing."
+          else
+            gh issue create --title "$ISSUE_TITLE" --body-file lychee/issue.md
+          fi

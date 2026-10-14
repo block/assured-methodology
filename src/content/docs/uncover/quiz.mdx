@@ -1,6 +1,7 @@
 ---
 title: "Uncover chapter quiz"
-description: "Twelve questions on data sources, threat intelligence, attribution confidence, MITRE ATT&CK, tooling, and the Risk handoff."
+description: "Sixteen questions on data sources, correlation, threat intelligence, attribution confidence, MITRE ATT&CK, tooling, and the Risk handoff."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,166 +10,231 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="uncover" parentLetter="U" pillarIndex="Quiz" pillarTotal="Uncover chapter" chapterHref="/docs/uncover/" chapterLabel="Uncover" lede="Twelve questions on Uncover. Push your thinking on evidence, intel, attribution, ATT&CK, query order, and the handoff to Risk."/>
+<SubPageHero phase="uncover" pillarIndex="Quiz" lede="Sixteen questions on Uncover. Push your thinking on evidence, correlation, intel, attribution, ATT&CK, query order, and the handoff to Risk."/>
 
-<PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
-]}/>
+<PillNav chapter="uncover" />
 
 <Quiz title="Uncover chapter quiz">
 
   <QuizItem
     prompt="A threat intel feed says a particular domain is associated with a known campaign. The analyst sees the same domain in firewall logs from one host. What is the right next step?"
     options={[
-      { value: "block", label: "Block the domain at the perimeter now; a campaign association is action-worthy on its own." },
       { value: "validate", label: "Treat the match as a hypothesis: check which process connected and whether the pattern fits." },
-      { value: "ignore", label: "Ignore it. Campaign domains rotate too fast for a feed match to mean anything locally." },
-      { value: "share", label: "Post the intel to the team channel and let the host's owner decide whether to look." },
+      { value: "block", label: "Block the domain at the perimeter now; a campaign association is action-worthy on its own." },
+      { value: "escalate", label: "Escalate to IR now; a campaign domain in local firewall logs meets the confirmed-malicious bar." },
+      { value: "ignore", label: "Ignore it. Campaign domains rotate too fast for a feed match to mean anything in local logs." },
     ]}
     answer="validate"
-    explanation="Threat intelligence is most useful as a hypothesis. The matched domain is a starting point, not a verdict. Validate against the actual telemetry (which process, which user, which pattern) before acting."
+    explanation="Threat intelligence is most useful as a hypothesis. The matched domain is a starting point, not a verdict. Validate against the actual telemetry (which process, which user, which pattern) before acting. Escalating on the match alone skips that step: confirmed means high confidence on the shared rubric, and a single feed association is a lead that refines Scope, not a page to IR."
+    source={{ href: "/docs/uncover/threat-intelligence/#an-ioc-hit-on-your-case", label: "Leveraging threat intelligence: an IOC hit on your case" }}
   />
 
   <QuizItem
     prompt="A dropper hash matches a known campaign's tooling, and nothing else links the case to that actor. What confidence label can attribution carry in the case file?"
     options={[
-      { value: "high",   label: "HIGH. A hash match is exact by definition; hashes do not collide in practice." },
-      { value: "medium", label: "MEDIUM. One solid technical indicator sits in the middle of the scale." },
-      { value: "low",    label: "LOW. An isolated indicator with real potential for coincidental overlap; a lead, not a claim." },
-      { value: "none",   label: "None. Attribution is not a triage-phase activity and does not belong in the case file." },
+      { value: "high", label: "HIGH. A hash match is exact by definition, and hashes do not collide in practice." },
+      { value: "medium", label: "MEDIUM. One solid technical indicator sits squarely in the middle of the scale." },
+      { value: "none", label: "None. Attribution is not a triage activity, so it does not belong in the case file." },
+      { value: "low", label: "LOW. One indicator in one category; shared tooling makes coincidence plausible." },
     ]}
     answer="low"
-    explanation="One indicator in one category is LOW, and the reason is not hash collisions: shared, sold, and leaked tooling means the same dropper turns up in unrelated hands, so the overlap can be coincidental even though the match is exact. What lifts the label is correlation across diverse categories: if the C2 infrastructure and the TTP chain also match the same campaign, the claim earns MEDIUM. Attribution stays in the case file at its honest label, because promoting low-confidence attribution into operational decisions is the most common attribution failure mode."
+    explanation="One indicator in one category is LOW, and the reason is not hash collisions: shared, sold, and leaked tooling means the same dropper turns up in unrelated hands, so the overlap can be coincidental even though the match is exact. What lifts the label is correlation across diverse categories: if the C2 infrastructure and the TTP chain also match the same campaign, the claim earns MEDIUM. Attribution stays in the case file at its honest label, because promoting low-confidence attribution into operational decisions is a common and costly attribution failure."
     hint="The match is exact. The question is what else could explain it."
+    source={{ href: "/docs/uncover/threat-intelligence/#confidence-levels", label: "Leveraging threat intelligence: attribution confidence levels" }}
   />
 
   <QuizItem
-    prompt="Which level of MITRE ATT&CK changes most often?"
+    prompt="Which layer of adversary behavior can attackers change most cheaply without changing their goal: tactics, techniques, or procedures?"
     options={[
       { value: "tactics", label: "Tactics" },
-      { value: "techniques", label: "Techniques" },
       { value: "procedures", label: "Procedures" },
-      { value: "all-same", label: "All change at the same rate." },
+      { value: "techniques", label: "Techniques" },
+      { value: "all-same", label: "All three change at about the same rate." },
     ]}
     answer="procedures"
-    explanation="Procedures (specific implementations) change rapidly as adversaries adapt their tooling. Techniques (the methods) change more slowly. Tactics (the goals) are nearly stable over years. This is why TTP-based hunting beats indicator matching for durability."
+    explanation="Procedures (specific implementations) change rapidly as adversaries adapt their tooling. Techniques (the methods) change more slowly. Tactics (the goals) are nearly stable over years. The broader point, that behavior-based detection outlasts indicator matching, is David Bianco's Pyramid of Pain, which puts TTPs as a whole at the top."
+    source={{ href: "/docs/uncover/mitre/#procedures-how-specific-actors-implement-techniques", label: "MITRE ATT&CK: procedures" }}
   />
 
   <QuizItem
     prompt="An investigation needs to know whether a file was executed on an endpoint earlier this week. Which data source answers this most directly?"
     options={[
       { value: "siem", label: "SIEM" },
-      { value: "edr", label: "EDR" },
       { value: "fim", label: "FIM" },
+      { value: "edr", label: "EDR" },
       { value: "network", label: "Network analysis" },
     ]}
     answer="edr"
     explanation="EDR captures process creation events that show whether a file was executed, and a few days is comfortably inside a typical retention window. FIM tells you the file exists or was modified, but not whether it ran. SIEM aggregates from other sources. One caveat worth knowing: for questions like did this ever run, beyond the EDR retention window, the answer lives in whatever long-term store (SIEM or data lake) archives the EDR telemetry."
+    source={{ href: "/docs/uncover/data-sources/#where-each-source-goes-blind", label: "Data sources: where each source goes blind" }}
   />
 
   <QuizItem
-    prompt="An investigation needs both an EDR process timeline and a SIEM-wide authentication search. Which query runs first?"
+    prompt="An investigation needs both an EDR process timeline and a SIEM-wide authentication search. The SIEM search's accounts and time window depend on what the EDR timeline shows. Which query runs first?"
     options={[
-      { value: "siem",     label: "The SIEM search. It covers everything, so it can only shrink the work the EDR query has to do." },
-      { value: "edr",      label: "The EDR query. The cheapest, most specific query runs first and narrows the window for the broad one." },
+      { value: "siem", label: "The SIEM search. It covers everything, so it can only shrink the work the EDR query has to do." },
       { value: "parallel", label: "Both at once. Serializing queries wastes wall-clock time in a phase measured in minutes." },
-      { value: "either",   label: "Whichever tool is already open. Query order does not change the evidence that comes back." },
+      { value: "either", label: "Whichever tool is already open. Query order does not change the evidence that comes back." },
+      { value: "edr", label: "The EDR query. The cheapest, most specific query runs first and narrows the broad one." },
     ]}
     answer="edr"
     explanation="The tooling pattern is cheapest or most specific first. The EDR query is scoped to one host and returns fast, and its result narrows the time window and the entities, which turns the SIEM search from an everything-scan into a targeted pull. Running both at once sounds efficient, but the broad query's parameters depend on the narrow query's result: launched unanchored, the SIEM search returns a haystack that costs more analyst time than the parallelism saved."
+    source={{ href: "/docs/uncover/tooling/#choosing", label: "Choosing tools: the right tool for the question" }}
+  />
+
+  <QuizItem
+    prompt="A firewall session at 10:04:12 and an EDR process start at 10:04:13 sit on the same host, and the verdict depends on which came first. Neither source's clock has been verified. What do you do?"
+    options={[
+      { value: "asis", label: "Order them as logged: the EDR event is a second later, so the process followed the connection." },
+      { value: "unordered", label: "Treat them as unordered and find evidence that settles the sequence without the clocks." },
+      { value: "edrclock", label: "Trust the EDR clock, since endpoint agents sync time more reliably than network appliances." },
+      { value: "average", label: "Average the two timestamps and record the midpoint as the time of one combined event." },
+    ]}
+    answer="unordered"
+    explanation="Two events from different sources a second apart are simultaneous for reasoning purposes unless both clocks are verified. If a conclusion depends on order inside the skew window, the conclusion needs different evidence: a parent-child relationship, a source port that ties the connection to the process, or a third source with a verified clock. Picking a spine clock tells you which timeline to hang events on; it does not make an unverified one-second gap meaningful."
+    hint="What does a one-second gap between two unverified clocks prove?"
+    source={{ href: "/docs/uncover/correlation/#clock-skew-order-is-evidence-and-clocks-lie", label: "Correlation and the timeline: clock skew" }}
+  />
+
+  <QuizItem
+    prompt="A fleet query for the C2 domain returns zero rows outside the first host. Before you record 'other hosts contacted the domain' as refuted, what must you confirm?"
+    options={[
+      { value: "nothing", label: "Nothing more. Zero rows from a fleet-wide query is the negative result the ledger needs." },
+      { value: "rerun", label: "That a second analyst reran the same query and got the same zero rows on their own." },
+      { value: "control", label: "That the query finds rows for a known-visited domain and the source covers every host." },
+      { value: "intel", label: "That threat intel lists no other victims of this campaign in your industry this quarter." },
+    ]}
+    answer="control"
+    explanation="An empty result only counts as evidence of absence when the query could have found something. A control query (the same query against a domain you know hosts visited) proves the field names and syntax work, and coverage (sensor and log-source health, onboarding, retention, and hosts that bypass the proxy) proves the source could see the hosts in question. Rerunning the same query repeats the same blind spot. Two empty pivots plus the four dry-thread checks is a defensible stop."
+    source={{ href: "/docs/uncover/correlation/#when-to-stop", label: "Correlation and the timeline: when to stop" }}
+  />
+
+  <QuizItem
+    prompt="Sorted by _indextime, the SIEM puts a Wednesday event ahead of a Tuesday event from the same host. What is the most likely explanation?"
+    options={[
+      { value: "ingest", label: "The SIEM is sorting by arrival time; a forwarder delivered the Tuesday event late." },
+      { value: "clock", label: "The host's clock was wrong on Tuesday, so the event really belongs on Wednesday." },
+      { value: "tamper", label: "An attacker edited the Tuesday log entry so that it looks earlier than it really was." },
+      { value: "same", label: "Index time is event time for SIEM purposes, so the Wednesday event really came first." },
+    ]}
+    answer="ingest"
+    explanation="_indextime records when the event arrived, and forwarders batch, retry, and fall behind, so arrival order is not event order. Sort on event time (_time in Splunk, TimeGenerated in Sentinel, @timestamp in Elastic) and check that the parser filled it: if event time equals ingest time on every row, the parser failed. Clock error and tampering are possible, but they are hypotheses to test after the cheap explanation is ruled out."
+    source={{ href: "/docs/uncover/correlation/#clock-skew-order-is-evidence-and-clocks-lie", label: "Correlation and the timeline: clock skew" }}
   />
 
   <QuizItem
     prompt="A suspected intrusion may have started six weeks ago, but the SOC's EDR retains 14 days of telemetry. Which data-source principle is at stake?"
     options={[
-      { value: "coverage",  label: "Comprehensive coverage: the endpoint layer has a blind spot adversaries can exploit." },
-      { value: "context",   label: "Contextual analysis: EDR alone cannot tell the story without identity and network logs." },
-      { value: "depth",     label: "Historical depth: a source that retains days cannot answer whether this started before the alert." },
+      { value: "depth", label: "Historical depth: days of retention cannot say whether this began before the alert." },
+      { value: "coverage", label: "Comprehensive coverage: some endpoint classes in the fleet have no EDR sensor at all." },
+      { value: "context", label: "Contextual analysis: EDR alone cannot tell the story without identity and network logs." },
       { value: "integrity", label: "Data integrity: telemetry past its retention window no longer holds up as evidence." },
     ]}
     answer="depth"
-    explanation="Retention shapes what is even possible to investigate. Sophisticated intrusions unfold over weeks or months, and a source holding 14 days cannot answer 'did this start before the alert?' no matter how well the query is written. The practical moves are knowing where the longer archive lives (the SIEM or data lake that retains the EDR feed) and, where none does, recording the unanswerable window as a coverage gap instead of treating silence as evidence of absence."
+    explanation="Retention shapes what is even possible to investigate. Sophisticated intrusions unfold over weeks or months, and a source holding 14 days cannot answer 'did this start before the alert?' no matter how well the query is written. The practical moves are knowing where the longer archive lives (the SIEM or data lake that retains the EDR feed) and, where none does, recording the unanswerable window as a gap (temporal depth, not layer coverage) instead of treating silence as evidence of absence."
+    source={{ href: "/docs/uncover/data-sources/#four-principles-before-any-source", label: "Data sources: four principles before any source" }}
   />
 
   <QuizItem
-    prompt="The Uncover narrative concludes with a chain of MITRE techniques. Why is the chain more useful than free-form prose?"
+    prompt="Why should the Uncover narrative carry ATT&CK technique tags?"
     options={[
-      { value: "shorter", label: "It is shorter, and shorter records are what downstream readers actually finish." },
-      { value: "portable", label: "It is a shared vocabulary that IR, detection engineering, and trend analysis all recognize." },
+      { value: "shorter", label: "Tags make the record shorter, and shorter records are what downstream readers finish." },
       { value: "required", label: "Most compliance frameworks require ATT&CK mappings in escalated-incident records." },
-      { value: "easier", label: "It is easier to write correctly under time pressure than a free-form narrative is." },
+      { value: "portable", label: "They are a shared vocabulary IR, detection engineering, and trend analysis all read." },
+      { value: "replace", label: "Tags can replace the narrative, which is slower to write and harder to read under pressure." },
     ]}
     answer="portable"
-    explanation="ATT&CK turns analyst observations into a portable artifact. The same chain of techniques is meaningful to the IR responder, the detection engineer who decides what to tune, and the leader who wants to see threat trends over time."
+    explanation="ATT&CK tags turn analyst observations into a portable artifact. The same techniques mean something to the IR responder, the detection engineer who decides what to tune, and the leader tracking threat trends over time. The tags make the narrative portable; they do not replace it, because ATT&CK is an unordered taxonomy and the sequence is the analyst's contribution. Cases with no adversary behavior record 'none observed' rather than forcing a mapping."
+    source={{ href: "/docs/uncover/mitre/#how-attck-is-used-from-the-case-to-the-program", label: "MITRE ATT&CK: how ATT&CK is used" }}
+  />
+
+  <QuizItem
+    prompt="An XDR console presents one incident that stitches together an email alert, an endpoint alert, and an identity alert. What do you check before treating it as one case?"
+    options={[
+      { value: "trust", label: "Nothing. The vendor's correlation engine is tuned on far more data than any one SOC sees." },
+      { value: "keys", label: "The join keys behind the stitch: a shared host, account, or session in a stated window." },
+      { value: "severity", label: "The severity score. A high combined severity confirms the three alerts belong together." },
+      { value: "vendor", label: "Whether all three alerts came from one vendor, which guarantees consistent timestamps." },
+    ]}
+    answer="keys"
+    explanation="XDR automates the join, not the judgment. Before inheriting the stitch, check what joined the alerts: a shared host ID, account, session ID, or message ID inside a plausible window is a real join; a shared IP behind NAT or a loose time window is coincidence-prone. Grouped alerts form one case whose riskiest member sets its level, so a wrong stitch both inflates work and hides it."
+    source={{ href: "/docs/uncover/tooling/#choosing", label: "Choosing tools: the right tool for the question" }}
   />
 
   <QuizItem
     prompt="An analyst is investigating a possible compromise on a macOS developer workstation. The user's role legitimately involves scripting, IDE plugin processes, and encrypted outbound traffic. What does the methodology require Uncover to produce if the evidence supports a benign verdict?"
     options={[
       { value: "dismiss", label: "Nothing beyond the closure itself. A benign verdict ends the Uncover obligation." },
-      { value: "evidenced", label: "The same rigor as a positive finding: evidence chain, confidence, coverage gaps, feedback." },
       { value: "shorten", label: "A one-line entry, 'benign, developer tooling', in the case notes before closing." },
-      { value: "escalate", label: "An escalation anyway; surface-suspicious activity should get an IR review before closing." },
+      { value: "escalate", label: "An escalation anyway; surface-suspicious activity needs an IR review before any close." },
+      { value: "evidenced", label: "The same rigor as a positive finding: evidence chain, confidence, gaps, and feedback." },
     ]}
     answer="evidenced"
-    explanation="A benign verdict that meets the methodology's standard is not dismissed. It is documented, evidenced, and bounded — including which axis cleared it: here the rule detected exactly the behavior it describes, and the disposition is benign, a benign true positive. That documentation is what lets the case re-open with full context if new signals appear, and what produces the detection-engineering feedback that prevents the same alert from firing repeatedly."
+    explanation="A benign verdict that meets the methodology's standard is not dismissed. It is documented, evidenced, and bounded, including which axis cleared it: here the rule detected exactly the behavior it describes (detection: true positive) and the activity was authorized, a benign true positive. That documentation is what lets the case re-open with full context if new signals appear, and what lets the next identical fire close against a written pattern entry instead of starting from zero."
+    source={{ href: "/docs/uncover/example/#case-b", label: "Uncover working example: Case B, a benign true positive" }}
   />
 
   <QuizItem
-    prompt="Risk receives an Uncover handoff. Which of these decisions is Risk authorized to make?"
+    prompt="Risk receives an Uncover handoff. Which of these is Risk's job?"
     options={[
-      { value: "isolate", label: "Isolate the compromised host before the adversary can react to detection." },
-      { value: "notify", label: "Start regulator notification if the evidence shows regulated data was touched." },
-      { value: "binary", label: "Close with confidence, escalate, or push back to Scope to expand. Risk decides; it does not act." },
+      { value: "decide", label: "Rate impact, likelihood and confidence; recommend close, escalate, or rescope." },
+      { value: "isolate", label: "Isolate the compromised host before the adversary can react to the detection." },
+      { value: "notify", label: "Start regulator notification once the evidence shows regulated data was touched." },
       { value: "tune", label: "Tune the detection rule that fired so the same alert stops consuming the queue." },
     ]}
-    answer="binary"
-    explanation="Risk is the analytical checkpoint, not the response phase. Its job is to evaluate whether Uncover's evidence is sufficient to close the case, warrants escalation, or means the investigation needs to expand back through Scope. Containment, notification, and detection tuning happen in later phases (Escalation, Documentation) once Risk's verdict supports them."
+    answer="decide"
+    explanation="Risk is the analytical checkpoint, not the response phase. It rates impact, likelihood, and confidence, places the case in a matrix cell with a priority, and recommends a move: close, escalate, or push back to Scope. Risk recommends; it does not act or decide, and the Escalation decision makes and records the close-or-escalate call. Containment runs there (preservation and pre-authorized actions, then IR). Regulatory notification is not Risk's call either: privacy and legal own it, engaged at Scope when regulated data was flagged, on a clock that runs in parallel with the technical work rather than waiting for Risk. Detection tuning flows from Documentation."
     hint="Risk is not response."
+    source={{ href: "/docs/uncover/transition/#what-risk-does-with-it", label: "Transition to Risk: what Risk does with it" }}
   />
 
   <QuizItem
-    prompt="EDR records powershell.exe (PID 4416) opening an outbound connection at 14:22:31Z. The proxy logs a TLS session from the same host to a newly registered domain at 14:22:31Z. What makes treating these as one event defensible?"
+    prompt="EDR records powershell.exe (PID 5208) opening an outbound connection at 14:22:31Z. The proxy logs a TLS session from the same host to a newly registered domain at 14:22:31Z. What makes treating these as one event defensible?"
     options={[
-      { value: "time", label: "The identical timestamp. Two sources agreeing to the second is the correlation." },
-      { value: "joins", label: "The join keys agree: same host, same second, and the process's destination matches the proxy's." },
-      { value: "domain", label: "The domain's age. A newly registered destination makes any nearby telemetry part of the case." },
-      { value: "edr", label: "Nothing extra is needed. Once EDR attributes the connection to a process, the proxy adds nothing." },
+      { value: "time", label: "The identical timestamp. Two independent sources agreeing to the second is the correlation." },
+      { value: "domain", label: "The domain's age. A newly registered destination pulls any nearby telemetry into the case." },
+      { value: "joins", label: "The join keys agree: same host, same second, same connection (destination or client port)." },
+      { value: "edr", label: "Nothing extra. Once EDR ties the connection to a process, the proxy record adds nothing." },
     ]}
     answer="joins"
-    explanation="Correlation is defensible when independent sources agree on the keys that identify the event: the host, the time, and the connection endpoints. A timestamp alone can collide, hosts make many simultaneous connections, and the proxy adds what EDR cannot see (the URI, TLS details, and bytes transferred). The worked example does exactly this: the firewall session matching the EDR network event to the second is what turns two log lines into one attributed action."
+    explanation="Correlation is defensible when independent sources agree on the keys that identify the event: the host, the time, and the connection. A timestamp alone can collide and hosts make many simultaneous connections. The proxy adds what EDR usually cannot see: the requested hostname (from the CONNECT line or the TLS SNI), TLS metadata, and bytes transferred, plus the full URI only where the proxy decrypts TLS. Behind an explicit proxy, EDR records the proxy's own address as the destination, so the join becomes host, time, and client source port (where the proxy logs it). The worked example does exactly this: the proxy session matching the EDR network event on host, client source port, and time is what turns two log lines into one attributed action. The source port only joins cleanly where nothing translates addresses between the host and the log source; behind NAT, match on the translated tuple or fall back to host, time, and destination."
     hint="One matching field is coincidence-prone. Which fields together identify the event?"
+    source={{ href: "/docs/uncover/correlation/#join-keys-how-two-events-meet", label: "Correlation and the timeline: join keys" }}
   />
 
   <QuizItem
-    prompt="GuardDuty flags an engineer's 02:14 UTC AssumeRole into a role normally used only by CI, with read access to a regulated bucket. CloudTrail shows eight reads of quarterly-export files, no ListBucket reconnaissance, no writes, corporate VPN egress throughout. The IdP shows a FIDO2 login from the registered device with no token-replay or consent-grant indicators. What does Uncover conclude?"
+    prompt="GuardDuty raises Exfiltration:S3/AnomalousBehavior on a 02:14 UTC session: an engineer assumed a role documented as automation-only (CI), with read access to a regulated bucket. CloudTrail shows eight reads of quarterly-export files, no ListObjects reconnaissance, no writes, corporate VPN egress throughout. The IdP shows a FIDO2 login from the registered device with no token-replay or consent-grant indicators. What does Uncover conclude?"
     options={[
-      { value: "confirm", label: "Compromise confirmed. An off-hours assumption of a CI role touching regulated data is conclusive." },
-      { value: "benign",  label: "Likely a benign manual export; message the engineer, and their confirmation plus the clean identity surface closes the case." },
-      { value: "violation", label: "A confirmed control violation with intent unresolved: a human used an automation-only role on regulated data, and only independent authorization and destination evidence can close it." },
-      { value: "image",   label: "Nothing yet. Without an endpoint forensic image, cloud logs cannot support a verdict either way." },
+      { value: "confirm", label: "Compromise confirmed: an off-hours human assumption of a CI role on regulated data is conclusive." },
+      { value: "violation", label: "Confirmed control violation, intent unresolved; only independent authorization evidence closes it." },
+      { value: "benign", label: "Likely a benign export: the engineer's confirmation plus the clean identity surface closes it." },
+      { value: "image", label: "No verdict yet: without a forensic image of the laptop, the cloud logs cannot support one either way." },
     ]}
     answer="violation"
-    explanation="The clean identity surface does real work: it makes token theft, consent-grant abuse, and AiTM phishing less likely, because each would leave marks that are absent. But it answers who authenticated, not who authorized. A human interactively using a CI-only role against regulated data is a control violation in every branch, including the friendly one, and a fresh STS session is still a replayable credential while it lives. The subject's own Slack confirmation is a lead, not closure; what closes the case is an approved work item verified with its owner, the data owner's authorization, and where the 120 MB went after the laptop. Compromise-confirmed overclaims the same evidence in the other direction, and there is no endpoint in the story to image."
+    explanation="The clean identity surface does real work: it makes token theft, consent-grant abuse, and AiTM phishing less likely, because each would leave marks that are absent. But it answers who authenticated, not who authorized. A human interactively using a role documented as automation-only against regulated data is a policy violation in every branch, including the friendly one, and a fresh STS session is still a replayable credential while it lives. The engineer's own confirmation would be a lead, not closure; what closes the case is an approved work item verified with its owner, the data owner's authorization, and evidence of where the exported files went after download (the destination CloudTrail cannot show). Compromise-confirmed overclaims the same evidence in the other direction, and waiting for a full forensic image of the laptop overcorrects: the cloud logs already support the violation verdict, and device-level evidence is a closing item, not a precondition."
     hint="Separate two questions the evidence answers differently: who authenticated, and who authorized."
+    source={{ href: "/docs/uncover/example/#iam-mini-example", label: "Uncover working example: the IAM role assumption" }}
   />
 
   <QuizItem
     prompt="The case needs to answer one question before Risk: did data actually leave the environment? Which evidence combination answers it?"
     options={[
-      { value: "edr", label: "EDR alone. Process telemetry shows file reads and network sends from the same process tree." },
-      { value: "egress", label: "Egress telemetry (proxy, DLP, cloud data events) aligned against the endpoint timeline." },
+      { value: "edr", label: "EDR alone. Process telemetry shows file reads and network sends from one process tree." },
       { value: "intel", label: "Threat intelligence. If the actor's campaigns exfiltrate, treat exfiltration as established." },
       { value: "vuln", label: "The vulnerability scanner, which shows whether an exfiltration-capable exposure existed." },
+      { value: "egress", label: "Telemetry where the data crosses an observable boundary, aligned to the endpoint timeline." },
     ]}
     answer="egress"
-    explanation="Exfiltration is proven at the boundary, not on the endpoint. EDR shows a process read files and sent bytes, but volume, destination, and content classification live in the egress path: proxy or firewall session sizes, DLP verdicts, and cloud-side data events for storage services. Aligning those against the endpoint timeline is what turns 'the process could have exfiltrated' into 'this much data moved to this destination at this time', or into a documented negative finding."
+    explanation="Exfiltration is proven where the data crosses a boundary you can observe: network egress (proxy, firewall, DLP) for network paths, the provider's audit and data-access logs for cloud and SaaS paths, and endpoint DLP or device-control logs for removable media. EDR alone shows that a process read files and sent bytes; volume, destination, and content classification usually live at that crossing point. Aligning those against the endpoint timeline is what turns 'the process could have exfiltrated' into 'this much data moved to this destination at this time', or into a documented negative finding."
+    source={{ href: "/docs/uncover/data-sources/#start-from-the-question", label: "Data sources: start from the question" }}
   />
 
 </Quiz>
 
-<ContinueCard current="uncover" nextHref="/docs/uncover/transition/" nextLabel="Transition to Risk" ctaLabel="Continue" />
+<ContinueCard
+  current="uncover"
+  nextHref="/docs/risk/"
+  nextLabel="Risk"
+  nextDescription="The next question: How bad is it, and how confident are we?"
+  ctaLabel="Start Risk"
+/>

@@ -1,0 +1,246 @@
+---
+/**
+ * EscalationRule: the E rule and the default clocks for each priority band,
+ * rendered from src/data/priority-matrix.ts so every page states the same
+ * rule and the same numbers.
+ *
+ * Props:
+ *   show       Which blocks to render, in this order: "rule" (the E rule,
+ *              with the first-class-close note and the early-exit line),
+ *              "criteria" (the four criteria, what "confirmed" means, the
+ *              escalation tripwire and the contained-by-control path), and
+ *              "clocks" (the band clock table with the "these are
+ *              defaults" line). Default: ["rule", "clocks"].
+ *   variant    "full" (default): framework and criteria wording.
+ *              "compact": desk-card wording (the E line as the decision
+ *              line; short clock cells), for reference.mdx and print.
+ *   caption    Caption for the clock table. Default "Default clocks for
+ *              each band".
+ *   meaning    When true, the clock table gets a fourth column with what
+ *              each band means operationally (escalation/criteria.mdx's
+ *              P1 to P4 list). Default false.
+ *   id         Optional id on the wrapper.
+ *
+ * Usage:
+ *   import EscalationRule from "@/components/assured/EscalationRule.astro";
+ *   <EscalationRule />                              (rule + clocks)
+ *   <EscalationRule show={["rule"]} />              (the E rule box only)
+ *   <EscalationRule show={["clocks"]} meaning />    (clock table with meanings)
+ *   <EscalationRule show={["criteria"]} />          (criteria + tripwire)
+ *   <EscalationRule variant="compact" />            (desk card)
+ *
+ * The component renders no headings, so it can sit under any section
+ * heading the page already has.
+ */
+
+import {
+  bandClocks,
+  CLOCKS_ARE_DEFAULTS,
+  CONFIRMED_DEFINITION,
+  CONTAINED_BY_CONTROL,
+  DESK_CARD_E_LINE,
+  E_RULE,
+  E_RULE_CLOSE_NOTE,
+  E_RULE_EARLY_EXITS,
+  escalationCriteria,
+  TRIPWIRE_RULE,
+} from "@/data/priority-matrix";
+
+type Block = "rule" | "criteria" | "clocks";
+
+interface Props {
+  show?: Block[];
+  variant?: "full" | "compact";
+  caption?: string;
+  meaning?: boolean;
+  id?: string;
+}
+
+const {
+  show = ["rule", "clocks"],
+  variant = "full",
+  caption = "Default clocks for each band",
+  meaning = false,
+  id,
+} = Astro.props;
+
+const full = variant === "full";
+---
+
+<div class:list={["er", `er--${variant}`]} id={id}>
+  {show.map((block) => {
+    if (block === "rule") {
+      return (
+        <div class="er-rule">
+          <p class="er-rule__text"><strong>{E_RULE}</strong></p>
+          {full ? (
+            <>
+              <p>{E_RULE_CLOSE_NOTE}</p>
+              <p>{E_RULE_EARLY_EXITS}</p>
+            </>
+          ) : (
+            <p class="er-rule__line"><strong>Decide:</strong> {DESK_CARD_E_LINE}</p>
+          )}
+        </div>
+      );
+    }
+    if (block === "criteria") {
+      return (
+        <div class="er-criteria">
+          <ol class="er-criteria__list">
+            {escalationCriteria.map((cr) => (
+              <li>
+                <a href={cr.href}>{cr.title}</a>
+                {full && <span class="er-criteria__sum">: {cr.summary}</span>}
+              </li>
+            ))}
+          </ol>
+          <p><strong>Confirmed:</strong> {CONFIRMED_DEFINITION}</p>
+          <p>
+            <strong><a href="/docs/escalation/criteria/#tripwire">Escalation tripwire</a>:</strong> {TRIPWIRE_RULE}
+          </p>
+          {full && <p><strong>Contained by a control:</strong> {CONTAINED_BY_CONTROL}</p>}
+        </div>
+      );
+    }
+    return (
+      <div class="er-clocks">
+        <table class="er-clocks__table">
+          <caption>{caption}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Band</th>
+              <th scope="col">Acknowledge</th>
+              <th scope="col">Decision</th>
+              {meaning && <th scope="col">What it means</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {bandClocks.map((b) => (
+              <tr>
+                <th scope="row" class={`er-band er-band--${b.band.toLowerCase()}`}>{b.band}</th>
+                <td>{full ? b.acknowledgeFull : b.acknowledge}</td>
+                <td>{full ? b.decisionFull : b.decision}</td>
+                {meaning && <td>{b.meaning}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="er-clocks__note">{CLOCKS_ARE_DEFAULTS}</p>
+      </div>
+    );
+  })}
+</div>
+
+<style>
+  .er {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 1.25rem 0;
+  }
+
+  .er-rule,
+  .er-criteria {
+    padding: 1.1rem 1.35rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-left: 3px solid #6366f1;
+    border-radius: 0.6rem;
+  }
+
+  .er-rule p,
+  .er-criteria p {
+    margin: 0 0 0.6rem 0;
+    line-height: 1.6;
+  }
+
+  .er-rule p:last-child,
+  .er-criteria p:last-child {
+    margin-bottom: 0;
+  }
+
+  .er-rule__text strong {
+    color: var(--assured-text);
+  }
+
+  .er-criteria__list {
+    margin: 0 0 0.75rem 0;
+    padding-left: 1.3rem;
+    line-height: 1.55;
+  }
+
+  .er-criteria__list li {
+    margin: 0.2rem 0;
+  }
+
+  .er-criteria__sum {
+    color: var(--assured-text-muted);
+  }
+
+  .er-clocks__table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    color: var(--assured-text-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .er-clocks__table caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0 0 0.4rem;
+    color: var(--assured-text-dim);
+    font-size: 0.8rem;
+  }
+
+  .er-clocks__table :is(th, td) {
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .er-clocks__table thead th {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+    font-weight: 700;
+    font-size: 0.83rem;
+  }
+
+  .er-band {
+    font-weight: 700;
+    color: var(--assured-text);
+    white-space: nowrap;
+  }
+
+  .er-band--p1 { color: #fca5a5; }
+  .er-band--p2 { color: #fdba74; }
+  .er-band--p3 { color: #fcd34d; }
+
+  .er-clocks__note {
+    margin: 0.5rem 0 0;
+    color: var(--assured-text-dim);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .er--compact .er-clocks__table :is(th, td) {
+    padding: 0.45rem 0.85rem;
+  }
+
+  @media print {
+    .er-rule,
+    .er-criteria,
+    .er-clocks__table,
+    .er-clocks__note {
+      font-size: 7.5pt;
+      line-height: 1.35;
+    }
+
+    .er-clocks__table :is(th, td) {
+      padding: 0.15rem 0.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+title: "Case files: four cases, end to end"
+description: "The four worked cases on one page: what each one is, how it ended on both verdict axes, its priority, decision and clock, the records it produced, and its thread through the seven chapter examples. Cases A, B and C run through every chapter; Case D has its own page and a learner packet."
+slug: "cases"
+techVerified: "2026-10-13"
+---
+
+import CaseFile from "@/components/assured/CaseFile.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import { cases, caseByKey } from "@/data/cases";
+import "@/styles/pages/cases.css";
+
+Every chapter of ASSURED teaches its phase on the same cases. That keeps the method concrete, but it splits each case into seven pieces on seven pages. The case files put each case back together: what happened, how it ended on both verdict axes, the priority and the clock it ran on, the decision and when it was made, the records it left, and where in each chapter the long form lives.
+
+## How to use the case files
+
+- **Before a chapter:** read the case card, so the chapter example can show only that phase's steps.
+- **After the method:** follow one case's thread through all seven stops in order. The decisions read differently once you know how the case ended.
+- **To practice:** work [Case D](/docs/cases/case-d/) cold from its learner packet before reading the page, or use the [hands-on exercises](/docs/exercises/).
+- **To teach:** the [teaching guide](/docs/teaching/) walks the threaded cases in session, and the [facilitator kit](/docs/teaching/kit/) adds a capstone case that shares no surface with them.
+
+All four cases are synthetic: names, hosts, addresses, module names and identifiers are fictional (reserved .example domains, RFC 5737 documentation addresses), and none is drawn from a real incident or codebase.
+
+Cases A, B and C are threaded: each chapter's worked example carries all three, under the anchors `#case-a`, `#case-b` and `#case-c`. Each worked example is the phase-specific slice of a case, showing only that phase's steps; this page holds the whole thread, so come back here for what happened before or after the phase you are reading. Case D is the one the threaded cases cannot be. They each end decisively; Case D is a false positive whose activity question stays open, works a P3 to its named triggers, and closes undetermined.
+
+<h2 id="case-a">{caseByKey("A").label} · {caseByKey("A").title}</h2>
+
+<CaseFile caseKey="A" heading={false} stops changes link="none" />
+
+<h2 id="case-b">{caseByKey("B").label} · {caseByKey("B").title}</h2>
+
+<CaseFile caseKey="B" heading={false} stops changes link="none" />
+
+<h2 id="case-c">{caseByKey("C").label} · {caseByKey("C").title}</h2>
+
+<CaseFile caseKey="C" heading={false} stops changes link="none" />
+
+<h2 id="case-d">{caseByKey("D").label} · {caseByKey("D").title}</h2>
+
+<CaseFile caseKey="D" heading={false} stops changes link="page" />
+
+## The four cases side by side
+
+<div class="cases-scroll">
+<table class="cases-compare">
+  <caption>Depth, verdict on both axes, priority, clock, decision and the records each case produced.</caption>
+  <thead>
+    <tr><th scope="col">Case</th><th scope="col">Depth</th><th scope="col">Detection</th><th scope="col">Activity</th><th scope="col">Priority</th><th scope="col">Clock</th><th scope="col">Decision</th><th scope="col">Records</th></tr>
+  </thead>
+  <tbody>
+    {cases.map((c) => (
+      <tr>
+        <th scope="row"><a href={`#${c.slug}`}>{c.label}</a></th>
+        <td>{c.depth.split(" (")[0]}</td>
+        <td>{c.verdict.detection}</td>
+        <td>{c.verdict.activity}</td>
+        <td>{c.priority.band}, {c.priority.cell}</td>
+        <td>{c.priority.clock}</td>
+        <td>{c.decision.move === "escalate" ? "Escalate" : "Documented close"}, {c.decision.at} UTC</td>
+        <td>{c.artifacts.join("; ")}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+</div>
+
+None of the four is a typical day on its own. Together they cover the outcomes a queue produces: an escalation that came late, an escalation that came on time, a benign true positive closed durably, and a false positive whose activity question never fully closed.
+
+<KeyTakeaway>A case is the unit the method works on, and its facts should not change between chapters. Read a case's card first, follow its thread through the phases, and check the decision against the clock the band set. The interesting question is rarely what the verdict was; it is when the case could have known, and what it did at that moment.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/documentation/closure/" class="assured-cta assured-cta--ghost">← Methodology complete</a>
+  <a href="/docs/cases/case-d/" class="assured-cta">Case D →</a>
+</div>
+

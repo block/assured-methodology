@@ -3,89 +3,70 @@ title: "Documentation: Making the work durable"
 description: "Documentation closes the loop. Capture decisions, evidence, and reasoning so the next analyst and the auditor can replay your thinking."
 slug: "documentation"
 wide: true
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
+import PillarGrid from "@/components/assured/PillarGrid.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/documentation.css";
 
 <ChapterHero
   phase="documentation"
-  letter="D"
-  pieceNumber={7}
   overlineOverride="Phase 7 · continuous from Alert, finalized here"
-  question="What did we decide, and what did we learn?"
-  pillars={[
-    { num: "01", label: "Standards", href: "/docs/documentation/standards/" },
-    { num: "02", label: "Templates", href: "/docs/documentation/templates/" },
-    { num: "03", label: "Pitfalls",  href: "/docs/documentation/pitfalls/" },
-  ]}
 >
   Documentation is what makes triage work survive its closure. It runs alongside every other phase and finalizes at closure, recording decisions, evidence, and reasoning so future analysts and auditors can understand what was done and why.
 </ChapterHero>
 
-<Callout variant="info" title="What Documentation is for">
-Documentation is the phase that makes the methodology's other six phases worth doing. Without it, every closed case is forgotten and the next analyst starts from zero on similar work. With it, the SOC builds institutional memory and the team's collective skill compounds over time.
-</Callout>
+Documentation is the phase that makes the methodology's other six phases worth doing. Without it, closed cases fade with the shift that worked them, and the next analyst starts from zero on similar work. With it, the SOC builds institutional memory and the team's collective skill compounds over time.
 
 ---
 
 ## What you will get from this chapter
 
 <div class="alert-outcomes">
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📐</span><div><strong>Apply documentation standards</strong>: format, clarity, timeliness.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📋</span><div><strong>Use templates</strong> that make documentation fast without sacrificing completeness.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">⚠️</span><div><strong>Avoid the common pitfalls</strong> that turn documentation into a compliance burden.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📈</span><div><strong>Drive value from documentation</strong>: trend analysis, training, audit readiness.</div></div>
+  <div class="alert-outcomes__row"><div><strong>Apply documentation standards</strong>: format, clarity, timeliness.</div></div>
+  <div class="alert-outcomes__row"><div><strong>Use templates</strong> that make documentation fast without sacrificing completeness.</div></div>
+  <div class="alert-outcomes__row"><div><strong>Avoid the common pitfalls</strong> that turn documentation into a compliance burden.</div></div>
+  <div class="alert-outcomes__row"><div><strong>Name three downstream uses of a close record</strong> (trend analysis, training, audit readiness) and write one entry in the record for each.</div></div>
 </div>
 
 ---
 
 ## The three pillars
 
-<div class="pillars-grid">
-  <a href="/docs/documentation/standards/" class="pillar pillar--doc">
-    <div class="pillar__num">01</div><div class="pillar__icon">📐</div>
-    <h3>Standards</h3>
-    <p>Format and structure, clarity and precision, timeliness. The discipline that turns notes into records.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/documentation/templates/" class="pillar pillar--doc">
-    <div class="pillar__num">02</div><div class="pillar__icon">📋</div>
-    <h3>Templates</h3>
-    <p>Alert reporting, timeline tracking, action logs. Templates make documentation fast and consistent.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/documentation/pitfalls/" class="pillar pillar--doc">
-    <div class="pillar__num">03</div><div class="pillar__icon">⚠️</div>
-    <h3>Pitfalls</h3>
-    <p>Incomplete records, post-hoc rationalization, missing evidence chains. The common ways documentation fails.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-</div>
+<PillarGrid
+  phase="documentation"
+  items={[
+    { href: "/docs/documentation/standards/", title: "Standards", body: "Format and structure, clarity and precision, timeliness. The discipline that turns notes into records." },
+    { href: "/docs/documentation/templates/", title: "Templates", body: "Alert reporting, timeline tracking, action logs. Templates make documentation fast and consistent." },
+    { href: "/docs/documentation/pitfalls/", title: "Pitfalls", body: "Incomplete records, post-hoc rationalization, missing evidence chains. The common ways documentation fails." },
+  ]}
+/>
 
 ---
 
-## Why Documentation deserves its own phase
+## Documentation at a glance
 
-<div class="why-subject-grid">
-  <FlipCard icon="🕰️" title="The work survives the analyst" accent="teal">
-    A documented case can be reviewed, learned from, and used to train new analysts long after the original investigator has moved on. An undocumented case dies with the shift it ran in.
-  </FlipCard>
-  <FlipCard icon="🧭" title="Patterns emerge from records" accent="teal">
-    Three documented cases of the same alert type, in the same week, can reveal a campaign that no single case would show. Documentation is the substrate that makes pattern detection possible at the program level.
-  </FlipCard>
-  <FlipCard icon="📋" title="Audits are documentation tests" accent="teal">
-    Regulatory audits do not ask "did you do the work." They ask "can you show that you did the work." Documentation is the answer either way; without it, the answer is "trust me."
-  </FlipCard>
-  <FlipCard icon="🧠" title="Reasoning is the deliverable" accent="teal">
-    What the analyst decided is half the value. Why they decided it is the other half. Strong documentation captures both. Future reviewers see not just the verdict but the path to it.
-  </FlipCard>
-</div>
+<PhaseAtAGlance phase="documentation">
+  <Fragment slot="runs">Continuously from Alert: every phase transition writes its update into the case record. The phase itself runs after the Escalation decision and finalizes that record.</Fragment>
+  <Fragment slot="deliverable">The closing record, reviewed and linked: the five-field pattern-close record at Level 0, the alert report at Level 1, the nine-section event report at Level 2 and for every escalated case.</Fragment>
+  <Fragment slot="done">The decision header is complete on both verdict axes; every open question is resolved or carried into recommendations; indicators carry a disposition; shared versions are sanitized; detection-engineering and tuning requests are filed; the record has passed the <a href="/docs/documentation/standards/#closure-review">closure review</a>.</Fragment>
+  <Fragment slot="level-0">The five-field pattern-close record, written at close and citing the pattern entry by ID and version. That record is the whole documentation burden, and it is not optional.</Fragment>
+  <Fragment slot="level-1">The alert report, written as you go and finalized at close, with the verdict on both axes and the reasoning behind the close or the escalation.</Fragment>
+  <Fragment slot="level-2">The case record, updated at every phase transition, assembled into the nine-section event report under its decision header. An escalated case maps its handoff packet in and links IR's outputs rather than restating them.</Fragment>
+</PhaseAtAGlance>
+
+<h3 id="why-documentation-deserves-its-own-phase">Why it is its own phase</h3>
+
+- **The work survives the analyst.** A documented case can be reviewed, learned from, and used to train new analysts long after the original investigator has moved on. An undocumented case dies with the shift it ran in.
+- **Patterns emerge from records.** Three documented cases of the same alert type in the same week can reveal a campaign that no single case would show. Documentation is what makes pattern detection possible at the program level.
+- **Audits are documentation tests.** Regulatory audits do not ask "did you do the work?" They ask "can you show that you did?" Some regimes make the record itself the duty: GDPR Article 33(5) requires every personal-data breach to be documented, reported or not. Without the record, the answer is "trust me."
+- **Reasoning is the deliverable.** What the analyst decided is half the value; why they decided it is the other half. Future reviewers see not just the verdict but the path to it.
 
 ---
 
@@ -93,58 +74,37 @@ Documentation is the phase that makes the methodology's other six phases worth d
 
 <div class="value-grid">
   <div class="value-card">
-    <h3>🔧 Detection engineering</h3>
-    <p>Documentation reveals detection gaps, false-positive trends, and emerging threat indicators. Detailed records of IOCs, missed alerts, and lateral movement patterns inform rule refinement and new detections. Well-documented cases often surface subtle adversary behaviors initially overlooked.</p>
+    <h3>Detection engineering</h3>
+    <p>Documentation reveals detection gaps, false-positive and benign-true-positive trends, and emerging threat indicators. Detailed records of IOCs, missed alerts, and lateral movement patterns inform rule refinement and new detections. Well-documented cases often surface subtle adversary behaviors initially overlooked. The <a href="/docs/detection-feedback/">detection-feedback page</a> routes each verdict to its owner.</p>
   </div>
   <div class="value-card">
-    <h3>🎓 Analyst training</h3>
+    <h3>Analyst training</h3>
     <p>Real events become sanitized simulations or tabletop exercises. These scenarios build analyst proficiency. Documentation of decision-making, especially in complex or unusual cases, serves as teaching material that develops critical thinking among junior responders.</p>
   </div>
   <div class="value-card">
-    <h3>⚙️ Process improvement</h3>
+    <h3>Process improvement</h3>
     <p>Records of operational gaps, tooling limitations, and process breakdowns drive systematic improvement. Trends across cases surface friction points that single-case retrospectives would miss. Process inefficiencies become tracked items with owners.</p>
   </div>
   <div class="value-card">
-    <h3>📊 Metrics and executive reporting</h3>
-    <p>Aggregated documentation produces impact summaries, risk trends, and security-posture metrics. Consistent records enable accurate measurement of mean time to detect (MTTD) and mean time to respond (MTTR). These metrics demonstrate program effectiveness and support budget and strategic decisions. One caution: any metric a team is judged on gets gamed. MTTR falls fastest when analysts close early and reopen quietly, so pair every speed metric with a quality check (reopen rate, closure-review pass rate) before trusting the trend.</p>
+    <h3>Metrics and executive reporting</h3>
+    <p>Aggregated documentation produces impact summaries, risk trends, and security-posture metrics. The key times each record carries (detected, acknowledged, verdict, escalated or closed, contained, reopened) are what the <a href="/docs/measuring-triage/#fields-the-records-must-carry">triage measures</a> are computed from. They demonstrate program effectiveness and support budget and strategic decisions.</p>
   </div>
   <div class="value-card">
-    <h3>🧠 Threat intelligence</h3>
-    <p>Comprehensive documentation captures new tactics, techniques, and procedures observed during investigations. These insights enrich intelligence repositories and strengthen proactive threat hunting. When appropriate, sanitized intelligence is shared with industry partners and ISACs to enhance collective defense.</p>
+    <h3>Threat intelligence</h3>
+    <p>Comprehensive documentation captures new tactics, techniques, and procedures observed during investigations. These insights enrich intelligence repositories and strengthen proactive threat hunting. When appropriate, sanitized intelligence is shared with industry partners and Information Sharing and Analysis Centers (ISACs), marked with a FIRST Traffic Light Protocol 2.0 label (e.g. TLP:AMBER) so recipients know how far it may travel.</p>
   </div>
 </div>
 
-<Callout variant="info" title="Post-incident review as a discipline">
-To maximize documentation value, organizations should conduct post-incident reviews (PIRs) for every major event. Using standardized rubrics, these reviews evaluate documentation completeness, cross-check alert coverage, and assign actions to address gaps. Clear ownership of follow-up ensures incident records become drivers of continuous improvement, not <DefineTerm term="Artifacts" display="artifacts" /> that age in a case management system.
+<Callout variant="warn" title="One caution on metrics">
+Any metric a team is judged on gets gamed. Time to close falls fastest when analysts close early and reopen quietly, so pair every speed metric with a quality check (reopen rate, closure-review pass rate) before trusting the trend.
 </Callout>
 
+Two disciplines turn the five uses from possible into routine. The first is the post-incident review (PIR) for every major event: using standardized rubrics, it evaluates documentation completeness, cross-checks alert coverage, and assigns owned actions to close the gaps, so incident records drive improvement instead of becoming <DefineTerm term="Artifacts" display="artifacts" /> that age in a case-management system. The second is the closure review (per case for Level 2, P1/P2 and escalated-then-closed records; through the weekly QA sample for Level 0 and 1 closes), run against the <a href="/docs/documentation/standards/#closure-review">closure review checklist</a>, which keeps the records the PIR draws on worth reading.
+
 <Callout variant="warn" title="Two practicalities: where the record lives, and how long it is kept">
-None of the five uses work if the case is scattered across a SIEM comment, a chat thread, and an analyst's notes file. The record of record is the case-management system; everything else links into it, and the test is that a reader can reconstruct the case from that one entry point without copy-pasting between tools. Retention is a policy decision with legal floors: regulated cases inherit the retention minimums and legal-hold rules covered on <a href="/docs/scope/regulatory/">Scope's regulatory page</a>, and even unregulated triage records should outlive the detection rules they justify, because a tuned rule's history is unreadable without the cases that tuned it.
+None of the five uses work if the case is scattered across a SIEM comment, a chat thread, and an analyst's notes file. The system of record is the case-management system; everything else links into it, and the test is that a reader can reconstruct the case from that one entry point without copy-pasting between tools. Retention is a policy decision with legal floors: regulated cases inherit the retention minimums and legal-hold rules covered on <a href="/docs/scope/regulatory/">Scope's regulatory page</a>, and even unregulated triage records should outlive the detection rules they justify, because a tuned rule's history is unreadable without the cases that tuned it.
 </Callout>
 
 <KeyTakeaway>Documentation is what makes everything else durable. Done well, it is invisible. Done badly, it is the first thing that breaks down in a stressful incident.</KeyTakeaway>
 
-<PuzzleProgress current="documentation" />
-
 <ContinueCard current="documentation" nextHref="/docs/documentation/standards/" nextLabel="Documentation standards" ctaLabel="Read standards" />
-
-<style>{`
-@media (min-width: 768px) { .pillars-grid { grid-template-columns: repeat(3, 1fr); } }
-.pillar--doc { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.85rem; color: var(--assured-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
-.pillar--doc:hover { transform: translateY(-3px); border-color: #06b6d4; box-shadow: 0 16px 32px -12px rgba(6, 182, 212, 0.35); }
-.pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(94, 234, 212, 0.7); }
-.pillar--doc h3 { margin: 0; color: var(--assured-text); font-size: 1.1rem; }
-.pillar--doc p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.95rem; }
-.pillar__cta { margin-top: auto; color: #22d3ee; font-weight: 600; font-size: 0.9rem; }
-
-.value-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .value-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .value-grid { grid-template-columns: repeat(5, 1fr); } }
-.value-card { padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; }
-.value-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 0.96rem; }
-.value-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.87rem; }
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.value-card h3 { font-weight: 600; line-height: inherit; }
-`}</style>

@@ -1,6 +1,8 @@
 ---
 title: "Attack chains and multi-event correlation"
-description: "Link discrete events into sequences that reveal adversary intent across time. The strategy built for the attacks that no single event would catch."
+shortTitle: "Attack chains"
+description: "Link discrete events into sequences that reveal adversary intent across time. The correlation patterns built for the attacks that no single event would catch."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
@@ -11,67 +13,63 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/alert-validation.css";
 
 <SubPageHero
   phase="alert"
   parentLetter="A"
-  pillarIndex="02 · 02"
-  pillarTotal="03 strategies"
-  chapterHref="/docs/alert/validation/"
-  chapterLabel="Validation"
+  pillarIndex="Field reference"
+  chapterHref="/docs/alert/validation/#attack-chains"
+  chapterLabel="Alert validation"
   lede="Single-event detection misses sophisticated intrusions. Attack-chain correlation links discrete events into sequences that reveal adversary intent across hours or days."
 />
 
-<PillNav
-  chapter="alert"
-  label="Validation strategies"
-  items={[
-    { label: "Baseline comparison", href: "/docs/alert/validation/baseline-comparison/", phase: "alert" },
-    { label: "Attack chains",       href: "/docs/alert/validation/attack-chains/",       phase: "alert" },
-    { label: "Criticality",         href: "/docs/alert/validation/criticality/",         phase: "alert" },
-  ]}
-/>
+<PillNav section="/docs/field-reference/" phase="alert" />
+
+<Callout variant="info" title="How far to go in Alert">
+In Alert, chain thinking is a question with a stopping point: one pivot on the account's last 7 days of alerts and changes. If that pivot links the alert to other steps, the chain becomes a lead in the Alert handoff, because Uncover owns chain reconstruction. The [fast-path depth ladder](/docs/fast-path/) sets how much a given alert needs, and the [Alert transition](/docs/alert/transition/) lists what to hand off.
+</Callout>
 
 ## The strategy: think in sequences, not moments
 
-Most attacks are not a single dramatic action. They are a sequence of small actions that together describe a progression: reconnaissance, then <DefineTerm term="Initial Access" display="initial access" />, then <DefineTerm term="Privilege Escalation" display="privilege escalation" />, then <DefineTerm term="Lateral Movement" display="lateral movement" />, then <DefineTerm term="Exfiltration" display="exfiltration" />. Multi-<DefineTerm term="Event Correlation" display="event correlation" /> is the validation strategy designed to catch that shape, not just the single suspicious moment in the middle.
+Most attacks are not a single dramatic action. They are a sequence of small actions that together describe a progression: reconnaissance, then <DefineTerm term="Initial Access" display="initial access" />, then <DefineTerm term="Privilege Escalation" display="privilege escalation" />, then <DefineTerm term="Lateral Movement" display="lateral movement" />, then <DefineTerm term="Exfiltration" display="exfiltration" />. Real chains skip and repeat steps: a stolen SaaS session can go straight from initial access to collection, with no escalation or lateral movement to find. <DefineTerm term="Event Correlation" display="Multi-event correlation" /> is the validation strategy designed to catch that shape, not just the single suspicious moment in the middle.
 
-As a validation strategy, chain thinking is a question the analyst asks of every alert: **is this event one step in a sequence?** Answering it means pivoting outward from the alert (same host, same account, adjacent time windows, related techniques) and assembling the timeline by hand. When a platform has already assembled the sequence, the result arrives as a [behavioral alert](/docs/alert/detection-mechanisms/behavioral/) and the analyst's job is to confirm the narrative. This page is about the same thinking applied by the analyst directly, especially for the chains no engine has a pattern or a window for.
+As a validation strategy, chain thinking is a question the analyst asks of every alert: **is this event one step in a sequence?** Answering it means pivoting outward from the alert (same host, same account, adjacent time windows, related techniques) far enough to know whether a sequence exists; assembling the full timeline is Uncover's work. When a platform has already assembled the sequence, the result arrives as a [behavioral alert](/docs/alert/detection-mechanisms/#behavioral) and the analyst's job is to confirm the narrative. This page is about the same thinking applied by the analyst directly, especially for the chains no engine has a pattern or a window for.
 
-## The dimensions of correlation
+## The four pivot axes
 
-Whether an engine assembles the chain or the analyst does, it links events across four correlation dimensions. During validation, pivot along each. A useful chain typically involves at least two of them.
+Whether an engine assembles the chain or the analyst does, it links events along four pivot axes: time, assets, technique, and targeting. During validation, pivot along each. A useful chain typically involves at least two of them.
 
 <div class="correlation-dims">
   <div class="correlation-dim">
-    <h3>🕐 Time</h3>
-    <p>Events grouped within a window. The window can be minutes for fast attacks like ransomware staging, or hours-to-days for slow-and-low intrusions. Search in both directions: the alert in front of you may be the first, middle, or last visible step.</p>
+    <h3>Time</h3>
+    <p>Events grouped within a window. The window can be minutes for fast attacks like ransomware staging, or hours to days for low-and-slow intrusions. Search in both directions: the alert in front of you may be the first, middle, or last visible step.</p>
   </div>
   <div class="correlation-dim">
-    <h3>📍 Assets</h3>
+    <h3>Assets</h3>
     <p>Events that touch the same host, account, segment, or service. Pivot on the entities the events share, so a lateral movement chain shows the host and account hops in order.</p>
   </div>
   <div class="correlation-dim">
-    <h3>🛠️ Technique</h3>
-    <p>Events that map to the same MITRE ATT&CK technique or category. Differentiates living-off-the-land behavior from custom malware. Helps attribute a chain to a campaign.</p>
+    <h3>Technique</h3>
+    <p>Events whose ATT&CK mappings form a plausible progression across tactics (for example Discovery, then Persistence, then Collection, then Exfiltration), or the same technique repeating across several hosts or accounts. A progression shows intent and where the chain may have gaps to search; repetition shows spread. Overlap with a known campaign's techniques is a lead, not attribution.</p>
   </div>
   <div class="correlation-dim">
-    <h3>🎯 Targeting</h3>
+    <h3>Targeting</h3>
     <p>Events that focus on a department, a data type, or a class of user. Helps the analyst recognize when a chain is an opportunistic intrusion versus a targeted one.</p>
   </div>
 </div>
 
-**Representative platforms:** <DefineTerm term="IBM QRadar" />, <DefineTerm term="Exabeam" /> Fusion, <DefineTerm term="Google Security Operations (formerly Chronicle)" display="Google Security Operations" /> (formerly Chronicle), <DefineTerm term="Splunk Enterprise Security" />, <DefineTerm term="Microsoft Sentinel" /> correlation rules.
+**Representative platforms:** <DefineTerm term="Microsoft Sentinel" /> analytics rules (in the Defender portal, where the Defender XDR correlation engine groups alerts into incidents), <DefineTerm term="Google Security Operations (formerly Chronicle)" display="Google Security Operations" /> (formerly Chronicle), <DefineTerm term="Splunk Enterprise Security" />, the <DefineTerm term="Exabeam" /> New-Scale platform (and the self-hosted LogRhythm SIEM it now sells), Palo Alto Networks Cortex XSIAM, and <DefineTerm term="IBM QRadar" display="IBM QRadar SIEM" /> (on-premises). For chains too slow for any correlation window, the engineering answer is risk-based alerting (for example Splunk ES RBA) and UEBA entity risk scoring.
 
 <Callout variant="info" title="Correlation's sibling: grouping and dedup">
-One underlying activity rarely produces one alert. A single malicious download can fire the EDR's signature engine, the proxy's reputation check, the IDS rule, and the SIEM correlation built on top of all three. Before chaining events into a sequence, group the alerts that are the same event seen by different sensors: same entity, same artifact, overlapping timestamps. Counting one activity four times inflates severity, and investigating it four times wastes three analysts. Most SIEM/SOAR stacks do first-pass grouping automatically; the analyst owns the final judgment on what is a duplicate versus a genuinely new observation.
+One underlying activity rarely produces one alert. A single malicious download can fire the EDR's signature engine, the proxy's reputation check, the IDS rule, and the SIEM correlation built on top of all three. Before chaining events into a sequence, group the alerts that are the same event seen by different sensors: same entity, same artifact, overlapping timestamps. Counting one activity four times inflates severity, and investigating it four times wastes three analysts. The case, not the alert, is the unit of work: grouped alerts (same entity and window, or a vendor incident ID) form one case, the case's depth level is set by its riskiest member, and a grouped case never closes at Level 0 if any member fails the eligibility gate. Most SIEM/SOAR stacks do first-pass grouping automatically; the analyst owns the final judgment on what is a duplicate versus a genuinely new observation.
 </Callout>
 
 ---
 
 ## Example: a chain no single rule catches
 
-The fast version of chain detection is already covered: the [rule-based example](/docs/alert/detection-mechanisms/rule/) shows a single SIEM rule catching an Office-macro chain because all three steps land on one host within 28 seconds. This example is the other kind, the kind that validation strategy exists for.
+The fast version of chain detection is already covered: the [rule example](/docs/alert/detection-mechanisms/#one-rule-three-ways) shows a single rule catching an Office-to-PowerShell chain because both steps land on one host within 60 seconds. This example is the other kind: a chain no rule in this SOC assembled.
 
 <CaseStudy
   title="A week of quiet steps on one account"
@@ -95,78 +93,54 @@ Day 8  02:19  svc-backup-2 compresses 4 GB from a finance share
               Medium-severity DLP alert on the upload only
 ```
 
-The Day 8 <DefineTerm term="Data Loss Prevention (DLP)" display="DLP" /> alert is the only thing in front of the analyst. Validated in isolation, it reads like an employee misusing personal storage: a policy violation, not an intrusion.
+The Day 8 <DefineTerm term="Data Loss Prevention (DLP)" display="DLP" /> alert is the only thing in front of the analyst. Validated in isolation, it reads like a misconfigured backup job pointed at a new cloud destination: a ticket for the platform team, not an intrusion.
 
-The chain is what changes the verdict. Pivoting on the account, and then on the service account it created, connects four events that no rule linked: they span eight days (longer than any correlation window configured in the SIEM), four data sources (VPN, EDR, change audit, DLP), and two identities. A rule that alerted on any single step would drown the SOC in false-positives, and a rule tuned to the whole sequence would be too specific to ever fire again. This shape of intrusion is only caught by an analyst who asks what sequence the alert in front of them belongs to.
+The chain is what changes the reading. Pivoting on the service account, and then on the account that created it, connects four events that no rule linked: they span eight days (longer than any correlation window configured in the SIEM), four data sources (VPN, EDR, change audit, DLP), and two identities. Promoting the Day 1 geo alert or the Day 3 enumeration to analyst-reviewed alerts on their own would drown the SOC in benign alerts, and a rule tuned to the whole eight-day sequence would be too specific to fire again. The Day 6 step is different: a service-account creation with no change ticket is low-volume and deserved its own alert. That it was only logged is a detection gap to [feed back to detection engineering](/docs/detection-feedback/).
 
-What the analyst checks while assembling the chain:
+In this case the chain was caught because an analyst asked what sequence the alert in front of them belonged to. The engineering answer is risk-based alerting or entity risk scoring: low-fidelity observations add risk to an entity over days instead of raising alerts. That would have counted the auto-closed Day 1 login and the unalerted Day 3 and Day 6 events against j.moreau, provided the account-creation event attributes risk to both the creator and svc-backup-2.
 
-- **The initial access.** Was the Day 1 VPN login protected by MFA, and did it come from a device the <DefineTerm term="User" display="user" /> had used before? The authentication logs answer whether the account was already compromised before anything else happened.
+This is the question asked in Alert and answered in Uncover. The Alert-phase pivot (svc-backup-2's last 7 days, which surface its creation by j.moreau on Day 6 with no ticket) is enough to stop treating the upload as a misconfiguration and to hand off a chain lead. The checks below are the full reconstruction, and they belong to [Uncover](/docs/uncover/).
+
+What the full reconstruction checks:
+
+- **The initial access.** Was the Day 1 VPN login protected by MFA, and did it come from a device the user had used before? The authentication logs answer whether the account was already compromised before anything else happened.
 - **The enumeration scope.** Which shares did the Day 3 activity touch? If the Day 8 upload came from a share enumerated on Day 3, coincidence becomes sequence.
 - **The service-account creation.** Who authorized svc-backup-2? An unreferenced change that stages data two days later is the strongest link in the chain, and it pivots the investigation onto a second identity.
-- **The destination.** <DefineTerm term="WHOIS" /> data, DNS prevalence, and <DefineTerm term="Threat" display="threat" />-<DefineTerm term="Intelligence" display="intelligence" /> overlap for the cloud-storage domain, plus one wider question: has any other account in the environment sent data there?
+- **The destination.** Domain registration data (RDAP, which replaced <DefineTerm term="WHOIS / RDAP" display="WHOIS" /> for generic TLDs in January 2025; some country-code TLDs still answer only WHOIS), DNS prevalence, and <DefineTerm term="Threat Intelligence" display="threat-intelligence" /> overlap for the cloud-storage domain, plus one wider question: has any other account in the environment sent data there?
 
 </CaseStudy>
 
 <Reveal summary="What makes the chain stronger than the parts" variant="deep-dive">
-Each event in the example had a plausible legitimate explanation on its own: people travel, admins enumerate shares, service accounts get created, employees misuse personal storage. The chain is stronger than the sum of the parts because the *combination* (new-location access, then enumeration, then unauthorized account creation, then staging and egress, all traceable to one identity) describes a progression with intent. Correlation, whether an engine runs it inside a window or an analyst runs it across a week, is the strategy that surfaces these combinations without a hand-crafted rule for every permutation.
+Each event in the example had a plausible legitimate explanation on its own: people travel, admins enumerate shares, service accounts get created, backup jobs get repointed. The chain is stronger than the sum of the parts because the *combination* (new-location access, then enumeration, then unauthorized account creation, then staging and egress, all traceable to one identity) describes a progression with intent. Correlation, whether an engine runs it inside a window or an analyst runs it across a week, is the strategy that surfaces these combinations without a hand-crafted rule for every permutation.
 </Reveal>
 
 ---
 
-## Operational practice
+## What this means for triage
+
+- **Search both directions in time.** The alert in front of you may be the first, middle, or last visible step; pivot before and after it.
+- **Check retention before concluding a step did not happen.** An eight-day chain needs at least eight days of searchable, consistently normalized data from every source in it. Endpoint telemetry often keeps far less.
+- **Hand off the chain, not just the alert.** A linked step is a lead for Uncover, recorded with its source and timestamp, even when you stop pivoting.
+
+<Reveal summary="For detection engineering and platform owners" variant="deep-dive">
 
 - **Tune and validate correlation rules on a regular cadence.** A correlation rule that worked well last quarter may fire on legitimate activity this quarter as the environment shifts.
-- **Keep long-term retention and consistent <DefineTerm term="Normalization" display="normalization" />** to support multi-step analysis. A four-hour chain requires four hours of consistently shaped data.
-- **Integrate <DefineTerm term="Endpoint" display="endpoint" />, network, and identity <DefineTerm term="Telemetry" display="telemetry" />.** Correlation lives at the seams between data sources. A chain that crosses three sources is far more informative than one within a single source.
+- **Keep long-term retention and consistent <DefineTerm term="Normalization" display="normalization" />** to support multi-step analysis. Size retention to realistic attacker dwell time and the longest chain you expect to investigate, not to your correlation window.
+- **Integrate endpoint, network, and identity <DefineTerm term="Telemetry" display="telemetry" />.** Correlation lives at the seams between data sources. A chain that crosses three sources is far more informative than one within a single source.
+- **Feed auto-closed alerts into entity risk.** A playbook close removes an alert from the queue, not from the entity's history.
 - **Provide real-time processing capacity.** Batch-only correlation misses the speed window during which response is most effective.
+- **Close the loop with triage.** [Triage and detection engineering](/docs/detection-feedback/) covers the tuning request, the routing for each verdict, and the per-rule numbers both teams share.
+
+</Reveal>
 
 <KeyTakeaway>
-Attack-chain correlation is the strategy that catches the attacks no single event would catch. Platforms assemble the chains they have patterns and windows for; the analyst assembles the rest by pivoting on time, assets, technique, and targeting. Used well, it turns validation from "is this one event bad?" into "what sequence is this event part of?", and that is the question intrusions actually fail.
+Attack-chain correlation is the strategy that catches the attacks no single event would catch. Platforms assemble the chains they have patterns and windows for; the analyst assembles the rest by pivoting on time, assets, technique, and targeting. Used well, it turns validation from "is this one event bad?" into "what sequence is this event part of?", the question most intrusions cannot survive.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/validation/criticality/"
-  nextLabel="Asset and user criticality"
-  nextDescription="The third strategy: weigh alerts by what they could affect and who is involved."
-  ctaLabel="Read criticality"
+  nextHref="/docs/alert/validation/#attack-chains"
+  nextLabel="Back to alert validation"
+  nextDescription="In Alert, chain thinking is one pivot with a stopping point. Return to the validation strategies and the handoff."
+  ctaLabel="Back to validation"
 />
-
-<style>
-{`
-.correlation-dims {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px)  { .correlation-dims { grid-template-columns: 1fr 1fr; } }
-
-.correlation-dim {
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #6366f1;
-  border-radius: 0.7rem;
-}
-
-.correlation-dim :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #a5b4fc;
-  font-size: 1rem;
-}
-
-.correlation-dim p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.correlation-dim h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

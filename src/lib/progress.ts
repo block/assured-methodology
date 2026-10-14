@@ -7,7 +7,15 @@
  * a progress strip on the same page as a quiz updates without a reload.
  */
 
-export type QuizProgress = Record<string, { correct: number; total: number }>;
+export type QuizProgress = Record<
+  string,
+  {
+    correct: number;
+    total: number;
+    /** First-try result per item, in page order. Absent in older records. */
+    items?: boolean[];
+  }
+>;
 
 const QUIZ_STORAGE_KEY = "assured-quiz-progress";
 

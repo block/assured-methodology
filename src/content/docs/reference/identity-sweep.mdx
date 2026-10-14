@@ -1,0 +1,185 @@
+---
+title: "Identity-persistence sweep"
+description: "The checklist to run on any identity an attacker held or may have held: sessions and refresh tokens, MFA methods, registered devices, OAuth grants, mailbox rules and forwarding, delegated access, federation trust and new service principals. Where each one is logged in Microsoft Entra ID, Okta and Google Workspace, and the order that keeps the evidence intact."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/reference.css";
+
+A password reset is the move everyone reaches for when an account looks taken, and it ends less than it seems to. An attacker who held an identity for ten minutes had time to plant anchors that outlive the new password: an authenticator app of their own, a registered device, a consented application, a rule that hides the replies. This page is the <DefineTerm term="Identity-Persistence Sweep" display="identity-persistence sweep" />: the checklist for finding them, where each one is logged in Microsoft Entra ID, Okta and Google Workspace, and the order that removes them without destroying the evidence.
+
+The sweep is a read-only inventory. Finding an anchor is triage; removing it is containment, under <a href="/docs/escalation/triage-vs-ir/#pre-authorized">the pre-authorized actions list</a>. The worked thread is Case C, the replayed session on the mail tenant, in the <a href="/docs/alert/example/#case-c">Alert</a>, <a href="/docs/scope/example/#case-c">Scope</a> and <a href="/docs/uncover/example/#case-c">Uncover</a> examples.
+
+## When to run it
+
+Run it on every identity that was, or may have been, in attacker hands:
+
+- **Session theft or replay, confirmed or suspected:** <DefineTerm term="AiTM Phishing" display="adversary-in-the-middle phishing" />, a replayed cookie, a device-code sign-in the user did not start (see <a href="/docs/alert/parsing/cloud-identity/#identity-attacks-at-protocol-depth">identity attacks at protocol depth</a>).
+- **Credential exposure at a phishing kit:** the rule in the callout below.
+- **An infostealer on a host:** <DefineTerm term="Infostealers" display="infostealers" /> read the whole browser cookie store, so every session in that profile is presumed stolen. <a href="/docs/risk/example/#case-a">Case A</a> treats both finance users as <DefineTerm term="Credential-Exposed" display="credential-exposed" /> for this reason.
+- **An MFA reset or new method the user did not ask for:** especially after a help-desk call, the signature move of <DefineTerm term="Scattered Spider" display="Scattered Spider" />.
+- **A follow-on artifact found first:** a consent to an unverified app, a hiding <DefineTerm term="Inbox Rule" display="inbox rule" />, external forwarding. A session acted, so sweep the identity behind it.
+
+<Callout variant="warn" title="Credential-exposed until proven otherwise">
+Any user who reached the credential step of a phishing kit is credential-exposed until the password is reset, sessions are revoked and MFA methods are reviewed. An adversary-in-the-middle kit relays the password to the real identity provider as it is typed, so stopping at the MFA prompt rules out session theft, not credential theft. In Case C, the second click-through user's password was accepted from the proxy IP and MFA was never completed: she is recorded as credential-exposed, not clean, and swept like rvega.
+</Callout>
+
+A privileged identity changes the depth, not the checklist. It always fails the Level 0 <DefineTerm term="Eligibility Gate" display="eligibility gate" /> and routes to Level 2 (see <a href="/docs/fast-path/#the-depth-ladder">the depth ladder</a>), and the sweep must cover the tenant-level objects it could change: federation, roles, application credentials. If the sweep confirms an escalation criterion, the <DefineTerm term="Escalation Tripwire" display="escalation tripwire" /> fires from whatever phase you are in, and the rest of the sweep runs as IR-assigned scoping support.
+
+**The window.** Start at the earliest possible exposure (lure delivery, the first attacker sign-in, the infostealer's first run) and look back 14 to 30 days on the affected identities, because these artifacts can predate the alert (see <a href="/docs/scope/time/">time boundaries</a>). Keep the forward window open until containment is verified. Sweep two ways: per identity, for every exposed account, and tenant-wide, by the attacker's fingerprints (source IPs and ASN, the application ID, the rule's shape), as Case C's Scope did.
+
+## The checklist
+
+Eight places an attacker leaves a way back in. For each: what survives a password reset, the shape an attacker leaves, and the ATT&CK technique.
+
+<ol class="sweep-list">
+  <li class="sweep-item">
+    <h3>1. Sessions and refresh tokens</h3>
+    <p><strong>What survives:</strong> it depends on the identity provider and on how the reset is done. On Microsoft Entra ID, a refresh token is valid until it is revoked or goes unused for 90 days; already-issued access tokens stay valid until they expire unless continuous access evaluation is enforced for that app; sessions that a SaaS application issues itself are outside the identity provider's reach; and <DefineTerm term="App Password" display="app passwords" /> are not revoked by a password reset at all. Okta's session revocation does not clear sessions created for web or native apps either.</p>
+    <p><strong>Attacker shape:</strong> one session ID seen from more than one network; non-interactive sign-ins from an ASN the user never used; tokens issued to apps the user never opens.</p>
+    <p><strong>ATT&amp;CK:</strong> T1539 Steal Web Session Cookie and T1550.004 Web Session Cookie for the theft and replay; T1528 Steal Application Access Token.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>2. MFA methods</h3>
+    <p><strong>What survives:</strong> all of it. A method the attacker registered satisfies the next MFA prompt and, where self-service password reset is enabled, can reset the new password too.</p>
+    <p><strong>Attacker shape:</strong> an authenticator app, phone number or passkey registered within hours of a risky sign-in, from the attacker's IP, or minutes after a help-desk call; a changed default method; a method an admin registered with no ticket behind it.</p>
+    <p><strong>ATT&amp;CK:</strong> T1098.005 <DefineTerm term="Device Registration" />, which covers enrolling a device in an MFA system.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>3. Registered and joined devices</h3>
+    <p><strong>What survives:</strong> the device. In Entra ID a registered device can hold a <DefineTerm term="Primary Refresh Token (PRT)" display="Primary Refresh Token" /> and can satisfy device-based Conditional Access, which is why Microsoft's emergency guidance disables the user's devices as well as the account.</p>
+    <p><strong>Attacker shape:</strong> a device registered from attacker infrastructure, or a device-code sign-in through the Microsoft Authentication Broker followed by a registration; in Okta, an Okta Verify enrollment on a new device.</p>
+    <p><strong>ATT&amp;CK:</strong> T1098.005 Device Registration.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>4. OAuth grants and app consents</h3>
+    <p><strong>What survives:</strong> the grant. A password reset never removes a <DefineTerm term="OAuth Consent Grant (Illicit Consent)" display="consent grant" />. Removing it means deleting the delegated grants and any app-role assignments, or disabling the app's <DefineTerm term="Service Principal" display="service principal" />, then blocking re-consent. In Google Workspace, removing an app's access is temporary: the user can grant it again unless the app or its scopes are blocked.</p>
+    <p><strong>Attacker shape:</strong> an unverified publisher, a multi-tenant or newly registered app, scopes such as <code>Mail.Read</code> with <code>offline_access</code>, and a consent made from the replayed session.</p>
+    <p><strong>ATT&amp;CK:</strong> T1528 Steal Application Access Token; T1671 Cloud Application Integration when the consent is persistence.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>5. Mailbox rules and forwarding</h3>
+    <p><strong>What survives:</strong> every rule and every forwarding setting. They belong to the mailbox, not to the sign-in.</p>
+    <p><strong>Attacker shape:</strong> a one-character rule name; conditions on "invoice", "payment" or "bank"; actions that move messages to RSS Subscriptions, Archive or Deleted Items and mark them as read; forwarding to an external address. Rules can be hidden from Outlook and most admin views, so list them with the hidden ones included.</p>
+    <p><strong>ATT&amp;CK:</strong> T1564.008 Email Hiding Rules; T1114.003 Email Forwarding Rule.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>6. Delegated access</h3>
+    <p><strong>What survives:</strong> permissions granted to another account. The attacker keeps reading through the delegate after the victim's account is locked down.</p>
+    <p><strong>Attacker shape:</strong> full-access, send-as or folder permissions granted to another compromised account, or to an account created in the window.</p>
+    <p><strong>ATT&amp;CK:</strong> T1098.002 Additional Email Delegate Permissions.</p>
+  </li>
+  <li class="sweep-item">
+    <h3>7. Federation and tenant trust changes</h3>
+    <p><strong>What survives:</strong> the trust itself, for every user in the tenant. An attacker with admin rights who adds a federated domain or a new identity provider can mint sign-ins without touching any password (see <a href="/docs/alert/parsing/cloud-identity/#federation-and-tenant-trust-abuse">federation and tenant trust abuse</a>).</p>
+    <p><strong>Attacker shape:</strong> a new or changed domain authentication setting, a new token-signing certificate, a new identity provider or routing rule, a new cross-tenant partner.</p>
+    <p><strong>ATT&amp;CK:</strong> T1484.002 Trust Modification; T1606.002 SAML Tokens for the forging that follows (<DefineTerm term="Golden SAML" />).</p>
+  </li>
+  <li class="sweep-item">
+    <h3>8. New service principals, app credentials and roles</h3>
+    <p><strong>What survives:</strong> a <a href="/docs/subject/non-human-identities/">non-human identity</a> the attacker controls. A secret added to an existing application signs in as that application, with its permissions, regardless of what happens to the user.</p>
+    <p><strong>Attacker shape:</strong> a new service principal or OAuth client, a secret or certificate added to an existing app, an owner added to an app, a role assigned, an API token minted.</p>
+    <p><strong>ATT&amp;CK:</strong> T1098.001 Additional Cloud Credentials; T1098.003 Additional Cloud Roles; T1136.003 Cloud Account.</p>
+  </li>
+</ol>
+
+## Where to look: Entra ID, Okta and Google Workspace
+
+The names below are the audit activity and event-type strings each platform logs. Read the current state as well as the history: the audit log shows that a method or a grant was created, and the object shows what it looks like now.
+
+<div class="table-scroll">
+<table class="sweep-table">
+  <thead>
+    <tr><th scope="col">Item</th><th scope="col">Microsoft Entra ID and Exchange Online</th><th scope="col">Okta</th><th scope="col">Google Workspace</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Sessions and tokens</th><td><code>SigninLogs</code> and <code>AADNonInteractiveUserSignInLogs</code>: <code>SessionId</code>, <code>UniqueTokenIdentifier</code>, <code>IPAddress</code>, <code>AutonomousSystemNumber</code>.</td><td><code>user.session.start</code>, <code>security.session.detect_client_roaming</code>; <code>user.session.clear</code> when sessions are cleared.</td><td>User log events: <code>login_success</code> with its suspicious flag, <code>user_signed_out_due_to_suspicious_session_cookie</code>.</td></tr>
+    <tr><th scope="row">MFA methods</th><td>Audit log: "User registered security info", "Admin registered security info", "User changed default security info", "User deleted security info". Current state: <code>Get-MgUserAuthenticationMethod</code>.</td><td><code>user.mfa.factor.activate</code>, <code>user.mfa.factor.update</code>, <code>user.mfa.factor.deactivate</code>, <code>user.mfa.factor.reset_all</code>.</td><td><code>2sv_enroll</code>, <code>2sv_disable</code>, <code>passkey_enrolled</code>, <code>recovery_email_edit</code>, <code>recovery_phone_edit</code>. Current state: the user's Security page.</td></tr>
+    <tr><th scope="row">Devices</th><td>"Register device", "Add registered owner to device", "Add registered users to device". Current state: <code>Get-MgUserRegisteredDevice</code>.</td><td><code>device.enrollment.create</code>, <code>device.user.add</code> (Okta Verify).</td><td>Devices log events; passkeys and security keys on the user's Security page.</td></tr>
+    <tr><th scope="row">OAuth grants</th><td>"Consent to application", "Add delegated permission grant", "Add app role assignment to service principal".</td><td><code>app.oauth2.as.consent.grant</code>.</td><td>OAuth log events: <code>authorize</code>, with <code>client_id</code>, <code>app_name</code> and <code>scope</code>. Current state: Connected applications on the Security page.</td></tr>
+    <tr><th scope="row">Rules and forwarding</th><td>Unified audit log: <code>New-InboxRule</code>, <code>Set-InboxRule</code>, <code>UpdateInboxRules</code> (Outlook client). Current state: <code>Get-InboxRule -IncludeHidden</code>; <code>Get-Mailbox</code> for <code>ForwardingSmtpAddress</code> and <code>DeliverToMailboxAndForward</code>.</td><td>Not in Okta: check the mail platform behind it.</td><td><code>email_forwarding_out_of_domain</code> in User log events; forwarding and filters in the mailbox's settings.</td></tr>
+    <tr><th scope="row">Delegated access</th><td><code>Add-MailboxPermission</code>, <code>AddFolderPermissions</code>; <code>SendAs</code> and <code>SendOnBehalf</code> when a delegate sends.</td><td>Not in Okta: check the mail platform behind it.</td><td>Mail delegates in the mailbox's settings.</td></tr>
+    <tr><th scope="row">Federation and trust</th><td>"Set domain authentication", "Set federation settings on domain", "Add unverified domain", "Add a partner to cross-tenant access setting".</td><td><code>system.idp.lifecycle.create</code>, <code>system.idp.lifecycle.update</code>, <code>policy.lifecycle.update</code>.</td><td>Admin log events for SSO profile and SAML app changes.</td></tr>
+    <tr><th scope="row">Service principals and roles</th><td>"Add service principal", "Add service principal credentials", "Update application" (Certificates and secrets management), "Add owner to application", "Add member to role", "Add eligible member to role".</td><td><code>application.lifecycle.create</code>, <code>app.oauth2.client.lifecycle.create</code>, <code>system.api_token.create</code>, <code>user.account.privilege.grant</code>.</td><td>Admin log events for admin role assignments and API client access.</td></tr>
+    <tr><th scope="row">Retention</th><td>Sign-in and audit logs: 7 days on Entra ID Free, 30 days on P1 and P2. Unified audit log: 180 days on Audit (Standard).</td><td>System Log: 90 days.</td><td>6 months for these logs. Lag: tens of minutes for user account events, up to a few hours for OAuth events.</td></tr>
+  </tbody>
+</table>
+</div>
+
+Retention decides whether the sweep can answer at all: if the window reaches past the console's retention, run it against the SIEM copy and say so (see <a href="/docs/uncover/data-sources/#retention">typical default retention</a>). Lag matters too. A Google OAuth event can take hours to appear, so a "none" five minutes after the incident is a result with a timestamp, not a final answer.
+
+A starting query in Microsoft Sentinel: every persistence-shaped change made by, or to, one account in the last 30 days.
+
+```kql
+let target = "rvega@corp.example";
+AuditLogs
+| where TimeGenerated > ago(30d)
+| where OperationName in ("User registered security info", "Admin registered security info",
+    "User changed default security info", "Register device", "Add registered owner to device",
+    "Consent to application", "Add delegated permission grant",
+    "Add app role assignment to service principal", "Add service principal",
+    "Add service principal credentials", "Add owner to application", "Add member to role",
+    "Set domain authentication", "Set federation settings on domain")
+    or OperationName has "Certificates and secrets management"
+| extend Actor = coalesce(tostring(InitiatedBy.user.userPrincipalName), tostring(InitiatedBy.app.displayName)),
+         ActorIP = tostring(InitiatedBy.user.ipAddress),
+         Target = tostring(TargetResources[0].userPrincipalName)
+| where Actor =~ target or Target =~ target
+| project TimeGenerated, OperationName, Actor, ActorIP, Target, Result, CorrelationId
+| order by TimeGenerated asc
+```
+
+Run it a second time without the last <code>where</code> on the account and with <code>ActorIP</code> filtered to the attacker's addresses: that is the tenant-wide half of the sweep. The mailbox half runs in the unified audit log on the operations in the table above.
+
+## Order of operations
+
+The sweep and the containment it feeds run in a fixed order: the order Case C ran, and the one <a href="/docs/escalation/preserve/">preserve before you contain</a> sets for every action.
+
+<ol class="sweep-order">
+  <li><strong>Check the tripwire first.</strong> If an <a href="/docs/escalation/criteria/">escalation criterion</a> is confirmed (supported at High confidence on <a href="/docs/documentation/standards/#confidence">the confidence rubric</a>), page IR now, on a channel the attacker cannot read (see <a href="/docs/escalation/communication/#out-of-band">out-of-band communication</a>).</li>
+  <li><strong>Preserve.</strong> Export the sign-in records (interactive and non-interactive, with session IDs) and the audit log for the window, and snapshot what later steps will remove: MFA methods and devices, grants and the app's service principal, rules and forwarding, delegates. Hash the exports and write the <a href="/docs/escalation/preserve/#custody-record">custody record</a>. Minutes, not an hour.</li>
+  <li><strong>Run the reversible, pre-authorized actions.</strong> Disable the account, then revoke all sessions and refresh tokens, which is Microsoft's emergency order. In Okta, clear the user's sessions with the option that also revokes OAuth tokens. In Google Workspace, reset the sign-in cookies, after ending the session at any third-party identity provider, which could sign the user straight back in. Disable the app's sign-in; disable (not delete) the rules.</li>
+  <li><strong>Verify, do not assume.</strong> The check is the attacker's next presentation, refused, with its time. Already-issued Entra ID access tokens live 60 to 90 minutes by default; continuous access evaluation, where the app supports it, enforces revocation in near real time, with up to 15 minutes of propagation. Sessions a SaaS app issued itself need that app's own revocation.</li>
+  <li><strong>Take the non-reversible steps with IR's or the owner's approval.</strong> Unless the <a href="/docs/escalation/protocols/">protocol</a> pre-authorizes them for the scenario, these wait: reset the password (on a hybrid account, in Active Directory, where Microsoft advises resetting twice); remove the attacker's MFA methods and devices; delete the grants and app-role assignments, keeping the service principal disabled; remove added delegates, roles and app credentials; delete app passwords, which a reset does not revoke.</li>
+  <li><strong>Re-enroll through a verified channel.</strong> The account stays disabled until IR clears it, and the user re-registers MFA after verification out of band (a <DefineTerm term="Call-Back Verification" display="call-back" /> to a number from the directory), never on a request that arrives through the compromised mailbox or chat.</li>
+  <li><strong>Re-sweep</strong> once any access token issued before revocation has expired and the slowest logs have caught up. Anything new is a failed containment, and it goes to IR at once.</li>
+</ol>
+
+<Callout variant="info" title="Why not reset the password first?">
+A reset first is the version you cannot verify. Whether it ends existing sessions depends on the identity provider and how it is done; it never removes a grant, a rule, a delegate or an attacker's MFA method; and it cannot be undone, so it is not on the triage list. The usual failure is relief because "the password was changed" while the consented app keeps reading mail. <a href="/docs/scope/entity/#containment-and-the-entity-scope">Containment and the entity scope</a> sets the same order from Scope's side.
+</Callout>
+
+## What to record
+
+Record every checklist item, each line with its source, window, query time and result. A recorded negative ("MFA methods: one, the user's own; none registered in the window; AuditLogs, 30 days, queried 10:14 UTC") is a finding. An item not checked is a gap, and unknown is not low: it goes in the open questions, not down as "clean". In the <a href="/docs/escalation/handoff/">handoff packet</a>, the preservation steps and removals go in section 6, the hashed exports in section 7, and anything unswept in section 8.
+
+<Reveal summary="Case C, recorded this way" variant="example">
+
+Uncover ran Case C's tenant sweep once, over 14 days and all users, as Scope bounded it. Found: one consent grant to the "Mail Backup Sync" app ID and one hiding inbox rule, both on rvega's mailbox, both made from the replayed session. None: forwarding rules, added delegates, MFA methods or devices registered from either attacker IP. One more exposed identity: the second click-through user, sessions revoked at 09:41, password reset and MFA methods reviewed at 09:44 with IR's approval. rvega's own review at 09:40 found only her own method. Those recorded negatives make "one account taken, one more exposed and reset, nothing else" a defensible claim instead of a hope. The full timeline is in the <a href="/docs/escalation/example/#case-c">Escalation decision example</a>.
+
+</Reveal>
+
+## Check yourself
+
+At 02:10 UTC the help desk resets a sales manager's MFA after a caller passes the identity questions. At 02:14 a new authenticator app is registered on the account from a residential proxy. At 02:20 the account signs in from a new device and consents to a file-sync app. The callback number on the ticket is not the manager's. What do you sweep, in what order, and what is a password reset worth here?
+
+<Reveal summary="One way to answer">
+The registration and the consent are follow-on activity from attacker infrastructure on an account the attacker reset into, and nothing contained it: that is a confirmed criterion, so the escalation tripwire fires and IR is paged out of band. The help-desk ticket is evidence (who called, from what number, how the caller was verified). Preserve first: sign-in and audit records from the reset onward, the MFA methods, the new device, the app's grant and service principal. Then disable the account, revoke all sessions and refresh tokens, disable the app's sign-in, and verify that the next attempt from the proxy is refused. With IR's approval, remove the attacker's authenticator and device, delete the grant, and reset the password. Sweep all eight items, not only the two you can see, and go tenant-wide by the proxy's IP and the app ID: a caller who got through the help desk once may have called about other users. On its own, the reset is worth little: the attacker's authenticator satisfies the next MFA prompt, and the grant keeps reading files.
+</Reveal>
+
+<KeyTakeaway>
+A password reset is not containment for an identity an attacker has held. Sweep all eight places a way back in hides, per identity and tenant-wide, over a window that starts before the alert. Preserve, revoke and verify, then take the steps that cannot be undone with IR's approval. Record every item, including the empty ones. Anyone who reached a kit's credential step is in scope.
+</KeyTakeaway>
+
+## Sources
+
+- Microsoft Learn, <a href="https://learn.microsoft.com/en-us/entra/identity/users/users-revoke-access" target="_blank" rel="noopener noreferrer">Revoke user access in an emergency in Microsoft Entra ID</a> (updated June 2026): disable the account, revoke refresh tokens, disable the user's devices; Entra ID cannot revoke session tokens an application issued itself. <a href="https://learn.microsoft.com/en-us/entra/identity-platform/configurable-token-lifetimes" target="_blank" rel="noopener noreferrer">Configurable token lifetimes</a> (updated June 2026): access tokens default to a random 60 to 90 minutes; refresh tokens last until revoked, with a 90-day inactivity limit.
+- Microsoft Learn, <a href="https://learn.microsoft.com/en-us/defender-office-365/responding-to-a-compromised-email-account" target="_blank" rel="noopener noreferrer">Respond to a compromised email account in Microsoft 365</a> (updated August 2026): app passwords survive a password reset; review MFA methods and devices, consented apps, roles and forwarding; list hidden inbox rules.
+- Microsoft Learn, <a href="https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-continuous-access-evaluation" target="_blank" rel="noopener noreferrer">Continuous access evaluation</a> (updated September 2026), <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities" target="_blank" rel="noopener noreferrer">Microsoft Entra audit log activity reference</a> (updated June 2026), and <a href="https://learn.microsoft.com/en-us/purview/audit-log-activities" target="_blank" rel="noopener noreferrer">Audit log activities</a> (updated October 2026).
+- Okta, <a href="https://developer.okta.com/docs/reference/api/event-types/" target="_blank" rel="noopener noreferrer">Event types</a> and <a href="https://developer.okta.com/docs/api/openapi/okta-management/management/tags/usersessions" target="_blank" rel="noopener noreferrer">User Sessions API</a> (both checked October 2026).
+- Google, <a href="https://knowledge.workspace.google.com/admin/reports/data-retention-and-lag-times" target="_blank" rel="noopener noreferrer">Data retention and lag times</a> and <a href="https://knowledge.workspace.google.com/admin/security/manage-a-users-security-settings" target="_blank" rel="noopener noreferrer">Manage a user's security settings</a> (both updated October 2026); Admin SDK Reports API, <a href="https://developers.google.com/workspace/admin/reports/v1/appendix/activity/login" target="_blank" rel="noopener noreferrer">Login</a> and <a href="https://developers.google.com/workspace/admin/reports/v1/appendix/activity/token" target="_blank" rel="noopener noreferrer">OAuth Token</a> activity events (checked October 2026).
+- MITRE ATT&amp;CK, <a href="https://attack.mitre.org/techniques/T1098/005/" target="_blank" rel="noopener noreferrer">T1098.005 Device Registration</a>, <a href="https://attack.mitre.org/techniques/T1671/" target="_blank" rel="noopener noreferrer">T1671 Cloud Application Integration</a> and <a href="https://attack.mitre.org/techniques/T1114/003/" target="_blank" rel="noopener noreferrer">T1114.003 Email Forwarding Rule</a> (ATT&amp;CK v19, checked October 2026).

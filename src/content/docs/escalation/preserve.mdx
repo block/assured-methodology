@@ -1,0 +1,209 @@
+---
+title: "Preserve before you contain"
+description: "Pre-authorized containment runs before IR arrives, and every action destroys something. The order of volatility in 2026 terms, the tip-off check, the minimum custody record, and a decision table for each action on the list."
+techVerified: "2026-10-13"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/escalation.css";
+
+<SubPageHero phase="escalation" lede="Containment stops the harm and destroys evidence in the same motion. When triage runs the pre-authorized actions before IR arrives, triage owns the minutes before them too: capture what the action is about to destroy, check whether the action tells the adversary what you know, record what you took, then act."/>
+
+<PillNav chapter="escalation" />
+
+## Why this sits in triage
+
+IR owns <DefineTerm term="Containment" display="containment" /> strategy, with one deliberate exception: the short, written list of [pre-authorized immediate actions](/docs/escalation/triage-vs-ir/#pre-authorized) that triage may run without waiting, such as isolating a host, disabling an account, revoking sessions, or disabling a consented app's sign-in. Those actions run in the minutes after the [escalation tripwire](/docs/escalation/criteria/#tripwire) fires, often before IR has acknowledged the page. Whatever evidence they destroy is gone before the first responder joins the bridge.
+
+So the rule that governs the list starts here: **preserve, then contain.** A preservation step comes before every pre-authorized action. It captures the volatile evidence and the specific artifacts that action destroys, and it is measured in minutes, not in an investigation. In the worked cases it took two minutes for an identity case and nine minutes for two endpoints with memory capture.
+
+Three more rules travel with it:
+
+- **Reversible only.** Pre-authorized actions can be undone. Actions that cannot (a credential reset, removing an OAuth consent grant, deleting a mailbox rule, terminating a cloud instance) need IR or owner approval, unless the protocol lists them explicitly as pre-authorized for that scenario.
+- **Preserve what this action destroys.** Not everything, and not a full forensic image. The question is narrow: what will exist before this action that will not exist after it?
+- **Destruction in progress shortens the step, it does not skip it.** If encryption is running or data is leaving right now, take the action that stops it first when that action keeps the evidence (EDR isolation keeps memory, as below), capture what survives through the channel that is still open, and record why the order changed.
+
+The doctrine is old. RFC 3227 (February 2002) says do not shut down until evidence collection is complete, and minimize changes to the data while collecting it. The joint advisory AA20-245A from CISA and the Australian, Canadian, New Zealand and UK cyber centres (September 2020) lists "mitigating the affected systems before responders can protect and recover data" first among its common mistakes in incident handling, because it loses volatile data and alerts the adversary.
+
+---
+
+## The order of volatility in 2026 terms
+
+The <DefineTerm term="Order of Volatility" display="order of volatility" /> is RFC 3227's principle: collect from the most short-lived evidence to the least. Its original list runs from registers and cache, through routing tables, process tables and memory, temporary file systems and disk, to remote logs, physical configuration and archival media. That list was written for a single server. A 2026 case spans an endpoint, an identity provider, a SaaS tenant and a cloud account, so the ladder below orders evidence by how soon the response itself, or the clock, destroys it.
+
+<ol class="volatility-ladder">
+  <li><strong>Live state:</strong> the attacker's active session, open network connections, the live C2 channel. Ended by isolation, session revocation, or a blocked address, and it can never be re-collected.</li>
+  <li><strong>Memory and running processes:</strong> injected code, decrypted payloads, credentials and tokens in memory, command history. Ended by a reboot, shutdown, reimage, instance termination, or killing the process.</li>
+  <li><strong>Ephemeral workloads and temporary storage:</strong> containers, instance-store volumes, temp directories, serverless execution environments. Ended by teardown, eviction, or scaling in.</li>
+  <li><strong>Object state in identity and SaaS:</strong> inbox rules, OAuth grants, MFA methods, registered devices, delegates, service-principal credentials. Each lasts until someone removes it, and removal is exactly what remediation does.</li>
+  <li><strong>Short-retention logs:</strong> identity-provider consoles (7 or 30 days on Microsoft Entra ID, depending on license), EDR console telemetry (days to weeks), local and appliance logs in rolling buffers. Ended by the calendar. The defaults are on <a href="/docs/uncover/data-sources/#retention">the retention table</a>.</li>
+  <li><strong>Disk:</strong> files, persistence, artifacts. Ended by reimaging, or slowly overwritten by normal use.</li>
+  <li><strong>Long-retention copies:</strong> SIEM copies, archived audit logs, backups. Usually safe for months, unless a cleanup job or a lifecycle rule reaches them first, which is why <a href="/docs/scope/regulatory/">Scope's preserve move</a> looks for those jobs.</li>
+</ol>
+
+### Endpoint
+
+- **EDR isolation keeps memory; reboot and reimage do not.** Network isolation through <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" /> leaves the host running. In Microsoft Defender for Endpoint, an isolated device stays connected to the Defender service, so <DefineTerm term="Live Response" display="live response" /> and investigation-package collection still work after isolation. What isolation destroys is the live network state: open connections and the beacon. A reboot destroys memory, and a reimage destroys the disk as well. Never contain an endpoint by powering it off, and tell the user not to restart it.
+- **The order at the keyboard:** record the live state the EDR shows (process tree, network connections, logged-on users), start any <DefineTerm term="Memory Capture" display="memory capture" /> the triggers below call for, isolate, then run the triage collection (<DefineTerm term="KAPE" />, <DefineTerm term="Velociraptor" />, or the EDR's own package) through the channel that isolation left open.
+- **Trigger a memory capture** when any of these hold: a live C2 channel or an interactive operator; a payload that may exist only in memory (injected code, an encoded PowerShell stage with nothing on disk); suspected credential theft from memory; a host that someone else is about to reboot, patch or reimage. When none hold, a triage collection is usually enough. On production servers, memory capture can destabilize the system, so it needs the owner's approval.
+- **Automation may have acted first.** EDR auto-remediation can kill processes, quarantine files or isolate the host before a human sees the alert. Record what the automation did and when, and preserve what is left.
+
+### Identity and SaaS
+
+- **Export the records before the console ages them out.** The sign-in records (interactive and non-interactive, with session and correlation IDs), the tenant audit log for the window, and the risk detections. Export from the source, not only the SIEM copy: ingestion often drops fields, and an export with its query and hash is evidence where a dashboard view is not.
+- **Snapshot objects before removal.** The audit log records that an inbox rule, a consent grant or an MFA method was created. The object itself shows what it looks like now, including later changes. Export the inbox rules and forwarding settings, the OAuth grants and the app's service principal (publisher, scopes, consent time, consenting session), the MFA methods and registered devices, and any mailbox delegates. The <DefineTerm term="OAuth Consent Grant (Illicit Consent)" display="consent grant" /> and the MFA snapshot matter most, because their removal is a non-reversible step taken later with IR's approval. The <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a> lists every object to snapshot and check.
+- **Revocation ends the live view, not the records.** Once sessions are revoked, the attacker's next attempt is your verification evidence, so record it. Already-issued access tokens can stay valid until they expire, which on Microsoft Entra ID defaults to a random 60 to 90 minutes, except where continuous access evaluation is enforced and revokes them in near real time. Order matters too: revoke sessions before the credential reset, so a stolen session does not outlive the new password.
+
+### Cloud
+
+- **Snapshot before terminate.** Terminating an EC2 instance erases its memory and instance-store data, and an EBS root volume attached at launch is deleted with it by default. The AWS Security Incident Response Guide orders the steps: capture the instance metadata; enable termination protection, set shutdown behavior to stop, and turn off delete-on-termination for the attached volumes; tag the instance; snapshot the EBS volumes; acquire memory; then isolate. Termination is not on the triage list.
+- **Isolation by security group is not instant.** Changing a security group does not interrupt connections it is already tracking; they continue until they time out. A stateless network ACL breaks existing connections. Verify, do not assume.
+- **Ephemeral workloads take their evidence with them.** When a Kubernetes pod is evicted from a node, its containers and their logs go too. Isolate the pod with a network policy and cordon the node rather than deleting the pod, and collect its logs first.
+- **Logging that is off by default cannot be preserved.** <DefineTerm term="AWS CloudTrail" />'s 90-day event history holds management events only; data events need a trail or an event data store. GCP Data Access audit logs are off for most services until enabled. Azure resource logs need a diagnostic setting. Turning logging on now, through the owner, captures what comes next; record the gap before it in the packet's open questions.
+
+---
+
+## The tip-off check
+
+Before any visible action, run the <DefineTerm term="Tip-Off Check" display="tip-off check" />. Ask one question: **will this action tell the adversary what we know, and does that matter more than the next thirty minutes of dwell?** Containment is visible. A beacon that drops, a session that ends, or a rule that disappears tells an operator they have been seen, and an operator who knows can destroy evidence, switch to footholds you have not found, or rush to impact. That is a second reason to preserve first: the adversary may delete what you did not export.
+
+<div class="tipoff-grid">
+  <div class="tipoff-card tipoff-card--act">
+    <h3>Act now, accept the tip-off</h3>
+    <p>Harm is in progress or imminent: data leaving, encryption running, payment fraud staged, a live session reading regulated data. Preserve for the minutes the step takes, then run the pre-authorized actions. Every minute of observation costs more than the tip-off.</p>
+  </div>
+  <div class="tipoff-card tipoff-card--hold">
+    <h3>Preserve, page, and let IR time it</h3>
+    <p>No harm in progress, and signs of a broader foothold: several hosts, persistence you have not mapped, more than one stolen credential, a hands-on operator. Partial containment shows the adversary which footholds you know. Preserve, escalate, and hold visible actions for IR's call within the acknowledgment window; if IR does not answer, the protocol's no-acknowledgment fallback applies. IR may coordinate one simultaneous eviction instead.</p>
+  </div>
+  <div class="tipoff-card tipoff-card--insider">
+    <h3>Insider subject: quiet first</h3>
+    <p>When the subject is an employee or contractor, preserve under <DefineTerm term="Legal Hold" display="legal hold" /> and take reversible, quiet containment first. Visible steps such as suspending the account are timed with legal through the <a href="/docs/escalation/protocols/">insider route</a>. Containment still does not wait once data is leaving.</p>
+  </div>
+</div>
+
+Three habits avoid accidental tip-offs whatever the call. Do not touch adversary infrastructure from the corporate network (no pinging, resolving or browsing to it; use passive sources). Do not block infrastructure or reset credentials preemptively, before IR has the picture: CISA's advisory names both as common mistakes, because the adversary switches infrastructure or uses other credentials and you lose visibility. And keep response communications out of band when the compromised system is the one you would use to coordinate, such as the mail tenant in Case C.
+
+The analyst raises the tip-off question; when harm is not in progress, IR answers it. The protocol can suspend the pre-authorized list for a case where IR is running covert observation.
+
+---
+
+<h2 id="custody-record">The minimum chain-of-custody record</h2>
+
+Every preservation step produces artifacts, and an artifact without a <DefineTerm term="Chain of Custody" display="custody" /> record is harder to use in front of a regulator, a court, or an HR process. The <a href="/docs/documentation/standards/#chain-of-custody">chain-of-custody procedure</a> on the standards page gives the full version. At triage speed, record five things the moment each artifact is acquired:
+
+<div class="table-scroll">
+<table class="pbc-table">
+  <thead>
+    <tr><th scope="col">Field</th><th scope="col">What to record</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Who</th><td>The person who acquired it, and every later custodian.</td></tr>
+    <tr><th scope="row">What</th><td>The artifact and its source: the system, the query text and time range for a log export, the tool and its version.</td></tr>
+    <tr><th scope="row">When</th><td>Acquisition time in UTC, and the time of every transfer.</td></tr>
+    <tr><th scope="row">Hash</th><td>SHA-256 at acquisition, re-verified at each transfer. A snapshot ID for disk and memory images held by a platform.</td></tr>
+    <tr><th scope="row">Where stored</th><td>The evidence store location, never a personal scratch directory or a chat thread.</td></tr>
+  </tbody>
+</table>
+</div>
+
+One record, as the Case C analyst wrote it for the inbox rule:
+
+<pre><code>{`Artifact:   inbox rule "." on rvega's mailbox, full definition (JSON export)
+Source:     mail tenant admin export, Get-InboxRule for rvega
+Acquired:   2026-03-12 09:23 UTC by the Tier 1 analyst on shift
+Tool:       tenant admin PowerShell module, version recorded in the case
+SHA-256:    recorded in the case at acquisition
+Stored:     case evidence store, CASE-20260312-022/preservation/
+Transfers:  none yet; IR receives a link with the 09:28 packet`}</code></pre>
+
+Flag a legal hold early. When litigation or a regulatory response is plausible, tell counsel which systems hold relevant data and which jobs will destroy it (log rotation, ephemeral teardown, cleanup). Counsel issues the hold and sets its scope; [Scope's regulatory page](/docs/scope/regulatory/) covers the analyst's part.
+
+---
+
+## Decision table
+
+Each row is one action. Read it as: before this action, run this preservation step, because this evidence is at risk. "Pre-authorized" means on the reversible list in the typical playbook; your protocol's list is the one that counts.
+
+<div class="table-scroll">
+<table class="pbc-table pbc-table--wide">
+  <thead>
+    <tr><th scope="col">Action</th><th scope="col">Evidence at risk</th><th scope="col">Preserve step first</th><th scope="col">Who may authorize</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Isolate a host (EDR)</th><td>Live connections and the C2 channel. Memory survives.</td><td>Record the process tree and connections; start memory capture if a trigger applies.</td><td>Pre-authorized</td></tr>
+    <tr><th scope="row">Kill a process, quarantine a file</th><td>That process's memory; the file in place, with its timestamps.</td><td>Process memory dump or full memory capture; hash and collect the file.</td><td>Only where the protocol lists it for the scenario: a killed process cannot be restored</td></tr>
+    <tr><th scope="row">Reboot, reimage, rebuild</th><td>All memory; on reimage, the disk.</td><td>Memory capture and a triage collection or disk image.</td><td>IR</td></tr>
+    <tr><th scope="row">Disable an account</th><td>The live view of the attacker's next moves; sign-in records as retention runs.</td><td>Export sign-in and audit records for the window.</td><td>Pre-authorized; a service account's owner first</td></tr>
+    <tr><th scope="row">Revoke sessions and refresh tokens</th><td>The active session's context.</td><td>Export session and sign-in records, with session IDs.</td><td>Pre-authorized</td></tr>
+    <tr><th scope="row">Disable a consented app's sign-in</th><td>Little, if the grant stays in place.</td><td>Snapshot the service principal, grants, scopes and consent events.</td><td>Pre-authorized</td></tr>
+    <tr><th scope="row">Disable an inbox or forwarding rule</th><td>The rule's current definition, if it is later deleted.</td><td>Export the rule definition and forwarding settings.</td><td>Pre-authorized (disable, not delete)</td></tr>
+    <tr><th scope="row">Remove an OAuth grant</th><td>The grant object: scopes, consent time, consenting session.</td><td>The service-principal and grant snapshot above.</td><td>IR or the app owner</td></tr>
+    <tr><th scope="row">Reset a credential, remove MFA methods or devices</th><td>The record of what was registered when the compromise was live.</td><td>Snapshot the MFA methods and registered devices.</td><td>IR or the account owner</td></tr>
+    <tr><th scope="row">Deactivate a cloud access key</th><td>Little; the key can be reactivated.</td><td>Export the key's last use and the CloudTrail events for it.</td><td>Pre-authorized where listed (deactivation can be reversed; deletion cannot, and is IR's)</td></tr>
+    <tr><th scope="row">Terminate an instance, delete a pod</th><td>Memory, instance store, the EBS root volume, container logs.</td><td>Termination protection, EBS snapshots, memory capture, log collection.</td><td>IR and the workload owner</td></tr>
+    <tr><th scope="row">Block an IP or domain, purge a message</th><td>Visibility of the adversary; the original message.</td><td>Export the original message with headers; record the indicators.</td><td>IR</td></tr>
+  </tbody>
+</table>
+</div>
+
+Every action and every preservation step goes into the [handoff packet](/docs/escalation/handoff/): what was preserved, in section 6 before the containment it protected, and each artifact's custody state in section 7.
+
+---
+
+<h2 id="case-c">Case C applied: two minutes of export, then containment</h2>
+
+In [Case C](/docs/escalation/example/#case-c), the analyst confirms at 09:22, at the end of Alert, that an attacker is operating rvega's mailbox through a replayed <DefineTerm term="Session Hijack" display="hijacked session" />, with a hiding inbox rule and an unverified app consented from that session. The escalation tripwire fires and the IR lead is paged by pager and phone bridge, not tenant email or chat. The tip-off check is quick: payment searches and an app reading mail mean harm is in progress, and every foothold the tenant audit shows (the session, the rule, the app) is about to be contained at once. Act now.
+
+<div class="table-scroll">
+<table class="pbc-table">
+  <thead>
+    <tr><th scope="col">Time (UTC)</th><th scope="col">Step</th><th scope="col">Authority</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">09:22-09:24</th><td><strong>Preserve:</strong> sign-in records, the mailbox audit for the window, the rule definition (09:23), the app's service principal and grants, a snapshot of rvega's MFA methods and devices.</td><td>Analyst</td></tr>
+    <tr><th scope="row">09:24</th><td>rvega's account disabled.</td><td>Pre-authorized, reversible</td></tr>
+    <tr><th scope="row">09:25</th><td>All sessions and refresh tokens revoked.</td><td>Pre-authorized, reversible</td></tr>
+    <tr><th scope="row">09:26</th><td>The app's sign-in disabled; the grant left in place as evidence.</td><td>Pre-authorized, reversible</td></tr>
+    <tr><th scope="row">09:27</th><td>Inbox rule disabled, already exported.</td><td>Pre-authorized, reversible</td></tr>
+    <tr><th scope="row">09:28</th><td>IR acknowledges; warm handoff on the bridge with the initial packet.</td><td></td></tr>
+    <tr><th scope="row">09:31</th><td>Verification: the replayed session's next presentation is refused.</td><td></td></tr>
+    <tr><th scope="row">09:36-09:40</th><td>IR approves the steps that cannot be undone: the app's delegated grant and app-role assignments removed, its service principal kept disabled (09:38); rvega's password reset, because the kit relayed it, and her MFA methods reviewed (09:40).</td><td>IR (non-reversible)</td></tr>
+    <tr><th scope="row">09:41-09:44</th><td>The second user who reached the kit's credential step: sessions revoked (09:41), then password reset and MFA methods reviewed (09:44).</td><td>Pre-authorized; the reset with IR's approval (09:42)</td></tr>
+  </tbody>
+</table>
+</div>
+
+Two failure modes sit on either side of this timeline. Contain without preserving, and the grant's scopes, the rule's definition, and the state of rvega's MFA methods at 09:24 survive only as audit-log inferences, not as hashed exports. Wait to contain until Uncover has finished at 10:16, and the session stays live for most of another hour after the payment searches have already run. The two-minute export avoids both: most of what it captured would have survived containment in the audit log, but the export makes it certain and verifiable, and the object snapshots capture state the log only implies.
+
+<Reveal summary="The same rule on endpoints: Case A" variant="example">
+
+In [Case A](/docs/escalation/example/#case-a), the finance-team intrusion, the escalation arrives hours late, and the preservation step still runs before containment: memory capture and EDR triage collection on both laptops, exports of the identity provider's sign-in and session records for both users, and the proxy logs held, from 14:10 to 14:19. Both hosts are isolated at 14:20, and sign-in is blocked with all sessions revoked at 14:21. Nine minutes bought memory images of both hosts, open connections included, before isolation cut those connections. The password resets, the message purge and the infrastructure blocks wait for IR, because none of them can be undone.
+
+</Reveal>
+
+<Callout variant="warn" title="Preservation is not a reason to wait">
+The step is measured in minutes, and it captures what this action destroys. It is not a full forensic acquisition, it is not Uncover, and it never holds containment of harm in progress for longer than the capture takes. If a capture will take long (memory on a large server, a disk image), start it, take the action that keeps it intact, and let it finish behind the containment.
+</Callout>
+
+## Sources and further reading
+
+- D. Brezinski and T. Killalea, <a href="https://www.rfc-editor.org/rfc/rfc3227" target="_blank" rel="noopener noreferrer">RFC 3227: Guidelines for Evidence Collection and Archiving</a> (BCP 55, February 2002): section 2.1, order of volatility; section 2.2, things to avoid.
+- CISA and partners, <a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa20-245a" target="_blank" rel="noopener noreferrer">AA20-245A: Technical Approaches to Uncovering and Remediating Malicious Activity</a> (1 September 2020, revised 24 September 2020): key takeaways and common mistakes in incident handling.
+- AWS, <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/collect-relevant-artifacts.html" target="_blank" rel="noopener noreferrer">AWS Security Incident Response Guide: collect relevant artifacts</a>, and <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html" target="_blank" rel="noopener noreferrer">security group connection tracking</a> (both checked October 2026).
+- Microsoft Learn, <a href="https://learn.microsoft.com/en-us/defender-endpoint/respond-machine-alerts" target="_blank" rel="noopener noreferrer">Take response actions on a device in Defender for Endpoint</a> (updated July 2026), <a href="https://learn.microsoft.com/en-us/entra/identity-platform/configurable-token-lifetimes" target="_blank" rel="noopener noreferrer">Configurable token lifetimes</a> (updated April 2026), and <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-reports-data-retention" target="_blank" rel="noopener noreferrer">Microsoft Entra data retention</a> (updated January 2026).
+- Kubernetes, <a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/" target="_blank" rel="noopener noreferrer">Logging architecture</a> (checked October 2026).
+- NIST SP 800-86, <em>Guide to Integrating Forensic Techniques into Incident Response</em> (2006), and ISO/IEC 27037 for collection procedure beyond triage.
+
+<KeyTakeaway>
+Every containment action destroys something. Before a pre-authorized action runs, spend the minutes it takes to capture what that action will destroy, from the most volatile evidence down; ask whether the action tips off the adversary and whether that matters more than the harm in progress; and record each artifact with who, what, when, hash and where. Then contain, verify, and hand IR the preserved evidence with the packet.
+</KeyTakeaway>
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/handoff/" nextLabel="The handoff packet" ctaLabel="Read the packet" />
+

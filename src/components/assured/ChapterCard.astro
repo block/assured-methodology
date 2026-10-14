@@ -1,8 +1,11 @@
 ---
 /**
- * ChapterCard, used on the home page and intro to summarize one phase.
+ * ChapterCard, used on the home page to summarize one phase.
  *
- * Marks chapters as live or "coming soon" so the navigation matches reality.
+ * `question` is the phase's anchor question ("What fired, and why?"). It
+ * renders under the title, in the phase's soft accent, so the seven
+ * questions read as a set when the cards sit in a grid. Pass it on its own
+ * rather than as the first sentence of `description`.
  */
 
 import { stableId } from "@/lib/stable-id";
@@ -18,9 +21,10 @@ interface Props {
     | "escalation"
     | "documentation";
   title: string;
+  /** The phase's anchor question, shown under the title. */
+  question?: string;
   description: string;
   href?: string;
-  status?: "live" | "soon";
   topics?: string[];
 }
 
@@ -28,18 +32,17 @@ const {
   letter,
   phase,
   title,
+  question,
   description,
   href,
-  status = "live",
   topics = [],
 } = Astro.props;
 
-const isLinked = status === "live" && !!href;
 const titleId = stableId("chapter-card", Astro.url.pathname);
 // The card's link lives on the visible "Read chapter" CTA and stretches over
 // the whole card via ::after, so every pixel stays clickable. Its accessible
 // name chains the h3 title and the link's own text (aria-labelledby), which
-// keeps announcements concise — no description or topic-chip readout — while
+// keeps announcements concise (no description or topic-chip readout) while
 // containing the visible "Read chapter" label voice-control users speak
 // (WCAG 2.5.3 Label in Name). The previous whole-card <a> named only by the
 // title tripped label-content-name-mismatch, because the description and
@@ -47,22 +50,15 @@ const titleId = stableId("chapter-card", Astro.url.pathname);
 const ctaId = `${titleId}-cta`;
 ---
 
-<div class={`chapter-card chapter-card--${phase} chapter-card--${status}`}>
+<div class={`chapter-card chapter-card--${phase}`}>
   <div class="chapter-card__head">
     <span class={`assured-letter assured-letter--${phase}`} aria-hidden="true">{letter}</span>
     <div class="chapter-card__title-wrap">
       <h3 class="chapter-card__title" id={titleId}>{title}</h3>
-      {status === "soon" && (
-        <span class="assured-soon" aria-label="Coming soon">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M12 7v5l3 2"></path>
-          </svg>
-          Coming soon
-        </span>
-      )}
     </div>
   </div>
+
+  {question && <p class="chapter-card__question">{question}</p>}
 
   <p class="chapter-card__desc">{description}</p>
 
@@ -72,7 +68,7 @@ const ctaId = `${titleId}-cta`;
     </ul>
   )}
 
-  {isLinked && (
+  {href && (
     <a href={href} class="chapter-card__cta" id={ctaId} aria-labelledby={`${titleId} ${ctaId}`}>
       Read chapter
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -90,7 +86,7 @@ const ctaId = `${titleId}-cta`;
     gap: 0.85rem;
     padding: 1.5rem;
     border-radius: 0.85rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.22);
     color: var(--assured-text);
     text-decoration: none;
@@ -110,26 +106,27 @@ const ctaId = `${titleId}-cta`;
     transition: opacity 0.25s ease;
   }
 
-  .chapter-card--live:hover {
+  /* Only linked cards lift: the stretched CTA makes the whole card a link. */
+  .chapter-card:has(.chapter-card__cta):hover {
     transform: translateY(-4px);
     border-color: var(--accent);
     box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent);
     background: rgba(15, 23, 42, 0.7);
   }
 
-  .chapter-card--live:hover::before { opacity: 0.18; }
+  .chapter-card:has(.chapter-card__cta):hover::before { opacity: 0.18; }
 
-  .chapter-card--soon {
-    opacity: 0.85;
-  }
-
-  .chapter-card--alert         { --accent: var(--assured-phase-alert); }
-  .chapter-card--subject       { --accent: var(--assured-phase-subject); }
-  .chapter-card--scope         { --accent: var(--assured-phase-scope); }
-  .chapter-card--uncover       { --accent: var(--assured-phase-uncover); }
-  .chapter-card--risk          { --accent: var(--assured-phase-risk); }
-  .chapter-card--escalation    { --accent: var(--assured-phase-escalation); }
-  .chapter-card--documentation { --accent: var(--assured-phase-documentation); }
+  /* --accent (the base phase hue) is for borders, dots, the arrow and the
+     glow only: as text it measures 2.97-4.44:1 on this card. Text in the
+     phase color uses --accent-text, the 300-level -soft token (7.2:1 and
+     up; scripts/check-contrast.mjs measures every phase). */
+  .chapter-card--alert         { --accent: var(--assured-phase-alert);         --accent-text: var(--assured-phase-alert-soft); }
+  .chapter-card--subject       { --accent: var(--assured-phase-subject);       --accent-text: var(--assured-phase-subject-soft); }
+  .chapter-card--scope         { --accent: var(--assured-phase-scope);         --accent-text: var(--assured-phase-scope-soft); }
+  .chapter-card--uncover       { --accent: var(--assured-phase-uncover);       --accent-text: var(--assured-phase-uncover-soft); }
+  .chapter-card--risk          { --accent: var(--assured-phase-risk);          --accent-text: var(--assured-phase-risk-soft); }
+  .chapter-card--escalation    { --accent: var(--assured-phase-escalation);    --accent-text: var(--assured-phase-escalation-soft); }
+  .chapter-card--documentation { --accent: var(--assured-phase-documentation); --accent-text: var(--assured-phase-documentation-soft); }
 
   .chapter-card__head {
     display: flex;
@@ -149,6 +146,14 @@ const ctaId = `${titleId}-cta`;
     font-weight: 700;
     line-height: 1.2;
     color: var(--assured-text);
+  }
+
+  .chapter-card__question {
+    margin: -0.35rem 0 0 0;
+    color: var(--accent-text);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.4;
   }
 
   .chapter-card__desc {
@@ -193,7 +198,7 @@ const ctaId = `${titleId}-cta`;
     gap: 0.35rem;
     margin-top: auto;
     padding-top: 0.4rem;
-    color: var(--accent);
+    color: var(--accent-text);
     font-weight: 600;
     font-size: 0.9rem;
     text-decoration: none;
@@ -220,11 +225,23 @@ const ctaId = `${titleId}-cta`;
     outline: none;
   }
 
-  .chapter-card--live:hover .chapter-card__cta svg {
+  .chapter-card:hover .chapter-card__cta svg {
     transform: translateX(2px);
   }
 
+  /* The arrow keeps the base phase hue (a graphic, 3:1 applies). */
   .chapter-card__cta svg {
+    color: var(--accent);
     transition: transform 0.2s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chapter-card,
+    .chapter-card__cta svg {
+      transition: none;
+    }
+    .chapter-card:has(.chapter-card__cta):hover {
+      transform: none;
+    }
   }
 </style>

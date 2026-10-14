@@ -1,0 +1,177 @@
+---
+title: "Standards mapping"
+description: "Where ASSURED's phases and records meet NIST CSF 2.0 and SP 800-61r3, ISO/IEC 27035-1:2023 and ISO/IEC 27001:2022 A.5.25, SANS DAIR, the CERT/SEI and FIRST CSIRT models, and the operational neighbors (ADS, Sigma, risk-based alerting, SOC-CMM, PEAK, TaHiTI), with the evidence an auditor can sample and version pins."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/root.css";
+
+A control owner, an auditor, or a buyer will ask a SOC lead the same question: which of our framework obligations does this triage process satisfy, and where is the proof? This page answers it for ASSURED. For each framework it says which phase does the work, which outcome or control that work serves, and which record an auditor can sample to see it done. [How ASSURED compares](/docs/positioning/) is the related-work map; this page is the working crosswalk behind it. The mapping is current as of October 2026, and the [version pins](#version-pins) at the end say exactly which editions it reads.
+
+## Why a mapping
+
+ASSURED is a triage method. <DefineTerm term="NIST Cybersecurity Framework 2.0 (CSF 2.0)" display="NIST CSF 2.0" />, <DefineTerm term="NIST SP 800-61r3" display="SP 800-61r3" />, <DefineTerm term="ISO/IEC 27035" />, and ISO/IEC 27001 are program frameworks: they say what an incident-management program should achieve, and they deliberately leave the procedure to each organization. The two fit together rather than compete. A team that runs ASSURED is performing one slice of what those frameworks ask for, alert by alert and case by case, and is producing records as it goes. The mapping lets you point at that slice, name the outcomes it serves, and hand over the records. It also shows the parts of the program ASSURED does not cover, so nobody mistakes a triage method for a whole incident-response program.
+
+## The records an auditor can sample
+
+Every table below names one of these records in its evidence column. They exist because the method requires them, not because an audit asked.
+
+| Record | Written when | What it shows |
+|---|---|---|
+| [Five-field record](/docs/fast-path/#five-field) | Every Level 0 pattern close, human or governed machine | The pattern entry matched, the eligibility gate and discriminators checked, the two-axis verdict, who or what closed it |
+| [Pattern entry](/docs/fast-path/) | Before any Level 0 close can use it | The known-benign behavior, its discriminators, owner, second-person approval, version, and review date |
+| [Alert report](/docs/documentation/templates/#the-alert-reporting-template) | Every Level 1 case, written as the case runs | The alert, the entities, what was checked, and the verdict and decision, in the template's eight core fields |
+| [Event report and decision header](/docs/documentation/standards/#format) | Every Level 2 (full-arc) case, at close | The verdict on both axes, the close-or-escalate decision with who and when, priority with its matrix cell, confidence, and nine sections of evidence |
+| [Handoff packet](/docs/escalation/handoff/) | Every escalation | The criterion or matrix cell that triggered it, the evidence chain, open questions, and the communication record |
+| [Escalation criteria](/docs/escalation/criteria/) and [protocols](/docs/escalation/protocols/) | Before the queue opens, versioned | The pre-agreed definition of what must go to IR, and who is paged, how fast |
+| [Chain-of-custody record](/docs/documentation/standards/#chain-of-custody) | Whenever evidence is collected | Who collected what, when, its hash, and where it is stored |
+| [Closure review](/docs/documentation/standards/#closure-review) | On a sample of closed cases | That closes and escalations met the standard, and what was corrected |
+
+Copy-ready versions of each live on the [templates page](/docs/documentation/templates/#copy-ready).
+
+## ASSURED and NIST CSF 2.0 / SP 800-61r3
+
+The <a href="https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf" target="_blank" rel="noopener noreferrer">NIST Cybersecurity Framework 2.0</a> (CSWP 29, 26 February 2024) states outcomes as Functions, Categories, and Subcategories. <a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener noreferrer">SP 800-61r3</a> (April 2025) is the CSF 2.0 Community Profile for incident response. It replaced r2, which NIST withdrew on 3 April 2025; r2's four-phase lifecycle is history, not the current model. r3 recommends what an IR program should achieve and tells organizations to use the incident response life cycle framework or model that suits them best. Triage still appears inside it, as outcomes.
+
+### Outcomes ASSURED performs
+
+| CSF 2.0 outcome | Where ASSURED does the work | Evidence to sample |
+|---|---|---|
+| DE.AE-02: Potentially adverse events are analyzed to better understand associated activities | [Alert](/docs/alert/) (detection logic, [validation](/docs/alert/validation/)) and [Uncover](/docs/uncover/) | Alert report; event report 02 Timeline |
+| DE.AE-03: Information is correlated from multiple sources | [Subject](/docs/subject/), Uncover's [correlation and timeline](/docs/uncover/correlation/), and [case grouping](/docs/fast-path/#correlated-cases) | Event report 02 Timeline; member alert IDs on the case |
+| DE.AE-04: The estimated impact and scope of adverse events are understood | [Scope](/docs/scope/), and [Risk](/docs/risk/)'s impact rating | Event report 03 Origin and scope; matrix cell in the decision header |
+| DE.AE-06: Information on adverse events is provided to authorized staff and tools | The Escalation decision's communication, and Documentation's detection feedback | Handoff packet 9 Communication record; tuning tickets |
+| DE.AE-07: Cyber threat intelligence and other contextual information are integrated into the analysis | Subject (asset and identity context) and Uncover's [threat intelligence](/docs/uncover/threat-intelligence/) | Enrichment cited in the record; event report 06 Indicators and observables |
+| DE.AE-08: Incidents are declared when adverse events meet the defined incident criteria | The [Escalation decision](/docs/escalation/), against [pre-committed criteria](/docs/escalation/criteria/#e-rule) and the [escalation tripwire](/docs/escalation/criteria/#tripwire) | Decision header; handoff packet metadata; five-field record for Level 0 closes |
+| RS.MA-02: Incident reports are triaged and validated | Alert through the Escalation decision, for cases that arrive as reports (a user, a provider, a third party) rather than as detections | The same records |
+
+DE.AE-08's recommendation in r3 asks teams to apply incident criteria to analyzed activity and to "consider known false positives" before declaring. In ASSURED those two inputs are the escalation criteria and the <DefineTerm term="Pattern Library" display="pattern library" />: one says what must go to IR, the other records, with discriminators and an owner, what has been shown benign before. RS.MA-02 sits under Respond in r3, but its recommendation describes triage work: a preliminary review to verify that an incident has occurred, then an estimate of severity and urgency. That is the job of the seven phases.
+
+### Outcomes ASSURED feeds or hands to
+
+| CSF 2.0 outcome | What ASSURED contributes | Who owns it |
+|---|---|---|
+| RS.MA-01: The incident response plan is executed in coordination with relevant third parties once an incident is declared | The handoff packet, and its [receipt](/docs/escalation/handoff/#receipt) | IR |
+| RS.MA-03: Incidents are categorized and prioritized | A recommended priority (P1 to P4, with its matrix cell) and the ATT&CK mapping, as inputs | IR |
+| RS.MA-04: Incidents are escalated or elevated as needed | Nothing directly. In r3, escalation means more resources or time for an incident already under response, and elevation means more management attention. ASSURED's "escalation" is the hand from triage to IR, an earlier and different use of the word | IR and incident management |
+| RS.MI-01: Incidents are contained | Only the pre-authorized, reversible actions listed in the [triage and IR boundary](/docs/escalation/triage-vs-ir/), taken after the evidence they would destroy is preserved | IR |
+| RS.AN-06 and RS.AN-07: Investigation actions, and incident data and metadata, are recorded and collected with integrity and provenance preserved | The case record written during the case, [evidence citation](/docs/documentation/standards/#evidence-citation), and chain of custody | Shared: triage starts the record, IR continues it |
+| RS.AN-08: An incident's magnitude is estimated and validated | Scope's triage-depth boundary, stated with confidence labels | IR validates |
+| RS.CO-02: Internal and external stakeholders are notified of incidents | Escalation [protocols](/docs/escalation/protocols/) for internal paging, and [regulatory clocks](/docs/scope/regulatory/) flagged during Scope | IR, counsel, and communications |
+| ID.IM-01 and ID.IM-03: Improvements are identified from evaluations and from operations | Event report 07 Lessons learned and 08 Recommendations, detection feedback, the pattern-library ratchet, closure review | The SOC lead |
+
+### Where the triage boundary sits
+
+ASSURED ends at the Escalation decision, and both outcomes of that decision map onto the frameworks. A documented close is a first-class verdict: the activity did not meet the incident criteria, and the record says why. An escalation hands the case, with its packet, to whoever owns <DefineTerm term="Incident Declaration" display="incident declaration" /> under your IR plan. In some SOCs the escalating analyst's decision is the declaration; in many, an IR lead or incident manager declares after accepting the packet. Either way, ASSURED supplies the evidence and the criterion for the DE.AE-08 decision, and RS.MA-01 starts once the incident is declared. ASSURED does not work before 800-61r3; it works inside r3's Detect outcomes and up to the edge of its Respond outcomes.
+
+## ASSURED and ISO/IEC 27035-1:2023 and ISO/IEC 27001:2022
+
+<a href="https://www.iso.org/standard/78973.html" target="_blank" rel="noopener noreferrer">ISO/IEC 27035-1:2023</a> (second edition, February 2023) sets out the incident-management process in five phases: Plan and prepare, Detect and report, Assess and decide, Respond, and Learn lessons. <a href="https://www.iso.org/standard/27001" target="_blank" rel="noopener noreferrer">ISO/IEC 27001:2022</a> carries the matching Annex A controls, and A.5.25, Assessment and decision on information security events, is the one auditors test against triage: the organization assesses events and decides whether to categorize them as incidents. Both are paid standards. The rows below paraphrase them; check the wording against your licensed copy before you quote it in an audit response.
+
+| ISO element | Where ASSURED does the work | Evidence to sample |
+|---|---|---|
+| 27035-1 Detect and report; 27001 A.6.8 Information security event reporting | Alert: the detection, user report, or external notice that opens a case | Alert ID and source on every record |
+| 27035-1 Assess and decide; <DefineTerm term="ISO/IEC 27001 A.5.25" display="27001 A.5.25" /> Assessment and decision on information security events | Alert through the Escalation decision. A close and an escalation are both decisions under this control | Five-field records and decision headers (decision, who, when, criterion or cell); handoff packets |
+| 27001 A.5.24 Information security incident management planning and preparation | The prepared material the A.5.25 decisions run against: escalation criteria, protocols, pattern entries, the depth-ladder rules, and the [adoption](/docs/adoption/) work that installs them | Versioned criteria and protocols; pattern entries with approvals and review dates |
+| 27035-1 Respond; 27001 A.5.26 Response to information security incidents | The handoff and pre-authorized actions only; the response itself belongs to IR | Handoff packet and receipt |
+| 27001 A.5.28 Collection of evidence | Evidence handling during triage | Chain-of-custody records in event report 09 |
+| 27035-1 Learn lessons; 27001 A.5.27 Learning from information security incidents | Documentation's lessons and recommendations, detection feedback, closure review | Event report 07 and 08; tuning tickets; closure-review findings |
+
+An A.5.25 audit usually samples decisions. Hand over a random draw of closes and escalations from the period; each should show the decision, the criterion or matrix cell behind it, the evidence it rested on, and who made it. The five-field record and the decision header are built to be read that way. ISO does not prescribe how to prioritize; the <DefineTerm term="Risk-Based Alert Triage Matrix (RATM)" display="RATM" /> is ASSURED's way of making the decision consistent, not a requirement of either standard.
+
+## ASSURED and SANS DAIR
+
+The <DefineTerm term="SANS DAIR (Dynamic Approach to Incident Response)" display="Dynamic Approach to Incident Response" />, taught in SANS SEC504 since at least 2024, was published by Joshua Wright in September 2026 as a free CC BY 4.0 book, <a href="https://dynamicincidentresponse.com/" target="_blank" rel="noopener noreferrer"><em>Dynamic Incident Response: A Framework for Security Teams</em></a>. It is built on the OODA loop, ships a checklist for each waypoint, and has its own chapter mapping DAIR to CSF 2.0. It is the closest open neighbor, and the two fit inside each other.
+
+| DAIR waypoint | ASSURED |
+|---|---|
+| Prepare | Outside the seven phases: criteria, protocols, pattern library, and adoption |
+| Detect | Alert: what fired, or what was reported |
+| Verify and Triage | The whole seven-phase arc, Alert through the Escalation decision, with Documentation written alongside |
+| Response Actions loop (Scope, Contain, Eradicate, Recover) | IR, after the handoff. ASSURED's Scope sets a triage-depth boundary for one decision; DAIR's Scope is IR's repeated re-scoping. Triage contains only through pre-authorized, reversible actions |
+| Debrief | Fed by Documentation's lessons learned and detection feedback |
+
+Several pieces line up directly. DAIR's verification ends in continue, stop, or defer; ASSURED's E rule ends in escalate, a documented close, or, at P3, keep working to a named re-score trigger. DAIR assigns an initial risk level before decision makers set response priorities; ASSURED's Risk recommends a priority and the Escalation decision makes the call. What ASSURED adds inside the single waypoint is depth: the [depth ladder](/docs/fast-path/), the two-axis verdict, the [hypothesis ledger](/docs/uncover/correlation/), the handoff packet, the escalation tripwire, and the governed pattern library. A team that runs DAIR can use ASSURED as its Verify and Triage procedure without changing anything else.
+
+## ASSURED and the CSIRT process models
+
+The prior art named triage as its own process long before ASSURED. Alberts, Dorofee, Killcrece, Ruefle, and Zajicek's <a href="https://resources.sei.cmu.edu/library/asset-view.cfm?assetid=7153" target="_blank" rel="noopener noreferrer"><em>Defining Incident Management Processes for CSIRTs</em></a> (CERT/SEI, CMU/SEI-2004-TR-015, October 2004) defines Triage Events as categorizing, correlating, prioritizing, and assigning events and incidents, with explicit handoffs from Detect Events and to Respond. The <a href="https://www.first.org/standards/frameworks/csirts/csirt_services_framework_v2.1" target="_blank" rel="noopener noreferrer">FIRST CSIRT Services Framework v2.1</a> (November 2019) lists the same work as services and functions.
+
+| Process model element | ASSURED |
+|---|---|
+| CERT/SEI Triage Events: categorize | Alert validation and the two-axis verdict |
+| CERT/SEI Triage Events: correlate | Case grouping and Uncover's correlation |
+| CERT/SEI Triage Events: prioritize | Risk's priority from the matrix |
+| CERT/SEI Triage Events: assign | The Escalation decision: close, keep working, or route to IR |
+| CERT/SEI handoffs, Detect to Triage and Triage to Respond | Alert intake, and the handoff packet |
+| FIRST 5.1.2 Detection use case management (including the triage procedures behind each use case) | Pattern entries and detection feedback |
+| FIRST 5.1.3 Contextual data management | The asset, identity, and criticality context Subject and Scope read, and the Level 0 eligibility gate depends on |
+| FIRST 5.2.1 Correlation | Case grouping: alerts on one entity and window, or one vendor incident, become one case |
+| FIRST 5.2.2 Qualification | Alert validation and the detection-axis verdict |
+| FIRST 6.1.1 and 6.1.2 Incident report receipt, and triage and processing | Intake of reported cases, and the Escalation decision's routing |
+| FIRST 6.2.1 Incident triage (prioritization and categorization) | Risk's recommended priority, handed to IR |
+
+These models work at the level of a team's process map. ASSURED works one level down: the per-case sequence, its required outputs, and the evidence standard for the decision. Its handoff is the same Triage-to-Respond boundary the 2004 model drew.
+
+## Operational neighbors
+
+These are not standards, but a SOC lead will meet them in the same tooling conversations. Each touches triage at one point and does a different job.
+
+| Neighbor | What it is | Where it meets ASSURED | What it is not |
+|---|---|---|---|
+| <a href="https://github.com/palantir/alerting-detection-strategy-framework" target="_blank" rel="noopener noreferrer">Palantir ADS</a> (2017) | A documentation framework for each detection: goal, categorization, strategy, technical context, blind spots, false positives, validation, priority, response | Alert reads it as the [detection logic](/docs/alert/detection-mechanisms/); its false-positive notes are pattern-entry candidates | A pattern entry. An <DefineTerm term="Alerting and Detection Strategy (ADS)" display="ADS" /> describes one rule; a pattern entry is a governed close decision with discriminators, an owner, and a second approver |
+| <a href="https://sigmahq.io/docs/basics/rules.html" target="_blank" rel="noopener noreferrer">Sigma</a> | A portable rule format whose rules carry a `level` (informational to critical) and a `falsepositives` list | Both are inputs to Alert | A priority. A rule's level is the author's view of the rule; the case's priority comes from Risk's matrix |
+| <a href="https://help.splunk.com/en/splunk-enterprise-security-8/administer/8.6/risk-based-alerting" target="_blank" rel="noopener noreferrer">Splunk risk-based alerting</a> | Detections add risk to an entity (intermediate findings in Enterprise Security 8); an aggregating detection raises a finding when the total crosses a threshold | The finding is the queue item; treat the entity as the primary subject (see [correlated cases](/docs/fast-path/#correlated-cases)) | The RATM. <DefineTerm term="Risk-Based Alerting (RBA)" display="Risk-based alerting" /> decides what reaches the queue; the RATM rates one case's impact and likelihood to set its priority |
+| <a href="https://www.soc-cmm.com/" target="_blank" rel="noopener noreferrer">SOC-CMM</a> (v2.4, late 2025) | The de facto SOC maturity model, across five domains | The [adoption maturity model](/docs/adoption/#the-maturity-model) names the nearest SOC-CMM domain for each triage practice | A triage procedure. It assesses whether a SOC has a defined process; ASSURED is one candidate for that process |
+| <a href="https://www.splunk.com/en_us/blog/security/peak-threat-hunting-framework.html" target="_blank" rel="noopener noreferrer">PEAK</a> (Splunk SURGe, 2023) and <a href="https://www.mbsecure.nl/blog/2018/12/tahiti-threat-hunting-methodology.html" target="_blank" rel="noopener noreferrer">TaHiTI</a> (Dutch financial sector, 2018) | Hypothesis-driven <DefineTerm term="Threat Hunting" display="threat hunting" /> frameworks | A hunt finding arrives with its hypothesis already formed; enter it in the hypothesis ledger. A triage finding that suggests a hunt leaves as an event report 08 recommendation | Triage. A hunt searches without an alert; triage starts from one |
+
+## Mapped elsewhere on this site
+
+Some neighbors are mapped on the page where the analyst needs them:
+
+- **Adversary behavior:** MITRE ATT&CK, on the [ATT&CK page](/docs/uncover/mitre/) in Uncover.
+- **Case-tool classifications:** Microsoft Sentinel and Defender XDR close classifications against the two-axis verdict, on [Documentation standards](/docs/documentation/standards/#clarity).
+- **AI frameworks:** OWASP's LLM and agentic Top 10 lists, MITRE ATLAS, the NIST AI RMF and AI 600-1, and ISO/IEC 42001, in the dated [standards and law crosswalk](/docs/ai-governance/#crosswalk) on Governing automated triage, with the analyst's view on [AI-assisted triage](/docs/ai-triage/).
+- **Regulatory regimes and notification clocks:** on [Regulatory boundaries](/docs/scope/regulatory/), with every clock, its trigger and its source on the [Regulatory clock card](/docs/scope/clocks/).
+- **Risk-scoring neighbors:** 800-61r3's risk evaluation factors, and vulnerability signals such as CVSS, KEV, EPSS, and SSVC as inputs, on [The priority matrix](/docs/risk/framework/).
+
+## What this mapping does not claim
+
+<Callout variant="warn" title="An informal crosswalk, not a conformity claim">
+This mapping is the author's reading of public and licensed texts. NIST, ISO, SANS, FIRST, and the CMU Software Engineering Institute have not reviewed or endorsed it. Adopting ASSURED does not certify anything, does not make an organization conformant with ISO/IEC 27001 or any CSF profile, and does not substitute for the program those frameworks describe. An auditor assesses your implementation and your records, not the method you name. What ASSURED offers is a procedure designed to produce those records consistently; whether it improves decisions in your SOC is something your own [triage metrics](/docs/measuring-triage/) have to show, and [Development and evidence](/docs/development/) says what is and is not established so far.
+</Callout>
+
+<Reveal summary="Cells left out on purpose">
+
+Some draft rows did not survive checking against the sources. The mapping does not assign RS.MA-03 or RS.MA-04 to ASSURED as outcomes it delivers: r3 describes both as incident management, and ASSURED's priority and escalation are inputs to them. It does not claim that ISO/IEC 27002 prescribes an impact-by-urgency matrix for A.5.25, because that could not be confirmed against the licensed text. And it does not map ASSURED onto 800-61r2's lifecycle, which NIST withdrew.
+
+</Reveal>
+
+## Version pins
+
+Frameworks revise. When one of these does, re-check every row that cites it before you rely on the table again.
+
+| Framework | Edition mapped | Date |
+|---|---|---|
+| NIST Cybersecurity Framework | 2.0 (CSWP 29) | 26 February 2024 |
+| NIST SP 800-61 | Revision 3 (r2 withdrawn 3 April 2025) | April 2025 |
+| ISO/IEC 27035-1 | 2023, second edition | February 2023 |
+| ISO/IEC 27001 | 2022, Annex A (Amendment 1:2024 does not change Annex A) | October 2022 |
+| SANS DAIR | <em>Dynamic Incident Response</em>, first published edition | September 2026 |
+| CERT/SEI incident management processes | CMU/SEI-2004-TR-015 | October 2004 |
+| FIRST CSIRT Services Framework | v2.1 | November 2019 |
+| MITRE ATT&CK | v19.2 | 2026 (v19 released April 2026) |
+| SOC-CMM | 2.4 | Late 2025 |
+
+Mapping checked October 2026.
+
+<KeyTakeaway>ASSURED works inside the frameworks auditors already use. It performs CSF 2.0's adverse-event analysis outcomes (DE.AE-02 to DE.AE-08) and RS.MA-02, and runs ISO/IEC 27035's Assess and decide under ISO/IEC 27001 control A.5.25, case by case. It hands to IR where response begins (RS.MA-01, Respond, A.5.26). Every close and every escalation leaves a record an auditor can sample, and the mapping makes no claim beyond that.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/positioning/" class="assured-cta assured-cta--ghost">← How ASSURED compares</a>
+  <a href="/docs/development/" class="assured-cta">Development and evidence →</a>
+</div>

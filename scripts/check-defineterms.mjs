@@ -12,10 +12,26 @@
  * but only self-closing/prop detection is possible without a full MDX parse,
  * so explicit-body usages are detected by the tag not being self-closed.
  *
- * Exit codes: 0 all resolve, 1 unresolved terms found.
+ * --style adds an advisory wording lint (exit code unchanged unless
+ * --strict is also passed). A tooltip should sit on a whole noun phrase, so
+ * it flags a DefineTerm that
+ *   - wraps part of a word: letters run straight into or out of the tag
+ *     ("<DefineTerm ... />ed", "un<DefineTerm ... />");
+ *   - shows a word fragment: a display that starts or ends with a hyphen
+ *     ("Counter-");
+ *   - is likely used as a verb: a lowercase display right after "to" or a
+ *     modal ("can exploit", "to phish"), where the glossary defines the noun.
+ *     A heuristic: noun-shaped words (-ing, -tion, -ity, plurals...) pass.
+ *
+ *   node scripts/check-defineterms.mjs                   # lookup gate (CI)
+ *   node scripts/check-defineterms.mjs --style           # plus advisories
+ *   node scripts/check-defineterms.mjs --style --strict  # advisories fail
+ *
+ * Exit codes: 0 all resolve, 1 unresolved terms found (or, with --style
+ * --strict, wording advisories found).
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -72,6 +88,16 @@ if (keys.size === 0) {
   process.exit(1);
 }
 
+const STYLE = process.argv.includes("--style");
+const STRICT = process.argv.includes("--strict");
+const VERB_CUE =
+  /(?:^|[\s(])(?:to|can|cannot|could|may|might|must|will|would|should)\s+$/i;
+// Displays that read as nouns even after "to" ("to rubber-stamping", "to
+// entity", "to exfiltration") are not verb uses.
+const NOUN_SHAPED =
+  /(?:ing|tion|sion|ment|ity|ness|ance|ence|ism|ist|er|or|cy|s)$/;
+const advisories = [];
+
 const failures = [];
 let checked = 0;
 let exempt = 0;
@@ -87,6 +113,28 @@ for (const file of mdxFiles(CONTENT_DIR)) {
     const termMatch = attrs.match(/\bterm="((?:[^"\\]|\\.)*)"/);
     if (!termMatch) continue;
     const term = termMatch[1];
+    if (STYLE) {
+      const display = attrs.match(/\bdisplay="((?:[^"\\]|\\.)*)"/)?.[1] ?? term;
+      const before = src.slice(Math.max(0, m.index - 24), m.index);
+      const after = selfClosing
+        ? src.slice(m.index + m[0].length, m.index + m[0].length + 1)
+        : "";
+      const at = () =>
+        `${file.replace(ROOT, "")}:${src.slice(0, m.index).split("\n").length}`;
+      if (/[A-Za-z]$/.test(before) || /^[A-Za-z]/.test(after)) {
+        advisories.push(`${at()}  "${display}" wraps part of a word`);
+      } else if (/^-|-$/.test(display)) {
+        advisories.push(`${at()}  "${display}" is a word fragment`);
+      } else if (
+        /^[a-z][a-z-]*$/.test(display) &&
+        !NOUN_SHAPED.test(display) &&
+        VERB_CUE.test(before)
+      ) {
+        advisories.push(
+          `${at()}  "${display}" looks like a verb ("${before.trim().split(/\s+/).pop()} ${display}"); put the tooltip on the noun`,
+        );
+      }
+    }
     const hasInlineDefinition = /\bdefinition="/.test(attrs);
     if (hasInlineDefinition || !selfClosing) {
       // Explicit definition prop or slotted body: lookup miss is by design.
@@ -109,6 +157,14 @@ if (failures.length > 0) {
     console.error(`  ${f.file}:${f.line}  term="${f.term}"`);
   }
   process.exit(1);
+}
+
+if (STYLE) {
+  for (const a of advisories) console.warn(`check-defineterms: style: ${a}`);
+  console.log(
+    `check-defineterms: ${advisories.length} wording advisory(ies)${STRICT ? "" : " (advisory only)"}`,
+  );
+  if (STRICT && advisories.length > 0) process.exit(1);
 }
 
 console.log(

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/closure-review.schema.json",
+  "title": "Closure review checklist",
+  "description": "The closure review: a second reader checks a closed record against the ten items in the documentation standards, logs a finding for every box left open, and records the outcome.",
+  "x-assured-template": "closure-review.md",
+  "type": "object",
+  "properties": {
+    "header": {
+      "x-assured-section": "",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID"
+        },
+        "recordReviewed": {
+          "x-assured-prompt": "Record reviewed",
+          "type": "object",
+          "properties": {
+            "record": {
+              "enum": ["event report", "alert report", "pattern-close record"]
+            },
+            "author": {
+              "type": "string"
+            }
+          },
+          "required": ["record", "author"],
+          "description": "Record reviewed (event report / alert report / pattern-close record), and its author"
+        },
+        "reviewer": {
+          "x-assured-prompt": "Reviewer",
+          "type": "string",
+          "description": "Reviewer"
+        },
+        "reviewedAt": {
+          "x-assured-prompt": "Reviewed at",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Reviewed at (UTC)"
+        }
+      },
+      "required": ["caseId", "recordReviewed", "reviewer", "reviewedAt"]
+    },
+    "checklist": {
+      "x-assured-section": "Checklist",
+      "description": "Tick a box only when the record meets it as written.",
+      "type": "object",
+      "properties": {
+        "theDecisionHeaderIsComplete": {
+          "x-assured-checkbox": "The decision header is complete: verdict on both axes in the fixed vocabulary, the Escalation decision with who made it and when, priority with its matrix cell or override, and a bottom line a non-technical reader can follow",
+          "type": "boolean",
+          "default": false
+        },
+        "everyFactualClaimCitesIts": {
+          "x-assured-checkbox": "Every factual claim cites its source: a query and time range, a log record ID, or an artifact hash",
+          "type": "boolean",
+          "default": false
+        },
+        "confidenceIsLabeledPerClaim": {
+          "x-assured-checkbox": "Confidence is labeled per claim on the shared rubric, not once for the case",
+          "type": "boolean",
+          "default": false
+        },
+        "negativeFindingsAreRecordedWith": {
+          "x-assured-checkbox": "Negative findings are recorded with what was examined, not just \"nothing found\"",
+          "type": "boolean",
+          "default": false
+        },
+        "theTimelineIsInUtc": {
+          "x-assured-checkbox": "The timeline is in UTC with the date, and each entry has an actor, rationale, and outcome",
+          "type": "boolean",
+          "default": false
+        },
+        "everyOpenQuestionFromThe": {
+          "x-assured-checkbox": "Every open question from the handoff packet is resolved in section 2 or 3, or carried into section 8",
+          "type": "boolean",
+          "default": false
+        },
+        "everyIndicatorAndObservableHas": {
+          "x-assured-checkbox": "Every indicator and observable has a disposition (malicious, suspicious, or known-good)",
+          "type": "boolean",
+          "default": false
+        },
+        "sharedAndTrainingVersionsAre": {
+          "x-assured-checkbox": "Shared and training versions are sanitized, and people are written about neutrally",
+          "type": "boolean",
+          "default": false
+        },
+        "materialAiUseIsDeclared": {
+          "x-assured-checkbox": "Material AI use is declared, \"none\" included",
+          "type": "boolean",
+          "default": false
+        },
+        "benignAndAuthorizedClosesState": {
+          "x-assured-checkbox": "Benign and authorized closes state their reopen conditions",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "findings": {
+      "x-assured-section": "Findings",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "outcome": {
+      "x-assured-section": "Outcome",
+      "type": "object",
+      "properties": {
+        "outcome": {
+          "x-assured-prompt": "Outcome",
+          "enum": [
+            "accept",
+            "request clarification",
+            "flag as a training case"
+          ],
+          "description": "Outcome (accept / request clarification / flag as a training case)"
+        },
+        "clarification": {
+          "x-assured-prompt": "Clarification requested from",
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "dueBy": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "resolvedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["from", "dueBy"],
+          "description": "Clarification requested from (author), due by (UTC), and resolved at (UTC)"
+        },
+        "trainingCaseNote": {
+          "x-assured-prompt": "Training-case note",
+          "type": "string",
+          "description": "Training-case note (what the case teaches, in one line; optional)"
+        }
+      },
+      "required": ["outcome"]
+    }
+  },
+  "required": ["header", "checklist", "findings", "outcome"]
+}

@@ -1,0 +1,368 @@
+/* C.A.T. glossary page styles (/docs/glossaries/cat/): blue cat theme,
+   the walking-cat hero scene, the jump-nav, section heads with line icons,
+   tool cards, the category map and the tool filter. Imported from
+   src/content/docs/glossaries/cat.mdx. Colors come from the
+   [data-theme="cat"] tokens in src/styles/glossary.css (the page wrapper
+   carries data-theme="cat") and the --assured-* tokens in assured.css.
+   Every selector is prefixed .cat-, so the sheet is safe to load globally. */
+
+.cat-page {
+  position: relative;
+  margin: 0;
+  padding: 2.5rem clamp(1rem, 4vw, 3rem) 3rem;
+  background: linear-gradient(170deg, var(--g-bg-from) 0%, var(--g-bg-via) 35%, var(--g-bg-mid) 70%, var(--g-bg-to) 100%);
+  color: var(--g-text);
+  border-radius: 0;
+  /* clip, not hidden: hidden would make this wrapper the sticky jump-nav's
+     scroll container (it never scrolls, so the nav would never pin). */
+  overflow: clip;
+  min-height: calc(100vh - 64px);
+}
+
+.cat-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.cat-bg__grid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(59, 130, 246, 0.06) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(59, 130, 246, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  opacity: 0.5;
+}
+.cat-bg__yarn { position: absolute; inset: 0; }
+.cat-bg__yarn span {
+  position: absolute; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--g-accent); box-shadow: 0 0 12px var(--g-accent);
+  opacity: 0; animation: cat-yarn 14s linear infinite;
+}
+.cat-bg__yarn span:nth-child(1) { left: 10%; animation-delay: 0s; }
+.cat-bg__yarn span:nth-child(2) { left: 28%; animation-delay: 3s; }
+.cat-bg__yarn span:nth-child(3) { left: 52%; animation-delay: 6s; }
+.cat-bg__yarn span:nth-child(4) { left: 73%; animation-delay: 9s; }
+.cat-bg__yarn span:nth-child(5) { left: 88%; animation-delay: 12s; }
+@keyframes cat-yarn {
+  0%   { transform: translateY(110vh); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* .cat-nav excluded: position:relative would override its position:sticky */
+.cat-page > :not(.g-bg):not(.cat-toast):not(.cat-nav) { position: relative; z-index: 1; }
+
+/* Hero structure now lives in src/styles/glossary.css (.g-hero*).
+   Kept here: only the CAT-specific signature animation (the cat-stage, cat-svg,
+   cat-cat, and related anims). */
+
+/* cat stage */
+.cat-stage {
+  margin: 1.5rem auto 0; max-width: 540px; padding: 0.85rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(10, 26, 53, 0.55));
+  border: 1px dashed rgba(59, 130, 246, 0.3); border-radius: 1rem;
+  text-align: center;
+}
+.cat-svg { width: 100%; height: auto; max-height: 200px; display: block; }
+
+/* Cat sits so its leg bottoms (group.y + 12) sit on the ground line at y=170,
+ * so initial group.y = 158. Chair seat top is at y=135, so when the cat lands
+ * on the seat its group.y = 135 - 12 = 123. */
+.cat-cat { transform: translate(40px, 158px); }
+.cat-cat--seq {
+  /* Linear timing keeps the walking portion at constant speed (no jerk
+   * between bob keyframes). The jump still feels right because the
+   * keyframes themselves bunch the motion up into 70%-78%. */
+  animation: cat-walk-jump calc((var(--cat-walks, 3) * 1.3s) + 3.6s) linear forwards;
+}
+/* Small Y-axis bob during walking so the cat looks like it has weight on its
+ * paws rather than gliding. Walking segment is 0% to 60%, then jump up to 70%,
+ * land on the chair seat at 78%. */
+@keyframes cat-walk-jump {
+  0%   { transform: translate(40px, 158px); }
+  6%   { transform: translate(70px, 156px); }
+  12%  { transform: translate(100px, 158px); }
+  18%  { transform: translate(130px, 156px); }
+  24%  { transform: translate(160px, 158px); }
+  30%  { transform: translate(190px, 156px); }
+  36%  { transform: translate(220px, 158px); }
+  42%  { transform: translate(250px, 156px); }
+  48%  { transform: translate(280px, 158px); }
+  54%  { transform: translate(300px, 156px); }
+  60%  { transform: translate(310px, 158px); }
+  70%  { transform: translate(345px, 100px); }
+  78%  { transform: translate(370px, 123px); }
+  85%  { transform: translate(370px, 123px) scaleX(1.15); }
+  90%  { transform: translate(370px, 123px) scaleX(1); }
+  100% { transform: translate(370px, 123px) scaleX(1); }
+}
+
+.cat-leg { transform-box: fill-box; transform-origin: 50% 0; }
+.cat-cat--seq .cat-leg--bl { animation: cat-leg-front 0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--br { animation: cat-leg-back  0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--fl { animation: cat-leg-back  0.65s ease-in-out infinite; }
+.cat-cat--seq .cat-leg--fr { animation: cat-leg-front 0.65s ease-in-out infinite; }
+@keyframes cat-leg-front { 0%,100% { transform: rotate(0); } 50% { transform: rotate(25deg); } }
+@keyframes cat-leg-back  { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-25deg); } }
+
+.cat-tail { animation: cat-tail 0.7s ease-in-out infinite; transform-box: fill-box; transform-origin: 0% 100%; }
+@keyframes cat-tail { 0%,100% { transform: rotate(-5deg); } 50% { transform: rotate(15deg); } }
+
+/* The bubble's position is set via the SVG transform="translate(330,40)"
+ * attribute in the markup. When the CSS animation runs, its transform
+ * overrides the SVG attribute for the duration of the animation. So the
+ * keyframes MUST include the translate, otherwise the bubble snaps to (0,0)
+ * during pop and only returns to (330,40) when the animation ends, visually:
+ * "the meow appears at the top-left, then jumps over to the cat". */
+.cat-bubble { transition: opacity 0.4s ease; }
+.cat-bubble--pop { animation: cat-bubble-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; transform-box: fill-box; transform-origin: 14px 100%; }
+@keyframes cat-bubble-pop {
+  0%   { transform: translate(330px, 40px) scale(0); opacity: 0; }
+  60%  { transform: translate(330px, 40px) scale(1.2); opacity: 1; }
+  100% { transform: translate(330px, 40px) scale(1); opacity: 1; }
+}
+
+.cat-nav {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+  margin: 0 0 2.5rem; padding: 0.85rem;
+  background: rgba(10, 26, 53, 0.6); border: 1px solid rgba(30, 58, 138, 0.5);
+  /* top offset pins the nav below the sticky site header, not underneath it. */
+  border-radius: 0.85rem; position: sticky; top: calc(var(--header-height) + 8px); z-index: 5; backdrop-filter: blur(10px);
+}
+/* On phones the wrapped pill rows grow tall enough that pinning them would
+   eat much of the viewport, so the nav only sticks where it stays short.
+   relative, not static: z-index must keep it above the background art. */
+@media (max-width: 767px) {
+  .cat-nav { position: relative; top: auto; }
+}
+.cat-nav__pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.85rem; border-radius: 9999px;
+  background: rgba(30, 58, 138, 0.3); border: 1px solid rgba(59, 130, 246, 0.25);
+  color: var(--g-text-muted); text-decoration: none; font-size: 0.78rem; font-weight: 600;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s;
+}
+.cat-nav__pill:hover {
+  transform: translateY(-1px); background: rgba(59, 130, 246, 0.3);
+  border-color: var(--g-accent); color: #fff;
+}
+
+/* --g-jump-offset: measured by the page script so jump landings clear
+   the pinned nav, whose height varies as its pill rows wrap. */
+.cat-section { margin: 0 0 3.5rem; scroll-margin-top: var(--g-jump-offset, 6rem); }
+.cat-section__head {
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;
+  background: linear-gradient(90deg, rgba(30, 58, 138, 0.35), rgba(10, 26, 53, 0.45) 70%);
+  border-left: 4px solid var(--g-accent); border-radius: 0.6rem;
+}
+.cat-section__ico {
+  display: inline-flex; flex-shrink: 0; color: var(--g-accent-mid);
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+  animation: cat-ico-float 4s ease-in-out infinite;
+}
+.cat-section__ico svg { display: block; width: 2.2rem; height: 2.2rem; }
+@keyframes cat-ico-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px) rotate(-3deg); }
+}
+.cat-section__head h2 { margin: 0; font-size: 1.4rem; color: #fff; font-weight: 800; }
+.cat-section__head p { margin: 0.3rem 0 0; color: var(--g-text-muted); font-size: 0.95rem; line-height: 1.55; }
+
+.cat-tools {
+  display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin: 1.25rem 0;
+}
+@media (min-width: 640px)  { .cat-tools { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .cat-tools { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1400px) { .cat-tools { grid-template-columns: repeat(4, 1fr); } }
+
+.cat-tool {
+  position: relative; padding: 1rem 1.15rem;
+  background: rgba(10, 26, 53, 0.55);
+  border: 1px solid rgba(30, 58, 138, 0.5);
+  border-left: 3px solid var(--assured-phase-alert-deep); border-radius: 0.6rem;
+  transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+  overflow: hidden;
+}
+.cat-tool::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.1), transparent 60%);
+  opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+}
+.cat-tool:hover {
+  transform: translateY(-2px);
+  border-left-color: var(--g-accent);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 22px -10px rgba(59, 130, 246, 0.35);
+}
+.cat-tool:hover::before { opacity: 1; }
+/* Card titles are h3 for the outline (section heads are h2). :is(h3, h4)
+   keeps the old specificity; line-height pins the inherited 1.5 the h4-era
+   titles had, since the global h3 rule would tighten it to 1.3. */
+.cat-tool :is(h3, h4) { margin: 0 0 0.35rem; color: var(--g-accent-mid); font-size: 0.96rem; font-weight: 700; line-height: 1.5; }
+.cat-tool p { margin: 0; color: var(--g-text-muted); line-height: 1.5; font-size: 0.85rem; }
+.cat-tool p em { font-style: italic; color: var(--g-accent-mid); }
+
+.cat-toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, var(--g-accent), #1e3a8a);
+  border: 1px solid var(--g-accent-mid); border-radius: 9999px;
+  color: #fff; font-family: var(--font-mono);
+  font-size: 0.88rem; font-weight: 600; letter-spacing: 0.04em;
+  box-shadow: 0 14px 36px -10px rgba(59, 130, 246, 0.6); z-index: 1000;
+  animation: cat-toast-in 0.35s ease-out;
+}
+.cat-toast.is-out { animation: cat-toast-out 0.4s ease-in forwards; }
+@keyframes cat-toast-in {
+  from { transform: translateX(-50%) translateY(40px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+@keyframes cat-toast-out {
+  to { transform: translateX(-50%) translateY(40px); opacity: 0; }
+}
+
+.cat-foot {
+  margin: 2rem 0 0; padding: 1.25rem 1.5rem;
+  background: rgba(10, 26, 53, 0.55);
+  border: 1px solid rgba(30, 58, 138, 0.5); border-radius: 0.75rem; text-align: center;
+}
+.cat-foot p { margin: 0; color: var(--g-text-muted); line-height: 1.55; font-size: 0.92rem; }
+.cat-foot a { color: var(--g-accent-mid); text-decoration: underline; }
+
+/* Pause toggle: freezes every CSS animation on the page. Toasts stay
+   animated: their entrance keyframe starts at opacity 0, so freezing
+   frame 0 would make them invisible rather than static. */
+.cat-anims-paused *:not(.cat-toast),
+.cat-anims-paused *::before,
+.cat-anims-paused *::after {
+  animation-play-state: paused !important;
+}
+
+.cat-anim-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.3rem;
+  background: rgba(30, 58, 138, 0.5);
+  border: 1px solid rgba(96, 165, 250, 0.5);
+  border-radius: 9999px;
+  color: var(--g-text);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+.cat-anim-toggle:hover { border-color: var(--g-accent-mid); }
+.cat-anim-toggle:focus-visible { outline: 2px solid var(--g-accent-mid); outline-offset: 2px; }
+.cat-anim-toggle__icon { display: inline-flex; }
+.cat-anim-toggle__icon svg { display: block; width: 1.1rem; height: 1.1rem; }
+/* The pause glyph shows while animations run, the play glyph once paused. */
+.cat-anim-toggle__icon--play,
+.cat-anims-paused .cat-anim-toggle__icon--pause { display: none; }
+.cat-anims-paused .cat-anim-toggle__icon--play { display: inline-flex; }
+
+/* Section-header phase links: which ASSURED phase consumes this vocabulary */
+.cat-section__phases { margin: 0.4rem 0 0; font-size: 0.78rem; color: var(--assured-text-dim); }
+.cat-section__phases a { color: var(--g-accent-light); text-decoration: none; border-bottom: 1px solid rgba(96, 165, 250, 0.35); }
+.cat-section__phases a:hover { color: var(--g-text); border-bottom-color: var(--g-accent-mid); }
+
+/* ----- In-page tool filter + per-tool deep links ----- */
+.cat-search {
+  min-width: 13rem;
+  padding: 0.6rem 1rem;
+  background: rgba(10, 26, 53, 0.7);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 9999px;
+  color: var(--g-text);
+  /* 16px floor: anything smaller makes iOS Safari zoom the page on focus. */
+  font-family: inherit; font-size: 1rem;
+}
+/* transparent outline turns solid in forced-colors mode, where the box-shadow ring is stripped */
+.cat-search:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--g-accent-mid);
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+}
+/* WCAG 2.5.5: 44px touch-target floor on touch devices. */
+@media (pointer: coarse) {
+  .cat-nav__pill { min-height: 2.75rem; }
+}
+.cat-search::placeholder { color: var(--assured-text-dim); }
+
+/* Visually hidden but present in the accessibility tree. */
+.cat-search-count {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.cat-empty {
+  margin: 1.5rem auto; padding: 1.5rem;
+  max-width: 42rem;
+  background: rgba(10, 26, 53, 0.55); border: 1px dashed rgba(96, 165, 250, 0.4);
+  border-radius: 0.75rem; text-align: center; color: var(--g-accent-light);
+}
+
+/* Card micro-structure: definition, then In triage / Watch for, then
+   the vendor line and any source links. */
+.cat-tool p.cat-tool__use { margin-top: 0.45rem; }
+.cat-tool__use strong { color: var(--g-accent-light); font-weight: 700; }
+.cat-tool p.cat-tool__meta {
+  margin-top: 0.55rem; padding-top: 0.45rem;
+  border-top: 1px solid rgba(30, 58, 138, 0.45);
+  font-size: 0.75rem; color: var(--assured-text-dim);
+}
+.cat-tool__meta a { color: var(--g-accent-light); text-decoration: none; border-bottom: 1px solid rgba(96, 165, 250, 0.35); }
+.cat-tool__meta a:hover, .cat-tool__meta a:focus-visible { color: var(--g-text); border-bottom-color: var(--g-accent-mid); }
+.cat-tool .g-cite { margin-top: 0.4rem; margin-right: 0.5rem; }
+
+/* OPSEC and other section-level notes. */
+.cat-callout {
+  margin: 1rem 0 0; padding: 0.85rem 1.1rem;
+  background: rgba(120, 53, 15, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-left: 3px solid var(--assured-warn); border-radius: 0.6rem;
+}
+.cat-callout p { margin: 0; color: #fde68a; font-size: 0.9rem; line-height: 1.55; }
+.cat-callout strong { color: #fbbf24; }
+
+/* Category map: one row per category, scrolls sideways on phones. */
+.cat-map-wrap { overflow-x: auto; margin: 1.25rem 0 0; -webkit-overflow-scrolling: touch; }
+.cat-map {
+  width: 100%; min-width: 40rem; border-collapse: collapse;
+  font-size: 0.85rem; line-height: 1.45; color: var(--g-text-muted);
+}
+.cat-map caption {
+  caption-side: top; text-align: left; padding: 0 0 0.5rem;
+  font-size: 0.78rem; color: var(--assured-text-dim);
+}
+.cat-map th, .cat-map td {
+  padding: 0.55rem 0.7rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid rgba(30, 58, 138, 0.5);
+}
+.cat-map thead th { color: var(--g-accent-light); font-weight: 700; border-bottom: 2px solid rgba(59, 130, 246, 0.5); }
+.cat-map tbody th { color: var(--g-text); font-weight: 600; }
+.cat-map a { color: var(--g-accent-light); text-decoration: none; border-bottom: 1px solid rgba(96, 165, 250, 0.35); }
+.cat-map a:hover, .cat-map a:focus-visible { color: var(--g-text); border-bottom-color: var(--g-accent-mid); }
+.cat-map__note { margin: 0.9rem 0 0; color: var(--g-text-muted); font-size: 0.88rem; line-height: 1.55; }
+.cat-map__note strong { color: var(--g-accent-light); }
+
+/* Deep links: land clear of the sticky header, flag the linked card. */
+.cat-tool { scroll-margin-top: var(--g-jump-offset, 90px); }
+.cat-tool:target {
+  border-color: var(--g-accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-cat, .cat-tail, .cat-leg, .cat-bubble,
+  .cat-section__ico, .cat-bg__yarn span,
+  .cat-toast {
+    animation: none !important;
+    transition: none !important;
+  }
+}

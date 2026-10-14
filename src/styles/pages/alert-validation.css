@@ -1,0 +1,41 @@
+/*
+ * Alert validation sub-page styles (src/content/docs/alert/validation/*.mdx).
+ *
+ * Moved out of the page's <style> block. The selectors are unique to the
+ * attack-chains page; colors use the Escalation phase tokens from
+ * src/styles/assured.css (border on the base hue, text on -soft).
+ */
+
+.correlation-dims {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .correlation-dims { grid-template-columns: 1fr 1fr; } }
+
+.correlation-dim {
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-escalation);
+  border-radius: 0.7rem;
+}
+
+.correlation-dim :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-phase-escalation-soft);
+  font-size: 1rem;
+}
+
+.correlation-dim p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.correlation-dim h3 { font-weight: 600; line-height: inherit; }

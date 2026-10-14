@@ -1,0 +1,75 @@
+---
+title: "Acronyms: every abbreviation the site defines"
+description: "An A to Z index of the acronyms used across ASSURED, each with its expansion and a link to where it is defined: a glossary entry when one exists, otherwise the page that first spells it out."
+---
+
+import { acronyms } from "@/data/acronyms";
+
+export const letterOf = (a) => (/^[A-Za-z]/.test(a.acronym) ? a.acronym[0].toUpperCase() : "#");
+export const letters = [...new Set(acronyms.map(letterOf))];
+export const sourceLabel = {
+  assured: "ASSURED terms",
+  clear: "C.L.E.A.R.",
+  cat: "C.A.T.",
+  bad: "B.A.D.",
+  page: "First defined on",
+};
+
+Security writing runs on abbreviations, and a reader who meets one cold loses the sentence. This index lists every acronym the site spells out, with its expansion and a link to where it is defined. Where a glossary has an entry, the link goes there; otherwise it goes to the page that first spells it out, in reading order.
+
+The index is built from the site's own text, so it only lists what the site defines. If an acronym you met is missing here, the page that used it never expanded it, and that is worth a [suggestion](https://github.com/block/assured-methodology/issues/new/choose).
+
+<nav class="acr-letters" aria-label="Acronyms by letter">
+  {letters.map((l) => <a href={`#acr-${l.toLowerCase()}`}>{l}</a>)}
+</nav>
+
+<p class="acr-count">{acronyms.length} acronyms, from four glossaries and the chapter pages.</p>
+
+{letters.map((l) => (
+  <section class="acr-group" id={`acr-${l.toLowerCase()}`} aria-labelledby={`acr-${l.toLowerCase()}-h`}>
+    <h2 id={`acr-${l.toLowerCase()}-h`}>{l}</h2>
+    <dl class="acr-list">
+      {acronyms
+        .filter((a) => letterOf(a) === l)
+        .map((a) => (
+          <div class="acr-row">
+            <dt><abbr title={a.expansion}>{a.acronym}</abbr></dt>
+            <dd>
+              <span class="acr-exp">{a.expansion}</span>
+              <span class="acr-where">
+                {a.source === "page" ? "First defined on " : `${sourceLabel[a.source]}: `}
+                <a href={a.href}>{a.source === "page" ? a.sourceTitle : "glossary entry"}</a>
+                {a.firstUse && (
+                  <>
+                    {" "}· first spelled out in <a href={a.firstUse.href}>{a.firstUse.title}</a>
+                  </>
+                )}
+              </span>
+            </dd>
+          </div>
+        ))}
+    </dl>
+  </section>
+))}
+
+<p class="acr-note">The four glossaries define the terms in full: <a href="/docs/glossaries/assured/">ASSURED terms</a> for the method's own vocabulary, <a href="/docs/glossaries/clear/">C.L.E.A.R.</a> for the analyst lexicon, <a href="/docs/glossaries/bad/">B.A.D.</a> for threats and adversaries, and <a href="/docs/glossaries/cat/">C.A.T.</a> for tools and platforms.</p>
+
+<style>{`
+.acr-letters { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 1.25rem 0 0.5rem; }
+.acr-letters a { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; padding: 0.25rem 0.5rem; border-radius: 0.4rem; border: 1px solid rgba(148, 163, 184, 0.25); background: var(--assured-panel); color: var(--assured-text); font-weight: 700; font-size: 0.85rem; text-decoration: none; }
+.acr-letters a:hover, .acr-letters a:focus-visible { border-color: var(--assured-accent-soft); color: var(--assured-accent-soft); }
+.acr-count { color: var(--assured-text-dim); font-size: 0.85rem; margin: 0.25rem 0 1.5rem; }
+.acr-group { scroll-margin-top: calc(var(--header-height, 64px) + 12px); }
+.acr-group h2 { margin: 2rem 0 0.5rem; }
+.acr-list { margin: 0; }
+.acr-row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.25rem 1rem; padding: 0.55rem 0; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+.acr-row dt { margin: 0; color: var(--assured-text); font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem; }
+.acr-row dt abbr { text-decoration: none; }
+.acr-row dd { margin: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+.acr-exp { color: var(--assured-text-muted); }
+.acr-where { color: var(--assured-text-dim); font-size: 0.82rem; }
+.acr-note { margin-top: 2rem; color: var(--assured-text-muted); }
+@media (max-width: 640px) {
+  .acr-row { grid-template-columns: 1fr; }
+}
+`}</style>

@@ -5,8 +5,25 @@
  * disables further changes for that question.
  *
  * Owns all per-item state. Notifies the parent Quiz via a bubbling
- * `quiz-item:answered` CustomEvent (detail: { correct }) and resets when
- * the item receives a `quiz-item:reset` event.
+ * `quiz-item:answered` CustomEvent (detail: { correct, confidence }) and
+ * resets when the item receives a `quiz-item:reset` event.
+ *
+ * Before answering, the reader may say how sure they are (High, Medium or
+ * Low). It is optional and never blocks an answer; the parent Quiz uses it
+ * for a calibration summary ("High: 5 of 6 correct"). Set
+ * `askConfidence={false}` to drop the row.
+ *
+ * `source` names the section that teaches the point ({ href, label }). It
+ * renders after the explanation as "Review: <link>", and the parent Quiz
+ * lists it beside any item missed on the first try.
+ *
+ * Options render in authored order: answer keys were balanced across
+ * positions by hand, so never shuffle them here.
+ *
+ * Each option may carry a `why`: one or two sentences on why that choice
+ * is right or tempting-but-wrong. The selected option's `why` shows above
+ * the shared `explanation`. Without JavaScript every `why` prints, labeled
+ * with its option letter.
  */
 
 import { stableId } from "@/lib/stable-id";
@@ -14,6 +31,8 @@ import { stableId } from "@/lib/stable-id";
 interface Option {
   value: string;
   label: string;
+  /** Per-option feedback, shown when this option is selected. */
+  why?: string;
 }
 
 interface Props {
@@ -22,13 +41,33 @@ interface Props {
   answer: string;
   explanation: string;
   hint?: string;
+  /** The section that teaches this point, linked after the explanation. */
+  source?: { href: string; label: string };
+  /** Show the optional "How sure are you?" row. Default true. */
+  askConfidence?: boolean;
 }
 
-const { prompt, options, answer, explanation, hint } = Astro.props;
+const {
+  prompt,
+  options,
+  answer,
+  explanation,
+  hint,
+  source,
+  askConfidence = true,
+} = Astro.props;
 const idBase = stableId("q", Astro.url.pathname);
+const promptId = `${idBase}-prompt`;
+const letterFor = (i: number) => String.fromCharCode(65 + i);
 ---
 
-<div class="quiz-item" data-quiz-item data-answer={answer}>
+<div
+  class="quiz-item"
+  data-quiz-item
+  data-answer={answer}
+  data-source-href={source?.href}
+  data-source-label={source?.label}
+>
   {/* No-JS fallback (same pattern as ExampleStepper): the bind script is the
       only thing that unhides the feedback, so without it the explanation
       would be unreachable. Show it, plainly labeled, after the options.
@@ -36,13 +75,15 @@ const idBase = stableId("q", Astro.url.pathname);
       apply once scripts run. */}
   <noscript>
     <style is:inline>
-      /* @layer base: Tailwind's preflight hides [hidden] with an !important
-         rule inside @layer base, and layered !important beats unlayered
-         !important — an unlayered override here silently loses. Same layer,
-         higher specificity wins. */
+      /* @layer base: global.css hides [hidden] with an !important rule
+         inside @layer base, and layered !important beats unlayered
+         !important, so an unlayered override here silently loses. Same
+         layer, higher specificity wins. */
       @layer base {
         .quiz-item__feedback[hidden] { display: block !important; }
+        .quiz-item__why[hidden] { display: block !important; }
       }
+      .quiz-item__confidence { display: none !important; }
       .quiz-item__feedback [data-verdict] { display: none !important; }
       .quiz-item__feedback-label {
         display: inline-block;
@@ -58,7 +99,7 @@ const idBase = stableId("q", Astro.url.pathname);
       }
     </style>
   </noscript>
-  <p class="quiz-item__prompt">{prompt}</p>
+  <p class="quiz-item__prompt" id={promptId}>{prompt}</p>
 
   {hint && (
     <details class="quiz-item__hint">
@@ -67,18 +108,31 @@ const idBase = stableId("q", Astro.url.pathname);
     </details>
   )}
 
+  {askConfidence && (
+    <fieldset class="quiz-item__confidence" data-confidence>
+      <legend class="quiz-item__confidence-legend">How sure are you? <span class="quiz-item__confidence-optional">(optional, before you answer)</span></legend>
+      {["High", "Medium", "Low"].map((level) => (
+        <label class="quiz-item__confidence-choice">
+          <input type="radio" name={`${idBase}-confidence`} value={level.toLowerCase()} />
+          <span>{level}</span>
+        </label>
+      ))}
+    </fieldset>
+  )}
+
   {/* role="group", not "radiogroup": the children are one-shot <button>s, not
       radios with checked state. A radiogroup announcing zero radios is an
       axe/Lighthouse failure; a labelled group of buttons is the honest pattern. */}
-  <div class="quiz-item__options" role="group" aria-label={prompt}>
+  <div class="quiz-item__options" role="group" aria-labelledby={promptId}>
     {options.map((o, i) => (
       <button
         type="button"
         class="quiz-item__option"
         data-value={o.value}
+        data-letter={letterFor(i)}
         id={`${idBase}-${i}`}
       >
-        <span class="quiz-item__option-letter">{String.fromCharCode(65 + i)}</span>
+        <span class="quiz-item__option-letter">{letterFor(i)}</span>
         <span class="quiz-item__option-label">{o.label}</span>
         <span class="quiz-item__option-icon" aria-hidden="true"></span>
       </button>
@@ -96,14 +150,26 @@ const idBase = stableId("q", Astro.url.pathname);
           noscript block above so nothing leaks into the JS experience. */}
       <noscript><span class="quiz-item__feedback-label">Explanation</span></noscript>
     </div>
+    {options.map((o, i) =>
+      o.why ? (
+        <p class="quiz-item__why" data-why-for={o.value} hidden>
+          <span class="quiz-item__why-letter">{letterFor(i)}.</span> {o.why}
+        </p>
+      ) : null
+    )}
     <p class="quiz-item__feedback-text">{explanation}</p>
+    {source && (
+      <p class="quiz-item__source">
+        Review: <a href={source.href}>{source.label}</a>
+      </p>
+    )}
   </div>
 </div>
 
 <style>
   .quiz-item {
     padding: 1.5rem 1.75rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 0.85rem;
   }
@@ -205,32 +271,37 @@ const idBase = stableId("q", Astro.url.pathname);
     flex-shrink: 0;
   }
 
+  /* Status colors come from the semantic success/danger tokens, never the
+     Subject and Risk phase hues. White letters sit on the -deep shades
+     (5.02:1 and 6.47:1; the base 500s gave 2.28:1 and 3.76:1), and the
+     glyphs use the -soft tints. scripts/check-contrast.mjs measures both
+     letter pairs. */
   .quiz-item__option.is-correct {
-    border-color: #22c55e;
+    border-color: var(--assured-success);
     background: rgba(34, 197, 94, 0.12);
   }
   .quiz-item__option.is-correct .quiz-item__option-letter {
-    background: #22c55e;
+    background: var(--assured-success-deep);
     color: white;
   }
   .quiz-item__option.is-correct .quiz-item__option-icon::after {
     content: "✓";
-    color: #22c55e;
+    color: var(--assured-success-soft);
     font-weight: 800;
     font-size: 1rem;
   }
 
   .quiz-item__option.is-wrong {
-    border-color: #ef4444;
+    border-color: var(--assured-danger);
     background: rgba(239, 68, 68, 0.10);
   }
   .quiz-item__option.is-wrong .quiz-item__option-letter {
-    background: #ef4444;
+    background: var(--assured-danger-deep);
     color: white;
   }
   .quiz-item__option.is-wrong .quiz-item__option-icon::after {
     content: "✕";
-    color: #ef4444;
+    color: var(--assured-danger-soft);
     font-weight: 800;
     font-size: 1rem;
   }
@@ -276,12 +347,35 @@ const idBase = stableId("q", Astro.url.pathname);
 
   .quiz-item__feedback.is-correct .quiz-item__feedback-verdict {
     background: rgba(34, 197, 94, 0.18);
-    color: #86efac;
+    color: var(--assured-success-soft);
   }
 
   .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict {
     background: rgba(239, 68, 68, 0.18);
-    color: #fca5a5;
+    color: var(--assured-danger-soft);
+  }
+
+  /* The verdict is a pill when it reads "Correct"; the wrong-answer verdict
+     names the right option, so let that one wrap as a sentence. */
+  .quiz-item__feedback.is-wrong .quiz-item__feedback-verdict {
+    border-radius: 0.5rem;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.85rem;
+  }
+
+  .quiz-item__why {
+    margin: 0 0 0.6rem 0;
+    padding: 0 0 0.6rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    color: var(--assured-text-soft);
+    line-height: 1.6;
+    font-size: 0.93rem;
+  }
+
+  .quiz-item__why-letter {
+    font-weight: 700;
+    color: var(--assured-text);
   }
 
   .quiz-item__feedback-text {
@@ -289,6 +383,62 @@ const idBase = stableId("q", Astro.url.pathname);
     color: var(--assured-text-soft);
     line-height: 1.6;
     font-size: 0.93rem;
+  }
+
+  .quiz-item__source {
+    margin: 0.6rem 0 0;
+    color: var(--assured-text-soft);
+    font-size: 0.88rem;
+  }
+
+  .quiz-item__source a {
+    color: var(--assured-accent-soft);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .quiz-item__confidence {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    margin: 0 0 0.85rem;
+    padding: 0;
+    border: 0;
+    font-size: 0.85rem;
+    color: var(--assured-text-soft);
+  }
+
+  .quiz-item__confidence-legend {
+    float: left;
+    margin-right: 0.4rem;
+    padding: 0;
+    font-weight: 600;
+    color: var(--assured-text-soft);
+  }
+
+  .quiz-item__confidence-optional {
+    font-weight: 400;
+    color: var(--assured-text-muted);
+  }
+
+  .quiz-item__confidence-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+  }
+
+  .quiz-item__confidence-choice input {
+    accent-color: var(--assured-accent);
+  }
+
+  .quiz-item__confidence:disabled {
+    opacity: 0.75;
+  }
+
+  .quiz-item__confidence:disabled .quiz-item__confidence-choice {
+    cursor: default;
   }
 
   /* Collapse this component's share of the nested padding chain on small
@@ -320,6 +470,9 @@ const idBase = stableId("q", Astro.url.pathname);
       const correctValue = item.dataset.answer;
       const options = Array.from(item.querySelectorAll<HTMLButtonElement>(".quiz-item__option"));
       const feedback = item.querySelector<HTMLElement>("[data-feedback]");
+      const whys = Array.from(item.querySelectorAll<HTMLElement>("[data-why-for]"));
+      const correctOption = options.find((o) => o.dataset.value === correctValue);
+      const confidenceSet = item.querySelector<HTMLFieldSetElement>("[data-confidence]");
 
       options.forEach((option) => {
         option.addEventListener("click", () => {
@@ -341,9 +494,29 @@ const idBase = stableId("q", Astro.url.pathname);
 
           option.classList.add(isCorrect ? "is-correct" : "is-wrong");
 
+          // Freeze the confidence row: it records how sure the reader was
+          // before seeing the verdict.
+          const confidence =
+            confidenceSet?.querySelector<HTMLInputElement>("input:checked")?.value ?? null;
+          if (confidenceSet) confidenceSet.disabled = true;
+
           if (feedback) {
             const verdict = feedback.querySelector<HTMLElement>("[data-verdict]");
-            if (verdict) verdict.textContent = isCorrect ? "Correct" : "Not quite";
+            // The correct option is otherwise marked only by color and an
+            // aria-hidden glyph, so the spoken verdict names it.
+            if (verdict) {
+              const label = correctOption
+                ?.querySelector(".quiz-item__option-label")
+                ?.textContent?.trim();
+              verdict.textContent = isCorrect
+                ? "Correct"
+                : correctOption && label
+                  ? `Not quite. The answer is ${correctOption.dataset.letter}: ${label}`
+                  : "Not quite";
+            }
+            whys.forEach((w) => {
+              w.hidden = w.dataset.whyFor !== value;
+            });
             feedback.hidden = false;
             feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
             feedback.focus();
@@ -352,7 +525,7 @@ const idBase = stableId("q", Astro.url.pathname);
           item.dispatchEvent(
             new CustomEvent("quiz-item:answered", {
               bubbles: true,
-              detail: { correct: isCorrect },
+              detail: { correct: isCorrect, confidence },
             })
           );
         });
@@ -364,6 +537,15 @@ const idBase = stableId("q", Astro.url.pathname);
           o.removeAttribute("aria-disabled");
           o.classList.remove("is-correct", "is-wrong", "is-revealed-correct");
         });
+        whys.forEach((w) => {
+          w.hidden = true;
+        });
+        if (confidenceSet) {
+          confidenceSet.disabled = false;
+          confidenceSet.querySelectorAll<HTMLInputElement>("input").forEach((r) => {
+            r.checked = false;
+          });
+        }
         if (feedback) {
           feedback.hidden = true;
           feedback.classList.remove("is-correct", "is-wrong");

@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/alert-report-phishing.schema.json",
+  "title": "Alert report variant: phishing",
+  "description": "Phishing add-on blocks for the core alert report (alert-report.schema.json): message, recipients and delivery path, URL and attachment verdicts, and click and open evidence. A record using it carries the core report's fields as well.",
+  "x-assured-template": "alert-report-phishing.md",
+  "type": "object",
+  "properties": {
+    "message": {
+      "x-assured-section": "Message",
+      "type": "object",
+      "properties": {
+        "subjectLine": {
+          "x-assured-prompt": "Subject line",
+          "type": "string",
+          "description": "Subject line (quoted, defanged if it carries an indicator)"
+        },
+        "messageIdAndReceived": {
+          "x-assured-prompt": "Message ID, and received at",
+          "type": "object",
+          "properties": {
+            "messageId": {
+              "type": "string"
+            },
+            "receivedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["messageId", "receivedAt"],
+          "description": "Message ID, and received at (UTC)"
+        },
+        "sender": {
+          "x-assured-prompt": "Sender",
+          "type": "object",
+          "properties": {
+            "headerFrom": {
+              "type": "string"
+            },
+            "envelopeSender": {
+              "type": "string"
+            },
+            "replyTo": {
+              "type": "string"
+            }
+          },
+          "required": ["headerFrom", "envelopeSender"],
+          "description": "Sender: header From (display name and address), envelope sender (return-path), reply-to"
+        },
+        "authenticationResults": {
+          "x-assured-prompt": "Authentication results",
+          "type": "object",
+          "properties": {
+            "spf": {
+              "type": "string"
+            },
+            "dkim": {
+              "type": "string"
+            },
+            "dmarc": {
+              "type": "string"
+            },
+            "signingDomain": {
+              "type": "string"
+            }
+          },
+          "description": "Authentication results (SPF / DKIM / DMARC, with the signing domain)"
+        },
+        "howItArrived": {
+          "x-assured-prompt": "How it arrived",
+          "type": "string",
+          "description": "How it arrived (gateway detection, user report, or both; for a user report, the reporters and when each reported)"
+        },
+        "groupedReports": {
+          "x-assured-prompt": "Grouped reports",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Grouped reports (optional: every report or alert ID merged into this case)"
+        }
+      },
+      "required": [
+        "subjectLine",
+        "messageIdAndReceived",
+        "sender",
+        "authenticationResults",
+        "howItArrived"
+      ]
+    },
+    "recipientsAndDeliveryPath": {
+      "x-assured-section": "Recipients and delivery path",
+      "type": "object",
+      "properties": {
+        "recipients": {
+          "x-assured-prompt": "Recipients",
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "listOrQuery": {
+              "type": "string"
+            }
+          },
+          "required": ["count", "listOrQuery"],
+          "description": "Recipients (count, and the list or the query that produces it)"
+        },
+        "deliveryCounts": {
+          "x-assured-prompt": "Delivered / quarantined / junked",
+          "type": "object",
+          "properties": {
+            "delivered": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "quarantined": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "junked": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "description": "Delivered / quarantined / junked (counts)"
+        },
+        "deliveryPath": {
+          "x-assured-prompt": "Delivery path",
+          "type": "string",
+          "description": "Delivery path (gateway, rewriting or detonation services, the verdict at delivery)"
+        },
+        "purged": {
+          "x-assured-prompt": "Purged",
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "by": {
+              "type": "string"
+            },
+            "unreached": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Purged (count, at UTC, by whom; recipients the purge could not reach)"
+        }
+      },
+      "required": ["recipients", "deliveryCounts", "deliveryPath", "purged"]
+    },
+    "urlAndAttachmentVerdicts": {
+      "x-assured-section": "URL and attachment verdicts",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "URL or attachment (defanged; filename and SHA-256 for a file)",
+            "Verdict at delivery",
+            "Verdict now, and its source",
+            "Sandbox or detonation result (optional)"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "x-assured-column": "URL or attachment (defanged; filename and SHA-256 for a file)",
+                "type": "string"
+              },
+              "verdictAtDelivery": {
+                "x-assured-column": "Verdict at delivery",
+                "type": "string"
+              },
+              "verdictNow": {
+                "x-assured-column": "Verdict now, and its source",
+                "type": "string"
+              },
+              "sandboxResult": {
+                "x-assured-column": "Sandbox or detonation result (optional)",
+                "type": "string"
+              }
+            },
+            "required": ["item", "verdictAtDelivery", "verdictNow"]
+          }
+        }
+      }
+    },
+    "clickAndOpenEvidence": {
+      "x-assured-section": "Click and open evidence",
+      "type": "object",
+      "properties": {
+        "credentialExposedUsers": {
+          "x-assured-prompt": "Credential-exposed users, and the status of each",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "string"
+              },
+              "passwordResetAt": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "sessionsRevokedAt": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "mfaMethodsReviewedAt": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              }
+            },
+            "required": ["user"]
+          },
+          "description": "A user who reached the credential step stays credential-exposed until the password is reset, sessions are revoked and MFA methods are reviewed."
+        },
+        "nonInteractingRecipients": {
+          "x-assured-prompt": "Recipients who did not interact, and the evidence",
+          "type": "string",
+          "description": "Recipients who did not interact, and the evidence (click log and proxy coverage; a user off the proxy is a gap, not a clean result)"
+        },
+        "rows": {
+          "x-assured-columns": [
+            "Recipient",
+            "Host",
+            "Clicked at (UTC), allowed or blocked",
+            "Page requests seen (source)",
+            "Credential step reached (yes / no / unknown)",
+            "Follow-on sign-ins or execution"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "recipient": {
+                "x-assured-column": "Recipient",
+                "type": "string"
+              },
+              "host": {
+                "x-assured-column": "Host",
+                "type": "string"
+              },
+              "clicked": {
+                "x-assured-column": "Clicked at (UTC), allowed or blocked",
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "outcome": {
+                    "enum": ["allowed", "blocked"]
+                  }
+                }
+              },
+              "pageRequests": {
+                "x-assured-column": "Page requests seen (source)",
+                "type": "string"
+              },
+              "credentialStepReached": {
+                "x-assured-column": "Credential step reached (yes / no / unknown)",
+                "enum": ["yes", "no", "unknown"]
+              },
+              "followOn": {
+                "x-assured-column": "Follow-on sign-ins or execution",
+                "type": "string"
+              }
+            },
+            "required": ["recipient", "credentialStepReached"]
+          }
+        }
+      },
+      "required": ["credentialExposedUsers", "nonInteractingRecipients"]
+    }
+  },
+  "required": [
+    "message",
+    "recipientsAndDeliveryPath",
+    "urlAndAttachmentVerdicts",
+    "clickAndOpenEvidence"
+  ]
+}

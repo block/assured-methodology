@@ -1,0 +1,135 @@
+---
+/**
+ * VendorStatus: a one-line status for a vendor, product, standard or threat
+ * name, rendered from src/data/vendors.ts.
+ *
+ * Props:
+ *   id       Entry id (for C.A.T. cards, the article id). Required; an
+ *            unknown id fails the build.
+ *   variant  "line" (default): status pill, former names, owner, successor,
+ *            when it changed, the date checked and the source link.
+ *            "badge": the status pill only, for tight spots such as a table
+ *            cell or a heading.
+ *   note     When true, appends the entry's note (line variant only).
+ *            Default false.
+ *   current  When true, renders even when the status is "current" (a
+ *            "Current" pill plus owner and date). Default false: current
+ *            entries render nothing, so the line only appears where there is
+ *            a change to report.
+ *
+ * Usage:
+ *   import VendorStatus from "@/components/assured/VendorStatus.astro";
+ *   <VendorStatus id="arcsight" />
+ *   <VendorStatus id="microsoft-wsus" note />
+ *   <VendorStatus id="emotet" variant="badge" />
+ */
+
+import { vendorById, vendorStatusLabel } from "@/data/vendors";
+
+interface Props {
+  id: string;
+  variant?: "line" | "badge";
+  note?: boolean;
+  current?: boolean;
+}
+
+const { id, variant = "line", note = false, current = false } = Astro.props;
+const v = vendorById(id);
+const render = v.status !== "current" || current;
+const label = vendorStatusLabel[v.status];
+const formerly =
+  v.formerNames.length > 0 ? `formerly ${v.formerNames.join(", ")}` : null;
+---
+
+{render && variant === "badge" && (
+  <span class:list={["vs-pill", `vs-pill--${v.status}`]} title={`${label}, checked ${v.asOf}`}>{label}</span>
+)}
+{render && variant === "line" && (
+  <p class:list={["vs", `vs--${v.status}`]}>
+    <span class:list={["vs-pill", `vs-pill--${v.status}`]}>{label}</span>
+    {v.status !== "current" && v.changed && <span class="vs__part">{v.changed}</span>}
+    {formerly && <span class="vs__part">{formerly}</span>}
+    <span class="vs__part">Owner: {v.owner}</span>
+    {v.successor && <span class="vs__part">Successor: {v.successor}</span>}
+    <span class="vs__part">Checked {v.asOf}</span>
+    {v.source && (
+      <span class="vs__part">
+        <a href={v.source} target="_blank" rel="noopener noreferrer">Source</a>
+      </span>
+    )}
+    {note && v.note && <span class="vs__note">{v.note}</span>}
+  </p>
+)}
+
+<style>
+  .vs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0;
+    margin: 0.4rem 0;
+    color: var(--assured-text-dim);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .vs__part::before {
+    content: "·";
+    margin: 0 0.45rem;
+    color: var(--assured-text-dim);
+  }
+
+  .vs__note {
+    flex-basis: 100%;
+    color: var(--assured-text-muted);
+  }
+
+  .vs-pill {
+    display: inline-block;
+    padding: 0.05rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--assured-text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .vs-pill--renamed {
+    border-color: rgba(96, 165, 250, 0.45);
+    background: rgba(96, 165, 250, 0.12);
+    color: #bfdbfe;
+  }
+
+  .vs-pill--acquired {
+    border-color: rgba(167, 139, 250, 0.45);
+    background: rgba(167, 139, 250, 0.12);
+    color: #ddd6fe;
+  }
+
+  .vs-pill--deprecated {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: rgba(245, 158, 11, 0.12);
+    color: #fcd34d;
+  }
+
+  .vs-pill--defunct {
+    border-color: rgba(239, 68, 68, 0.45);
+    background: rgba(239, 68, 68, 0.12);
+    color: #fca5a5;
+  }
+
+  @media print {
+    .vs {
+      font-size: 7.5pt;
+    }
+
+    .vs-pill {
+      border-color: currentColor;
+      background: none;
+    }
+  }
+</style>

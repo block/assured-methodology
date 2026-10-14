@@ -1,6 +1,7 @@
 ---
 title: "Escalation chapter quiz"
-description: "Ten questions on criteria, tiers, the triage vs IR distinction, close at triage, and the handoff packet."
+description: "Eleven questions on the E rule, criteria, tiers, the triage vs IR distinction, documented closes, pre-authorized actions, out-of-band communication, and the handoff packet."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,138 +10,165 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="Quiz" pillarTotal="Escalation chapter" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="Ten questions on Escalation. Push your thinking on criteria, tiers, the triage vs IR distinction, close at triage, and the handoff packet."/>
+<SubPageHero phase="escalation" pillarIndex="Quiz" lede="Eleven questions on the Escalation decision. Push your thinking on the E rule, criteria, tiers, the triage vs IR distinction, documented closes, pre-authorized actions, out-of-band communication, and the handoff packet."/>
 
-<PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
-]}/>
+<PillNav chapter="escalation" />
 
 <Quiz title="Escalation chapter quiz">
 
   <QuizItem
     prompt="Mid-investigation, the evidence confirms one canonical escalation criterion, but the analyst feels the case would be stronger after finishing the remaining phases. What should they do?"
     options={[
-      { value: "wait", label: "Finish the remaining phases first; a complete packet is what makes the handoff survive a cold read." },
       { value: "escalate", label: "Escalate now. One confirmed criterion is the pre-committed answer; the packet finishes in parallel." },
+      { value: "wait", label: "Finish the remaining phases first; a complete packet is what makes the handoff survive a cold read later." },
       { value: "manager", label: "Ask the SOC manager whether this particular case is worth the noise of an escalation." },
       { value: "close", label: "Downgrade the case and keep investigating; escalating on one criterion invites alert fatigue." },
     ]}
     answer="escalate"
-    explanation="Pre-defined criteria exist precisely to remove this judgment call under pressure. One confirmed criterion escalates the case, from whatever phase the investigation is in, and the packet finishes in parallel. Overriding the default requires documented reasoning, not a feeling that more polish would help."
+    explanation="Pre-defined criteria exist precisely to remove this judgment call under pressure. One confirmed criterion escalates the case from whatever phase the investigation is in: that is the escalation tripwire, and the packet finishes in parallel. A confirmed criterion is not overridable by the triage analyst. If the analyst disagrees, the disagreement goes into the packet with its evidence, and only the receiving owner can hand the case back or de-escalate it, with a named reason."
+    source={{ href: "/docs/escalation/criteria/#tripwire", label: "Close or escalate: the escalation tripwire" }}
   />
 
   <QuizItem
     prompt="What is the difference between event triage and incident response?"
     options={[
       { value: "size", label: "Scale: triage handles single-host cases, and IR takes over once multiple systems are involved." },
-      { value: "team", label: "Seniority: triage is the analyst queue, and IR is where the senior responders sit." },
-      { value: "question", label: "The question: triage asks what is this, IR asks how do we stop it. Different outputs follow." },
-      { value: "same", label: "Sequence: they are the same investigative work, split into before and after the P1 page." },
+      { value: "team", label: "Seniority: triage is the analyst queue, and IR is where the senior responders on the bench sit." },
+      { value: "same", label: "Sequence: they are the same investigative work, split into before and after the P1 page goes out." },
+      { value: "question", label: "The question: triage asks whether it is real and needs more than triage; IR asks how to stop it." },
     ]}
     answer="question"
-    explanation="The distinction is about the question being asked. Triage is 'what is going on.' IR is 'what do we do about it.' Conflating them leads to premature escalation or stalled investigations."
+    explanation="The distinction is about the question being asked. Triage asks 'is this real, and does it need more than triage?' IR asks 'how do we stop it?' Different outputs follow: a closure record or a handoff packet from triage; containment, eradication, and recovery from IR. Conflating them leads to premature escalation or stalled investigations."
+    source={{ href: "/docs/escalation/triage-vs-ir/#two-different-jobs", label: "Event triage vs. incident response: two different jobs" }}
   />
 
   <QuizItem
     prompt="The handoff packet should be optimized for..."
     options={[
       { value: "brevity", label: "Brevity. A responder in an active incident reads one page; anything longer goes unread." },
-      { value: "completeness", label: "Letting the next analyst start where this one stopped, without re-asking anything." },
+      { value: "continuity", label: "Letting the next analyst start where this one stopped, without re-asking anything." },
       { value: "compliance", label: "Compliance reporting, since the packet becomes the regulatory record of the incident." },
       { value: "manager", label: "The SOC manager's review, which is the approval gate the escalation must clear first." },
     ]}
-    answer="completeness"
-    explanation="The packet is the bridge between triage and IR. The metric is whether the next tier can act without asking the triage analyst to re-explain. Brevity is good; completeness is the goal."
+    answer="continuity"
+    explanation="The packet is the bridge between triage and IR. The metric is continuity: whether the next tier can act without asking the triage analyst to re-explain. That takes complete sections and a short opening (the five-minute read); optimizing for brevity or completeness alone fails."
+    source={{ href: "/docs/escalation/handoff/#what-makes-a-packet-actionable", label: "The handoff packet: what makes a packet actionable" }}
   />
 
   <QuizItem
     prompt="A handoff packet has all nine sections filled in. What does the methodology still require before it is declared ready?"
     options={[
-      { value: "signoff", label: "Manager sign-off, a spell-check pass, and a severity re-score against the current queue." },
-      { value: "tests",   label: "Three tests: readable in five minutes, names the next decision, survives a cold read by an uninvolved analyst." },
-      { value: "reviews", label: "Peer review, then compliance review, then legal review, in that order." },
-      { value: "format",  label: "Nothing. Nine completed sections is the definition of ready; extra gates delay the handoff." },
+      { value: "signoff", label: "Manager sign-off, a spell-check pass, and a priority re-score against the current queue." },
+      { value: "reviews", label: "Peer review, then compliance review, then legal review, in that order, each one signed off." },
+      { value: "tests",   label: "Three tests: readable in five minutes, names the next decision, survives an uninvolved reader." },
+      { value: "format",  label: "Nothing. Nine completed sections is the definition of ready; extra gates only delay the handoff." },
     ]}
     answer="tests"
-    explanation="Completeness is structural; actionability is functional, and a complete packet can still fail it. The case summary plus Risk verdict should orient the receiving tier in under five minutes. The packet should tee up the specific decision the next tier must make ('isolate the second host', 'engage compliance'), not just describe the case. And an analyst with no prior context should be able to continue the work without the author in the room. The practical check for that last test: hand the packet to an uninvolved peer, and if they cannot state the verdict in one sentence after five minutes, it is not done."
+    explanation="Completeness is structural; actionability is functional, and a complete packet can still fail it. The case summary plus Risk verdict should orient the receiving tier in under five minutes. The packet should tee up the specific decision the next tier must make ('isolate the second host', 'engage compliance'), not just describe the case. And an analyst with no prior context should be able to continue the work without the author in the room. The practical check for that last test: hand the packet to an uninvolved peer, and if they cannot state the verdict in one sentence after five minutes, it is not done. On a P1, the receiving responder is the cold reader: page first, and treat their first questions as the test results."
+    source={{ href: "/docs/escalation/handoff/#what-makes-a-packet-actionable", label: "The handoff packet: what makes a packet actionable" }}
   />
 
   <QuizItem
     prompt="In the three-tier SOC model, where is the decision usually made that a case becomes a declared incident?"
     options={[
-      { value: "t1",   label: "Tier 1, since it owns the initial true-positive versus false-positive verdict." },
       { value: "t2",   label: "Tier 2, where escalated cases get deep technical investigation and containment planning." },
+      { value: "t1",   label: "Tier 1, since it owns the initial true-positive versus false-positive verdict on every alert." },
       { value: "t3",   label: "Tier 3, since declaring an incident mobilizes legal, communications, and executives." },
       { value: "auto", label: "No tier. Declaration is automatic the moment any escalation criterion is met." },
     ]}
     answer="t2"
-    explanation="Tier 1 receives and validates alerts, closes false-positives with detection feedback, and usually carries the Alert, Subject, and Scope work; meeting an escalation criterion moves the case up, but that is escalation, not declaration. Tier 2 brings the specialized investigation depth (Uncover and Risk usually complete here) and holds the decision on whether the case becomes a declared incident. Tier 3 is the senior technical bench for the cases Tier 2 cannot close; the cross-functional response (incident command, legal, communications, executives) is a separate function that activates once an incident is declared, not a tier. The bar for 'escalate' and the bar for 'declared incident' are different, and keeping them separate is what the tier boundaries encode."
+    explanation="Tier 1 receives and validates alerts, closes false positives with detection feedback, and works the case through the ASSURED phases until either a closure is defensible or an escalation criterion is confirmed; meeting a criterion moves the case up, but that is escalation, not declaration. Tier 2 picks up escalated cases for deeper investigation and containment planning and, in this model, holds the decision on whether the case becomes a declared incident (real organizations vary: an IR lead, incident manager, or SOC manager may own it). Tier 3 is the senior technical bench for the cases Tier 2 cannot close; the cross-functional response (incident command, legal, communications, executives) is a separate function that activates once an incident is declared, not a tier. The bar for 'escalate' and the bar for 'declared incident' are different, and keeping them separate is what the tier boundaries encode."
     hint="Meets-a-criterion and is-an-incident are two different bars."
+    source={{ href: "/docs/escalation/protocols/#internal-tiers", label: "Escalation protocols: internal tiers" }}
   />
 
   <QuizItem
-    prompt="When does law enforcement get engaged?"
+    prompt="At 03:10 you confirm an attacker session on a finance user's account. The P1 page to the IR on-call has gone unacknowledged for 15 minutes. What do you do now?"
     options={[
-      { value: "always", label: "For every confirmed incident, since unreported intrusions can create liability later." },
-      { value: "never", label: "Only if the insurer requires it; law enforcement rarely adds value to a private incident." },
-      { value: "selective", label: "For criminal activity, extortion, or cross-border threats, engaged through legal counsel." },
-      { value: "soc-call", label: "Whenever the SOC manager judges the case serious enough to warrant an outside report." },
+      { value: "wait", label: "Wait for IR to acknowledge; containment of any kind is IR's call, and acting alone forks the record." },
+      { value: "segment", label: "Segment the finance VLAN and rotate credentials fleet-wide right away; the attacker may already be spreading." },
+      { value: "reset", label: "Reset the user's password and remove every app consent; those are the fastest ways to cut access." },
+      { value: "fallback", label: "Preserve, take the pre-authorized reversible actions, and page the fallback: the secondary on-call." },
     ]}
-    answer="selective"
-    explanation="Law enforcement is one external path among several. Engagement is selective (specific case types), channeled through legal counsel, and not a default for every incident."
+    answer="fallback"
+    explanation="The page fell through: at 15 minutes with no acknowledgment, a P1 goes to the secondary on-call, then the SOC manager. Meanwhile the pre-authorized immediate actions exist for exactly this window: preserve the records containment would destroy, then disable the account, revoke its sessions, and disable any consented app's sign-in, all reversible and logged. A password reset and grant removal cannot be undone, so they wait for IR or owner approval; segmenting a network or rotating credentials fleet-wide is containment strategy, and that is IR's call. Waiting does nothing while a confirmed attacker holds a live session."
+    hint="What is on the pre-authorized list, and what happens when a page is not acknowledged?"
+    source={{ href: "/docs/escalation/protocols/#paging", label: "Escalation protocols: paging and acknowledgment" }}
   />
 
   <QuizItem
     prompt="The terms 'event', 'alert', and 'incident' get used interchangeably in casual conversation. How does ASSURED distinguish them?"
     options={[
       { value: "same", label: "They are synonyms in practice; mature SOCs standardize on whichever term the tooling uses." },
+      { value: "structural", label: "Events are neutral observations; alerts warrant investigation; incidents are actual or imminent violations." },
       { value: "size", label: "Magnitude: an event is small, an alert is medium, and an incident is organization-scale." },
-      { value: "structural", label: "Events are neutral observations; alerts cross an action threshold; incidents require intervention." },
-      { value: "tooling", label: "Source: events come from log pipelines, alerts from the SIEM, incidents from the ticketing system." },
+      { value: "tooling", label: "Source: events come from log pipelines, alerts come from the SIEM, and incidents come from the ticketing system." },
     ]}
     answer="structural"
-    explanation="ASSURED treats them as distinct concepts with distinct operational meaning. Events are raw observability data. Alerts cross a threshold and become SOC work. An incident is a violation, or imminent threat of violation, of security policy or standard security practice (NIST SP 800-61), typically confirmed out of one or more alerts and requiring coordinated response. Conflating them loses precision under pressure."
+    explanation="ASSURED treats them as distinct concepts with distinct operational meaning. Events are raw observability data. Alerts cross a threshold and become SOC work. An incident, in NIST SP 800-61r3 (2025), adopting the FISMA 2014 definition, is an occurrence that actually or imminently jeopardizes, without lawful authority, the confidentiality, integrity, or availability of information or an information system, or that violates or imminently threatens to violate law, security policies, security procedures, or acceptable use policies; it is typically confirmed out of one or more alerts and requires coordinated response. Conflating them loses precision under pressure."
+    source={{ href: "/docs/escalation/triage-vs-ir/#the-vocabulary-event-alert-incident", label: "Event triage vs. incident response: event, alert, incident" }}
   />
 
   <QuizItem
-    prompt="Uncover confirms lateral movement into systems outside the original Scope boundary. What is the right escalation behavior?"
+    prompt="A domain-controller alert fires. Nothing is validated yet, and the domain controller's security log is not reaching the SIEM. What priority does the case get?"
     options={[
-      { value: "ignore", label: "Note the finding but keep working the original boundary; out-of-scope systems are a separate case." },
-      { value: "escalate", label: "Escalate immediately, it is a canonical criterion, and keep the loop running in parallel for IR." },
-      { value: "loop", label: "Refine Scope, re-run Uncover, re-evaluate Risk, and escalate only if the expanded picture still meets criteria." },
-      { value: "close", label: "Close this case and open a fresh one scoped to the newly discovered systems from the start." },
+      { value: "p1", label: "P1: page IR now. A domain controller is a crown jewel, so any alert on it meets a criterion." },
+      { value: "p3", label: "P3 on the standard 24-hour clock, since nothing malicious has been confirmed on that host so far." },
+      { value: "p2", label: "P2: High impact, and missing evidence reads as Medium likelihood, so escalate within 4 hours." },
+      { value: "close", label: "Close it as unverifiable; without the security log there is no evidence to triage at all." },
     ]}
-    answer="escalate"
-    explanation="Confirmed lateral movement is one of the four canonical criteria, and the break-glass rule fires the moment a criterion is confirmed, from any phase. A spreading compromise is IR's problem to contain while investigation continues. The dynamic loop still matters: refining Scope and re-running Uncover is exactly the scoping support IR needs next, but it happens in parallel under IR's clock, not as a precondition for escalating. Deferring escalation through a full loop iteration while a compromise spreads is the failure mode the criteria exist to prevent."
+    answer="p2"
+    explanation="Asset value alone is never a confirmed criterion, so this is not the escalation tripwire and not P1 on asset profile. But unknown is not Low: likelihood reads Medium because the evidence is missing, not because it leans benign. High impact with Medium likelihood is the High/Medium cell: P2, acknowledged within 15 minutes and escalated within 4 hours with a complete packet (default clocks; adopters tune them). P3 would apply only if the evidence had been examined and leaned benign, and then on the high-impact clock, not the standard 24 hours. Closing as unverifiable mistakes a telemetry gap for a verdict; the missing log is itself a finding for the packet."
+    hint="Asset value is not confirmation, and unknown is not Low."
+    source={{ href: "/docs/escalation/criteria/#high-impact", label: "Close or escalate: high impact and business-critical systems" }}
   />
 
   <QuizItem
-    prompt="Risk returns a defensible low-residual-risk verdict on a suspicious-binary case. What does the Escalation phase produce?"
+    prompt="Risk scores a suspicious-binary case High/Low (P3), and the named re-score trigger comes back clean. What does the Escalation decision produce?"
     options={[
-      { value: "skip",   label: "Nothing. Escalation only runs when a case escalates; a false-positive verdict skips the phase." },
+      { value: "skip",   label: "Nothing. Escalation only runs when a case escalates; a benign verdict skips the phase." },
       { value: "note",   label: "A one-line closure note. Documented rigor is reserved for the cases that go to IR." },
-      { value: "record", label: "A close-at-triage record with the same rigor as a handoff: closure criteria checked, targeted notifications, full closure record." },
       { value: "review", label: "A courtesy IR review, because a human responder should double-check any close on a pattern-match alert." },
+      { value: "record", label: "A close-at-triage record held to handoff rigor: closure check run, targeted notices, full record." },
     ]}
     answer="record"
-    explanation="Escalation still runs; the outcome is a documented close instead of a transfer. The worked example checks five closure criteria (no confirmed malicious activity, no impact to business-critical systems, no lateral movement, no persistence or credential access, residual risk explicitly bounded), each backed by Uncover findings. Notifications are quiet and targeted: the SOC manager for shift visibility, detection engineering with the rule-tuning ticket, nobody else, because loud notices for a documented false-positive train the team to discount future ones. The closure record is built on the nine handoff-packet sections. The close is arguably the harder discipline, since the analyst is asking a future reader to trust the absence of compromise."
+    explanation="Escalation still runs; the decision is a documented close instead of a transfer. The worked example runs a five-item closure check (no escalation criterion confirmed or open as a suspicion; the P3 re-score trigger clean; no persistence or credential access; extension, MCP, workspace-task and agent-command review clean; gaps bounded with reopen triggers written), each backed by Uncover findings or the re-score. Notifications are quiet and targeted: the SOC manager for visibility and close approval, detection engineering with the alert-enrichment request and pattern-entry proposal, nobody else, because loud notices for a documented benign close train the team to discount future ones. The closure record is the decision header the event report opens with. The close is arguably the harder discipline, since the analyst is asking a future reader to trust the absence of compromise."
+    source={{ href: "/docs/escalation/criteria/#closing", label: "Close or escalate: the closure check" }}
   />
 
   <QuizItem
     prompt="Your handoff packet has eight strong sections, but you noticed during the case that you forgot to log the 14:02 page to your SOC manager. What is the right call?"
     options={[
-      { value: "skip", label: "Skip it. The manager knows they were paged, and the packet documents the case, not the chatter." },
+      { value: "add", label: "Add it now with the true event time, marked as a late entry with the time it was recorded." },
+      { value: "backfill", label: "Add it with the true event time so the Communication record reads cleanly in order." },
       { value: "verbal", label: "Mention it verbally during the IR handoff so the responders know, but leave the packet as-is." },
-      { value: "add", label: "Add it to the Communication record with the real timestamps; that section exists for this." },
       { value: "amend", label: "Amend the packet after IR closes the case, when the audit review actually needs the entry." },
     ]}
     answer="add"
-    explanation="The Communication record is the ninth section of the handoff packet for exactly this reason. Backfilling notifications (who, on which channel, when) with real timestamps prevents duplicate pages, gives IR an instant view of who already knows, and starts the audit trail before memory fades. Verbal handoffs and post-close amendments both lose information."
+    explanation="The Communication record is the ninth section of the handoff packet for exactly this reason, so the page goes in. But a backfilled entry is marked as a late entry: the true event time, plus the time it was recorded. Silent backfill makes the record look contemporaneous when it is not, which undermines audit integrity the moment someone compares it with the paging system's own log. Verbal handoffs and post-close amendments both lose information."
+    source={{ href: "/docs/escalation/communication/#record", label: "Talking to people during triage: the communication record" }}
+  />
+
+  <QuizItem
+    prompt="An attacker holds a session in your mail tenant. You need to page IR, and to ask the user whether she created an inbox rule this morning. Which channels do you use?"
+    options={[
+      { value: "email", label: "Tenant email to IR and to the user, marked urgent; both watch their inbox and it leaves a written record." },
+      { value: "chat", label: "The corporate chat workspace: it is faster than email, and the attacker's foothold is in mail, not chat." },
+      { value: "oob", label: "Pager and phone bridge for IR; a call to the user on a number from a source the attacker could not edit." },
+      { value: "wait", label: "Neither for now: hold every contact until IR acknowledges, so nothing tips off the attacker first." },
+    ]}
+    answer="oob"
+    explanation="When a case touches the mail tenant, the chat workspace, or the identity provider that signs users into them, those channels are closed for the case: the adversary may be reading them, and a page or a question sent there lets the attacker watch the response. Chat signs in through the same identity provider, so it is no safer than mail. Page IR by pager and phone bridge, and call the user on a number taken from HR records or a contact list kept outside the affected systems, as it stood before the incident window. Holding every contact is wrong too: the page goes out at once on a trusted channel, and the user's answer can still change the decision before a criterion is confirmed. In Case C, the 09:19 phone call to rvega is what took the case to High confidence."
+    hint="Which channels does the attacker's foothold reach?"
+    source={{ href: "/docs/escalation/communication/#out-of-band", label: "Talking to people during triage: out-of-band communication" }}
   />
 
 </Quiz>
 
-<ContinueCard current="escalation" nextHref="/docs/escalation/transition/" nextLabel="Transition to Documentation" ctaLabel="Continue" />
+<ContinueCard
+  current="escalation"
+  nextHref="/docs/documentation/"
+  nextLabel="Documentation"
+  nextDescription="The next question: What did we decide, and what did we learn?"
+  ctaLabel="Start Documentation"
+/>

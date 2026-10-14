@@ -43,7 +43,10 @@
   margin: 1.5rem 0;
 }
 
-.example-step code {
+/* Inline code only: a fenced block inside a step is <pre><code>, which keeps
+   its own block styling (this padding and radius would wrap every line). */
+.example-step :not(pre) > code {
+  overflow-wrap: anywhere;
   background: rgba(15, 23, 42, 0.7);
   padding: 0.05rem 0.35rem;
   border-radius: 0.25rem;
@@ -120,17 +123,6 @@
   margin: 1.5rem 0;
 }
 
-.pillar__icon {
-  font-size: 1.6rem;
-}
-
-.pillars-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
 .principle-card p {
   margin: 0;
   color: var(--assured-text-muted);
@@ -147,7 +139,7 @@
   border-radius: 9999px;
   background: rgba(6, 182, 212, 0.08);
   color: #67e8f9;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   text-decoration: none;
 }

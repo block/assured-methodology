@@ -3,35 +3,28 @@ title: "Alert: Understanding detection logic"
 description: "The first phase of ASSURED. Understand the detection mechanism, validate the signal, and parse the alert into something an analyst can act on."
 slug: "alert"
 wide: true
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import CaseStudy from "@/components/assured/CaseStudy.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
+import PillarGrid from "@/components/assured/PillarGrid.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
 import Reveal from "@/components/assured/Reveal.astro";
 import EvasionPattern from "@/components/assured/EvasionPattern.astro";
+import "@/styles/pages/alert.css";
 
 <ChapterHero
   phase="alert"
-  letter="A"
-  pieceNumber={1}
-  question="What fired, and why?"
-  pillars={[
-    { num: "01", label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/" },
-    { num: "02", label: "Alert validation",     href: "/docs/alert/validation/" },
-    { num: "03", label: "Parsing alerts",       href: "/docs/alert/parsing/" },
-  ]}
 >
   Before identifying the subject, scoping the investigation, or pulling <DefineTerm term="Telemetry" display="telemetry" />, the analyst's first job is to understand the alert itself.
 </ChapterHero>
 
-<Callout variant="info" title="Why Alert comes first">
-Alert is the anchor for everything that follows. The work in Subject, Scope, Uncover, Risk, Escalation, and Documentation all builds on what the analyst learned here. Misreading the alert at the start compounds the cost of every later phase.
-</Callout>
+Alert is the anchor for everything that follows. The work in Subject, Scope, Uncover, Risk, the Escalation decision, and Documentation all builds on what the analyst learned here, so misreading the alert at the start compounds the cost of every later phase.
 
 ---
 
@@ -39,29 +32,29 @@ Alert is the anchor for everything that follows. The work in Subject, Scope, Unc
 
 By the end of Alert you should be able to:
 
-<div class="alert-outcomes">
+<div class="alert-outcomes alert-outcomes--alert">
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🔍</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
     <div>
       <strong>Identify the detection mechanism</strong> behind any alert and judge its reliability.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">✅</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span>
     <div>
-      <strong>Validate the signal</strong> across four context dimensions: technical, environmental, intelligence, and business.
+      <strong>Validate the signal</strong> with the four validation checks: technical fidelity, environmental context, threat intelligence, and business impact.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🔧</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
     <div>
       <strong>Parse the alert metadata</strong> into a structured shape: command lines, process relationships, network activity, file system artifacts, and the cloud control plane, all normalized onto one schema.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🎯</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><circle cx="12" cy="12" r="10"/></svg></span>
     <div>
-      <strong>Decide whether to invest more time</strong>. And if so, what to look at next.
+      <strong>Decide whether to invest more time</strong> and, if so, what to look at next. Set and record the depth level from the <a href="/docs/fast-path/">fast-path ladder</a>, so the rest of the work stays proportional to the alert.
     </div>
   </div>
 </div>
@@ -80,74 +73,104 @@ The second is the word **potentially**. The <DefineTerm term="Detection Logic" d
 The investigative value of an alert is inseparable from the detection logic that produced it. Two alerts with identical names from different engines are not the same alert. Knowing *how* the engine decided is the prerequisite to deciding what to do with the result.
 </Callout>
 
-### How adversaries exploit weak alert handling
+### How adversaries exploit detection and alert handling
 
-Skilled adversaries do not avoid detection. They *<DefineTerm term="Exploit" display="exploit" /> how analysts respond to it*. The four patterns below are the most common. Tap any card to expand and watch a short animation that demonstrates what the pattern looks like in practice.
+Skilled adversaries do not only avoid detection; they also *exploit how analysts respond to it*. Eight illustrative patterns follow. Two make the engine's output ambiguous (living off the land, process hollowing), two exploit the people reading it (timing, alert fatigue), two look like normal work (identity abuse, remote-management tools), and two remove the evidence the engine needs (EDR tampering, sensor blinding). Select any card to expand it and watch a short animation of what the pattern looks like in practice.
 
 <div class="evasion-list">
   <EvasionPattern
     pattern="lolbins"
-    icon="🛠️"
     title="Living off the land"
     description="Use native OS utilities so the binaries are signed and the alerts look ambiguous."
     caption="The adversary chains trusted, signed binaries (cmd, PowerShell, certutil) to deliver a payload. Every step looks legitimate to signature detection. The malicious outcome is what the analyst has to recognize."
   />
   <EvasionPattern
     pattern="hollowing"
-    icon="🥚"
     title="Process hollowing"
     description="Run malicious code inside a legitimate process so the parent-child chain looks normal at first glance."
-    caption="The outer process keeps its name (svchost.exe) and signature (✓ Microsoft). The code inside is swapped for the attacker's. Surface checks miss it. Memory and behavioral telemetry usually do not, though dedicated evasion targets even those."
+    caption="The outer process keeps its name (svchost.exe) and its valid Microsoft code-signing signature. The code inside is swapped for the attacker's. Surface checks miss it. Memory and behavioral telemetry usually do not, though dedicated evasion targets even those."
   />
   <EvasionPattern
     pattern="timing"
-    icon="🌙"
     title="Time-based evasion"
     description="Operate during maintenance windows or off-hours when analyst coverage is thinner."
     caption="Business hours are when analysts are watching. Adversaries who know that pattern stage their loudest activity outside it, hoping to be missed or to finish before anyone notices."
   />
   <EvasionPattern
     pattern="fatigue"
-    icon="🌊"
     title="Alert fatigue exploitation"
     description="Generate a wave of low-fidelity events so a real one is dismissed in the noise."
     caption="A flood of low-priority alerts trains the analyst to swat them away. The adversary hides their real signal in that flow. Volume becomes camouflage."
   />
+  <EvasionPattern
+    pattern="identity-abuse"
+    title="Identity abuse"
+    description="Sign in with valid credentials or a stolen session, so every event belongs to a real user."
+    caption="Both sign-ins pass MFA. The second comes from a hosting provider's network a few minutes after the first, and it is the intrusion. No malware runs anywhere; the session, the network and the account's own history are the evidence."
+  />
+  <EvasionPattern
+    pattern="rmm"
+    title="Remote-management tools"
+    description="Install a signed, legitimate remote-access product and use it as the backdoor."
+    caption="A signed remote-management tool (ScreenConnect, AnyDesk and similar) connects out to its vendor's relay over allowed egress. Every signature check passes. What gives it away is that nobody approved this install on this host."
+  />
+  <EvasionPattern
+    pattern="edr-tampering"
+    title="EDR tampering"
+    description="Stop, unload or uninstall the endpoint agent before doing the loud work."
+    caption="The agent's heartbeats stop, and the console still lists the host as last seen a few minutes ago. A sensor that goes quiet on a host that is still on the network is an alert in its own right, not a gap to note later."
+  />
+  <EvasionPattern
+    pattern="sensor-blinding"
+    title="Sensor blinding"
+    description="Change audit policy or logging so the events a rule needs are never recorded."
+    caption="A server's hourly log volume runs steady, then an audit-policy change drops it to nothing. No rule fires on data that never arrives. The missing data is the signal, and the policy change is the event to triage."
+  />
 </div>
+
+In current intrusions the most common version is not technical at all: valid credentials and sanctioned tools that look like normal work. And the quietest evasion is no alert at all. A host that stops reporting, an audit policy that changes, or an EDR agent that goes offline is itself an alert worth triaging (ATT&CK v19 calls this tactic <DefineTerm term="Defense Impairment" />, TA0112). When the queue suddenly floods with low-fidelity alerts, sample it and ask whether the volume is a screen for something quieter before swatting it away.
 
 Understanding these patterns is what separates a checkbox investigation from a real one. For each one, the underlying defense is the same: combine signals from multiple detection families, validate against context, and never trust a single surface check on its own.
 
 ---
 
+## Alert in five moves
+
+<Callout variant="info" title="The procedure, before the depth">
+1. **Name the mechanism(s) and read the rule.** Which detection families produced the alert, and what did the logic actually look for?
+2. **Check the rule's local track record.** Version, last review, local precision, known misses, active exceptions.
+3. **Run the four validation checks, each with a stopping point.** Deconflict first (is this authorized testing or a ticketed change?), then gather the evidence with one baseline lookup, one pivot on the entity's recent alerts, and one criticality lookup.
+4. **Parse the fields the next phases need.** Entities, times in UTC, process lineage, destinations, identities.
+5. **Record a disposition or hand off leads.** A documented Level 0 close is an early Escalation decision and records both verdict axes; anything else hands the next phases a validated alert and a lead list.
+
+How deep to go is set by the [fast-path depth ladder](/docs/fast-path/), and the [Alert report template](/templates/alert-report.md) records what each move found. Not every case starts from a rule: user-reported phishing, external notifications, hunt findings, and provider escalations arrive with no detection logic to read. For those, ask "what was reported, by whom, and what can we verify independently?" in place of "what fired?", then run the same moves. [Other intake](/docs/alert/intake/) covers each channel.
+</Callout>
+
+## Alert at a glance
+
+<PhaseAtAGlance phase="alert">
+  <Fragment slot="question-detail">For a case no rule raised: what was reported, by whom, and what can we verify independently?</Fragment>
+  <Fragment slot="deliverable">The validated alert with its known gaps; leads for Subject and Uncover, led by the working hypothesis and its alternatives; flags for Scope, Risk, and the Escalation decision.</Fragment>
+  <Fragment slot="done">The detection logic is understood, or for a black-box alert its evidence is; both verdict axes carry a provisional call; the entities are named; the depth level is set and recorded; the escalation tripwire has been checked.</Fragment>
+  <Fragment slot="level-0">Five minutes or less for the whole case. Confirm that the alert's discriminators match a current pattern entry, not just its shape. The eligibility gate follows; the close is an early Escalation decision in the five-field record.</Fragment>
+  <Fragment slot="level-1">The five moves as taught, then hand the leads to a single Subject-and-Scope context sweep.</Fragment>
+  <Fragment slot="level-2">The five moves in full: every rule condition checked against raw telemetry, all four validation checks recorded (including the ones that disagree), and every lead and flag written down for the phases that follow.</Fragment>
+</PhaseAtAGlance>
+
+Alert sets the depth level for the case; later phases can only raise it.
+
 ## The three pillars of Alert analysis
 
-ASSURED splits Alert into three sub-pages, one per pillar.
+ASSURED splits Alert into three sub-pages, one per pillar. Cases that no rule raised start one step earlier, at [Other intake](/docs/alert/intake/).
 
-<div class="pillars-grid">
-  <a href="/docs/alert/detection-mechanisms/" class="pillar">
-    <div class="pillar__num">01</div>
-    <div class="pillar__icon">🔍</div>
-    <h3>Detection mechanisms</h3>
-    <p>Signature, anomaly, rule-based, and behavioral analytics: how the engine decided, and how much you should trust that decision.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-
-  <a href="/docs/alert/validation/" class="pillar">
-    <div class="pillar__num">02</div>
-    <div class="pillar__icon">✅</div>
-    <h3>Alert validation</h3>
-    <p>Four-dimensional check on whether the alert is what it claims to be: technical, environmental, intelligence, and business impact.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-
-  <a href="/docs/alert/parsing/" class="pillar">
-    <div class="pillar__num">03</div>
-    <div class="pillar__icon">🔧</div>
-    <h3>Parsing alerts</h3>
-    <p>Extract and normalize the metadata: command lines, process trees, network activity, file system, and the cloud control plane, onto one schema. Turn raw output into investigative input.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-</div>
+<PillarGrid
+  phase="alert"
+  items={[
+    { href: "/docs/alert/detection-mechanisms/", icon: "search", title: "Detection mechanisms", body: "Signature, anomaly, rule-based, and behavioral analytics: how the engine decided, and how much you should trust that decision." },
+    { href: "/docs/alert/validation/", icon: "circle-check", title: "Alert validation", body: "Four validation checks on whether the alert is what it claims to be: technical fidelity, environmental context, threat intelligence, and business impact." },
+    { href: "/docs/alert/parsing/", icon: "wrench", title: "Reading any alert", body: "A nine-step checklist for any alert: extract the metadata (command lines, process trees, network activity, file system, and the cloud control plane) and normalize it onto one schema. Turn raw output into investigative input." },
+  ]}
+/>
 
 ---
 
@@ -160,26 +183,26 @@ A single alert can carry very different meanings depending on context. The examp
   scenario="A SIEM rule fires: a user account was granted membership in a privileged group, and the change happened outside an approved change window."
 >
 
-The alert is asking a simple question: was this an authorized change, or is it a problem? In practice the same alert can resolve to one of three situations, and the analyst's job is to figure out which. Tap each possibility to see what to check.
+The alert is asking a simple question: was this an authorized change, or is it a problem? In practice the same alert can resolve to one of three situations, and the analyst's job is to figure out which. Select each possibility to see what to check.
 
 <Reveal summary="Possibility 1 · Policy violation" variant="example">
-A human granted the privileges without going through the approval workflow. This is common, usually mundane, and still worth investigating because it represents a real gap in the change-management process. The analyst confirms it by looking for a change-management <DefineTerm term="Ticket" display="ticket" />, identifying the approver chain, comparing the timestamp against the approval window, and confirming whether the granting account was acting on documented authority.
+A human granted the privileges without going through the approval workflow. This is common, usually mundane, and still worth investigating because it represents a real gap in the change-management process. The analyst confirms it by looking for a change-management ticket, identifying the approver chain, comparing the timestamp against the approval window, and confirming whether the granting account was acting on documented authority. A variant: an engineer used the break-glass (emergency access) account during a declared emergency. Confirm the emergency declaration and the vault checkout record; a break-glass login with neither is not a policy gap but a lead for Possibility 3.
 </Reveal>
 
 <Reveal summary="Possibility 2 · Legitimate automation" variant="example">
-A deployment script, a scheduled task, or a break-glass process performed the change. This is the easiest possibility to misclassify if the analyst is not familiar with the organization's <DefineTerm term="Infrastructure" display="infrastructure" />. The analyst confirms it by checking whether the granting account is a known service account, whether the change matches a recurring automation pattern, whether recent CI/CD activity correlates with the timing, and whether the destination group is one that automation is permitted to modify.
+A deployment script or scheduled task performed the change. This is the easiest possibility to misclassify if the analyst is not familiar with the organization's infrastructure. The analyst confirms it by checking whether the granting account is a known service account, whether the change matches a recurring automation pattern, whether recent CI/CD activity correlates with the timing, and whether the destination group is one that automation is permitted to modify.
 </Reveal>
 
 <Reveal summary="Possibility 3 · Adversarial technique" variant="example">
 An attacker is using token impersonation, stolen credentials, or another post-compromise method to elevate access. This is the dangerous possibility, and recognizing it quickly is the entire point of triage. The analyst confirms it by reviewing the granting account's recent authentication history for anomalies, looking for lateral movement signals on the source host, checking whether the target account is unusually <DefineTerm term="high value">An account or system that, if compromised, gives the adversary outsized impact: domain administrators, service accounts with broad access, finance approvers, executives, anyone holding the keys to sensitive systems or data.</DefineTerm> or freshly created (newly created admin accounts are a classic persistence pattern), and correlating the host's activity with the broader environment.
 </Reveal>
 
-The three sub-pages of the Alert chapter (Detection mechanisms, Validation, <DefineTerm term="Parsing" />) each contribute to disambiguating which of these three situations is in front of the analyst. The detection mechanism explains what the engine saw and how confident it was. Validation tests the signal against the environment, history, and <DefineTerm term="Threat" display="threat" /> landscape. Parsing extracts the specific <DefineTerm term="Metadata" display="metadata" /> (which account, which group, which approver, which time) needed to make the call.
+The three sub-pages of the Alert chapter (Detection mechanisms, Validation, <DefineTerm term="Parsing" />) each contribute to disambiguating which of these three situations is in front of the analyst. The detection mechanism explains what the engine saw and how confident it was. Validation tests the signal against the environment, history, and threat landscape. Parsing extracts the specific metadata (which account, which group, which approver, which time) needed to make the call.
 
 </CaseStudy>
 
 <Callout variant="warn" title="Don't skip this step">
-Investigations that fail rarely fail at Uncover. They fail at Alert. Analysts move on to <DefineTerm term="Entity" display="entity" /> work, scoping, or evidence gathering before they understand what the alert was claiming. By the time the gap shows up, you are three phases deep with no anchor.
+A common way investigations fail is not at Uncover but at Alert. Analysts move on to <DefineTerm term="Entity" display="entity" /> work, scoping, or evidence gathering before they understand what the alert was claiming. By the time the gap shows up, you are three phases deep with no anchor.
 </Callout>
 
 ---
@@ -188,171 +211,31 @@ Investigations that fail rarely fail at Uncover. They fail at Alert. Analysts mo
 
 <div class="strategic-grid">
   <div class="strategic-card">
-    <h3>🎯 Precision classification</h3>
-    <p>Separates legitimate operations, policy violations, and adversary activity. Fewer false-positives, better-targeted response.</p>
+    <h3>Precision classification</h3>
+    <p>Separates legitimate operations, policy violations, and adversary activity. The aim: fewer escalations of benign activity, and a better-targeted response to the rest.</p>
   </div>
   <div class="strategic-card">
-    <h3>📐 Cleaner scope</h3>
-    <p>Knowing the detection mechanism means you know what telemetry the engine saw. And what it did not. That shapes the next phases.</p>
+    <h3>Cleaner scope</h3>
+    <p>Knowing the detection mechanism means you know what telemetry the engine saw, and what it did not. That shapes the next phases.</p>
   </div>
   <div class="strategic-card">
-    <h3>🔽 False-positive triage</h3>
-    <p>Catch benign activity early. Feed the reasoning back into detection logic so future alerts get sharper.</p>
-  </div>
-  <div class="strategic-card">
-    <h3>⚡ Faster decisions</h3>
-    <p>Structured analysis cuts decision time. Mean time to closure for false-positives drops. Mean time to escalation for real threats drops too. Speed is only half the story; the <a href="/docs/adoption/#measuring-triage-quality">quality metrics</a> that pair with it keep fast from meaning sloppy.</p>
+    <h3>Benign-close triage</h3>
+    <p>Catch benign activity early, whether the rule correctly flagged authorized activity (a benign true positive) or the logic misfired (a false positive). Feed the reasoning back into detection logic so future alerts get sharper.</p>
   </div>
 </div>
+
+Whether structured Alert work actually saves time is a measurement, not a promise: [Measuring triage](/docs/measuring-triage/#the-metric-set) defines the speed and quality metrics to track together.
 
 ---
 
 <KeyTakeaway>
-The Alert phase is not about deciding *whether* something is malicious. It is about getting clear on *what the alert is claiming* so the next phases (Subject, Scope, Uncover, Risk) can do their jobs.
+The Alert phase is not about proving what happened. It is about getting clear on *what the alert is claiming* and whether the telemetry supports that claim. Sometimes that alone closes a documented benign pattern (see the [fast path](/docs/fast-path/)). Otherwise it hands the next phases (Subject, Scope, Uncover, Risk) a validated starting point instead of a cold read.
 </KeyTakeaway>
-
-<PuzzleProgress
-  current="alert"
-/>
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms/"
-  nextLabel="Detection mechanisms"
-  nextDescription="Signature, anomaly, rule-based, behavioral. Four families of detection, each with its own confidence profile and failure modes."
-  ctaLabel="Read detection mechanisms"
+  nextHref="/docs/alert/intake/"
+  nextLabel="Other intake"
+  nextDescription="Cases that no rule raised: user reports, external notifications, hunt findings and provider escalations. Then on to the detection mechanisms."
+  ctaLabel="Read other intake"
 />
-
-<style>
-{`
-
-.two-up {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.25rem 0;
-}
-
-@media (min-width: 640px) {
-  .two-up { grid-template-columns: 1fr 1fr; }
-}
-
-.two-up__panel {
-  padding: 1.25rem;
-  border-radius: 0.75rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  backdrop-filter: blur(8px);
-}
-
-.two-up__label {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--assured-accent-soft);
-  font-weight: 700;
-}
-
-.two-up__panel p:not(.two-up__label) {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-}
-
-.evasion-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .pillars-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.pillar {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 0.85rem;
-  color: var(--assured-text);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden;
-}
-
-.pillar:hover {
-  transform: translateY(-3px);
-  border-color: #3b82f6;
-  box-shadow: 0 16px 32px -12px rgba(59, 130, 246, 0.35);
-}
-
-.pillar__num {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: rgba(147, 197, 253, 0.7); /* blue-300 at 0.7: >= 4.5:1 over the card at both gradient ends (was 3.33:1) */
-  letter-spacing: 0.06em;
-}
-
-.pillar h3 {
-  margin: 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-}
-
-.pillar p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.95rem;
-}
-
-.pillar__cta {
-  margin-top: auto;
-  color: #60a5fa;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.strategic-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .strategic-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.strategic-card {
-  padding: 1.25rem 1.5rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.85rem;
-}
-
-/* level changed for the heading outline; size stays as designed */
-.strategic-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: var(--assured-text);
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.strategic-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-}
-`}
-</style>

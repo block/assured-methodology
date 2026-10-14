@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/risk-verdict.schema.json",
+  "title": "Risk verdict",
+  "description": "The Risk verdict block, written at the end of Risk: both verdict axes, impact (from asset criticality and business impact), likelihood, confidence, the matrix cell and band, any override, and a recommended move. Risk recommends; the Escalation decision makes and records the call.",
+  "x-assured-template": "risk-verdict.md",
+  "type": "object",
+  "properties": {
+    "header": {
+      "x-assured-section": "",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID"
+        },
+        "assessedBy": {
+          "x-assured-prompt": "Assessed by",
+          "type": "object",
+          "properties": {
+            "by": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["by", "at"],
+          "description": "Assessed by (analyst), at (UTC)"
+        }
+      },
+      "required": ["caseId", "assessedBy"]
+    },
+    "riskVerdict": {
+      "x-assured-section": "Risk verdict",
+      "x-assured-phase": "risk",
+      "x-assured-clocks": [
+        {
+          "key": "p2DecisionHours",
+          "unit": "hours"
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "verdictDetectionAxis": {
+          "x-assured-prompt": "Verdict, detection axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Verdict, detection axis (true positive / false positive (logic) / false positive (data))"
+        },
+        "verdictActivityAxis": {
+          "x-assured-prompt": "Verdict, activity axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict",
+          "description": "Verdict, activity axis (malicious / policy violation / authorized (benign true positive) / benign-confirmed / undetermined)"
+        },
+        "impact": {
+          "x-assured-prompt": "Impact",
+          "$ref": "assured-vocabulary.schema.json#/$defs/rating",
+          "description": "Impact (H/M/L), the higher of asset criticality and business impact."
+        },
+        "assetCriticality": {
+          "x-assured-prompt": "Asset criticality",
+          "type": "object",
+          "properties": {
+            "rating": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/rating"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": ["rating", "rationale"],
+          "description": "Asset criticality (H/M/L), with rationale"
+        },
+        "businessImpact": {
+          "x-assured-prompt": "Business impact",
+          "type": "object",
+          "properties": {
+            "rating": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/rating"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": ["rating", "rationale"],
+          "description": "Business impact (H/M/L), with rationale"
+        },
+        "likelihood": {
+          "x-assured-prompt": "Likelihood that the activity is malicious or unauthorized",
+          "type": "object",
+          "properties": {
+            "rating": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/rating"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": ["rating", "rationale"],
+          "description": "Likelihood that the activity is malicious or unauthorized (H/M/L), with rationale"
+        },
+        "confidence": {
+          "x-assured-prompt": "Confidence in that judgment",
+          "type": "object",
+          "properties": {
+            "level": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+            },
+            "unknownDimensions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["level"],
+          "description": "Confidence in that judgment (high / medium / low, on the shared rubric), and any dimension that is Unknown"
+        },
+        "matrixCell": {
+          "x-assured-prompt": "Matrix cell",
+          "type": "object",
+          "properties": {
+            "cell": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+            },
+            "band": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+            }
+          },
+          "required": ["cell", "band"],
+          "description": "Matrix cell (impact / likelihood) and priority (P1-P4)"
+        },
+        "overrideApplied": {
+          "x-assured-prompt": "Override applied",
+          "type": "object",
+          "properties": {
+            "override": {
+              "anyOf": [
+                {
+                  "const": "none"
+                },
+                {
+                  "$ref": "assured-vocabulary.schema.json#/$defs/override"
+                }
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": ["override"],
+          "description": "Override applied (none / escalation tripwire / high-impact clock / documented downgrade), with reason"
+        },
+        "recommendedMove": {
+          "x-assured-prompt": "Recommended move",
+          "type": "object",
+          "properties": {
+            "move": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/recommendedMove"
+            },
+            "wording": {
+              "type": "string",
+              "description": "escalate now (P1), escalate within 4 hours (P2), keep working to the re-score trigger (P3), or documented close (P4)."
+            }
+          },
+          "required": ["move"],
+          "description": "Recommended move (escalate now / escalate within 4 hours / keep working to the re-score trigger / documented close)"
+        },
+        "reScoreTriggerAnd": {
+          "x-assured-prompt": "Re-score trigger and time",
+          "type": "object",
+          "properties": {
+            "trigger": {
+              "type": "string"
+            },
+            "by": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["trigger"],
+          "description": "Re-score trigger and time (P3 or undetermined): the named finding that would raise or lower the priority, and when it is checked."
+        },
+        "openQuestions": {
+          "x-assured-prompt": "Open questions, and what evidence would change the assessment",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Open questions, and what evidence would change the assessment"
+        }
+      },
+      "required": [
+        "verdictDetectionAxis",
+        "verdictActivityAxis",
+        "impact",
+        "assetCriticality",
+        "businessImpact",
+        "likelihood",
+        "confidence",
+        "matrixCell",
+        "overrideApplied",
+        "recommendedMove",
+        "openQuestions"
+      ]
+    }
+  },
+  "required": ["header", "riskVerdict"]
+}

@@ -1,58 +1,121 @@
 ---
 title: "Teaching ASSURED"
-description: "The facilitator guide: three delivery formats, a four-session workshop plan mapped to the chapters, exercise-running mechanics, a close-note rubric, and the misconceptions to watch for."
+description: "The facilitator guide: three delivery formats, a routing pre-assessment with a parallel post-test, a four-session workshop plan mapped to the chapters with prep estimates, exercise-running mechanics, a close-note rubric, and the misconceptions to watch for."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/root.css";
 
-This page is for the person running the training: a SOC lead onboarding new analysts, a senior analyst mentoring a study group, or a trainer building a curriculum. Everything on the site is free to teach from under its <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0 license</a>; this page adds the structure a facilitator needs and the site's reading order does not provide.
+This page is for the person running the training: a SOC lead onboarding new analysts, a senior analyst mentoring a study group, or a trainer building a curriculum. The methodology text, templates, and exercise packets are licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>: reuse and adapt them freely, including commercially, with attribution such as "ASSURED Methodology by Timothy Zilber, © Block, Inc., CC BY 4.0, https://assured-methodology.vercel.app", plus a note if you changed anything. The site's code is separately MIT-licensed. This page adds the structure a facilitator needs and the site's reading order does not provide.
+
+## Before you run this
+
+<ul class="teach-mechanics">
+  <li><strong>The outcome.</strong> By the end, a participant can write a close note that passes the <a href="#what-to-grade-the-close-note-rubric">rubric below</a> and a <a href="/docs/escalation/handoff/">handoff packet</a> a receiver can read in five minutes, unaided.</li>
+  <li><strong>Prerequisites.</strong> Working familiarity with Windows event logs, Microsoft 365 and Entra identity basics, and basic networking (DNS, proxies, TCP ports). Participants without them will spend the sessions on vocabulary instead of judgment.</li>
+  <li><strong>Cohort.</strong> 4-12 participants, working in pairs. Below four, the debriefs lose the disagreement they run on; above twelve, not every pair gets heard.</li>
+  <li><strong>Facilitator prep.</strong> About 2 hours per session: read the session's chapters and the relevant answer keys, and prepare the local material (sanitized alerts for Session 1, the AI-drafted section for Session 3).</li>
+  <li><strong>Remote variant.</strong> Breakout rooms for the pairs, one shared document per pair for written answers, and the keys pasted into the main room only after the debrief has surfaced everyone's answers.</li>
+  <li><strong>Sign-off.</strong> Completing the sessions is not the competency. Sign a participant off on two real cases: a lead reviews two of their own queue records (ideally one close and one escalation) and both pass all five rubric checks.</li>
+</ul>
 
 ## Three delivery formats
 
 <div class="teach-list">
   <div class="teach-item">
     <h3>Self-study arc <span class="teach-item__kind">individual · ~2 weeks</span></h3>
-    <p>The reading order as designed: intro through Documentation, one chapter per day or two, quizzes taken solo, then the three <a href="/docs/exercises/">exercise packets</a> as the capstone. Works with zero facilitation. The one addition worth making: a peer or lead reviews the learner's Exercise 1 write-up against the answer key, because self-graded close notes drift generous.</p>
+    <p>The reading order as designed: intro through Documentation, one chapter per day or two, quizzes taken solo, then the <a href="/docs/exercises/">exercise packets</a>, then the <a href="/docs/labs/">telemetry labs</a> and their blind-scored capstone. Works with zero facilitation; a study group with two willing raters can sit the <a href="/docs/teaching/kit/#the-capstone">facilitator kit's capstone</a> as well. The one addition worth making: a peer or lead reviews the learner's Exercise 1 write-up against the answer key and its scoring grid, because self-graded close notes drift generous.</p>
   </div>
   <div class="teach-item">
     <h3>Team workshop <span class="teach-item__kind">group · 4 × 90 minutes</span></h3>
-    <p>The four-session plan below. Reading happens before each session; session time goes to worked examples, argued quizzes, and exercises, the things that need other people. Best for existing teams adopting a shared vocabulary.</p>
+    <p>The four-session plan below. Reading happens before each session; session time goes to worked examples, argued quizzes, and exercises: the things that need other people. Best for existing teams adopting a shared vocabulary.</p>
   </div>
   <div class="teach-item">
     <h3>Onboarding curriculum <span class="teach-item__kind">new hire · first month</span></h3>
-    <p>The workshop plan stretched across a ramp: sessions become weekly, each followed by shadowing shifts where the new analyst writes parallel close notes on real queue alerts and a mentor compares them against the actual dispositions. The <a href="/docs/reference/">one-page reference</a> goes up at the desk on day one; the vocabulary sticks fastest when the letters are used out loud in handoffs.</p>
+    <p>The workshop plan stretched across a ramp: sessions become weekly, each followed by shadowing shifts where the new analyst writes parallel close notes on real queue alerts and a mentor compares them against the actual dispositions. Assign Exercises 4 to 8 during those shadowing weeks: each one rehearses a case type the new analyst will meet on the queue. The <a href="/docs/reference/">one-page reference</a> goes up at the desk on day one; the vocabulary sticks fastest when the letters are used out loud in handoffs.</p>
   </div>
 </div>
 
+## Routing with a pre-assessment
+
+The reading order is built for a first read, and an experienced analyst who takes it letter by letter spends hours on guidance they already apply. Twelve short scenario items, two per phase for Alert through Uncover and Risk, one each for the Escalation decision and Documentation, sort a cohort before the reading starts. Run Form A as the pre-assessment, in writing, in about 20 minutes, with no reading beforehand. Run Form B, which tests the same twelve skills on different surface details, as the post-test after Session 4 or at the end of the self-study arc. Alternate which form comes first between cohorts so neither becomes the one people have seen.
+
+| # | Phase | Form A | Form B |
+|---|---|---|---|
+| 1 | Alert | A detection for remote-administration tools fires on the IT team's sanctioned, change-ticketed deployment tool doing exactly what the rule describes. Write the verdict. | A rule for LSASS memory access fires on the backup agent the vendor documents as reading LSASS, on a host where that agent is approved. Write the verdict. |
+| 2 | Alert (depth) | A Level 0 pattern entry matches every discriminator, but the subject is a domain administrator. What level does the case run at, and why? | A CI runner that holds release-signing keys matches a pattern entry exactly. What level does the case run at, and why? |
+| 3 | Subject | The alert names service account svc-backup in an interactive logon from an HR workstation. Who is the subject? | An app named "Contoso Files Sync" performs bulk reads after an admin consented to it. Who or what is the subject, and which identifier do you record? |
+| 4 | Subject | A manager emails the SOC that the employee in your open case is going through a divorce and seems stressed. What goes into the case record? | A colleague tells you the subject of your case has money troubles. What goes into the case record? |
+| 5 | Scope | A phishing message reached four mailboxes; one recipient opened it. Draw the entity boundary and name one deliberate exclusion. | One host shows a beacon to a new domain. Draw the entity boundary and name one deliberate exclusion. |
+| 6 | Scope | An attacker session read a store holding personal data of people in the EU. What do you record, and who decides whether a notification clock started? | An attacker session read a store holding California residents' personal data. What do you record, and who decides whether a notification clock started? |
+| 7 | Uncover | Your leading hypothesis is an attacker; the one benign alternative (an admin's weekend maintenance) is untested. What does your ledger say? | A change ticket matches the activity's time window. What does your ledger do with it? |
+| 8 | Uncover | A user submitted the password on a phishing kit's page; the attacker's sign-in then failed at MFA. What is the user's status? | A user entered the password on a kit's page and closed the tab before any MFA prompt. What is the user's status? |
+| 9 | Risk | The evidence on a domain controller alert has been examined and leans benign. Which axis does that lower, and what cell results? | The evidence on a payroll-server alert has been examined and leans benign. Which axis does that lower, and what cell results? |
+| 10 | Risk | A crown-jewel database alert arrives and the relevant logs are not available yet. Score likelihood and confidence. | An identity-provider admin alert arrives and the sign-in logs have not been examined. Score likelihood and confidence. |
+| 11 | Escalation decision | During Subject you confirm, at High confidence, that an attacker's session on a mailbox is still live. What happens now? | EDR quarantined a malicious download before it ran: no process, no callback, no persistence. Does this page IR? |
+| 12 | Documentation | A close note reads "FP, known noise." Name three of the rubric checks it fails. | A close note reads "Looked normal, closing." Name three of the rubric checks it fails. |
+
+<Reveal summary="Answer key and routing: pre-assessment and post-test" variant="example">
+
+One point per item; the key applies to both forms.
+
+| # | Earns the point | If missed, read |
+|---|---|---|
+| 1 | Detection true positive, activity authorized: a benign true positive, never a false positive. | <a href="/docs/risk/false-positive/">What a benign close teaches</a> |
+| 2 | Level 2. A privileged identity, or automation holding signing capability, fails the Level 0 eligibility gate and cannot run at Level 1 either. | <a href="/docs/fast-path/">Fast path</a> |
+| 3 | Form A: whoever was interactive on the source host, acting through the account (an account is a credential, not an actor). Form B: the app's service principal, recorded by its application ID, not its display name. | <a href="/docs/subject/">Subject</a> |
+| 4 | Nothing about the personal circumstance. Point the sender to the insider-risk route; the case records observable technical activity only, and at most that a referral exists. | <a href="/docs/subject/insider-analysis/">Insider analysis</a> |
+| 5 | Every entity in with a one-line justification, the time window and lookback, and one named exclusion with the observation that would pull it in. | <a href="/docs/scope/">Scope</a> |
+| 6 | A candidate awareness (or discovery) timestamp in UTC, the data class, and the owner engaged with the time; the privacy or legal owner decides, not triage. | <a href="/docs/scope/regulatory/">Regulatory boundaries</a> |
+| 7 | Form A: the alternative stays open, with the check that settles it and "cannot determine yet." Form B: the ticket is a claim to verify (executor, window, and the specific object), not an explanation. | <a href="/docs/uncover/">Uncover</a> |
+| 8 | Credential-exposed until the password is reset, sessions are revoked and MFA methods are reviewed. A failed sign-in does not clear the exposure. | <a href="/docs/scope/entity/">Entity boundaries</a> |
+| 9 | Likelihood, never impact: impact is scored on the premise the activity is real. High/Low, P3 on the tightened high-impact clock. | <a href="/docs/risk/impact-likelihood/">Impact and likelihood</a> |
+| 10 | Likelihood Medium at minimum, confidence Low: unknown is not Low. High/Medium, P2, escalate within 4 hours. | <a href="/docs/risk/framework/">The priority matrix</a> |
+| 11 | Form A: escalate now under the escalation tripwire; the case is P1 from whichever phase it is in. Form B: no page; contained by a control, so verify the control held, record the case at P3 or P4, and propose a pattern-entry candidate. | <a href="/docs/escalation/criteria/">Criteria for escalation</a> |
+| 12 | Any three of: no verdict on both axes, no cited artifact, no confidence label, no named gap or reopen condition, no next action. | <a href="#what-to-grade-the-close-note-rubric">The close-note rubric</a> |
+
+**Routing.** A participant scoring 10 to 12 reads the fast path, the one-page reference and only the pages for the items they missed, then goes straight to the exercises, starting with Exercise 2. A participant scoring 6 to 9 runs the workshop plan and skims the chapters for the items they passed. Below 6, take the reading order as designed. A missed item 4 or 11 routes to its page whatever the total score: those two are the items where a wrong instinct does the most damage on shift. The <a href="/docs/teaching/kit/#pre-assessment-routing-who-can-skip-which-chapter">facilitator kit</a> maps each chapter's skim path.
+
+**Reading the post-test.** Compare per item, not just the total: a cohort that gains on items 9 to 11 has learned the decision contract, while a cohort that gains only on item 1 has learned vocabulary. A pre/post gain on twelve items is your cohort's evidence that the training moved something; it is not evidence that the methodology works, which the <a href="/docs/development/">development page</a> treats as still to be established.
+
+</Reveal>
+
 ## The four-session plan
 
-Each session assumes the prep reading is done and spends the room's time on application. Timings are for 90 minutes; cut the quiz debate before cutting the exercise.
+Each session assumes the prep reading is done, so tell participants how much that is. The estimates below come from a rough word count of the site's source at a careful technical reading pace; the minimum path covers each chapter's core page and worked example and is enough to take part. Timings are for 90 minutes; cut the quiz debate before cutting the exercise. Each of the <a href="/docs/labs/">telemetry labs</a> can follow the session that covers its phase, and the lab capstone (or the <a href="/docs/teaching/kit/#the-capstone">facilitator kit's capstone</a>) runs after Session 4.
 
 <div class="teach-list">
   <div class="teach-item">
     <h3>Session 1 · The shape of the work <span class="teach-item__kind">A</span></h3>
-    <p><strong>Prep:</strong> <a href="/docs/intro/">Introduction</a>, <a href="/docs/fast-path/">fast path</a>, Alert chapter through its example.</p>
-    <p><strong>In session:</strong> walk Case A's Alert example as a group, one person per step, with the facilitator asking "what would you do next" before each reveal (20 min). Run the <a href="/docs/alert/quiz/">Alert quiz</a> as argued discussion: answer individually first, then defend disagreements before showing explanations (30 min). Close with the depth ladder: give the room five real (sanitized) alerts from your own queue and have them assign levels (25 min).</p>
+    <p><strong>Prep (full, about 3 hours):</strong> <a href="/docs/intro/">Introduction</a>, <a href="/docs/fast-path/">fast path</a>, and the whole Alert chapter, about 35,000 words. <strong>Minimum (about 45 minutes):</strong> the introduction, the fast path, and the Alert chapter's core page and example, about 9,500 words.</p>
+    <p><strong>In session:</strong> walk <a href="/docs/alert/example/#case-a">Case A's Alert example</a> as a group, one person per step, with the facilitator asking "what would you do next" before each reveal (20 min). End on the callout that follows the case and ask the room when incident response (IR) should have been paged, and what the next four and a half hours cost. Run the <a href="/docs/alert/quiz/">Alert quiz</a> as argued discussion: answer individually first, then defend disagreements before showing explanations (30 min). Close with the depth ladder: give the room five real (sanitized) alerts from your own queue, or the ten-alert set in the <a href="/docs/teaching/kit/#the-depth-ladder-alert-set">facilitator kit</a>, and have them assign levels (25 min).</p>
     <p><strong>Artifact produced:</strong> each participant's level assignments with one-line justifications.</p>
   </div>
   <div class="teach-item">
     <h3>Session 2 · Who and how much <span class="teach-item__kind">S · S</span></h3>
-    <p><strong>Prep:</strong> Subject and Scope chapters through their examples.</p>
+    <p><strong>Prep (full, about 2.5 hours):</strong> the Subject and Scope chapters, about 29,000 words. <strong>Minimum (about 40 minutes):</strong> each chapter's core page and example, about 8,000 words.</p>
     <p><strong>In session:</strong> the "who before where" drill: present Exercise 1's briefing and artifacts, run tasks 1-3 (Alert, Subject, Scope) in pairs, written answers (40 min). Debrief against the key, with special attention to who treated the service account as the subject (20 min). Both quizzes as homework-checks, discussing only the questions the room split on (25 min).</p>
     <p><strong>Artifact produced:</strong> pair-written subject determinations and scope boundaries for Exercise 1.</p>
   </div>
   <div class="teach-item">
     <h3>Session 3 · Evidence and verdict <span class="teach-item__kind">U · R</span></h3>
-    <p><strong>Prep:</strong> Uncover and Risk chapters through their examples; <a href="/docs/cognitive-traps/">Cognitive traps</a>.</p>
-    <p><strong>In session:</strong> finish Exercise 1: tasks 4-7, pairs keep a visible hypothesis ledger while they work (40 min). Debrief with the traps page open, asking each pair which trap came closest to biting them (25 min). Then the Risk framing drill: give one scenario and have half the room score impact while the other half scores likelihood, then combine, to make the separation of the two axes physical (20 min).</p>
-    <p><strong>Artifact produced:</strong> completed Exercise 1 write-ups with ledgers; these become the rubric calibration set below.</p>
+    <p><strong>Prep (full, about 2.5-3 hours):</strong> the Uncover and Risk chapters, <a href="/docs/cognitive-traps/">Cognitive traps</a>, and <a href="/docs/ai-triage/">AI in triage</a>, about 32,000 words. <strong>Minimum (about 1 hour):</strong> each chapter's core page and example, plus Cognitive traps and AI in triage, about 12,000 words.</p>
+    <p><strong>In session:</strong> Exercise 1 tasks 4-5 (Uncover, Risk), with pairs keeping a visible hypothesis ledger while they work (30 min). Debrief with the traps page open, asking each pair which trap came closest to biting them (20 min). Then the Risk framing drill: give one scenario and have half the room score impact while the other half scores likelihood, then combine, to make the separation of the two axes physical (20 min). Close with "verify the draft": hand each pair an AI-drafted Uncover section for Exercise 1 that you prepared (the <a href="/docs/teaching/kit/#the-ai-drafted-uncover-section">facilitator kit</a> ships one) with one wrong decode and one hallucinated pivot (for example, a full download URL "decoded" from the truncated payload, and a logon from a host no artifact mentions). Pairs check every claim against the raw fields per <a href="/docs/ai-triage/#verifying-what-it-hands-you">the AI-triage verification discipline</a>, mark both errors, and fill the Material AI use field (20 min).</p>
+    <p><strong>Artifact produced:</strong> Exercise 1 write-ups through Risk, with ledgers, plus each pair's marked-up AI draft. The write-ups become the rubric calibration set below.</p>
   </div>
   <div class="teach-item">
     <h3>Session 4 · The decision and the record <span class="teach-item__kind">E · D</span></h3>
-    <p><strong>Prep:</strong> Escalation and Documentation chapters through their examples.</p>
-    <p><strong>In session:</strong> Exercise 2 solo, in writing, strictly timed to 30 minutes, then a full-room debrief on who verified the change ticket and who deferred to it (25 min). Exercise 3 as a literal five-minute timed drill (10 min). Close by grading two or three volunteer close notes from Session 3 against the rubric below, as a group, kindly (20 min).</p>
-    <p><strong>Artifact produced:</strong> each participant's Exercise 2 verdict paragraph, graded against the rubric.</p>
+    <p><strong>Prep (full, about 1.5 hours):</strong> the Escalation decision and Documentation chapters, about 18,000 words, plus the Exercise 2 briefing and artifacts (not the tasks). <strong>Minimum (about 30 minutes):</strong> each chapter's core page and example, about 5,500 words, plus the Exercise 2 briefing and artifacts.</p>
+    <p><strong>In session:</strong> open with Exercise 1 tasks 6-7 (Escalation decision, Documentation) in the Session 3 pairs, now that the reading is done (20 min). Then Exercise 2 solo, in writing, strictly timed to 30 minutes (shorter than the exercise page's 45-60 minute self-study estimate, because the artifacts were read in prep), and a full-room debrief on who verified the change ticket and who deferred to it (15 min). Exercise 3 as a literal five-minute timed drill (10 min). Close by revising one or two volunteer close notes from Sessions 3 and 4 against the rubric below, as a group, kindly (15 min).</p>
+    <p><strong>Artifact produced:</strong> each participant's Exercise 2 Risk paragraph and verdict, checked against the rubric and the Exercise 2 scoring grid.</p>
+  </div>
+  <div class="teach-item">
+    <h3>Optional · Case D, one case end to end <span class="teach-item__kind">full arc · 45-60 min</span></h3>
+    <p><strong>Prep:</strong> the facilitator reads the <a href="/docs/cases/case-d/">Case D case file</a>; participants read nothing new. <strong>In session:</strong> release the <a href="/templates/exercise-case-d.md" download>Case D learner packet</a> one artifact set at a time, sets 1 to 5, in the order the analyst received them. After each set, pairs write their verdicts, priority and next action before the next set arrives (35-45 min). Debrief on three questions (15 min): why the case does not close at 08:19, when the detection verdict is already in; why High likelihood is wrong at 09:40; and why the activity verdict at close is undetermined rather than benign-confirmed.</p>
+    <p><strong>Artifact produced:</strong> each pair's decision log, one line per artifact set, with the priority and its reason.</p>
   </div>
 </div>
 
@@ -60,10 +123,12 @@ Each session assumes the prep reading is done and spends the room's time on appl
 
 <ul class="teach-mechanics">
   <li><strong>Written answers, always.</strong> The traps live in the gap between "I basically know" and the sentence on the page. Discussion happens after writing, not instead of it.</li>
-  <li><strong>Keys stay sealed.</strong> The facilitator reads the key in advance; participants see it only after the debrief has surfaced their actual answers. The keys name the traps planted in each packet, which makes the debrief run itself: ask each group which trap they felt.</li>
+  <li><strong>Keys stay sealed.</strong> The facilitator reads the key in advance; participants see it only after the debrief has surfaced their actual answers. The keys name the traps planted in each packet, which makes the debrief run itself: ask each group which trap they felt. The site's keys are public, and a browser's find-in-page can open them, so for assessed cohorts use a fresh packet built from your own queue.</li>
   <li><strong>Timebox and enforce.</strong> Exercise 3's five minutes is the exercise. Letting it run long trains exactly the wrong thing.</li>
   <li><strong>Disagreement is the product.</strong> When two pairs reach different verdicts from the same artifacts, put both on the screen and trace where the readings diverged. That divergence point is the teachable moment; the "right answer" is secondary.</li>
-  <li><strong>Turn real cases into packets.</strong> The best exercise library is your own closed queue: take a case, sanitize it per the <a href="/docs/documentation/example/">Documentation example's</a> sharing discipline, strip the verdict, and present the pre-verdict artifacts. One case a month builds a curriculum no vendor sells.</li>
+  <li><strong>Calibrate the graders, not only the learners.</strong> Before anyone grades alone, two facilitators score the same three write-ups independently against the exercise's scoring grid and the rubric, then compare. Where they split, fix the wording of the grid, not the grader. Repeat monthly with one fresh note, and have the team score one shared case blind and compare matrix cells: the gap between analysts is the thing being trained. The <a href="/docs/teaching/kit/#anchor-exemplars">anchor exemplars</a> and the <a href="/docs/teaching/kit/#grader-calibration-in-15-minutes">15-minute calibration</a> in the facilitator kit are built for this, and the same blind two-rater scoring serves the lab capstone.</li>
+  <li><strong>Build the skill before the shortcut.</strong> If your SOC uses AI assistants, run a new analyst's early exercises on <a href="/docs/ai-triage/">the non-AI path</a>. Once they are on the queue, have them reproduce one AI-drafted pivot by hand each week, and keep a recurring "find the AI's error" drill like the one in Session 3. An analyst who cannot do the pivot cannot verify it.</li>
+  <li><strong>Turn real cases into packets.</strong> The best exercise library is your own closed queue: take a case, sanitize it per the <a href="/docs/documentation/example/">Documentation example's</a> sharing discipline and the recipe in the <a href="/docs/exercises/">exercises page's</a> "Writing your own packets" note (documentation IP ranges, reserved domains, consistent pseudonyms, shifted dates), strip the verdict, and present the pre-verdict artifacts. One case a month builds a curriculum no vendor sells.</li>
 </ul>
 
 ## What to grade: the close-note rubric
@@ -71,14 +136,14 @@ Each session assumes the prep reading is done and spends the room's time on appl
 Quiz scores measure reading. The skill being trained is the defensible close, and a close note passes on five checks:
 
 <ol class="teach-rubric">
-  <li><strong>The verdict is stated</strong>, in one sentence, using the shared vocabulary (false-positive, benign true positive, confirmed malicious, escalated on criterion X).</li>
-  <li><strong>Every claim cites an artifact</strong>: a log line, a query result, a ticket, never "it looked normal" or a person's say-so.</li>
-  <li><strong>Confidence is labeled</strong>, and at least one claim carries a confidence below the maximum, because a note where everything is "confirmed" was not written honestly.</li>
-  <li><strong>The gaps are named</strong>, with the condition that would reopen the case.</li>
-  <li><strong>The next action is clear</strong>: the tuning ticket, the pattern entry, the handoff, or the explicit "nothing further, here is why".</li>
+  <li><strong>The verdict is stated</strong> in one sentence, on both axes: detection (true positive, false positive (logic), or false positive (data)) and activity (malicious, policy violation, authorized, benign-confirmed, or undetermined). A correct detection of authorized activity is a benign true positive, never a false positive. If escalated, name the criterion or the matrix cell (for example, "High/Medium: P2").</li>
+  <li><strong>Every claim cites an artifact</strong>: a log line, a query result, a ticket, a recorded message (who, channel, time); never "it looked normal" or an unrecorded say-so. Confirmation that an action was authorized comes from someone independent of the subject; the subject's own out-of-band reply can settle "was it you", never "was it allowed".</li>
+  <li><strong>Confidence is labeled</strong> per claim on the shared <a href="/docs/documentation/standards/#confidence">high/medium/low rubric</a>, and every claim labeled high names the artifact behind it. A note where every claim is high should be rare; if yours is one, check that inferences such as intent or benignity were not promoted to observations. (A Level 0 pattern-close record meets this check through its citations: each field is an observed value, and the pattern entry carries the judgment.)</li>
+  <li><strong>The gaps are named</strong> with the condition that would reopen the case.</li>
+  <li><strong>The next action is clear</strong>: the tuning request, the pattern entry, the handoff, or the explicit "nothing further, here is why".</li>
 </ol>
 
-A note that fails a check gets rewritten, not marked down; the rubric is a revision tool. Calibrate the room by grading two or three notes together before anyone grades alone.
+A note that fails a check gets rewritten, not marked down; the rubric is a revision tool. For quality assurance (QA) trend metrics, record pass/fail per check. The team metric is the share of sampled notes passing all five, plus per-check failure rates. Individual notes are revised, never graded. Calibrate the room by revising two or three notes together before anyone works alone. The exercise keys add a points grid for each packet; the rubric applies to any close note.
 
 ## Misconceptions to watch for
 
@@ -86,35 +151,24 @@ Every cohort produces the same handful. Naming them early saves a session's wort
 
 <ul class="teach-mechanics">
   <li><strong>"The second S comes first."</strong> Learners scope before resolving the subject, then wonder why the boundary keeps moving. The intro's memory hook (who before where) is worth saying out loud until it is annoying.</li>
-  <li><strong>"Escalation means escalating."</strong> The E phase is the close-or-escalate decision; most cases close there. Learners who miss this treat every completed investigation as an escalation-in-waiting.</li>
-  <li><strong>"Benign evidence lowers impact."</strong> It lowers likelihood. Impact is scored on the premise the activity is real; the Risk chapter's Cursor scenario exists to make this concrete, and it is worth walking twice.</li>
-  <li><strong>"A benign true positive is a false positive."</strong> One is a detection working correctly on activity that context clears; the other is detection logic matching what it should not. They produce different feedback: a BTP may earn a pattern entry, a false-positive earns a tuning ticket.</li>
-  <li><strong>"Documentation is the wind-down."</strong> The record is the deliverable the whole arc exists to produce; the escalation example's late-P1 callout and the documentation example's hindsight-smoothing callout are the two readings that correct this fastest.</li>
+  <li><strong>"Escalation means escalating."</strong> E is the Escalation decision: close or escalate, and who needs to know. A documented close is a first-class verdict, and most triaged cases end there. Learners who miss this treat every completed investigation as an escalation-in-waiting.</li>
+  <li><strong>"The alert's severity is the priority."</strong> Severity is the rule author's or vendor's prior, set before anyone looked. Priority comes from the matrix after Risk has scored this case.</li>
+  <li><strong>"Benign evidence lowers impact."</strong> It lowers likelihood. Impact is scored on the premise the activity is real; <a href="/docs/risk/example/#case-b">the Risk example's Case B</a> (the Cursor IDE benign true positive) exists to make this concrete, and it is worth walking twice.</li>
+  <li><strong>"No evidence means low likelihood."</strong> Unexamined evidence means low confidence, not low likelihood. Score likelihood on what you have actually seen, label the confidence, and name the check that would move it.</li>
+  <li><strong>"A benign true positive is a false positive."</strong> One is a detection working correctly on activity that context clears; the other is detection logic matching what it should not. They route differently: a false positive earns detection-side tuning of the rule's logic; a benign true positive earns context-side handling (a pattern entry, or an owned, expiring exception keyed to the exact tool version, extension or plugin ID, and destination set) and leaves the logic intact. A benign true positive that recurs nightly is still a volume-tuning conversation, never a finding that the rule is wrong.</li>
+  <li><strong>"A matching change ticket closes it."</strong> A ticket is a claim to verify, not an explanation. Exercise 2 turns on this.</li>
+  <li><strong>"Documentation is the wind-down."</strong> The record is the deliverable the whole arc exists to produce. The <a href="/docs/escalation/example/#case-a">escalation example's Case A</a> late-P1 callout and the <a href="/docs/documentation/example/#case-a">documentation example's Case A</a> note on smoothing the timeline in hindsight are the two readings that correct this fastest.</li>
 </ul>
 
 <Callout variant="info" title="Teaching with the quizzes">
-The chapter quizzes are written as scenario judgments, which makes them better discussion prompts than tests. The highest-value facilitation move is not checking who scored what; it is finding the question that split the room and making both sides argue from the chapter's text. A cohort that argues three quiz questions well learns more than one that scores 100%.
+Most chapter quiz items are written as scenario judgments, which makes them better discussion prompts than tests; the handful of short recall items are warm-ups, not debate material. The highest-value facilitation move is not checking who scored what; it is finding the question that split the room and making both sides argue from the chapter's text. A cohort that argues three quiz questions well learns more than one that scores 100%.
+
+For spaced review after the sessions, each chapter quiz ends with a "Worth revisiting" list of the items missed on the first try, each linked to the section that teaches it. Learners who want the items on a schedule can <a href="/templates/assured-quiz-items.csv" download>download every chapter quiz item as an Anki deck (CSV)</a>. The file carries Anki's import headers; import it with HTML allowed in fields. Each card is tagged `assured::<chapter>`, so a learner can study one chapter at a time, and Anki schedules the reviews.
 </Callout>
 
-<KeyTakeaway>A facilitator's leverage is not in explaining the chapters, which the site already does, but in forcing the writing, enforcing the timeboxes, and running the debriefs where divergent readings collide. Teach the letters until the team uses them in handoffs unprompted; that is the adoption signal that matters.</KeyTakeaway>
+<KeyTakeaway>A facilitator's leverage is not in explaining the chapters, which the site already does, but in forcing the writing, enforcing the timeboxes, and running the debriefs where divergent readings collide. Teach the letters until the team uses them in handoffs unprompted; that is the adoption signal that matters. Keep the <a href="/docs/reference/">one-page reference</a> on every desk while you do.</KeyTakeaway>
 
 <div class="end-cta">
-  <a href="/docs/exercises/" class="assured-cta assured-cta--ghost">← Hands-on exercises</a>
-  <a href="/docs/reference/" class="assured-cta">The one-page reference →</a>
+  <a href="/docs/labs/" class="assured-cta assured-cta--ghost">← Telemetry labs</a>
+  <a href="/docs/teaching/kit/" class="assured-cta">The facilitator kit →</a>
 </div>
-
-<style>{`
-.teach-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
-.teach-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-accent); border-radius: 0.7rem; }
-.teach-item h3 { margin: 0 0 0.55rem 0; font-size: 1.05rem; color: var(--assured-text); }
-.teach-item__kind { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px; background: rgba(20, 184, 166, 0.14); color: var(--assured-accent-soft); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
-.teach-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
-.teach-item p:last-child { margin-bottom: 0; }
-.teach-item strong { color: var(--assured-text); }
-.teach-mechanics { margin: 1.25rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
-.teach-mechanics li { color: var(--assured-text-muted); line-height: 1.6; }
-.teach-mechanics strong { color: var(--assured-text); }
-.teach-rubric { margin: 1rem 0 1.25rem; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; }
-.teach-rubric li { color: var(--assured-text-muted); line-height: 1.65; }
-.teach-rubric strong { color: var(--assured-text); }
-`}</style>

@@ -7,18 +7,83 @@
  * remains accessible. CSS animations loop while the panel is open, and
  * `prefers-reduced-motion` shows a static end-state instead.
  *
- * Supported patterns: "lolbins" | "hollowing" | "timing" | "fatigue"
+ * Data-driven: a card needs only `pattern` (an id), `title`,
+ * `description` and `caption`. Eight ids have a bespoke animation:
+ * "lolbins" | "hollowing" | "timing" | "fatigue" | "identity-abuse" |
+ * "rmm" | "edr-tampering" | "sensor-blinding". Any other id renders a
+ * generic static visual (the card's icon over a quiet panel), so a new
+ * pattern can ship before anyone draws for it. A page can also supply its
+ * own SVG through the named slot: <svg slot="animation" .../>, which takes
+ * precedence over both.
+ *
+ * `icon` is optional: each bespoke pattern has a default line icon, and
+ * any other id gets the generic shield. Pass a key of `icons` below to
+ * override it; any other string (legacy emoji at older call sites) renders
+ * as text. Prefer the default or a named key.
  */
 
+/** Ids with a bespoke animation in the template below. The type keeps the
+ *  name Pattern: scripts/check-contrast.mjs reads this union. */
+type Pattern =
+  | "lolbins"
+  | "hollowing"
+  | "timing"
+  | "fatigue"
+  | "identity-abuse"
+  | "rmm"
+  | "edr-tampering"
+  | "sensor-blinding";
+
 interface Props {
-  pattern: "lolbins" | "hollowing" | "timing" | "fatigue";
-  icon: string;
+  /** Pattern id. A bespoke id gets its animation; any other id gets the
+   *  generic visual. Also used as the card's CSS modifier class. */
+  pattern: Pattern | (string & {});
+  icon?: string;
   title: string;
   description: string;
   caption: string;
 }
 
 const props = Astro.props;
+
+// Lucide-style 24px stroke icons (inner markup only).
+const icons: Record<string, string> = {
+  wrench:
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  ghost:
+    '<path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  waves:
+    '<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>',
+  key: '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+  monitor:
+    '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+  "shield-off":
+    '<path d="m2 2 20 20"/><path d="M5 5a1 1 0 0 0-1 1v7c0 5 3.5 7.5 7.67 8.94a1 1 0 0 0 .67.01c2.35-.82 4.48-1.97 5.9-3.71"/><path d="M9.309 3.652A12.252 12.252 0 0 0 11.24 2.28a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7a9.784 9.784 0 0 1-.08 1.264"/>',
+  "shield-alert":
+    '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+  "eye-off":
+    '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+};
+
+const defaultIcon: Record<Pattern, string> = {
+  lolbins: "wrench",
+  hollowing: "ghost",
+  timing: "moon",
+  fatigue: "waves",
+  "identity-abuse": "key",
+  rmm: "monitor",
+  "edr-tampering": "shield-off",
+  "sensor-blinding": "eye-off",
+};
+
+const isBespoke = (id: string): id is Pattern => Object.hasOwn(defaultIcon, id);
+const bespoke = isBespoke(props.pattern) ? props.pattern : null;
+const hasCustomAnimation = Astro.slots.has("animation");
+const iconKey = props.icon ?? (bespoke ? defaultIcon[bespoke] : "shield-alert");
+const iconSvg = icons[iconKey];
+// The generic visual reuses the card's icon (a named one, else the shield).
+const fallbackSvg = iconSvg ?? icons["shield-alert"];
 ---
 
 <details class={`evasion evasion--${props.pattern}`}>
@@ -26,7 +91,23 @@ const props = Astro.props;
     {/* Spans, not div/p: <summary> permits only phrasing (and heading)
         content; the CSS display values recreate the block layout. */}
     <span class="evasion__head">
-      <span class="evasion__icon" aria-hidden="true">{props.icon}</span>
+      <span class="evasion__icon" aria-hidden="true">
+        {iconSvg ? (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg}
+          />
+        ) : (
+          props.icon
+        )}
+      </span>
       {/* A styled span, not a heading: <summary> exposes role=button, which
           strips heading semantics for AT and clutters the outline. */}
       <span class="evasion__title">{props.title}</span>
@@ -42,7 +123,18 @@ const props = Astro.props;
   </summary>
 
   <div class="evasion__demo">
-    {props.pattern === "lolbins" && (
+    {hasCustomAnimation && <slot name="animation" />}
+
+    {/* Generic visual for an id with no bespoke animation: static, so it
+        needs no reduced-motion or print special case. */}
+    {!hasCustomAnimation && !bespoke && (
+      <svg viewBox="0 0 420 150" class="demo demo--generic" role="img" aria-label={props.title}>
+        <rect x="10" y="10" width="400" height="130" rx="14" class="demo-generic__panel" />
+        <g transform="translate(174 39) scale(3)" class="demo-generic__icon" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" set:html={fallbackSvg} />
+      </svg>
+    )}
+
+    {!hasCustomAnimation && props.pattern === "lolbins" && (
       <svg viewBox="0 0 420 150" class="demo demo--lolbins" role="img" aria-label="Living off the land animation">
         <defs>
           <marker id="lol-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -89,7 +181,7 @@ const props = Astro.props;
       </svg>
     )}
 
-    {props.pattern === "hollowing" && (
+    {!hasCustomAnimation && props.pattern === "hollowing" && (
       <svg viewBox="0 0 420 180" class="demo demo--hollowing" role="img" aria-label="Process hollowing animation">
         <g class="container">
           <rect x="60" y="30" width="300" height="120" rx="14" fill="rgba(15, 23, 42, 0.7)" stroke="#22c55e" stroke-width="2"/>
@@ -123,7 +215,7 @@ const props = Astro.props;
       </svg>
     )}
 
-    {props.pattern === "timing" && (
+    {!hasCustomAnimation && props.pattern === "timing" && (
       <svg viewBox="0 0 420 160" class="demo demo--timing" role="img" aria-label="Time-based evasion animation">
         <!-- Timeline base -->
         <line x1="20" y1="80" x2="400" y2="80" stroke="rgba(148, 163, 184, 0.45)" stroke-width="2"/>
@@ -160,7 +252,7 @@ const props = Astro.props;
       </svg>
     )}
 
-    {props.pattern === "fatigue" && (
+    {!hasCustomAnimation && props.pattern === "fatigue" && (
       <svg viewBox="0 0 420 200" class="demo demo--fatigue" role="img" aria-label="Alert fatigue animation">
         <!-- Stream of alert dots falling -->
         <g class="alert-stream">
@@ -190,13 +282,100 @@ const props = Astro.props;
       </svg>
     )}
 
+    {!hasCustomAnimation && props.pattern === "identity-abuse" && (
+      <svg viewBox="0 0 420 170" class="demo demo--identity" role="img" aria-label="Animation: two sign-ins to the same account both pass MFA. The second comes from a hosting provider's network, and it is the intrusion.">
+        <rect x="10" y="62" width="110" height="46" rx="8" fill="rgba(20, 184, 166, 0.16)" stroke="#14b8a6" stroke-width="1.5"/>
+        <text x="65" y="89" text-anchor="middle" class="demo-label">jdoe@corp</text>
+
+        <path class="id-first" d="M 120 78 L 198 42" stroke="#94a3b8" stroke-width="2" fill="none"/>
+        <g class="id-first">
+          <rect x="200" y="18" width="210" height="46" rx="8" fill="rgba(15, 23, 42, 0.7)" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="214" y="38" class="demo-label">Corporate laptop</text>
+          <text x="214" y="55" class="demo-tag">home ISP · MFA ✓</text>
+        </g>
+
+        <path class="id-second" d="M 120 92 L 198 128" stroke="#94a3b8" stroke-width="2" fill="none"/>
+        <g class="id-second">
+          <rect class="id-second__box" x="200" y="106" width="210" height="46" rx="8" fill="rgba(15, 23, 42, 0.7)" stroke="#22c55e" stroke-width="1.5"/>
+          <text x="214" y="126" class="demo-label">Unknown host</text>
+          <text x="214" y="143" class="demo-tag">hosting ASN · MFA ✓</text>
+        </g>
+
+        <g class="id-flag">
+          <circle cx="398" cy="106" r="10" fill="#ef4444"/>
+          <text x="398" y="111" text-anchor="middle" class="demo-payload-mark">!</text>
+        </g>
+      </svg>
+    )}
+
+    {!hasCustomAnimation && props.pattern === "rmm" && (
+      <svg viewBox="0 0 420 160" class="demo demo--rmm" role="img" aria-label="Animation: a signed remote-management tool on a workstation connects out to its vendor's relay over allowed egress. Everything about it looks legitimate except that nobody approved this install.">
+        <rect x="10" y="40" width="130" height="60" rx="8" fill="rgba(99, 102, 241, 0.16)" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="75" y="66" text-anchor="middle" class="demo-label">AnyDesk.exe</text>
+        <text x="75" y="86" text-anchor="middle" class="demo-tag">✓ signed vendor</text>
+
+        <path class="rmm-wire" d="M 142 70 L 278 70" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6" fill="none"/>
+
+        <rect x="280" y="40" width="130" height="60" rx="30" fill="rgba(15, 23, 42, 0.7)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="345" y="66" text-anchor="middle" class="demo-label">vendor relay</text>
+        <text x="345" y="86" text-anchor="middle" class="demo-tag">allowed egress</text>
+
+        <g class="rmm-flag">
+          <rect x="85" y="118" width="250" height="28" rx="14" fill="rgba(239, 68, 68, 0.18)" stroke="#ef4444" stroke-width="1.2"/>
+          <text x="210" y="136" text-anchor="middle" class="demo-tag demo-tag--alert">no change ticket · unknown tenant</text>
+        </g>
+      </svg>
+    )}
+
+    {!hasCustomAnimation && props.pattern === "edr-tampering" && (
+      <svg viewBox="0 0 420 160" class="demo demo--edr" role="img" aria-label="Animation: an endpoint agent sends steady heartbeats to its console, then stops. The console still lists the host, last seen minutes ago. The silence is the alert.">
+        <rect x="10" y="45" width="124" height="70" rx="8" fill="rgba(249, 115, 22, 0.14)" stroke="#f97316" stroke-width="1.5"/>
+        <text x="72" y="72" text-anchor="middle" class="demo-label">laptop-09</text>
+        <text x="72" y="96" text-anchor="middle" class="demo-tag edr-on">agent: running</text>
+        <text x="72" y="96" text-anchor="middle" class="demo-tag demo-tag--alert edr-off">agent: stopped</text>
+
+        <line x1="134" y1="80" x2="286" y2="80" stroke="rgba(148, 163, 184, 0.35)" stroke-width="2"/>
+        <circle class="edr-beat" cx="140" cy="80" r="5" fill="#22c55e" style="--delay: 0s;"/>
+        <circle class="edr-beat" cx="140" cy="80" r="5" fill="#22c55e" style="--delay: 0.55s;"/>
+        <circle class="edr-beat" cx="140" cy="80" r="5" fill="#22c55e" style="--delay: 1.1s;"/>
+        <circle class="edr-beat" cx="140" cy="80" r="5" fill="#22c55e" style="--delay: 1.65s;"/>
+
+        <rect x="286" y="45" width="124" height="70" rx="8" fill="rgba(15, 23, 42, 0.7)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="348" y="72" text-anchor="middle" class="demo-label">EDR console</text>
+        <text x="348" y="96" text-anchor="middle" class="demo-tag edr-on">last seen: now</text>
+        <text x="348" y="96" text-anchor="middle" class="demo-tag demo-tag--alert edr-off">last seen: 14 min</text>
+      </svg>
+    )}
+
+    {!hasCustomAnimation && props.pattern === "sensor-blinding" && (
+      <svg viewBox="0 0 420 170" class="demo demo--blind" role="img" aria-label="Animation: a server's hourly log volume runs steady, then an audit-policy change drops it to nothing. No detection rule fires on the gap. The missing data is the signal.">
+        <line x1="20" y1="130" x2="400" y2="130" stroke="rgba(148, 163, 184, 0.45)" stroke-width="2"/>
+        <rect class="blind-bar" x="30"  y="74" width="18" height="56" rx="2" fill="#94a3b8" style="--delay: 0s;"/>
+        <rect class="blind-bar" x="58"  y="68" width="18" height="62" rx="2" fill="#94a3b8" style="--delay: 0.15s;"/>
+        <rect class="blind-bar" x="86"  y="80" width="18" height="50" rx="2" fill="#94a3b8" style="--delay: 0.3s;"/>
+        <rect class="blind-bar" x="114" y="64" width="18" height="66" rx="2" fill="#94a3b8" style="--delay: 0.45s;"/>
+        <rect class="blind-bar" x="142" y="72" width="18" height="58" rx="2" fill="#94a3b8" style="--delay: 0.6s;"/>
+        <rect class="blind-bar" x="170" y="70" width="18" height="60" rx="2" fill="#94a3b8" style="--delay: 0.75s;"/>
+        <rect class="blind-bar" x="198" y="76" width="18" height="54" rx="2" fill="#94a3b8" style="--delay: 0.9s;"/>
+
+        <g class="blind-cut">
+          <line x1="232" y1="40" x2="232" y2="130" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <text x="232" y="32" text-anchor="middle" class="demo-tag demo-tag--alert">audit policy cleared</text>
+          <rect x="244" y="62" width="146" height="66" rx="6" fill="rgba(239, 68, 68, 0.12)" stroke="rgba(239, 68, 68, 0.5)" stroke-width="1"/>
+          <text x="317" y="99" text-anchor="middle" class="demo-tag demo-tag--alert">no events, no alert</text>
+        </g>
+
+        <text x="20" y="152" class="demo-tick">events per hour, dc-02 to SIEM</text>
+      </svg>
+    )}
+
     <p class="evasion__caption">{props.caption}</p>
   </div>
 </details>
 
 <style>
   .evasion {
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-left: 3px solid var(--accent, #ef4444);
     border-radius: 0.7rem;
@@ -222,6 +401,19 @@ const props = Astro.props;
   .evasion--hollowing { --accent: #a855f7; --accent-soft: rgba(168, 85, 247, 0.5); --accent-text: #c084fc; }
   .evasion--timing    { --accent: #f59e0b; --accent-soft: rgba(245, 158, 11, 0.5); --accent-text: #f59e0b; }
   .evasion--fatigue   { --accent: #ef4444; --accent-soft: rgba(239, 68, 68, 0.5); --accent-text: #f87171; }
+  .evasion--identity-abuse  { --accent: #14b8a6; --accent-soft: rgba(20, 184, 166, 0.5); --accent-text: #2dd4bf; }
+  .evasion--rmm             { --accent: #6366f1; --accent-soft: rgba(99, 102, 241, 0.5); --accent-text: #a5b4fc; }
+  .evasion--edr-tampering   { --accent: #f97316; --accent-soft: rgba(249, 115, 22, 0.5); --accent-text: #fb923c; }
+  .evasion--sensor-blinding { --accent: #94a3b8; --accent-soft: rgba(148, 163, 184, 0.5); --accent-text: #cbd5e1; }
+
+  .demo--generic {
+    color: var(--accent-text, #f87171);
+  }
+  .demo-generic__panel {
+    fill: rgba(15, 23, 42, 0.7);
+    stroke: var(--accent-soft, rgba(239, 68, 68, 0.5));
+    stroke-width: 1.5;
+  }
 
   .evasion__summary {
     padding: 1.15rem 1.4rem;
@@ -247,6 +439,11 @@ const props = Astro.props;
   .evasion__icon {
     font-size: 1.2rem;
     line-height: 1.1;
+    color: var(--accent-text, var(--accent));
+  }
+
+  .evasion__icon svg {
+    display: block;
   }
 
   .evasion__title {
@@ -323,6 +520,11 @@ const props = Astro.props;
     font-size: 11px;
     font-weight: 600;
     fill: var(--assured-text-muted);
+  }
+
+  /* After .demo-tag so it wins the tie. */
+  .demo-tag--alert {
+    fill: #fca5a5;
   }
 
   .demo-payload-mark {
@@ -466,6 +668,97 @@ const props = Astro.props;
     50%, 55%      { opacity: 0.5; }
   }
 
+  /* ===== Identity abuse animations ===== */
+  .demo--identity .id-first,
+  .demo--identity .id-second,
+  .demo--identity .id-flag {
+    opacity: 0;
+  }
+  .demo--identity .id-first  { animation: id-first 6s ease-in-out infinite; }
+  .demo--identity .id-second { animation: id-second 6s ease-in-out infinite; }
+  .demo--identity .id-flag   { animation: id-flag 6s ease-in-out infinite; }
+  .demo--identity .id-second__box { animation: id-box 6s ease-in-out infinite; }
+
+  @keyframes id-first {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+  }
+  @keyframes id-second {
+    0%, 25%, 100% { opacity: 0; }
+    35%, 90%      { opacity: 1; }
+  }
+  @keyframes id-flag {
+    0%, 50%, 100% { opacity: 0; }
+    60%, 90%      { opacity: 1; }
+  }
+  @keyframes id-box {
+    0%, 50%, 100% { stroke: #22c55e; }
+    60%, 90%      { stroke: #ef4444; }
+  }
+
+  /* ===== Remote-management tool animations ===== */
+  .demo--rmm .rmm-wire {
+    animation: rmm-flow 1.2s linear infinite;
+  }
+  .demo--rmm .rmm-flag {
+    opacity: 0;
+    animation: rmm-flag 6s ease-in-out infinite;
+  }
+  @keyframes rmm-flow {
+    to { stroke-dashoffset: -24; }
+  }
+  @keyframes rmm-flag {
+    0%, 45%, 100% { opacity: 0; }
+    55%, 90%      { opacity: 1; }
+  }
+
+  /* ===== EDR tampering animations ===== */
+  .demo--edr .edr-beat {
+    opacity: 0;
+    animation: edr-beat 6s linear infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  .demo--edr .edr-on  { animation: edr-on 6s step-end infinite; }
+  .demo--edr .edr-off { opacity: 0; animation: edr-off 6s step-end infinite; }
+
+  @keyframes edr-beat {
+    0%        { transform: translateX(0); opacity: 0; }
+    2%        { opacity: 1; }
+    16%       { transform: translateX(140px); opacity: 1; }
+    17%, 100% { transform: translateX(140px); opacity: 0; }
+  }
+  @keyframes edr-on {
+    0%   { opacity: 1; }
+    55%  { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes edr-off {
+    0%   { opacity: 0; }
+    55%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ===== Sensor blinding animations ===== */
+  .demo--blind .blind-bar {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: blind-grow 7s ease-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  .demo--blind .blind-cut {
+    opacity: 0;
+    animation: blind-cut 7s ease-in-out infinite;
+  }
+  @keyframes blind-grow {
+    0%       { transform: scaleY(0); }
+    6%, 92%  { transform: scaleY(1); }
+    100%     { transform: scaleY(0); }
+  }
+  @keyframes blind-cut {
+    0%, 25%, 100% { opacity: 0; }
+    35%, 90%      { opacity: 1; }
+  }
+
   /* ===== Reduced motion ===== */
   @media (prefers-reduced-motion: reduce) {
     .demo--lolbins .binary,
@@ -479,9 +772,28 @@ const props = Astro.props;
     .demo--timing .danger-zone,
     .demo--timing .eye-icon,
     .demo--fatigue .dot,
-    .demo--fatigue .analyst-eye {
+    .demo--fatigue .analyst-eye,
+    .demo--identity .id-first,
+    .demo--identity .id-second,
+    .demo--identity .id-flag,
+    .demo--rmm .rmm-flag,
+    .demo--blind .blind-bar,
+    .demo--blind .blind-cut,
+    .demo--edr .edr-off {
       animation: none;
       opacity: 1;
+    }
+    .demo--identity .id-second__box,
+    .demo--rmm .rmm-wire {
+      animation: none;
+    }
+    /* Static frames show the moment of the tell: the flagged second
+       session, and the agent already silent. */
+    .demo--identity .id-second__box { stroke: #ef4444; }
+    .demo--edr .edr-beat,
+    .demo--edr .edr-on {
+      animation: none;
+      opacity: 0;
     }
     .demo--hollowing .mal-code { opacity: 0; }
     /* Meaningful static frames: the dots are authored at cy=0 (half-clipped

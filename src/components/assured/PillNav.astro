@@ -1,73 +1,108 @@
 ---
 /**
- * PillNav. Horizontal pill row for peer-page navigation, e.g., the 6
- * Parsing sub-pages, each linking to its siblings. The current page is
- * derived from Astro.url.pathname and highlighted.
+ * PillNav. Horizontal pill row for peer-page navigation. The current page
+ * is derived from Astro.url.pathname and highlighted.
+ *
+ * Pills come from src/data/navigation.ts, so labels live in one place:
+ *
+ * - `chapter="alert"` lists the chapter's pillars and companions, then the
+ *   chapter tail in reading order (Working example, Transition, Quiz;
+ *   Documentation ends Example, Quiz, Closure).
+ * - `section="/docs/field-reference/#reading-telemetry"` lists that nav
+ *   entry's children.
+ * - `items` overrides both. An item without a label takes its navigation
+ *   shortTitle (or title).
  *
  * Sticky on scroll so it stays accessible without forcing the reader back
- * to the top. Mobile: horizontal scroll if too wide.
+ * to the top (from tablet width up; on phones the header plus a sticky
+ * pill row would take a fifth of the screen, so the row scrolls away).
+ * When the pills overflow, the row scrolls horizontally and a fade plus
+ * chevron marks each edge that has more pills beyond it (the same
+ * affordance as ExampleStepper's tab row); overlay scrollbars on macOS
+ * hide a thin scrollbar until the reader scrolls, so the scrollbar alone
+ * is not enough. The current pill is scrolled into view on load.
  */
-
-type Phase =
-  | "alert"
-  | "subject"
-  | "scope"
-  | "uncover"
-  | "risk"
-  | "escalation"
-  | "documentation";
+import {
+  chapterPages,
+  chapterTailPages,
+  findNavItem,
+  type NavItem,
+  navLabel,
+  type PhaseKey,
+  phaseInfo,
+} from "@/data/navigation";
 
 interface Item {
-  label: string;
+  label?: string;
   href: string;
   phase?: string;
 }
 
 interface Props {
   label?: string;
-  items: Item[];
+  items?: Item[];
   sticky?: boolean;
-  /** When set, appends Example / Quiz / Transition links for the named chapter. */
-  chapter?: Phase;
+  /** Derive the pills (and the chapter tail) from this chapter's navigation. */
+  chapter?: PhaseKey;
+  /** Derive the pills from this navigation entry's children. */
+  section?: string;
+  /** Phase accent for section pills. */
+  phase?: PhaseKey;
 }
 
-const { label = "Jump to", items, sticky = true, chapter } = Astro.props;
+const { sticky = true, chapter, section, phase } = Astro.props;
 
 const pagePath = Astro.url.pathname.endsWith("/")
   ? Astro.url.pathname
   : `${Astro.url.pathname}/`;
 
-/* Auto-appended links so every chapter sub-page surfaces its companion
- * Example / Quiz / Transition pages. The chapter sub-page authors don't
- * need to repeat these in every items={[...]} array. Documentation is the
- * last phase, so its closing page is Closure rather than Transition.
- */
-const chapterTail: Item[] = chapter
-  ? [
-      {
-        label: "Working example",
-        href: `/docs/${chapter}/example/`,
-        phase: chapter,
-      },
-      { label: "Chapter quiz", href: `/docs/${chapter}/quiz/`, phase: chapter },
-      chapter === "documentation"
-        ? {
-            label: "Closure",
-            href: "/docs/documentation/closure/",
-            phase: chapter,
-          }
-        : {
-            label: "Transition",
-            href: `/docs/${chapter}/transition/`,
-            phase: chapter,
-          },
-    ]
-  : [];
+const fromNav = (
+  item: NavItem,
+  accent?: string,
+): Required<Pick<Item, "label" | "href">> & Item => ({
+  label: item.shortTitle ?? item.title,
+  href: item.href,
+  phase: accent,
+});
+
+const sectionItem = section ? findNavItem(section) : undefined;
+if (section && !sectionItem) {
+  throw new Error(`PillNav: no navigation entry for section "${section}"`);
+}
+
+const items: { label: string; href: string; phase?: string }[] = Astro.props
+  .items
+  ? Astro.props.items.map((item) => {
+      const label = item.label ?? navLabel(item.href);
+      if (!label) throw new Error(`PillNav: no label for "${item.href}"`);
+      return { label, href: item.href, phase: item.phase ?? chapter ?? phase };
+    })
+  : sectionItem
+    ? (sectionItem.children ?? []).map((c) => fromNav(c, phase))
+    : chapter
+      ? chapterPages(chapter).map((c) => fromNav(c, chapter))
+      : [];
+
+/* The chapter tail is only appended for chapter pills: section rows (Field
+ * reference, for example) are not part of a chapter. */
+const chapterTail =
+  chapter && !sectionItem
+    ? chapterTailPages(chapter).map((c) => fromNav(c, chapter))
+    : [];
+
+const label =
+  Astro.props.label ??
+  (sectionItem
+    ? sectionItem.title
+    : chapter
+      ? `${phaseInfo(chapter).name} chapter`
+      : "Jump to");
 ---
 
-<nav class={`pillnav ${sticky ? "pillnav--sticky" : ""}`} aria-label={label}>
+<nav class={`pillnav ${sticky ? "pillnav--sticky" : ""}`} aria-label={label} data-pagefind-ignore>
   <span class="pillnav__label" aria-hidden="true">{label}</span>
-  <ul class="pillnav__items">
+  <div class="pillnav__scroll" data-pillnav-scroll>
+  <ul class="pillnav__items" data-pillnav-items>
     {items.map((item) => {
       const isCurrent = pagePath === item.href;
       return (
@@ -102,6 +137,7 @@ const chapterTail: Item[] = chapter
       </>
     )}
   </ul>
+  </div>
 </nav>
 
 <style>
@@ -126,6 +162,15 @@ const chapterTail: Item[] = chapter
     box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.6);
   }
 
+  /* Phones: header plus a pinned pill row ran ~142px of a ~700px screen.
+     Let the row scroll away with the page. */
+  @media (max-width: 767.98px) {
+    .pillnav--sticky {
+      position: static;
+      box-shadow: none;
+    }
+  }
+
   .pillnav__label {
     flex-shrink: 0;
     font-size: 0.7rem;
@@ -136,11 +181,74 @@ const chapterTail: Item[] = chapter
     padding-left: 0.55rem;
   }
 
+  /* Positioned wrapper for the edge fades; the list inside scrolls. */
+  .pillnav__scroll {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Scroll affordance: a fade plus chevron on whichever edge has more pills
+     beyond it (data-overflow-start/-end, set by the script below).
+     pointer-events: none keeps the pills under it clickable. */
+  .pillnav__scroll::before,
+  .pillnav__scroll::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    color: var(--assured-text-soft);
+    font-size: 1.15rem;
+    font-weight: 700;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+  }
+
+  .pillnav__scroll::before {
+    content: "‹";
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.2rem;
+    background: linear-gradient(to right, rgb(15, 23, 42) 35%, rgba(15, 23, 42, 0));
+  }
+
+  .pillnav__scroll::after {
+    content: "›";
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.2rem;
+    background: linear-gradient(to left, rgb(15, 23, 42) 35%, rgba(15, 23, 42, 0));
+  }
+
+  .pillnav__scroll[data-overflow-start]::before,
+  .pillnav__scroll[data-overflow-end]::after {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pillnav__scroll::before,
+    .pillnav__scroll::after {
+      transition: none;
+    }
+  }
+
+  @media print {
+    .pillnav__scroll::before,
+    .pillnav__scroll::after {
+      display: none;
+    }
+  }
+
   .pillnav__items {
+    /* positioned so each pill's offsetLeft is measured inside the scroller */
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.3rem;
-    flex: 1;
     min-width: 0;
     overflow-x: auto;
     /* Thin themed scrollbar instead of a hidden one: mouse users need a
@@ -186,7 +294,7 @@ const chapterTail: Item[] = chapter
     white-space: nowrap;
   }
 
-  /* The auto-appended Example / Quiz / Transition tail. Visually quieter than
+  /* The auto-appended chapter tail (Example / Transition / Quiz). Visually quieter than
    * the primary pillar links so the eye lands on the pillars first. */
   .pillnav__divider {
     flex-shrink: 0;
@@ -243,3 +351,47 @@ const chapterTail: Item[] = chapter
     }
   }
 </style>
+
+<script>
+  import { onPageReady } from "@/lib/dom";
+
+  function bindPillNavs() {
+    document
+      .querySelectorAll<HTMLElement>("[data-pillnav-scroll]:not([data-pillnav-bound])")
+      .forEach((wrap) => {
+        wrap.setAttribute("data-pillnav-bound", "true");
+        const list = wrap.querySelector<HTMLElement>("[data-pillnav-items]");
+        if (!list) return;
+
+        const updateOverflow = () => {
+          const max = list.scrollWidth - list.clientWidth;
+          wrap.toggleAttribute("data-overflow-start", list.scrollLeft > 2);
+          wrap.toggleAttribute("data-overflow-end", max - list.scrollLeft > 2);
+        };
+
+        // Bring the current pill into view, clear of the fade edges.
+        // Scrolls the row only, never the page.
+        const current = list.querySelector<HTMLElement>(".pillnav__item.is-current");
+        if (current) {
+          const pad = 44;
+          const left = current.offsetLeft;
+          const right = left + current.offsetWidth;
+          if (right + pad > list.clientWidth) {
+            list.scrollLeft = Math.max(0, right + pad - list.clientWidth);
+          } else if (left - pad < list.scrollLeft) {
+            list.scrollLeft = Math.max(0, left - pad);
+          }
+        }
+
+        updateOverflow();
+        list.addEventListener("scroll", updateOverflow, { passive: true });
+        if (typeof ResizeObserver === "function") {
+          new ResizeObserver(updateOverflow).observe(list);
+        } else {
+          globalThis.addEventListener("resize", updateOverflow, { passive: true });
+        }
+      });
+  }
+
+  onPageReady(bindPillNavs);
+</script>

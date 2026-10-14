@@ -1,0 +1,149 @@
+---
+title: "Intake beyond detections"
+description: "Cases that no rule raised: user-reported phishing, external notifications, bug-bounty reports, hunt findings, provider escalations and internal referrals. What replaces detection logic, what to verify independently, and which clocks can start at receipt."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+
+<SubPageHero
+  phase="alert"
+  pillarIndex="Other intake"
+  lede="Not every case starts with a rule firing. A user reports a message, a vendor calls, a hunter finds something, a provider opens a ticket. The Alert phase still runs, and its five moves still apply. Only the first question changes."
+/>
+
+<PillNav chapter="alert" />
+
+The Alert chapter teaches you to read detection logic. Some of the busiest and some of the highest-stakes queues have none to read. <DefineTerm term="User-Reported Phishing" display="User-reported phishing" /> is one of the largest queues in many SOCs. A notice from law enforcement, a supplier or a customer can be the most consequential item of the week, and a regulatory clock may already be running when it arrives. Hunt findings and provider escalations arrive with someone else's reasoning attached instead of a rule's.
+
+These cases are triaged like any other: the case is the unit of work, the [depth ladder](/docs/fast-path/) sets how much process it gets, and the [escalation tripwire](/docs/escalation/criteria/#tripwire) fires the moment a criterion is confirmed. What changes is the anchor question and where the evidence starts.
+
+---
+
+## The intake channels
+
+Each <DefineTerm term="Intake Channel" display="channel" /> replaces "the detection logic" with something else, and each comes with a relationship someone has to own. A report that disappears into the queue without an answer teaches the reporter not to report again.
+
+| Channel | Typical volume | What replaces the detection logic | Starting trust | Who owns the reporter relationship |
+|---|---|---|---|---|
+| **User reports** (the report button in the mail client, "I got an MFA prompt I didn't start", a help-desk ticket) | High, in bursts per campaign | The reported artifact, retrieved with its headers, and the reporter's account of what they did | A lead. What the reporter did (clicked, typed a password, approved a prompt) is the urgent fact | The SOC answers the reporter; the awareness team owns the training loop |
+| **External notification** (law enforcement or a government agency, a supplier or processor, a customer, a researcher who found your data exposed, an extortion contact) | Low | The notifier's claim and whatever evidence it carries: addresses, times, sample data | High priority, unverified, until the notifier is verified and the claim is found in your own telemetry | Counsel for law enforcement and extortion; the vendor or contract owner for suppliers; the account owner, with counsel, for customers |
+| **Bug-bounty and vulnerability-disclosure reports** | Low to medium | The researcher's reproduction steps | High on the bug once reproduced; none on whether anyone else used it | Product security or the program owner |
+| **Hunt findings** | Low | The hunt hypothesis and the query that surfaced the result | As good as the recorded query and evidence | The hunt lead |
+| **Provider escalations** (MDR or <DefineTerm term="Managed Security Service Provider (MSSP)" display="MSSP" /> tickets) | Set by the contract | The provider's detection, evidence and verdict | The provider's track record on your escalation-acceptance measure | The service owner; your SOC owns the acceptance call |
+| **Internal referrals** about a person (HR, legal, a manager) | Rare | A scoped technical question | Not a triage call: route it | The insider-risk route, never the analyst directly |
+
+---
+
+## Adapting the Alert question
+
+For a detection, Alert asks *what fired, and why?* For everything on this page it asks:
+
+<Callout variant="info" title="The intake question">
+**What was reported, by whom, and what can we verify independently?**
+</Callout>
+
+The [five moves](/docs/alert/) carry over with one substitution each:
+
+| Alert move | For a detection | For a report |
+|---|---|---|
+| 1. Name the mechanism | Read the rule | Read the report: who sent it, how they know, what exactly is claimed. Get the original artifact, not a summary of it |
+| 2. Track record | The rule's local precision and known misses | The source's track record: this reporter's past accuracy, this provider's acceptance rate. Grade an outside notifier on the <DefineTerm term="Admiralty Code" display="Admiralty" /> scale; a notifier you have never dealt with is F (cannot be judged), not E (unreliable) |
+| 3. Validation checks | Deconflict, then the four checks | Deconflict first (a phishing simulation, a researcher's own test traffic, an [authorized test](/docs/alert/validation/#deconflict-authorized-activity)). Technical fidelity becomes independent verification: find the claim in your own telemetry |
+| 4. Parse the fields | Entities, UTC times, lineage | The same, plus the receipt: when the report or notice arrived, through which channel, and who received it |
+| 5. Record a disposition | Both verdict axes | Both axes, with the detection axis applied to the report itself (below) |
+
+**The detection axis for a report.** When no rule fired, the report is the detection. A report whose claim holds is a true positive. A report of legitimate mail as phishing is a false positive (logic): the reporter's reading was wrong, and the feedback goes to the reporter and the awareness program, not to a tuning ticket. A notice built on bad data, such as an address your organization no longer held at the time, is a false positive (data). The activity axis is unchanged: malicious, policy violation, authorized (benign true positive), benign-confirmed or undetermined. A user who correctly reports the awareness team's simulation made a true-positive report of authorized activity; count it as a successful report.
+
+<Callout variant="warn" title="The receipt timestamp is evidence">
+Some clocks can start when a notice arrives, not when the SOC confirms anything. The EDPB's examples treat a third party presenting evidence of a disclosure, or a criminal demanding a ransom once the controller has checked its systems, as the point of awareness under GDPR Art. 33, and allow a short investigation after a report only if it starts at once and aims at reasonable certainty ([Guidelines 9/2022](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-92022-personal-data-breach-notification-under_en), paras. 33 and 34). California's 30-day notice runs from "discovery or notification of the breach" ([Cal. Civ. Code §1798.82(a)](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.82), as amended by SB 446, in force since January 1, 2026). Record in UTC when the notice reached the organization (a general inbox or a sales rep can hold it for days), when it reached the SOC, and when the owner was engaged. The [regulatory boundaries](/docs/scope/regulatory/) page says whose clock each is; the analyst's job is the timestamp.
+</Callout>
+
+### User-reported phishing
+
+- **Get the original.** Work from the reported message with its full headers, as the report button or an attachment delivers it. A forwarded copy has lost the headers you need.
+- **Deconflict.** Check the awareness team's simulation calendar before anything else. A simulation is cleared by its campaign record, not by its look.
+- **Group by campaign.** Reports that share a sender, subject, link domain or attachment hash are one case, and each report is a member of it (see [correlated cases](/docs/fast-path/#correlated-cases)). Forty reports of one lure are one investigation, and the riskiest recipient sets the level.
+- **Search the whole tenant.** The reporters are a minority of the recipients. The <DefineTerm term="Message trace (concept)" display="message trace" /> gives every recipient; the URL-protection click log, the proxy and DNS logs and the identity provider's sign-in log say who acted.
+- **Sort recipients by what they did.** Received, opened, clicked, reached the credential step, submitted, approved a prompt, ran an attachment. Any user who reached the credential step of a phishing kit is <DefineTerm term="Credential-Exposed" display="credential-exposed" /> until the password is reset, sessions are revoked and MFA methods are reviewed; the [identity sweep](/docs/reference/identity-sweep/) lists each step. Credential exposure is follow-on activity, so the lure was not [contained by a control](/docs/escalation/criteria/#malicious) for that user; once it is confirmed, the tripwire applies.
+- **Decide the purge, and name who owns it.** Purging the lure from every mailbox is containment, and it removes evidence too. Copy the message with its headers and the recipient list into the case first. Prefer the reversible action: in Microsoft Defender for Office 365 Plan 2, a soft delete moves the message to the recoverable-items folder, a hard delete purges it, and a proposed remediation waits for a second person to approve it in the Action center ([Microsoft Learn, updated August 2026](https://learn.microsoft.com/en-us/defender-office-365/threat-explorer-threat-hunting)). A reversible purge of a confirmed malicious campaign is a natural pre-authorized action; anything beyond what the protocol lists goes to the owner it names, and mailboxes under a <DefineTerm term="Legal Hold" display="legal hold" /> go to counsel.
+- **Close the loop with the reporter.** Tell every reporter the outcome, including "this one was legitimate, thank you." Users who clicked and then reported need to hear that reporting fast was the right call: the UK NCSC warns that people who fear blame "will not report mistakes promptly, if at all" ([NCSC phishing guidance](https://www.ncsc.gov.uk/guidance/phishing), reviewed February 2024). Defender for Office 365 can send the reporter a result notice when an admin marks the submission or when its automated investigation finishes ([Microsoft Learn, updated September 2026](https://learn.microsoft.com/en-us/defender-office-365/submissions-user-reported-messages-custom-mailbox)). An automated "no threats found" sent to a reporter is a machine close, governed like one: see [governed automation](/docs/ai-triage/#governed-automation).
+- **Level 0 for known-benign bulk mail.** Reported newsletters and sanctioned marketing are the classic <DefineTerm term="Pattern Library" display="pattern-library" /> entry. Its <DefineTerm term="Discriminator" display="discriminators" /> must be facts an attacker cannot cheaply copy: the exact sending domain on the entry, DMARC passing in alignment with that domain, every link inside the entry's domain set, no attachment, no credential form. A familiar brand name or a passing SPF check is not a discriminator, because attackers send from their own authenticated lookalike domains and from hijacked marketing-platform accounts. The eligibility gate still runs on the recipient: a report from a privileged identity is not a Level 0 close, however obvious the newsletter.
+
+### External notifications
+
+- **Verify the notifier out of band.** <DefineTerm term="Call-Back Verification" display="Call back" /> on a number you found yourself (the agency's published line, the contact in the supplier's contract), never the one in the message. Sender authentication proves which server sent the mail, not that the claim is genuine: in November 2021, fake "urgent" threat warnings went out from a genuine FBI mail server after a misconfigured portal was abused ([FBI statement](https://www.fbi.gov/news/press-releases/fbi-statement-on-incident-involving-fake-emails), November 2021).
+- **Preserve the notice as evidence.** Keep the original message with headers, attachments with their hashes, and call notes with the time, the caller's name and the callback number, under the [chain-of-custody procedure](/docs/documentation/standards/#chain-of-custody). Honor any <DefineTerm term="Traffic Light Protocol (TLP)" display="TLP" /> marking on it.
+- **Start the clock record now** (see the [regulatory clock card](/docs/scope/clocks/) for which clocks run in hours). Record the receipt timestamps and engage privacy or counsel before verification finishes, not after it. A processor's notice of its own breach generally starts the controller's clock, and for a supplier notice, Subject is your accounts and data at that supplier (see [external parties](/docs/escalation/protocols/#external-parties)).
+- **Find the claim in your own telemetry.** The notice is a hypothesis about your environment. A government tip that ransomware actors are inside your network (the kind CISA's [pre-ransomware notifications](https://www.cisa.gov/news-events/news/getting-ahead-ransomware-epidemic-cisas-pre-ransomware-notifications-help-organizations-stop-attacks) deliver, announced March 2023) is a high-priority hypothesis, not a confirmation: the confirmation comes from your EDR, identity and network evidence, and when it does, the tripwire fires. A customer who received an invoice "from you" with new bank details is a question your outbound mail logs answer: did that message leave your tenant, or a lookalike domain's?
+- **Route to counsel when the notifier is law enforcement or an extortionist.** Engagement with law enforcement runs through counsel (see [protocols](/docs/escalation/protocols/#external-parties)), and so does any reply to an extortion demand. If a notifier asks you to hold off on visible containment, that is a decision for counsel and the IR lead, not the analyst.
+
+### Bug-bounty and disclosure reports
+
+Researchers reach you through the bounty platform, a disclosure address, or the contact your `security.txt` file publishes ([RFC 9116](https://www.rfc-editor.org/rfc/rfc9116), 2022). Product security decides whether the bug is real. Triage asks the question product security cannot: **did anyone else use it before the researcher did?** Deconflict the researcher's own test traffic using the accounts and addresses in the report, then search the vulnerable path across the full retention window for the same request pattern from anyone else. The researcher's testing is authorized activity; anyone else's matching traffic is a lead for Uncover.
+
+### Hunt findings
+
+A hunt finding arrives with its hypothesis already written. Record it as the first line of the [hypothesis ledger](/docs/uncover/correlation/#pivot-discipline-the-hypothesis-ledger) at intake, together with the query, the data source, the time range and the result count, and open a second line for the most plausible benign explanation. The person who wrote the hunt is invested in it: have the benign line tested by someone else's query where you can. A hunt finding never closes at Level 0, because no pattern entry covers it, and activity that no detection covers is a novel detection, which the ladder sends to Level 2. If it is confirmed, the hunt query is the first draft of the missing rule (see [hunting with TTPs](/docs/uncover/threat-intelligence/#ttp-hunting)).
+
+### Provider escalations
+
+An MDR or MSSP ticket is an alert with someone else's triage attached. Treat the provider's verdict as a prior, not a finding, the way [Alert validation](/docs/alert/validation/#alert-provenance) treats a black-box detection.
+
+- **Accept and record:** the provider's detection name and version, the raw event IDs, hosts, accounts and times it cites, and every action it has already taken. A provider that isolated a host or disabled an account has changed the evidence state, and the record has to say so. Map the provider's disposition labels onto the two axes with the [disposition mapping](/docs/operating-variants/#map-provider-dispositions-to-the-assured-values).
+- **Re-verify:** each fact the verdict rests on, against your own telemetry (the provider sees only the sources the contract feeds it), and the context the provider cannot have: crown-jewel status, privilege, change tickets, regulated data. Subject and Scope are yours.
+- **Start your clock at receipt.** The acknowledgment and decision clocks of the priority band run from when the ticket arrived, not from when someone opened it.
+- **Measure the provider as a receiver would.** Escalation acceptance and rework on the provider's tickets are the measures [Measuring triage](/docs/measuring-triage/#quality-were-the-decisions-right) defines, and the pattern library has exactly one owner, never both parties.
+
+### Internal referrals about a person
+
+A manager, HR or legal may ask the SOC to "look at" an employee. Analysts record observable technical activity. HR-held context reaches the case only through the insider-risk route, and never as analyst-collected notes. Take the scoped technical question the route sends (which accounts, which systems, which window), and see [insider analysis](/docs/subject/insider-analysis/#employee-privacy-is-a-hard-constraint) for the privacy constraints.
+
+---
+
+## Mini-example: one reported phish through Alert, Subject and Scope
+
+<Reveal summary="The payroll-update reports, 09:04 to 09:40 UTC" variant="example">
+
+**Alert.** At 09:04 the first report arrives through the report button: "Payroll update required" from `hr-notice@payroll-portal[.]example`. By 09:20 there are nine. All nine share the sender, the subject and one link domain, so they become one case with nine member reports. The simulation calendar shows no campaign today. The message trace shows 63 recipients, delivered 08:51 to 08:53. The sender domain was registered four days earlier; SPF passes for the attacker's own domain, which proves nothing about intent. Detonated in the sandbox, the link serves a sign-in page cloned from the corporate identity provider. Provisional calls: detection axis true positive (the reporters were right), activity axis malicious for the message, at High confidence (sandbox behavior and registration data, two independent sources).
+
+**Subject.** The click log shows four clicks. URL protection blocked three after the link's verdict flipped at 09:01; those three users are recorded as contained by a control. The fourth click, at 08:58, came before the flip. That user's proxy log shows the kit page loading and a form POST to it at 08:59, and she confirms by phone that she typed her password. She is credential-exposed. Her sign-in log shows no sign-in from an unfamiliar address yet. She holds no privileged role.
+
+**Escalation tripwire.** A credential captured by a confirmed phishing kit, with no control in the way, is criterion 1 confirmed (proxy record and the user's account, independent of each other). At 09:33 the case is P1 and the IR lead is paged. The analyst exports the message with headers, the recipient list, the click log and her sign-in log into the case; IR approves the password reset, session revocation and MFA review.
+
+**Scope.** The boundary: one primary entity (her account), the 62 other recipients as secondary, the lure domain and kit host as the originating threat. Her account can reach the payroll self-service portal, so regulated personal data is in reach: a Scope flag for privacy, with the 09:33 timestamp. The reversible purge runs across all 63 mailboxes at 09:40 under the protocol's pre-authorization, after the evidence copy. The nine reporters hear that the message was malicious and has been removed, and the awareness team gets the campaign. Uncover now runs under IR's clock on one question: did anyone use the password before the reset?
+
+</Reveal>
+
+---
+
+## Exit criteria
+
+The same as for a detection, with the receipt added:
+
+| Exit item | For a report |
+|---|---|
+| **A validated signal** | The claim found, or not found, in your own telemetry, with the notifier verified out of band where there is one |
+| **Named entities** | The reporter or notifier, every recipient or account the claim touches, and the originating infrastructure |
+| **An initial hypothesis** | The leading explanation and at least one alternative; for a hunt finding, the hunt's hypothesis as the first ledger line |
+| **The receipt** | When the report or notice reached the organization and the SOC, through which channel, and who received it, in UTC |
+| **Level and tripwire** | The depth level set and recorded; the escalation tripwire checked |
+| **The reply owed** | Who tells the reporter or notifier the outcome, and when |
+
+<KeyTakeaway>
+A case that no rule raised still runs the five Alert moves. Swap "what fired, and why?" for "what was reported, by whom, and what can we verify independently?", work from the original artifact, verify the source out of band, and find the claim in your own telemetry before you believe it. Record the receipt time, because some clocks start there. Then answer the person who reported it, because the next report depends on it.
+</KeyTakeaway>
+
+<ContinueCard
+  current="alert"
+  nextHref="/docs/alert/detection-mechanisms/"
+  nextLabel="Detection mechanisms"
+  nextDescription="Signature, anomaly, rule-based, behavioral. Four families of detection, each with its own confidence profile and failure modes."
+  ctaLabel="Read detection mechanisms"
+/>

@@ -1,49 +1,44 @@
 ---
 title: "Cloud and identity logs"
-description: "Parse the control plane: CloudTrail record anatomy, role chains and STS mechanics, the IMDS credential-theft pattern, and IdP sign-in logs."
+description: "Parse the control plane: CloudTrail record anatomy, role chains and STS mechanics, the IMDS credential-theft pattern, IdP sign-in logs, and identity attacks at protocol depth, cloud and Kerberos."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/alert-parsing.css";
 
 <SubPageHero
   phase="alert"
   parentLetter="A"
-  pillarIndex="03 · 06"
-  pillarTotal="06 pages"
-  chapterHref="/docs/alert/parsing/"
-  chapterLabel="Parsing"
+  chapterHref="/docs/field-reference/#reading-telemetry"
+  chapterLabel="Field reference: Reading telemetry"
   lede="On an endpoint the unit of behavior is the process. In the cloud it is the API call, and the lineage that matters is a chain of identities, not a tree of processes. This surface has its own anatomy, and modern intrusions live on it."
 />
 
-<PillNav
-  chapter="alert"
-  label="Parsing pages"
-  items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
-  ]}
-/>
+<PillNav section="/docs/field-reference/#reading-telemetry" phase="alert" />
 
-The four endpoint surfaces share an assumption: there is a host, and the host records what ran on it. Control-plane activity breaks that assumption. When an attacker with stolen keys enumerates your S3 buckets, no process tree exists anywhere you can see. The only record is the audit log of the cloud provider or identity provider, so parsing that record *is* the investigation. This page uses <DefineTerm term="AWS CloudTrail" /> and the major IdPs as the worked vocabulary; Azure Activity Logs and GCP audit logs differ in field names, not in concept.
+The four endpoint surfaces share an assumption: there is a host, and the host records what ran on it. Control-plane activity breaks that assumption. When an attacker with stolen keys enumerates your S3 buckets, no process tree exists anywhere you can see. The only record is the audit log of the cloud provider or identity provider, so parsing that record *is* the investigation. This page uses <DefineTerm term="AWS CloudTrail" /> and the major IdPs as the worked vocabulary; Azure (the Activity log for the control plane, Entra sign-in and audit logs for identity) and Google Cloud Audit Logs differ in field names and logging defaults, not in concept.
 
 ## Anatomy of a CloudTrail record
 
-Every management API call becomes one JSON event. Most fields are noise for triage; these are the ones that decide verdicts:
+Every API call CloudTrail records becomes one JSON event. Management events (who changed the environment) are logged by default; data events (who read or wrote the data: S3 objects, Lambda invocations) are not, unless someone configured them. Before you record "no object reads", confirm data events were on for that bucket. GCP Data Access logs and Azure resource logs have the same default-off trap.
+
+Most fields are noise for triage; these are the ones that decide verdicts:
 
 ```json
 {
   "eventTime": "2026-07-08T03:12:44Z",
   "eventSource": "s3.amazonaws.com",
   "eventName": "ListBuckets",
+  "awsRegion": "us-east-1",
+  "readOnly": true,
+  "recipientAccountId": "111122223333",
   "userIdentity": {
     "type": "AssumedRole",
     "arn": "arn:aws:sts::111122223333:assumed-role/ci-deploy/build-runner",
@@ -55,6 +50,7 @@ Every management API call becomes one JSON event. Most fields are noise for tria
   },
   "sourceIPAddress": "203.0.113.50",
   "userAgent": "aws-cli/2.17.0 ...",
+  "requestParameters": { "Host": "s3.amazonaws.com" },
   "errorCode": "AccessDenied"
 }
 ```
@@ -62,27 +58,35 @@ Every management API call becomes one JSON event. Most fields are noise for tria
 <div class="field-cards">
   <div class="field-card">
     <h3><code>eventSource</code> + <code>eventName</code></h3>
-    <p>The verb. Which service, which API call. Reads (<code>List*</code>, <code>Describe*</code>, <code>Get*</code>) have the shape of reconnaissance — and of every inventory scanner, cost tool, and monitoring agent in the account, which produce the bulk of them. Writes (<code>Create*</code>, <code>Put*</code>, <code>Attach*</code>, <code>Update*</code>) change the environment. A burst of reads followed by a policy write, from an identity with no history of either, is the cloud shape of recon-then-privilege-escalation: a hypothesis worth the next pivot, not a verdict.</p>
+    <p>The verb. Which service, which API call. Reads (<code>List*</code>, <code>Describe*</code>, <code>Get*</code>) have the shape of reconnaissance. They also have the shape of every inventory scanner, cost tool, and monitoring agent in the account, which produce most of them. Writes (<code>Create*</code>, <code>Put*</code>, <code>Attach*</code>, <code>Update*</code>) change the environment. A burst of reads followed by a policy write, from an identity with no history of either, is the cloud shape of recon-then-privilege-escalation: a hypothesis worth the next pivot, not a verdict. The <code>readOnly</code> flag sorts the two for you.</p>
   </div>
   <div class="field-card">
     <h3><code>userIdentity</code></h3>
-    <p>The actor, and the field juniors misread most. <code>type</code> tells you whether this was a long-lived IAM user, an assumed role, root, or a service. For <code>AssumedRole</code>, the ARN names both the role and the session; <code>sessionContext.sessionIssuer</code> names where the session came from.</p>
+    <p>The actor, and the field juniors misread most. <code>type</code> tells you what kind of principal acted: <code>IAMUser</code> (long-lived user), <code>AssumedRole</code> (temporary role session), <code>Root</code>, <code>AWSService</code> or <code>AWSAccount</code> (a service, or another account, assuming a role you own), <code>FederatedUser</code> (<code>GetFederationToken</code> credentials), or <code>IdentityCenterUser</code>. That last one appears on IAM Identity Center sign-in, portal and CLI-login events. It carries no ARN: the person is an opaque <code>onBehalfOf.userId</code> GUID that you resolve with <code>aws identitystore describe-user</code>, and AWS warns the same events can also arrive as <code>Unknown</code>. What an Identity Center user then does inside an account logs as <code>AssumedRole</code> on the permission-set role. For <code>AssumedRole</code>, the ARN names both the role and the session; <code>sessionContext.sessionIssuer</code> names where the session came from.</p>
   </div>
   <div class="field-card">
     <h3><code>accessKeyId</code> prefix</h3>
-    <p><code>AKIA</code> means long-term IAM user credentials; <code>ASIA</code> means temporary credentials issued by <DefineTerm term="STS">AWS Security Token Service. The AWS service that issues temporary credentials when an identity assumes a role. STS credentials expire on a schedule (minutes to hours) and carry an ASIA key prefix, distinguishing them from long-term AKIA user keys.</DefineTerm>. Long-term keys showing up in new places are a bigger deal than short-lived ones, and stolen <code>ASIA</code> creds have a built-in expiry clock that shapes the attacker's tempo.</p>
+    <p><code>AKIA</code> means long-term IAM user credentials; <code>ASIA</code> means temporary credentials issued by <DefineTerm term="STS">AWS Security Token Service. The AWS service that issues temporary credentials when an identity assumes a role. STS credentials expire on a schedule (minutes to hours) and carry an ASIA key prefix, distinguishing them from long-term AKIA user keys.</DefineTerm>. Long-term keys showing up in new places (valid cloud accounts in attacker hands, ATT&CK T1078.004) are a bigger deal than short-lived ones, and stolen <code>ASIA</code> creds have a built-in expiry clock that shapes the attacker's tempo.</p>
   </div>
   <div class="field-card">
     <h3><code>sourceIPAddress</code> + <code>userAgent</code></h3>
-    <p>Where the call physically came from and what tool made it. A role that normally acts from a VPC CIDR via an SDK suddenly acting from a residential IP via <code>aws-cli</code> is a story in two fields. Console sessions, SDKs, and Terraform all have recognizable agent strings.</p>
+    <p>Where the call came from and what tool claims to have made it. <code>sourceIPAddress</code> is usually an IP address, but it shows an AWS service's DNS name (for example <code>ec2.amazonaws.com</code>) when a service acted on your behalf, or <code>AWS Internal</code> for AWS-originated events; check <code>vpcEndpointId</code> for calls routed through a VPC endpoint. <code>userAgent</code> is set by the client and trivially spoofed: use it to corroborate, never to clear. A role that normally acts from a VPC CIDR via an SDK suddenly acting from a residential IP via <code>aws-cli</code> is a story in two fields. Console sessions, SDKs, and Terraform all have recognizable agent strings.</p>
   </div>
   <div class="field-card">
     <h3><code>errorCode</code></h3>
-    <p>Failures are telemetry. A spray of <code>AccessDenied</code> across many services from one identity has the shape of permission enumeration — someone mapping what a credential can do. Check the identity's baseline first: a misconfigured scanner or a role whose policy just shrank sprays the same way every day. If the spray is genuinely new, treat silence after it as the hypothesis that they found what works, and confirm it by pivoting to what <em>succeeded</em> next — the silence itself proves nothing.</p>
+    <p>Failures are telemetry. A spray of <code>AccessDenied</code> across many services from one identity has the shape of permission enumeration: someone mapping what a credential can do. Check the identity's baseline first: a misconfigured scanner or a role whose policy just shrank sprays the same way every day. If the spray is genuinely new, treat silence after it as the hypothesis that they found what works, and confirm it by pivoting to what <em>succeeded</em> next. The silence itself proves nothing.</p>
+  </div>
+  <div class="field-card">
+    <h3><code>requestParameters</code> + <code>readOnly</code></h3>
+    <p>The object of the verb: which bucket, which policy, which user the call touched. <code>readOnly</code> separates looking from changing. A write's <code>requestParameters</code> is what you will hand to Scope as the list of things to check or roll back.</p>
+  </div>
+  <div class="field-card">
+    <h3><code>awsRegion</code> + <code>recipientAccountId</code></h3>
+    <p>Where the call landed. Activity in a region your organization never uses is high-signal, because attackers spin up resources where nobody looks. <code>recipientAccountId</code> names the account that received the call, which matters once a chain crosses accounts.</p>
   </div>
   <div class="field-card">
     <h3><code>mfaAuthenticated</code></h3>
-    <p>Inside <code>sessionContext.attributes</code>. Whether this session was backed by <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" /> <em>as far as AWS saw it</em> — federated sessions report <code>false</code> even when the upstream IdP enforced MFA, because the challenge happened outside AWS. Sensitive actions from non-MFA sessions deserve a harder look, but check the IdP's sign-in log before recording "no MFA" as a fact.</p>
+    <p>Inside <code>sessionContext.attributes</code>. Whether this session was backed by <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" /> <em>as far as AWS saw it</em>. Federated sessions report <code>false</code> even when the upstream IdP enforced MFA, because the challenge happened outside AWS. Sensitive actions from non-MFA sessions deserve a harder look, but check the IdP's sign-in log before recording "no MFA" as a fact.</p>
   </div>
 </div>
 
@@ -95,27 +99,35 @@ The cloud equivalent of parent-child lineage is role chaining. An identity assum
 <div class="chain-steps">
   <div class="chain-step">
     <span class="chain-step__num">1</span>
-    <p>Start at the suspicious event. <code>userIdentity.sessionContext.sessionIssuer</code> names the role the session came from.</p>
+    <p>Check for a shortcut first. If your organization enforces <code>sts:SourceIdentity</code>, read <code>userIdentity.sessionContext.sourceIdentity</code>: it names the original human or workload across every hop. The steps below confirm it, or replace it when it is absent.</p>
   </div>
   <div class="chain-step">
     <span class="chain-step__num">2</span>
-    <p>Search the trail for the <code>AssumeRole</code> call that created that session. Join on the stable key: the temporary <code>accessKeyId</code> in your event's <code>userIdentity</code> equals the <code>accessKeyId</code> in the <code>AssumeRole</code> call's <code>responseElements.credentials</code>. The session name is attacker-chosen and nonunique — often a tell worth reading, never a join key.</p>
+    <p>Start at the suspicious event. <code>userIdentity.sessionContext.sessionIssuer</code> names the role the session came from.</p>
   </div>
   <div class="chain-step">
     <span class="chain-step__num">3</span>
+    <p>Search the trail for the <code>AssumeRole</code> call that created that session. Join on the stable key: the temporary <code>accessKeyId</code> in your event's <code>userIdentity</code> equals the <code>accessKeyId</code> in the <code>AssumeRole</code> call's <code>responseElements.credentials</code>. The session name is attacker-chosen and nonunique: often a tell worth reading, never a join key. Search all regions, because regional STS endpoints log <code>AssumeRole</code> in the region where they were called. AWS also notes that <code>accessKeyId</code> can be missing or empty in some events; when it is, fall back to the role ARN, source IP and time window, and record the join as weaker.</p>
+  </div>
+  <div class="chain-step">
+    <span class="chain-step__num">4</span>
     <p>That event's own <code>userIdentity</code> is the previous link. Repeat until you reach a human, a long-term key, or a workload. That endpoint of the chain is your Subject-phase entity.</p>
   </div>
 </div>
 
+For Entra service principals, GCP impersonation and federated workloads, see [Non-human identities](/docs/subject/non-human-identities/#answering-who-is-behind-this).
+
 <Callout variant="info" title="Parse from the organization trail">
 Each account's local trail can be silenced by anyone with admin in that account, and attackers know it. The organization-level trail aggregates every member account into storage the compromised account cannot touch, which makes it both the tamper-resistant copy and the only place a cross-account role chain appears end to end. If your alert came from one account's console, re-run the pivot against the org trail before trusting an absence.
+
+Silencing leaves fingerprints: <code>StopLogging</code>, <code>DeleteTrail</code>, <code>UpdateTrail</code> and <code>PutEventSelectors</code> are logged events worth alerting on, and the account's 90-day Event history keeps management events even after a trail is stopped.
 </Callout>
 
 ---
 
 ## The IMDS pattern
 
-The instance metadata service (IMDS) at `169.254.169.254` hands every EC2 workload the temporary credentials for its instance role. That design makes one intrusion shape so common it deserves its own recognition pattern: an attacker who can make a server fetch a URL (SSRF) or who lands on the box reads the metadata endpoint, steals the role credentials, and replays them from infrastructure they control.
+The instance metadata service (IMDS) at `169.254.169.254` hands every EC2 workload the temporary credentials for its instance role. That design makes one intrusion shape so common it deserves its own recognition pattern: an attacker who can make a server fetch a URL (SSRF) or who lands on the box reads the metadata endpoint, steals the role credentials, and replays them from infrastructure they control (ATT&CK T1552.005).
 
 <div class="imds-cards">
   <div class="imds-card imds-card--attack">
@@ -124,11 +136,11 @@ The instance metadata service (IMDS) at `169.254.169.254` hands every EC2 worklo
   </div>
   <div class="imds-card imds-card--tell">
     <span class="imds-card__label">The tell in the trail</span>
-    <p>An instance role's credentials used from outside the expected network path. That single discrepancy (role says "this EC2 instance," source IP says "somewhere else") is the highest-signal field comparison on this page. GuardDuty ships a finding class for exactly this.</p>
+    <p>An instance role's credentials used from outside the expected network path. That single discrepancy (role says "this EC2 instance," source IP says "somewhere else") is the highest-signal field comparison on this page. GuardDuty ships findings for exactly this: <code>UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS</code> (and <code>.InsideAWS</code> when the replay comes from another AWS account).</p>
   </div>
   <div class="imds-card imds-card--context">
     <span class="imds-card__label">Context that changes the read</span>
-    <p>IMDSv2 requires a session token first, which kills most SSRF variants of the theft. If the fleet enforces IMDSv2 and you still see off-box credential use, think on-host compromise rather than SSRF.</p>
+    <p>IMDSv2 requires a session token first, which kills most SSRF variants of the theft. If the fleet enforces IMDSv2 and you still see off-box credential use, think on-host compromise rather than SSRF. You can check rather than assume: <code>sessionContext.ec2RoleDelivery</code> reads <code>1.0</code> when the credentials came from IMDSv1 and <code>2.0</code> for IMDSv2. Containers get role credentials from their own endpoints (ECS at <code>169.254.170.2</code>, EKS Pod Identity), with the same theft pattern. Off-box use from another AWS account looks like cloud-internal traffic, so key on the credential's source account and VPC, not just the IP.</p>
   </div>
 </div>
 
@@ -136,41 +148,155 @@ The instance metadata service (IMDS) at `169.254.169.254` hands every EC2 worklo
 
 ## IdP sign-in logs
 
-For identity-provider alerts (<DefineTerm term="Okta" />, <DefineTerm term="Azure AD (Entra ID)" display="Microsoft Entra ID" />), the sign-in record is the raw material. The fields rhyme with CloudTrail's: who, from where, with what client, and did the second factor actually happen.
+For identity-provider alerts (<DefineTerm term="Okta" />, <DefineTerm term="Microsoft Entra ID (formerly Azure AD)" display="Microsoft Entra ID" />), the sign-in record is the raw material. The fields rhyme with CloudTrail's: who, from where, with what client, and did the second factor actually happen.
+
+| What | Entra sign-in log | Okta System Log |
+|---|---|---|
+| Who | `userPrincipalName` | `actor.alternateId` |
+| Interactive? | `isInteractive` | `eventType` (for example `user.session.start`) |
+| MFA | `authenticationRequirement`, `authenticationDetails` | `eventType` `user.authentication.auth_via_mfa` |
+| Policy | `conditionalAccessStatus` | `outcome.reason` |
+| How | `authenticationProtocol` | `authenticationContext.credentialType` |
+| Session | `sessionId` | `authenticationContext.externalSessionId` |
+| Client | `clientAppUsed`, `deviceDetail` | `client.userAgent` |
+| Network | `ipAddress`, `autonomousSystemNumber` | `client.ipAddress`, `securityContext.asNumber` |
+| Result | `status.errorCode` | `outcome.result` |
+
+Entra writes non-interactive sign-ins (token refreshes, client apps acting for a signed-in user) to a separate log from interactive ones. A search of the interactive log alone misses most of what a replayed session did.
+
+<Reveal summary="Annotated sample: a non-interactive Entra sign-in" variant="deep-dive">
+
+Trimmed and fictional; the field names are those of the Entra sign-in log.
+
+```json
+{
+  "createdDateTime": "2026-03-10T10:41:07Z",
+  "userPrincipalName": "mlopez@corp.example",
+  "appDisplayName": "Office 365 Exchange Online",
+  "isInteractive": false,
+  "ipAddress": "198.51.100.140",
+  "autonomousSystemNumber": 64510,
+  "sessionId": "5c1e0a7d-93b2-4f6e-a1d8-2b7c40e9f311",
+  "conditionalAccessStatus": "success",
+  "status": { "errorCode": 0 }
+}
+```
+
+- <code>isInteractive</code> <code>false</code> means this row lives in the non-interactive log (<code>AADNonInteractiveUserSignInLogs</code> in Sentinel), not in <code>SigninLogs</code>. It records a token being used, not a person signing in.
+- <code>errorCode</code> 0 is success, and <code>conditionalAccessStatus</code> <code>success</code> says policy passed. Neither says the right person is holding the token.
+- <code>sessionId</code> is the join key. Search both logs for it: if it leads back to an interactive sign-in from the user's managed device this morning, and this row comes from a hosting ASN in another country, the session has moved, which is the replay pattern described below.
+
+</Reveal>
 
 <div class="idp-list">
   <div class="idp-item">
     <span class="idp-item__bullet"></span>
     <div>
-      <strong>Outcome plus MFA result, read against sign-in type.</strong> A success with no new MFA event is routine for noninteractive sign-ins — token refreshes, service flows, sessions whose earlier MFA claim still satisfies policy — and providers log those separately from interactive ones. The session-token-replay hypothesis starts when a session shows up with no authentication event behind it at all: a stolen cookie (adversary-in-the-middle phishing) lets the attacker skip authenticating entirely. It stays a hypothesis until corroborated — the same session ID surfacing from a new device or ASN mid-life, or session activity the legitimate device never produced.
+      <strong>Outcome plus MFA result, read against sign-in type.</strong> A success with no new MFA event is routine for noninteractive sign-ins (token refreshes, service flows, sessions whose earlier MFA claim still satisfies policy), and providers log those separately from interactive ones. The session-token-replay hypothesis starts when a session shows up with no authentication event behind it at all. Only the replay skips authentication. With adversary-in-the-middle phishing, the session was born minutes earlier in an interactive, MFA-satisfied sign-in from the proxy's hosting IP; hunt for it, because the same proxy IP finds the kit's other victims. Microsoft Entra ID Protection also raises an offline "Attacker in the Middle" user-risk detection when a session is linked to a malicious reverse proxy (it needs E5-tier licensing). Check for it tenant-wide, but do not wait for it: it arrives after the fact, and the proxy-IP sweep does not depend on it. With an infostealer, it was born in the victim's own sign-in on their own device. The hypothesis stays a hypothesis until corroborated: the same session ID surfacing from a new device or ASN mid-life, or session activity the legitimate device never produced. ATT&CK files the theft as T1539 and the replay as T1550.004.
     </div>
   </div>
   <div class="idp-item">
     <span class="idp-item__bullet"></span>
     <div>
-      <strong>Denial patterns before an approval.</strong> A run of push-notification denials followed by a small-hours approval is MFA fatigue: the user gave in, not logged in. The timeline of factor events tells that story; the final "success" alone hides it.
+      <strong>Denial patterns before an approval.</strong> A run of push-notification denials followed by a small-hours approval is MFA fatigue (ATT&CK T1621): the user gave in, not logged in. The timeline of factor events tells that story; the final "success" alone hides it. Number matching (now enforced for every Microsoft Authenticator push, and an option in Okta Verify) blunts pure fatigue: the number appears on the sign-in screen, which in an attack is the attacker's screen, and has to be entered on the user's phone. The modern variant therefore pairs the push storm with a call or chat in which the attacker, posing as IT, tells the user which number to enter. Check help-desk tickets and call or Teams logs around the approval before you write it off as a user mistake.
     </div>
   </div>
   <div class="idp-item">
     <span class="idp-item__bullet"></span>
     <div>
-      <strong>Client, device, and network novelty.</strong> New device fingerprint, new OS, new ASN, or geography inconsistent with the user's last sign-in. Any one alone is weak (VPNs and travel exist); novelty across several fields at once, against the user's own baseline, is what earns escalation of attention.
+      <strong>Client, device, and network novelty.</strong> New device fingerprint, new OS, new ASN, or geography inconsistent with the user's last sign-in. Any one alone is weak (VPNs and travel exist); novelty across several fields at once, against the user's own baseline, is what earns a closer look.
     </div>
   </div>
   <div class="idp-item">
     <span class="idp-item__bullet"></span>
     <div>
-      <strong>What the session did next.</strong> The sign-in is only the entry. Follow the session ID forward: consent granted to a new OAuth app, a mail rule created, an API token minted. Those follow-on events are where a compromised session becomes a compromised account.
+      <strong>Factor changes before a new device.</strong> The other route around number matching is the help desk: an attacker posing as the user calls to have MFA reset or a new method added. <DefineTerm term="Scattered Spider" display="Scattered Spider" /> made this its signature move, often with personal details gathered beforehand to pass the help desk's identity checks. An MFA method registered or reset shortly before the first sign-in from a new device is the pattern (ATT&CK T1098.005), and the help-desk ticket behind the reset is part of the evidence: who called, from what number, how the caller was verified, and whether the request came in close to a shift change or outside the user's working hours.
+    </div>
+  </div>
+  <div class="idp-item">
+    <span class="idp-item__bullet"></span>
+    <div>
+      <strong>Device-code sign-ins nobody asked for.</strong> In Entra, a sign-in with <code>authenticationProtocol</code> set to <code>deviceCode</code> that the user did not initiate is a current phishing pattern (Storm-2372, 2025): the attacker starts the flow, and the user types the code into a genuine Microsoft page. Look for error 50199 followed by a success within about five minutes for the same user, or the Microsoft Authentication Broker client ID in a device-code sign-in followed by a device registration, which is the route to a Primary Refresh Token.
+    </div>
+  </div>
+  <div class="idp-item">
+    <span class="idp-item__bullet"></span>
+    <div>
+      <strong>What the session did next.</strong> The sign-in is only the entry. Follow the session ID forward: consent granted to a new OAuth app, a mail rule or forwarding created, a new MFA method registered or an existing one reset, a device registered or joined, an API token minted. Those follow-on events are where a compromised session becomes a compromised account. The <a href="/docs/reference/identity-sweep/">identity sweep</a> lists each check in order.
     </div>
   </div>
 </div>
 
+---
+
+## Identity attacks at protocol depth
+
+The Subject chapter's [Authentication dimension](/docs/subject/four-dimensions/) asks whether the identity is who it claims to be. These are the protocol-level patterns behind that question, as they recur in Microsoft Entra ID, Okta and Google Workspace triage. Read them once, then come back when an alert names one.
+
+### OAuth consent-grant abuse
+
+The attacker registers a malicious application and tricks a user into granting it OAuth permissions (often <code>Mail.Read</code>, <code>Files.ReadWrite</code>, <code>offline_access</code>). No password is stolen; the consent itself is the foothold. Detect it through "Consent to application" audit events for apps from unverified publishers, newly registered or multi-tenant apps, and broad Microsoft Graph scopes. Also watch for new secrets or certificates added to existing apps (T1098.001, Additional Cloud Credentials). The consent maps to T1528 (Steal Application Access Token); when the attacker grants it from an already-hijacked session for standing access, it is persistence through T1671 (Cloud Application Integration). A password reset does not remove the grant: the delegated grants have to be deleted, or the app's service principal disabled.
+
+### Token replay and forged tokens
+
+An attacker presents a stolen or forged bearer or refresh token to bypass primary authentication and MFA. The token may be lifted from a compromised endpoint, stolen through AiTM phishing, or forged with a stolen signing key (the Storm-0558 pattern). Detect it through token-binding anomalies, unusual <code>aud</code> claims, sign-ins with no associated interactive login, and refresh-token use from new locations. Replaying the token maps to T1550.001 (Use Alternate Authentication Material: Application Access Token); forging it maps to T1606 (Forge Web Credentials).
+
+### Impossible travel
+
+Often scored provider-side: Microsoft Entra ID Protection raises Atypical travel (Entra ID P2) and, with Defender for Cloud Apps, Impossible travel; Okta evaluates it through the Velocity behavior in Behavior Detection, which feeds sign-on policy and appears in the System Log. Whether it arrives pre-detected depends on licensing and configuration. Treat it as a strong but not conclusive signal: VPN or SASE egress, mobile-carrier routing, and users who sign in from a plane or a new country while sessions on their old devices stay active all produce the same alert with an innocent explanation. Maps to T1078.004 (Valid Accounts: Cloud Accounts).
+
+### Device-code phishing and AiTM session theft
+
+The OAuth 2.0 device-authorization flow is exploited by attackers who prompt the user to "enter this code on your other device" while the attacker's device receives the token. Adversary-in-the-middle (AiTM) toolkits (Evilginx, EvilProxy, Tycoon 2FA) sit between user and IdP, capturing the password and the session cookie after legitimate MFA. Both defeat OTP and push-based MFA. Phishing-resistant methods (FIDO2 security keys and passkeys, Windows Hello for Business, certificate-based authentication) stop the AiTM credential replay, which is exactly why attackers pivot to flows like device code that sidestep it. Detect it through unusual device-code grants, new-device sign-ins right after MFA succeeds, and session-cookie use from IPs the user never authenticated from; the Entra field-level signals are in the device-code item above. Tenants that do not need the flow should block it with a Conditional Access authentication-flows policy, as Microsoft recommends (Storm-2372, February 2025, is the reference campaign). Any user who reached the credential step of a phishing kit is credential-exposed until the password is reset, sessions are revoked and MFA methods are reviewed (the [identity sweep](/docs/reference/identity-sweep/) covers all three). Device-code phishing maps to T1528 (Steal Application Access Token), with the stolen token replayed through T1550.001; AiTM maps to T1539 (Steal Web Session Cookie), with the cookie replayed through T1550.004 (Web Session Cookie).
+
+### Federation and tenant trust abuse
+
+An attacker who already holds admin rights adds a federated domain, or changes an existing federation's token-signing certificate, and can then mint sign-in tokens for any user without touching their credentials (the Golden SAML pattern). Detect it through audit events for federation changes (Entra ID "Set domain authentication" and "Set federation settings on domain"), new token-signing certificates, and sign-ins that have no matching authentication at the identity provider. Maps to T1484.002 (Domain or Tenant Policy Modification: Trust Modification) and T1606.002 (Forge Web Credentials: SAML Tokens).
+
+### The on-prem counterpart: Kerberos tickets and AD delegation
+
+Cloud flows get the attention, but most enterprises still run Active Directory, where authentication is ticket-based: a logon yields a Ticket Granting Ticket (TGT), and the TGT buys service tickets for each system the account touches. Two consequences matter for triage.
+
+First, tickets are credentials. A stolen TGT impersonates the account until it expires, with no password touched (T1550.003, Pass the Ticket; a password reset does not invalidate tickets already issued). A <DefineTerm term="Kerberoasting" display="Kerberoasting" /> burst (one account requesting service tickets, event 4769, for many accounts that carry a service principal name in a short window; T1558.003) is credential theft in progress, whatever the encryption type. Tools prefer RC4 (etype 0x17) tickets because they crack fastest, but AES tickets crack too. On domains that applied Microsoft's 2026 RC4 changes (CVE-2026-20833), RC4 service tickets should be rare and limited to accounts explicitly allowed RC4, so any that appear deserve a look.
+
+Second, delegation is a trust path. A service configured for unconstrained delegation holds the TGTs of everyone who authenticates to it, so "web server compromised" can quietly mean "any admin who authenticated to it while their ticket is still valid is captured too." When the entity lives in AD, its delegation configuration and recent ticket-grant pattern belong on the relationship map alongside group memberships.
+
+### Where to look, by platform
+
+The Entra and Okta sign-in fields are in the table above. The other sources an authentication question usually needs:
+
+| Platform | Sources and events | Fields worth reading |
+| --- | --- | --- |
+| Windows and AD | Security log 4624 (logon), 4625 (failed logon), 4648 (explicit credentials); on domain controllers 4768 (TGT requested), 4769 (service ticket requested), 4771 (Kerberos pre-authentication failed), 4776 (NTLM validation) | Logon Type; the account in the New Logon block, not the Subject block; Workstation Name; Source Network Address; Ticket Encryption Type |
+| Microsoft Entra ID | <code>SigninLogs</code> (interactive) and <code>AADNonInteractiveUserSignInLogs</code> in Sentinel | <code>ResultType</code>, <code>AuthenticationProtocol</code>, <code>IsInteractive</code>, <code>SessionId</code>, <code>UniqueTokenIdentifier</code>, <code>IPAddress</code>, <code>DeviceDetail</code> |
+| Okta | System Log event types <code>user.session.start</code>, <code>user.authentication.auth_via_mfa</code>, <code>system.push.send_factor_verify_push</code>, <code>user.mfa.factor.activate</code> | <code>outcome.result</code>, <code>client.ipAddress</code>, <code>securityContext.isProxy</code> |
+| AWS | CloudTrail <code>ConsoleLogin</code>, <code>AssumeRole</code>, <code>AssumeRoleWithWebIdentity</code> | <code>userIdentity.type</code>, <code>userIdentity.arn</code>, <code>sourceIPAddress</code>, <code>additionalEventData.MFAUsed</code> |
+
+A starting query in Microsoft Sentinel: every sign-in for one account over 30 days, grouped by where and how. A source, app or ASN with a first-seen date inside the alert window is the row to read first.
+
+```kql
+union SigninLogs, AADNonInteractiveUserSignInLogs
+| where TimeGenerated > ago(30d)
+| where UserPrincipalName =~ "alice@corp.example"
+| summarize SignIns = count(), FirstSeen = min(TimeGenerated), LastSeen = max(TimeGenerated)
+    by IPAddress, AutonomousSystemNumber, AppDisplayName, IsInteractive
+| order by FirstSeen desc
+```
+
 <Callout variant="info" title="Where this shows up in the worked examples">
-The <a href="/docs/uncover/example/">Uncover chapter's worked example</a> runs this exact surface end to end: a GuardDuty finding, the CloudTrail pivot, and the IdP cross-check. This page gives you the field-level anatomy that walkthrough assumes.
+Two worked examples run this surface end to end. Case C, the replayed session, reads the IdP sign-in chain and tenant audit trail in the <a href="/docs/alert/example/#case-c">Alert</a> and <a href="/docs/uncover/example/#the-third-case-pulling-the-evidence-on-the-hijacked-session">Uncover</a> examples. The <a href="/docs/uncover/example/#a-cloud-native-mini-example-the-iam-role-assumption">IAM role-assumption mini-example</a> runs a GuardDuty finding, the CloudTrail pivot, and the IdP cross-check. This page gives you the field-level anatomy both walkthroughs assume.
 </Callout>
 
+## Check yourself
+
+A web server's instance role, <code>web-app-role</code>, shows up in CloudTrail calling <code>GetCallerIdentity</code> and then <code>ListBuckets</code>. The session ARN ends in the instance ID, <code>accessKeyId</code> starts with <code>ASIA</code>, <code>sourceIPAddress</code> is <code>198.51.100.77</code>, and <code>userAgent</code> is a current <code>aws-cli</code> string. Parse it before you open the answer: what does each field tell you, and what do you check next?
+
+<Reveal summary="One way to answer">
+The session name ending in an instance ID and the <code>ASIA</code> prefix say these are the instance role's temporary credentials, which should only ever be used from that instance. A public IP that is not the instance's is the IMDS tell, the same comparison GuardDuty's <code>InstanceCredentialExfiltration</code> findings make. <code>GetCallerIdentity</code> then <code>ListBuckets</code> is the classic "what am I, what can I reach" opening. The <code>aws-cli</code> agent proves nothing either way, because the client sets it. Next: check <code>ec2RoleDelivery</code> (IMDSv1 or v2) and the web app's logs for SSRF; whether the IP belongs to another AWS account; and every call made with that <code>accessKeyId</code>, across all regions, during the credential's lifetime.
+</Reveal>
+
 <KeyTakeaway>
-The control plane is a first-class parsing surface. Read the verb (<code>eventName</code>), identify the actor (<code>userIdentity</code>, and the role chain behind it, joined on stable identifiers), compare where the call came from against where it should come from, and treat failures and missing MFA events as signal to check against the identity's baseline and the provider's semantics — not as verdicts. No process tree will come to save you here; the log is all there is.
+The control plane is a first-class parsing surface. Read the verb (<code>eventName</code>), identify the actor (<code>userIdentity</code>, and the role chain behind it, joined on stable identifiers), compare where the call came from against where it should come from, and treat failures and missing MFA events as signal to check against the identity's baseline and the provider's semantics, not as verdicts. No process tree will come to save you here; the log is all there is.
 </KeyTakeaway>
 
 <ContinueCard
@@ -180,160 +306,3 @@ The control plane is a first-class parsing surface. Read the verb (<code>eventNa
   nextDescription="Three cases worked side by side through the Alert phase: a real phishing intrusion, a developer-workstation benign true positive, and a SaaS token theft read entirely from identity logs. All three threads continue on every later chapter's example."
   ctaLabel="See the worked examples"
 />
-
-<style>
-{`
-.field-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) { .field-cards { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1200px) { .field-cards { grid-template-columns: repeat(3, 1fr); } }
-
-.field-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 3px solid #f97316;
-  border-radius: 0.7rem;
-}
-
-.field-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #fdba74;
-  font-size: 0.92rem;
-}
-
-.field-card :is(h3, h4) code {
-  font-size: 0.85em;
-  padding: 0.05rem 0.3rem;
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 0.3rem;
-}
-
-.field-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-.chain-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-
-.chain-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #3b82f6;
-  border-radius: 0.6rem;
-}
-
-.chain-step__num {
-  flex-shrink: 0;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.18);
-  border: 1px solid rgba(59, 130, 246, 0.45);
-  color: #93c5fd;
-  font-weight: 800;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chain-step p {
-  margin: 0.15rem 0 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-.imds-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 900px) { .imds-cards { grid-template-columns: repeat(3, 1fr); } }
-
-.imds-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-}
-
-.imds-card--attack  { border-left: 3px solid #ef4444; }
-.imds-card--tell    { border-left: 3px solid var(--assured-accent); }
-.imds-card--context { border-left: 3px solid #a855f7; }
-
-.imds-card__label {
-  display: inline-block;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--assured-text-dim);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.imds-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-
-.idp-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 1.25rem 0;
-}
-
-.idp-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  padding: 1rem 1.25rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.6rem;
-}
-
-.idp-item__bullet {
-  flex-shrink: 0;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, var(--assured-accent), #3b82f6);
-  margin-top: 0.5rem;
-}
-
-.idp-item strong { color: var(--assured-text); }
-
-.idp-item div {
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.field-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

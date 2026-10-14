@@ -1,0 +1,211 @@
+---
+/**
+ * TemplateEmbed: one shipped template from public/templates, rendered from
+ * the file itself in a <pre>, with a download link (and a link to its JSON
+ * Schema when public/templates/schema has one). What the reader copies is
+ * exactly what they download.
+ *
+ * Template version: the bar shows "Template version <METHODOLOGY_VERSION>"
+ * from src/data/version.ts, and the displayed text carries the same
+ * "Template version:" line in its licence comment that
+ * scripts/stamp-templates.mjs writes into the downloadable copy in
+ * dist/templates after the build. The sources in public/templates stay
+ * unstamped, so the version lives once, in version.ts.
+ *
+ * Props:
+ *   name       File path under public/templates, e.g. "event-report.md" or
+ *              "facilitator-kit/capstone.md". Required; an unknown name
+ *              fails the build with the list of known templates.
+ *   title      Label in the bar above the block. Default: the template's
+ *              own "# " title.
+ *   highlight  true (default): Markdown syntax highlighting through Astro's
+ *              <Code> (theme github-dark, wrapped), which also renders a
+ *              <pre>. false: a plain <pre><code>.
+ *   collapse   When true, the block sits inside a <details> whose summary is
+ *              the bar. Default false (always shown).
+ *   open       With collapse, starts expanded. Default false.
+ *   id         Optional id on the wrapper, for a link anchor.
+ *
+ * Usage:
+ *   import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+ *   <TemplateEmbed name="event-report.md" />
+ *   <TemplateEmbed name="pattern-entry.md" collapse />
+ */
+
+import { Code } from "astro:components";
+import { METHODOLOGY_VERSION } from "@/data/version";
+
+interface Props {
+  name: string;
+  title?: string;
+  highlight?: boolean;
+  collapse?: boolean;
+  open?: boolean;
+  id?: string;
+}
+
+const {
+  name,
+  title,
+  highlight = true,
+  collapse = false,
+  open = false,
+  id,
+} = Astro.props;
+
+// Relative globs, the same way documentation/templates.mdx imports ?raw.
+const ROOT = "../../../public";
+const files = import.meta.glob<string>("../../../public/templates/**/*.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const schemas = import.meta.glob<string>(
+  "../../../public/templates/schema/*.schema.json",
+  { query: "?raw", import: "default", eager: true },
+);
+
+const key = `${ROOT}/templates/${name.replace(/^\/+/, "").replace(/^templates\//, "")}`;
+const source = files[key];
+if (source === undefined) {
+  const known = Object.keys(files)
+    .map((k) => k.replace(`${ROOT}/templates/`, ""))
+    .sort()
+    .join(", ");
+  throw new Error(
+    `TemplateEmbed: no template "${name}" in public/templates. Known: ${known}`,
+  );
+}
+
+// Mirror scripts/stamp-templates.mjs: one "Template version:" line in the
+// licence comment, after "note any changes you make." (or before the
+// comment closes), at the comment's own continuation indent.
+const LICENCE = /<!--\s*ASSURED Methodology by[\s\S]*?-->/;
+const STAMP_LINE = /\n[ \t]*Template version: [^\n]*?(?=\n| -->)/;
+const ANCHOR = "note any changes you make.";
+function stamp(text: string): string {
+  const m = text.match(LICENCE);
+  if (!m) return text;
+  const comment = m[0].replace(STAMP_LINE, "");
+  const indent = comment.match(/\n([ \t]+)\S/)?.[1] ?? "     ";
+  const line = `${indent}Template version: ${METHODOLOGY_VERSION}`;
+  const at = comment.indexOf(ANCHOR);
+  const next =
+    at === -1
+      ? comment.replace(/\s*-->$/, `\n${line} -->`)
+      : `${comment.slice(0, at + ANCHOR.length)}\n${line}${comment.slice(at + ANCHOR.length)}`;
+  return text.replace(m[0], () => next);
+}
+const raw = stamp(source);
+
+const path = key.slice(ROOT.length);
+const file = path.split("/").pop() ?? path;
+const label = title ?? raw.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? file;
+const lines = raw.replace(/\n+$/, "").split("\n").length;
+const schemaKey = `${ROOT}/templates/schema/${file.replace(/\.md$/, "")}.schema.json`;
+const schemaHref = schemaKey in schemas ? schemaKey.slice(ROOT.length) : null;
+const Wrapper = collapse ? "details" : "div";
+---
+
+<Wrapper class="tpl-embed" id={id} open={collapse && open ? true : undefined}>
+  {collapse ? (
+    <summary class="tpl-embed__bar">
+      <span class="tpl-embed__title">{label}</span>
+      <span class="tpl-embed__meta">{file} · {lines} lines · Template version {METHODOLOGY_VERSION}</span>
+    </summary>
+  ) : (
+    <div class="tpl-embed__bar">
+      <span class="tpl-embed__title">{label}</span>
+      <span class="tpl-embed__meta">{file} · {lines} lines · Template version {METHODOLOGY_VERSION}</span>
+    </div>
+  )}
+  <div class="tpl-embed__links">
+    <a href={path} download={file}><span aria-hidden="true">⬇ </span>Download {file}</a>
+    {schemaHref && <a href={schemaHref}>JSON Schema</a>}
+  </div>
+  {highlight ? (
+    <Code code={raw} lang="markdown" theme="github-dark" wrap />
+  ) : (
+    <pre class="tpl-embed__pre"><code>{raw}</code></pre>
+  )}
+</Wrapper>
+
+<style>
+  .tpl-embed {
+    margin: 1.25rem 0;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 0.6rem;
+    background: var(--assured-panel);
+    overflow: hidden;
+  }
+
+  .tpl-embed__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.6rem 1rem;
+    background: rgba(15, 23, 42, 0.7);
+    color: var(--assured-text);
+  }
+
+  summary.tpl-embed__bar {
+    cursor: pointer;
+  }
+
+  .tpl-embed__title {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .tpl-embed__meta {
+    color: var(--assured-text-dim);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .tpl-embed__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    font-size: 0.82rem;
+  }
+
+  .tpl-embed__links a {
+    color: var(--assured-accent-soft);
+    font-weight: 600;
+  }
+
+  .tpl-embed :global(pre) {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 0;
+    max-height: 32rem;
+    overflow: auto;
+  }
+
+  .tpl-embed__pre {
+    padding: 1rem;
+    color: var(--assured-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  @media print {
+    .tpl-embed__links {
+      display: none;
+    }
+
+    .tpl-embed :global(pre) {
+      max-height: none;
+      overflow: visible;
+    }
+  }
+</style>

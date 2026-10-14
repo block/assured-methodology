@@ -1,6 +1,7 @@
 ---
 title: "Subject working example"
-description: "From an alert with one obvious entity to a Subject map with 3 primary + 3 secondary + 1 downstream entity. The Subject chapter applied step by step."
+description: "The Subject chapter applied step by step to Cases A, B and C, plus an insider referral: one map that expands outward, one that stays on a single workstation, one built from identity objects alone."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -8,37 +9,25 @@ import PillNav from "@/components/assured/PillNav.astro";
 import ChapterExample from "@/components/assured/ChapterExample.astro";
 import ExampleStepper from "@/components/assured/ExampleStepper.astro";
 import Reveal from "@/components/assured/Reveal.astro";
-import DefineTerm from "@/components/assured/DefineTerm.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import Callout from "@/components/assured/Callout.astro";
+import "@/styles/pages/subject.css";
 
 <SubPageHero
   phase="subject"
-  parentLetter="S"
   pillarIndex="Example"
-  pillarTotal="Subject chapter"
-  chapterHref="/docs/subject/"
-  chapterLabel="Subject"
-  lede="A working walkthrough of the Subject phase applied to the same intrusion the Alert chapter ended on. Five steps that take a single named user and expand outward to a 3-primary, 3-secondary entity map plus the downstream systems they touch."
+  lede="Cases A, B and C continue from the Alert chapter: the finance intrusion expands to a 3-primary, 4-secondary map, the Cursor alert stays on one workstation, and the SaaS token theft expands through identity objects with no device at all. A fourth scenario applies Subject to an insider referral."
 />
 
-<PillNav
-  chapter="subject"
-  label="Subject chapter"
-  items={[
-    { label: "Four dimensions",      href: "/docs/subject/four-dimensions/",     phase: "subject" },
-    { label: "Entity types",         href: "/docs/subject/entity-types/",        phase: "subject" },
-    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework/",phase: "subject" },
-    { label: "Insider analysis",     href: "/docs/subject/insider-analysis/",    phase: "subject" },
-  ]}
-/>
+<PillNav chapter="subject" />
 
-## The first scenario: the finance-team analyst
+<h2 id="case-a">Case A · Finding the identities behind the finance-team alert</h2>
+
+<p class="case-previously"><strong>Previously, in <a href="/docs/alert/example/#case-a">Alert</a>:</strong> the phishing-to-PowerShell chain validated, and the escalation tripwire met at 09:24 UTC but carried forward instead of acted on. The whole case on one card: <a href="/docs/cases/#case-a">Case A in the case files</a>.</p>
 
 <ChapterExample
   title="Finding all the identities behind the alert"
-  scenario="The Alert chapter handed Subject one named user (dlin, a finance analyst) and one host (laptop-finance-09) connected to a suspicious PowerShell event. Subject's job is to find every other identity that the alert touches and assess each one."
+  scenario="Subject starts from one named user (dlin, a finance analyst) and one host (laptop-finance-09) running a confirmed malicious PowerShell stage that is still beaconing. In a correctly run case, IR is already paged and Subject runs as scoping support under IR's clock; this walkthrough follows the record as it ran. Subject's job is the same either way: find every other identity the alert touches and assess each one."
 >
 
 <ExampleStepper steps={["Start with the named user", "Expand to non-human identities", "Apply the four dimensions", "Check relationships", "Hand off to Scope"]}>
@@ -47,34 +36,34 @@ import Callout from "@/components/assured/Callout.astro";
     <h3>Step 1. Start with the named user</h3>
     <p>The alert names dlin. The Subject phase begins by profiling that user explicitly:</p>
     <ul class="example-step__list">
-      <li><strong>Identity verification.</strong> The account is provisioned, matches an HR record, and is in the expected finance role.</li>
-      <li><strong>Authentication history.</strong> Recent logins look normal until the day of the alert. Then a 09:08 login from the usual workstation, followed by the alert at 09:11.</li>
+      <li><strong>Authentication.</strong> The account is provisioned, matches an HR record, and is in the expected finance role. Recent sign-ins look normal: a 09:08 UTC interactive login with MFA from the usual workstation, followed by the alert at 09:11.</li>
       <li><strong>Authorization.</strong> dlin has read access to finance reporting systems and the standard productivity stack. No administrative privileges.</li>
       <li><strong>Behavior.</strong> Activity profile is consistent with a finance analyst role. PowerShell is not part of dlin's normal pattern.</li>
+      <li><strong>Relationships.</strong> Two contacts are new: an external sender dlin has never corresponded with, and her laptop's first-ever connection to a four-day-old domain. Step 4 follows both out.</li>
     </ul>
-    <p>Three of the four dimensions agree. The behavior dimension does not. PowerShell on this account is the first concrete signal that the alert is more than a misfire.</p>
+    <p>Two of the four dimensions agree with a normal day. Behavior and relationships do not, and they point the same way: the alert is more than a misfire.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Expand to non-human identities</h3>
-    <p>Subject does not stop at the named user. Every identity touched by the activity gets profiled.</p>
+    <p>Every identity the activity touched gets profiled, not just the named user.</p>
     <ul class="example-step__list">
       <li><strong>The host.</strong> laptop-finance-09 is a managed corporate device, enrolled in the EDR, with a baseline of activity matching dlin's role.</li>
       <li><strong>The machine account.</strong> laptop-finance-09 is domain-joined, so it has its own computer account that authenticates to domain services independently of dlin. Anything running as SYSTEM on the host speaks as that account, so its recent activity becomes part of the picture.</li>
-      <li><strong>The Outlook session.</strong> The root of the process chain that led to the PowerShell invocation. Each Outlook session has its own token, mailbox identity, and audit trail.</li>
-      <li><strong>The cloud identity.</strong> dlin's federated SSO identity for the cloud-based finance reporting platform. Has the same recent-login pattern as the on-premises account.</li>
+      <li><strong>The Outlook and browser sessions.</strong> Where the chain began: dlin opened the link from Outlook, and Chrome loaded the page that, on the working hypothesis, supplied the command. Each has its own token, identity, and audit trail.</li>
+      <li><strong>The cloud identity.</strong> dlin's federated SSO identity for the cloud finance reporting platform. Primary even though the alert never named it: it is the same principal, and a stage running as dlin can reach her browser's session state.</li>
     </ul>
-    <p>One named user has become five identities: the user account, the host, the machine account, the Outlook session, and the federated cloud identity. The Outlook session is assessed as part of dlin's own primary investigation, same principal, same token chain, which leaves four distinct entities to profile. Three get full primary depth (dlin, the laptop, dlin's federated cloud identity); the machine account gets secondary depth. Each one is a potential lateral-movement vector. Each one needs its own assessment.</p>
+    <p>One named user has become five identities. The Outlook and browser sessions are assessed within dlin's own primary investigation (same principal, same token chain), which leaves four entities: three get full primary depth from the start (dlin, the laptop, dlin's federated cloud identity), and the machine account gets secondary depth. Each is a potential lateral-movement vector with its own assessment.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Apply the four dimensions</h3>
     <p>The four dimensions are now applied to <em>every</em> identity in the list, not just dlin.</p>
     <ul class="example-step__list">
-      <li><strong>Authentication.</strong> All four identities authenticated normally. No impossible travel, no MFA bypass, no token replay signals.</li>
+      <li><strong>Authentication.</strong> No impossible travel and no MFA bypass. dlin's federated identity has signed in from nowhere but the laptop since 09:08 (checked at 09:33). That last result is clean so far, not clean: the stage has been running as dlin for twenty minutes, and anything running as the user can read the browser's session state, so the cloud identity's tokens are presumed exposed until Uncover tests it.</li>
       <li><strong>Authorization.</strong> No identity exceeded its assigned permissions during the relevant window. Authorization checks pass.</li>
-      <li><strong>Behavior.</strong> dlin's user account behaved abnormally (PowerShell). The host's process baseline shows no prior PowerShell use under this user. The machine account and cloud identity show no unusual activity.</li>
-      <li><strong>Relationships.</strong> The four identities are tightly connected: same user, same device, same SSO chain. No surprising new connections to entities outside that cluster.</li>
+      <li><strong>Behavior.</strong> dlin's user account behaved abnormally (PowerShell). The host's process baseline shows no prior PowerShell use under this user. The machine account and cloud identity show no unusual activity so far.</li>
+      <li><strong>Relationships.</strong> Inside the cluster, the four identities are tightly connected: same user, same device, same SSO chain. Outside it, two connections are new: the external sender and invoice-records[.]example. Both become the originating threat.</li>
     </ul>
     <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> applying the dimensions only to the named user. The machine account and cloud identity are easy to overlook because the alert did not name them, but they share trust paths and could expose lateral movement if compromised.</p>
   </div>
@@ -83,47 +72,46 @@ import Callout from "@/components/assured/Callout.astro";
     <h3>Step 4. Check relationships</h3>
     <p>The relationship dimension expands beyond the four identities into the systems and people they touch.</p>
     <ul class="example-step__list">
-      <li><strong>Communication graph.</strong> dlin's mailbox in the relevant window shows a recent email with an unfamiliar attachment from an external sender. The sender is a candidate for the originating phishing source.</li>
-      <li><strong>Other recipients.</strong> The same email pattern landed in three other finance team mailboxes. Two of them opened the attachment. Two more potential compromise candidates.</li>
-      <li><strong>Downstream access.</strong> The cloud finance platform that dlin can access is connected to a vendor payment workflow. If the compromise extends to the cloud identity, payment systems are in scope for the next phase.</li>
+      <li><strong>Communication graph.</strong> The message trace (pulled at 09:26) shows the email that started it: an invoice-themed message from accounts@invoice-records[.]example, delivered at 09:02:11, with no attachment and one link to a page on invoice-records[.]example, the domain the stage pulled from. The URL had no reputation at delivery, so the gateway let it through. The sender is a candidate for the originating phishing source.</li>
+      <li><strong>Other recipients.</strong> The same message was delivered to three other finance-team mailboxes. Whether anyone else opened it is not known yet: the trace shows delivery, and opening is an endpoint question for Uncover. Three more potential compromise candidates, and the message is still sitting in their inboxes. Removing it is an IR-approved action, one more reason the tripwire page matters.</li>
+      <li><strong>Downstream access.</strong> The cloud finance reporting platform that dlin can access feeds the vendor payment workflow and stores vendor-contact records. If the compromise extends to the cloud identity, that platform and its data are in scope for the next phase.</li>
     </ul>
-    <p>The Subject picture now consolidates: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the machine account, two other finance users who opened the email) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow), plus the external originating sender tracked as the originating threat. That is the map Scope inherits.</p>
+    <p>The Subject picture now consolidates: 3 primary entities (dlin, the laptop, the cloud identity) + 4 secondary entities (the machine account and the three other finance recipients) + 1 downstream system (the cloud finance reporting platform), plus the originating threat (the external sender and invoice-records[.]example). That is the map Scope inherits.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Hand off to Scope</h3>
-    <p>Subject ends with a structured, defended view of every identity connected to the alert. The entity inventory goes to Scope in the table format the <a href="/docs/subject/transition/">handoff document</a> specifies: name, type, classification, per-dimension verdict.</p>
+    <p>The entity inventory goes to Scope in the table format the <a href="/docs/subject/transition/#the-handoff-itself">handoff</a> specifies: name, type, classification, per-dimension verdict.</p>
     <table>
       <thead>
         <tr><th>Entity</th><th>Type</th><th>Classification</th><th>Four-dimension verdict</th></tr>
       </thead>
       <tbody>
-        <tr><td>dlin</td><td>user</td><td>primary</td><td>Behavior abnormal (PowerShell); authentication, authorization, relationships clean</td></tr>
-        <tr><td>laptop-finance-09</td><td>host</td><td>primary</td><td>First PowerShell under this user; device posture otherwise baseline</td></tr>
-        <tr><td>dlin's federated cloud identity</td><td>user (SSO)</td><td>primary</td><td>Clean so far; session-token exposure is an open question</td></tr>
-        <tr><td>laptop-finance-09 machine account</td><td>service</td><td>secondary</td><td>No unusual activity in the window</td></tr>
-        <tr><td>Finance user 2</td><td>user</td><td>secondary</td><td>Opened the same email; not yet assessed beyond that</td></tr>
-        <tr><td>Finance user 3</td><td>user</td><td>secondary</td><td>Opened the same email; not yet assessed beyond that</td></tr>
-        <tr><td>Cloud finance platform</td><td>service</td><td>downstream</td><td>Not assessed; feeds the vendor payment workflow</td></tr>
-        <tr><td>External sender</td><td>threat</td><td>originating threat</td><td>Tracked as a threat entity, not an internal identity</td></tr>
+        <tr><td>dlin</td><td>user</td><td>primary</td><td>Behavior and relationships abnormal (PowerShell; first-time sender and domain); authentication and authorization clean</td></tr>
+        <tr><td>laptop-finance-09</td><td>host or device</td><td>primary</td><td>Malicious execution chain per Alert (encoded PowerShell download cradle, <code>%TEMP%\upd.ps1</code> written, beacon to invoice-records[.]example still running); presumed compromised pending Uncover</td></tr>
+        <tr><td>dlin's federated cloud identity</td><td>user</td><td>primary</td><td>No sign-in from anywhere but the laptop as of 09:33; tokens presumed exposed (confidence low)</td></tr>
+        <tr><td>laptop-finance-09 machine account</td><td>host or device</td><td>secondary</td><td>No unusual Kerberos activity in the window (confidence medium: no host-side view yet)</td></tr>
+        <tr><td>Finance user 2</td><td>user</td><td>secondary</td><td>Received the same email; opened or not is unknown</td></tr>
+        <tr><td>Finance user 3</td><td>user</td><td>secondary</td><td>Received the same email; opened or not is unknown</td></tr>
+        <tr><td>Finance user 4</td><td>user</td><td>secondary</td><td>Received the same email; opened or not is unknown</td></tr>
+        <tr><td>Cloud finance reporting platform</td><td>application or OAuth grant</td><td>downstream</td><td>Not assessed; feeds the vendor payment workflow, stores vendor-contact records</td></tr>
+        <tr><td>External sender and invoice-records[.]example</td><td>threat</td><td>originating threat</td><td>Tracked as the adversary side of the case, not an internal identity</td></tr>
       </tbody>
     </table>
-    <ul class="example-step__list">
-      <li><strong>High-value paths.</strong> The cloud finance platform → vendor payment workflow. Lateral movement here would have regulatory and financial impact.</li>
-      <li><strong>Insider risk indicators.</strong> None. The pattern looks like external phishing, not insider activity. No anti-forensic signs.</li>
-    </ul>
+    <p><strong>High-value path:</strong> the cloud finance reporting platform → vendor payment workflow and vendor-contact records. Lateral movement here would have regulatory and financial impact.</p>
 
-    <Reveal summary="Filling in the six-section handoff document" variant="example">
-      <p>Subject's output follows the six-section handoff document specified in <a href="/docs/subject/transition/">Transition to Scope</a>. For this case, the sections fill in as:</p>
+    <Reveal summary="Filling in the seven-section handoff document" variant="example">
+      <p>The <a href="/docs/subject/transition/#the-handoff-itself">seven sections</a> fill in as:</p>
       <ul>
-        <li><strong>Investigation header.</strong> The alert ID, the analyst, and a two-sentence summary of the phishing-to-PowerShell pattern.</li>
-        <li><strong>Entity inventory.</strong> The map from step 4: 3 primary + 3 secondary + 1 downstream system, plus the external sender tracked as the originating threat.</li>
-        <li><strong>Confidence summary.</strong> High on the four profiled identities (authentication and authorization verified against logs); the two other finance users have not yet been assessed beyond "opened the same email."</li>
-        <li><strong>Open questions.</strong> Whether the two other finance users' hosts show the same PowerShell pattern, and whether the cloud identity's session tokens were exposed.</li>
-        <li><strong>Recommended scope parameters.</strong> Time window 24 hours before the alert; the entity list above; full depth for primary identities, baseline-comparison for secondary.</li>
-        <li><strong>Insider posture.</strong> None observed. The pattern is external phishing; no HR or legal coordination triggered.</li>
+        <li><strong>Investigation header.</strong> Case CASE-2026-0303-007 (alert ALERT-2026-0303-0191), the analyst, and a two-sentence summary of the phishing-to-PowerShell pattern, with the note that the escalation tripwire was met at 09:24 and IR has not yet been paged.</li>
+        <li><strong>Entity inventory.</strong> The table above.</li>
+        <li><strong>Confidence summary.</strong> High on dlin's on-premises authentication and authorization (verified against logs); medium on the machine account (Kerberos logs only); low on the cloud identity's "clean so far" (tokens presumed exposed); the three other recipients not assessed beyond delivery. Labels per the <a href="/docs/documentation/standards/#confidence">shared rubric</a>.</li>
+        <li><strong>Open questions.</strong> Did any other recipient follow the link, and did the chain run on their hosts? Were dlin's cloud session tokens taken or replayed? The message is still in three inboxes.</li>
+        <li><strong>Recommended scope parameters.</strong> Time window 24 hours before the alert through now (delivery at 09:02:11 sits well inside it), with a 4-week look at the three primary entities for earlier staging; the entity list above; full depth for primary identities, baseline comparison for secondary.</li>
+        <li><strong>Insider posture.</strong> None observed: external phishing, no anti-forensic signs, no HR or legal coordination triggered.</li>
+        <li><strong>Regulatory flags.</strong> Carried forward from Alert: regulated data is in reach through the cloud finance reporting platform (vendor-contact records, including those of people in the EU). Reach only; nothing on the platform has been seen accessed.</li>
       </ul>
-      <p>Scope picks up here and turns this map into the formal boundary of the investigation.</p>
+      <p>The blank form is a downloadable template: <a href="/templates/subject-summary.md" download><span aria-hidden="true">⬇ </span>subject-summary.md</a>.</p>
     </Reveal>
   </div>
 
@@ -131,90 +119,89 @@ import Callout from "@/components/assured/Callout.astro";
 
 </ChapterExample>
 
-<KeyTakeaway>
-The Subject phase turned one named <DefineTerm term="User" display="user" /> into a map of 3 primary entities + 3 secondary entities + 1 downstream system, plus the external sender tracked as the originating threat. That expansion is the whole point. Without Subject, the investigation would have stayed on one user and one host. With Subject, it knows to follow the trust paths.
-</KeyTakeaway>
-
 ---
 
-## A second scenario: the developer workstation
+<h2 id="case-b">Case B · The developer workstation</h2>
 
-The first walkthrough showed Subject <em>expanding outward</em> from a single named user. Real triage often goes the other way: a noisy alert hits a high-skill identity whose normal behavior looks suspicious. Subject's job there is to <em>contain</em> the assessment, not expand it.
+<p class="case-previously"><strong>Previously, in <a href="/docs/alert/example/#case-b">Alert</a>:</strong> detection true positive, activity undetermined and leaning authorized. Depth went to Level 2 at 14:08 UTC: until credential-path reads are ruled out, the activity may have touched SSH keys that reach the build environment. The whole case on one card: <a href="/docs/cases/#case-b">Case B in the case files</a>.</p>
+
+Case A showed Subject <em>expanding outward</em> from a single named user. Here a noisy alert hits a high-skill identity whose normal behavior looks suspicious, and Subject's job is to <em>contain</em> the assessment, not expand it.
 
 <ChapterExample
   title="Reading Subject when the named user is a developer"
-  scenario="An EDR alert fires on a macOS laptop. A signed helper binary (Cursor Helper, part of the Cursor AI-assisted IDE) spawned a child process that disabled its sandbox and made encrypted outbound network calls. The pattern technically matches the Empire post-exploitation toolkit. The named user is a frontend engineer. The host is corporate-managed."
+  scenario="An EDR alert fires on a macOS laptop. Cursor Helper (Plugin), the extension host of the Cursor AI-assisted IDE (signed by Anysphere), runs without its sandbox by design; it launched a child process that made encrypted outbound network calls. A behavioral rule maps the pattern to Empire-style post-exploitation behavior. The named user is a frontend engineer. The host is corporate-managed."
 >
 
 <ExampleStepper steps={["Classify the device", "Read the user identity", "Evaluate the application", "Check access scope", "Decide the operational risk"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Classify the device</h3>
-    <p>Subject begins with what the asset is, not what the alert says. Subject does not have to redo Alert's parsing, but it does have to attach the activity to a device profile.</p>
+    <p>Subject begins with what the asset is, not what the alert says.</p>
     <ul class="example-step__list">
-      <li><strong>Hardware and OS.</strong> Corporate macOS laptop, recent build, FileVault on.</li>
-      <li><strong>Management posture.</strong> MDM-enrolled, JAMF profile verified, EDR (CrowdStrike) agent reporting normally, Gatekeeper enforced.</li>
-      <li><strong>Classification.</strong> Developer workstation. This matters because the expected behavior is different from a standard productivity laptop.</li>
+      <li><strong>Hardware and management.</strong> Corporate macOS laptop, FileVault on, MDM-enrolled (Jamf), configuration profile verified, EDR (CrowdStrike) agent reporting normally, Gatekeeper enforced.</li>
+      <li><strong>Classification.</strong> Developer workstation, where expected behavior differs from a standard productivity laptop.</li>
       <li><strong>Recent change history.</strong> No new admin agents, no recent OS reinstall, no profile drift in the last 90 days.</li>
     </ul>
-    <p>The device classification reframes the alert. On a finance laptop, the activity is suspicious-by-default. On a developer workstation, scripting and child-process activity are part of the role. The investigation does not stop here; the bar shifts.</p>
+    <p>On a finance laptop this activity is suspicious by default; on a developer workstation, scripting and child processes are part of the role. The investigation does not stop here, but the bar shifts.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Read the user identity</h3>
-    <p>The four-dimensions analysis on the named user, focused on what the role allows.</p>
+    <p>The four dimensions on the named user, focused on what the role allows.</p>
     <ul class="example-step__list">
-      <li><strong>Authentication.</strong> SSO login at 09:14, expected location, expected device, FIDO2 second factor. No anomalies.</li>
+      <li><strong>Authentication.</strong> SSO login at 09:14 UTC, expected location, expected device, FIDO2 second factor. No anomalies.</li>
       <li><strong>Authorization.</strong> Frontend engineer, developer group, no admin rights, no production access. Some elevated capabilities granted to specific applications via macOS TCC, all approved.</li>
-      <li><strong>Behavior.</strong> Spawning helper processes from IDEs is part of this user's daily pattern. Encrypted outbound traffic from an IDE is normal (LSP backends, AI inference, package installs).</li>
+      <li><strong>Behavior.</strong> Spawning helper processes from IDEs is part of this user's daily pattern, and the user runs the IDE's coding agent most days. Encrypted outbound traffic from an IDE is normal (extension marketplace and updates, AI features through the vendor's backend, telemetry, package installs).</li>
       <li><strong>Relationships.</strong> Normal communication graph for the team. No new SSO links, no unexpected resource access this week.</li>
     </ul>
-    <p>All four dimensions agree on legitimate. That is a real signal, not the absence of one. Subject records it explicitly so Scope inherits a defensible verdict, not a shrug.</p>
+    <p>All four dimensions agree on legitimate. That is a real signal, and Subject records it explicitly so Scope inherits a defensible verdict, not a shrug.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Evaluate the application</h3>
-    <p>The detection fired on a process. Subject has to assess the process's identity as carefully as the user's.</p>
+    <p>The detection fired on a process, so the process's identity gets the same care as the user's.</p>
     <ul class="example-step__list">
-      <li><strong>Binary identity.</strong> Cursor Helper (Plugin), signed by Anysphere, notarized by Apple. Hash matches the public release.</li>
-      <li><strong>Installation path.</strong> /Applications/Cursor.app/Contents/Frameworks/..., the expected location for a vendor-installed Electron application.</li>
-      <li><strong>Runtime posture.</strong> Electron framework with sandbox disabled at runtime, which is the documented operating mode for the IDE's plugin host. Not an attacker turning off protections; a vendor design choice.</li>
-      <li><strong>Behavioral baseline.</strong> The same binary has been running on this laptop and on dozens of peers on the same team for months. No prior alerts on the binary itself.</li>
+      <li><strong>Binary identity.</strong> Cursor Helper (Plugin), signed with Anysphere's Developer ID, notarized by Apple. The MDM inventory reports the installed Cursor version and its hash, and both match the vendor's release; EDR reports the bundle signature valid.</li>
+      <li><strong>Installation path.</strong> <code>/Applications/Cursor.app/Contents/Frameworks/...</code>, where the MDM installed it. <code>/Applications</code> is admin-writable, so the path counts only together with the MDM record of what was installed there.</li>
+      <li><strong>Runtime posture.</strong> Electron extension host running without the Chromium sandbox, which is how VS Code-family editors run extension code. Not an attacker turning off protections; a vendor design choice. The design choice is also the exposure: whatever extension code runs here runs with the user's rights.</li>
+      <li><strong>Behavioral baseline.</strong> The same signed application (Anysphere Developer ID), at the build the MDM deployed to the team's managed Macs, has run on this laptop for months. No prior alerts on it from this host. How many peers show the same child-process behavior is a question for Uncover.</li>
+      <li><strong>Extension layer.</strong> The IDE runs code that the binary signature does not cover: user-installed extensions, MCP servers the IDE is configured to start, workspace tasks, and the commands its coding agent runs on the user's behalf. Subject records this as an open question for Uncover, not as cleared. Binary identity says nothing about extension code.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What an Empire-style attacker would look different on:</strong> the binary would either be unsigned or signed by a key that does not match the vendor; the install path would be in a user-writable directory; the behavioral baseline would show first appearance within the last few days. None of those match.</p>
+    <p class="example-step__what-not"><strong>How abuse inside the signed IDE would differ:</strong> the binary would look identical, so the discriminators move to the extension layer: an extension or update new to this host, a publisher no peer uses, an MCP server config that changed, an agent command no user prompt asked for, a child running a script from outside the app bundle, outbound destinations outside the vendor's allowlist, or reads of <code>&#126;/.ssh</code>, <code>&#126;/.aws</code>, the keychain or wallet files. A dropped Empire-style binary would differ more simply: unsigned or wrongly signed, in a user-writable path, first seen in the last few days. None of the binary-level tells match; the extension- and agent-level tells are still unchecked.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Check access scope</h3>
-    <p>Even when the user, device, and application all read legitimate, Subject has to record what the activity actually had access to. Scope inherits this directly.</p>
+    <p>Even when everything reads legitimate, Subject records what the activity had access to. Scope inherits this directly.</p>
     <ul class="example-step__list">
       <li><strong>Privilege level.</strong> Standard user context, no sudo or root elevation, no privilege escalation events in the timeline.</li>
-      <li><strong>Sandbox status.</strong> Explicitly disabled, but only for the plugin helper as documented. Other Cursor processes still sandboxed.</li>
-      <li><strong>Paths touched.</strong> User home, /tmp, Cursor's application support directory. No system paths, no other users' homes, no credential stores.</li>
-      <li><strong>Network destinations.</strong> Cursor's vendor endpoints plus a small number of resolved code-completion model hosts. All previously seen, all signed certs, no DNS anomalies.</li>
+      <li><strong>Sandbox status.</strong> Disabled for the extension-host helper and the processes it launches, as documented. Renderer and GPU helpers remain sandboxed; the main process, like every Electron app's main process, runs unsandboxed by design.</li>
+      <li><strong>Paths touched.</strong> The workspace, /tmp, Cursor's application support directory, per EDR for the alert's event window. No system paths, no other users' homes, no reads of credential paths (<code>&#126;/.ssh</code>, <code>&#126;/.aws</code>, the keychain). Uncover confirms across the full window.</li>
+      <li><strong>Network destinations.</strong> Cursor-owned endpoints on the vendor's published allowlist (<code>\*.cursor.sh</code>, <code>\*.cursorapi.com</code>). All previously seen from this host, all with valid certificates matching the requested names. No direct connections to third-party model providers.</li>
     </ul>
-    <p>Subject's access-scope verdict: bounded to the user's own profile and to expected vendor infrastructure. That bounds Scope's environmental footprint to roughly the same surface.</p>
+    <p>Access-scope verdict: bounded to the user's own profile and expected vendor infrastructure, which bounds Scope's environmental footprint to roughly the same surface.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Decide the operational risk</h3>
-    <p>The four-dimensions and access-scope checks all return clean. Operational function is the final filter: even when nothing is wrong, the value of the asset informs how much weight Subject gives to remaining ambiguity.</p>
+    <p>Operational function is the final filter: even when nothing is wrong, the value of the asset sets how much weight the remaining ambiguity gets.</p>
     <ul class="example-step__list">
-      <li><strong>Business function.</strong> Daily development of customer-facing software. Code commits multiple times per day.</li>
-      <li><strong>Data sensitivity.</strong> Source code, dev secrets, possibly customer-data-adjacent test fixtures. High.</li>
-      <li><strong>Lateral movement risk.</strong> Moderate. SSH keys to build environments. Persistent terminal sessions to CI runners.</li>
-      <li><strong>Persistence potential.</strong> High, because developer workstations offer persistence spots that look like normal tooling: shell profiles and dotfiles, LaunchAgents installed by dev tools, IDE extensions, package-manager hooks that execute on every build. On a machine where new tooling appears weekly, an implant in any of those blends in.</li>
+      <li><strong>Business function.</strong> Daily development of customer-facing software.</li>
+      <li><strong>Data sensitivity.</strong> Source code and developer secrets. Subject cannot rule out that test fixtures in the indexed repositories hold customer-derived data; Scope's regulatory check settles it. High.</li>
+      <li><strong>Lateral movement risk.</strong> High if real. The user's SSH keys reach the build environment and the CI runners that build the customer-facing product, a revenue-affecting supply-chain path.</li>
+      <li><strong>Persistence potential.</strong> High. Developer workstations offer persistence spots that look like normal tooling (shell profiles and dotfiles, LaunchAgents installed by dev tools, IDE extensions and MCP server configs, package-manager hooks that execute on every build), and where new tooling appears weekly, an implant blends in.</li>
     </ul>
 
     <Reveal summary="Subject's verdict and the Scope handoff" variant="example">
-      <p><strong>Subject's conclusion:</strong> benign true positive with explicit caveats. The detection logic read the behavior correctly — the activity matches a known Empire-style pattern — and that behavior is consistent with the documented operating mode of a signed, trusted, role-appropriate application running on a high-trust developer workstation.</p>
+      <p><strong>Subject's conclusion:</strong> leaning benign true positive, with explicit caveats. The detection logic read the behavior correctly, and the host binary, the user and the device all read legitimate: the IDE's extension host doing its documented job on a managed developer workstation. The extension layer is not yet checked, so the activity axis stays undetermined until Uncover.</p>
       <p><strong>What Subject hands to Scope:</strong></p>
       <ul>
-        <li><strong>Primary entities:</strong> the developer, the laptop, the Cursor Helper binary. All read clean across four dimensions.</li>
-        <li><strong>Confidence:</strong> high on the binary identity and user behavior. Medium on the runtime posture, because sandbox-disabled behavior is hard to baseline.</li>
-        <li><strong>Recommended scope:</strong> narrow. 24-hour time window. Just this host and the user. No peer-group expansion required.</li>
-        <li><strong>Open question for Uncover:</strong> are there detection rules that should be tuned for Cursor's plugin-host pattern so this stops firing repeatedly? Yes, but that is improvement work, not investigation work.</li>
-        <li><strong>Insider posture:</strong> none observed. Normal behavior for this role.</li>
+        <li><strong>Entities:</strong> the developer (user, primary), the laptop (host or device, primary), Cursor Helper (Plugin) and its child process (application, primary), and Cursor's vendor endpoints (network identifier, secondary: previously seen, valid certificates, on the published allowlist). All read clean so far.</li>
+        <li><strong>Confidence:</strong> High on the binary identity (EDR signing status and the MDM version and hash agree) and on user behavior. Low on what code the extension host ran: binary identity says nothing about extension code, and the extension inventory is an open question for Uncover.</li>
+        <li><strong>Recommended scope:</strong> narrow: this host, this user, this IDE session, plus the extension layer the host runs. No peer-group investigation.</li>
+        <li><strong>Open questions for Uncover:</strong> which extension owned the child; whether the extension, MCP and workspace-task inventories match the approved list and the peers; whether any credential paths were read across the window; whether the peer match holds at depth.</li>
+        <li><strong>Detection-engineering follow-up (not an Uncover question):</strong> if the close holds, the record proposes a pattern entry keyed to the Cursor build, the extension ID and the destination set, so a malicious extension running in the same unsandboxed host still fires. Never a suppression on signer and install path alone. That is improvement work, not investigation work.</li>
+        <li><strong>Insider posture:</strong> none observed.</li>
       </ul>
       <p>This handoff is what a benign close looks like when written properly. Not "dismissed." Documented.</p>
     </Reveal>
@@ -224,19 +211,17 @@ The first walkthrough showed Subject <em>expanding outward</em> from a single na
 
 </ChapterExample>
 
-<Callout variant="info" title="Two shapes of Subject analysis">
-The two scenarios show the two main shapes Subject takes. Sometimes Subject expands the investigation outward (the finance <DefineTerm term="Phishing" display="phishing" /> case) because the named <DefineTerm term="Entity" display="entity" /> is the tip of a much larger pattern. Sometimes Subject contains the investigation inward (the developer case) because the named entity's context explains the activity. Both are correct Subject outcomes. The methodology is the same; the answer differs.
-</Callout>
-
 ---
 
-## A third scenario: the subject with no device
+<h2 id="case-c">Case C · The subject with no device</h2>
 
-Case C from the Alert chapter continues here: rvega's session token was stolen through an AiTM phishing proxy and replayed against the mail tenant. Subject's habit of profiling the user and their laptop breaks immediately, because the laptop was never compromised. The subjects of this case are an identity, a session, and an application.
+<p class="case-previously"><strong>Previously, in <a href="/docs/alert/example/#case-c">Alert</a>:</strong> an AiTM proxy relayed rvega's 08:53 UTC sign-in, password and MFA approval included, and the session was replayed against the mail tenant at 09:03; the escalation tripwire fired at the end of Alert. The whole case on one card: <a href="/docs/cases/#case-c">Case C in the case files</a>.</p>
+
+IR has owned the case since 09:28, so Subject runs as IR-assigned scoping support under IR's clock. The habit of profiling the user and their laptop breaks immediately, because the laptop was never compromised. The subjects of this case are identities, a session, and an application.
 
 <ChapterExample
   title="Mapping the identities behind the hijacked session"
-  scenario="Alert handed Subject a user (rvega, customer-success lead), a hijacked session ID, a VPS source IP, an inbox rule named with a single dot, an unverified OAuth application, and a phishing domain. No host is implicated. Subject's job is to profile each of those and find the identities the alert did not name."
+  scenario="Subject starts from a user (rvega, customer-success lead), the replayed session S2 and its two sources (the proxy IP 203.0.113.41 and the VPS IP 198.51.100.77), an inbox rule named with a single dot, an unverified OAuth application, and the lure domain docs-share-portal[.]example. Reversible containment has held since 09:27, and no host is implicated. Subject's job is to profile each of those and find the identities the alert did not name."
 >
 
 <ExampleStepper steps={["Profile the named user", "Profile the non-human subjects", "Apply the four dimensions", "Expand across the tenant", "Hand off to Scope"]}>
@@ -245,30 +230,30 @@ Case C from the Alert chapter continues here: rvega's session token was stolen t
     <h3>Step 1. Profile the named user</h3>
     <ul class="example-step__list">
       <li><strong>Identity verification.</strong> rvega is a provisioned account matching an HR record, customer-success lead, employed four years.</li>
-      <li><strong>Authentication history.</strong> Stable 90-day baseline: two devices, one city, one ASN, MFA on every new session. The 08:47 sign-in fits it. The 09:03 session presentation does not.</li>
+      <li><strong>Authentication history.</strong> Stable 90-day baseline: two devices, one city, one ASN, MFA on every new session, read from the SIEM copy. The 08:47 laptop sign-in fits it. The 08:53 sign-in from a hosting IP, a minute after the lure click, does not, and neither does the 09:03 replay of the session it produced.</li>
       <li><strong>Authorization.</strong> No admin roles. Mailbox, CRM access via SSO group, and delegate rights on the shared billing mailbox.</li>
       <li><strong>Behavior.</strong> rvega has never created an inbox rule by API, never consented an OAuth application. Both happened inside twenty minutes.</li>
     </ul>
-    <p>The user profile splits in two: the human's own activity is clean, and the account's activity after 09:03 is not. Subject records those as two different actors sharing one account, which is exactly what a hijacked session is.</p>
+    <p>The user profile splits in two: the human's own activity is clean, including the 08:53 sign-in she made in good faith through the proxy, and the account's activity from the 09:03 replay onward is not. That is two actors sharing one account, which is exactly what a hijacked session is.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Profile the non-human subjects</h3>
     <p>With no host to classify, the entity expansion runs across identity objects instead:</p>
     <ul class="example-step__list">
-      <li><strong>The session.</strong> One session ID, two presentations: corporate laptop at 08:47, VPS at 09:03. Still valid at the time of triage unless revoked. The session, not the password, is the compromised credential.</li>
-      <li><strong>The OAuth application.</strong> "Mail Backup Sync," unverified publisher, consented at 09:09 with offline mailbox-read scopes. It holds its own refresh token, which means it keeps access even if every user session dies.</li>
-      <li><strong>The inbox rule.</strong> Not an identity, but a persistent artifact acting on the mailbox with the account's authority. Profiled and recorded like one.</li>
+      <li><strong>The sessions.</strong> Two, not one. S1, from the 08:47 laptop sign-in, is rvega's own. S2 was issued at 08:53 through the proxy and replayed from the VPS at 09:03; it was revoked at 09:25 and refused when it presented again at 09:31. The session cookie is the credential that bypassed MFA. The proxy captured the typed password too, so both are compromised: revoking the session contains the attacker, and resetting the password stops them signing in again.</li>
+      <li><strong>The OAuth application.</strong> "Mail Backup Sync," unverified publisher, consented at 09:09 from the replayed session with Mail.Read and offline_access. It holds its own refresh token, bound to rvega and the app. A password change does not reliably revoke it; an admin revocation of all her refresh tokens does, but issued access tokens stay valid until they expire and the consent grant stays until someone removes it. Its sign-in was disabled at 09:26; removing the grant cannot be undone, so it waited for IR's approval and happened at 09:38.</li>
+      <li><strong>The inbox rule.</strong> Not an identity, but a persistent artifact acting on the mailbox with the account's authority. Profiled and recorded like one. Exported at 09:23 and disabled at 09:27.</li>
       <li><strong>rvega's laptop.</strong> Checked and explicitly cleared: EDR shows the 08:52 link click opened a browser page, nothing was downloaded or executed. The device is a witness, not a subject.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the OAuth application. Resetting rvega's password and revoking her sessions feels like containment, but the consented app authenticates on its own grant. It is a separate identity with separate credentials, and it survives every user-focused response action.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the OAuth application. Resetting rvega's password feels like containment, but the consented app authenticates on its own grant. Revoking her refresh tokens cuts the tokens it already holds; the grant itself survives every user-focused action until someone removes it, ready for the next token the app obtains. It is a separate identity with separate credentials, and it gets its own containment line.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Apply the four dimensions</h3>
     <ul class="example-step__list">
-      <li><strong>Authentication.</strong> Abnormal by definition: the 09:03 presentation reused a token with no authentication ceremony. MFA was satisfied once, by the human, through the attacker's proxy.</li>
-      <li><strong>Authorization.</strong> Changed during the window: the consent grant added an application to the tenant with standing mailbox access. Authorization drift is itself evidence here.</li>
+      <li><strong>Authentication.</strong> Abnormal twice over: the 08:53 sign-in came through the attacker's proxy from a hosting IP she has never used, and the 09:03 presentation reused that sign-in's token with no ceremony at all. MFA was satisfied once, by the human, through the attacker's proxy. Push approval is not phishing-resistant, and Conditional Access asked for no compliant device or token protection; both are recorded as control gaps.</li>
+      <li><strong>Authorization.</strong> Changed during the window: the consent grant added an application to the tenant with standing mailbox access. Authorization drift is itself evidence here. The tenant lets users consent to unverified publishers, a third control gap.</li>
       <li><strong>Behavior.</strong> The post-09:03 actions (rule creation by API, consent grant, mailbox search patterns) match no prior behavior on this account.</li>
       <li><strong>Relationships.</strong> The account's delegate rights on the shared billing mailbox mean the compromise reaches a mailbox rvega does not own. The new app is a new relationship between the tenant and an external publisher.</li>
     </ul>
@@ -277,11 +262,11 @@ Case C from the Alert chapter continues here: rvega's session token was stolen t
   <div data-step class="example-step">
     <h3>Step 4. Expand across the tenant</h3>
     <ul class="example-step__list">
-      <li><strong>Other recipients.</strong> The email gateway shows the same "shared document" lure went to four customer-success mailboxes. One other user clicked; her sign-in log shows no foreign session presentation yet.</li>
+      <li><strong>Other recipients.</strong> The email gateway shows the same "shared document" lure delivered at 08:41 to four customer-success mailboxes. One other user clicked, at 08:54. Her sign-in log shows a sign-in from the proxy IP at 08:54:49 that passed the password check and stopped at MFA, with no token issued. That rules out session theft, not credential theft: anyone who reached the credential step of a phishing kit is credential-exposed until the password is reset, sessions are revoked, and MFA methods are reviewed. Subject reports her to IR at 09:39; her sessions are revoked at 09:41, and with IR's approval her password is reset and her MFA methods reviewed at 09:44.</li>
       <li><strong>Shared resources.</strong> The billing mailbox rvega can act on becomes a secondary entity: nothing has touched it abnormally yet, but the path exists.</li>
       <li><strong>Downstream systems.</strong> The CRM is reachable through the same SSO identity. No CRM session from the attacker ASN so far; recorded as an open question, not an assumption.</li>
     </ul>
-    <p>The map consolidates: 3 primary entities (rvega's account, the hijacked session, the OAuth application) + 3 secondary entities (the second click-through user, the shared billing mailbox, the inbox rule artifact) + 1 downstream system (the CRM), plus the AiTM domain and VPS IP tracked as the originating threat.</p>
+    <p>The map consolidates: 4 primary entities (rvega's account, the replayed session, the OAuth application, the second user's credential-exposed account) + 2 secondary entities (the shared billing mailbox, and rvega's laptop, examined and cleared) + 1 artifact attached to rvega's account (the inbox rule) + 1 downstream system (the CRM), plus the lure domain, the proxy IP, and the VPS IP tracked as the originating threat.</p>
   </div>
 
   <div data-step class="example-step">
@@ -291,14 +276,15 @@ Case C from the Alert chapter continues here: rvega's session token was stolen t
         <tr><th>Entity</th><th>Type</th><th>Classification</th><th>Four-dimension verdict</th></tr>
       </thead>
       <tbody>
-        <tr><td>rvega</td><td>user</td><td>primary</td><td>Authentication and behavior abnormal after 09:03; the human's own activity clean</td></tr>
-        <tr><td>Hijacked session ID</td><td>session</td><td>primary</td><td>Two presentations, one legitimate, one attacker; possibly still live</td></tr>
-        <tr><td>"Mail Backup Sync" app</td><td>application</td><td>primary</td><td>Unverified publisher, standing mailbox-read grant, independent credentials</td></tr>
-        <tr><td>Second click-through user</td><td>user</td><td>secondary</td><td>Clicked the lure; no foreign session observed yet</td></tr>
+        <tr><td>rvega</td><td>user</td><td>primary</td><td>Abnormal from the 08:53 proxied sign-in on; the human's own activity clean; disabled 09:24, password reset 09:40</td></tr>
+        <tr><td>Replayed session S2</td><td>session or token</td><td>primary</td><td>Issued through the proxy at 08:53, replayed from the VPS at 09:03; revoked 09:25, refused at 09:31</td></tr>
+        <tr><td>"Mail Backup Sync" app</td><td>application or OAuth grant</td><td>primary</td><td>Unverified publisher, Mail.Read and offline_access, independent credentials; sign-in disabled 09:26, grant removed 09:38</td></tr>
+        <tr><td>Second click-through user</td><td>user</td><td>primary</td><td>Credential-exposed: password accepted at the proxy, MFA not completed, no token; sessions revoked 09:41, password reset and MFA reviewed 09:44</td></tr>
         <tr><td>Shared billing mailbox</td><td>resource</td><td>secondary</td><td>Reachable via rvega's delegate rights; no abnormal access yet</td></tr>
-        <tr><td>Inbox rule "."</td><td>artifact</td><td>secondary</td><td>Active, hiding payment-themed mail since 09:06</td></tr>
-        <tr><td>CRM</td><td>service</td><td>downstream</td><td>Not assessed; same SSO reach</td></tr>
-        <tr><td>AiTM domain + VPS IP</td><td>threat</td><td>originating threat</td><td>Tracked as threat infrastructure, not internal identity</td></tr>
+        <tr><td>rvega's laptop</td><td>host or device</td><td>secondary</td><td>Examined and cleared: a browser page only, nothing downloaded or executed</td></tr>
+        <tr><td>Inbox rule "."</td><td>artifact</td><td>artifact on rvega's account</td><td>Hid payment-themed mail from 09:06; exported 09:23, disabled 09:27</td></tr>
+        <tr><td>CRM</td><td>application or OAuth grant</td><td>downstream</td><td>No attacker-ASN session yet; reachable via the same SSO identity; open question</td></tr>
+        <tr><td>Lure domain, proxy IP, VPS IP</td><td>threat</td><td>originating threat</td><td>docs-share-portal[.]example, 203.0.113.41, 198.51.100.77; tracked as threat infrastructure, not internal identity</td></tr>
       </tbody>
     </table>
     <ul class="example-step__list">
@@ -311,49 +297,106 @@ Case C from the Alert chapter continues here: rvega's session token was stolen t
 
 </ChapterExample>
 
-<Callout variant="info" title="The third shape: expansion without a device">
-The finance case expanded from a user to hosts and peers. The developer case contained to one workstation. Case C expands too, but through identity objects: a session, an application grant, a delegate path, a second lure recipient. When there is no device to anchor on, the entity types from the <a href="/docs/subject/entity-types/">entity-types page</a> are what keep the expansion systematic instead of improvised.
-</Callout>
+---
+
+<h2 id="insider-referral">A fourth scenario: the HR referral</h2>
+
+All three cases above record an insider posture of none. This scenario applies <a href="/docs/subject/insider-analysis/">insider analysis</a> instead. It is self-contained and does not continue into the later chapters: from its last step, the case runs on the insider route.
+
+<ChapterExample
+  title="Triaging an insider referral for a departing engineer"
+  scenario="At 08:30 UTC on 2026-10-07 the insider-program lead sends the SOC referral IRP-2026-0412 about jkessler, a platform engineer whose notice period began on 2026-09-28. The referral asks three technical questions: has the account bulk-accessed source repositories since the notice date, has it moved data to personal storage or personal email, and has it touched anything outside its current role. Nothing else from HR comes with it, and nothing else should."
+>
+
+<ExampleStepper steps={["Take the referral, not the story", "Check with legal before widening", "Apply the four dimensions", "Correlate and write it down", "Respond on act, asset and impact"]}>
+
+  <div data-step class="example-step">
+    <h3>Step 1. Take the referral, not the story</h3>
+    <p>The case record opens with four facts about the referral and nothing more:</p>
+    <ul class="example-step__list">
+      <li><strong>Reference:</strong> IRP-2026-0412.</li>
+      <li><strong>Owner:</strong> the insider-program lead, who holds whatever HR context exists.</li>
+      <li><strong>Window:</strong> from the notice date, 2026-09-28, to now.</li>
+      <li><strong>Technical questions:</strong> the three above, copied verbatim.</li>
+    </ul>
+    <p>Case access is restricted to the two named analysts and the insider-program lead; the case does not sit in the shared queue.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the urge to ask HR "why". The reason for the referral, and anything about the person's circumstances, stays with HR and the insider-program lead. The SOC's job is to answer the technical questions with observable activity, and the record is defensible precisely because it holds nothing else.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Check with legal before widening</h3>
+    <p>The three questions can be answered from logs the company already collects: the source-control audit log, the cloud access security broker (CASB) and proxy logs, and the EDR timeline for jkessler's laptop (laptop-eng-14). Before pulling anything, the analyst confirms the envelope with legal through the insider-program lead:</p>
+    <ul class="example-step__list">
+      <li><strong>Approved now:</strong> review of those existing logs for the referral window, and file-hash comparison between EDR and CASB records.</li>
+      <li><strong>Not approved without a further request:</strong> opening the contents of any file, reading jkessler's mail or chat, or collecting anything from outside the window.</li>
+      <li><strong>Preservation:</strong> legal places the source-control audit log, the CASB and proxy logs, and the EDR telemetry for laptop-eng-14 under legal hold, and the analyst starts a chain-of-custody record for every export.</li>
+    </ul>
+    <p>The questions need nothing beyond the approved set, so nothing further is requested.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 3. Apply the four dimensions</h3>
+    <ul class="example-step__list">
+      <li><strong>Authentication.</strong> Normal: every session in the window is from laptop-eng-14, with MFA, from the usual network. Nothing borrowed, nothing shared.</li>
+      <li><strong>Authorization.</strong> One finding. jkessler can still read two repositories (payments-core and fraud-models) from a role on another team that ended in June. The access was never revoked.</li>
+      <li><strong>Behavior.</strong> On 2026-10-06 between 21:58 and 22:31 UTC the account cloned 14 repositories, including both of the left-over ones. Its own 90-day baseline is one to three clones a week. The aggregate baseline for the platform team (no named colleagues examined) puts the 95th percentile at six clones a week. At 22:44 EDR records an archive tool reading the 14 clone directories and writing a 2.3 GB zip file.</li>
+      <li><strong>Relationships.</strong> From 22:47 to 22:52 UTC the browser on laptop-eng-14 uploads a 2.3 GB file to personal-drive[.]example, a consumer cloud-storage service the device has never contacted before. The CASB logged the upload but did not block it: personal storage was a log-only category. The file hash in the CASB record matches the zip EDR saw written at 22:44.</li>
+    </ul>
+    <p>All three referral questions now have answers, and every answer is a logged event with a timestamp.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Correlate and write it down</h3>
+    <p>The two streams meet on one point only: the activity falls inside the window the referral supplied. That correlation sharpens the label; it does not decide the response. The ticket records the technical stream in factual terms:</p>
+    <ul class="example-step__list">
+      <li><strong>Survives review:</strong> "On 2026-10-06 between 21:58 and 22:31 UTC, account jkessler cloned 14 source repositories, two of them outside the account's current team. At 22:44 UTC an archive of those clone directories was written on laptop-eng-14; between 22:47 and 22:52 UTC a file with the same hash (2.3 GB) was uploaded to personal-drive[.]example."</li>
+      <li><strong>Does not belong in any ticket:</strong> "Disgruntled engineer stealing code before leaving for a competitor." It states intent nobody has established and repeats context the SOC should never have held.</li>
+    </ul>
+    <p>Confidence is High on the shared <a href="/docs/documentation/standards/#confidence">confidence rubric</a>: two independent sources (EDR and CASB) agree, the hashes match, and the leading benign alternative (an approved transfer) is ruled out, because no ticket or approval covers moving source code to personal storage. Company source code has left the company's control. That is the exfiltration criterion, confirmed.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 5. Respond on act, asset and impact</h3>
+    <p>A confirmed criterion trips the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a> whatever the label: the case is P1. The escalation goes through the insider route, with the IR lead, the insider-program lead and legal on one bridge, because the person is an employee and the case may end in litigation.</p>
+    <ul class="example-step__list">
+      <li><strong>Preserve first:</strong> the legal hold from Step 2 already covers the logs; the EDR timeline and CASB records are exported under the chain-of-custody record before anything changes on the device.</li>
+      <li><strong>Contain what is still live:</strong> uploads from laptop-eng-14 to personal cloud storage move from log-only to block. It is reversible and stops further loss without touching the account.</li>
+      <li><strong>Time the rest with legal:</strong> the upload has completed, so suspending the account or removing access now would recall nothing and would warn the subject. Removing the two left-over repository grants, the conversation with jkessler, and any request to the storage provider are timed by the insider-program lead and legal.</li>
+      <li><strong>Label:</strong> recorded as "deliberate transfer of company source code to personal storage; intent not established". Whether this is insider risk or insider threat is the insider-program lead's call, made in parallel; the response above did not wait for it.</li>
+    </ul>
+    <p>The Subject handoff's insider posture reads: referral IRP-2026-0412, owned by the insider-program lead; all three technical questions answered yes, with the evidence above. Nothing about the person beyond the account's activity.</p>
+  </div>
+
+</ExampleStepper>
+
+</ChapterExample>
 
 ---
 
+## Four shapes, one method
+
+<table class="shapes-table">
+  <thead>
+    <tr><th>Case</th><th>Shape</th><th>What kept the map systematic</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><a href="#case-a">Case A</a></td><td>Expands outward: one named user becomes hosts, a machine account, a federated identity and three other recipients.</td><td>The named entity is the tip of a larger pattern, so Subject follows its trust paths.</td></tr>
+    <tr><td><a href="#case-b">Case B</a></td><td>Contains inward: the device class, the signed application and the role explain the activity, with the extension layer left open.</td><td>Context read on every dimension, recorded so Scope inherits a defensible verdict.</td></tr>
+    <tr><td><a href="#case-c">Case C</a></td><td>Expands through identity objects: a session, an application grant, a delegate path, a second lure recipient whose password the kit captured.</td><td>With no device to anchor on, the <a href="/docs/subject/entity-types/">entity types</a>.</td></tr>
+    <tr><td><a href="#insider-referral">Referral</a></td><td>Starts from a person named by HR, not an alert.</td><td>The referral's technical questions, collection inside what legal approved, aggregate peers, and facts in the ticket.</td></tr>
+  </tbody>
+</table>
+
+All four are correct Subject outcomes. The method is the same; the answer differs. Even in the referral, the response ran on act, asset and impact like any other confirmed criterion; only the route and the timing of the visible steps changed.
+
 <KeyTakeaway>
-Subject's verdict is rarely "compromise" or "benign" as a binary. It is a structured map of identities with per-dimension assessments and explicit confidence levels, whether those identities are users and hosts or sessions and application grants. That structure is what lets Scope draw clean boundaries instead of guessing.
+Subject's verdict is rarely "compromise" or "benign" as a binary. It is a structured map of identities, each with a per-dimension assessment and an explicit confidence label, whether the identities are users and hosts or sessions and application grants, and whether the case began with an alert or an HR referral. That structure is what lets Scope draw clean boundaries instead of guessing.
 </KeyTakeaway>
 
 <ContinueCard
   current="subject"
-  nextHref="/docs/subject/quiz/"
-  nextLabel="Subject chapter quiz"
-  nextDescription="Ten questions on the four dimensions, entity types, behavioral framework, insider analysis, the working examples, and the Scope handoff."
-  ctaLabel="Take the chapter quiz"
+  nextHref="/docs/subject/transition/"
+  nextLabel="Transition to Scope"
+  nextDescription="The handoff contract: what Subject passes to Scope, and how to know the case is ready."
+  ctaLabel="Read the handoff"
 />
-
-<style>
-{`
-.example-step h3 {
-  margin: 0 0 0.85rem 0;
-  color: #86efac;
-  font-size: 1.2rem;
-}
-.example-step table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0 0 1rem 0;
-  font-size: 0.85rem;
-}
-.example-step th,
-.example-step td {
-  padding: 0.5rem 0.7rem;
-  text-align: left;
-  vertical-align: top;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-}
-.example-step thead th {
-  background: rgba(34, 197, 94, 0.1);
-  color: #86efac;
-}
-`}
-</style>

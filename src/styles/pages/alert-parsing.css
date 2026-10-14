@@ -1,0 +1,1325 @@
+/*
+ * Alert telemetry field-reference styles
+ * (src/content/docs/alert/parsing/*.mdx: the six "Reading telemetry" pages).
+ *
+ * Moved out of the per-page <style> blocks. No class here is defined by
+ * more than one of the six pages. .principle-card (multi-format) shares its
+ * name with the .principle-card p rule in content-patterns.css; the two
+ * rules set different properties, so load order does not matter.
+ *
+ * Colors use the design tokens in src/styles/assured.css. Text always uses
+ * a -soft or text token; base phase hues appear only on borders, fills and
+ * gradients. The one remaining hex (#c4b5fd, violet-300 on file-system) has
+ * no token.
+ */
+
+/* Line icons that replaced emoji: the span keeps its font-size, and the
+   SVG takes 1em of it, so each icon renders at the old glyph size. */
+.format-card__icon,
+.benefit-row__icon,
+.telemetry-card__icon,
+.chain-row__icon,
+.evasion-detail__icon {
+  display: inline-flex;
+  color: var(--assured-phase-alert-soft);
+}
+
+.format-card__icon svg,
+.benefit-row__icon svg,
+.telemetry-card__icon svg,
+.chain-row__icon svg,
+.evasion-detail__icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.format-card__icon { color: var(--accent-text, var(--assured-phase-alert-soft)); }
+
+/* ---------------------------------------------------------------- */
+/* parsing/multi-format.mdx                                     */
+/* ---------------------------------------------------------------- */
+
+.formats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .formats-grid { grid-template-columns: 1fr 1fr; } }
+
+.format-card {
+  position: relative;
+  padding: 1.5rem 1.75rem;
+  background: var(--assured-panel-solid);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--accent, var(--assured-phase-alert));
+  border-radius: 0.85rem;
+}
+
+/* --accent colors the border; --accent-text is the -soft partner for text,
+   because the base hues fall below 4.5:1 on the dark card. */
+.format-card--evtx    { --accent: var(--assured-phase-alert);   --accent-text: var(--assured-phase-alert-soft); }
+.format-card--syslog  { --accent: var(--assured-accent);        --accent-text: var(--assured-accent-soft); }
+.format-card--cef     { --accent: var(--assured-phase-scope);   --accent-text: var(--assured-phase-scope-soft); }
+.format-card--json    { --accent: var(--assured-phase-uncover); --accent-text: var(--assured-phase-uncover-soft); }
+
+.format-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.format-card__icon {
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.format-card h3 {
+  margin: 0;
+  color: var(--accent-text, var(--assured-phase-alert-soft));
+  font-size: 1.1rem;
+}
+
+.format-card__intro {
+  margin: 0 0 0.85rem 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.format-card__sub {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-text-dim);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.format-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.format-card li {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.telem-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .telem-grid { grid-template-columns: 1fr 1fr; } }
+
+.telem-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-accent);
+  border-radius: 0.7rem;
+}
+
+.telem-card__os {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--assured-accent-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
+.telem-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-text);
+  font-size: 0.98rem;
+}
+
+.telem-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .story-grid { grid-template-columns: 1fr 1fr; } }
+
+.story-step {
+  position: relative;
+  padding: 1.1rem 1.35rem 1.1rem 3.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-accent);
+  border-radius: 0.6rem;
+}
+
+.story-step__num {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--assured-accent-soft);
+  letter-spacing: 0.05em;
+}
+
+.story-step__label {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--assured-accent-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.story-step p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.standardization-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 1.25rem 0;
+}
+
+.benefit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.85rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+}
+
+.benefit-row__icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.benefit-row div {
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.benefit-row strong { color: var(--assured-text); }
+
+.schema-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .schema-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.schema-card {
+  padding: 1.5rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(94, 234, 212, 0.3);
+  border-radius: 0.85rem;
+}
+
+.schema-card__tag {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--assured-accent-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.schema-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--assured-text);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+}
+
+.schema-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .principles-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .principles-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.principle-card {
+  position: relative;
+  padding: 1.3rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid var(--assured-phase-alert);
+  border-radius: 0.7rem;
+}
+
+.principle-card__num {
+  position: absolute;
+  top: 0.9rem;
+  right: 1.1rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(147, 197, 253, 0.7); /* >= 4.5:1 over the card at both gradient ends */
+}
+
+.principle-card h3 {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-phase-alert-soft);
+  font-size: 0.95rem;
+}
+
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.telem-card h3,
+.principle-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* parsing/command-line.mdx                                     */
+/* ---------------------------------------------------------------- */
+
+.obfuscation-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .obfuscation-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.obfuscation-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-uncover);
+  border-radius: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.obfuscation-card h3 {
+  margin: 0;
+  color: var(--assured-phase-uncover-soft);
+  font-size: 0.95rem;
+}
+
+.obfuscation-card code {
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.35rem;
+  word-break: break-word;
+  display: block;
+}
+
+.obfuscation-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.85rem;
+}
+
+.obfuscation-card p code {
+  display: inline;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.8em;
+}
+
+.decode-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.decode-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-alert);
+  border-radius: 0.7rem;
+}
+
+.decode-step__num {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: var(--assured-phase-alert-soft);
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decode-step :is(h3, h4) {
+  margin: 0 0 0.35rem 0;
+  color: var(--assured-phase-alert-soft);
+  font-size: 0.98rem;
+}
+
+.decode-step p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+.decode-step a {
+  color: var(--assured-phase-alert-soft);
+  text-decoration: underline;
+}
+
+.flags-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 1.25rem 0;
+}
+
+.flags-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding: 0.85rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 900px) {
+  .flags-row { grid-template-columns: 1.1fr 1fr 1.9fr; gap: 1rem; align-items: baseline; }
+}
+
+.flags-row--head {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 1.15rem;
+}
+
+@media (min-width: 900px) {
+  .flags-row--head { display: grid; }
+  .flags-row--head span {
+    color: var(--assured-text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.flags-row span {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.flags-row code {
+  font-size: 0.82rem;
+  padding: 0.05rem 0.35rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.3rem;
+}
+
+.gap-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .gap-cards { grid-template-columns: 1fr 1fr; } }
+
+.gap-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-scope);
+  border-radius: 0.7rem;
+}
+
+.gap-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-phase-scope-soft);
+  font-size: 0.95rem;
+}
+
+.gap-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .context-grid { grid-template-columns: 1fr 1fr; } }
+
+.context-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.context-card__label {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--assured-phase-alert-soft);
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+
+.context-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.platform-list,
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.platform-item,
+.pattern-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+
+.platform-item__bullet,
+.pattern-item__bullet {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--assured-accent), var(--assured-phase-alert));
+  margin-top: 0.5rem;
+}
+
+.platform-item strong,
+.pattern-item strong {
+  color: var(--assured-text);
+}
+
+.platform-item div,
+.pattern-item div {
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.decode-step h3, .gap-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* parsing/process-relationships.mdx                            */
+/* ---------------------------------------------------------------- */
+
+.lineage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+@media (min-width: 768px)  { .lineage-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.lineage-card {
+  padding: 1.1rem 1.3rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-success);
+  border-radius: 0.6rem;
+}
+
+.lineage-card__label {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--assured-success-soft);
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.lineage-card code {
+  display: block;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.lineage-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.macos-parse {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 900px) { .macos-parse { grid-template-columns: repeat(3, 1fr); } }
+
+.macos-parse__item {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid var(--assured-accent);
+  border-radius: 0.7rem;
+}
+
+.macos-parse__item :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-accent-soft);
+  font-size: 0.95rem;
+}
+
+.macos-parse__item p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.89rem;
+}
+
+.chains-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.chain-row {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-danger);
+  border-radius: 0.7rem;
+}
+
+.chain-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.chain-row__icon {
+  font-size: 1.3rem;
+}
+
+.chain-row :is(h3, h4) {
+  margin: 0;
+  color: var(--assured-danger-soft);
+  font-size: 1rem;
+}
+
+.chain-row__viz {
+  margin: 0.4rem 0 0.85rem;
+}
+
+.chain-viz {
+  width: 100%;
+  height: auto;
+  max-width: 480px;
+}
+
+.chain-viz__label {
+  font-family: var(--font-sans, system-ui), sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--assured-text-soft);
+}
+
+.chain-viz__flag {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  fill: var(--assured-danger-soft);
+}
+
+.chain-viz__node {
+  opacity: 0.6;
+  animation: chain-pop 4s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.chain-viz__arrow {
+  opacity: 0.6;
+  animation: chain-fade 4s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes chain-pop {
+  0%, 75%, 100% { opacity: 0.6; transform: scale(0.98); }
+  10%, 65%      { opacity: 1; transform: scale(1); }
+}
+
+@keyframes chain-fade {
+  0%, 75%, 100% { opacity: 0.6; }
+  15%, 65%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chain-viz__node, .chain-viz__arrow { opacity: 1; animation: none; }
+}
+
+.chain-row__body {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .tools-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.tool-card {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.tool-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-accent-soft);
+  font-size: 0.95rem;
+}
+
+.tool-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.evasion-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.evasion-detail {
+  padding: 1.25rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-scope);
+  border-radius: 0.7rem;
+}
+
+.evasion-detail__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.evasion-detail__icon { font-size: 1.3rem; }
+
+.evasion-detail :is(h3, h4) {
+  margin: 0;
+  color: var(--assured-phase-scope-soft);
+  font-size: 1.02rem;
+}
+
+.evasion-detail p {
+  margin: 0 0 0.7rem 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.evasion-detail__tell {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px dashed rgba(168, 85, 247, 0.3);
+  border-radius: 0.5rem;
+}
+
+.evasion-detail__tell strong { color: var(--assured-phase-scope-soft); }
+
+/* level changed for the heading outline; size stays as designed (weight and line-height pinned to the h4 baseline) */
+.macos-parse__item h3,
+.chain-row h3,
+.tool-card h3,
+.evasion-detail h3 {
+  font-weight: 600;
+  line-height: inherit;
+}
+
+/* ---------------------------------------------------------------- */
+/* parsing/network.mdx                                          */
+/* ---------------------------------------------------------------- */
+
+.perspective-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .perspective-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.perspective-card {
+  padding: 1.5rem 1.75rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 4px solid var(--accent, var(--assured-accent));
+  border-radius: 0.85rem;
+}
+
+/* --accent colors borders; --accent-text is the -soft partner for the label text. */
+.perspective-card--host { --accent: var(--assured-phase-uncover); --accent-text: var(--assured-phase-uncover-soft); }
+.perspective-card--net  { --accent: var(--assured-accent);        --accent-text: var(--assured-accent-soft); }
+
+.perspective-card__label {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--accent-text, var(--assured-accent-soft));
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+  border: 1px solid var(--accent);
+}
+
+.perspective-card h3 {
+  margin: 0 0 0.75rem 0;
+  color: var(--assured-text);
+  font-size: 1.05rem;
+}
+
+.perspective-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.perspective-card li {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .telemetry-grid { grid-template-columns: 1fr 1fr; } }
+
+.telemetry-card {
+  padding: 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.telemetry-card__icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.telemetry-card :is(h3, h4) {
+  margin: 0 0 0.6rem 0;
+  color: var(--assured-accent-soft);
+  font-size: 1rem;
+}
+
+.telemetry-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.telemetry-card li {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.strategy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.25rem 0;
+}
+
+.strategy-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+  align-items: flex-start;
+}
+
+.strategy-item__num {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, var(--assured-accent), var(--assured-phase-alert));
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.strategy-item :is(h3, h4) {
+  margin: 0 0 0.3rem 0;
+  color: var(--assured-text);
+  font-size: 1rem;
+}
+
+.strategy-item p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.c2-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .c2-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .c2-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.c2-card {
+  padding: 1.15rem 1.35rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-danger);
+  border-radius: 0.6rem;
+}
+
+.c2-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-danger-soft);
+  font-size: 0.95rem;
+}
+
+.c2-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.telemetry-card h3, .strategy-item h3, .c2-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* parsing/file-system.mdx                                      */
+/* ---------------------------------------------------------------- */
+
+.lifecycle-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .lifecycle-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .lifecycle-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.lifecycle-card {
+  position: relative;
+  padding: 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid var(--assured-accent);
+  border-radius: 0.7rem;
+}
+
+.lifecycle-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(94, 234, 212, 0.7); /* >= 4.5:1 over the card at both gradient ends */
+}
+
+.lifecycle-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-accent-soft);
+  font-size: 0.98rem;
+}
+
+.lifecycle-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.patterns-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .patterns-grid { grid-template-columns: 1fr 1fr; } }
+
+.patterns-card {
+  padding: 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.patterns-card :is(h3, h4) {
+  margin: 0 0 0.6rem 0;
+  color: var(--assured-text);
+  font-size: 1rem;
+}
+
+.patterns-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.patterns-card li {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.metadata-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+@media (min-width: 768px)  { .metadata-list { grid-template-columns: 1fr 1fr; } }
+
+.metadata-item {
+  padding: 0.9rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-left: 3px solid var(--assured-phase-scope);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metadata-item__label {
+  color: #c4b5fd;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.metadata-item__detail {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .source-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .source-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.source-card {
+  padding: 1.15rem 1.35rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+
+.source-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-phase-uncover-soft);
+  font-size: 0.95rem;
+}
+
+.source-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.lifecycle-card h3, .patterns-card h3, .source-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* parsing/cloud-identity.mdx                                   */
+/* ---------------------------------------------------------------- */
+
+.field-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) { .field-cards { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1200px) { .field-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.field-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-top: 3px solid var(--assured-phase-uncover);
+  border-radius: 0.7rem;
+}
+
+.field-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-phase-uncover-soft);
+  font-size: 0.92rem;
+}
+
+.field-card :is(h3, h4) code {
+  font-size: 0.85em;
+  padding: 0.05rem 0.3rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0.3rem;
+}
+
+.field-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.chain-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+
+.chain-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-alert);
+  border-radius: 0.6rem;
+}
+
+.chain-step__num {
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: var(--assured-phase-alert-soft);
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chain-step p {
+  margin: 0.15rem 0 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.imds-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 900px) { .imds-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.imds-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+}
+
+.imds-card--attack  { border-left: 3px solid var(--assured-danger); }
+.imds-card--tell    { border-left: 3px solid var(--assured-accent); }
+.imds-card--context { border-left: 3px solid var(--assured-phase-scope); }
+
+.imds-card__label {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--assured-text-dim);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.imds-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.idp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.idp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.6rem;
+}
+
+.idp-item__bullet {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--assured-accent), var(--assured-phase-alert));
+  margin-top: 0.5rem;
+}
+
+.idp-item strong { color: var(--assured-text); }
+
+.idp-item div {
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.field-card h3 { font-weight: 600; line-height: inherit; }

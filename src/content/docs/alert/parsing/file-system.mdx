@@ -1,38 +1,28 @@
 ---
 title: "File system activity"
-description: "Track the file lifecycle. Persistence, payload deployment, ransomware staging, and exfiltration preparation."
+description: "Track the file lifecycle. Persistence, payload deployment, ransomware staging, and exfiltration staging."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/alert-parsing.css";
 
 <SubPageHero
   phase="alert"
   parentLetter="A"
-  pillarIndex="03 · 05"
-  pillarTotal="06 pages"
-  chapterHref="/docs/alert/parsing/"
-  chapterLabel="Parsing"
-  lede="File system telemetry exposes persistence, payload deployment, privilege escalation, and exfiltration staging. Tracking create, modify, delete, and access patterns reveals both traditional malware and fileless tradecraft."
+  chapterHref="/docs/field-reference/#reading-telemetry"
+  chapterLabel="Field reference: Reading telemetry"
+  lede="File system telemetry exposes persistence, payload deployment, ransomware staging and exfiltration staging. Tracking create, modify, delete and (where captured) read events, plus file metadata, reconstructs what landed, when, and from where."
 />
 
-<PillNav
-  chapter="alert"
-  label="Parsing pages"
-  items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
-  ]}
-/>
+<PillNav section="/docs/field-reference/#reading-telemetry" phase="alert" />
 
-Adversaries lean on living-off-the-land techniques: modifying legitimate files, creating hidden payloads, abusing trusted utilities. A seemingly benign file like `C:\ProgramData\1.dat` followed by registry modifications under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run` fits the persistence-staging pattern exactly. Tying that to a parent process and outbound connection completes the picture.
+Adversaries modify legitimate files, hide payloads among ordinary ones, and lean on living-off-the-land techniques (abusing the system's own trusted utilities) to do it. A seemingly benign file like `C:\ProgramData\1.dat` followed by registry modifications under `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run` fits the persistence-staging pattern exactly. Tying that to a parent process and outbound connection completes the picture.
 
 ## The four lifecycle events
 
@@ -50,14 +40,55 @@ Adversaries lean on living-off-the-land techniques: modifying legitimate files, 
   <div class="lifecycle-card">
     <span class="lifecycle-card__num">03</span>
     <h3>Deletion</h3>
-    <p>Sudden removal of logs, binaries, or staging files often signals cleanup. Watch for log clearing tied to other suspicious activity.</p>
+    <p>Sudden removal of logs, binaries, or staging files often signals cleanup (ATT&CK T1070). Watch for log clearing (Security 1102, System 104; on Linux, truncated <code>/var/log</code> files or a stopped journald), which is itself logged and survives the clear.</p>
   </div>
   <div class="lifecycle-card">
     <span class="lifecycle-card__num">04</span>
     <h3>Access patterns</h3>
-    <p>Large-scale sequential reads of sensitive datasets (customer databases, financial records, intellectual property) point to data staging.</p>
+    <p>Large-scale sequential reads of sensitive datasets (customer databases, financial records, intellectual property) point to data staging, where you can see them. Windows logs file reads (event 4663) only for objects with an auditing SACL, and Sysmon has no ordinary file-read event, so read visibility usually needs SACLs or a DLP or file-activity product. Missing read telemetry is a visibility gap, not evidence that no access happened.</p>
   </div>
 </div>
+
+### Know your source
+
+None of the four events above exists unless something recorded it, and most of them are not recorded by default. Know which source feeds your console before you read an empty result as "nothing happened."
+
+<div class="source-grid">
+  <div class="source-card">
+    <h3>Creates and streams</h3>
+    <p>Sysmon Event 11 (file create) or the EDR's file events. Sysmon Event 15 records alternate data streams, including the <code>Zone.Identifier</code> stream that carries the Mark of the Web.</p>
+  </div>
+  <div class="source-card">
+    <h3>Timestamps</h3>
+    <p>Sysmon Event 2 (file creation time changed). In the MFT, compare <code>$STANDARD_INFORMATION</code> times, which tools can rewrite, with <code>$FILE_NAME</code> times, which they usually do not. The USN journal records each change in order.</p>
+  </div>
+  <div class="source-card">
+    <h3>Deletes and reads</h3>
+    <p>Sysmon Event 23 (delete, with the file archived) or 26 (delete logged). Reads appear only as Security 4663 where a SACL exists, which is rare, so "no read events" is usually a visibility gap.</p>
+  </div>
+  <div class="source-card">
+    <h3>macOS and Linux</h3>
+    <p>On macOS, Endpoint Security file events through the EDR. On Linux, auditd file watches or eBPF sensors. Both record only what the agent or rule set was configured to watch.</p>
+  </div>
+</div>
+
+<Reveal summary="Annotated sample: where a file came from" variant="deep-dive">
+
+Trimmed and fictional; the field names are real. A Sysmon Event ID 15 (FileCreateStreamHash) record for a document saved from a browser:
+
+```text
+UtcTime=2026-03-10 14:19:47.260  ProcessGuid={6a1f0c3e-2b61-65f0-1d07-000000001a00}
+Image=C:\Program Files\Google\Chrome\Application\chrome.exe
+TargetFilename=C:\Users\jdoe\Downloads\remittance.docm:Zone.Identifier
+Contents=[ZoneTransfer]  ZoneId=3  ReferrerUrl=https://webmail.example/  HostUrl=https://docs-transfer.example/f/remittance.docm
+```
+
+- The <code>:Zone.Identifier</code> suffix is the alternate data stream that carries the Mark of the Web. <code>Contents</code> holds its text, which Sysmon records for small streams.
+- <code>ZoneId=3</code> is the Internet zone. That is what makes Office block the document's macros by default, and what SmartScreen and other controls key on.
+- <code>HostUrl</code> and <code>ReferrerUrl</code> say where the file came from and which page linked to it: treat the host as an IOC and pivot on it in proxy and DNS logs.
+- <code>Image</code> is the process that wrote the file, and its <code>ProcessGuid</code> links the download to the process tree. A file that arrived from the internet with no Zone.Identifier stream at all had its mark stripped somewhere (an archive tool, a container, or a user unblocking it), and that is worth a line in the record.
+
+</Reveal>
 
 ---
 
@@ -65,35 +96,44 @@ Adversaries lean on living-off-the-land techniques: modifying legitimate files, 
 
 <div class="patterns-grid">
   <div class="patterns-card">
-    <h3>🔁 Persistence mechanisms</h3>
+    <h3>Persistence mechanisms</h3>
     <ul>
-      <li>Registry autorun keys under <code>HKLM\Software\Microsoft\Windows\CurrentVersion\Run</code> or the user-hive equivalent</li>
-      <li>Scheduled tasks with obfuscated commands or unusual triggers</li>
-      <li><DefineTerm term="DLL Search Order Hijacking" display="DLL search order hijacking" /> via malicious DLLs in application directories</li>
+      <li>Windows: Run and RunOnce keys under <code>HKLM\Software\Microsoft\Windows\CurrentVersion\Run</code> or the HKCU equivalent (T1547.001), and new files in the Startup folder (<code>%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup</code>)</li>
+      <li>Scheduled tasks with obfuscated commands or unusual triggers (T1053.005)</li>
+      <li><DefineTerm term="DLL Search Order Hijacking" display="DLL search order hijacking" /> and side-loading via malicious DLLs in application directories (T1574.001)</li>
+      <li>COM hijacking (T1546.015): a new <code>HKCU\Software\Classes\CLSID\&#123;...&#125;\InprocServer32</code> value pointing at a DLL in a user-writable path. Per-user registrations take precedence over the HKLM registration in the merged HKCR view, so no admin rights are needed.</li>
+      <li>macOS: new plists in <code>&#126;/Library/LaunchAgents</code> or <code>/Library/LaunchDaemons</code>, and new login items</li>
+      <li>Linux: new cron entries, systemd unit files, <code>authorized_keys</code> changes, <code>/etc/ld.so.preload</code></li>
     </ul>
   </div>
 
   <div class="patterns-card">
-    <h3>💣 Payload deployment</h3>
+    <h3>Payload deployment</h3>
     <ul>
-      <li>Executables in sensitive system directories (<code>C:\Windows\Tasks</code>, <code>C:\Windows\System32</code>)</li>
+      <li>New or unsigned executables in <code>C:\Windows\System32</code> (compare against the gold image), and executables in folders under <code>C:\Windows</code> that standard users can write to by default, such as <code>C:\Windows\Tasks</code>, <code>C:\Windows\Temp</code>, or <code>C:\Windows\System32\spool\drivers\color</code>, which attackers use to slip past path-based allowlisting</li>
       <li>Files with double extensions (<code>invoice.pdf.exe</code>)</li>
       <li>DLLs created in temporary or user folders</li>
+      <li>Origin markers: the Mark of the Web (the <code>Zone.Identifier</code> stream records that a file came from the internet, and often the URL it came from) missing from a file that was downloaded, and on macOS the quarantine extended attribute removed from a downloaded binary</li>
     </ul>
   </div>
 
   <div class="patterns-card">
-    <h3>🔒 Ransomware activity</h3>
+    <h3>Ransomware activity</h3>
     <ul>
-      <li>Bulk renaming of files with extensions like <code>.locked</code> or <code>.encrypted</code></li>
-      <li>Rapid creation of ransom notes across many directories</li>
+      <li>Backup and recovery destruction just before encryption (<code>vssadmin delete shadows</code>, <code>wbadmin delete catalog</code>, <code>bcdedit /set recoveryenabled no</code>; T1490), seen in process telemetry, usually minutes before the encryption starts</li>
+      <li>One process rewriting thousands of files at high rate, with a newly appended extension (often random or family-specific, such as <code>.akira</code>) or none; high-volume partial overwrites with no rename are intermittent encryption</li>
+      <li>Ransom notes appearing across many directories</li>
+      <li>On ESXi hosts, VMDK files under <code>/vmfs/volumes</code> renamed or rewritten after VMs are killed, often where no EDR agent runs</li>
+      <li>In cloud storage, objects rewritten with customer-provided keys (AWS SSE-C)</li>
+      <li>Most ransomware operations steal data before they encrypt (double extortion), so an encryption finding also opens the exfiltration question: look for archives and transfer tools in the days before (see Exfiltration staging). Theft-only extortion leaves no encryption artifacts at all.</li>
     </ul>
   </div>
 
   <div class="patterns-card">
-    <h3>📦 Exfiltration staging</h3>
+    <h3>Exfiltration staging</h3>
     <ul>
-      <li>Large compressed archives (<code>.zip</code>, <code>.rar</code>, <code>.7z</code>) containing sensitive data appearing shortly before outbound transfers</li>
+      <li>Large compressed archives (<code>.zip</code>, <code>.rar</code>, <code>.7z</code>) containing sensitive data appearing shortly before outbound transfers (T1074, T1560)</li>
+      <li>Sync and transfer tools (rclone, MEGA clients) appearing on a host that has never used them</li>
     </ul>
   </div>
 </div>
@@ -102,61 +142,54 @@ Adversaries lean on living-off-the-land techniques: modifying legitimate files, 
 
 ## File metadata that matters
 
-<DefineTerm term="Parsing" /> has to do more than catch file events. The <DefineTerm term="Metadata" display="metadata" /> on each file is where the signal often lives.
+<DefineTerm term="Parsing" /> has to do more than catch file events. The metadata on each file is where the signal often lives.
 
 <div class="metadata-list">
   <div class="metadata-item">
     <span class="metadata-item__label">File hashes</span>
-    <span class="metadata-item__detail">MD5, SHA-1, SHA-256 for integrity verification and threat-intelligence correlation.</span>
+    <span class="metadata-item__detail">SHA-256 for file identity and integrity; MD5 and SHA-1 only as lookup keys for threat-intelligence and older tools (both are collision-broken); imphash and fuzzy hashes (ssdeep, TLSH) to cluster variants of the same malware family.</span>
   </div>
   <div class="metadata-item">
     <span class="metadata-item__label">Digital signatures</span>
-    <span class="metadata-item__detail">Expired, self-signed, or mismatched certificates. The supply-chain risk lives here.</span>
+    <span class="metadata-item__detail">Unsigned, self-signed, revoked, or signer-mismatched binaries (for example, a file presenting itself as a Microsoft component but signed by someone else) flag commodity malware and tampering. An expired certificate is normal when the signature carries a valid timestamp. A valid signature is not a clean bill of health: supply-chain compromises (SolarWinds SUNBURST, 3CX) shipped with the vendor's own valid signature, and stolen certificates make malware look vendor-signed. A valid signature proves who signed the file, not that its content is safe, so pair the signature check with known-good version hashes and behavior.</span>
   </div>
   <div class="metadata-item">
     <span class="metadata-item__label">Entropy scores</span>
-    <span class="metadata-item__detail">Values above ~7.0 suggest packing, encryption, or obfuscation. Packed executables typically measure 6.8–7.2; only fully encrypted or compressed content approaches the 8.0 ceiling.</span>
+    <span class="metadata-item__detail">Section entropy above about 7.0 bits per byte is the common packer threshold (it is the Detect It Easy default); values near the 8.0 ceiling mean compressed or encrypted data. Treat high entropy as a reason to look, not a verdict: installers and compressed resources score high too, and many packers deliberately keep entropy below 7.0 to slip under that threshold (Mantovani et al., NDSS 2020).</span>
   </div>
   <div class="metadata-item">
     <span class="metadata-item__label">Timestamps</span>
-    <span class="metadata-item__detail">Timestomping, creation outside business hours, irregular modification patterns.</span>
+    <span class="metadata-item__detail">Timestomping (T1070.006: <code>$STANDARD_INFORMATION</code> times that predate the <code>$FILE_NAME</code> times, or end in suspiciously round values), creation outside business hours, irregular modification patterns.</span>
   </div>
   <div class="metadata-item">
     <span class="metadata-item__label">Permissions and ownership</span>
-    <span class="metadata-item__detail">SYSTEM-level privileges in user directories, unexpected ownership changes.</span>
+    <span class="metadata-item__detail">Files owned by or written by SYSTEM inside a user profile; ACL changes that grant Everyone write on executables or service binaries; unexpected ownership changes.</span>
   </div>
   <div class="metadata-item">
-    <span class="metadata-item__label">File size anomalies</span>
-    <span class="metadata-item__detail">Deviations from the version-pinned hash of your gold image are the reliable signal. Specific byte counts vary with build and patch level.</span>
+    <span class="metadata-item__label">Gold-image drift</span>
+    <span class="metadata-item__detail">A system binary whose hash differs from the version-pinned gold image. Specific byte counts vary with build and patch level, so the hash, not the size, is the reliable comparison.</span>
+  </div>
+  <div class="metadata-item">
+    <span class="metadata-item__label">Size anomalies</span>
+    <span class="metadata-item__detail">Binaries padded to hundreds of MB to exceed scanner limits, or a system-named binary far from its known size range.</span>
   </div>
 </div>
 
 ---
 
-## Fileless and LOLBin patterns
+## The residue of fileless and LOLBin tradecraft
 
-The hardest patterns to catch leave little or nothing on disk:
+Fileless and LOLBin tradecraft is covered under [process relationships](/docs/alert/parsing/process-relationships/); on the file system, look for its residue: the WMI repository (<code>OBJECTS.DATA</code>) changing, certutil's URL cache, and prefetch entries for LOLBins.
 
-<div class="fileless-grid">
-  <div class="fileless-card">
-    <h3>Memory-only execution</h3>
-    <p>PowerShell loading code via <code>System.Reflection.Assembly.Load()</code> directly from memory.</p>
-  </div>
-  <div class="fileless-card">
-    <h3>WMI persistence</h3>
-    <p>Scripts stored in the WMI repository or registry, executing via event subscriptions.</p>
-  </div>
-  <div class="fileless-card">
-    <h3>COM hijacking</h3>
-    <p>Modifying <code>HKCR</code> to hijack legitimate COM objects.</p>
-  </div>
-  <div class="fileless-card">
-    <h3>LOLBins</h3>
-    <p><code>certutil.exe</code> decoding Base64 payloads. <code>mshta.exe</code>, <code>wmic.exe</code>, <code>rundll32.exe</code> for stealth execution.</p>
-  </div>
-</div>
+File system activity frequently precedes exfiltration. Creating compressed archives in `%TEMP%` shortly before outbound connections to low-reputation domains is a near-canonical pattern, especially when 7-Zip or WinRAR runs with a password flag and rclone or a MEGA client follows.
 
-File system activity frequently precedes exfiltration. Compressed archives created in `%TEMP%` shortly before outbound connections to low-reputation domains is a near-canonical pattern.
+## Check yourself
+
+A Sysmon Event 11 shows <code>C:\Windows\Tasks\svch0st.exe</code> created by <code>powershell.exe</code> under a standard user. The file is signed, the signature validates, and the signer is a small software company nobody in the fleet has heard of. Its section entropy is 7.4. Parse it before you open the answer: which of these facts carry weight, and which do not?
+
+<Reveal summary="One way to answer">
+The weight sits in the path and the name: <code>C:\Windows\Tasks</code> is writable by standard users and is a classic allowlisting bypass, and <code>svch0st.exe</code> imitates a system binary that never lives there. The creator (PowerShell, standard user) says a script dropped it. The valid signature only says who signed it; a signer no peer uses is closer to a stolen or throwaway certificate than to a vendor, so it clears nothing. Entropy of 7.4 says "look", not "malicious". Next: the PowerShell process's command line and its 4104 script blocks, the file's Mark of the Web, and whether the binary ran.
+</Reveal>
 
 <KeyTakeaway>
 File system parsing gives you the longest tail of intrusion evidence. Combined with process and network telemetry, it is the layer that turns "something happened" into "here is exactly what happened, in order, with timestamps."
@@ -166,155 +199,6 @@ File system parsing gives you the longest tail of intrusion evidence. Combined w
   current="alert"
   nextHref="/docs/alert/parsing/cloud-identity/"
   nextLabel="Cloud and identity logs"
-  nextDescription="Parse the control plane: CloudTrail anatomy, role chains, the IMDS pattern, and IdP sign-in logs."
+  nextDescription="Parse the control plane: CloudTrail anatomy, role chains, the IMDS pattern, IdP sign-in logs, and identity attacks at protocol depth."
   ctaLabel="Read cloud & identity"
 />
-
-<style>
-{`
-.lifecycle-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 640px)  { .lifecycle-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .lifecycle-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.lifecycle-card {
-  position: relative;
-  padding: 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 3px solid var(--assured-accent);
-  border-radius: 0.7rem;
-}
-
-.lifecycle-card__num {
-  position: absolute;
-  top: 1rem;
-  right: 1.2rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: rgba(94, 234, 212, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-}
-
-.lifecycle-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: var(--assured-accent-soft);
-  font-size: 0.98rem;
-}
-
-.lifecycle-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-.patterns-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px)  { .patterns-grid { grid-template-columns: 1fr 1fr; } }
-
-.patterns-card {
-  padding: 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.85rem;
-}
-
-.patterns-card :is(h3, h4) {
-  margin: 0 0 0.6rem 0;
-  color: var(--assured-text);
-  font-size: 1rem;
-}
-
-.patterns-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.patterns-card li {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.9rem;
-}
-
-.metadata-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  margin: 1.25rem 0;
-}
-
-@media (min-width: 768px)  { .metadata-list { grid-template-columns: 1fr 1fr; } }
-
-.metadata-item {
-  padding: 0.9rem 1.15rem;
-  background: rgba(15, 23, 42, 0.5);
-  border-left: 3px solid #a855f7;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.metadata-item__label {
-  color: #c4b5fd;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.metadata-item__detail {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.88rem;
-}
-
-.fileless-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 640px)  { .fileless-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .fileless-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.fileless-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.6rem;
-}
-
-.fileless-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #fdba74;
-  font-size: 0.95rem;
-}
-
-.fileless-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.lifecycle-card h3, .patterns-card h3, .fileless-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

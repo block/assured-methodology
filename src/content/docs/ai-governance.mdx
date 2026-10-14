@@ -1,0 +1,266 @@
+---
+title: "Governing automated triage and AI agents"
+description: "For SOC leads and gate owners: when a machine may close a case (Level 0 parity), how to admit and evaluate an AI assistant or vendor agent, the rubber-stamp signals, the deskilling policy, and a dated standards and law crosswalk."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/root.css";
+
+The <a href="/docs/ai-triage/">AI-assisted triage</a> page is written for the analyst at the desk: what an assistant drafts, what the analyst decides, and how to check the draft. This page is for the people who decide what runs on that desk: the SOC lead, the owner of the admission gate, and the engineer who wires a <DefineTerm term="SOAR (concept)" display="SOAR" /> flow or a vendor <DefineTerm term="AI Agent" display="AI agent" /> into the queue. Every agentic-SOC product now puts the same question to them: may this thing close cases on its own?
+
+ASSURED's answer is yes, narrowly, under rules that are written down, enforced in code and audited by people. They are the rules that already make a human <a href="/docs/fast-path/">Level 0</a> close defensible. Nothing on this page asks for a new kind of trust. It makes the existing kind checkable.
+
+<Callout variant="info" title="What this page assumes">
+The <DefineTerm term="Depth Ladder" display="depth ladder" />, the <DefineTerm term="Eligibility Gate" display="eligibility gate" />, <DefineTerm term="Pattern Entry" display="pattern entries" /> and the <DefineTerm term="Escalation Tripwire" display="escalation tripwire" /> come from <a href="/docs/fast-path/">the fast path</a>. The seven-gate admission check is summarized for analysts on <a href="/docs/ai-triage/#before-the-first-prompt-the-admission-gate">AI-assisted triage</a> and set out in full <a href="#the-admission-gate-from-the-gate-owners-side">below</a>. Read those first if the terms are new.
+</Callout>
+
+## The position: accountability stays human, execution may not
+
+**Accountability is never delegated. Execution may be, at <DefineTerm term="Level 0 Parity" display="Level 0 parity" />.** A machine may carry out a decision that people already made in writing (a governed pattern entry), on facts that code can check. It may not make a new decision. A named person owns every class of close a machine executes: the pattern entry's owner owns the closes made against it, the gate owner owns the admission, and a named automation owner holds the kill switch. Above Level 0 parity, every AI assistant is advisory: it assembles, nominates and recommends, and an analyst decides and signs.
+
+Automation reaches a triage queue in three forms, and each is governed differently:
+
+| Form | Examples | What it may do | Governed by |
+|---|---|---|---|
+| Assembly | Enrichment, query drafting, timeline building, packet drafting | Produce input for a person | The <a href="#the-admission-gate-from-the-gate-owners-side">admission gate</a> and the analyst's <a href="/docs/ai-triage/#verifying-what-it-hands-you">verification</a> |
+| Pre-authorized action | An EDR quarantine, a session revocation the protocol lists | Containment the IR agreement names (reversible, unless the protocol lists a non-reversible action for that scenario), after the <a href="/docs/escalation/preserve/">preservation step</a> | The <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized actions list</a> |
+| Disposition | Closing a case | Only at Level 0 parity | The six conditions below |
+
+<a id="when-the-platform-already-acted"></a>
+
+**When the platform already acted:** an action is not a verdict. Automatic containment (a platform disabling a user or revoking sessions, an EDR quarantining a file) extends the pre-authorized actions list. Verify the action took effect, record it in the case with the platform as the actor, preserve what the action did not already destroy before anyone contains further, and still run the <a href="/docs/escalation/criteria/">escalation criteria</a>. Activity a control blocked, with no execution or follow-on evidence, is contained by control: it is recorded at P3 or P4 and becomes a pattern-entry candidate. Anything more is a case like any other.
+
+<a id="level-0-parity"></a>
+
+## Level 0 parity: when a machine may close
+
+A machine may close a case only when all six conditions hold, in code, for the specific <DefineTerm term="Pattern Library" display="pattern entry" /> it closes against. The flag is per entry, never per product.
+
+| Condition | What it means in practice | What the owner can show |
+|---|---|---|
+| 1. A documented pattern entry carries a <DefineTerm term="Machine-Close Flag" display="machine-close flag" /> | The flag is off by default. The entry's owner sets it with a second person's approval, and it lands in the entry's version history. Any change to the entry turns it off until it is approved again. | The entry version with the flag and both names (<a href="/templates/pattern-entry.md" download>pattern-entry.md</a>) |
+| 2. <DefineTerm term="Discriminator" display="Discriminators" /> are evaluated by code | Deterministic checks against source-system fields. An absence check ("no credential-path reads") must also prove that the sensor reported for that host in the window: a silent sensor returns unknown, and unknown fails. A model's reading that the activity "looks like" the pattern is not a discriminator. | The evaluation output on the case: each discriminator, its value and its source field |
+| 3. The eligibility gate is enforced | Code fetches the three gate facts from the asset inventory, the identity provider and the data inventory. An untagged subject is unknown, and unknown fails. Privileged identities always fail. In a grouped case, every member passes or nothing closes by machine. | The gate facts, with their sources, on the record |
+| 4. Human QA samples the closes | A person re-checks a sample of machine closes against raw telemetry every week. | The sample log, per entry |
+| 5. Reversal and miss rates are tracked | A reversed close suspends the entry automatically. | The monthly rates, per entry |
+| 6. A <DefineTerm term="Kill Switch" display="kill switch" /> and a named owner exist | The switch has been pulled in a test, and the owner is a person. | The last test date and the owner's name |
+
+The machine close writes the same <a href="/docs/fast-path/#five-field">five-field record</a> an analyst would. Its closure line names the automation's identity and version, the pattern entry's ID and version, and, if a model nominated the case, the material AI use.
+
+### The model may nominate; code disposes
+
+Vendor agents already resolve alerts. Microsoft's <a href="https://learn.microsoft.com/en-us/defender-xdr/phishing-triage-agent" target="_blank" rel="noopener noreferrer">Phishing Triage Agent</a> documentation (as updated July 2026) describes <DefineTerm term="Large Language Model (LLM)" display="LLM" />-based classification of user-reported phishing: a report it judges a false alarm is classified false positive and resolved, and analysts' plain-language feedback is stored in the agent's memory as lessons it applies to similar alerts. It also documents a dedicated agent identity, least-privilege roles, a pause control and audit logging, all of which help the gate owner.
+
+Against the six conditions, that agent is a strong nominator, but as a closer its discriminator is a model's judgment, which fails condition 2. A team has three options:
+
+1. **Recommend-only, the default.** The agent classifies and an analyst closes. Where the product cannot stop short of resolving, it has not passed gate 5, and its auto-resolve stays off the production queue.
+2. **Convert the reasoning into entries.** Turn the agent's recurring benign verdicts into human-owned pattern entries with code-evaluated discriminators. The agent nominates a case for an entry; only a code pass closes it.
+3. **Govern the memory.** A feedback lesson changes future dispositions just as a pattern entry does, so it needs second-person approval, a version, a review date and restricted write access. An unreviewed lesson is an unreviewed pattern entry, and memory poisoning (OWASP ASI06; MITRE ATLAS AML.T0080.000) turns it into a durable suppression.
+
+In every option the agent acts under <a href="/docs/subject/non-human-identities/">its own identity</a>, never a shared user account, and never closes anything the matrix would place at P1 or P2.
+
+### Sampled human QA
+
+- **Who samples:** an analyst who is neither the entry's owner nor its approver, re-checking against raw telemetry. Re-reading the code's stored output only checks the code against itself.
+- **How much:** never less than the <a href="/docs/fast-path/">Level 0 audit rate</a> (2 to 5 percent of closes per entry each week, at least one). As a starting default for a newly flagged entry, review every machine close in its first week, then 10 percent for 90 days. Tune the rates and record them on the entry.
+- **What pauses the entry:** the flag turns off by itself on a reversed close (the reversal threshold, by default one); close volume or host spread outside the entry's normal range; a silent sensor that feeds a discriminator; a change to the rule, the entry, a field mapping or a connector (and, where a model nominates, to the model, prompt or tool set); a passed review date; or a week with no QA sample.
+
+<a id="kill-switch"></a>
+
+### Reversals, misses, the kill switch and the owner
+
+- **Reversal rate:** reversed closes divided by sampled closes, per entry. It catches the errors QA can see.
+- **Miss rate:** machine closes later linked to an incident (through IR retrospectives, hunts, fired reopen triggers or a later case on the same entity), divided by machine closes in the period. Each quarter, re-run each flagged entry's validation test and hunt once for imitations that slipped through.
+- **The kill switch, at three scopes:** per entry (the flag), per automation or agent (a pause), and global. The owner can pull any of them without a change ticket; turning one back on needs the second approval. Pull it in a test every quarter: the queue must route back to analysts, and the <a href="/docs/fast-path/#run-the-math-on-the-ladder-too">capacity math</a> must show the team can absorb the volume for a week. A switch nobody has pulled is a hope, not a control.
+- **The owner:** a person with a deputy, not a team. Entry owners own their closes; one automation owner holds the switch and reports monthly on closes, samples, reversals, misses and pauses per entry.
+
+<Reveal summary="Worked example: should PTN-031 get the machine-close flag?" variant="example">
+
+<a href="/docs/documentation/example/#case-b">Case B</a> ended with a draft pattern entry, PTN-031, for the Cursor IDE alert: keyed to the Cursor build the MDM reports, the bundled extension ID loaded from inside the signed bundle and the vendor's destination set, with four discriminators (child script inside the bundle, destinations within the set, no credential-path reads, no persistence writes), an owner in detection engineering, a 30-day expiry and the machine-close flag off. Suppose the entry is live, analysts close against it every week, and the owner asks to turn the flag on.
+
+1. **Flag and entry:** in order. The owner proposes, a second person approves, and a Cursor version change (one of the entry's re-fire triggers) turns the flag off until the entry is re-validated.
+2. **Code evaluation:** not yet. The script path is an EDR field and the destinations are proxy SNI and certificate fields, so both are code-ready. The two absence checks need a sensor-health check beside them. The extension ID is the blocker: the case's alert-enrichment request has not shipped, so an analyst still digs the ID out by hand, and a discriminator a person researches is not evaluated by code.
+3. **Eligibility gate:** possible only for developer Macs whose gate facts are tagged in the inventory and the identity provider. Untagged hosts fail and stay with analysts.
+4. **QA:** the plan above, sampled by someone other than the owner and the approver.
+5. **Reversal and miss:** the threshold is already one, and the entry's reopen triggers (code from outside the bundle, an off-allowlist destination, a new MCP server config, an agent command no prompt asked for) become the quarterly hunt.
+6. **Switch and owner:** the owner is named; the switch counts once the flag turns off without a deploy and has been pulled in a test.
+
+**Verdict: not yet.** Ship the enrichment, add the sensor-health check, run the code evaluation in shadow beside analyst closes until the two agree for the period the owner sets, and only then turn the flag on. No model is involved at any step: a governed machine close does not need an AI, and an AI does not make a close governed.
+
+</Reveal>
+
+## The admission gate, from the gate owner's side
+
+Admission is an organizational decision, not an analyst's. Case data is among the most sensitive data the organization holds: alert payloads, decoded command lines, identity context, insider-risk referrals, regulated records, credentials the attacker touched. Sending any of it to a model is a disclosure, and letting an agent draft queries is a grant of access. Both get the same gate any other data processor gets, checked **before** the first prompt, not after the first incident.
+
+All seven gates below must hold. If any is unapproved or unknown, the work follows the <a href="/docs/ai-triage/#before-the-first-prompt-the-admission-gate">non-AI path</a>.
+
+<div class="ai-gate-grid">
+  <div class="ai-gate">
+    <h3>1. Approved provider</h3>
+    <p>The assistant is an organization-approved service for security-operations data, cleared through the same security and procurement review as any processor of sensitive data. For regulated data that review includes the legal instruments: a Business Associate Agreement before any PHI goes in, GDPR Art. 28 processor terms (and a transfer mechanism if the service is outside the EEA) before EU personal data does. No instrument, no data class. A personal account or an unreviewed chat tab is <a href="/docs/ai-triage/#ai-on-the-attackers-side">shadow AI</a>, whoever opens it.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>2. Data boundaries by classification</h3>
+    <p>The organization has stated which data classes the approved service may receive. Live credentials, tokens, and keys never go in, in any tier. Regulated records (<DefineTerm term="Personally Identifiable Information (PII)" display="PII" />, PHI, payment data) go in only where the approval explicitly covers that class. HR-held context never goes in: it reaches a case only through the insider-risk route, never as analyst-collected notes, and an assistant is not a way around that rule.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>3. Minimization and redaction</h3>
+    <p>The assistant gets the minimum the draft needs. Reference secrets by key ID or vault reference, people by role, regulated data by class and count. If the draft works with the redacted version, the unredacted version was never needed.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>4. Retention, training, residency</h3>
+    <p>Contract terms, not vendor marketing, establish that prompts and case data are not retained beyond a stated period, not used to train models, and stored where the organization's data-residency obligations allow. Read the abuse-monitoring retention window and the sub-processor list, and prefer a zero-data-retention agreement or a self-hosted deployment for case data. Contract terms can be overridden: in 2025 a U.S. court preservation order kept standard API content (but not zero-data-retention traffic) at one major provider from May to 26 September 2025.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>5. Least privilege, no outbound channel</h3>
+    <p>An assistant with tool access holds scoped credentials of its own, never the analyst's, enforced by the platform's role model, not by its prompt. Read-only means read-only in the query language too: commands that write or send (Splunk's <code>sendemail</code>, <code>outputlookup</code> and <code>collect</code>, for example) are denied at the role. Where a product only runs as the signed-in user, scope that user's role and log the assistant's actions separately. It can query; it cannot close alerts, suppress detections, change configurations, or trigger playbooks, except under <a href="#level-0-parity">Level 0 parity</a> above. <strong>Read-only is not harmless:</strong> an assistant that holds case data and reads attacker-authored content needs only one outbound channel to leak, as <a href="https://www.cve.org/CVERecord?id=CVE-2025-32711" target="_blank" rel="noopener noreferrer">EchoLeak (CVE-2025-32711)</a> did from Microsoft 365 Copilot with zero clicks. So case sessions get no web fetches or outbound calls, and output renders no remote images or links. Every tool server, plugin and connector it can call (<DefineTerm term="Model Context Protocol (MCP)" display="MCP" /> servers included) is inventoried, version-pinned, holds tokens issued to it alone, and is re-reviewed whenever its description, command or scopes change. A silent change is the attack: the MCPoison flaw (<a href="https://www.cve.org/CVERecord?id=CVE-2025-54136" target="_blank" rel="noopener noreferrer">CVE-2025-54136</a>) let an attacker swap the command of an already-approved MCP server in Cursor without a new prompt. Retrieval respects case access: a search of past cases, detection content or the pattern library returns only what the asking analyst is cleared to see, so insider cases and detection logic stay compartmented.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>6. Logging and DLP</h3>
+    <p>Prompts, retrieved context, every tool call (tool, parameters, time, result reference) and outputs are logged as case activity, with the model and prompt-template version, under the case record's own access controls and retention. Keep the log: a re-run will not reproduce the same output. The channel sits inside <DefineTerm term="Data Loss Prevention (DLP)" display="DLP" /> coverage. An assistant that would be exempt from the controls that watch every other egress path is not a tool; it is a gap.</p>
+  </div>
+  <div class="ai-gate">
+    <h3>7. Recorded human authorization</h3>
+    <p>Someone accountable authorized this assistant for this data class and tool scope, and the record shows who and when. The case record also notes the product, the model identifier and version where the vendor exposes them (the date and time where it does not), the prompt or playbook template version, and which parts of the record began as AI drafts, so a later reader can weight the provenance.</p>
+  </div>
+</div>
+
+<Callout variant="info" title="The gate has a legal side">
+The EU AI Act's AI-literacy duty, its high-risk rules for AI that monitors or evaluates employees, its ban on workplace emotion recognition and GDPR Art. 22's limit on solely automated decisions all reach a SOC's assistant. The dated <a href="#crosswalk">standards and law crosswalk</a> below gives the current status of each. Any use of AI in insider triage goes to counsel before admission.
+</Callout>
+
+Each gate closes a specific hole, and the gate owner files evidence that it is closed. "The vendor says so" is not evidence.
+
+| Gate | The hole it closes | Evidence on file |
+|---|---|---|
+| 1. Approved provider | Personal accounts and unreviewed chat tabs (shadow AI) | The security and procurement review; a BAA or GDPR Art. 28 terms for each regulated data class |
+| 2. Data boundaries | Credentials and regulated data reaching a model | A matrix of data classes against approved services |
+| 3. Minimization | Sending more than the draft needs | The redaction rules, and a reviewed sample of real prompts |
+| 4. Retention, training, residency | Case data sitting in someone else's retention window | The contract clauses, the zero-data-retention terms, the sub-processor list |
+| 5. Least privilege, no outbound channel | Write actions; exfiltration through a read-only session; a poisoned tool or MCP server; retrieval past need-to-know | A role that denies write-capable query commands; an egress test showing a rendered link, a remote image and a URL fetch all blocked; a tool and MCP inventory with pinned versions and per-tool tokens; a retrieval test run as an analyst without insider-case access |
+| 6. Logging and DLP | Actions nobody can reconstruct | A sample case's tool-call log; the channel listed in DLP coverage |
+| 7. Recorded authorization | An assistant nobody owns | A signed record of who authorized it, when, for which data class and tool scope |
+
+Gate 5 carries the most weight, because the defining agent attack is a leak, not a write. Simon Willison named the shape the <DefineTerm term="Lethal Trifecta" display="lethal trifecta" /> (<a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/" target="_blank" rel="noopener noreferrer">June 2025</a>): private data, untrusted content and a way to communicate out, in one session. A triage assistant holds the first two by design, so the gate removes the third; <a href="https://www.cve.org/CVERecord?id=CVE-2025-32711" target="_blank" rel="noopener noreferrer">EchoLeak (CVE-2025-32711)</a> showed Microsoft 365 Copilot leaking data with zero clicks.
+
+**Attacker content is an input.** User-agent strings, URL paths, filenames, DNS names, email bodies, ticket text and commit messages are attacker-chosen, so every case is a chance for <DefineTerm term="Indirect Prompt Injection" display="indirect prompt injection" /> (OWASP LLM01:2025, ASI01; ATLAS AML.T0051.001). Before admission, run the <DefineTerm term="Golden Set" display="golden set" />'s injection-laced samples (below): if planted text changes a verdict or a tool call, the assistant fails. The control that holds is capability, not wording. Delimiters help the reader but do not stop injection; a session with no write tools and no way out leaves an injection nothing to use (ATLAS mitigation AML.M0030, Restrict AI Agent Tool Invocation on Untrusted Data).
+
+Admission is not evaluation: the gate shows the assistant is safe to connect, not that it is any good.
+
+<a id="evaluating"></a>
+
+## Evaluating an assistant
+
+Vendor accuracy figures are measured on someone else's alerts, and pooled accuracy hides the failure that matters. In an alert class where 98 percent of cases are benign, an assistant that always says "benign" scores 98 percent. That is <a href="/docs/cognitive-traps/">base-rate neglect</a> in a sales deck.
+
+### Build a golden set from your closed cases
+
+- **Truth comes from the settled verdict:** after IR, QA or a reopen, not the first close.
+- **Cover each alert class with the hard cases:** confirmed malicious cases; <DefineTerm term="Benign True Positive" display="benign true positives" /> that look malicious; false positives; and, most valuable of all, past misses, the cases first closed benign and later reversed. Add imitations generated from your pattern entries' validation tests, injection-laced samples, and cases with missing data whose right answer is "undetermined" or "escalate".
+- **Size it honestly:** if the assistant misses none of n malicious cases, the most you can claim at 95 percent confidence is a miss rate below about 3/n (the rule of three). Claiming under 5 percent for a class takes about 60 malicious cases in that class. The 50 to 100 cases suggested on <a href="/docs/ai-triage/">AI-assisted triage</a> are a regression set, not proof for any one class.
+- **Keep it held out:** never in the vendor's training data, the agent's feedback memory or the retrieval index. Redact it to the gate's rules, version it, and add every adjudicated miss.
+
+### Shadow mode before any write access
+
+In <DefineTerm term="Shadow Mode" display="shadow mode" />, the assistant runs on the live queue with its output recorded but hidden from the working analyst, because a visible recommendation anchors the person it is checked against. Compare its verdicts with the settled verdicts, class by class; a third person adjudicates each disagreement, and each adjudicated miss joins the golden set. Run for at least a month (so month-end and patch day are in it) and until each class has the cases its claim needs. Write the acceptance criteria before shadow starts. Code closes get a shadow run too, as in the PTN-031 example.
+
+### Regression on every change
+
+Re-run the golden set before any change reaches the queue: a model or model version, a prompt or playbook template, a tool, connector or MCP server, the retrieval index, or the vendor's own release. Hosted models change behind a stable product name, so put change notice in the contract; where a vendor cannot give it, re-run monthly and whenever the agreement rate shifts. A failed regression pauses advisory use for the affected class and turns off every machine-close flag the assistant nominates for. The same change is a pattern-review trigger for every entry the assistant matches against.
+
+### The one number that matters
+
+**The <DefineTerm term="False-Benign Rate" display="false-benign rate" /> per alert class:** of the cases in a class whose settled activity verdict is malicious or policy violation, the share the assistant recommended (or the automation executed) as a benign close. The denominator is the malicious cases, not all cases. Report it per class, with its n and its bound, never pooled. Beside it, track citation validity (the share of claims with a resolvable tool-output link), the draft correction rate and the time to verify. And split every quality metric three ways (unassisted, AI-assisted, machine-executed), as <a href="/docs/measuring-triage/#ai-use-is-the-assistant-earning-its-place">Measuring triage</a> sets out.
+
+## How AI changes the depth ladder
+
+Assembly becomes nearly free, and verification becomes the binding cost. Some things move down the ladder as a result. Others never do.
+
+<div class="gov-split">
+  <div class="gov-split__col gov-split__col--can">
+    <h3>What can move down</h3>
+    <ul>
+      <li><strong>Level 1 starts further along.</strong> Gate facts and the context sweep arrive pre-fetched, so the pass is shorter. It is not a lower level.</li>
+      <li><strong>Level 0 volume can be executed by machine:</strong> under the six conditions, one entry at a time.</li>
+      <li><strong>Fewer cases climb for want of facts.</strong> Cheap enrichment makes gate items answerable instead of unknown, so cases land at their true level.</li>
+    </ul>
+  </div>
+  <div class="gov-split__col gov-split__col--never">
+    <h3>What never moves down</h3>
+    <ul>
+      <li>A privileged identity, a crown-jewel subject, or regulated data plausibly accessed by the activity: Level 2.</li>
+      <li>A grouped case with any member that fails eligibility or a discriminator.</li>
+      <li>A novel detection, or alerts that correlate into a chain.</li>
+      <li>A confirmed criterion, or a matrix cell at P1 or P2: the escalation tripwire and the <DefineTerm term="E Rule" /> apply as written.</li>
+      <li>A case whose only benign evidence is an AI judgment. AI output can raise depth, never lower it.</li>
+    </ul>
+  </div>
+</div>
+
+Size each draft to its rung: a Level 0 draft is the five-field record, not a narrative, because every extra claim is one more thing to verify.
+
+<a id="rubber-stamp"></a>
+
+## Rubber-stamp signals
+
+A signature means something only if verification was possible in the time spent. Fluent drafts invite <DefineTerm term="Automation Bias" display="automation bias" />, and approval fatigue, the road to <DefineTerm term="Rubber-Stamping" display="rubber-stamping" />, is how AI-assisted desks actually fail (OWASP ASI09, Human-Agent Trust Exploitation). The case tool already holds the timestamps to watch for it. Compute these weekly, at team level, and use them to fix the workflow. Never use them to rank analysts.
+
+| Signal | How to compute it | What it suggests |
+|---|---|---|
+| Approval latency | Time from draft shown to signature, by rung, against how long the checks take in timed QA | Signing faster than checking is possible |
+| Edit distance | Difference between the AI draft and the signed record, per record type | Near-zero edits across many drafts: the draft is being accepted, not reviewed |
+| Identical close notes | Near-duplicate justification text across cases with different entities | Template prose standing in for observations |
+| Agreement rate | Share of AI recommendations signed unchanged, and its jump after a model change | Deference rather than review |
+| QA defects in signed drafts | Defects found per sampled AI-drafted record | The direct measure; the other four are proxies for it |
+
+When the signals rise, change the work, not the people. Show claims beside their evidence links instead of prose. Shrink drafts to the rung. Require typed confirmation, with the parameters visible, for any action. Cap AI drafts per analyst per shift. And practise on drafts with planted defects, like the exercise on <a href="/docs/ai-triage/#verifying-what-it-hands-you">AI-assisted triage</a>.
+
+<a id="deskilling"></a>
+
+## The deskilling policy
+
+Verification depends on knowing what the right answer looks like, and an analyst who only ever verifies drafts slowly loses that (<DefineTerm term="Deskilling" display="deskilling" />). The kill switch also assumes a team that can work the queue unassisted. Five habits keep the skill alive:
+
+- **By hand first.** New analysts learn each phase by hand, through the <a href="/docs/teaching/">training arc</a>, and sign off on unassisted cases before they review AI drafts of that phase.
+- **An unassisted rotation.** Every analyst works part of each week on the non-AI path. One shift in five is a reasonable default. This is also the capacity the kill switch falls back on.
+- **A quarterly unassisted QA sample.** Sample each analyst's unassisted closes against the <a href="/docs/teaching/#what-to-grade-the-close-note-rubric">close-note rubric</a> and compare them with their assisted ones. A widening gap is the deskilling signal, and the answer is training, not blame.
+- **One pivot by hand each week.** Reproduce one AI-drafted pivot or query from raw telemetry.
+- **Count the drill.** An hour with the assistant switched off is a kill-switch test and a skills check at once.
+
+In the EU, these habits also serve as evidence for the AI Act's AI-literacy duty (Art. 4, below).
+
+<a id="crosswalk"></a>
+
+## Standards and law crosswalk
+
+These sources were checked as of 13 October 2026. All of them move, so check the status column again before you cite one.
+
+| Source | Status as of 13 Oct 2026 | Where this page meets it |
+|---|---|---|
+| <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener noreferrer">NIST AI RMF 1.0</a> (AI 100-1) | Released 26 January 2023; NIST says it is being revised | Admission is Govern and Map; evaluation is Measure; QA, the kill switch and regression are Manage |
+| <a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence" target="_blank" rel="noopener noreferrer">NIST AI 600-1</a>, Generative AI Profile | Published 26 July 2024 | Confabulation (fabricated specifics); Human-AI Configuration (rubber-stamping, deskilling); Information Security (injection); Data Privacy (gates 2 to 4) |
+| <a href="https://csrc.nist.gov/pubs/ir/8596/iprd" target="_blank" rel="noopener noreferrer">NIST IR 8596</a>, Cyber AI Profile | Initial preliminary draft, 16 December 2025; comments closed 30 January 2026 | Its Defend focus (AI-enabled cyber defense) is this page's subject; its Secure focus is the admission gate |
+| <a href="https://atlas.mitre.org/" target="_blank" rel="noopener noreferrer">MITRE ATLAS</a> | Data release v2026.09 (15 September 2026) | AML.T0051.001 LLM Prompt Injection: Indirect; AML.T0053 AI Agent Tool Invocation; AML.T0086 Exfiltration via AI Agent Tool Invocation; AML.T0080.000 AI Agent Context Poisoning: Memory; AML.T0110 AI Agent Tool Poisoning; mitigations AML.M0029 (Human In-the-Loop for AI Agent Actions) and AML.M0030 |
+| <a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener noreferrer">OWASP Top 10 for LLM Applications</a> | 2025 edition | LLM01 Prompt Injection; LLM02 Sensitive Information Disclosure; LLM06 Excessive Agency; LLM09 Misinformation |
+| <a href="https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/" target="_blank" rel="noopener noreferrer">OWASP Top 10 for Agentic Applications</a> | Published 9 December 2025 | ASI01 Agent Goal Hijack; ASI02 Tool Misuse; ASI03 Identity &amp; Privilege Abuse; ASI04 Agentic Supply Chain Vulnerabilities; ASI06 Memory &amp; Context Poisoning; ASI09 Human-Agent Trust Exploitation |
+| <a href="https://www.iso.org/standard/42001" target="_blank" rel="noopener noreferrer">ISO/IEC 42001:2023</a> | Edition 1, December 2023 | The management system around all of it: named owners, review cadence, records |
+| EU AI Act, <a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer">Regulation (EU) 2024/1689</a>, as amended by the AI Omnibus, <a href="https://eur-lex.europa.eu/eli/reg/2026/1744/oj" target="_blank" rel="noopener noreferrer">Regulation (EU) 2026/1744</a> | Omnibus in force 27 July 2026 | Art. 4: deployers take measures to support staff AI literacy (since 2 February 2025; Omnibus wording since 27 July 2026). Art. 5: workplace emotion recognition is prohibited (since 2 February 2025). Annex III point 4(b): AI that monitors or evaluates workers' performance and behaviour is high-risk from 2 December 2027, bringing the Art. 26 deployer duties (competent human oversight, monitoring and suspension, logs kept at least six months, informing workers) |
+| GDPR, <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener noreferrer">Regulation (EU) 2016/679</a>, Art. 22 | In force | Limits decisions based solely on automated processing that have legal or similarly significant effects on a person |
+
+<Callout variant="warn" title="The law is counsel's call">
+A machine close about an event is not a decision about a person. An automated action against a named person (an insider referral, an account suspension that stops someone working) can engage GDPR Art. 22, and AI that scores employees' behaviour can fall under Annex III. Take any AI use in <a href="/docs/subject/insider-analysis/#employee-privacy-is-a-hard-constraint">insider triage</a>, and any automated action against a person, to counsel and, where one exists, the works council before it runs. Confirm the Omnibus dates for your jurisdiction.
+</Callout>
+
+<KeyTakeaway>
+People stay accountable; machines may execute only at Level 0 parity: a flagged pattern entry, discriminators and the gate evaluated by code, sampled QA, tracked reversals and misses, and a tested kill switch with a named owner. A model may nominate, but only code closes. Admit an assistant through the gate, then earn its use in shadow against your own golden set, judged on the false-benign rate per alert class. Watch for rubber-stamping, and keep the skill alive by hand.
+</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/operating-variants/" class="assured-cta assured-cta--ghost">← Shift handover and operating variants</a>
+  <a href="/docs/measuring-triage/" class="assured-cta">Measuring triage →</a>
+</div>

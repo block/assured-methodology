@@ -1,6 +1,7 @@
 ---
 title: "Alert chapter quiz"
-description: "Check what you've learned. Nine questions on detection mechanisms, validation, parsing, and the Alert deliverable."
+description: "Check what you've learned. Twelve questions on detection mechanisms, validation, parsing, identity cases, and the Alert handoff."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -11,145 +12,182 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 
 <SubPageHero
   phase="alert"
-  parentLetter="A"
   pillarIndex="Quiz"
-  pillarTotal="Alert chapter"
-  chapterHref="/docs/alert/"
-  chapterLabel="Alert"
-  lede="Nine questions to test how you would apply the Alert chapter to fresh scenarios. Click an option to see the result. Some are harder than they look on first read."
+  lede="Twelve questions to test how you would apply the Alert chapter to fresh scenarios. Select an option to see the result."
 />
 
-<PillNav
-  chapter="alert"
-  label="Alert chapter"
-  items={[
-    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
-    { label: "Validation",           href: "/docs/alert/validation/",            phase: "alert" },
-    { label: "Parsing",              href: "/docs/alert/parsing/",               phase: "alert" },
-  ]}
-/>
+<PillNav chapter="alert" />
 
 <Quiz title="Quiz: did the chapter stick?" subtitle="No grades. The point is to push your thinking. Some questions are harder than they look.">
 
   <QuizItem
-    prompt="An EDR fires a behavioral alert at 02:14 with 64% confidence. The user's baseline shows they routinely work overnight. What is the right next step?"
+    prompt="An EDR anomaly engine fires at 02:14 local time with 64% confidence. The user's baseline shows they routinely work overnight. What is the right next step?"
     options={[
-      { value: "close",      label: "Close as a false-positive. The baseline explains it." },
-      { value: "escalate",   label: "Escalate immediately. 02:14 is suspicious enough." },
-      { value: "validate",   label: "Run validation across the other three dimensions before deciding." },
-      { value: "parse",      label: "Decode the command line in full before doing anything else." },
+      { value: "validate",   label: "Run the other three validation checks before deciding." },
+      { value: "close",      label: "Close it. The overnight baseline already explains the timing.", why: "The overnight baseline answers only the environmental check; the other three are still open." },
+      { value: "escalate",   label: "Escalate now. Activity at 02:14 on an anomaly alert is suspicious enough.", why: "For a user who routinely works overnight, the hour alone is not evidence; validate first." },
+      { value: "parse",      label: "Decode the command line in full before doing anything else.", why: "Parsing comes later; first, three validation checks are still unanswered." },
     ]}
     answer="validate"
-    explanation="Baseline comparison is one of three strategies; the baseline it reads is one of four context dimensions. A single dimension agreeing is not the same as validation. The environmental dimension says the timing is consistent; technical fidelity, threat intelligence, and business impact have not been checked yet. Validate across all four, then decide."
+    explanation="The user's overnight baseline speaks to one validation check: environmental context. Agreement on one check is not validation. Technical fidelity, threat intelligence, and business impact are still unchecked; check all four, then decide. The 64% is the engine reporting how unusual the activity is, not a verdict on whether it is malicious; it does not stand in for the other three checks. And if context does clear it, the close is a benign true positive, not a false positive: the engine saw a real deviation."
+    source={{ href: "/docs/alert/validation/#the-four-validation-checks", label: "Alert validation: the four validation checks" }}
   />
 
   <QuizItem
-    prompt="Two alerts fire with identical content. Alert A is on a contractor's sandbox laptop. Alert B is on a service account with administrative access to a HIPAA-bound database. The analyst can only investigate one in the next 15 minutes. Which strategy makes the prioritization defensible?"
+    prompt="Two alerts land at once, and you can open only one in the next 15 minutes. Alert 1: a lobby kiosk laptop with no sensitive access, where an Office-to-PowerShell chain is corroborated by a proxy record and a beacon is still running. Alert 2: a domain controller with a single low-confidence anomaly, a login at an unusual hour and nothing else. Which do you open first?"
     options={[
-      { value: "baseline",    label: "Baseline comparison. The deviations might differ." },
-      { value: "chains",      label: "Attack-chain correlation. One of them might be part of a sequence." },
-      { value: "criticality", label: "Asset and user criticality. The blast radius is what differs." },
-      { value: "fifo",        label: "Queue order. Investigate whichever alert fired first; consistent FIFO handling is defensible." },
+      { value: "criticality", label: "Alert 2. Criticality always wins: a domain controller outranks any kiosk.", why: "Criticality weighs what is at stake if an alert is real; it does not let a lone weak anomaly outrank a live, corroborated intrusion." },
+      { value: "blast",       label: "Alert 2. The weak signal on the critical host has the larger blast radius.", why: "Blast radius matters once the activity is real, and a single unusual-hour login is not yet evidence of anything." },
+      { value: "neither",     label: "Neither until both are validated; picking one now would be guesswork.", why: "Alert 1 is already validated: an independent proxy record corroborates it and the beacon is still running." },
+      { value: "kiosk",       label: "Alert 1. A corroborated chain with a live beacon is uncontained activity." },
     ]}
-    answer="criticality"
-    explanation="Criticality validation is exactly the strategy designed for this trade-off. Alert B affects a high-criticality asset and a privileged identity, so it is the immediate-action alert. Months later, the criticality data attached to the queue order is what makes the choice reviewable in a post-mortem."
-    hint="The two alerts are identical in shape. What differs is the entity each one affects."
+    answer="kiosk"
+    explanation="Criticality weighs how much an alert matters if it is real; it does not make a weak signal strong. Alert 1 is malicious activity corroborated by an independent record and not contained by any control: the beacon is still running. That meets escalation criterion 1 on any host, so the escalation tripwire applies whatever the host's criticality. Alert 2 comes next, and its criticality is why it should not wait long, but a single unusual-hour login is an anomaly to validate, not an intrusion in progress. In a post-mortem, leaving a live beacon running to look at a lone anomaly is the choice you could not defend."
+    hint="What would you have to defend in a post-mortem?"
+    source={{ href: "/docs/alert/validation/#3-weigh-by-criticality", label: "Alert validation: weigh by criticality" }}
   />
 
   <QuizItem
     prompt="An adversary uses living-off-the-land binaries with no custom malware. Which detection approach is built to catch this, and what form does it usually take in practice?"
     options={[
-      { value: "signature",  label: "Signature-based: the binaries' hashes will match threat-intelligence indicators." },
-      { value: "anomaly",    label: "Anomaly-based: each individual LOLBin execution will deviate far enough from baseline to flag." },
-      { value: "behavioral", label: "Behavioral analytics: the multi-event sequence is the detectable artifact — and in practice it is often encoded as a hand-written rule, making the detection both rule-based and behavioral." },
-      { value: "rule",       label: "Rule-based exclusively: sequence-aware engines cannot evaluate signed binaries." },
+      { value: "signature",  label: "Signature-based: the binaries' hashes will match threat-intelligence indicators.", why: "LOLBins are signed system binaries, so their hashes match nothing bad." },
+      { value: "anomaly",    label: "Anomaly-based: each single LOLBin execution deviates far enough from baseline to flag.", why: "Each single LOLBin run usually sits inside normal tolerance; the sequence is what stands out." },
+      { value: "behavioral", label: "Behavioral: the sequence is the artifact, often encoded as a hand-written rule." },
+      { value: "rule",       label: "Rule-based only: a hand-written rule cannot be behavioral, so that label does not apply.", why: "A hand-written rule can be behavioral by content; the labels are not exclusive." },
     ]}
     answer="behavioral"
-    explanation="Every binary in the chain is signed and individually unremarkable, so hashes match nothing bad and single events sit inside tolerance. What is detectable is the sequence — the parent-child chain and its context. And the family label is honestly plural here: a deterministic Sigma-style rule that encodes that chain is rule-based by construction and behavioral by content. Name both when both apply; what matters for triage is reading the logic that fired, not picking its one true family."
-    hint="Think about which layer of the activity is actually abnormal — the binaries, the single events, or the sequence."
+    explanation="Every binary in the chain is signed and individually unremarkable, so hashes match nothing bad and single events sit inside tolerance. What is detectable is the sequence: the parent-child chain and its context. The family label can be plural here: a deterministic Sigma-style rule that encodes that chain is rule-based by construction and behavioral by content. Name both when both apply; what matters for triage is reading the logic that fired, not picking its one true family."
+    hint="Think about which layer of the activity is actually abnormal: the binaries, the single events, or the sequence."
+    source={{ href: "/docs/alert/detection-mechanisms/#behavioral", label: "How detections work: behavioral analytics" }}
   />
 
   <QuizItem
-    prompt="A signature engine reports an exact match on a known-bad SHA-256. At the same moment, a UEBA engine flags the same host for 'unusual process activity'. Before any investigation, how should the analyst calibrate trust in the two signals?"
+    prompt="A signature engine reports an exact match on a known-bad SHA-256. At the same moment, a UEBA (user and entity behavior analytics) engine flags the same host for 'unusual process activity'. Before any investigation, how should the analyst calibrate trust in the two signals?"
     options={[
-      { value: "equal",     label: "Treat both equally; every alert deserves identical skepticism until validated." },
-      { value: "signature", label: "The signature hit carries the higher prior, pending a check of the indicator's freshness, source, and local prevalence; the anomaly is genuine signal but ambiguous until corroborated." },
-      { value: "anomaly",   label: "The anomaly deserves more trust; it is learned from this environment while signatures are generic." },
-      { value: "recent",    label: "Whichever engine was tuned most recently reflects current adversary technique and should be trusted more." },
+      { value: "equal",     label: "Treat both equally: every alert deserves identical skepticism until it is validated.", why: "Skepticism is right, but the mechanism sets a different starting prior." },
+      { value: "signature", label: "The signature hit starts with the higher prior; the anomaly needs corroboration." },
+      { value: "anomaly",   label: "Trust the anomaly more: it is learned from this environment, and signatures are generic.", why: "A learned anomaly is real signal, but it stays ambiguous until something corroborates it." },
+      { value: "recent",    label: "Trust whichever engine was tuned most recently, since it reflects current technique.", why: "How recently an engine was tuned says nothing about how precise its signal is." },
     ]}
     answer="signature"
-    explanation="This is the trust-calibration posture from the detection-mechanisms page. The mechanism label sets a prior, not a verdict: an exact indicator match starts with the higher prior because it is precise about the artifact, but converting that prior into confidence requires the calibration facts — is the indicator fresh, from a credible source, and rare in this environment, or is it a stale hash on a dual-use tool? The anomaly is genuine but ambiguous signal that almost always needs corroboration. Treating the two alerts identically throws away provenance; treating the signature label as proof skips the rule-reading the label is supposed to prompt."
-    hint="The chapter assigns each detection family a starting posture — a prior, not a verdict."
+    explanation="This is the trust-calibration posture from the detection-mechanisms page. The mechanism label sets a prior, not a verdict. An exact indicator match starts higher because it is precise about the artifact, but turning that prior into confidence requires the calibration facts: is the indicator fresh, from a credible source, and rare here, or a stale hash on a dual-use tool? The anomaly is genuine signal that stays ambiguous until something corroborates it. Either way, the label is a prompt to read the logic that fired, not proof."
+    hint="The chapter assigns each detection family a starting posture: a prior, not a verdict."
+    source={{ href: "/docs/alert/detection-mechanisms/#trust-calibration", label: "How detections work: trust calibration" }}
   />
 
   <QuizItem
-    prompt="An alert reports an outbound TLS connection to a domain registered three days ago. The process is signed certutil.exe. The user is a developer. Which combination of signals would raise the confidence that this is malicious?"
+    prompt="An alert reports an outbound TLS connection to a domain registered three days ago. The process is signed certutil.exe. The user is a developer. What would most raise your confidence that this is malicious?"
     options={[
-      { value: "domain-age", label: "The domain age alone. Domains registered within a week are suspicious enough to act on." },
-      { value: "process",    label: "The process alone. certutil making any outbound TLS connection is suspicious enough to act on." },
-      { value: "combined",   label: "Domain age, plus certutil, plus no documented build process that uses certutil for downloads." },
-      { value: "ignore",     label: "None. The binary is signed by Microsoft, so the activity is trusted regardless of destination." },
+      { value: "combined",   label: "Domain age, certutil, and no documented build process that downloads with certutil." },
+      { value: "domain-age", label: "The domain age alone. Domains registered within a week are suspicious enough to act on.", why: "New domains have many benign uses; age alone is weak." },
+      { value: "process",    label: "The process alone. certutil making any outbound TLS connection is enough to act on.", why: "certutil legitimately connects out to fetch CRLs and certificate updates." },
+      { value: "tls",        label: "Domain age plus the TLS encryption. Encrypted traffic to a new domain hides the payload.", why: "Most outbound traffic is encrypted, so TLS does not separate malicious from benign." },
     ]}
     answer="combined"
-    explanation="Single signals get tuned out as noise. The combination is what changes the verdict. New domain + an unusual process for the user + no documented business reason maps to the classic certutil-as-LOLBin pattern. None of the signals on its own is decisive. The combination is."
+    explanation="In this environment each signal is weak alone: new domains and certutil both have benign uses (certutil fetches CRLs and certificate updates). The combination of a new domain, a download utility this user has no reason to run, and no documented business reason is the classic certutil-as-LOLBin pattern. That combination is what raises confidence, not any single signal. TLS adds nothing: most outbound traffic is encrypted, so it does not separate malicious connections from benign ones."
+    source={{ href: "/docs/alert/parsing/process-relationships/#evasion-to-know-about", label: "Process relationships: evasion to know about" }}
   />
 
   <QuizItem
     prompt={'An EDR alert shows: powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA... What does -enc tell you, and what is the right parsing move?'}
     options={[
-      { value: "encrypted", label: "The payload is encrypted. Without the key, judge the alert on the parent process alone." },
-      { value: "decode",    label: "The payload is Base64 of UTF-16LE text. Decode it; the decoded command decides the verdict." },
-      { value: "malicious", label: "The flag itself is the verdict. -enc only exists for attackers, so this alert is a true positive." },
-      { value: "benign",    label: "The flag is administrative noise. Plenty of vendor tooling uses -enc; drop it from the parse." },
+      { value: "encrypted", label: "The payload is encrypted. Without the key, judge the alert on the parent process alone.", why: "-EncodedCommand is Base64 encoding, not encryption; it decodes locally with no key." },
+      { value: "malicious", label: "The flag itself is the verdict. -enc only exists for attackers, so this is a true positive.", why: "Legitimate automation uses -enc too; the decoded payload decides, not the flag." },
+      { value: "benign",    label: "The flag is administrative noise. Plenty of vendor tooling uses -enc; drop it from the parse.", why: "Dropping it throws away the one field that shows what actually ran." },
+      { value: "decode",    label: "The payload is Base64 of UTF-16LE text. Decode it, then judge the decoded command." },
     ]}
     answer="decode"
-    explanation="-EncodedCommand takes a Base64-encoded UTF-16LE string, an encoding, not encryption, so it decodes locally with no key. The surrounding flags (-nop, -w hidden, abbreviated names) raise suspicion, and legitimate automation does use -enc, which is exactly why the decoded payload, not the flag, decides. Here it opens with IEX (New-Object ..., the classic download-and-execute-in-memory prefix."
-    hint="Encoded and encrypted are different words for a reason."
+    explanation="-EncodedCommand takes a Base64-encoded UTF-16LE string. That is an encoding, not encryption, so it decodes locally with no key. The surrounding flags (-nop, -w hidden, abbreviated names) raise suspicion, and legitimate automation does use -enc, which is exactly why the decoded payload, not the flag, decides. Here the decoded text begins with IEX and New-Object, the classic download-and-execute-in-memory prefix."
+    hint="Encoded and encrypted are different words for a reason. The command-line parsing page covers this flag."
+    source={{ href: "/docs/alert/parsing/command-line/#the-decode-workflow", label: "Command line analysis: the decode workflow" }}
   />
 
   <QuizItem
-    prompt="A parsed process tree reads: explorer.exe → WINWORD.EXE → msdt.exe → sdiagnhost.exe. Which link is the anomaly?"
+    prompt="A parsed process tree reads: explorer.exe → WINWORD.EXE → msdt.exe. A second branch on the same host shows svchost.exe → sdiagnhost.exe → conhost.exe. Which link is the anomaly?"
     options={[
-      { value: "explorer", label: "explorer.exe → WINWORD.EXE. Word should be launched by the Office click-to-run service." },
+      { value: "explorer", label: "explorer.exe → WINWORD.EXE. Word should be launched by the Office click-to-run service.", why: "Explorer launching Word is a normal user double-click." },
+      { value: "svchost",  label: "svchost.exe → sdiagnhost.exe. A service host should never launch a scripted diagnostics host.", why: "svchost.exe launching sdiagnhost.exe is how Windows normally runs troubleshooters." },
       { value: "winword",  label: "WINWORD.EXE → msdt.exe. A document reader spawning a diagnostic tool is the anomaly." },
-      { value: "msdt",     label: "msdt.exe → sdiagnhost.exe. The diagnostic tool should never spawn a scripted host." },
-      { value: "none",     label: "None. Every process in the chain is a signed Microsoft binary, so the chain is expected." },
+      { value: "none",     label: "None. Every process in both branches is a signed Microsoft binary, so all of it is expected.", why: "Signed binaries can still form an abnormal lineage; that is why lineage, not identity, is parsed." },
     ]}
     answer="winword"
-    explanation="explorer.exe launching Word is a user double-click, normal. And once msdt.exe runs, sdiagnhost.exe is its expected child. The break in the story is the middle link: a word processor has no business spawning the Microsoft Support Diagnostic Tool, and that parent-child pair is the signature of the Follina exploit (CVE-2022-30190). Every node being signed by Microsoft is exactly why lineage, not identity, is what you parse."
-    hint="Ask what business each parent has spawning its child."
+    explanation="Explorer launching Word is a normal user double-click. svchost.exe launching sdiagnhost.exe (the Scripted Diagnostics host) with a conhost.exe child is how Windows normally runs troubleshooters. The break in the story is the middle link of the first branch: a word processor has no business spawning the Microsoft Support Diagnostic Tool, and that parent-child pair is the signature of the Follina exploit (CVE-2022-30190). In a live Follina case the payload then appears as a shell or LOLBin child of sdiagnhost.exe, which is the second place to look. Every node being signed by Microsoft is exactly why lineage, not identity, is what you parse. Follina was patched in 2022 and Microsoft has deprecated MSDT itself, but the lesson outlives the bug: an Office application spawning a system utility is the anomaly to parse for, whatever the utility."
+    hint="Ask what business each parent has spawning its child. The process-relationships parsing page covers this lineage."
+    source={{ href: "/docs/alert/parsing/process-relationships/#what-to-flag", label: "Process relationships: what to flag" }}
   />
 
   <QuizItem
     prompt="An analyst pivots to Windows Security Event 4688 to reconstruct process creations, but the CommandLine field is blank on every event. What is the most likely reason?"
     options={[
-      { value: "fileless",  label: "The activity was fileless, so there were no command lines to record in the event." },
-      { value: "policy",    label: "Command-line capture is a separate audit policy that is off by default and was never enabled." },
-      { value: "cleared",   label: "The attacker selectively cleared the field, which is why the rest of the event survived." },
-      { value: "sysmon",    label: "Event 4688 has no command-line field at all; only Sysmon Event 1 can record one." },
+      { value: "fileless",  label: "The activity was fileless, so there were no command lines to record in the event.", why: "Fileless activity still creates processes, and 4688 records a command line for each one once capture is on." },
+      { value: "policy",    label: "Command-line capture is a separate policy setting, off by default and never enabled." },
+      { value: "cleared",   label: "The attacker selectively cleared the field, which is why the rest of the event survived.", why: "Event logs are cleared whole, not field by field; a field blank on every event points to configuration." },
+      { value: "sysmon",    label: "Event 4688 has no command-line field at all; only Sysmon Event 1 can record one.", why: "4688 has a CommandLine field; it stays blank until the Group Policy setting is enabled." },
     ]}
     answer="policy"
-    explanation="4688 does have a CommandLine field, but populating it requires the 'Include command line in process creation events' policy, which is off by default. If it was never enabled, every historical event is blank and no retroactive fix exists, a telemetry gap you discover exactly when you need the data. Sysmon Event 1 is the common compensating source. This is why parsing includes knowing what your telemetry was configured to capture."
+    explanation="4688 does have a CommandLine field, but populating it requires the Group Policy setting 'Include command line in process creation events' (Computer Configuration > Administrative Templates > System > Audit Process Creation), which is off by default, on top of the Audit Process Creation audit policy that makes 4688 fire at all. If it was never enabled, every historical event is blank and no retroactive fix exists. It is a telemetry gap you discover exactly when you need the data. The compensating sources are EDR process telemetry and Sysmon Event 1 (now also a built-in optional feature on Windows 11 and Windows Server 2025), and only if they were already running when the activity happened. This is why parsing includes knowing what your telemetry was configured to capture."
+    source={{ href: "/docs/alert/parsing/command-line/#when-there-is-no-command-line-to-parse", label: "Command line analysis: when there is no command line to parse" }}
   />
 
   <QuizItem
-    prompt="What is the Alert phase's deliverable to the rest of the methodology?"
+    prompt="An identity provider flags a session token for a sales manager, presented from a new hosting-provider ASN with no sign-in prompt. Twelve minutes later the mail tenant's audit log records a new inbox rule on her mailbox. No host or process appears in either record. What should you join the two events on?"
     options={[
-      { value: "verdict",     label: "A verdict on whether the alert is malicious, with the reasoning that supports it." },
-      { value: "structured",  label: "The validated alert itself, plus honest lead lists: leads for Subject and Uncover, and flags for Scope, Risk, and Escalation." },
-      { value: "containment", label: "A containment recommendation for the affected host, ready for IR to execute." },
-      { value: "report",      label: "A written report for the security manager summarizing what fired and why it matters." },
+      { value: "session", label: "The account plus the session ID carried in both the sign-in and the audit record." },
+      { value: "ip",      label: "The source IP alone. If both records show one address, they are the same actor.", why: "Addresses change with proxies and VPNs, and the attacker can switch networks between events." },
+      { value: "time",    label: "Timestamp proximity. Two events on one account within 30 minutes belong together.", why: "Timing alone joins coincidences, and tenant audit records can arrive long after the event." },
+      { value: "mfa",     label: "The MFA result. An MFA-satisfied sign-in earlier that day means the session is hers.", why: "MFA proves a human authenticated once, not who presented the token afterward." },
     ]}
-    answer="structured"
-    explanation="Alert produces three deliverables: the validated alert (detection-mechanism analysis, structured data, validation results, telemetry correlation), the leads for Subject and Uncover (baseline anomalies, spotted correlations, intel hits, temporal anchors), and the flags for Scope, Risk, and Escalation. Only the first is finished work; the other two are honest lead lists. Verdicts and containment are downstream phases. Reports are documentation. The Alert phase's job is to make the next analyst's work fast and accurate, not to draw conclusions."
+    answer="session"
+    explanation="With no host or PID in the story, the account and the session are the join keys. A session ID that appears on both records ties the replayed token to the action taken with it. A shared IP is weaker: addresses change with proxies and VPNs, and unrelated users can share one. Timing alone joins coincidences, and tenant audit records can arrive in the SIEM long after the event, so read event time, not arrival time. MFA satisfied proves a human authenticated once; it says nothing about who presented the token afterward, which is exactly how a stolen session is used. The cloud and identity parsing page covers this join."
+    hint="Which field would still match if the attacker changed networks between the two events?"
+    source={{ href: "/docs/alert/parsing/cloud-identity/#idp-sign-in-logs", label: "Cloud and identity logs: IdP sign-in logs" }}
+  />
+
+  <QuizItem
+    prompt="A rule fires on exactly the behavior it describes: a signed backup agent reads every file in a user's home directory and uploads over TLS. Validation shows the agent is approved, deployed by IT, and behaving as its vendor documents. How should the alert be recorded?"
+    options={[
+      { value: "fp-logic",     label: "False positive (logic): the rule matched something it was never meant to match.", why: "The rule matched exactly what it was written to match; its logic did not misfire." },
+      { value: "fp-data",      label: "False positive (data): bad telemetry made a normal agent look like exfiltration.", why: "The telemetry was accurate: the agent really did read and upload the files." },
+      { value: "btp",          label: "True positive on detection, authorized on activity: a benign true positive." },
+      { value: "undetermined", label: "Undetermined: approved software can still be abused, so no call is possible yet.", why: "Validation already showed the agent is approved and behaving as documented; record that evidence and close." },
+    ]}
+    answer="btp"
+    explanation="The detection did its job: the behavior it describes really happened. On the detection axis that is a true positive, and the activity axis records why it is not a threat: authorized, which ASSURED calls a benign true positive. A false positive means the rule matched something it was not meant to match (logic) or fired on bad telemetry (data); neither is the case here. The label matters downstream: a benign true positive is cleared by context (a pattern entry or a scoped, expiring exception) and the rule stays as written, while a false positive is a defect in the rule or the data. Record the evidence that showed the activity was authorized, so the close stays defensible."
+    source={{ href: "/docs/alert/validation/#what-validation-decides", label: "Alert validation: what validation decides" }}
+  />
+
+  <QuizItem
+    prompt="On a managed macOS developer laptop, a behavioral EDR rule fires: Cursor Helper (Plugin), the IDE's extension host, launched a child process that opened TLS connections. The binary is signed with the vendor's Developer ID and notarized. Which parsed field moves the investigation forward most?"
+    options={[
+      { value: "signature", label: "The signing status. A notarized vendor binary settles the question on its own.", why: "Signing and notarization show who published the binary and that Apple scanned it, not which extension or agent code it ran." },
+      { value: "script",    label: "The child's script path, which shows which extension or bundle code actually ran." },
+      { value: "parent",    label: "The parent name. Cursor Helper (Plugin) is an IDE process, so the chain is expected.", why: "The parent name describes the container; the extension host runs third-party code under that name." },
+      { value: "port",      label: "The destination port. Traffic on port 443 is normal and needs no further parsing.", why: "Port 443 carries most traffic, good and bad; it does not say what code opened the connection." },
+    ]}
+    answer="script"
+    explanation="The IDE runs extension code, MCP servers and agent commands under the vendor's signature, so the signature, the parent name, and the port all describe the container, not the code. The child's script path (inside the signed app bundle, in a user-writable directory, or in a third-party extension folder) is what tells you which code launched the connections. It also points to the next lookups: the extension inventory, the MDM record for the installed version and hash, and the destinations against the vendor's published allowlist. Signed and notarized proves who published the binary, not what it ran."
+    source={{ href: "/docs/alert/parsing/process-relationships/#reading-a-macos-tree-signatures-and-notarization", label: "Process relationships: reading a macOS tree" }}
+  />
+
+  <QuizItem
+    prompt="A draft Alert handoff reads: 'Validated alert: encoded PowerShell from Word, beacon to a new domain, corroborated by proxy logs. Recommendation: isolate the host and reset the user's password.' What is the main problem with it?"
+    options={[
+      { value: "nothing",     label: "Nothing. A containment recommendation is the most useful thing Alert can hand to IR.", why: "Containment belongs to IR; Alert hands forward leads and flags, and without approval only reversible pre-authorized actions run." },
+      { value: "length",      label: "It is too long. A handoff should name the alert and leave everything else to Subject.", why: "Leads and flags are what Subject needs; a handoff that names only the alert forces a cold read." },
+      { value: "source",      label: "It names the evidence source. Proxy logs belong in Uncover, not in the Alert handoff.", why: "Naming the corroborating source belongs in the validated alert; it is what makes the claim checkable." },
+      { value: "containment", label: "Containment replaced the leads and flags, and the escalation tripwire went unchecked." },
+    ]}
+    answer="containment"
+    explanation="Alert hands forward the validated alert, leads for Subject and Uncover (including the working hypothesis and known gaps), and flags for Scope, Risk, and Escalation. This draft skips the leads and flags and puts a containment plan in their place. Unless the alert closes at intake (a Level 0 pattern close, or a no-signal false-positive close), the verdict belongs to later phases, and containment always does. Here the evidence describes confirmed malicious activity that no control has contained, so the flag that matters is escalation criterion 1, met: the escalation tripwire fires, IR is paged, evidence is preserved, and only pre-authorized actions run. A password reset needs IR approval. A confirmed escalation criterion escalates from any phase, but escalation is a handoff, not a verdict."
+    source={{ href: "/docs/alert/transition/#the-handoff-contract", label: "Transition to Subject: the handoff contract" }}
   />
 
 </Quiz>
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/transition/"
-  nextLabel="Transition to Subject"
-  nextDescription="The Alert chapter's segue into Subject. What Alert hands forward, what to leave behind, and how to set up the next phase for success."
-  ctaLabel="Continue to the transition"
+  nextHref="/docs/subject/"
+  nextLabel="Subject"
+  nextDescription="The next question: Who is involved?"
+  ctaLabel="Start Subject"
 />

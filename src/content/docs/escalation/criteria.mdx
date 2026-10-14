@@ -1,68 +1,119 @@
 ---
-title: "Criteria for escalation"
-description: "Confirmed malicious activity, business-critical systems, lateral movement / exfiltration, ongoing campaigns. The four canonical categories that trigger escalation."
+title: "Close or escalate: the criteria"
+description: "The E rule, the four canonical escalation criteria (confirmed malicious activity not fully contained by a control, business-critical systems, lateral movement or exfiltration, ongoing campaigns), the escalation tripwire, and the closure check a documented close must pass."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import Callout from "@/components/assured/Callout.astro";
-import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import EscalationRule from "@/components/assured/EscalationRule.astro";
+import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+import "@/styles/pages/escalation.css";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="01" pillarTotal="04" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="Escalation criteria are pre-defined thresholds. When they are met, the case escalates regardless of analyst judgment in the moment. Criteria turn the SOC's collective wisdom into a default that holds up under pressure."/>
+<SubPageHero phase="escalation" lede="Escalation criteria are pre-defined thresholds. When one is confirmed, the case escalates, and the triage analyst does not override it. Criteria turn the SOC's collective wisdom into a default that holds up under pressure; the closure check does the same for the cases that close."/>
 
-<PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
-]}/>
+<PillNav chapter="escalation" />
+
+<h2 id="e-rule">The E rule</h2>
+
+Risk scores the case and recommends a move; the Escalation decision makes the call and records it. One rule decides it, and the <a href="#closing">closure check</a> below is how a documented close meets the same evidence standard as an escalation:
+
+<EscalationRule show={["rule"]} />
+
+<figure>
+  <table class="clock-table">
+    <caption>The E rule as a fork: three branches, and every one ends in the record.</caption>
+    <thead>
+      <tr><th scope="col">The case reaches E with</th><th scope="col">The call</th><th scope="col">It ends in the record as</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>A criterion confirmed (from any phase), or a P1 or P2 cell</td><td><strong>Escalate</strong> through the tier the protocol names: P1 immediately with a warm handoff, P2 within 4 hours</td><td>The handoff packet, the E fields, and the communication record</td></tr>
+      <tr><td>A P3 cell</td><td><strong>Keep working</strong> to the named re-score trigger (within 24 hours; within hours at High / Low), then take the escalate branch or the close branch</td><td>The re-score and its trigger, then whichever branch the case takes</td></tr>
+      <tr><td>A P4 cell, no criterion confirmed or open</td><td><strong>Documented close</strong> once the <a href="#closing">closure check</a> passes: a first-class verdict</td><td>The closure record (the event report) and the E fields</td></tr>
+    </tbody>
+  </table>
+</figure>
+
+<div class="e-routes">
+  <p class="e-routes__title">Three routes to escalation</p>
+  <ol>
+    <li><strong>A confirmed criterion:</strong> the <a href="#tripwire">escalation tripwire</a>. P1 whatever the matrix cell, from any phase.</li>
+    <li><strong>The Risk matrix:</strong> a cell at P1 or P2, with no criterion confirmed. P2 escalates within 4 hours with a complete handoff packet.</li>
+    <li><strong>Capacity or a lapsed time box, operational routes:</strong> a single analyst who cannot both watch the queue and work a confirmed case escalates on capacity (see <a href="/docs/escalation/protocols/">protocols</a>). A case that reaches its Scope <a href="/docs/scope/time/">time box</a> without converging, and is not re-scoped, escalates on this operational route as "still investigating": the packet names the open hypotheses, what was checked, and the time box that lapsed.</li>
+  </ol>
+  <p>The handoff names the route that fired, with a one-line rationale citing the evidence.</p>
+</div>
 
 ## Four canonical categories
 
 <div class="cat-grid">
-  <a href="#malicious" class="cat-card"><h3>✅ Confirmed malicious activity</h3><p>Validated IOCs reliably linked to attacker behavior. Triage moves into containment posture.</p></a>
-  <a href="#high-impact" class="cat-card"><h3>💎 High impact / business-critical</h3><p>Confirmed malicious or unauthorized activity touching systems essential to operations, regulated data, or revenue. Escalates before the evidence picture is complete.</p></a>
-  <a href="#lateral" class="cat-card"><h3>↔️ Lateral movement or exfiltration</h3><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
-  <a href="#campaign" class="cat-card"><h3>🌐 Ongoing or widespread campaign</h3><p>Multiple hosts, users, or sectors. Coordinated activity demanding organization-level response.</p></a>
+  <a href="#malicious" class="cat-card"><h3>Confirmed malicious activity not fully contained by a control</h3><p>Attacker behavior established at High confidence that no control has fully stopped. Triage moves into containment posture.</p></a>
+  <a href="#high-impact" class="cat-card"><h3>High impact / business-critical</h3><p>Confirmed malicious or unauthorized activity touching systems essential to operations, regulated data, or revenue. Escalates before the evidence picture is complete.</p></a>
+  <a href="#lateral" class="cat-card"><h3>Lateral movement or exfiltration</h3><p>Advanced compromise stage. Containment timing becomes urgent because blast radius is growing.</p></a>
+  <a href="#campaign" class="cat-card"><h3>Ongoing or widespread campaign</h3><p>Multiple hosts, users, or organizations. Coordinated activity demanding organization-level response.</p></a>
 </div>
 
-The four categories as a run-at-every-phase checklist, with sub-checks and the decision rule: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>, also printed on the <a href="/docs/reference/">one-page reference</a>. The checklist rephrases this page's signs as checkable observations; the categories and the decision rule are identical.
+The four categories also ship as a run-at-every-phase checklist, with sub-checks and the decision rule, and are printed on the <a href="/docs/reference/">one-page reference</a>. The checklist rephrases this page's signs as checkable observations; where the wording differs, this page and the <a href="/docs/risk/framework/">Risk framework</a> are the reference.
 
-<Callout variant="warn" title="The break-glass rule: a confirmed criterion escalates from any phase">
-The seven phases are a thinking order, not a waiting queue. The moment any canonical criterion is **confirmed**, in Subject, in Uncover, anywhere, the case escalates immediately: page the IR lead, start the warm handoff, and let the remaining phases complete under IR's clock, in parallel with containment. Do not finish the loop first. An investigation that is still revealing new lateral movement is not "not ready to escalate"; it is the definition of a case IR should already own, with triage continuing as scoping support. Suspicion is different: an unconfirmed signal refines Scope and re-runs the loop. Confirmation breaks the glass.
+<TemplateEmbed name="escalation-checklist.md" collapse />
+
+<Callout variant="info" title='What "confirmed" means'>
+A criterion is **confirmed** when the claim behind it reaches High on the shared <a href="/docs/documentation/standards/#confidence">confidence rubric</a>: direct evidence from a source trusted for exactly this kind of claim, corroborated by at least one independent source (or one structurally unambiguous source, such as a session reused with no authentication ceremony), with the leading benign alternative tested and ruled out. A single threat-intelligence match, an ATT&amp;CK mapping, or asset value alone is never confirmation. Below High, the claim is a suspicion, and suspicion refines Scope.
 </Callout>
+
+<Callout variant="warn" title="The escalation tripwire: a confirmed criterion escalates from any phase">
+<span id="tripwire"></span>The seven phases are a thinking order, not a waiting queue. The moment any canonical criterion is **confirmed** (in Alert, in Subject, in Uncover, anywhere), the case is P1 whatever the matrix cell, and it escalates immediately: page the IR lead, <a href="/docs/escalation/preserve/">preserve what containment would destroy</a>, start the warm handoff (a live, synchronous handoff on a call or bridge in which the receiver confirms ownership, as opposed to a ticket reassignment), and let the remaining phases complete under IR's clock, in parallel with containment. Do not finish the loop first. An investigation that is still revealing new lateral movement is not "not ready to escalate"; it is the definition of a case IR should already own. Suspicion is different: an unconfirmed signal refines Scope and re-runs the loop. Confirmation trips the wire. (This rule was <a href="/docs/glossaries/assured/#differently">formerly called the break-glass rule</a>; on this site, break-glass now means only emergency-access accounts.)
+</Callout>
+
+<div class="e-rules">
+  <div class="e-rules__item">
+    <h3>After the page</h3>
+    <p>Triage works only on tasks the IR owner assigns, inside IR's case record, and runs no independent queries. "Scoping support" means assigned work; "standby" means no freelancing.</p>
+  </div>
+  <div class="e-rules__item">
+    <h3>Who can override</h3>
+    <p>A confirmed criterion is not overridable by the triage analyst. If the analyst disagrees, the disagreement goes into the packet with its evidence. Only the receiving owner (the IR lead or on-call responder) can hand the case back or de-escalate it after receipt, with a named reason (see <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">De-escalation</a>). On unconfirmed cases, the analyst may depart from the matrix default with documented reasoning.</p>
+  </div>
+  <div class="e-rules__item">
+    <h3>Contained by a control</h3>
+    <p>Malicious activity that a control verifiably blocked or quarantined, with no execution and no follow-on evidence (no persistence, credential exposure, or spread), is not criterion 1. Verify that the control held, record the case at P3 or P4 on its matrix cell, and propose it as a pattern-entry candidate. It does not page IR. Any execution or follow-on activity means it was not fully contained, and the tripwire applies.</p>
+  </div>
+</div>
+
+<span id="late-p1"></span>The clock that matters is the time from the first confirmed criterion to the page, not the time from the alert to a finished packet. A P1 set hours after its first criterion was confirmed is a late P1, however good the packet is, and further confirmations do not restart the clock: the tripwire fires on the first one. The <a href="/docs/escalation/example/#case-a">finance-team example</a> shows what those hours cost, and the <a href="/docs/measuring-triage/#flow-how-the-queue-moves">triage-quality measures</a> track the interval for every escalation.
+
+Grouped alerts are one case. When several alerts share an entity and a time window, a campaign indicator, or a vendor incident ID, the criteria are checked against the case as a whole, and its riskiest member sets the depth level (see <a href="/docs/fast-path/#correlated-cases">Correlated cases</a>). A confirmed criterion on any member escalates the whole case.
 
 ---
 
-<h2 id="malicious">Confirmed malicious activity</h2>
+<h2 id="malicious">Confirmed malicious activity not fully contained by a control</h2>
 
-Escalation is warranted when definitive evidence ties the event to attacker behavior. Confirmed malicious activity reflects intentional use of tactics, techniques, and procedures aligned with known <DefineTerm term="Threat" display="threat" /> actors or campaigns.
+Escalation is warranted when evidence establishes intentional adversary behavior that no control has fully stopped. A match to a known <DefineTerm term="Threat" display="threat" /> actor or campaign strengthens the case but is never required: novel tooling and unattributed operators are confirmed from behavior alone.
 
 <div class="malicious-grid">
   <div class="malicious-card">
-    <h3>Verified malicious infrastructure</h3>
-    <p>IP addresses or domains associated with known command-and-control servers, phishing sites, or other malicious infrastructure documented in threat-intelligence sources.</p>
+    <h3>Verified malicious infrastructure, corroborated</h3>
+    <p>Communication with IP addresses or domains associated with known command-and-control servers, phishing sites, or other malicious infrastructure documented in threat-intelligence sources, corroborated by a second source (host or identity telemetry showing what the connection did). A listing alone is a lead, not confirmation.</p>
   </div>
   <div class="malicious-card">
-    <h3>Malware indicators</h3>
-    <p>File hashes matching malware or unauthorized tools documented in threat-intelligence databases, with verified malicious functionality.</p>
+    <h3>Malware indicators, corroborated</h3>
+    <p>File hashes matching malware or unauthorized tools documented in threat-intelligence databases, with verified malicious functionality and a second source showing the file ran or was staged to run.</p>
   </div>
   <div class="malicious-card">
     <h3>Exploitation evidence</h3>
     <p>Execution of attacker tools or exploits consistent with known malware families or attacker profiles, showing intentional compromise.</p>
   </div>
   <div class="malicious-card">
-    <h3>MITRE ATT&amp;CK correlation</h3>
-    <p>Use of techniques mapped to MITRE ATT&CK tactics such as privilege escalation, persistence, or defense impairment. The framework gives the activity structured context.</p>
+    <h3>ATT&amp;CK-mapped behavior, corroborated</h3>
+    <p>Techniques in tactics such as Privilege Escalation, Persistence, or Defense Impairment (TA0112, ATT&amp;CK v19), executed outside any sanctioned change and corroborated by an independent source. The mapping names the behavior; it is not, by itself, evidence of malice.</p>
   </div>
 </div>
 
-<Callout variant="info" title="Correlation over single signals">
-When evaluating potential malicious activity, security analysts must correlate multiple data points to confirm true positives. Internal threat-hunting results combined with external <DefineTerm term="Threat Intelligence" display="threat intelligence" /> indicating active targeting of the organization provide strong validation. Behavioral patterns consistent with attacker playbooks or distinct phases of the intrusion kill chain suggest coordinated malicious intent rather than isolated anomalies.
-</Callout>
+Every card above needs a second, independent source before it counts as confirmation. A threat-intelligence listing, a hash match, or an ATT&amp;CK mapping tells the analyst where to look; host, identity, or network telemetry showing what actually happened is what confirms it. Internal hunt results combined with <DefineTerm term="Threat Intelligence" display="threat intelligence" /> showing active targeting of the organization are strong corroboration, and behavior that follows several distinct stages of an intrusion points to coordinated intent rather than an isolated anomaly.
 
 ---
 
@@ -70,30 +121,42 @@ When evaluating potential malicious activity, security analysts must correlate m
 
 When confirmed malicious or unauthorized activity touches systems essential to operations, <DefineTerm term="Regulatory Compliance" display="regulatory compliance" />, or <DefineTerm term="Sensitive Data" display="sensitive data" /> protection, the case escalates before the evidence picture is complete: nobody waits to quantify blast radius on a crown jewel. Business-critical systems support mission-critical services, store regulated data, or perform functions whose disruption could cause substantial operational, financial, or reputational harm.
 
-What this criterion is not: asset value by itself. An unvalidated alert on a domain controller has not confirmed anything, and paging IR on asset profile alone floods the escalation path with weak cases until nobody answers the page. What the asset profile does do, deterministically, is tighten the clock under the <a href="/docs/risk/framework/">Risk framework's override rules</a>: a validated-but-unresolved high-impact case floors at P2 when the uncertainty comes from missing evidence, and a benign-leaning one continues at P3 on the tightened high-impact clock, never the standard 24 hours. Same facts, same action, whichever page the analyst read first.
+What this criterion is not: asset value by itself. An unvalidated alert on a domain controller has not confirmed anything, and paging IR on asset profile alone floods the escalation path with weak cases until nobody answers the page. What the asset profile does do is tighten the clock under the <a href="/docs/risk/framework/">Risk framework's override rules</a>:
+
+<table class="clock-table">
+  <thead>
+    <tr><th scope="col">High-impact asset, and the evidence is</th><th scope="col">Likelihood reads</th><th scope="col">Cell and clock</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Missing (not yet collected or not reaching the SIEM)</td><td>Medium: unknown is not Low</td><td>High / Medium, P2: escalate within 4 hours</td></tr>
+    <tr><td>Examined and leaning benign</td><td>Low</td><td>High / Low, P3: re-score within hours on a named trigger, never the standard 24</td></tr>
+  </tbody>
+</table>
 
 <div class="impact-targets">
   <div class="impact-target">
-    <h3>🏭 Production environments</h3>
+    <h3>Production environments</h3>
     <p>Systems directly impacting revenue generation or customer experience. Compromise can result in service degradation, financial losses, and customer dissatisfaction.</p>
   </div>
   <div class="impact-target">
-    <h3>📋 Regulated data repositories</h3>
-    <p>Databases containing PII, PHI, or payment card data. Heightened scrutiny due to compliance violations and mandatory breach-reporting under GDPR and HIPAA, card-brand rules for payment data, and SEC/state disclosure regimes.</p>
+    <h3>Regulated data repositories</h3>
+    <p>Databases containing <DefineTerm term="Personally Identifiable Information (PII)" display="PII" />, <DefineTerm term="Protected Health Information (PHI)" display="PHI" />, or payment card data. Breach-notification clocks may apply: <DefineTerm term="General Data Protection Regulation (GDPR)" display="GDPR" /> (72 hours from awareness), <DefineTerm term="Health Insurance Portability and Accountability Act (HIPAA)" display="HIPAA" />, card-brand rules, US state laws, and, for EU financial and critical entities, DORA (the EU Digital Operational Resilience Act) and the NIS2 Directive, whose first notices can fall due within 4 to 24 hours. Public companies also assess materiality for US Securities and Exchange Commission (SEC) disclosure. Legal confirms which rules apply; see <a href="/docs/scope/regulatory/">Scope: regulatory</a> for who owns each clock.</p>
   </div>
   <div class="impact-target">
-    <h3>☁️ Cloud infrastructure</h3>
+    <h3>Cloud infrastructure</h3>
     <p>Cloud environments hosting critical workloads, particularly those with privileged access or extensive connections to organizational data.</p>
   </div>
   <div class="impact-target">
-    <h3>🔑 Identity and access systems</h3>
-    <p>Identity providers (IdPs), authentication services, VPNs. Compromise here could impact the entire organization's secure-access infrastructure, enabling widespread unauthorized access.</p>
+    <h3>Identity and access systems</h3>
+    <p><DefineTerm term="Domain Controller" display="Domain controllers" /> and identity providers (IdPs), PKI and secrets managers, VPN and remote-access gateways. Compromise here could hand the attacker the organization's entire secure-access infrastructure.</p>
+  </div>
+  <div class="impact-target">
+    <h3>Security and recovery infrastructure</h3>
+    <p><DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" />, SIEM, and backup consoles. Tampering here blinds detection or removes the ability to recover (backup deletion or shadow-copy removal, T1490), so it escalates on confirmation.</p>
   </div>
 </div>
 
-<Callout variant="warn" title="Cross-functional coordination required">
-Business-critical systems often require cross-functional coordination involving IT operations, compliance, and executive stakeholders. Escalating is what brings those owners into the case while notification clocks can still be met; a triage analyst cannot engage them alone.
-</Callout>
+Business-critical systems usually need IT operations, compliance, and executive owners in the response. Escalating is what brings those owners into the case while notification clocks can still be met; a triage analyst cannot engage them alone (see <a href="/docs/escalation/protocols/#organizational-stakeholders">organizational stakeholders</a>).
 
 ---
 
@@ -111,8 +174,8 @@ The detection of <DefineTerm term="Lateral Movement" display="lateral movement" 
   </div>
   <div class="stage-card">
     <span class="stage-card__num">02</span>
-    <h4>Internal reconnaissance</h4>
-    <p>Discovery of additional network resources. Often the earliest expansion signal.</p>
+    <h4>Internal discovery</h4>
+    <p>Enumeration of additional network resources and accounts. Often the earliest expansion signal.</p>
   </div>
   <div class="stage-card">
     <span class="stage-card__num">03</span>
@@ -126,18 +189,22 @@ The detection of <DefineTerm term="Lateral Movement" display="lateral movement" 
   </div>
 </div>
 
-<Reveal summary="Lateral-movement signs that demand immediate escalation" variant="warn">
+The four stages are a simplification. Credential access and privilege escalation are often the hinge between foothold and spread, which is why credential dumping leads the signs below.
+
+<Callout variant="warn" title="Lateral-movement and exfiltration signs that demand immediate escalation">
 
 - **<DefineTerm term="Unauthorized Access" display="Unauthorized access" />** to multiple endpoints or servers beyond the initial compromise.
-- **<DefineTerm term="Credential Dumping" display="Credential dumping" /> (T1003) followed by credential-use techniques** like <DefineTerm term="Pass-the-Hash" display="pass-the-hash" /> (T1550.002) or <DefineTerm term="Pass-the-Ticket" display="pass-the-ticket" /> (T1550.003). Dumping extracts the hash or Kerberos ticket; pass-the-hash/ticket is the subsequent use of the stolen material to authenticate as that identity. Both stages on the same case is a strong escalation signal.
-- **Internal reconnaissance** via <DefineTerm term="PowerShell" />, WMI, or PsExec to gather network topology.
+- **<DefineTerm term="Credential Dumping" display="Credential dumping" /> (T1003) followed by credential-use techniques** like <DefineTerm term="Pass-the-Hash" display="pass-the-hash" /> (T1550.002) or <DefineTerm term="Pass-the-Ticket" display="pass-the-ticket" /> (T1550.003). Dumping extracts the hash or Kerberos ticket; pass-the-hash/ticket is the subsequent use of the stolen material to authenticate as that identity. Seeing both stages on the same case is a strong escalation signal.
+- **Remote execution on additional hosts** with PsExec (S0029) or WMI (T1047), especially from a workstation that has no administrative role.
 - **Suspicious lateral connections** at unusual hours or from unexpected source systems.
 - **Tunneling mechanisms** designed to hide communication between compromised hosts.
-- **Large data transfers** to external destinations, especially with encryption or <DefineTerm term="Obfuscation" display="obfuscation" />.
+- **Large or unusual outbound transfers** measured against the host's own baseline, especially to destinations the organization does not sanction (personal cloud storage, file-sharing services such as MEGA, often moved with tools like rclone), or preceded by staged, password-protected archives (T1560.001).
 
-Escalation enables <DefineTerm term="Network Segmentation" display="network segmentation" />, <DefineTerm term="Credential" display="credential" /> rotation, and <DefineTerm term="Endpoint" display="endpoint" /> isolation. The presence of these techniques demonstrates attacker sophistication and intent that extends beyond opportunistic exploitation to targeted data theft or persistent access.
+Internal reconnaissance (ATT&CK Discovery, TA0007: domain and network enumeration with net, nltest, Active Directory <DefineTerm term="PowerShell" /> cmdlets, or BloodHound/SharpHound; share discovery) is the earliest expansion signal, not lateral movement itself: re-scope and raise likelihood. It trips the escalation tripwire when it is confirmed malicious (attacker tooling, or a compromised identity running it) or when authentication or remote execution on a second host follows it.
 
-</Reveal>
+These techniques show an adversary actively expanding access, whether a hands-on-keyboard operator or automated propagation, and whether the tooling is commodity or bespoke. Escalation brings in the containment only IR can authorize: <DefineTerm term="Network Segmentation" display="network segmentation" /> and fleet-wide <DefineTerm term="Credential" display="credential" /> rotation. Isolating a single <DefineTerm term="Endpoint" display="endpoint" /> or disabling a single account is already on the <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized list</a>, after <a href="/docs/escalation/preserve/">preservation</a>.
+
+</Callout>
 
 ---
 
@@ -152,70 +219,51 @@ Attack campaigns requiring rapid escalation indicate sustained adversary presenc
   </div>
   <div class="campaign-card">
     <h3>Coordinated attack patterns</h3>
-    <p>Distributed phishing campaigns, simultaneous ransomware deployment attempts, or waves of brute force suggest orchestrated activity using sophisticated infrastructure designed for scale.</p>
+    <p>Distributed phishing waves against your users, simultaneous ransomware deployment attempts, or a password spray (T1110.003) that produced at least one successful authentication or targets your organization specifically (custom username lists, your naming convention). Blocked, untargeted spray traffic is background noise: tune it, do not page on it.</p>
   </div>
   <div class="campaign-card">
-    <h3>Evasive techniques</h3>
-    <p>Polymorphic malware or rapidly evolving techniques suggest adversaries actively modifying their approach to bypass controls, a sign the detections that caught this alert will not keep catching the next one.</p>
+    <h3>Operator adaptation</h3>
+    <p>Technique changes seen within this case or across related alerts (new tooling after a block, a switched C2 channel, re-staging after containment) suggest a human operator adapting in real time, a sign the detections that caught this alert will not keep catching the next one. Different hashes alone do not qualify: per-sample mutation is a built-in feature of much commodity malware.</p>
   </div>
   <div class="campaign-card">
     <h3>Threat intelligence context</h3>
-    <p>External intel feeds correlating local detections with known campaigns targeting your industry or region. A local alert that matches an active campaign is rarely the only affected system.</p>
+    <p>External intel feeds correlating local detections with known campaigns targeting your industry or region. A local alert that matches an active campaign should trigger an environment-wide sweep for the campaign's indicators before anyone calls it isolated.</p>
   </div>
 </div>
 
-<Callout variant="info" title="Campaign-level escalation enables system-wide defense">
-Escalating events with these characteristics enables organization-wide defensive measures, coordinated response activities, and potential engagement with industry partners or law enforcement. Timely elevation allows security leadership to mobilize resources, implement strategic countermeasures, and collaborate with external entities when necessary.
-</Callout>
+Escalating a campaign is what makes organization-wide defense possible: a fleet-wide sweep, coordinated blocks, and, where it applies, engagement with industry partners or law enforcement. The NIST Cybersecurity Framework 2.0 outcomes that SP 800-61r3 builds on name two separate moves (RS.MA-04): escalation, which adds responders and time, and elevation, which brings in higher management. Campaigns usually need both, plus a sharing decision (an <DefineTerm term="Information Sharing and Analysis Centers (ISACs)" display="ISAC" /> or peers, under the Traffic Light Protocol, TLP 2.0) that legal owns.
 
 ---
 
-## Priority levels: P1–P4
+## Priority levels: P1 to P4
 
-The triage matrix in [Risk framework](/docs/risk/framework/) outputs a default action; the bands below give those actions their names. P1–P4 is a *priority* scale, how fast someone must act, not a severity taxonomy. Scoring happens in Risk with the RATM rubric; this table only translates the matrix cell into a clock. Map the labels onto your organization's own paging tiers, but keep the semantics.
+The priority bands have one home: the <a href="/docs/risk/framework/#matrix">triage matrix</a> maps each impact and likelihood cell to a band, and <a href="/docs/risk/framework/#clocks">default clocks for each band</a> gives each one its acknowledgment and decision clocks. P1 to P4 is a priority scale (how fast someone must act), not a severity taxonomy. Likelihood and confidence are separate: a High-likelihood case is confirmed only when the claim also reaches High confidence, which is why the Medium / High and Low / High cells still apply to probable-but-unconfirmed activity and to confirmed activity a control contained.
 
-<div class="impact-table">
-  <div class="it-row it-row--header"><span>Priority</span><span>Matrix cells</span><span>Meaning</span><span>Clock</span></div>
-  <div class="it-row"><span class="it-row__label">P1</span><span>High impact / High likelihood, or any break-glass confirmation</span><span>Confirmed or near-certain compromise with major impact. IR owns it.</span><span>Escalate immediately: page IR, warm handoff in minutes, packet completes in parallel.</span></div>
-  <div class="it-row"><span class="it-row__label">P2</span><span>High / Medium · Medium / High</span><span>Strong case short of a confirmed crisis; needs IR attention, not a war room.</span><span>Escalate within the shift, with a complete handoff packet.</span></div>
-  <div class="it-row"><span class="it-row__label">P3</span><span>High / Low · Medium / Medium · Low / High</span><span>Unresolved, or real but low-stakes. Stays with triage under active work.</span><span>Investigate to closure or re-score within 24 hours; named trigger for raising priority. High / Low runs the tightened high-impact clock (hours, not 24) per the Risk override rules.</span></div>
-  <div class="it-row"><span class="it-row__label">P4</span><span>Medium / Low · Low / Medium · Low / Low</span><span>Likely benign or negligible impact.</span><span>Standard queue; document and close.</span></div>
-</div>
+The same default clocks, with what each band means for the Escalation decision:
+
+<EscalationRule show={["clocks"]} meaning caption="Default clocks for each band, and what each band means for the Escalation decision" />
+
+Map the band labels onto your organization's own paging tiers; the meaning of each band is what has to survive the mapping.
+
+---
+
+<h2 id="closing">Closing at triage: the closure check</h2>
+
+Most triaged cases close. A documented close is a first-class verdict, not the absence of an escalation, and it passes a named check before it is recorded:
+
+<ol class="closure-check">
+  <li><strong>No escalation criterion confirmed, or open as a suspicion.</strong></li>
+  <li><strong>The cell allows it:</strong> P4, or a P3 whose named re-score trigger came back clean.</li>
+  <li><strong>No persistence or credential access</strong> observed in the evidence examined.</li>
+  <li><strong>The case's own alternatives checked clean:</strong> the specific paths the evidence left open, such as the extension, MCP-server, and workspace-task inventory and the agent-command review in the <a href="/docs/escalation/example/#case-b">Cursor example</a>.</li>
+  <li><strong>Gaps bounded:</strong> each named, with the reopen triggers written down.</li>
+</ol>
+
+The close records the verdict on both axes (detection: true positive, false positive (logic), or false positive (data); activity: malicious, policy violation, authorized (benign true positive), benign-confirmed, or undetermined), the priority and confidence, the five checks with the finding behind each, and the communication record. A benign true positive is a correct detection of authorized activity, never a false positive. A close produces no handoff packet, because nobody inherits the case; Documentation finalizes the record as the event report and runs the <a href="/docs/documentation/standards/#closure-review">closure review</a> on it.
 
 <KeyTakeaway>
-Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. A criterion confirmed at any phase escalates from that phase; that is the break-glass rule. Use the criteria as the default; override only with documented reasoning grounded in the same evidence Risk evaluated.
+Escalation criteria are the SOC's pre-committed answer to "should I escalate?" Four canonical categories cover most cases: confirmed malicious activity not fully contained by a control, high impact, lateral movement / <DefineTerm term="Exfiltration" display="exfiltration" />, and ongoing campaign. A criterion confirmed at any phase escalates from that phase; that is the escalation tripwire. Otherwise the matrix cell decides: P1 or P2 escalates, P3 keeps working to its trigger, P4 closes with the closure check. A confirmed criterion always escalates: if the analyst disagrees, the disagreement goes into the packet with its evidence, and only the receiving owner can hand the case back or de-escalate it, with a named reason (see <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">De-escalation</a>).
 </KeyTakeaway>
 
 <ContinueCard current="escalation" nextHref="/docs/escalation/protocols/" nextLabel="Internal and external protocols" ctaLabel="Read protocols" />
 
-<style>{`
-.cat-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .cat-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
-.cat-card { display: block; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.22); border-left: 3px solid #6366f1; border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
-.cat-card:hover { transform: translateY(-2px); border-color: #6366f1; box-shadow: 0 12px 24px -14px rgba(99, 102, 241, 0.35); }
-.cat-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
-.cat-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.85rem; }
-
-.malicious-grid, .impact-targets, .campaign-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .malicious-grid, .impact-targets, .campaign-grid { grid-template-columns: 1fr 1fr; } }
-.malicious-card, .impact-target, .campaign-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.6rem; }
-.malicious-card :is(h3, h4), .impact-target :is(h3, h4), .campaign-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.97rem; }
-/* level changed for the heading outline; size stays as designed */
-.cat-card h3, .malicious-card h3, .impact-target h3, .campaign-card h3 { font-weight: 600; line-height: inherit; }
-.malicious-card p, .impact-target p, .campaign-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.stages-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .stages-grid { grid-template-columns: repeat(4, 1fr); } }
-.stage-card { position: relative; padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
-.stage-card__num { position: absolute; top: 0.85rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
-.stage-card h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
-.stage-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
-
-.impact-table { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
-.it-row { display: grid; grid-template-columns: 1fr; padding: 0.85rem 1.15rem; border-top: 1px solid rgba(148, 163, 184, 0.15); color: var(--assured-text-muted); font-size: 0.86rem; line-height: 1.5; }
-.it-row:first-child { border-top: 0; }
-@media (min-width: 900px) { .it-row { grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 1rem; } }
-.it-row--header { background: rgba(99, 102, 241, 0.12); color: #a5b4fc; font-weight: 700; font-size: 0.83rem; }
-.it-row__label { color: var(--assured-text); font-weight: 700; }
-`}</style>

@@ -1,6 +1,7 @@
 ---
 title: "Alert validation"
-description: "Confirm whether an alert is what it claims to be. Three strategies across four dimensions of context."
+description: "Confirm whether an alert is what it claims to be. Deconflict authorized activity, run four validation checks, two truth tests and a criticality weighting, each with a stopping point."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -8,129 +9,196 @@ import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/alert.css";
 
 <SubPageHero
   phase="alert"
-  parentLetter="A"
-  pillarIndex="02"
-  pillarTotal="03"
-  chapterHref="/docs/alert/"
-  chapterLabel="Alert"
   lede="Validation is the bridge between when the engine fires and when the analyst commits resources to investigate. The detection engine had reasons for producing the alert. Validation asks whether those reasons are supported by the evidence around it."
 />
 
-<PillNav
-  chapter="alert"
-  label="Alert chapter"
-  items={[
-    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
-    { label: "Validation",           href: "/docs/alert/validation/",            phase: "alert" },
-    { label: "Parsing",              href: "/docs/alert/parsing/",               phase: "alert" },
-  ]}
-/>
+<PillNav chapter="alert" />
 
-In a healthy SOC, the majority of alerts are routine or false-positives. Without validation, analysts spend time on noise that they should have dismissed, or worse, dismiss something real because nothing told them it was different. Validation is what converts a raw signal into a decision the analyst can defend later.
+In most SOCs, the majority of alerts turn out to be routine activity or false positives. Without validation, analysts either spend time on noise they should have dismissed or (worse) dismiss something real because nothing told them it was different. Validation is what converts a raw signal into a decision the analyst can defend later.
+
+<Callout variant="info" title="How far to go in Alert">
+In Alert, each strategy is a quick lookup with a stopping point: one baseline lookup, one pivot on the account's last 7 days of alerts, one criticality lookup. Anything deeper becomes a lead in the Alert handoff: Subject owns full behavioral baselining (including [cold start, peer groups, and baseline poisoning](/docs/subject/behavioral-framework/#baseline-development)), Uncover owns chain reconstruction, Scope owns criticality classification. The [fast-path depth ladder](/docs/fast-path/) sets how much of this a given alert needs, and the [Alert transition](/docs/alert/transition/) lists what to hand off.
+</Callout>
+
+## What validation decides
+
+Validation produces a provisional call on the same two axes the record uses: the <a href="/docs/glossaries/assured/#two-axis-verdict">two-axis verdict</a>.
+
+- **Detection axis.** *True positive*: the logic matched exactly the activity it describes. *False positive (logic)*: the logic matched something it should not have, which is a tuning ticket. *False positive (data)*: bad, missing, or misparsed input data made it fire.
+- **Activity axis.** *Malicious*. *Policy violation*. *Authorized (benign true positive)*: the detection was correct and the activity was sanctioned, like the developer's 03:00 PowerShell in the [baseline check](#baseline-comparison). *Benign-confirmed*: nothing harmful or policy-relevant happened. *Undetermined*: evidence is missing, and unknown is not benign (see [Risk](/docs/risk/)).
+
+A <DefineTerm term="Benign True Positive" display="benign true positive" /> is never a false positive: the rule saw exactly what it looks for. Only a documented Level 0 pattern closes at this point, and that close is recorded as an early Escalation-decision call; everything else carries the provisional call forward to the next phases. When the alert joins a case already open on the same entity and window, record "merged into case" as its status: that is not a disposition, and the case carries the verdict. [What a benign close teaches](/docs/risk/false-positive/) covers what each outcome feeds back.
 
 ## Why validation matters
 
-The cost of skipping validation is rarely a single missed alert. It is a slow erosion of the entire detection stack. Tap any card to see what goes wrong.
+The cost of skipping validation is rarely a single missed alert. It is a slow erosion of the entire detection stack. Four things go wrong:
 
 <div class="validation-flip-grid">
-  <FlipCard icon="🎯" title="Real threats get misclassified" accent="red">
-    Genuine adversary activity gets tagged as routine and deprioritized. The dwell time keeps climbing while the team investigates noise. By the time the real intrusion is caught, the analyst is reconstructing a much larger attack than they would have faced earlier.
-  </FlipCard>
-
-  <FlipCard icon="⏱️" title="Analyst time gets consumed" accent="orange">
-    Volume of low-fidelity alerts crowds out signal. The most expensive resource in the SOC (analyst attention) gets spent in the wrong place. Investigations of consequential alerts get rushed because too much time was spent on inconsequential ones.
-  </FlipCard>
-
-  <FlipCard icon="😮‍💨" title="Analysts burn out and quit" accent="indigo">
-    When the team spends every shift chasing noise, the work feels pointless. The strongest analysts leave first because they have the most options. The ones who stay are usually the most overworked, and the team loses years of institutional knowledge with every departure. Validation is partly a <DefineTerm term="Security Control" display="security control" /> and partly a retention strategy.
-  </FlipCard>
-
-  <FlipCard icon="🔇" title="Detection systems lose credibility" accent="purple">
-    Once a team stops trusting an engine, they stop responding to it. The engine continues to fire, the team continues to ignore it, and the investment in the detection becomes expensive background noise. Recovering from that loss of trust takes years.
-  </FlipCard>
+  <div class="evasion-blue-card">
+    <h3>Real threats get misclassified</h3>
+    <p>Genuine adversary activity gets tagged as routine and deprioritized. The dwell time keeps climbing while the team investigates noise. By the time the real intrusion is caught, the analyst is reconstructing a much larger attack than they would have faced earlier.</p>
+  </div>
+  <div class="evasion-blue-card">
+    <h3>Analyst time gets consumed</h3>
+    <p>Volume of low-fidelity alerts crowds out signal. The most expensive resource in the SOC (analyst attention) gets spent in the wrong place. Investigations of consequential alerts get rushed because too much time was spent on inconsequential ones.</p>
+  </div>
+  <div class="evasion-blue-card">
+    <h3>Analysts burn out and quit</h3>
+    <p>When the team spends every shift chasing noise, the work feels pointless. The strongest analysts leave first because they have the most options. The ones who stay are usually the most overworked, and the team loses years of institutional knowledge with every departure. Validation is partly a <DefineTerm term="Security Control" display="security control" /> and partly a retention strategy.</p>
+  </div>
+  <div class="evasion-blue-card">
+    <h3>Detection systems lose credibility</h3>
+    <p>Once a team stops trusting an engine, they stop responding to it. The engine continues to fire, the team continues to ignore it, and the investment in the detection becomes expensive background noise. Recovering from that loss of trust is slow, and usually takes a deliberate retune-and-relaunch of the detection.</p>
+  </div>
 </div>
 
 <Callout variant="warn" title="The SolarWinds lesson">
 The 2020 SolarWinds compromise is sometimes told as a SOC-failure story, which is unfair to the SOCs involved. The supply-chain compromise of Orion's build pipeline placed trusted, signed software on victim networks, and the resulting beacons looked like legitimate Orion activity. The validation lesson is real but more nuanced: subtle deviations from baseline (new outbound destinations from monitoring software, unusual timing) were available to baseline-comparison validators if anyone had been pushing those signals through correlation. The failure happened at the layer where trusted software meets behavioral correlation, not at any individual analyst's triage.
+
+The intrusion was eventually found the other way round. FireEye followed up a routine alert that an employee had registered a second MFA device, called the employee, and learned they had not. A cheap validation step on a mundane alert unravelled the whole campaign.
 </Callout>
 
 ---
 
-## Validation has two parts: dimensions and strategies
+## Deconflict authorized activity
 
-Validation is best understood as two axes. The **dimensions** describe what an alert is being validated *against* (the alert itself, the environment, the <DefineTerm term="Threat" display="threat" /> landscape, the business). The **strategies** describe *how* an analyst gathers the validation evidence. Strong SOCs do both, and the rest of this chapter covers each in turn.
+Before reading the alert as an attack, rule out that someone was allowed to do it. Authorized activity is common and quick to check, and a mistake in either direction is expensive: investigating the quarterly penetration test wastes a shift, and waving a real intrusion through as "probably the red team" is far worse.
 
-### The four context dimensions
+<div class="dims-matrix">
 
-Each alert deserves a balanced read from four perspectives. Each dimension answers a different question. (These validate a *signal*; they are unrelated to [Subject's four dimensions](/docs/subject/four-dimensions/), which assess an *entity*.)
+| Possible authorization | The record that clears it | What does not clear it |
+|---|---|---|
+| Red-team exercise or penetration test | The engagement record (rules of engagement, named source IPs, accounts and tools, time window), confirmed with the trusted agent the SOC lead names | The tester's word in chat; a source IP that looks like the tester's; an engagement whose window has closed |
+| Breach-and-attack simulation or detection testing (Atomic Red Team, a commercial BAS tool) | The run schedule and the list of test hosts and accounts, from the tool's owner | A test that matches the technique but not the host, the account, or the time |
+| Vulnerability scan | The scanner's source addresses and schedule, from the vulnerability-management owner | Scan-shaped traffic from an address not on the list |
+| Change window | A change ticket that names this host or account, this action, and this time, approved before the activity | An open window with no ticket for this specific action |
+
+</div>
+
+Activity that matches the plan's shape but not its specifics is not cleared. When it does match, record what cleared it (the engagement ID, run ID, or ticket number) and make the activity-axis call authorized (benign true positive): the rule saw exactly what it looks for. Covert exercises are the hard case. The SOC may not be told, so the named trusted agent is the only route, and until that person confirms, the activity is treated as real.
+
+---
+
+<a id="validation-has-two-parts-dimensions-and-strategies"></a>
+
+## Validation has two parts: checks and strategies
+
+Validation is best understood as two axes. The **checks** describe what an alert is being validated *against* (the alert itself, the environment, the threat landscape, the business). The **strategies** describe *how* an analyst gathers the validation evidence. Strong SOCs do both, and the rest of this chapter covers each in turn.
+
+<a id="the-four-context-dimensions"></a>
+
+### The four validation checks
+
+Each alert deserves a balanced read from four perspectives, and each check answers a different question. (These validate a *signal*; they are unrelated to [Subject's four dimensions](/docs/subject/four-dimensions/), which assess an *entity*.)
 
 <div class="dims-grid">
   <div class="dim-card">
-    <h4>🔍 Technical fidelity</h4>
+    <h4>Technical fidelity</h4>
     <p class="dim-card__q">Is the signal trustworthy on its own terms?</p>
-    <p>The detection engine fired for a reason. The question is whether that reason is supported by the underlying telemetry. Cross-platform log correlation, IoC validation against threat intelligence, MITRE ATT&CK mapping, and a sober read of the engine's known false-positive tendencies.</p>
+    <p>The detection engine fired for a reason. The question is whether that reason is supported by the underlying telemetry. Cross-platform log correlation, IOC validation against threat intelligence, MITRE ATT&CK mapping, and a sober read of the engine's known false-positive tendencies. Check the instrument before the reading: is the sensor healthy and reporting, are timestamps in sync, did the parser populate the fields the rule depends on? And treat a sensor that went quiet, a log source that stopped, or an audit-policy change as an alert in its own right (ATT&CK v19 Defense Impairment).</p>
   </div>
 
   <div class="dim-card">
-    <h4>🏢 Environmental context</h4>
+    <h4>Environmental context</h4>
     <p class="dim-card__q">Is this normal in <em>this</em> environment?</p>
-    <p>An action that is suspicious in one organization is routine in another. Asset criticality, behavioral baselines, patch state, network topology, and operational schedules all reshape what an alert means. The environmental dimension is where a generic alert becomes specific.</p>
+    <p>An action that is suspicious in one organization is routine in another. Asset criticality, behavioral baselines, patch state, network topology, and operational schedules all reshape what an alert means. The environmental check is where a generic alert becomes specific.</p>
+    <p>This check starts with deconfliction: is the activity an authorized test or a ticketed change? See <a href="#deconflict-authorized-activity">Deconflict authorized activity</a> above.</p>
   </div>
 
   <div class="dim-card">
-    <h4>🎯 Threat intelligence</h4>
+    <h4>Threat intelligence</h4>
     <p class="dim-card__q">How does this fit the broader threat landscape?</p>
-    <p>Campaign attribution, emerging TTPs, sector-specific patterns, and fusion across multiple intelligence sources. The threat dimension situates the alert in the world outside the SOC.</p>
+    <p>Campaign attribution, emerging TTPs, sector-specific patterns, and fusion across multiple intelligence sources. The threat check situates the alert in the world outside the SOC.</p>
   </div>
 
   <div class="dim-card">
-    <h4>💼 Business impact</h4>
+    <h4>Business impact</h4>
     <p class="dim-card__q">If this is real, what is the consequence?</p>
-    <p>Operational disruption, regulatory exposure (SOX, HIPAA, GDPR, PCI DSS), financial cost, reputational risk. The business dimension is what makes prioritization defensible.</p>
+    <p>Operational disruption, regulatory and contractual exposure (HIPAA, GDPR, SOX, SEC disclosure, state breach-notification laws; PCI DSS by card-brand contract; see <a href="/docs/scope/regulatory/">Scope's regulatory pillar</a>), financial cost, reputational risk. The business check is what makes prioritization defensible. It measures what is at stake, so it raises the bar for closing; it does not vote on whether the activity is malicious.</p>
   </div>
 </div>
 
 <Callout variant="info" title="Why four, not one">
-A technically perfect alert against a low-value asset deserves a different response than the same alert against a <DefineTerm term="Domain Controller" display="domain controller" />. A baseline anomaly that maps to a known campaign deserves a different response than one that does not. Treating validation as a single dimension misses what each lens reveals.
+A technically perfect alert against a low-value asset deserves a different response than the same alert against a <DefineTerm term="Domain Controller" display="domain controller" />. A baseline anomaly that maps to a known campaign deserves a different response than one that does not. Treating validation as a single check misses what each lens reveals.
 </Callout>
 
 ---
 
 ## The three validation strategies
 
-The dimensions tell the analyst *what* to validate against. The strategies tell them *how* to do it efficiently. Each strategy gets its own sub-page below.
+The checks tell the analyst *what* to validate against. The strategies tell them *how*. Two of them are truth tests: baseline comparison and attack-chain correlation ask whether the alert's claim holds up. The third, criticality, is a weighting rather than a test: it orders the work by what is at stake, and says nothing about whether the alert is true. In Alert, each one is a single lookup with a stopping point.
 
-<div class="strategies-grid">
-  <a href="/docs/alert/validation/baseline-comparison/" class="strategy-card">
-    <span class="strategy-card__num">01</span>
-    <h3>📈 Baseline comparison</h3>
-    <p>Compare the alert against dynamic behavioral baselines. The right answer is often hidden in the entity's own history.</p>
-    <span class="strategy-card__cta">Read →</span>
-  </a>
+<a id="baseline-comparison"></a>
 
-  <a href="/docs/alert/validation/attack-chains/" class="strategy-card">
-    <span class="strategy-card__num">02</span>
-    <h3>⛓️ Attack chains</h3>
-    <p>Multi-event correlation that turns discrete observations into sequences. Built for the attacks that no single event would catch.</p>
-    <span class="strategy-card__cta">Read →</span>
-  </a>
+### 1. Check against the baseline
 
-  <a href="/docs/alert/validation/criticality/" class="strategy-card">
-    <span class="strategy-card__num">03</span>
-    <h3>🎯 Asset and user criticality</h3>
-    <p>Weigh alerts by what they could affect and who is involved. Criticality is how triage stays proportional to risk.</p>
-    <span class="strategy-card__cta">Read →</span>
-  </a>
+Compare the alert's claim with the entity's own history, or with its peer group (same role, team, or host class) when the entity is new. Pull four things: when it is usually active, who it talks to, how much it moves, and which actions it usually takes. Then stop and ask one question: does this entity's normal explain the alert?
+
+The developer's 03:00 PowerShell is the standard case. VPN history shows routine overnight work, PowerShell is one of the developer's most-used tools, a scheduled release window covers the timestamp, and the script hash matches a build pipeline that has run this way for months. The detection was correct and the activity was sanctioned: a benign true positive, closed as a documented [Level 0 pattern](/docs/fast-path/) with the <a href="/templates/pattern-entry.md" download>pattern-entry template</a>, not suppressed.
+
+<a id="when-the-baseline-lies"></a>
+
+A baseline describes what happened, not what was authorized. If the entity was compromised during the learning window, the intrusion is the baseline (poisoning). New hires, hosts and service accounts have no history at all (cold start): treat no history as unknown, not normal. Corroborate any "normal" reading with one independent fact, such as a change ticket, an approved access request or owner confirmation. Subject's [baseline development](/docs/subject/behavioral-framework/#baseline-development) covers both failure modes in depth.
+
+<a id="attack-chains"></a>
+
+### 2. Does this fit a known chain?
+
+Pivot once: pull the account's and the host's alerts for the last 7 days. Ask whether this alert sits next to a likely precursor or follow-on, such as a phishing click before the execution, or credential access before the lateral movement. If it does, link the alerts and hand the chain to Uncover as a lead. If nothing sits nearby, record that the pivot was clean. The common chains and the correlation rules that catch them are in the Field reference: [attack chains and correlation](/docs/alert/validation/attack-chains/).
+
+<a id="criticality"></a>
+
+### 3. Weigh by criticality
+
+Look up the asset tier and the account type. A crown-jewel database or a domain admin moves the alert up the queue; a lab VM moves it down. Criticality never makes a false alert true or a true alert false. Scope owns the classification: [criticality and the impact lens](/docs/scope/criticality/).
+
+<a id="which-strategy-feeds-which-dimension"></a>
+
+### Which strategy feeds which check
+
+<div class="dims-matrix">
+
+| Strategy | Technical fidelity | Environmental context | Threat intelligence | Business impact |
+|---|---|---|---|---|
+| Baseline comparison | Does the telemetry match the claim? | **Primary:** is this normal for this entity? | Enrichment on the deviation (reputation, prevalence) | None |
+| Attack chains | **Primary:** do adjacent events corroborate the claim? | Shared hosts, accounts, and windows | **Primary:** technique progression, campaign overlap | None |
+| Criticality (weighting) | None | Asset tier, account type | None | **Primary:** what is at stake if real |
+
 </div>
 
-<Callout variant="info" title="Where the intelligence dimension gets its evidence">
-Three strategies against four context dimensions is not a mismatch. The threat-intelligence dimension's evidence comes from enrichment that runs inside each strategy rather than from a separate workflow: IoC reputation lookups, campaign-overlap checks, and prevalence queries attach to baseline comparisons, chain reconstruction, and criticality reads alike. The full treatment of sourcing and weighing that intelligence lives in [Uncover's threat-intelligence page](/docs/uncover/threat-intelligence/).
-</Callout>
+The threat-intelligence check has no strategy of its own: its evidence comes from enrichment that runs inside each strategy (IOC reputation lookups, campaign-overlap checks, prevalence queries). The full treatment of sourcing and weighing that intelligence lives in [Uncover's threat-intelligence page](/docs/uncover/threat-intelligence/).
+
+---
+
+<a id="alert-provenance"></a>
+
+## When you cannot read the rule: alert provenance
+
+Every strategy above assumes you know what produced the alert. Many detections in a current queue are vendor-managed models or closed content (Microsoft Defender, CrowdStrike, Microsoft Entra ID Protection risk detections) whose logic the analyst cannot read. Establish four provenance facts before validating, and write each one down, including "unknown":
+
+<div class="dims-matrix">
+
+| Provenance fact | Where to find it | Why it matters |
+|---|---|---|
+| Who wrote it | The rule metadata or detection catalog: your detection engineering team, the vendor, a community Sigma rule, or a managed provider | Sets who can explain the logic and who receives the feedback |
+| Where it runs | The SIEM, the EDR cloud, the identity provider, or a SaaS platform | Tells you which raw events exist behind the alert, and where to pull them |
+| Which version fired | The rule version or content-update ID on the alert, and the detection's change history | A rule edited last week, or a vendor content update overnight, is a calibration fact |
+| What telemetry it sees | The rule's log source, or the vendor's documented inputs | What the detection cannot see is what the alert cannot tell you |
+
+</div>
+
+### Validating a black-box alert by its evidence
+
+When the logic is not inspectable, validate the evidence instead of the rule: pull the raw events behind the alert (the sign-in record, the process tree, the API calls) and run the same checks against them. The provider's risk level is a prior, not a finding. The detection-mechanisms page covers [reading an alert you cannot read the rule for](/docs/alert/detection-mechanisms/#when-you-cannot-read-the-rule). For cases no rule raised (user reports, external notices, hunt findings, provider tickets), see [Other intake](/docs/alert/intake/).
+
+### What to record for detection engineering
+
+Record the provider's detection name and version if shown, the fact that the logic was not inspectable, which raw events confirmed or contradicted it, and the outcome on both axes. Repeated ambiguity from one detection title is a request to the vendor or a wrapper rule for detection engineering, not something each analyst should rediscover. [Detection feedback](/docs/detection-feedback/) covers how to write it up and who receives it.
 
 ---
 
@@ -140,121 +208,8 @@ Validation is not a verdict. It is a defensible decision the analyst can replay 
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/validation/baseline-comparison/"
-  nextLabel="Baseline comparison"
-  nextDescription="The first of the three strategies: compare the alert against the entity's own behavioral history to find the deviations that matter."
-  ctaLabel="Read baseline comparison"
+  nextHref="/docs/alert/parsing/"
+  nextLabel="Reading any alert"
+  nextDescription="The last Alert pillar: a nine-step checklist for reading an alert in whatever format the queue hands you."
+  ctaLabel="Read reading any alert"
 />
-
-<style>
-{`
-.validation-flip-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin: 1.5rem 0;
-  max-width: 40rem;
-}
-
-.dims-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .dims-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.dim-card {
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.85rem;
-  backdrop-filter: blur(8px);
-}
-
-.dim-card h4 {
-  margin: 0 0 0.4rem 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-}
-
-.dim-card__q {
-  margin: 0 0 0.65rem 0;
-  color: var(--assured-accent-soft);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.dim-card p:last-of-type {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-  font-size: 0.93rem;
-}
-
-.strategies-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .strategies-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.strategy-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem 1.75rem;
-  border-radius: 0.85rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  color: var(--assured-text);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.strategy-card:hover {
-  transform: translateY(-3px);
-  border-color: #3b82f6;
-  box-shadow: 0 16px 32px -16px rgba(59, 130, 246, 0.4);
-}
-
-.strategy-card__num {
-  position: absolute;
-  top: 1rem;
-  right: 1.4rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: rgba(147, 197, 253, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-  letter-spacing: 0.05em;
-}
-
-.strategy-card h3 {
-  margin: 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-}
-
-.strategy-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-
-.strategy-card__cta {
-  margin-top: auto;
-  color: #60a5fa;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding-top: 0.4rem;
-}
-`}
-</style>

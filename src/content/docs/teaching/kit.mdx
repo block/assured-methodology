@@ -1,0 +1,184 @@
+---
+title: "Facilitator kit and capstone"
+description: "The materials the teaching guide assumes: a session checklist, a ten-alert depth-ladder set, an AI-drafted section to verify, annotated anchor exemplars for grading, a 15-minute grader calibration, a blind-scored capstone with two raters and an agreement target, and a chapter-by-chapter routing map for the pre-assessment."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/teaching.css";
+
+The <a href="/docs/teaching/">teaching guide</a> says what to run. This page ships the materials it assumes: the fallback alerts for teams that cannot sanitize their own, the AI-drafted section for Session 3, written examples that show graders what strong, passing and failing work looks like, and a <DefineTerm term="Capstone" display="capstone" /> that two people can score the same way. Without them, a facilitator either builds them from scratch or grades by feel, and two instructors grading by feel will score the same write-up differently. Everything here is licensed CC BY 4.0 on the same terms as the rest of the site.
+
+<div class="tpl-downloads">
+  <a href="/templates/facilitator-kit/session-checklist.md" download><span aria-hidden="true">⬇</span> session-checklist.md (run sheet, facilitator)</a>
+  <a href="/templates/facilitator-kit/pre-assessment-forms.md" download><span aria-hidden="true">⬇</span> pre-assessment-forms.md (Forms A and B, participants)</a>
+  <a href="/templates/facilitator-kit/depth-ladder-alert-set.md" download><span aria-hidden="true">⬇</span> depth-ladder-alert-set.md (Session 1, participants)</a>
+  <a href="/templates/facilitator-kit/ai-draft-exercise-1-uncover.md" download><span aria-hidden="true">⬇</span> ai-draft-exercise-1-uncover.md (Session 3, pairs)</a>
+  <a href="/templates/facilitator-kit/anchors-exercise-1.md" download><span aria-hidden="true">⬇</span> anchors-exercise-1.md (graders)</a>
+  <a href="/templates/facilitator-kit/anchors-exercise-2.md" download><span aria-hidden="true">⬇</span> anchors-exercise-2.md (graders)</a>
+  <a href="/templates/facilitator-kit/anchors-exercise-3.md" download><span aria-hidden="true">⬇</span> anchors-exercise-3.md (graders)</a>
+  <a href="/templates/facilitator-kit/capstone-packet.md" download><span aria-hidden="true">⬇</span> capstone-packet.md (candidates)</a>
+  <a href="/templates/facilitator-kit/capstone-scoring-guide.md" download><span aria-hidden="true">⬇</span> capstone-scoring-guide.md (facilitator and raters only)</a>
+  <a href="/templates/facilitator-kit/capstone-score-sheet.md" download><span aria-hidden="true">⬇</span> capstone-score-sheet.md (raters and coordinator)</a>
+</div>
+
+## Session plans with timings
+
+The four-session plan, its prep estimates and its debrief questions live on the <a href="/docs/teaching/#the-four-session-plan">teaching guide</a>, and that page is the source of truth. The session checklist turns it into a printable run sheet: what to send participants beforehand, a minute-by-minute plan for each 90-minute session, which kit file each block uses, and what to collect before people leave. It also adds an optional fifth session for the capstone.
+
+| Session | Kit material | What you collect |
+|---|---|---|
+| 1 · The shape of the work | The depth-ladder alert set, unless you have five sanitized alerts of your own | Level assignments with one-line justifications |
+| 2 · Who and how much | Exercise 1 learner packet | Subject determinations and scope boundaries |
+| 3 · Evidence and verdict | The AI-drafted Uncover section; Exercise 1 anchors (yours, beforehand) | Exercise 1 write-ups through Risk, and the marked-up drafts |
+| 4 · The decision and the record | Exercises 2 and 3 packets; their anchors (yours, beforehand) | Exercise 2 Risk paragraphs and verdicts |
+| 5 · Capstone (optional, 2 hours) | Capstone packet, scoring guide, score sheets | Coded scripts, scored by two raters before any debrief |
+
+The Session 3 write-ups are your calibration set. Grade nothing from Session 4 onward until you have run the calibration below on them.
+
+## The depth-ladder alert set
+
+Session 1 closes with "five real (sanitized) alerts from your own queue." Many teams cannot sanitize alerts in time for a first cohort, and a homemade set tends to cluster at one level. The kit's set has ten synthetic alerts, each with the inventory or <DefineTerm term="Pattern Library" display="pattern-library" /> line the decision needs. Participants write a level and the one fact that decides it. They are not judging malice; they are judging how much process each case earns before anyone knows. The rules are on the <a href="/docs/fast-path/">fast path</a>.
+
+<Reveal summary="Key: the depth-ladder alert set" variant="example">
+
+| # | Level | The fact that decides it | The pull to resist |
+|---|---|---|---|
+| 1 | 0 | Every <DefineTerm term="Discriminator" display="discriminator" /> matches, each gate item is proven from the inventory, and the entry's volume is in range. | "Uncategorized domain" sounds like a finding. |
+| 2 | 1 | 14:31 is outside the entry's 05:00-05:15 window. One failed discriminator makes it Level 1, not a slower Level 0. | Same host, same query: the reflex closes on the shape. |
+| 3 | 2 | A Global Administrator is a privileged identity and fails the gate whatever matches. A privileged identity never earns a pattern entry, so PTN-040 goes back to its owner. | A matching entry. |
+| 4 | 1 | Single subject, ordinary privilege, and the verdict question is answerable from EDR already in hand. Severity sets neither depth nor priority, and a confirmation escalates from any level. | "High" severity reads as Level 2. |
+| 5 | 2 | A crown-jewel subject fails the gate. | A perfect pattern match. |
+| 6 | 2 | Automation holding signing and repository-write capability is privileged. | "It's just a runner." |
+| 7 | 1 | Regulated data in reach is a Scope flag, not a level trigger. It does keep the case off Level 0, because gate item (c) fails. | Reach read as access. |
+| 8 | 2 | Regulated data plausibly accessed by the activity under review: 412,000 raw customer rows. | An ordinary user, so Level 1. |
+| 9 | 1 | One case, and the riskiest member sets the level. Member B has no pattern, so the grouped case never closes at Level 0. If the Level 1 pass ties A's helper to B's archives, the chain moves it to Level 2. | Closing A at Level 0 and ticketing B separately. |
+| 10 | 2 | A spike in closes against one entry (41 against a normal 2 to 6, on 29 new hosts) is a Level 2 trigger, and the entry's volume condition fails Level 0. | Each close looks right on its own. |
+
+A real queue is mostly Level 0. This set is weighted to the boundaries on purpose, because the boundaries are where levels get assigned wrong. In the debrief, spend the time on 3, 7 and 9: a pattern match on a privileged identity, reach mistaken for access, and the unit of work.
+
+</Reveal>
+
+## The AI-drafted Uncover section
+
+Session 3 ends with "verify the draft": pairs check an AI-drafted Uncover section for Exercise 1 against the raw fields. The kit's draft has six numbered claims and a conclusion. Three claims hold, one holds only in part, and two are planted errors of the kinds the <a href="/docs/ai-triage/#verifying-what-it-hands-you">AI-triage verification discipline</a> exists to catch: a decode longer than the payload it came from, and a pivot to a host no artifact mentions. Hand it out only after pairs have written their own tasks 4 and 5, or the draft becomes their anchor.
+
+<Reveal summary="Key: the AI-drafted Uncover section" variant="example">
+
+- **Claims 1 and 2: verified.** Both 4624 lines and the 90-day baseline in the authentication log excerpt.
+- **Claim 3: not supported, the hallucinated pivot.** No artifact mentions fs-02 or any logon at 02:57. It is believable because it fits the story. The query that would settle it: domain authentication logs for svc-printmgmt with wkst-hr-22 as the source, which the Exercise 1 key already lists.
+- **Claim 4: verified, with one inference.** The task name and action come from the alert. "A name chosen to resemble a Windows component" is an inference: label it medium.
+- **Claim 5: not supported, the wrong decode.** The alert carries only the opening characters, which decode to "$wc=Ne". The URL, the file path and the "second-stage binary" are invented. The settling query is the TaskContent field of the 4698 event.
+- **Claim 6: half verified.** The connection and the baseline come from the proxy log. "Retrieved the second-stage payload" is not supported: bytes_out=2.1 MB means prt-01 sent data, which fits an upload better than a download.
+- **The conclusion: not supported.** It rests on claims 3 and 5, and "no benign alternative remains" overrides a ledger that still holds the maintenance alternative open. The rewritten conclusion matches the <a href="/docs/exercises/#exercise-1--the-print-servers-new-scheduled-task">Exercise 1 key</a>: likelihood Medium with medium confidence, High/Medium at P2, with the decode, the ticket search and destination intelligence as the named triggers.
+- **Material AI use, filled:** "Uncover section began as an AI draft (Session 3 draft). Verified claim by claim against the authentication log, alert and proxy log. Removed: a decode longer than the payload in hand, a logon to fs-02 with no source artifact, and a transfer direction the proxy record contradicts."
+
+The debrief question: which error did your pair catch first, and was it the one you would have missed alone?
+
+</Reveal>
+
+## Anchor exemplars
+
+An <DefineTerm term="Anchor Exemplar" display="anchor" /> is a written example of work at a known score, annotated item by item against the grid. Anchors let two graders mean the same thing by "passing." The kit ships three for each of Exercises 1, 2 and 3: one strong, one passing and one failing write-up, each scored against that exercise's grid on the <a href="/docs/exercises/">exercises page</a>. They are synthetic and deliberately not the model answer. A passing anchor reads like a competent analyst on a tired night, because that is what most passing work looks like.
+
+The bands, for Exercises 1 and 2: strong is 9 or 10 points, passing is 7 or 8 with no disqualifier, and anything else fails. For Exercise 3, strong passes all five timed checks and earns 4 or 5 timer-off points, and passing passes all five timed checks and earns at least 3.
+
+| Exercise | Strong | Passing | Failing |
+|---|---|---|---|
+| 1 · Print server | 10 of 10 | 7 of 10: rules out automation on time of day instead of logon type, no lookback on wkst-hr-22, a detection item that fires on the event that already fired | Disqualified: asserts the decode, invents an empty ticket search, and calls an outbound transfer a download |
+| 2 · Consent grant | 10 of 10 | 7 of 10: misses the circular corroboration of the vendor's own IP range, never names an authorizer independent of adm-jkoh, names one of the two re-verified fields | Disqualified: the app ID "was confirmed", and waves 4 and 5 get a Level 0 pattern entry |
+| 3 · Level 0 drill | All timed checks, 5 of 5 timer-off | All timed checks, 3 of 5 timer-off: the signing runner goes to Level 1, and xmrig is treated as a ladder move rather than an <DefineTerm term="Escalation Tripwire" display="escalation tripwire" /> | Disqualified: the privilege check filled from belief, with no source on any gate line |
+
+Each passing anchor carries one marked calibration point: the item where graders most often split, with the ruling. For Exercise 1, it is the baseline argument made in plain words rather than in the key's vocabulary. Grade the reasoning, not the terminology.
+
+Exercises 4 to 8 do not have anchors yet. Grow them from your first calibrated cohort: choose three write-ups that both graders scored identically, one in each band, remove anything that identifies the writer, and annotate each against the grid.
+
+## Grader calibration in 15 minutes
+
+Run this <DefineTerm term="Grader Calibration" display="calibration" /> before anyone grades alone, and again whenever a new grader joins. Two graders, one anchor file, one write-up from your own cohort.
+
+<ol class="kit-steps">
+  <li><strong>Minutes 0-4:</strong> both graders score the passing anchor for the exercise alone, with its annotation covered.</li>
+  <li><strong>Minutes 4-7:</strong> uncover the annotation. Each grader lists every item they scored differently from it, with the reason.</li>
+  <li><strong>Minutes 7-12:</strong> both score one unannotated write-up from the cohort, independently.</li>
+  <li><strong>Minutes 12-15:</strong> compare item by item. When the split comes from the grid's wording, fix the wording now and write the ruling into the grid. When it comes from reading the script differently, re-read the script together.</li>
+</ol>
+
+Grade alone only when the two of you agree on at least 9 of 10 items for the cohort write-up. If you cannot get there in two rounds, the grid item is ambiguous, not one of the graders. This is the same rule the teaching guide gives for <a href="/docs/teaching/#running-an-exercise">calibrating graders</a>: fix the grid, not the grader.
+
+## The capstone
+
+The capstone is one unguided, full-arc case. Each candidate works it alone and in writing, and two raters score it <DefineTerm term="Blind Scoring" display="blind" /> against a fixed grid. It is what completing the sessions does not show on its own: whether a participant can take a raw Level 2 case to a defensible decision and a record someone else can act on. "The bastion's new key" is a Linux bastion case built to share no surface with the eight exercise packets or the four case files.
+
+### Format
+
+<ul class="kit-list">
+  <li><strong>Time:</strong> 90 minutes of work inside a two-hour session, run as the optional Session 5 in the checklist.</li>
+  <li><strong>Rules:</strong> solo, written, open book (the site, the templates, the participant's own notes), no AI assistant, no conferring. Candidates write a code on every page, never their name.</li>
+  <li><strong>No scaffolding:</strong> the packet has a briefing and artifacts, with no phase-by-phase questions. Candidates hand in phase notes with the time of every decision, then the record that decision calls for: a <a href="/docs/escalation/handoff/">handoff packet</a> if they escalate, an event report if they close.</li>
+  <li><strong>The <DefineTerm term="Inject" display="inject" />:</strong> a late artifact arrives during the session, given to each candidate after they record an Escalation decision, and to everyone at minute 60. The candidate writes a short update. Capstone cases change after the first decision, just as real cases do, and the update shows whether the record changes cleanly with them.</li>
+</ul>
+
+The scoring guide holds the inject, the key, a 20-point grid, three decision items, four disqualifiers and the pass mark. The pass mark is at least 15 of 20, all three decision items earned (the depth level, the matrix cell and the timing of the escalation), and no disqualifier. A script can be excellent on the record and still fail on a decision item, because the decision is what the capstone checks first.
+
+### Blind scoring with two raters
+
+<ol class="kit-steps">
+  <li><strong>Codes, held by a coordinator:</strong> someone who does not rate assigns each candidate a code and holds the code-to-name list until the scores are final.</li>
+  <li><strong>Strip the context:</strong> remove names, submission times and any marker of when in the course the script was written. If the capstone serves as a post-measure beside an earlier attempt, use a different <DefineTerm term="Re-skinning" display="re-skin" /> for each and shuffle both sets together.</li>
+  <li><strong>Two raters, calibrated:</strong> at least one did not teach the cohort, and both run the 15-minute calibration on the anchors first.</li>
+  <li><strong>Score alone, record before discussing:</strong> each rater fills a score sheet per script and hands it to the coordinator before any conversation about that script.</li>
+  <li><strong>Agreement first, reconciliation second:</strong> the coordinator computes agreement on the raw scores, then the raters reconcile. Both raw scores are kept, and agreement is always reported from the raw scores.</li>
+  <li><strong>Debrief last:</strong> the cohort debrief happens after scoring, and each candidate sees both raters' notes.</li>
+</ol>
+
+### The agreement target
+
+Two <DefineTerm term="Inter-Rater Agreement" display="inter-rater agreement" /> numbers, one per script and one for the cohort:
+
+- **Per script:** the raters agree on at least 17 of 20 items (85 percent), and their decision items and disqualifier calls are identical. Short of that, a third rater who did not teach the cohort scores the script before any discussion.
+- **Per cohort:** Cohen's kappa across every item rating, computed on the raw scores. Below 0.60, the cohort's scores are not usable: rewrite the grid items with the most splits and re-score, rather than averaging. Aim for 0.80 or higher.
+
+The thresholds follow a widely used reference on interrater reliability (<a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3900052/" target="_blank" rel="noopener noreferrer">McHugh, "Interrater reliability: the kappa statistic," Biochemia Medica 22(3), 2012</a>), which notes that many texts set 80 percent as the minimum acceptable agreement and treats kappa below 0.60 as inadequate. Report both numbers, because kappa corrects for chance and raw agreement does not. When nearly every script earns an item, kappa can read low even when raw agreement is high, so look at the item-level splits before rewriting anything. The score sheet carries the worksheet and a worked example.
+
+<Callout variant="warn" title="This key is public">
+Every file on this site is public, including the capstone's scoring guide. For practice and rater calibration, run the case as published. For an assessed cohort, re-skin it first: the scoring guide lists the invariants to keep (privileged automation on a crown-jewel path, an approved change whose label matches and whose identifying field does not, a discovery without a read, a P1 cell before malice is confirmed, a late inject on an independent channel) and everything to change. Both raters re-derive the key for the new surface before the session.
+</Callout>
+
+### What the capstone does not claim
+
+A pass is a sign-off on one case, alongside the teaching guide's sign-off on two real queue records. It is not a certification, and ASSURED does not certify anyone. Participation in any scored use is voluntary, results are reported in aggregate only, and scores are never used in performance evaluation. A cohort that passes shows that this cohort learned something measurable. It does not show that the methodology works; that question belongs to the controlled, pre-registered study the <a href="/docs/development/#the-validation-work-ahead">development page</a> lays out, which uses its own method-neutral instrument. What the capstone's raw scores do give you is local evidence of grader agreement, which the <a href="/docs/measuring-triage/">verdict-agreement measure</a> then tracks on the live queue.
+
+## Pre-assessment routing: who can skip which chapter
+
+The teaching guide's <a href="/docs/teaching/#routing-with-a-pre-assessment">twelve-item pre-assessment</a> sets each participant's track: 10 to 12 goes to the fast path and the exercises, 6 to 9 runs the workshop and skims the chapters it passed, and below 6 takes the reading order as designed. Printable forms are in the kit. The map below says what "skim" means for each chapter, whatever the track.
+
+| Chapter | Items | Earned every item: read only | Missed any: read |
+|---|---|---|---|
+| <a href="/docs/alert/">Alert</a> | 1, 2 | The <a href="/docs/alert/example/">worked example</a>, then the <a href="/docs/alert/quiz/">quiz</a> | The whole chapter |
+| <a href="/docs/subject/">Subject</a> | 3, 4 | The <a href="/docs/subject/example/">worked example</a>, then the <a href="/docs/subject/quiz/">quiz</a> | The whole chapter. A missed item 4 also routes to <a href="/docs/subject/insider-analysis/">Insider analysis</a>, whatever the total |
+| <a href="/docs/scope/">Scope</a> | 5, 6 | The <a href="/docs/scope/example/">worked example</a>, then the <a href="/docs/scope/quiz/">quiz</a> | The whole chapter, starting with <a href="/docs/scope/regulatory/">Regulatory boundaries</a> if item 6 was missed |
+| <a href="/docs/uncover/">Uncover</a> | 7, 8 | The <a href="/docs/uncover/example/">worked example</a>, then the <a href="/docs/uncover/quiz/">quiz</a> | The whole chapter |
+| <a href="/docs/risk/">Risk</a> | 9, 10 | The <a href="/docs/risk/example/">worked example</a>, then the <a href="/docs/risk/quiz/">quiz</a> | The whole chapter, starting with <a href="/docs/risk/impact-likelihood/">Impact and likelihood</a> |
+| <a href="/docs/escalation/">Escalation decision</a> | 11 | <a href="/docs/escalation/criteria/">Criteria for escalation</a>, the <a href="/docs/escalation/example/">worked example</a>, then the <a href="/docs/escalation/quiz/">quiz</a> | The whole chapter. A missed item 11 routes to the criteria page whatever the total |
+| <a href="/docs/documentation/">Documentation</a> | 12 | <a href="/docs/documentation/standards/">Documentation standards</a> and <a href="/docs/documentation/templates/">templates</a>, then the <a href="/docs/documentation/quiz/">quiz</a> | The whole chapter |
+
+Three rules make the skip safe:
+
+<ul class="kit-list">
+  <li><strong>Some pages nobody skips:</strong> the <a href="/docs/fast-path/">fast path</a>, the <a href="/docs/reference/">one-page reference</a>, <a href="/docs/escalation/criteria/#e-rule">the E rule</a> and <a href="/docs/documentation/standards/#confidence">the confidence rubric</a>. They are the contract every record cites, and an experienced analyst's habits from another shop are most likely to differ there.</li>
+  <li><strong>The quiz checks the skip:</strong> two or more misses on a skimmed chapter's quiz send the participant back to the whole chapter.</li>
+  <li><strong>The vocabulary is not optional:</strong> an analyst who skips a chapter still writes verdicts in the site's terms, for example a <DefineTerm term="Benign True Positive" display="benign true positive" /> and never a <DefineTerm term="False Positive" display="false positive" /> for authorized activity. The Exercise 2 debrief is where a fast-tracked analyst's old labels show up.</li>
+</ul>
+
+Form B is the post-test. Compare its results per item, not just the total, as the teaching guide describes, and pair it with the capstone: the forms show what a participant knows, and the capstone shows what they do with an unguided case.
+
+<KeyTakeaway>A facilitator kit earns its place by making two instructors score the same work the same way. Anchors define the bands, the 15-minute calibration aligns the graders, and the capstone's blind, two-rater scoring with a stated agreement target turns "I think they've got it" into a number a lead can defend. When the raters disagree, fix the grid's wording, not the grader.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/teaching/" class="assured-cta assured-cta--ghost">← Teaching ASSURED</a>
+  <a href="/docs/adoption/" class="assured-cta">Adopting ASSURED in your SOC →</a>
+</div>

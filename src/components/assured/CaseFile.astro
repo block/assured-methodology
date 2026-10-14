@@ -1,0 +1,287 @@
+---
+/**
+ * CaseFile: a summary card for one of the four case files, rendered from
+ * src/data/cases.ts.
+ *
+ * Props:
+ *   caseKey       "A" | "B" | "C" | "D". Required.
+ *   stops         When true, lists the case's thread through the seven
+ *                 phases, each linked to its long form. Default false.
+ *   heading       When false, the card renders no title heading (use it
+ *                 under a page heading that already names the case).
+ *                 Default true.
+ *   headingLevel  2, 3 (default) or 4, so the card nests under the page's
+ *                 own headings.
+ *   changes       When true, adds "What would have changed it": the case's
+ *                 turning points. Default false.
+ *   anchor        When true, the card carries the case slug as its id
+ *                 (case-a, ...), for the hub's deep links. Default false;
+ *                 keep it off on chapter example pages, which already own
+ *                 the #case-a anchors.
+ *   link          Footer link: "hub" (default) points at the case on
+ *                 /docs/cases/, "page" at the case's own page when it has
+ *                 one, "none" hides the footer.
+ *
+ * Usage:
+ *   import CaseFile from "@/components/assured/CaseFile.astro";
+ *   <CaseFile caseKey="B" />
+ *   <CaseFile caseKey="D" stops changes headingLevel={2} anchor link="page" />
+ */
+
+import { type CaseKey, caseByKey, caseHubHref } from "@/data/cases";
+import type { PhaseKey } from "@/data/time-budgets";
+
+interface Props {
+  caseKey: CaseKey;
+  stops?: boolean;
+  changes?: boolean;
+  heading?: boolean;
+  headingLevel?: 2 | 3 | 4;
+  anchor?: boolean;
+  link?: "hub" | "page" | "none";
+}
+
+const {
+  caseKey,
+  stops = false,
+  changes = false,
+  heading = true,
+  headingLevel = 3,
+  anchor = false,
+  link = "hub",
+} = Astro.props;
+const c = caseByKey(caseKey);
+
+const phaseLabel: Record<PhaseKey, string> = {
+  alert: "Alert",
+  subject: "Subject",
+  scope: "Scope",
+  uncover: "Uncover",
+  risk: "Risk",
+  escalation: "Escalation decision",
+  documentation: "Documentation",
+};
+
+const moveLabel =
+  c.decision.move === "escalate" ? "Escalate" : "Documented close";
+const titleText = `${c.label} · ${c.title}`;
+const footerHref = link === "page" && c.page ? c.page : caseHubHref(caseKey);
+const footerText =
+  link === "page" && c.page
+    ? `Read ${c.label}`
+    : `${c.label} in the case files`;
+---
+
+<section class="case-file" id={anchor ? c.slug : undefined} aria-label={titleText}>
+  <header class="case-file__head">
+    <span class="case-file__badge">Case file</span>
+    {!heading ? null : headingLevel === 2 ? (
+      <h2 class="case-file__title">{titleText}</h2>
+    ) : headingLevel === 4 ? (
+      <h4 class="case-file__title">{titleText}</h4>
+    ) : (
+      <h3 class="case-file__title">{titleText}</h3>
+    )}
+  </header>
+  <p class="case-file__premise">{c.premise}</p>
+  <dl class="case-file__facts">
+    <div>
+      <dt>Case</dt>
+      <dd>
+        {c.caseId}, {c.date}
+        {c.incidentId && <>; incident {c.incidentId}</>}
+      </dd>
+    </div>
+    <div>
+      <dt>Depth</dt>
+      <dd>{c.depth}</dd>
+    </div>
+    <div>
+      <dt>Verdict</dt>
+      <dd>
+        Detection: {c.verdict.detection} · Activity: {c.verdict.activity} · Status: {c.verdict.status}
+      </dd>
+    </div>
+    <div>
+      <dt>Priority</dt>
+      <dd>
+        <span class={`case-file__band case-file__band--${c.priority.band.toLowerCase()}`}>{c.priority.band}</span>{" "}
+        {c.priority.cell} at Risk. {c.priority.basis}.
+      </dd>
+    </div>
+    <div>
+      <dt>Decision</dt>
+      <dd>
+        <strong>{moveLabel}, {c.decision.at} UTC.</strong> {c.decision.summary}
+      </dd>
+    </div>
+    <div>
+      <dt>Teaches</dt>
+      <dd>{c.teaches}</dd>
+    </div>
+  </dl>
+  {stops && (
+    <ol class="case-file__stops">
+      {c.stops.map((s) => (
+        <li>
+          <a href={s.href}>{phaseLabel[s.phase]}</a>
+          {s.at && <span class="case-file__at"> ({s.at})</span>}: {s.summary}
+        </li>
+      ))}
+    </ol>
+  )}
+  {changes && (
+    <div class="case-file__changes">
+      <p class="case-file__label">What would have changed it</p>
+      <ul>
+        {c.turningPoints.map((t) => <li>{t}</li>)}
+      </ul>
+    </div>
+  )}
+  {link !== "none" && (
+    <p class="case-file__foot">
+      <a href={footerHref}>{footerText} →</a>
+    </p>
+  )}
+</section>
+
+<style>
+  /* Worked-example hue, like CaseStudy, so a case card never reads as a
+     phase color. */
+  .case-file {
+    margin: 1.5rem 0;
+    padding: 1.35rem 1.5rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(var(--assured-example-rgb), 0.08), rgba(15, 23, 42, 0.68));
+    border: 1px solid rgba(var(--assured-example-rgb), 0.3);
+  }
+
+  @media (max-width: 640px) {
+    .case-file {
+      padding: 1.1rem 0.9rem;
+    }
+  }
+
+  .case-file__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .case-file__badge {
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: 9999px;
+    background: rgba(var(--assured-example-rgb), 0.2);
+    color: var(--assured-example-soft);
+    border: 1px solid rgba(var(--assured-example-rgb), 0.4);
+  }
+
+  .case-file__title {
+    margin: 0;
+    color: var(--assured-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .case-file__premise {
+    margin: 0 0 0.9rem;
+    color: var(--assured-text-muted);
+    line-height: 1.6;
+  }
+
+  .case-file__facts {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .case-file__facts > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .case-file__facts > div {
+      grid-template-columns: 1fr;
+      gap: 0.1rem;
+    }
+  }
+
+  .case-file__facts dt {
+    color: var(--assured-text-dim);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 0.1rem;
+  }
+
+  .case-file__facts dd {
+    margin: 0;
+    color: var(--assured-text-muted);
+  }
+
+  .case-file__band {
+    font-weight: 700;
+    color: var(--assured-text);
+  }
+
+  .case-file__band--p1 { color: #fca5a5; }
+  .case-file__band--p2 { color: #fdba74; }
+  .case-file__band--p3 { color: #fcd34d; }
+
+  .case-file__stops {
+    margin: 1rem 0 0;
+    padding-left: 1.3rem;
+    color: var(--assured-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .case-file__stops li {
+    margin: 0.3rem 0;
+  }
+
+  .case-file__at {
+    color: var(--assured-text-dim);
+  }
+
+  .case-file__changes {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--assured-text-muted);
+  }
+
+  .case-file__label {
+    margin: 0 0 0.3rem;
+    color: var(--assured-text-dim);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .case-file__changes ul {
+    margin: 0;
+    padding-left: 1.3rem;
+  }
+
+  .case-file__changes li {
+    margin: 0.25rem 0;
+  }
+
+  .case-file__foot {
+    margin: 0.9rem 0 0;
+    font-size: 0.9rem;
+  }
+</style>

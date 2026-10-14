@@ -1,6 +1,7 @@
 ---
 title: "Impact and likelihood"
-description: "How to evaluate each dimension separately, and how the combination produces a defensible priority."
+description: "How to evaluate impact and likelihood separately, record confidence beside them, and combine them into a defensible priority."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -9,163 +10,155 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+import "@/styles/pages/risk.css";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="01" pillarTotal="03" chapterHref="/docs/risk/" chapterLabel="Risk" lede="Impact and likelihood are independent questions. The analyst answers each one explicitly, weighs each factor deliberately, and the matrix turns the pair into a consistent, explainable priority."/>
+<SubPageHero phase="risk" lede="Impact and likelihood are independent questions. The analyst answers each one explicitly, weighs each factor deliberately, records how confident the evidence allows them to be, and the matrix turns the pair into a consistent, explainable priority."/>
 
-<PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
-]}/>
+<PillNav chapter="risk" />
 
 ## Evaluating impact
 
-Impact is "if this is real, how bad is it?" Four impact dimensions cover the typical impact picture. Each can be assessed independently; the combined view is what feeds the priority decision.
+Impact asks: if this is real, how bad is it? Four factors cover it, each assessed on its own, then combined.
 
 <div class="impact-grid">
   <div class="impact-card">
     <span class="impact-card__num">01</span>
-    <h3>📁 Data sensitivity</h3>
-    <p>Value and sensitivity of data involved (personal, financial, health). Exposure can lead to identity theft, fraud, legal consequences. Different categories (public → restricted) carry different risk weights when compromised. PII, PHI, payment card data, IP, and authentication credentials sit at the top tier.</p>
+    <h3>Data sensitivity</h3>
+    <p>Value and sensitivity of data involved (personal, financial, health). Exposure can lead to identity theft, fraud, legal consequences. Different categories (public → restricted) carry different risk weights when compromised. PII, PHI, payment card data, intellectual property, and authentication credentials sit at the top tier.</p>
     <p class="impact-card__note">Volume also matters. A breach of thousands of customer records is a different scale from a single record, even at the same classification.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">02</span>
-    <h3>⚙️ Operational disruption</h3>
+    <h3>Operational disruption</h3>
     <p>How the event affects the organization's ability to function. Direct availability issues, productivity losses, customer-facing service disruption. The criticality of affected systems to core business functions drives this.</p>
     <p class="impact-card__note">Recovery time objectives (RTO) and recovery point objectives (RPO) anchor the operational evaluation. Threatening to exceed these thresholds raises priority materially.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">03</span>
-    <h3>📋 Regulatory &amp; compliance</h3>
-    <p>Industry and geography-specific legal obligations. GDPR, HIPAA, and PCI DSS each set notification timelines and define what constitutes a reportable incident; SOX and the SEC disclosure rule add financial-reporting and materiality obligations instead of breach-notification clocks. Events triggering reporting requirements typically represent elevated risk.</p>
-    <p class="impact-card__note">Different regulatory regimes have different thresholds for materiality and different notification clocks. Scope identified which apply; Risk decides whether the technical evidence meets the threshold.</p>
+    <h3>Regulatory &amp; compliance</h3>
+    <p>Industry and geography-specific legal obligations. GDPR and HIPAA set statutory notification timelines and define what counts as a reportable breach. PCI DSS requires an incident response plan that includes notifying the payment brands and acquirers (Req. 12.10.1); the deadlines themselves come from each card brand's rules and the acquirer contract, and they run from suspicion, not confirmation. US state breach laws add their own clocks (California's SB 446: 30 calendar days from discovery), and so do sector and EU regimes such as NIS2, DORA, and NYDFS Part 500, some of them measured in hours. SOX adds financial-reporting control obligations, and for US public companies the SEC rule adds a Form 8-K disclosure due four business days after the company determines an incident is material. See <a href="/docs/scope/regulatory/">Scope's regulatory page</a> for the full map.</p>
+    <p class="impact-card__note">Different regulatory regimes have different thresholds for materiality and different notification clocks. Scope identified which regimes may apply; Risk records whether the technical evidence plausibly meets a threshold and hands that evidence to compliance and counsel, who make the determination.</p>
   </div>
   <div class="impact-card">
     <span class="impact-card__num">04</span>
-    <h3>🪞 Reputational</h3>
+    <h3>Reputational</h3>
     <p>How the event affects stakeholder perceptions if it became public. Customer trust, partner relationships, investor confidence, market positioning. Reputational damage often outlasts direct operational impact and is harder to quantify and remediate.</p>
     <p class="impact-card__note">Factors include visibility of affected systems, data sensitivity, the organization's existing public profile, and whether the incident suggests negligence vs. sophisticated targeting.</p>
   </div>
 </div>
 
-<Callout variant="info" title="Reading the impact picture">
-A useful sequencing: data sensitivity sets the floor. Operational disruption and reputational damage usually move together. Regulatory exposure is the multiplier, it can promote a medium-impact event to high based on notification triggers alone.
+<Callout variant="info" title="How these feed the RATM">
+These four factors are the evidence for the two impact dimensions of the Risk-Based Alert Triage Matrix (RATM) on the <a href="/docs/risk/framework/#ratm">priority matrix page</a>. Data sensitivity and the asset's operational role feed **asset criticality**; operational disruption, regulatory exposure, and reputational harm feed **business impact**. Impact on the matrix is the higher of the two, so a triggered notification clock alone can make impact High. Confirmed spread raises impact only through asset criticality: when the footprint reaches a more valuable asset, score that asset.
 </Callout>
 
 ---
 
 ## Evaluating likelihood
 
-Likelihood is one question: **how confident are we that this finding is real and malicious?** Score it from evidence quality first: what the evidence supports is the ceiling, and the four factors below calibrate within it, never above it. Sophistication and historical frequency speak to whether the activity plausibly is an attack; exploitability and control coverage speak to whether the claimed attack could actually have succeeded here. No factor substitutes for evidence: an APT-plausible story with nothing validated is still Low. The separate question of whether a confirmed attack will continue or spread belongs to the exploitation &amp; scope dimension of the RATM scoring model (covered on the <a href="/docs/risk/framework/">framework page</a>), not this axis.
+Likelihood is one question: **how probable is it that this activity is malicious or unauthorized?** It is an estimate, made from the evidence:
 
-One scoring rule prevents the quietest failure: **unknown is not Low.** Low means the evidence was examined and leans benign. When the evidence cannot be examined, because telemetry is missing, a source is unqueried, or a join failed, the likelihood floor is Medium and the gap goes in the open questions. The framework page's reduction and override rules depend on this distinction: "checked and clean" and "could not check" must never land in the same matrix cell.
+- **The evidence sets the ceiling.** No factor raises likelihood above what the evidence supports.
+- **The four factors below calibrate within it:** by at most one step, and only with the reason written in the case.
+- **Whether an attack will continue or spread is scored elsewhere.** Footprint feeds impact (through asset criticality) and the lateral-movement escalation criterion, not this axis.
+
+Beside the estimate, record **confidence**: how well the evidence and reasoning support it, scored on the <a href="/docs/documentation/standards/#confidence">shared confidence rubric</a>. The two lines answer different questions, and the record keeps both. The full reduction from the four RATM dimensions to the two matrix axes is on the <a href="/docs/risk/framework/">priority matrix page</a>.
+
+One scoring rule prevents the quietest failure: **unknown is not Low.** Low means the evidence was examined and leans benign. When the evidence cannot be examined (telemetry is missing, a source is unqueried, or a join failed), likelihood cannot read Low: it reads Medium at minimum, confidence reads Low, and the gap goes in the open questions. No factor substitutes for evidence either: an <DefineTerm term="Advanced Persistent Threat (APT)" display="APT" />-plausible story never rises above what the evidence supports. The framework page's reduction and override rules depend on this distinction: "checked and clean" and "could not check" must never land in the same matrix cell.
+
+<Callout variant="info" title="Why we call it likelihood, and record confidence separately">
+Intelligence analysis keeps two judgments apart: how likely something is, and how much confidence the analyst has in that judgment (US Intelligence Community Directive 203, Analytic Standards). ASSURED follows the same split. Likelihood is the estimate that this activity is malicious or unauthorized; confidence is the quality of the evidence and reasoning behind the estimate. Strong evidence that activity is benign reads Low likelihood at High confidence. A plausible but unexamined story reads Medium likelihood at Low confidence. Keeping the lines apart is what lets a reviewer tell weak evidence from strong evidence of benign activity, and it matches the estimative language (likely, very likely; low, moderate, high confidence) analysts already meet in threat-intelligence reporting.
+</Callout>
 
 <div class="likelihood-grid">
   <div class="likelihood-card">
     <span class="likelihood-card__num">01</span>
-    <h3>🎭 Threat actor sophistication</h3>
-    <p>Skill level and resources behind the activity. An attack linked to an APT group is more targeted and harder to mitigate than an opportunistic attempt by a commodity actor. Custom tooling, multi-stage operations, and infrastructure investment raise the sophistication score.</p>
+    <h3>Threat actor sophistication</h3>
+    <p>Skill level and resources behind the activity. Custom tooling, multi-stage operations, and infrastructure investment are evidence of intent and raise the threat actor intent dimension; they do not by themselves raise confidence that this finding is real. Commodity is not harmless: an opportunistic infostealer still takes working credentials.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">02</span>
-    <h3>🔓 Exploitability</h3>
-    <p>Whether the attack targets known, easily exploitable vulnerabilities or requires advanced techniques. Public exploits, low complexity, and broad applicability raise likelihood of success. Compensating controls and patch status temper it.</p>
+    <h3>Exploitability</h3>
+    <p>Whether the attack targets known, easily exploitable vulnerabilities or requires advanced techniques. Public exploits, low complexity, and broad applicability make success more plausible. Patch status and compensating controls temper it: an exploit for a vulnerability this host does not have cannot have succeeded here.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">03</span>
-    <h3>📜 Historical incident frequency</h3>
-    <p>Has the organization experienced similar incidents? Recurrence often signals persistent vulnerabilities or weaknesses. Frequency of past incidents is one of the strongest signals of future ones in the same category.</p>
+    <h3>Base rates and history</h3>
+    <p>How often has this detection, on this asset class, produced confirmed true positives, and how often has this organization confirmed this kind of activity before? A rule that is right 2% of the time sets a low prior; a recurring, confirmed campaign sets a higher one. Cite counts from case records, not memories (see <a href="/docs/cognitive-traps/">Thinking traps</a>: availability bias). History calibrates; it never substitutes for this case's evidence.</p>
   </div>
   <div class="likelihood-card">
     <span class="likelihood-card__num">04</span>
-    <h3>🛡️ Security control coverage</h3>
-    <p>Effectiveness of firewalls, IDS, endpoint protection, identity controls. Gaps increase the chance of successful compromise; layered, well-maintained controls reduce it. The current state of compensating controls modifies the raw exploitability score.</p>
+    <h3>Security control coverage</h3>
+    <p>Effectiveness of firewalls, intrusion detection, endpoint protection, identity controls. Gaps increase the chance of successful compromise; layered, well-maintained controls reduce it. Compensating controls temper exploitability: did a control block, quarantine, or log the attempt?</p>
   </div>
 </div>
 
 ### Likelihood indicators at a glance
 
-Evidence quality is the first row because it is the ceiling; the four calibration rows move the score within it, never above it. That is the <a href="/docs/risk/framework/">framework page's</a> reduction rule, read as a table.
+Evidence quality is the first row because it is the ceiling; the four calibration rows move the score within it, by at most one step, never above it. That is the <a href="/docs/risk/framework/">priority matrix page's</a> reduction rule, read as a table.
 
 <div class="likelihood-table">
-  <div class="lt-row lt-row--header"><span>Factor</span><span>Low likelihood</span><span>High likelihood</span></div>
-  <div class="lt-row"><span class="lt-row__label">Evidence quality (ceiling)</span><span>Examined and affirmatively leans benign; unexamined evidence scores Medium, never Low</span><span>Multiple independent sources corroborate malicious behavior</span></div>
-  <div class="lt-row"><span class="lt-row__label">Threat actor</span><span>Opportunistic, untargeted, limited resources</span><span>Targeted, persistent, well-resourced</span></div>
-  <div class="lt-row"><span class="lt-row__label">Exploitability</span><span>Complex exploitation, requires privileged access</span><span>Simple exploitation, public exploits available</span></div>
-  <div class="lt-row"><span class="lt-row__label">Security controls</span><span>Multiple overlapping controls, well-maintained</span><span>Limited or outdated controls, known gaps</span></div>
-  <div class="lt-row"><span class="lt-row__label">Historical patterns</span><span>No similar past incidents, uncommon vector</span><span>Recurring incidents, active campaigns</span></div>
+  <div class="lt-row lt-row--header"><span>Factor</span><span>Low likelihood</span><span>Medium likelihood</span><span>High likelihood</span></div>
+  <div class="lt-row"><span class="lt-row__label">Evidence quality (ceiling)</span><span>Examined and affirmatively leans benign</span><span>Single-source or partially examined; or the evidence could not be examined (gap recorded, confidence Low)</span><span>Multiple independent sources corroborate malicious behavior</span></div>
+  <div class="lt-row"><span class="lt-row__label">Threat actor</span><span>Opportunistic, untargeted, limited resources</span><span>Commodity tooling with some targeting</span><span>Targeted, persistent, well-resourced, attributed with corroboration</span></div>
+  <div class="lt-row"><span class="lt-row__label">Exploitability</span><span>Target not vulnerable, or exploitation needs access the actor does not hold</span><span>Exploitable with effort; preconditions partly met</span><span>Simple exploitation, public exploits available, target confirmed vulnerable</span></div>
+  <div class="lt-row"><span class="lt-row__label">Security controls</span><span>Multiple overlapping controls, well-maintained, and they logged or blocked the attempt</span><span>Controls present, with known gaps on this path</span><span>Limited or outdated controls, known gaps</span></div>
+  <div class="lt-row"><span class="lt-row__label">Base rates and history</span><span>Detection rarely confirms; no confirmed history of this activity here</span><span>Detection sometimes confirms; similar activity confirmed here before</span><span>Detection usually confirms; recurring confirmed incidents or an active campaign</span></div>
 </div>
 
 <Callout variant="warn" title="Common likelihood mistake">
-Letting impact drive likelihood. "This would be really bad, therefore it is probably real." That is backwards. Evaluate likelihood from the evidence, impact from the potential consequences, and then combine them deliberately. Each dimension answers a different question.
+Letting impact drive likelihood. "This would be really bad, therefore it is probably real." That is backwards. Evaluate likelihood from the evidence, impact from the potential consequences, and then combine them deliberately. Each dimension answers a different question. Two more traps bite at this phase: anchoring on a severity score that arrived with the alert, from a vendor console or an AI assistant, and availability bias from the last memorable incident. See <a href="/docs/cognitive-traps/">Thinking traps</a> and <a href="/docs/ai-triage/">AI-assisted triage</a>.
 </Callout>
 
 ---
 
-## Producing the verdict
+## Producing the assessment
 
-The Risk output combines the two dimensions into a defensible priority. The verdict should include:
+The Risk output combines the two axes into a defensible priority and a recommended move. The assessment should include:
 
 <div class="verdict-list">
   <div class="verdict-item">
-    <h3>📊 Impact score</h3>
-    <p>High / medium / low across the four impact dimensions, with a one-sentence rationale per dimension. The combined impact is the floor of the priority decision.</p>
+    <h3>Impact score</h3>
+    <p>High / medium / low for asset criticality and for business impact, each with a one-sentence rationale drawn from the four impact factors. Impact is the higher of the two. The combined impact selects the row of the triage matrix the case reads from; at High, it also puts the case on the high-impact clock.</p>
   </div>
   <div class="verdict-item">
-    <h3>🎯 Likelihood score</h3>
-    <p>High / medium / low, anchored on evidence quality and calibrated by sophistication, exploitability, and control coverage. Record the evidence-confidence level as its own named line, so a reviewer can tell "weak evidence" apart from "strong evidence of unlikely-malicious activity."</p>
+    <h3>Likelihood score</h3>
+    <p>High / medium / low: the estimate that the activity is malicious or unauthorized, anchored on the evidence and calibrated by sophistication, exploitability, control coverage, and base rates and history.</p>
   </div>
   <div class="verdict-item">
-    <h3>🚦 Combined priority</h3>
-    <p>From the triage matrix. Drives escalation timing and resource allocation. Not a number; a defended judgment with named inputs.</p>
+    <h3>Confidence</h3>
+    <p>High / medium / low on the shared confidence rubric, as its own named line, so a reviewer can tell "weak evidence" apart from "strong evidence of benign activity." Say whether any dimension is Unknown.</p>
   </div>
   <div class="verdict-item">
-    <h3>❓ Open questions</h3>
-    <p>What the analyst could not resolve, and what new evidence would change the verdict. This is what makes the verdict defensible later.</p>
+    <h3>Combined priority</h3>
+    <p>The matrix cell and its band, P1 to P4. Drives escalation timing and resource allocation. Not a number; a defended judgment with named inputs.</p>
+  </div>
+  <div class="verdict-item">
+    <h3>Override applied</h3>
+    <p>None, escalation tripwire, high-impact clock, or documented downgrade, with the reason.</p>
+  </div>
+  <div class="verdict-item">
+    <h3>Recommended move</h3>
+    <p>The action the band calls for, in one line: escalate now, escalate within 4 hours, keep working to a named re-score trigger, or documented close. Risk recommends; the Escalation decision decides.</p>
+  </div>
+  <div class="verdict-item">
+    <h3>Open questions</h3>
+    <p>What the analyst could not resolve, and what new evidence would change the assessment. This is what makes it defensible later.</p>
   </div>
 </div>
 
-<Callout variant="info" title="Open questions are not weakness">
-Recording open questions is the difference between "the analyst was confident" and "the analyst knew what they did not know." The latter is what survives audit, <DefineTerm term="Post-Mortem" display="post-mortem" />, and review. The former is what creates incident-response gaps months later when the open question turns out to have mattered.
-</Callout>
+Open questions are not weakness. Recording them is the difference between "the analyst was confident" and "the analyst knew what they did not know." The second is what survives audit, <DefineTerm term="Post-Mortem" display="post-mortem" />, and review; the first is what creates incident-response gaps months later, when the open question turns out to have mattered.
+
+<h3 id="verdict-block">Copy-ready: the Risk verdict block</h3>
+
+Paste this into the case record at the end of Risk, or <a href="/templates/risk-verdict.md" download>download the Risk verdict template</a> (Markdown). When the case escalates, the same fields travel in section 5 of the <a href="/templates/handoff-packet.md" download>handoff packet template</a>; when it closes, they sit under the Escalation decision in the case's report.
+
+<TemplateEmbed name="risk-verdict.md" title="Risk verdict block" />
+
+Risk recommends; the Escalation decision makes and records the call.
 
 <KeyTakeaway>
-Impact and likelihood are independent. Combine them deliberately. Record the rationale for each. The verdict is not a number; it is a defended judgment with named inputs the next analyst, the audit team, and the post-mortem can verify.
+Impact and likelihood are independent. Combine them deliberately, record confidence beside them, and record the rationale for each. The assessment is not a number; it is a defended judgment with named inputs the next analyst, the audit team, and the post-mortem can verify.
 </KeyTakeaway>
 
-<ContinueCard current="risk" nextHref="/docs/risk/framework/" nextLabel="The Risk framework" ctaLabel="Read framework" />
-
-<style>{`
-.impact-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
-.impact-card { position: relative; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.impact-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
-.impact-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
-.impact-card > p { margin: 0 0 0.55rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-.impact-card__note { font-style: italic; padding: 0.5rem 0.85rem; background: rgba(15, 23, 42, 0.6); border-left: 2px solid rgba(252, 165, 165, 0.4); border-radius: 0.35rem; font-size: 0.85rem; }
-
-.likelihood-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .likelihood-grid { grid-template-columns: 1fr 1fr; } }
-.likelihood-card { position: relative; padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
-.likelihood-card__num { position: absolute; top: 1rem; right: 1.2rem; font-size: 0.72rem; font-weight: 800; color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */ }
-.likelihood-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fca5a5; font-size: 1rem; }
-.likelihood-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.likelihood-table { display: flex; flex-direction: column; gap: 0; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
-.lt-row { display: grid; grid-template-columns: 1fr; padding: 0.85rem 1.15rem; border-top: 1px solid rgba(148, 163, 184, 0.15); color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.5; }
-.lt-row:first-child { border-top: 0; }
-@media (min-width: 768px) { .lt-row { grid-template-columns: 1.1fr 1fr 1fr; gap: 1rem; } }
-.lt-row--header { background: rgba(239, 68, 68, 0.12); color: #fca5a5; font-weight: 700; font-size: 0.85rem; }
-.lt-row__label { color: var(--assured-text); font-weight: 700; }
-
-.verdict-list { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
-@media (min-width: 768px) { .verdict-list { grid-template-columns: 1fr 1fr; } }
-.verdict-item { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #ef4444; border-radius: 0.55rem; }
-.verdict-item :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fca5a5; font-size: 0.95rem; }
-.verdict-item p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.88rem; }
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.impact-card h3, .likelihood-card h3, .verdict-item h3 { font-weight: 600; line-height: inherit; }
-`}</style>
+<ContinueCard current="risk" nextHref="/docs/risk/framework/" nextLabel="The priority matrix" ctaLabel="Read the priority matrix" />

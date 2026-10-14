@@ -1,0 +1,249 @@
+---
+title: "Telemetry labs"
+description: "A hands-on lab track on free, public attack telemetry: Splunk BOTS v3, OTRF Security-Datasets (formerly Mordor) and Security Onion. One lab per ASSURED phase, each with the question, the dataset slice, the query to write, the artifact to hand in and a scoring rubric, then a Level 2 capstone scored blind against the handoff packet."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/root.css";
+
+The <a href="/docs/exercises/">exercise packets</a> train judgment on evidence someone has already pulled for you. On shift, nobody does that. You write the query, you get back a few thousand rows, most of them noise, and the one row that decides the case doesn't look special. This track adds that missing step. Every lab runs on public attack telemetry recorded in a lab environment, and every lab's deliverable is an ASSURED record: the claim, the citation, the confidence label and the decision. A correct answer to a trivia question doesn't count.
+
+The track complements commercial practice platforms; it doesn't compete with them. They supply volume and variety. ASSURED supplies the decision model and the record standard, and this page applies both to data you query yourself.
+
+## How the track runs
+
+<ul class="ex-howto">
+  <li><strong>Prerequisites:</strong> the chapter for each lab, and the <a href="/docs/exercises/">exercise packets</a> first if you are new to the method. The labs assume you can read Windows Security and <DefineTerm term="Sysmon" /> events; the <a href="/docs/alert/parsing/multi-format/">formats and normalization page</a> covers the event IDs used here.</li>
+  <li><strong>Write before you query further.</strong> Each lab names a stopping point. Write the artifact there, then open the instructor notes. As in the packets, your answer doesn't need to match the model; it needs to survive comparison with it.</li>
+  <li><strong>Cite rows, not impressions.</strong> Every claim in a lab artifact names the event (host, event ID, timestamp) or the query that produced it, per the <a href="/docs/documentation/standards/#evidence-citation">evidence citation rule</a>.</li>
+  <li><strong>Lab data is lab data.</strong> These datasets were recorded on emulation ranges, so they carry the harness with them: capture tools, management agents, the operator's own remote session. Each of those is a question to answer and record, never a finding to assume. Working out which rows belong to the range is part of the skill.</li>
+</ul>
+
+<div class="table-scroll">
+
+| Lab | Phase | Dataset slice | Stack | Time |
+|---|---|---|---|---|
+| 1 | Alert | OTRF SDWIN-201219070027, Remote Scheduled Task Creation (host log) | jq or any SIEM | 45 min |
+| 2 | Subject | Same dataset as Lab 1 | jq or any SIEM | 45 min |
+| 3 | Scope | Same scenario, network capture | Security Onion (import) | 60 min |
+| 4 | Uncover | OTRF SDWIN-190518202151, Empire Mimikatz LogonPasswords (host log) | jq or any SIEM | 60 to 90 min |
+| 5 | Risk | BOTS v3, AWS CloudTrail and S3 access logs | Splunk | 60 min |
+| 6 | Escalation decision | Lab 4's case, continued | Your Lab 4 notes | 45 min |
+| 7 | Documentation | Lab 5's case, cold-read swap | Templates | 45 min |
+| <DefineTerm term="Capstone" /> | Full arc, <DefineTerm term="Level 2" /> | OTRF APT29 evaluation, Day 1 (host log and packet captures) | SIEM and Security Onion | 4 to 6 hours |
+
+</div>
+
+## Lab setup
+
+Three free resources cover the whole track, plus one optional resource you should only ever run in an isolated lab. Licenses and versions below were checked on 13 October 2026; re-check them before you build a course on them.
+
+<div class="table-scroll">
+
+| Resource | What it is | License | Setup notes |
+|---|---|---|---|
+| <a href="https://github.com/splunk/botsv3" target="_blank" rel="noopener noreferrer">Splunk BOTS v3</a> | <DefineTerm term="Boss of the SOC (BOTS)" display="Boss of the SOC" /> version 3: a 320.1 MB pre-indexed Splunk dataset covering a fictional brewing company's Windows, network, AWS and Microsoft 365 telemetry. Released March 2020. | CC0-1.0 | Untar into <code>$SPLUNK_HOME/etc/apps</code> and search <code>index=botsv3 earliest=0</code>. The README pins Splunk Enterprise 7.1.7 and the exact versions of 25 add-ons; check the MD5 it publishes. Because the data is pre-indexed, it doesn't count against a license's daily volume. The official question, answer and hint files come by email request (bots@splunk.com). |
+| <a href="https://github.com/OTRF/Security-Datasets" target="_blank" rel="noopener noreferrer">OTRF Security-Datasets</a> | Open Threat Research Forge's attack and benign telemetry recorded on lab ranges, formerly the <DefineTerm term="Security Datasets (formerly Mordor)" display="Mordor project" /> (the old repository redirects here). Atomic datasets capture one technique; compound datasets capture a whole campaign. Each carries an ID, ATT&amp;CK mappings and the operator's commands. | MIT (the LICENSE file; the README's license heading still says GPL-3.0, so read the LICENSE file before you redistribute) | Host logs are zipped JSON lines exported from the range's event pipeline, not <code>.evtx</code> files. Network captures are <code>.pcapng</code>. The datasets were recorded between 2019 and 2023, and the repository's last commit was in March 2024. |
+| <a href="https://github.com/Security-Onion-Solutions/securityonion" target="_blank" rel="noopener noreferrer">Security Onion</a> | <DefineTerm term="Security Onion" /> is a free network security monitoring and log management platform: <DefineTerm term="Zeek (formerly Bro)" display="Zeek" /> metadata, <DefineTerm term="Suricata" /> alerts and full packet capture behind one console. Version 3.3.0, released 11 September 2026. | Elastic License 2.0 for Security Onion's own components and the Elastic components | An Import installation needs 2 CPU cores, 4 GB RAM and 100 GB of storage. <code>so-import-pcap</code> runs Zeek and Suricata over a capture and keeps its original timestamps. ELv2 forbids providing the software to third parties as a hosted or managed service, which matters if you run labs for customers. |
+| <a href="https://github.com/redcanaryco/atomic-red-team" target="_blank" rel="noopener noreferrer">Atomic Red Team</a> (optional) | <DefineTerm term="Atomic Red Team" /> is Red Canary's library of small ATT&amp;CK-mapped tests that generate telemetry you know the truth of. | MIT | Isolated lab only: see the callout below. |
+
+</div>
+
+For the query stack, <a href="https://help.splunk.com/en/data-management/splunk-enterprise-admin-manual/10.4/configure-splunk-licenses/about-splunk-free" target="_blank" rel="noopener noreferrer">Splunk Free</a> indexes up to 500 MB a day on a single instance and doesn't expire. It has no user authentication, so give each learner their own instance. It can also take the OTRF JSON files through an upload. After any upload, check that each event's time is the event's own timestamp field and not the upload time (<DefineTerm term="Event Time vs Ingest Time" display="event time, not ingest time" />), because a timeline built on upload times is fiction. For the small atomic datasets, <code>jq</code> on a laptop is enough, and the queries below use it. If you can't install anything, CyberDefenders hosts a <a href="https://cyberdefenders.org/blueteam-ctf-challenges/boss-of-the-soc-v3/" target="_blank" rel="noopener noreferrer">BOTS v3 lab</a> that is enough for Lab 5.
+
+<Callout variant="danger" title="Isolation rules for the lab">
+Run the stack on disposable virtual machines on a host-only or isolated network segment, with no production credentials, no single sign-on and no domain trust. BOTS v3 pins a 2018-era Splunk release; treat it as lab-only software and never expose it to a network you care about. Run Atomic Red Team only on snapshotted lab machines you revert after each test. Never run it on a corporate endpoint: some tests weaken security settings, and your own SOC will rightly treat the result as an intrusion. Get the SOC lead's written approval, and tell the shift before a test runs. Dataset content is attacker-authored text. Before you paste any of it into an AI assistant, apply the <a href="/docs/ai-triage/">admission gate</a>.
+</Callout>
+
+## One lab per phase
+
+Each lab gives the question, the dataset slice, a starting query, the artifact to hand in and the pass checks. The queries are starting points. The lab is the second and third query you write once you see what the first one returned. Times in the datasets are as recorded, in UTC unless a lab says otherwise.
+
+<h3 id="lab-1">Lab 1 · Alert: the task with a borrowed name</h3>
+
+<p class="ex-meta"><span class="ex-tag">Alert</span> <span class="ex-tag">45 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>Briefing:</strong> a rule fires on event 4698 (scheduled task created) on WORKSTATION6, for a task in the <code>\Microsoft\Windows</code> folder, created by a user account. No change record covers this host today.</li>
+  <li><strong>The question:</strong> what does the alert claim, what does the full event say that the alert summary would drop, and does a second, independent source agree?</li>
+  <li><strong>Dataset slice:</strong> <a href="https://raw.githubusercontent.com/OTRF/Security-Datasets/master/datasets/atomic/windows/lateral_movement/host/schtask_create.zip">schtask_create.zip (host)</a>, OTRF SDWIN-201219070027. Instructors: the dataset's notebook page shows the operator's commands, so it's the answer key. Don't hand it to learners.</li>
+  <li><strong>The artifact:</strong> the Alert sections of the <a href="/templates/alert-report.md" download>alert report</a>, with the claim, the mechanism family, the validation checks and a detection verdict.</li>
+</ul>
+
+<pre><code>{`unzip -p schtask_create.zip | jq -c 'select(.EventID==4698)
+  | {Hostname, TimeCreated, SubjectUserName, TaskName, TaskContent}'`}</code></pre>
+
+**Pass checks.** (1) The claim is stated as a claim, separate from the verdict. (2) The task's action, trigger and run-as principal come from the event's `TaskContent` field, not from the task name. (3) The name is flagged as masquerading as an OS component, and the flag is labeled as a hypothesis. (4) The learner finds an independent source in the same window and cites it. (5) Detection axis: true positive, because the rule's claim holds. Activity axis: undetermined, handed to Subject. See <a href="/docs/alert/validation/">Validation</a> for why those are two separate verdicts.
+
+<h3 id="lab-2">Lab 2 · Subject: who acted, from where</h3>
+
+<p class="ex-meta"><span class="ex-tag">Subject</span> <span class="ex-tag">45 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>The question:</strong> the event names an account. Who acted, from which host, through what process chain, and with what privilege?</li>
+  <li><strong>Dataset slice:</strong> the same file as Lab 1. It holds events from two hosts.</li>
+  <li><strong>The artifact:</strong> a Subject entry for each entity, scored on the <a href="/docs/subject/four-dimensions/">four dimensions</a>, plus the depth level the case should run at, with the reason.</li>
+</ul>
+
+<pre><code>{`unzip -p schtask_create.zip | jq -r 'select(.EventID==4624 or .EventID==4672
+    or (.Channel=="Microsoft-Windows-Sysmon/Operational" and .EventID==1))
+  | [.TimeCreated, .Hostname, .EventID, (.TargetUserName // .SubjectUserName // .User),
+     (.LogonType // ""), (.IpAddress // ""), (.ParentImage // ""), (.Image // "")]
+  | @tsv'`}</code></pre>
+
+**Pass checks.** (1) The logon that preceded the task is identified with its logon type, authentication package and source address. (2) The source address is resolved to a host from the data, not assumed. (3) The process chain on the source host is reconstructed from parent to child (see <a href="/docs/alert/parsing/process-relationships/">process relationships</a>). (4) The privileged logon (event 4672) at the target is read as context: the account holds administrative rights there. It is not evidence of escalation. (5) The depth call follows from it: a privileged identity fails the Level 0 eligibility gate, so the case runs at Level 2 (see <a href="/docs/fast-path/">the depth ladder</a>). (6) The range's own processes are recorded as questions, not attributed to the actor.
+
+<h3 id="lab-3">Lab 3 · Scope: what this sensor can and cannot see</h3>
+
+<p class="ex-meta"><span class="ex-tag">Scope</span> <span class="ex-tag">60 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>The question:</strong> import the network capture recorded during the same activity. Where was it captured, what share of it is the case, and what does the investigation still need that no source in hand can show?</li>
+  <li><strong>Dataset slice:</strong> <a href="https://raw.githubusercontent.com/OTRF/Security-Datasets/master/datasets/atomic/windows/lateral_movement/network/schtask_create.zip">schtask_create.zip (network)</a>, imported with <code>sudo so-import-pcap /full/path/to/file</code>. If the import rejects the <code>.pcapng</code> format, convert the file first with Wireshark's <code>editcap -F pcap</code>.</li>
+  <li><strong>The artifact:</strong> a scope statement covering entities in and out, each exclusion with the observation that would pull it in, the time window with a lookback, and a list of what can't be seen (see <a href="/docs/scope/infrastructure/#naming-what-is-invisible">naming what is invisible</a>).</li>
+</ul>
+
+**Pass checks.** (1) The capture point is identified from evidence, so the learner knows whose traffic this sensor can see. (2) The traffic between the two hosts is matched to the host-log events by ports and sequence. (3) The time offset between the capture and the host log is measured and explained before any join (see <a href="/docs/uncover/correlation/#clock-skew-order-is-evidence-and-clocks-lie">clock skew</a>). A whole-hour offset is a time-zone error, not drift. (4) The logon was Kerberos, so the learner asks where the ticket exchange with a domain controller is recorded, and names that source as missing if neither file holds it. (5) The heaviest flow in the capture gets an explicit in-scope or out-of-scope decision with a reason.
+
+<h3 id="lab-4">Lab 4 · Uncover: the process that read LSASS</h3>
+
+<p class="ex-meta"><span class="ex-tag">Uncover</span> <span class="ex-tag">60 to 90 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>Briefing:</strong> the EDR reports a process reading <code>lsass.exe</code> memory on WORKSTATION5. No change record or sanctioned test covers the host.</li>
+  <li><strong>The question:</strong> which process, with what access, running from what code, doing what else, and what is the strongest benign explanation still standing?</li>
+  <li><strong>Dataset slice:</strong> <a href="https://raw.githubusercontent.com/OTRF/Security-Datasets/master/datasets/atomic/windows/credential_access/host/empire_mimikatz_logonpasswords.zip">empire_mimikatz_logonpasswords.zip (host)</a>, OTRF SDWIN-190518202151. It holds about 6,000 events from three hosts, most of them background.</li>
+  <li><strong>The artifact:</strong> a timeline with a source and confidence label on each row, a <a href="/docs/uncover/correlation/#pivot-discipline-the-hypothesis-ledger">hypothesis ledger</a> with at least one rejected alternative and the evidence that rejected it, and an ATT&amp;CK mapping that records the version used (see <a href="/docs/uncover/mitre/">the ATT&amp;CK page</a>).</li>
+</ul>
+
+<pre><code>{`unzip -p empire_mimikatz_logonpasswords.zip | jq -r 'select(.EventID==10
+    and ((.TargetImage // "") | test("lsass.exe$"; "i")))
+  | [.["@timestamp"], .Hostname, .SourceImage, .SourceProcessId,
+     .GrantedAccess, .CallTrace] | @tsv'`}</code></pre>
+
+**Pass checks.** (1) The routine readers of LSASS are separated from the outlier by <DefineTerm term="Process Access Mask (GrantedAccess)" display="access mask" /> and call trace, not by process name. (2) The call trace's unresolved frame is read correctly: code running from memory that no file on disk backs. (3) The learner pivots on the outlier's process ID to its child processes and its network connections, and records how often it connects and where. (4) A second subsystem corroborates the read: the Windows Security handle-request and object-access events for the same process. (5) The ledger keeps the administrator-tool alternative and rejects it with cited evidence; it isn't dismissed by assertion. (6) The mapping uses current ATT&amp;CK names and states the version. The dataset's own metadata is as old as its recording.
+
+<h3 id="lab-5">Lab 5 · Risk: the bucket that was opened</h3>
+
+<p class="ex-meta"><span class="ex-tag">Risk</span> <span class="ex-tag">60 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>Briefing:</strong> a cloud alert reports that an access-control change granted <code>AllUsers</code> access to the S3 bucket <code>frothlywebcode</code>. Set your Splunk user time zone to UTC before you write any time down.</li>
+  <li><strong>The question:</strong> what could this reach, how likely is it that unauthorized activity happened, how confident are you in that judgment, and what does Risk recommend?</li>
+  <li><strong>Dataset slice:</strong> BOTS v3, sourcetypes <code>aws:cloudtrail</code> and <code>aws:s3:accesslogs</code> (<DefineTerm term="AWS CloudTrail" display="CloudTrail" /> records the change; the access logs record who touched the bucket while it was open).</li>
+  <li><strong>The artifact:</strong> the <a href="/docs/risk/impact-likelihood/#verdict-block">Risk verdict block</a>, with impact, likelihood and confidence each justified, the <a href="/docs/risk/framework/#matrix">matrix cell</a> and priority, and the recommended move.</li>
+</ul>
+
+<pre><code>{`index=botsv3 earliest=0 sourcetype=aws:cloudtrail eventName=PutBucketAcl
+| table _time eventID userIdentity.userName requestParameters.bucketName sourceIPAddress
+
+index=botsv3 earliest=0 sourcetype=aws:s3:accesslogs frothlywebcode
+| stats count earliest(_time) AS first latest(_time) AS last BY operation`}</code></pre>
+
+**Pass checks.** (1) The open window is bounded by two events, the change and its reversal, both cited. (2) Writes and reads during the window are counted separately, because impact differs: tampering with web code is not the same as disclosure. (3) Likelihood and confidence are kept apart. The change itself may be an honest mistake by an internal user, while activity by outside parties during the window is a separate claim with its own likelihood. (4) Anything not examined (for example, whether the bucket's contents were served to customers) is recorded as low confidence, never as low likelihood. (5) The cell, the priority and one recommended move are stated, and the decision is left to Escalation.
+
+<h3 id="lab-6">Lab 6 · Escalation decision: does the tripwire fire?</h3>
+
+<p class="ex-meta"><span class="ex-tag">Escalation decision</span> <span class="ex-tag">45 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>The question:</strong> using only your Lab 4 artifacts, is any escalation criterion confirmed? If so, at what point in the data, and what do you do in the next ten minutes, in order?</li>
+  <li><strong>The artifact:</strong> the Escalation decision fields, and sections 1, 5, 6 and 8 of the <a href="/templates/handoff-packet.md" download>handoff packet</a>.</li>
+</ul>
+
+**Pass checks.** (1) The decision applies <a href="/docs/escalation/criteria/#e-rule">the E rule</a> in its own words, and names the route that fired. (2) The learner says whether the claim behind <a href="/docs/escalation/criteria/#malicious">confirmed malicious activity not fully contained by a control</a> reaches High on the <a href="/docs/documentation/standards/#confidence">confidence rubric</a>, citing two independent sources and the rejected alternative. (3) If it does, the <DefineTerm term="Escalation Tripwire" display="escalation tripwire" /> fires at that moment and the case is P1, whatever the cell. (4) Section 6 preserves before it contains: the host's volatile memory goes first, because isolation and reboot destroy it (see <a href="/docs/escalation/preserve/">preserve before you contain</a>). Reversible pre-authorized actions follow. A password reset is non-reversible and waits for IR or the owner unless the protocol pre-authorizes it. (5) Section 8 treats every account with a logon session on the host as credential-exposed, and names the query that lists them.
+
+<h3 id="lab-7">Lab 7 · Documentation: the cold read</h3>
+
+<p class="ex-meta"><span class="ex-tag">Documentation</span> <span class="ex-tag">45 minutes</span></p>
+
+<ul class="lab-spec">
+  <li><strong>The task:</strong> write the full record for your Lab 5 case: the closure record if your Escalation decision was close, the handoff packet if it was escalate. Then write one <a href="/templates/tuning-request.md" download>tuning request</a> from Lab 1 that would have fired earlier or with more context.</li>
+  <li><strong>The swap:</strong> exchange records with a peer who didn't work your case. The peer gets five minutes, then states the case and the next decision aloud, unaided.</li>
+  <li><strong>The artifact:</strong> the record, the tuning request and the peer's one-line restatement.</li>
+</ul>
+
+**Pass checks.** The five checks of the <a href="/docs/teaching/#what-to-grade-the-close-note-rubric">close-note rubric</a> (verdict on both axes, every claim cited, confidence per claim, gaps named, next action clear), plus the <a href="/docs/escalation/handoff/">cold-read test</a>: the peer's restatement matches the record. A record that fails gets rewritten, not marked down.
+
+<Callout variant="info" title="Make your own known truth">
+Atomic Red Team turns a lab into a two-person drill. One person runs a single test on an isolated, snapshotted machine that has Sysmon installed and Security Onion watching the segment. The other person, who doesn't know which test ran, works the resulting alert as a lab. Score the record against the test's definition, which is the known truth. Then ask the question detection engineering cares about: did the rule that should have fired actually fire? Keep the isolation rules above without exception.
+</Callout>
+
+## Capstone: a Level 2 case, scored blind
+
+<p class="ex-meta"><span class="ex-tag">Full arc</span> <span class="ex-tag">Level 2</span> <span class="ex-tag">4 to 6 hours</span></p>
+
+The capstone uses the <a href="https://github.com/OTRF/Security-Datasets/tree/master/datasets/compound/apt29/day1" target="_blank" rel="noopener noreferrer">OTRF APT29 Day 1 dataset</a>: host telemetry from four Windows hosts plus packet captures, recorded while OTRF replayed the first scenario of the APT29 emulation used in MITRE's ATT&amp;CK Evaluations (Round 2). The host file is a 14 MB zip that expands to about 385 MB of JSON. The scorer holds the <a href="https://github.com/center-for-threat-informed-defense/adversary_emulation_library/tree/master/apt29/Emulation_Plan/Scenario_1" target="_blank" rel="noopener noreferrer">Scenario 1 emulation plan</a> from the Center for Threat-Informed Defense (Apache 2.0), which lists every step the operator ran. That <DefineTerm term="Adversary Emulation Plan" display="emulation plan" /> is the known truth. Don't give it to the learner.
+
+**Briefing for the learner.** One alert, nothing else:
+
+<pre><code>{`EDR alert, 2020-05-02 02:55:57 UTC
+  rule:     Executable with a document-style name launched by the user shell
+  host:     SCRANTON.dmevals.local
+  user:     DMEVALS\\pbeesly
+  process:  C:\\ProgramData\\victim\\cod.3aka3.scr  (parent: explorer.exe)
+  follow-on: outbound connection from the same process to 192.168.0.5:1234
+             five seconds later`}</code></pre>
+
+Run the case at Level 2 whatever intake would decide: the capstone grades the full arc. The file name contains a <DefineTerm term="Right-to-Left Override (RLO)" display="right-to-left override" /> character, which some tools render as garbled bytes. Spotting that, and explaining why it matters, is part of the Alert phase. The deliverable is the complete <a href="/docs/escalation/handoff/">handoff packet</a>, including case metadata, all nine sections, the Escalation decision fields and the timestamp of every escalation decision.
+
+**Scoring, blind.** Strip the learner's name from the packet, so the scoring is <DefineTerm term="Blind Scoring" display="blind" />. Two scorers score it independently against the grid below, compare scores and reconcile any difference by fixing the grid's wording, not by averaging. One point per check:
+
+1. The escalation tripwire fires at the first criterion that reaches High. Record that row's dataset time and the learner's elapsed time to it. A P1 declared long after its first confirmed criterion is a <a href="/docs/escalation/criteria/#late-p1">late P1</a>, however good the packet is.
+2. Initial execution is established from the process event and its parent, and the masquerade is explained.
+3. The command-and-control channel is shown from both the host connection events and the network capture, with any time offset between them measured.
+4. Every timeline row carries a UTC time, a source and a confidence label, and the time base is stated.
+5. Coverage: each plan step that appears in the telemetry is either in the timeline or named in Open questions. Report the covered share separately. A step the telemetry never captured can't be held against the learner.
+6. ATT&amp;CK mappings use current names and state the version.
+7. The ledger rejects at least one alternative explanation, with the evidence that rejected it.
+8. The Risk verdict gives both axes, then impact, likelihood, confidence and the cell.
+9. Section 6 records preservation before containment, the things deliberately not done and the reason, and which non-reversible steps await approval.
+10. Every open question names the query or source that would settle it, and a scorer who reads the packet cold can state the next decision within five minutes.
+
+Disqualifiers: any claim labeled High that the known truth contradicts, and any finding without a cited artifact.
+
+## Instructor notes
+
+<Reveal summary="Common wrong turns and anchor exemplars, by lab" variant="example">
+
+**Lab 1.** The usual wrong turn: reading the task's action (it starts Notepad) and calling the case benign. The action is the operator's placeholder. The claim worth validating is the mechanism: a user account remotely created a startup task that runs as SYSTEM, under a path borrowed from the operating system. The second wrong turn is trusting the name. `TaskContent` is the evidence.
+
+- *Failing exemplar:* "Scheduled task created by malware on WORKSTATION6; SYSTEM persistence. Escalate."
+- *Passing exemplar:* "4698 on WORKSTATION6 at 07:00:22 UTC: a task under `\Microsoft\Windows\SoftwareProtectionPlatform\` running `cmd.exe /C notepad.exe` as S-1-5-18 at startup, created by pgustavo. Detection: true positive. Activity: undetermined. HIGH that the task was created as described (4698 TaskContent), MEDIUM that the name imitates an OS component (path compared with a clean host's task list, still to be done)."
+
+**Lab 2.** The source host's own capture tool (Wireshark's <code>dumpcap.exe</code>, started by the same account about twenty seconds earlier) and its monitoring agent show up in the process list. Learners who attribute them to the actor have skipped the question "is this the range or the case?". A strong answer resolves 172.18.39.5 to WORKSTATION5 from that host's own connection events, rebuilds `powershell.exe` → `cmd.exe` → `schtasks.exe /create ... /S WORKSTATION6`, and routes the case to Level 2 because of the 4672 at the target.
+
+**Lab 3.** The capture was taken on WORKSTATION5's own interface. About three quarters of its packets are a single RDP session from an internet address to that workstation. On a range, that session is the operator. In production, it would be the most important line in the capture, and a learner who scopes it out without saying why fails check 5. The RPC exchange between the hosts sits exactly five hours away from the host log's timestamps, and neither file holds Kerberos traffic or domain controller logs. WORKSTATION6's own <code>lsass.exe</code> connects to 172.18.38.5 a second later: that's a lead to the domain controller, not its log.
+
+**Lab 4.** Two `svchost.exe` readers use the masks `0x1000` and `0x2000`. The outlier is `powershell.exe` with `0x1010` (query limited information plus memory read), and its call trace ends in an `UNKNOWN` frame. The same process ID beacons repeatedly to an internal address on port 80 and launches `whoami /user` at High integrity. Events 4656 and 4663 for the same process are the corroborating subsystem. The wrong turn is stopping at "<DefineTerm term="Mimikatz" /> detected" without rejecting the administrator-tool alternative on the record.
+
+**Lab 5.** Learners anchor on who made the change and stop there. The graded move is splitting the claims: the change (likely an internal mistake), the activity during the window (a separate likelihood), and what was never examined (low confidence, not low likelihood). Write-ups for the official BOTS v3 question set are public; don't let learners treat those answers as their record, since the deliverable is the reasoning.
+
+**Lab 6.** The trap runs both ways: escalating on "Mimikatz" before the alternative has been rejected, or waiting to finish Uncover after the claim has already reached High. Grade the timestamp of the decision, not only the decision.
+
+**Capstone.** The emulation compresses a campaign into about half an hour of recorded time, so time gaps alone mean little. Expect learners to under-report the later stealth steps and to over-claim attribution: the scenario emulates APT29, but nothing in the telemetry alone attributes it. Pair this with the <a href="/docs/cognitive-traps/">cognitive traps</a> debrief, and run the capstone after Session 4 of the <a href="/docs/teaching/">teaching guide</a>.
+
+</Reveal>
+
+## Sources (checked 13 October 2026)
+
+- Splunk, <a href="https://github.com/splunk/botsv3" target="_blank" rel="noopener noreferrer">botsv3 repository README</a> (size, format, required versions, CC0-1.0 license) and <a href="https://www.splunk.com/en_us/blog/security/botsv3-dataset-released.html" target="_blank" rel="noopener noreferrer">"Boss of the SOC v3 Dataset Released!"</a> (18 March 2020).
+- Open Threat Research Forge, <a href="https://github.com/OTRF/Security-Datasets" target="_blank" rel="noopener noreferrer">Security-Datasets repository</a> (LICENSE file, dataset metadata for SDWIN-201219070027 and SDWIN-190518202151, APT29 Day 1 README) and <a href="https://securitydatasets.com/" target="_blank" rel="noopener noreferrer">securitydatasets.com</a>.
+- Security Onion Solutions, <a href="https://github.com/Security-Onion-Solutions/securityonion/releases" target="_blank" rel="noopener noreferrer">releases</a> (3.3.0, 11 September 2026), <a href="https://docs.securityonion.net/en/3/main/hardware/" target="_blank" rel="noopener noreferrer">hardware requirements</a>, <a href="https://docs.securityonion.net/en/3/main/so-import-pcap/" target="_blank" rel="noopener noreferrer">so-import-pcap</a> and <a href="https://docs.securityonion.net/en/3/main/license/" target="_blank" rel="noopener noreferrer">license</a>.
+- Splunk, <a href="https://help.splunk.com/en/data-management/splunk-enterprise-admin-manual/10.4/configure-splunk-licenses/about-splunk-free" target="_blank" rel="noopener noreferrer">About Splunk Free</a> (Splunk Enterprise Admin Manual 10.4).
+- Red Canary, <a href="https://github.com/redcanaryco/atomic-red-team" target="_blank" rel="noopener noreferrer">Atomic Red Team</a> (MIT).
+- Center for Threat-Informed Defense, <a href="https://github.com/center-for-threat-informed-defense/adversary_emulation_library/tree/master/apt29" target="_blank" rel="noopener noreferrer">APT29 adversary emulation plan</a> (Apache 2.0).
+- The dataset facts in the instructor notes (event IDs, access masks, hosts, the five-hour offset and the RDP share of the capture) were checked against the downloaded files on the same date.
+
+<KeyTakeaway>
+The packets train judgment; the labs train judgment with your hands on the data. Each lab ends in the same artifact a shift would produce: the claim, the cited row, the confidence label and the decision. The capstone grades all of it blind, against a known truth the learner never sees.
+</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/exercises/" class="assured-cta assured-cta--ghost">← Hands-on exercises</a>
+  <a href="/docs/teaching/" class="assured-cta">The teaching guide →</a>
+</div>

@@ -2,7 +2,7 @@
 title: "Introduction to the ASSURED methodology"
 description: "An introduction to ASSURED, a structured, repeatable methodology for security event triage."
 wide: true
-showToc: false
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -11,7 +11,9 @@ import LetterChip from "@/components/assured/LetterChip.astro";
 import AnimatedPhaseDiagram from "@/components/assured/AnimatedPhaseDiagram.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
-import { timeBudgets, timeBudgetTotals } from "@/data/time-budgets";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
+import "@/styles/pages/root.css";
+
 
 <div class="intro-lede">
   <div class="intro-lede__primary">
@@ -19,30 +21,61 @@ import { timeBudgets, timeBudgetTotals } from "@/data/time-budgets";
   </div>
 
   <div class="intro-lede__secondary">
-    Event triage is the work of answering those questions with confidence, and it is a distinct skill from broader incident response. ASSURED is a structured, repeatable methodology for doing that work consistently. The seven letters of <strong>A</strong>lert, <strong>S</strong>ubject, <strong>S</strong>cope, <strong>U</strong>ncover, <strong>R</strong>isk, <strong>E</strong>scalation, and <strong>D</strong>ocumentation cover the full arc of a triage investigation from the moment an alert fires to the moment the analyst hands off (or closes) the case.
+    Event triage is the work of answering those questions with confidence, and it is a distinct skill from broader incident response. Three words matter from here on: an <strong>event</strong> is any observable occurrence, an <strong>alert</strong> is an event a detection flagged for a human, and an <strong>incident</strong> is a confirmed (or imminent) violation that incident response (IR) owns. Triage turns alerts into one of two outcomes: a documented close or a declared incident. ASSURED is a structured, repeatable methodology for doing that work consistently. Its seven letters, <strong>A</strong>lert, <strong>S</strong>ubject, <strong>S</strong>cope, <strong>U</strong>ncover, <strong>R</strong>isk, <strong>E</strong>scalation decision and <strong>D</strong>ocumentation, cover the full arc from the moment an alert fires to the moment the analyst closes the case or hands it off.
   </div>
 </div>
 
-<Callout variant="info" title="Why ASSURED, why now">
-<DefineTerm term="Incident Response" display="Incident response" /> frameworks like NIST 800-61 and SANS PICERL describe what to do once you already know what you are looking at, and knowledge bases like <DefineTerm term="MITRE ATT&CK" /> catalog adversary behavior once you know which behavior you are looking for. <DefineTerm term="Event Triage" display="Event triage" /> is the work before both, and most analysts learn it informally on the job. The gap is widening, not closing: NIST's 2025 revision of 800-61 (r3) reframes incident response around the CSF 2.0 functions and deliberately drops r2's step-by-step analysis guidance, leaving the *how* of alert analysis to each organization. ASSURED is designed to give that informal craft a structure that scales: scaffolding for newer analysts, a checklist for experienced ones (the printable <a href="/docs/reference/">one-page reference</a>), and a shared vocabulary for handoff and review. See <a href="/docs/positioning/">Where ASSURED sits</a> for the related-work map, and <a href="/docs/development/">Development and evidence</a> for the framework's origin, rejected precursor, applied use, and current validation limits.
-</Callout>
+<div class="intro-section-head">
+  <span class="section-overline">The method in one screen</span>
+
+## ASSURED in seven questions
+
+</div>
+
+The letters are the method. Each one is a question the analyst answers before moving on:
+
+<SevenQuestions label="ASSURED in seven questions" />
+
+Two naming traps are worth defusing now. The two S's: **who before where**. Subject resolves the person or system behind the activity; Scope then draws the lines around it. You cannot bound an actor you have not identified. And the E: **Escalation is the decision, not the outcome**. Most triaged cases close at E. Risk rates the case and recommends a move; the Escalation decision makes the close-or-escalate call on the evidence and records it. The thinking traps (anchoring, confirmation bias and their relatives) have their own page, <a href="/docs/cognitive-traps/">Cognitive traps in triage</a>.
+
+<a id="case-a"></a>
+
+### One alert, seven questions
+
+Here is Case A, the finance-team phishing intrusion that threads through the worked examples, one line per letter:
+
+- **A.** At 09:11 UTC on Tuesday 3 March 2026, a <DefineTerm term="SIEM (concept)" display="SIEM" /> rule fires on dlin's finance laptop: a command pasted into the Run dialog from a fake verification page started a hidden, encoded PowerShell download cradle that is beaconing to a domain registered four days earlier. By 09:24 it is validated: a true positive, malicious, at High confidence, and not contained by any control.
+- **S.** dlin, her laptop and her federated cloud identity are primary. Three other finance users received the same message and stay secondary until their opens are checked.
+- **S.** dlin can read a cloud finance platform that holds vendor-contact records of people in the EU. Regulated data is in reach, so the boundary takes in the platform's audit logs, and compliance and the data protection officer are engaged.
+- **U.** The stage read dlin's browser cookies, an outside address replayed her session against the platform at 10:41, and at 10:52 a second finance user opened the same lure; the chain ran on that laptop without raising an alert.
+- **R.** Impact High, likelihood High, confidence High: P1, with a recommendation to escalate now.
+- **E.** Escalate to IR at P1. Criterion 1 (confirmed malicious activity not fully contained by a control) was met at 09:24, so the <a href="/docs/escalation/criteria/">escalation tripwire</a> called for an early Escalation decision then. The record shows the decision at 14:00; the worked examples show what the delay cost.
+- **D.** The record is finalized and linked to IR's report, including the detection gap: the rule's network leg read only the web proxy, so the off-network laptop never alerted.
 
 <Callout variant="warn" title="Triage is not incident response">
-ASSURED is a triage methodology. The triage analyst answers four questions, *is this real, is it malicious, how serious is it, what should happen next*, and either closes the case or hands it to incident response. The IR responder runs the formal lifecycle (NIST 800-61r2: preparation → detection &amp; analysis → containment, eradication &amp; recovery → post-incident activity). Triage produces the **decision** to escalate; IR runs the **response** once the decision is made. The two roles share telemetry and vocabulary; they are not the same job. The clearer the line between them, the cleaner the handoff. See the **<a href="/docs/escalation/triage-vs-ir/">Triage vs. IR</a>** page in the Escalation chapter for the full distinction.
-</Callout>
-
-<Callout variant="info" title="Who this is for, and what you should be able to do afterward">
-- **Audience:** SOC analysts from new hire through senior, the leads who train and review them, and detection engineers who want to know what happens downstream of their rules.
-- **Prerequisites:** working familiarity with basic security telemetry — what an alert, a log source, and an EDR or SIEM are. The three glossaries backfill everything else; no prior framework knowledge is assumed.
-- **After the seven chapters you should be able to:** take a live alert through the full arc — validate the signal, identify every entity in play, draw a defensible boundary, build a confidence-labeled evidence chain, score impact and likelihood, make an evidenced escalate-or-close call, and leave a record a reviewer can reconstruct without you.
-- **And on the operating side:** run the <a href="/docs/fast-path/">depth ladder</a>, including a five-minute Level 0 close you can defend. Reading time and per-alert costs are priced in the time-investment table further down this page.
+Triage produces the close-or-escalate **decision**; IR runs the **response** once a case is escalated. They are different jobs even when one person does both: on a small team, the escalation decision is the moment you change hats, and it still deserves a written handoff to your future self. **<a href="/docs/escalation/triage-vs-ir/">Triage vs. IR</a>** draws the full line.
 </Callout>
 
 <div class="intro-section-head">
+  <span class="section-overline">Before you start</span>
+
+## Who this is for, and what you should be able to do afterward
+
+</div>
+
+- **Audience:** security operations center (SOC) analysts from new hire through senior, the leads who train and review them, and detection engineers who want to know what happens downstream of their rules.
+- **Prerequisites:** working familiarity with alerts, log sources, and an <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" /> or SIEM. The glossaries backfill the rest, and every term ASSURED coins is defined in the <a href="/docs/glossaries/assured/">ASSURED terms glossary</a>.
+- **Afterward you can:** validate the signal, identify every entity, draw a defensible boundary, build a confidence-labeled evidence chain, rate impact and likelihood with a stated confidence, make and record the close-or-escalate decision, and leave a record a reviewer can reconstruct without you. You can also run the <a href="/docs/fast-path/">depth ladder</a>, including a five-minute Level 0 close you can defend.
+- **Reading time:** about 9 hours straight through, or 10 to 14 hours for a careful first read at study pace with the quizzes and worked examples. Each chapter takes one to two hours at that pace; <a href="/docs/start/#learning-triage">Start here</a> lists the reading time for each chapter.
+- **Where to go by role:** analysts start with the chapters, in order. Trainers start with <a href="/docs/teaching/">Teaching ASSURED</a>, SOC leads with <a href="/docs/adoption/">Adopting ASSURED in your SOC</a>. Everyone can practice with the <a href="/docs/exercises/">hands-on exercises</a>.
+
+<div class="intro-section-head">
   <span class="section-overline">The shape of an investigation</span>
-  <h2 class="intro-section-title">Seven phases grouped into three stages</h2>
+
+## Seven phases grouped into three stages
+
   <div class="intro-section-lede">
-    Scroll into the diagram below and the pieces assemble themselves to show how the flow works. Each phase contributes specific evidence to the next.
+    The diagram below shows how the seven phases group into three stages and where the loop runs. Each phase contributes specific evidence to the next.
   </div>
 </div>
 
@@ -52,8 +85,8 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
   <div class="intro-phase">
     <div class="intro-phase__num">1</div>
     <div>
-      ### Preparation and context
-      Establishes the foundation for the investigation. What fired, who is involved, where the boundaries are. Without it, every later step is built on a guess.
+      ### Orient
+      What fired, who is involved, where the boundaries are. Without it, every later step is built on a guess.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="A" phase="alert" size="sm" /> Alert</span>
         <span class="intro-phase__chip"><LetterChip letter="S" phase="subject" size="sm" /> Subject</span>
@@ -65,8 +98,8 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
   <div class="intro-phase">
     <div class="intro-phase__num">2</div>
     <div>
-      ### Investigation and assessment
-      Pulls in <DefineTerm term="Telemetry" display="telemetry" />, correlates it across systems, and decides how to prioritize what was found. The stage where most of the active investigative work happens.
+      ### Investigate
+      Pulls in <DefineTerm term="Telemetry" display="telemetry" /> and correlates it across systems, then rates what was found (impact, likelihood and the confidence behind them) and recommends a move. Most of the active investigative work happens here.
       <div class="intro-phase__chips">
         <span class="intro-phase__chip"><LetterChip letter="U" phase="uncover" size="sm" /> Uncover</span>
         <span class="intro-phase__chip"><LetterChip letter="R" phase="risk" size="sm" /> Risk</span>
@@ -77,25 +110,25 @@ ASSURED is a triage methodology. The triage analyst answers four questions, *is 
   <div class="intro-phase">
     <div class="intro-phase__num">3</div>
     <div>
-      ### Resolution and documentation
-      Produces the handoff to the next tier or the closure record that makes the work survive its ending. The stage where institutional memory gets built.
+      ### Resolve
+      Makes and records the close-or-escalate decision, then produces the closure record (or the handoff to the next tier) that lets someone else reconstruct the decision months later.
       <div class="intro-phase__chips">
-        <span class="intro-phase__chip"><LetterChip letter="E" phase="escalation" size="sm" /> Escalation</span>
+        <span class="intro-phase__chip"><LetterChip letter="E" phase="escalation" size="sm" /> Escalation decision</span>
         <span class="intro-phase__chip"><LetterChip letter="D" phase="documentation" size="sm" /> Documentation</span>
       </div>
     </div>
   </div>
 </div>
 
-<Callout variant="info" title="The loop is intentional">
-Triage is not strictly linear. Risk findings often send the analyst back to Uncover for more evidence. Uncover sometimes reveals new subjects the original alert never mentioned. Discovering a new subject can change the scope of the entire investigation. The dashed feedback arrow in the diagram represents that flow, and embracing it is part of the methodology.
-</Callout>
+**The loop is intentional.** Risk findings often send the analyst back to Uncover for more evidence, and Uncover sometimes reveals subjects the alert never mentioned. A new entity re-enters Subject briefly (run the four dimensions on it), and Scope then redraws the boundary.
 
 <div class="intro-section-head">
   <span class="section-overline">Why event triage deserves its own method</span>
-  <h2 class="intro-section-title">The six recurring problems ASSURED is shaped by</h2>
+
+## The seven recurring problems ASSURED is shaped by
+
   <p class="intro-section-lede">
-    Security analysts at every level of experience meet these problems regularly. Each phase of ASSURED is designed to address one or more of them directly.
+    Each problem is addressed by at least one phase, and every phase addresses at least one problem.
   </p>
 </div>
 
@@ -107,7 +140,7 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Data overload</h3>
-    <p>SOCs see thousands of alerts per day from heterogeneous sources (<a href="https://www.vectra.ai/topics/alert-fatigue" target="_blank" rel="noopener noreferrer">Vectra AI's analyst surveys</a> put the average around 3,000&ndash;4,500 daily across 2023&ndash;2026), and a small fraction describe real threats. Without a way to separate signal from noise, the events that matter get buried in volume. <strong>Addressed by:</strong> Alert, especially its validation stage.</p>
+    <p>Thousands of alerts a day (<a href="https://www.vectra.ai/topics/alert-fatigue" target="_blank" rel="noopener noreferrer">Vectra AI's vendor-commissioned surveys</a> put the average at 2,992 in 2026), most of them false positives or benign true positives by analysts' own account (<a href="https://www.usenix.org/conference/usenixsecurity22/presentation/alahmadi" target="_blank" rel="noopener noreferrer">Alahmadi, Axon &amp; Martinovic, USENIX Security 2022</a>, a qualitative study). <strong>Addressed by:</strong> Alert, especially its validation step.</p>
   </article>
 
   <article class="intro-feature">
@@ -117,7 +150,7 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Tooling sprawl</h3>
-    <p>Telemetry lives across multi-cloud environments, hybrid datacenters, container platforms, and serverless functions. Cross-tool correlation does not happen by default. <strong>Mitigated by:</strong> Uncover, which makes source selection and correlation an explicit step instead of an assumption.</p>
+    <p>Telemetry is split across the SIEM, EDR, identity provider, cloud audit logs and SaaS consoles, each with its own query language and retention. <strong>Addressed by:</strong> Uncover, which makes source selection and correlation explicit.</p>
   </article>
 
   <article class="intro-feature">
@@ -127,7 +160,7 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Adversaries adapt</h3>
-    <p>Modern intrusions use living-off-the-land techniques, polymorphic payloads, and social engineering. The activity looks like normal operations. <strong>Addressed by:</strong> behavioral analysis throughout the methodology, especially in Subject and Alert's validation stage.</p>
+    <p>Valid accounts, stolen session tokens, remote-management tools and living-off-the-land binaries look like normal operations. <strong>Addressed by:</strong> behavioral analysis in Alert's validation step and in Subject.</p>
   </article>
 
   <article class="intro-feature">
@@ -137,7 +170,7 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Regulatory pressure</h3>
-    <p>Investigations now carry compliance obligations alongside the security work. GDPR, PCI DSS, HIPAA, SOX each impose requirements on documentation, evidence handling, and in some regimes notification. <strong>Addressed by:</strong> Scope and Documentation.</p>
+    <p>GDPR, HIPAA, PCI DSS, SOX and the SEC's cyber-disclosure rule set evidence duties, and several notification clocks run from awareness, not from case closure. EU regimes such as <a href="/docs/scope/regulatory/#nis2">NIS2</a> and <a href="/docs/scope/regulatory/#dora">DORA</a> cut the first report to hours; the <a href="/docs/scope/clocks/">regulatory clock card</a> lists them. <strong>Addressed by:</strong> Scope, the Escalation decision and Documentation.</p>
   </article>
 
   <article class="intro-feature">
@@ -147,7 +180,17 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Cognitive load</h3>
-    <p>Analysts juggle SIEM, SOAR, EDR, identity systems, and cloud consoles within a single investigation. Context switching erodes accuracy and accelerates fatigue. <strong>Addressed by:</strong> the methodology's structure itself, which gives the analyst a clear next step at every moment.</p>
+    <p>One investigation crosses the SIEM, <DefineTerm term="SOAR (concept)" display="SOAR" />, EDR, identity systems and cloud consoles, and context switching erodes accuracy. <strong>Addressed by:</strong> the structure itself, which names the next step at every moment.</p>
+  </article>
+
+  <article class="intro-feature">
+    <div class="intro-feature__icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+      </svg>
+    </div>
+    <h3>Inconsistent close-or-escalate calls</h3>
+    <p>The same alert closes on one shift and escalates on the next. <strong>Addressed by:</strong> Risk (shared scales, a stated confidence, a priority) and the Escalation decision (pre-committed criteria, the escalation tripwire, a recorded decision).</p>
   </article>
 
   <article class="intro-feature">
@@ -157,117 +200,39 @@ Triage is not strictly linear. Risk findings often send the analyst back to Unco
       </svg>
     </div>
     <h3>Documentation gaps</h3>
-    <p>Inconsistent records make post-mortems painful, trend analysis impossible, and audits stressful. <strong>Addressed by:</strong> Documentation, which is the final phase precisely because capturing decisions is what makes the work durable.</p>
+    <p>Inconsistent records make post-mortems painful, trend analysis impossible and audits stressful. <strong>Addressed by:</strong> Documentation.</p>
   </article>
 </div>
 
 <div class="intro-section-head">
   <span class="section-overline">Goals of the methodology</span>
-  <h2 class="intro-section-title">What ASSURED is designed to deliver</h2>
-  <p class="intro-section-lede">
-    Three outcomes the methodology aims for at every step. Together they describe what a SOC running ASSURED looks like when it is working well.
-  </p>
+
+## What ASSURED is designed to deliver
+
 </div>
 
-<div class="intro-goal-grid">
-  <article class="intro-goal">
-    <div class="intro-goal__num">01</div>
-    <div class="intro-goal__icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>
-      </svg>
-    </div>
-    <h3>Strategic automation</h3>
-    <p>The phase structure shows where automation fits: repetitive work like enrichment, correlation, and scoring can be handed to tooling, while the phase boundaries keep human judgment on the decisions that actually need a person. A SOAR that pre-fills Alert and Subject shortens the arc; it doesn't replace it. The same boundary governs LLM assistants, phase by phase, on the <a href="/docs/ai-triage/">AI-assisted triage page</a>.</p>
-  </article>
+Three aims, none of them measured yet; <a href="/docs/development/">Development and evidence</a> says what has and has not been established.
 
-  <article class="intro-goal">
-    <div class="intro-goal__num">02</div>
-    <div class="intro-goal__icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.3 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/>
-      </svg>
-    </div>
-    <h3>Process consistency</h3>
-    <p>Two analysts working the same alert with the same methodology produce comparable outputs. That makes training easier, escalation cleaner, and audits less stressful.</p>
-  </article>
+- **Strategic automation:** enrichment, correlation and assembling the scoring inputs can be handed to tooling, while the phase boundaries keep human judgment where it is needed. Accountability is never delegated. Execution may be, at Level 0 parity, under the conditions on the <a href="/docs/ai-triage/">AI-assisted triage page</a>.
+- **Process consistency:** two analysts working the same alert produce outputs a reviewer can compare line by line, because the inputs and deliverables are named.
+- **Scales with the team:** nothing in the phase structure assumes a team size or a tool stack. A one-person SOC runs all seven phases itself; a multi-shift team passes the Documentation record between shifts. <a href="/docs/operating-variants/">Operating variants</a> covers solo SOCs, shift handovers and provider-run queues.
 
-  <article class="intro-goal">
-    <div class="intro-goal__num">03</div>
-    <div class="intro-goal__icon" aria-hidden="true">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
-      </svg>
-    </div>
-    <h3>Scales with the team</h3>
-    <p>ASSURED works for a one-person SOC and for a follow-the-sun team of forty. Feedback loops keep the framework usable as detection logic evolves and the team grows. The method does not depend on team size or tooling specifics.</p>
-  </article>
-</div>
+How long each phase takes, by experience level, and why most alerts never need the full arc, is on <a href="/docs/fast-path/#time-per-phase-by-experience-level">the fast path</a>.
 
 <div class="intro-section-head">
-  <span class="section-overline">How long each phase takes</span>
-  <h2 class="intro-section-title">Time per phase, by experience level</h2>
-  <p class="intro-section-lede">
-    The same phase takes very different time depending on who's working it. A senior analyst who knows the detection logic, the business, and the environment may close Alert in under a minute. A new analyst on their second week may spend 15 minutes on the same alert, partly understanding the detection, partly understanding what the systems involved even <em>do</em>. Both are normal. The ranges below cover all three experience levels so you can recognize where you are. These are operational shift times, not reading times. A careful first read of the full site is a separate ~7 to 10-hour investment including the quizzes and worked examples.
-  </p>
+  <span class="section-overline">Where this fits</span>
+
+## Why ASSURED, and why now
+
 </div>
 
-{/* Rows render from src/data/time-budgets.ts, the same source that feeds
-    each chapter hero's "On-shift target" chip (the experienced column). */}
-<div class="intro-time-budget">
-  <div class="intro-time-budget__row intro-time-budget__row--header">
-    <span>Phase</span><span>New (0–6 mo)</span><span>Experienced (1–3 yr)</span><span>Expert (3+ yr)</span>
-  </div>
-  {timeBudgets.map((t) => (
-    <div class="intro-time-budget__row" data-phase={t.phase}><span><LetterChip letter={t.letter} phase={t.phase} size="sm" /> {t.label}</span><span class="intro-time-budget__time">{t.newAnalyst}</span><span class="intro-time-budget__time">{t.experienced}</span><span class="intro-time-budget__time">{t.expert}</span></div>
-  ))}
-  <div class="intro-time-budget__row intro-time-budget__row--total"><span>End-to-end</span><span class="intro-time-budget__time">{timeBudgetTotals.newAnalyst}</span><span class="intro-time-budget__time">{timeBudgetTotals.experienced}</span><span class="intro-time-budget__time">{timeBudgetTotals.expert}</span></div>
-</div>
-
-<Callout variant="info" title="What makes the difference between new and expert">
-The gap between a new analyst and a senior one is rarely raw speed. It's three things:
-
-**1. Context familiarity.** An expert recognizes the detection that fired before they finish reading the alert. They know which mailbox rule on which finance laptop usually triggers it, what a normal Tuesday looks like for dlin (the finance analyst whose case threads through the worked examples), and which on-call to page if the answer isn't quick. A new analyst has to assemble all of that fresh. **The fastest path to closing this gap is shift time**, sitting on the same alert queue for six months teaches more about your environment than any course can.
-
-**2. Pattern recognition for false positives.** Experts close false positives faster because they've seen the same false-positive pattern 200 times. The methodology is what lets the new analyst close the *first* one defensibly, with a record the team can learn from. Read the false-positive page in the Risk chapter early; it's the highest-leverage page on the site for closing the speed gap.
-
-**3. Knowing when to stop.** New analysts go down rabbit holes. (Every analyst has a story like it: two hours on a single PowerShell command that turns out to be a sysadmin's harmless inventory script.) The good news: every rabbit hole you walk out of teaches you what entering one feels like. Six months in you'll catch yourself reaching for the next log query and recognize the pattern. By year two you'll stop yourself before you start. The methodology helps by giving you explicit phase boundaries, when Uncover starts feeling open-ended, that's the moment to step back to Scope and ask whether the boundaries are still right.
-
-These three skills compound. They are also why the time ranges in the table above span an order of magnitude. If you're at the high end of the New column, that's where you are; don't measure yourself against the Expert column on day one.
-</Callout>
-
-<Callout variant="info" title="When you blow past the upper bound">
-Even an expert hits the upper bound sometimes. Twenty minutes into Alert and still unclear what the detection logic saw? That is usually a sign the alert came from a system you do not yet understand; pull in a peer or a senior analyst. Ninety minutes into Uncover with no convergence? Stop, write down what you know, and either ask for help or formally escalate as "still investigating." The ranges exist so you notice these moments, not so you race against them.
-</Callout>
-
-<Callout variant="info" title="This table prices the full arc; most alerts never get it">
-These ranges are the cost of a complete seven-phase investigation. A SOC handling thousands of alerts per day cannot spend it on every alert, and the methodology doesn't ask it to: most of a healthy queue closes in minutes against documented false-positive patterns, and only the alerts that earn it get the full arc. How an analyst decides how much depth each alert gets (and what a defensible five-minute close looks like) is the <a href="/docs/fast-path/">fast path</a>.
-</Callout>
-
-<div class="intro-section-head">
-  <span class="section-overline">Where to start</span>
-  <h2 class="intro-section-title">Read each letter in order</h2>
-</div>
-
-The letters are the method. Each one is a question the analyst answers before moving on:
-
-- **A. Alert** asks *what fired, and why?*
-- **S. Subject** asks *who is involved?*
-- **S. Scope** asks *where are the lines?*
-- **U. Uncover** asks *what does the evidence say?*
-- **R. Risk** asks *how bad is it, and how confident are we?*
-- **E. Escalation** asks *who needs to know, and with what context?*
-- **D. Documentation** asks *what did we decide, and what did we learn?*
-
-Two memory traps are worth defusing now. The two S's: **who before where**. The first S resolves the person or system behind the activity; the second draws the lines around how much of the environment matters. You cannot draw boundaries around an actor you have not identified. And the E: **Escalation is the decision, not the outcome**. The name pulls readers toward escalating, but most triaged cases close at E. The phase exists to make close-or-escalate a deliberate, evidenced call instead of a default in either direction. Those two are naming traps; the thinking traps, anchoring, confirmation bias, and their relatives, get their own page in <a href="/docs/cognitive-traps/">Cognitive traps in triage</a>.
+<DefineTerm term="Incident Response" display="Incident-response" /> frameworks treat triage as one step inside a larger lifecycle. NIST SP 800-61r3 (April 2025) states it as outcomes and leaves the how-to to each organization; SANS PICERL (Preparation, Identification, Containment, Eradication, Recovery, Lessons learned) and the newer Dynamic Approach to Incident Response (DAIR) each give it a single phase; <DefineTerm term="MITRE ATT&CK" /> catalogs adversary behavior once you know what you are looking for. The <a href="/docs/standards-mapping/">standards mapping</a> shows which CSF 2.0 outcomes and which ISO/IEC 27001 control (A.5.25) the method serves, and what record proves each. <DefineTerm term="Event Triage" display="Event triage" />, the alert-by-alert work of deciding what you are looking at, is still often learned informally on the job. ASSURED expands that one step into a per-alert workflow: scaffolding for newer analysts, a checklist for experienced ones (the printable <a href="/docs/reference/">one-page reference</a>), and a shared vocabulary for handoff and review. The <a href="/docs/positioning/">related-work map</a> sets out the neighbors and a crosswalk to the standards, and <a href="/docs/development/">Development and evidence</a> covers the framework's origin and its validation limits.
 
 <KeyTakeaway title="Recommended path">
-On a first read, take the letters in order: A, S, S, U, R, E, D. The methodology is structured so each step builds on the previous one. After that, jump straight to whatever phase the day's case demands; all seven chapters and three glossaries stand alone as references.
+On a first read, take the letters in order: A, S, S, U, R, E, D. Experienced analysts can take the <a href="/docs/teaching/#routing-with-a-pre-assessment">twelve-item pre-assessment</a> first and read only the pages for the items they miss. After that, jump to whatever phase the day's case demands; every chapter and glossary stands alone as a reference.
 </KeyTakeaway>
 
-<PuzzleProgress
-  current="alert"
-/>
+<PuzzleProgress />
 
 <div class="intro-cta">
   <a href="/docs/alert/" class="assured-cta">
@@ -279,155 +244,15 @@ On a first read, take the letters in order: A, S, S, U, R, E, D. The methodology
   </a>
 </div>
 
-<style>
-{`
-/* Opening lede */
-.intro-lede {
-  margin: 0 0 2.5rem 0;
-  max-width: 60rem;
-}
-
-.intro-lede__primary {
-  margin: 0 0 1.5rem 0;
-  font-size: clamp(1.25rem, 2vw, 1.55rem);
-  line-height: 1.45;
-  color: var(--assured-text);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-.intro-lede__primary > p { margin: 0; }
-
-.intro-lede__primary em {
-  color: var(--assured-accent-soft);
-  font-style: italic;
-  font-weight: 500;
-}
-
-.intro-lede__secondary {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: var(--assured-text-muted);
-}
-
-/* Time-budget table */
-.intro-time-budget {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 1.25rem 0 2rem;
-}
-
-.intro-time-budget__row {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr;
-  gap: 0.75rem;
-  align-items: center;
-  padding: 0.7rem 1rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.5rem;
-  color: var(--assured-text-muted);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
-.intro-time-budget__row > span {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.intro-time-budget__row--header {
-  background: rgba(15, 23, 42, 0.7);
-  color: var(--assured-text);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.72rem;
-}
-
-.intro-time-budget__row--total {
-  background: rgba(15, 23, 42, 0.7);
-  border-color: rgba(94, 234, 212, 0.45);
-  font-weight: 700;
-  color: var(--assured-text);
-}
-
-.intro-time-budget__time {
-  color: var(--assured-accent-soft);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-@media (max-width: 768px) {
-  .intro-time-budget__row {
-    grid-template-columns: 1fr;
-    gap: 0.4rem;
-  }
-  .intro-time-budget__row--header { display: none; }
-  /* Inline labels on mobile so the columns make sense without a header row */
-  .intro-time-budget__row > span:nth-child(2)::before { content: "New: "; color: var(--assured-text-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
-  .intro-time-budget__row > span:nth-child(3)::before { content: "Experienced: "; color: var(--assured-text-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
-  .intro-time-budget__row > span:nth-child(4)::before { content: "Expert: "; color: var(--assured-text-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.3rem; }
-}
-
-.intro-lede__secondary > p { margin: 0; }
-
-.intro-lede__secondary strong {
-  color: var(--assured-text);
-  font-weight: 700;
-}
-
-/* Section heads with the unified overline pill */
-.intro-section-head {
-  text-align: center;
-  margin: 3.5rem auto 1.75rem;
-  max-width: 60rem;
-}
-
-.intro-section-title {
-  margin: 0 0 0.85rem 0;
-  font-size: var(--assured-type-section);
-  color: var(--assured-text);
-  line-height: 1.2;
-}
-
-.intro-section-lede {
-  margin: 0 auto;
-  color: var(--assured-text-muted);
-  max-width: 60ch;
-  line-height: 1.65;
-}
-
-.intro-section-lede > p { margin: 0; }
-
-/* Phase cards */
-.intro-phases {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin: 2rem 0;
-}
-
-.intro-phase {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  backdrop-filter: blur(8px);
-}
-
+<style>{`
+/* Kept inline: scripts/check-contrast.mjs reads this gradient from
+   intro.mdx. The rest of the page's styles are in src/styles/pages/root.css. */
 .intro-phase__num {
   flex-shrink: 0;
   width: 3rem;
   height: 3rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, var(--assured-accent), #0ea5e9);
+  background: linear-gradient(135deg, #0f766e, #0369a1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -435,160 +260,4 @@ On a first read, take the letters in order: A, S, S, U, R, E, D. The methodology
   font-size: 1.25rem;
   color: white;
 }
-
-.intro-phase h3 {
-  margin: 0 0 0.5rem 0;
-}
-
-.intro-phase__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.intro-phase__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 9999px;
-  font-size: 0.85rem;
-  color: var(--assured-text-soft);
-  font-weight: 600;
-}
-
-/* Always-visible feature cards for "why event triage deserves its own method" */
-.intro-feature-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 700px)  { .intro-feature-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .intro-feature-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.intro-feature {
-  position: relative;
-  padding: 1.75rem 1.85rem;
-  border-radius: 1rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  backdrop-filter: blur(8px);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.intro-feature:hover {
-  transform: translateY(-3px);
-  border-color: rgba(20, 184, 166, 0.5);
-  box-shadow: 0 14px 30px -14px rgba(20, 184, 166, 0.35);
-}
-
-.intro-feature__icon {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.75rem;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(59, 130, 246, 0.2));
-  border: 1px solid rgba(94, 234, 212, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--assured-accent-soft);
-  margin-bottom: 0.35rem;
-}
-
-.intro-feature h3 {
-  margin: 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-  line-height: 1.3;
-}
-
-.intro-feature p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.intro-feature p strong {
-  color: var(--assured-accent-soft);
-  font-weight: 600;
-}
-
-/* Goal cards: numbered, more presence than features */
-.intro-goal-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) { .intro-goal-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .intro-goal-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.intro-goal {
-  position: relative;
-  padding: 2rem;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(15, 23, 42, 0.6));
-  border: 1px solid rgba(20, 184, 166, 0.28);
-  backdrop-filter: blur(8px);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.intro-goal:hover {
-  transform: translateY(-3px);
-  border-color: rgba(94, 234, 212, 0.55);
-  box-shadow: 0 18px 36px -16px rgba(20, 184, 166, 0.4);
-}
-
-.intro-goal__num {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: rgba(94, 234, 212, 0.65);
-  letter-spacing: 0.08em;
-}
-
-.intro-goal__icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.85rem;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(59, 130, 246, 0.25));
-  border: 1px solid rgba(94, 234, 212, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--assured-accent-soft);
-  margin-bottom: 0.85rem;
-}
-
-.intro-goal h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--assured-text);
-  font-size: 1.15rem;
-}
-
-.intro-goal p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.65;
-  font-size: 0.95rem;
-}
-
-.intro-cta {
-  display: flex;
-  justify-content: center;
-  margin: 2rem 0;
-}
-`}
-</style>
+`}</style>

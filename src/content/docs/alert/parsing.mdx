@@ -1,6 +1,7 @@
 ---
-title: "Parsing alerts"
-description: "Turn raw, unstructured detection output into structured investigative input: one normalization layer, five behavioral surfaces."
+title: "Reading any alert"
+description: "A nine-step checklist for turning raw detection output into structured investigative input, and the telemetry pages behind it: one normalization layer, five behavioral surfaces."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -9,26 +10,14 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/alert.css";
 
 <SubPageHero
   phase="alert"
-  parentLetter="A"
-  pillarIndex="03"
-  pillarTotal="03"
-  chapterHref="/docs/alert/"
-  chapterLabel="Alert"
-  lede="Alert parsing is the work of extracting meaning from raw detection output. The engine produces a blob of fields (names, timestamps, paths, command lines, IPs). Parsing turns that blob into structured, actionable investigative input."
+  lede="Reading an alert means parsing it: extracting meaning from raw detection output. The engine produces a blob of fields (names, timestamps, paths, command lines, IPs). Parsing turns that blob into structured, actionable investigative input, and the checklist on this page works for any alert from any source."
 />
 
-<PillNav
-  chapter="alert"
-  label="Alert chapter"
-  items={[
-    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
-    { label: "Validation",           href: "/docs/alert/validation/",            phase: "alert" },
-    { label: "Parsing",              href: "/docs/alert/parsing/",               phase: "alert" },
-  ]}
-/>
+<PillNav chapter="alert" />
 
 <Callout variant="info" title="Where this fits in Alert">
 <DefineTerm term="Parsing" /> is the third pillar of the Alert chapter. Detection mechanisms explained how the engine decided. Validation tested whether the signal is real. Parsing extracts the <DefineTerm term="Metadata" display="metadata" /> at the level of detail the rest of the investigation needs. Without it, the analyst is working with an abstraction.
@@ -38,7 +27,7 @@ This matters because adversaries hide their intent inside the very fields you wo
 
 ## What parsing has to handle
 
-Modern SOCs ingest logs from legacy <DefineTerm term="Syslog" display="syslog" /> all the way to cloud-native JSON. Parsing frameworks have to normalize that into queryable, structured data, and they have to do it while the adversary is actively trying to hide.
+Modern SOCs ingest everything from plain-text <DefineTerm term="Syslog" display="syslog" /> to cloud-native JSON. Parsing frameworks have to normalize that into queryable, structured data, and they have to do it while the adversary is actively trying to hide.
 
 <div class="evasion-grid-blue">
   <div class="evasion-blue-card">
@@ -59,26 +48,42 @@ Modern SOCs ingest logs from legacy <DefineTerm term="Syslog" display="syslog" /
   </div>
 </div>
 
-Good parsing decodes these patterns while preserving the context downstream phases need.
+Good parsing decodes what can be decoded, enriches what can be looked up, records what was never captured as a named visibility gap, and preserves the context downstream phases need.
 
 ---
 
-## One layer, five surfaces
+## The checklist
 
-Field extraction is the floor. Above it, advanced parsing reconstructs adversary behavior across five <DefineTerm term="Telemetry" display="telemetry" /> surfaces: command lines, process relationships, network activity, file system activity, and the cloud control plane. Beneath all five sits a normalization layer that is not a behavioral surface at all, but the plumbing that determines whether the surfaces can be read as one dataset. Each gets its own page.
+Nine steps, in order, for any alert. Not every alert needs every step: skip the ones the alert has no data for, and say so in the record. Each step links to the telemetry page that teaches it in depth.
+
+1. **Find the raw record.** Open the source event, not only the console's parsed view, and note which telemetry source and format produced it. Fields the parser dropped or renamed are still in the raw record. See [formats and normalization](/docs/alert/parsing/multi-format/).
+2. **Fix the clock.** Convert every timestamp to UTC in RFC 3339 form, and note whether it is event time or ingest time. An RFC 3164 syslog line carries no zone and no year, so the collector decided its time.
+3. **Name what was not captured.** An empty field is a fact about telemetry. "Command line not captured (4688 policy off)" is a finding; "no command line" is a guess. Record each gap, so later phases do not read absence as evidence.
+4. **Decode what can be decoded.** Look for the decoded script in PowerShell's 4104 events first, then decode by hand (Base64, then UTF-16LE). Normalize flag prefixes before you match on them. See [command line analysis](/docs/alert/parsing/command-line/).
+5. **Rebuild the lineage on unique IDs.** Join parent and child on <code>ProcessGuid</code> or the EDR's process ID, never on PID alone. Check the creator against the reported parent, and read a macOS signature, Team ID, notarization and install path as evidence about provenance, not behavior. See [process relationships](/docs/alert/parsing/process-relationships/).
+6. **Tie each connection to a process.** Join the process half (Sysmon Event ID 3, EDR network events) to the wire half (proxy, firewall, Zeek, flow logs) on addresses, ports and time. Keep what you observed separate from what you infer, and name the benign twin. See [network correlation](/docs/alert/parsing/network/).
+7. **Check what landed, and where it came from.** File creates, persistence locations on every platform, and the Mark of the Web or the macOS quarantine attribute on anything downloaded. See [file system activity](/docs/alert/parsing/file-system/).
+8. **For cloud and identity alerts, read the verb and the actor.** The API call, the identity behind it, and the role chain joined on stable keys; for sign-ins, interactive or non-interactive, and the session ID. See [cloud and identity logs](/docs/alert/parsing/cloud-identity/).
+9. **Redact, then record.** Strip passwords, tokens and session cookies before anything goes into a ticket, a chat or an AI assistant, and keep the raw original in the evidence store. Then fill the three buckets below and hand them to Subject with the gaps named.
+
+---
+
+## Reading telemetry: one layer, five surfaces
+
+Field extraction is the floor. Above it, advanced parsing reconstructs adversary behavior across five <DefineTerm term="Telemetry" display="telemetry" /> surfaces: command lines, process relationships, network activity, file system activity, and the cloud control plane. Beneath all five sits a normalization layer that is not a behavioral surface at all, but the plumbing that determines whether the surfaces can be read as one dataset. Each gets its own page. The six pages are field reference: read the one an alert sends you to, when it sends you there, rather than all six in one sitting.
 
 <div class="parsing-surfaces">
   <a href="/docs/alert/parsing/multi-format/" class="parsing-surface">
     <span class="parsing-surface__num">The layer</span>
-    <span class="parsing-surface__icon">📦</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg></span>
     <h3>Formats and normalization</h3>
-    <p>Windows Event Logs, syslog, CEF, JSON. The per-platform telemetry sources behind them, and the schemas (OCSF, STIX, OpenC2) that give everything one shape.</p>
+    <p>Windows Event Logs, syslog, CEF, JSON. The per-platform telemetry sources behind them, and the event schemas (OCSF, ECS, CIM, ASIM, UDM) that give everything one shape.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
   <a href="/docs/alert/parsing/command-line/" class="parsing-surface">
     <span class="parsing-surface__num">01</span>
-    <span class="parsing-surface__icon">🖥️</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg></span>
     <h3>Command line analysis</h3>
     <p>Decode the true intent of process execution. The encoded-command workflow, Base64 and caret obfuscation, abbreviated flags, the 4688 gap, execution context.</p>
     <span class="parsing-surface__cta">Read →</span>
@@ -86,7 +91,7 @@ Field extraction is the floor. Above it, advanced parsing reconstructs adversary
 
   <a href="/docs/alert/parsing/process-relationships/" class="parsing-surface">
     <span class="parsing-surface__num">02</span>
-    <span class="parsing-surface__icon">🔗</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
     <h3>Process relationships</h3>
     <p>Parent-child chains and lineage reconstruction on Windows and macOS. Macro-execution chains, persistence, hollowing, token theft, signature chains.</p>
     <span class="parsing-surface__cta">Read →</span>
@@ -94,15 +99,15 @@ Field extraction is the floor. Above it, advanced parsing reconstructs adversary
 
   <a href="/docs/alert/parsing/network/" class="parsing-surface">
     <span class="parsing-surface__num">03</span>
-    <span class="parsing-surface__icon">🌐</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
     <h3>Network correlation</h3>
-    <p>Tie host activity to outbound traffic. C2 detection through timing, TLS, DNS, and exfiltration indicators.</p>
+    <p>Tie host activity to network traffic, outbound and east-west. C2 detection through timing, TLS, DNS, and exfiltration indicators.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 
   <a href="/docs/alert/parsing/file-system/" class="parsing-surface">
     <span class="parsing-surface__num">04</span>
-    <span class="parsing-surface__icon">📁</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span>
     <h3>File system activity</h3>
     <p>Persistence, payload deployment, ransomware staging, exfiltration prep. Tracking the file lifecycle and metadata.</p>
     <span class="parsing-surface__cta">Read →</span>
@@ -110,9 +115,9 @@ Field extraction is the floor. Above it, advanced parsing reconstructs adversary
 
   <a href="/docs/alert/parsing/cloud-identity/" class="parsing-surface">
     <span class="parsing-surface__num">05</span>
-    <span class="parsing-surface__icon">☁️</span>
+    <span class="parsing-surface__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>
     <h3>Cloud and identity logs</h3>
-    <p>The control plane as a surface. CloudTrail record anatomy, role chains and STS, the IMDS pattern, IdP sign-in logs.</p>
+    <p>The control plane as a surface. CloudTrail record anatomy, role chains and STS, the IMDS pattern, IdP sign-in logs, and identity attacks at protocol depth, including Kerberos.</p>
     <span class="parsing-surface__cta">Read →</span>
   </a>
 </div>
@@ -151,9 +156,9 @@ Whatever surface you are parsing, the output should populate three buckets:
     <p>The organizational lens.</p>
     <ul>
       <li>Business impact (what does this potentially disrupt).</li>
-      <li>Regulatory implications (HIPAA, PCI DSS, GDPR triggers).</li>
+      <li>Regulated-data flags (asset or dataset tagged PHI, cardholder data, personal data) for <a href="/docs/scope/regulatory/">Scope</a> to evaluate.</li>
       <li>Historical correlation (does this fit a recurring pattern or campaign).</li>
-      <li>Threat intelligence (known IoCs, adversary TTPs, campaign signatures).</li>
+      <li>Threat intelligence (known IOCs, adversary TTPs, campaign signatures).</li>
     </ul>
   </div>
 </div>
@@ -161,177 +166,13 @@ Whatever surface you are parsing, the output should populate three buckets:
 ---
 
 <KeyTakeaway>
-Parsing turns raw output into investigative input. Each of the five surfaces gives you a different angle on adversary intent, and the normalization layer is what lets you read them as one dataset. Combined, they form the technical foundation the rest of ASSURED depends on.
+Parsing turns raw output into investigative input. The checklist is the same for every alert: raw record, clock, gaps, decode, lineage, connections, files, identity, then redact and record. Each of the five surfaces gives you a different angle on adversary intent, and the normalization layer is what lets you read them as one dataset.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/parsing/multi-format/"
-  nextLabel="Formats and normalization"
-  nextDescription="Start with the layer. Windows Event Logs, syslog, CEF, JSON, the per-platform telemetry sources, and the schemas that give them one shape."
-  ctaLabel="Begin with normalization"
+  nextHref="/docs/alert/example/"
+  nextLabel="Alert working example"
+  nextDescription="Three cases worked through the Alert phase: a paste-and-run chain on a finance laptop, an Empire-pattern alert in a developer's IDE, and a replayed session on the mail tenant. The telemetry pages above stay as the field reference."
+  ctaLabel="Work the cases"
 />
-
-<style>
-{`
-.evasion-grid-blue {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 640px)  { .evasion-grid-blue { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .evasion-grid-blue { grid-template-columns: repeat(4, 1fr); } }
-
-.evasion-blue-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border-left: 3px solid #3b82f6;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 0.6rem;
-  transition: border-left-width 0.15s ease, transform 0.2s ease;
-}
-
-.evasion-blue-card:hover {
-  border-left-width: 5px;
-  transform: translateY(-2px);
-}
-
-/* level changed for the heading outline; size stays as designed */
-.evasion-blue-card :is(h3, h4) {
-  margin: 0 0 0.35rem 0;
-  color: #93c5fd;
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: normal;
-}
-
-.evasion-blue-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-.parsing-surfaces {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px)  { .parsing-surfaces { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1200px) { .parsing-surfaces { grid-template-columns: 1fr 1fr 1fr; } }
-
-.parsing-surface {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 0.85rem;
-  color: var(--assured-text);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden;
-}
-
-.parsing-surface:hover {
-  transform: translateY(-3px);
-  border-color: #3b82f6;
-  box-shadow: 0 16px 32px -12px rgba(59, 130, 246, 0.35);
-}
-
-.parsing-surface__num {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: rgba(147, 197, 253, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-  letter-spacing: 0.06em;
-}
-
-.parsing-surface__icon {
-  font-size: 1.6rem;
-}
-
-.parsing-surface h3 {
-  margin: 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-}
-
-.parsing-surface p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-
-.parsing-surface__cta {
-  margin-top: auto;
-  color: #60a5fa;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.info-buckets {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 1024px) {
-  .info-buckets { grid-template-columns: repeat(3, 1fr); }
-}
-
-.info-bucket {
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.85rem;
-  backdrop-filter: blur(8px);
-}
-
-.info-bucket__label {
-  display: inline-block;
-  padding: 0.2rem 0.65rem;
-  border-radius: 9999px;
-  background: rgba(20, 184, 166, 0.14);
-  color: var(--assured-accent-soft);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
-}
-
-.info-bucket > p {
-  margin: 0 0 0.85rem 0;
-  color: var(--assured-text-soft);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.info-bucket ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.info-bucket li {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.88rem;
-}
-`}
-</style>

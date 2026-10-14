@@ -1,0 +1,384 @@
+/*
+ * Risk chapter page styles (src/content/docs/risk/*.mdx).
+ *
+ * Moved out of the per-page <style> blocks. Each page imports this sheet,
+ * so every selector here is unique to one Risk page. Colors use the design
+ * tokens in src/styles/assured.css where an equivalent exists; the
+ * remaining hex values (chip tints, the rubric's High/Medium/Low labels)
+ * have no token.
+ *
+ * Not here: the index page's pillar cards, which render through
+ * src/components/assured/PillarGrid.astro.
+ *
+ * The translucent number colors below (rgba(252, 165, 165, 0.75)) measured
+ * >= 4.5:1 over the card at both gradient ends when they were inline.
+ */
+
+/* ---------------------------------------------------------------- */
+/* risk/index.mdx                                                    */
+/* ---------------------------------------------------------------- */
+
+.loop-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .loop-grid { grid-template-columns: repeat(4, 1fr); } }
+.loop-card {
+  position: relative;
+  padding: 1.2rem 1.35rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 0.7rem;
+}
+.loop-card__num {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.15rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */
+}
+/* level changed for the heading outline; size stays as designed */
+.loop-card :is(h3, h4) {
+  margin: 0 0 0.35rem 0;
+  color: var(--assured-phase-risk-soft);
+  font-size: 0.97rem;
+  font-weight: 600;
+  line-height: inherit;
+}
+.loop-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+/* ---------------------------------------------------------------- */
+/* risk/impact-likelihood.mdx                                        */
+/* ---------------------------------------------------------------- */
+
+.impact-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .impact-grid { grid-template-columns: 1fr 1fr; } }
+.impact-card {
+  position: relative;
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 0.7rem;
+}
+.impact-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */
+}
+.impact-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-phase-risk-soft); font-size: 1rem; }
+.impact-card > p { margin: 0 0 0.55rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+.impact-card__note {
+  font-style: italic;
+  padding: 0.5rem 0.85rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 2px solid rgba(252, 165, 165, 0.4);
+  border-radius: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.likelihood-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .likelihood-grid { grid-template-columns: 1fr 1fr; } }
+.likelihood-card {
+  position: relative;
+  padding: 1.2rem 1.35rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 0.7rem;
+}
+.likelihood-card__num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: rgba(252, 165, 165, 0.75); /* >= 4.5:1 over the card at both gradient ends */
+}
+.likelihood-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-phase-risk-soft); font-size: 1rem; }
+.likelihood-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+
+.likelihood-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 1.25rem 0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+.lt-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  padding: 0.85rem 1.15rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  color: var(--assured-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.lt-row:first-child { border-top: 0; }
+.lt-row--header { background: rgba(239, 68, 68, 0.12); color: var(--assured-phase-risk-soft); font-weight: 700; font-size: 0.85rem; }
+.lt-row__label { color: var(--assured-text); font-weight: 700; }
+@media (min-width: 768px) { .lt-row { grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 1rem; } }
+@media (max-width: 767px) {
+  .lt-row--header { display: none; }
+  .lt-row > span:nth-child(2)::before { content: "Low: "; color: #99f6e4; font-weight: 700; }
+  .lt-row > span:nth-child(3)::before { content: "Medium: "; color: #fde68a; font-weight: 700; }
+  .lt-row > span:nth-child(4)::before { content: "High: "; color: var(--assured-phase-risk-soft); font-weight: 700; }
+  .lt-row:nth-child(2) { border-top: 0; }
+}
+
+.verdict-list { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .verdict-list { grid-template-columns: 1fr 1fr; } }
+.verdict-item {
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.55rem;
+}
+.verdict-item :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-phase-risk-soft); font-size: 0.95rem; }
+.verdict-item p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.88rem; }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.impact-card h3, .likelihood-card h3, .verdict-item h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* risk/framework.mdx                                                */
+/* (the matrix and the clock table render from PriorityMatrix and    */
+/* EscalationRule, which carry their own styles)                     */
+/* ---------------------------------------------------------------- */
+
+/* Non-heading anchors (#calibration, #other-scoring-schemes) clear the sticky
+   header and PillNav the way h2[id]/h3[id] do in global.css. */
+#calibration, #other-scoring-schemes { scroll-margin-top: var(--anchor-scroll-offset); }
+
+/* level changed for the heading outline; h4-era weight and line-height stay as designed */
+.fw-card :is(h3, h4), .ratm-card :is(h3, h4), .mitre-risk-card :is(h3, h4) { font-weight: 600; line-height: inherit; }
+
+.five-moves { margin: 1rem 0 1.5rem; padding-left: 1.4rem; line-height: 1.65; }
+.five-moves li { margin: 0.2rem 0; }
+
+.fw-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .fw-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .fw-grid { grid-template-columns: repeat(3, 1fr); } }
+.fw-card {
+  display: block;
+  padding: 1.15rem 1.35rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.6rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fw-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--assured-phase-risk);
+  box-shadow: 0 12px 24px -14px rgba(239, 68, 68, 0.35);
+}
+.fw-card :is(h3, h4) {
+  margin: 0 0 0.3rem 0;
+  color: var(--assured-phase-risk-soft);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.fw-card__role {
+  display: inline-block;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+/* Distinct colorways per semantic role so the chips read as categories, not decoration. */
+.fw-card:nth-of-type(1) .fw-card__role { /* RATM = scoring (red) */ background: rgba(239, 68, 68, 0.18); color: #fecaca; border-color: rgba(239, 68, 68, 0.5); }
+.fw-card:nth-of-type(2) .fw-card__role { /* MITRE = vocabulary (teal) */ background: rgba(94, 234, 212, 0.18); color: #99f6e4; border-color: rgba(94, 234, 212, 0.5); }
+.fw-card:nth-of-type(3) .fw-card__role { /* CVSS = severity (amber) */ background: rgba(245, 158, 11, 0.18); color: #fde68a; border-color: rgba(245, 158, 11, 0.5); }
+.fw-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.85rem; }
+
+.ratm-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .ratm-grid { grid-template-columns: 1fr 1fr; } }
+.ratm-card { padding: 1.25rem 1.4rem; background: var(--assured-panel); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 0.7rem; }
+.ratm-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-phase-risk-soft); font-size: 1rem; }
+.ratm-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+
+.ratm-rubric { display: flex; flex-direction: column; gap: 0.4rem; margin: 1.25rem 0 1.5rem; }
+.ratm-rubric__row {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr 1.3fr 1.3fr;
+  gap: 0.65rem;
+  padding: 0.75rem 0.95rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.55rem;
+  align-items: start;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--assured-text-muted);
+}
+.ratm-rubric__row--header {
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--assured-text);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.72rem;
+}
+.ratm-rubric__dim { color: var(--assured-phase-risk-soft); font-weight: 700; }
+.ratm-rubric__row > span:nth-child(2) { border-left: 2px solid rgba(239, 68, 68, 0.5); padding-left: 0.55rem; }
+.ratm-rubric__row > span:nth-child(3) { border-left: 2px solid rgba(245, 158, 11, 0.5); padding-left: 0.55rem; }
+.ratm-rubric__row > span:nth-child(4) { border-left: 2px solid rgba(94, 234, 212, 0.5); padding-left: 0.55rem; }
+@media (max-width: 768px) {
+  .ratm-rubric__row { grid-template-columns: 1fr; gap: 0.35rem; }
+  .ratm-rubric__row--header { display: none; }
+  .ratm-rubric__row > span:nth-child(2)::before { content: "High: "; color: var(--assured-phase-risk-soft); font-weight: 700; }
+  .ratm-rubric__row > span:nth-child(3)::before { content: "Medium: "; color: #fde68a; font-weight: 700; }
+  .ratm-rubric__row > span:nth-child(4)::before { content: "Low: "; color: #99f6e4; font-weight: 700; }
+}
+
+.crosswalk-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--assured-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+.crosswalk-table caption { caption-side: top; text-align: left; padding: 0 0 0.5rem; color: var(--assured-text-dim); font-size: 0.8rem; }
+.crosswalk-table :is(th, td) { padding: 0.7rem 0.9rem; border-top: 1px solid rgba(148, 163, 184, 0.15); text-align: left; vertical-align: top; }
+.crosswalk-table thead th { background: rgba(239, 68, 68, 0.12); color: var(--assured-phase-risk-soft); font-weight: 700; font-size: 0.83rem; }
+
+.mitre-risk-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .mitre-risk-grid { grid-template-columns: repeat(3, 1fr); } }
+.mitre-risk-card {
+  padding: 1.15rem 1.3rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.55rem;
+}
+.mitre-risk-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: var(--assured-phase-risk-soft); font-size: 0.95rem; }
+.mitre-risk-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+.override-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.override-item {
+  padding: 1rem 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.55rem;
+}
+.override-item h4 { margin: 0 0 0.3rem 0; color: var(--assured-phase-risk-soft); font-size: 0.95rem; font-weight: 600; }
+.override-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+.override-item p:last-child { margin-bottom: 0; }
+
+/* The "Try it" exercise's rating selects (moved out of inline styles). */
+.matrix-exercise select {
+  display: block;
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.4rem;
+  background: var(--assured-panel-solid);
+  color: var(--assured-text);
+  font: inherit;
+}
+
+/* ---------------------------------------------------------------- */
+/* risk/false-positive.mdx                                           */
+/* ---------------------------------------------------------------- */
+
+.fp-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .fp-grid { grid-template-columns: repeat(3, 1fr); } }
+.fp-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.7rem;
+}
+.fp-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: var(--assured-phase-risk-soft); font-size: 1rem; }
+.fp-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+
+.fp-pattern-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .fp-pattern-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .fp-pattern-grid { grid-template-columns: repeat(4, 1fr); } }
+.fp-pattern-card {
+  padding: 1rem 1.2rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-warn);
+  border-radius: 0.55rem;
+}
+.fp-pattern-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fbbf24; font-size: 0.93rem; }
+.fp-pattern-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
+
+.route-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--assured-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.route-table caption { caption-side: top; text-align: left; padding: 0 0 0.5rem; color: var(--assured-text-dim); font-size: 0.8rem; }
+.route-table :is(th, td) { padding: 0.7rem 0.9rem; border-top: 1px solid rgba(148, 163, 184, 0.15); text-align: left; vertical-align: top; }
+.route-table thead th { background: rgba(239, 68, 68, 0.12); color: var(--assured-phase-risk-soft); font-weight: 700; font-size: 0.83rem; }
+.route-table tbody th { color: var(--assured-text); font-weight: 700; width: 32%; }
+
+/* Converted card titles keep the h4-era weight and inherited line-height
+   (base h3 is 700 with line-height 1.3, which these cards never used). */
+.fp-card h3, .fp-pattern-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---------------------------------------------------------------- */
+/* risk/example.mdx                                                  */
+/* ---------------------------------------------------------------- */
+
+.example-step h3 { margin: 0 0 0.85rem 0; color: var(--assured-phase-risk-soft); font-size: 1.2rem; }
+
+/* ---------------------------------------------------------------- */
+/* risk/transition.mdx                                               */
+/* ---------------------------------------------------------------- */
+
+.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
+.handoff-contract {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 1.25rem 0 1.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-risk);
+  border-radius: 0.6rem;
+  overflow: hidden;
+  color: var(--assured-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.handoff-contract dt {
+  margin: 0;
+  padding: 0.75rem 1.1rem 0.15rem;
+  color: var(--assured-phase-risk-soft);
+  font-weight: 700;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+.handoff-contract dt:first-child { border-top: 0; }
+.handoff-contract dd { margin: 0; padding: 0 1.1rem 0.8rem; }
+.handoff-contract dd ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+@media (min-width: 768px) {
+  .handoff-contract { grid-template-columns: 11rem 1fr; }
+  .handoff-contract dt { padding: 0.8rem 1.1rem; }
+  .handoff-contract dd { padding: 0.8rem 1.1rem; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+  .handoff-contract dd:nth-of-type(1) { border-top: 0; }
+}

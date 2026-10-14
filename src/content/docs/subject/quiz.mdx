@@ -1,6 +1,7 @@
 ---
 title: "Subject chapter quiz"
-description: "Ten questions on the four dimensions, entity types, behavioral framework, insider analysis, the working examples, and the Scope handoff."
+description: "Eleven questions on the four dimensions, entity types, behavioral framework, insider analysis, the working examples, and the Scope handoff."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -11,158 +12,170 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 
 <SubPageHero
   phase="subject"
-  parentLetter="S"
   pillarIndex="Quiz"
-  pillarTotal="Subject chapter"
-  chapterHref="/docs/subject/"
-  chapterLabel="Subject"
-  lede="Ten questions across the Subject chapter. Push your thinking on identity, baselining, network identifiers, the insider distinction, and the Scope handoff."
+  lede="Eleven questions across the Subject chapter. Push your thinking on identity, Case C's non-human subjects, baselining, network identifiers, the insider distinction and its guardrails, and the Scope handoff."
 />
 
-<PillNav
-  chapter="subject"
-  label="Subject chapter"
-  items={[
-    { label: "Four dimensions",      href: "/docs/subject/four-dimensions/",     phase: "subject" },
-    { label: "Entity types",         href: "/docs/subject/entity-types/",        phase: "subject" },
-    { label: "Behavioral framework", href: "/docs/subject/behavioral-framework/",phase: "subject" },
-    { label: "Insider analysis",     href: "/docs/subject/insider-analysis/",    phase: "subject" },
-  ]}
-/>
+<PillNav chapter="subject" />
 
 <Quiz title="Subject chapter quiz" subtitle="No grades. The point is to push your thinking.">
 
   <QuizItem
-    prompt="An alert names one user. How many subjects should the analyst usually profile?"
+    prompt="In Case C, rvega's password has been reset and an admin has revoked all of her refresh tokens. Which entity still holds a standing path into her mailbox?"
     options={[
-      { value: "one",     label: "One. The user named in the alert; adding more entities dilutes the investigation." },
-      { value: "two",     label: "Two. The user plus their host covers both halves of any endpoint alert." },
-      { value: "many",    label: "As many as the activity touches: user, host, service accounts, federated identities." },
-      { value: "depends", label: "It depends on severity. Low-severity alerts skip Subject and go straight to Scope." },
+      { value: "a", label: "The replayed session S2. A session cookie outlives both a password reset and token revocation." },
+      { value: "b", label: "None. Revoking every refresh token she holds cuts all access tied to her account at once." },
+      { value: "c", label: "The consented OAuth app. Its grant survives user-focused actions until someone removes it." },
+      { value: "d", label: "Her laptop. The device that opened the lure page still holds a cached sign-in to the tenant." },
     ]}
-    answer="many"
-    explanation="Modern identity is plural. Behind any named user are typically several non-human identities (service accounts, cloud roles, federated SSO) that share trust paths. The Subject phase profiles all of them, not just the one the alert named."
+    answer="c"
+    explanation="The consented application is a separate identity with its own grant. A password reset does not reliably revoke what it holds. Revoking her refresh tokens cuts the tokens it already has (issued access tokens still run until they expire), but the consent grant itself stays until someone removes it, ready for the next token the app obtains. That is why Case C gives the app its own containment line. The replayed session was revoked and refused, and the laptop was examined and cleared: a witness, not a subject. The broader lesson is that identity is plural. Behind any named user sit sessions, application grants, service accounts and federated identities, and Subject profiles all of them, not just the one the alert named."
+    hint="Which subject authenticates on something other than her password or her sessions?"
+    source={{ href: "/docs/subject/example/#case-c", label: "Subject working example: Case C, the subject with no device" }}
   />
 
   <QuizItem
     prompt="A user's action maps cleanly to their assigned role, so the authorization dimension looks fine at a glance. Why does it still reward a second look?"
     options={[
-      { value: "auth",    label: "It does not. Once the action maps to the role, authorization is answered and the analyst moves on." },
-      { value: "authz",   label: "The role itself may be wrong: toxic permission pairings and recent role changes hide behind a clean mapping." },
-      { value: "behav",   label: "Because authorization data is usually stale, the behavioral baseline should be checked in its place." },
-      { value: "rel",     label: "Because authorization only covers human accounts, service accounts need a separate relationship pass." },
+      { value: "a", label: "The role may be wrong: toxic permission pairs and recent role changes hide behind a clean mapping." },
+      { value: "b", label: "It does not. Once the action maps to the role, authorization is answered and the analyst moves on." },
+      { value: "c", label: "Because authorization data is usually stale, the behavioral baseline should be checked in its place." },
+      { value: "d", label: "Because authorization only covers human accounts, service accounts need a separate relationship pass." },
     ]}
-    answer="authz"
+    answer="a"
     explanation="'The action maps to the role' answers the shallow question. The deeper ones are whether the role is right for this person now, whether it changed recently, and whether individually reasonable permissions combine into an unsafe pairing. Those gaps sit exactly where the first glance says everything is fine."
     hint="The mapping can be clean while the role is wrong."
+    source={{ href: "/docs/subject/four-dimensions/#authorization", label: "The four dimensions: authorization" }}
   />
 
   <QuizItem
     prompt="A service account suddenly logs in interactively at 02:30. Which entity type pattern does this match?"
     options={[
-      { value: "normal",    label: "Normal. Service accounts authenticate constantly; the hour is only unusual for humans." },
-      { value: "compromise",label: "A compromise signal. Service accounts are non-interactive by design; this is near-canonical." },
-      { value: "policy",    label: "A policy violation for the account owner to fix, but not itself security-relevant." },
-      { value: "test",      label: "Probably the on-call engineer running a manual test with the account's credentials." },
+      { value: "a", label: "Normal. Service accounts authenticate constantly; the hour is only unusual for humans." },
+      { value: "b", label: "A policy violation for the account owner to fix, but not itself security-relevant." },
+      { value: "c", label: "Probably the on-call engineer running a manual test with the service account's credentials." },
+      { value: "d", label: "A compromise signal. Service accounts are non-interactive by design; this is near-canonical." },
     ]}
-    answer="compromise"
-    explanation="Service accounts have predictable, non-interactive behavior by design, which makes an interactive login a high-confidence Subject signal: the credential is being used outside its designed lane. It is a signal, not proof. Break-glass procedures and an admin troubleshooting with the service credential produce the same event, so the next check is who initiated the session and whether a sanctioned reason (a change ticket, a break-glass record) exists."
+    answer="d"
+    explanation="Service accounts have predictable, non-interactive behavior by design, which makes an interactive login a high-confidence Subject signal: the credential is being used outside its designed lane. It is a signal, not proof. An emergency-access (break-glass) procedure or an admin troubleshooting with the service credential produces the same event, so the next check is who initiated the session and whether a sanctioned reason (a change ticket, an emergency-access record) exists."
+    source={{ href: "/docs/subject/entity-types/#subtypes-of-user-accounts", label: "Entity types: subtypes of user accounts" }}
   />
 
   <QuizItem
     prompt="An egress alert flags a workstation making sustained connections to an external host on port 443. What is the entity-type question to ask about this network identifier?"
     options={[
-      { value: "rare",    label: "How rare port 443 is in the environment. Uncommon ports are the primary tunneling signal." },
-      { value: "conform", label: "Whether the traffic actually conforms to the protocol the port implies. SSH or DNS riding 443 is the classic bypass." },
-      { value: "rep",     label: "Whether the destination IP has a clean reputation. A clean score clears the connection." },
-      { value: "defer",   label: "None yet. Protocol analysis is deep-evidence work that belongs to Uncover, not Subject." },
+      { value: "a", label: "Whether the traffic really is the protocol 443 implies; SSH or DNS on 443 is the bypass." },
+      { value: "b", label: "How rare port 443 is in the environment. Uncommon ports are the primary tunneling signal." },
+      { value: "c", label: "Whether the destination IP has a clean reputation. A clean score clears the connection." },
+      { value: "d", label: "None yet. Protocol analysis is deep-evidence work that belongs to Uncover, not Subject." },
     ]}
-    answer="conform"
-    explanation="Port 443 is the most common port on the internet, so rarity carries no signal at all. The signal is protocol/port mismatch: traffic on 443 that is not actually TLS, or DNS on an arbitrary high port, is the classic bypass pattern, because attackers pick common ports precisely to blend in. Reputation helps but does not clear anything; a clean destination means only that it has not been caught yet."
+    answer="a"
+    explanation="Port 443 is the most common port on the internet, so rarity carries no signal at all. The signal is protocol/port mismatch: traffic on 443 that is not actually TLS, or DNS on an arbitrary high port, is the classic bypass pattern, because attackers pick common ports precisely to blend in. Reputation helps but does not clear anything; a clean destination means only that it has not been caught yet. And conformance cuts one way only: most command-and-control (C2) traffic rides genuine TLS on 443, so conformant traffic moves the question to destination age, certificate, JA4 TLS client fingerprint and connection periodicity."
     hint="Attackers choose common ports on purpose."
+    source={{ href: "/docs/subject/entity-types/#network-identifier-reference", label: "Entity types: network-identifier reference" }}
   />
 
   <QuizItem
-    prompt="What is the difference between insider risk and insider threat?"
+    prompt="In ASSURED's vocabulary, what separates insider risk from insider threat?"
     options={[
-      { value: "same",     label: "The same thing. The two terms are interchangeable vocabulary for insider cases." },
-      { value: "intent",   label: "Risk is possible harm regardless of intent; threat is intentional, shown by evidence." },
-      { value: "severity", label: "Severity tiers: risk describes low-severity cases, threat describes high-severity ones." },
-      { value: "scope",    label: "Direction: insider risk comes from inside, insider threat from outside partners." },
+      { value: "a", label: "Nothing. The two terms are interchangeable vocabulary for any insider case." },
+      { value: "b", label: "Risk is possible harm regardless of intent; threat is intentional, shown by evidence." },
+      { value: "c", label: "Severity tiers: risk describes low-severity cases, threat describes high-severity ones." },
+      { value: "d", label: "Direction: insider risk comes from inside, insider threat from outside partners." },
     ]}
-    answer="intent"
-    explanation="The distinction is about intent. Most insider risk is unintentional (mistakes, workarounds, policy violations). Insider threat is intentional, and the methodology reserves that designation for cases where evidence supports it. Two calibrations: the label is a revisable hypothesis, not a verdict (and NIST's insider-threat definition includes unwitting actors, so check your organization's vocabulary), and the label shapes who gets engaged, never whether confirmed harmful activity gets a response. Containment and escalation trigger on act, asset, and impact; intent is resolved in parallel."
+    answer="b"
+    explanation="The distinction is about intent. Most insider risk is unintentional (mistakes, workarounds, policy violations). Insider threat is intentional, and the methodology reserves that designation for cases where evidence supports it. Two calibrations: the label is a revisable hypothesis, not a verdict (and the split is a practitioner convention: NIST and CISA define insider threat to include acts done wittingly or unwittingly, so map it to your organization's vocabulary), and the label shapes who gets engaged, never whether confirmed harmful activity gets a response. Containment and escalation trigger on act, asset, and impact; intent is resolved in parallel."
+    source={{ href: "/docs/subject/insider-analysis/#risk-vs-threat", label: "Insider analysis: risk vs. threat" }}
   />
 
   <QuizItem
-    prompt="An engineer's activity is consistent with their own 90-day baseline but looks nothing like anyone else's in the same role. What does the behavioral framework say?"
+    prompt="An engineer's activity is consistent with their own 90-day baseline but looks nothing like anyone else's in the same role. What is the best reading?"
     options={[
-      { value: "clear",  label: "Their own baseline clears it. Per-entity comparison is the framework's primary question." },
-      { value: "peer",   label: "The peer mismatch overrides the personal baseline. Escalate on the role comparison alone." },
-      { value: "signal", label: "The disagreement between the two baselines is itself a signal, so investigate what explains it." },
-      { value: "noise",  label: "Peer comparison across engineers is noise. Roles vary too much for the mismatch to matter." },
+      { value: "a", label: "Their own baseline clears it. Per-entity comparison is the framework's primary question." },
+      { value: "b", label: "The peer mismatch overrides the personal baseline. Escalate on the role comparison alone." },
+      { value: "c", label: "Peer comparison across engineers is noise. Roles vary too much for the mismatch to matter." },
+      { value: "d", label: "The gap between the two baselines is itself a signal; investigate what explains it." },
     ]}
-    answer="signal"
+    answer="d"
     explanation="Per-entity baselining is the framework's headline question, and here it passes. But the framework also runs the peer-group comparison, and when the two disagree, the disagreement is informative: it can mean a legitimately unusual job, or a baseline that was poisoned by long-running compromise before the window began. Neither baseline overrides the other; the gap between them is what deserves the look."
     hint="Two baselines, one entity, and they disagree. That fact is data."
+    source={{ href: "/docs/subject/behavioral-framework/#baseline-development", label: "Behavioral analysis framework: baseline development" }}
   />
 
   <QuizItem
     prompt="An insider bulk-exports a customer database, then clears their shell history and deletes the staged archive. Under the Insider Threat Matrix, where does the history-clearing evidence belong?"
     options={[
-      { value: "motive",   label: "Motive. Hiding the activity reveals why the insider acted in the first place." },
-      { value: "means",    label: "Means. Shell access is the capability that made the whole export possible." },
-      { value: "prep",     label: "Preparation. Cleanup is part of setting up the operation to survive scrutiny." },
-      { value: "af",       label: "Anti-forensics. Destroying evidence of the act after the fact is its own section." },
+      { value: "a", label: "Motive. Hiding the activity reveals why the insider acted in the first place." },
+      { value: "b", label: "Means. Shell access is the capability that made the whole export possible." },
+      { value: "c", label: "Anti-forensics. Destroying evidence of the act after the fact is its own section." },
+      { value: "d", label: "Preparation. Cleanup is part of setting up the operation so it survives later scrutiny." },
     ]}
-    answer="af"
-    explanation="The matrix organizes insider tradecraft into sections: motive (why), means (what made it possible), preparation (setting it up), infringement (the harmful act, here the bulk export), and anti-forensics (concealing or destroying evidence afterward). History-clearing and deleting staged archives are textbook anti-forensics, and their presence upgrades the case: deliberate evidence destruction is among the strongest intent signals available. It still gets verified rather than assumed — scheduled cleanup jobs, retention scripts, and shell configurations that trim history all exist, so the analyst confirms the mechanism was manual before treating the cleanup as a confession."
+    answer="c"
+    explanation="The matrix organizes insider tradecraft into sections: motive (why), means (what made it possible), preparation (setting it up), infringement (the harmful act, here the bulk export), and anti-forensics (concealing or destroying evidence afterward). History-clearing and deleting staged archives are textbook anti-forensics, and their presence upgrades the case: deliberate evidence destruction is among the strongest intent signals available. It still gets verified rather than assumed: scheduled cleanup jobs, retention scripts, and shell configurations that trim history all exist, so the analyst confirms the mechanism was manual before treating the cleanup as a confession."
+    source={{ href: "/docs/subject/insider-analysis/#the-insider-threat-matrix", label: "Insider analysis: the Insider Threat Matrix" }}
   />
 
   <QuizItem
-    prompt="A marketing team under deadline converted confidential documents into image files to get them past a slow approval tool and shared them externally, exposing customer data. What does Subject classify this as?"
+    prompt="A marketing team under deadline converted confidential documents into image files to get them past a slow secure file-sharing tool and shared them externally, exposing customer data. What does Subject classify this as?"
     options={[
-      { value: "threat",    label: "Insider threat. Customer data was deliberately moved outside the boundary; intent is irrelevant." },
-      { value: "risk",      label: "Insider risk: no intent to harm. The exposure is still contained, clocked, and reported; the lasting fix is process." },
-      { value: "neither",   label: "Neither. Data exposure through sanctioned sharing channels is a DLP tuning problem, not Subject's." },
-      { value: "escalate",  label: "Both at once. Classify as insider threat by default until the investigation proves otherwise." },
+      { value: "a", label: "Insider risk: no intent to harm. The exposure is still contained and assessed for notification; the fix is process." },
+      { value: "b", label: "Insider threat. Customer data was deliberately moved outside the boundary, so intent is irrelevant to the label." },
+      { value: "c", label: "Neither. Exposure through an approved sharing channel is a DLP tuning problem for engineering, not a Subject question." },
+      { value: "d", label: "Undetermined. Hold both the label and the response until interviews with the team establish what they intended." },
     ]}
-    answer="risk"
-    explanation="Insider risk is the right label: the workaround was about getting work done past a slow tool, not about stealing data. But the label only decides the long-term fix, not the immediate response. Customer data left the boundary through a deliberate control bypass, so the exposure is scoped and contained, the regulatory notification question is asked (a notification clock does not care about motive), and the DLP bypass is recorded as a confirmed policy violation. What the risk classification changes is what happens after: process improvement, a faster approved sharing path, instead of an enforcement action that would add friction without fixing the cause. (The scenario is an illustrative composite, not a published incident.)"
+    answer="a"
+    explanation="Insider risk is the right label: the workaround was a deliberate act with no intent to harm, aimed at getting work done past a slow tool, not at stealing data. But the label only decides the long-term fix, not the immediate response. Customer data left the boundary through a deliberate control bypass, so the exposure is scoped and contained, the regulatory notification question is asked (a notification clock does not care about motive), and the DLP bypass is recorded as a confirmed policy violation. Holding the response until intent is known gets the order backward: the label can wait, the exposure cannot. What the risk classification changes is what happens after: process improvement, a faster approved sharing path, instead of an enforcement action that would add friction without fixing the cause. (The scenario is an illustrative composite, not a published incident.)"
     hint="The vocabulary matters. Risk and threat are not interchangeable."
+    source={{ href: "/docs/subject/insider-analysis/#risk-vs-threat", label: "Insider analysis: risk vs. threat" }}
   />
 
   <QuizItem
-    prompt="A binary on a developer's laptop disables its sandbox at runtime, makes encrypted outbound network calls, and matches signatures used by the Empire toolkit. Subject's most likely conclusion is..."
+    prompt="On a developer's macOS laptop, a signed IDE helper process runs with its sandbox disabled and makes encrypted outbound calls. A behavioral EDR rule maps the pattern to Empire-style post-exploitation tradecraft. What should Subject do before reaching a verdict?"
     options={[
-      { value: "block",     label: "Block and contain immediately. A toolkit signature match on a developer host is conclusive." },
-      { value: "context",   label: "Read context first: signing, install path, peer baseline, documented runtime mode, then verdict." },
-      { value: "isolate",   label: "Isolate the device and hold it for a forensic image before touching any other dimension." },
-      { value: "escalate",  label: "Escalate under insider-threat protocols, since the developer installed the flagged binary." },
+      { value: "a", label: "Block and contain immediately. An Empire-pattern match on a developer host is conclusive." },
+      { value: "b", label: "Read context first: signing, install record, extension layer, peer baseline, then verdict." },
+      { value: "c", label: "Isolate the device and hold it for a forensic image before touching any other dimension." },
+      { value: "d", label: "Close it. A signed, notarized binary from a known vendor is sufficient on its own to clear." },
     ]}
-    answer="context"
-    explanation="A signature match alone is not Subject's verdict. The four dimensions plus access scope plus operational risk produce the picture. A signed, vendor-installed, peer-baselined binary running in a documented configuration on a developer workstation reads very differently from the same activity from an unsigned binary in a user-writable directory. Subject's job is to record that distinction defensibly, not to react to the signature alone."
+    answer="b"
+    explanation="A behavioral pattern match alone is not Subject's verdict. The four dimensions plus access scope plus operational risk produce the picture. A signed, MDM-installed, peer-baselined binary running in a documented configuration on a developer workstation reads very differently from the same activity from an unsigned binary in a user-writable directory. Subject's job is to record that distinction defensibly, not to react to the pattern match alone. Even a benign verdict carries caveats: the signature covers the editor, not the extensions, MCP servers and workspace tasks it runs, and developer workstations hide persistence in IDE extensions, dotfiles, and package-manager hooks, so the close records what was checked."
+    source={{ href: "/docs/subject/example/#case-b", label: "Subject working example: Case B, the developer workstation" }}
+  />
+
+  <QuizItem
+    prompt="An HR referral asks whether a departing engineer's account moved data to personal storage. EDR and the CASB agree on what happened. Which line belongs in the case ticket?"
+    options={[
+      { value: "a", label: "Account jkessler, a disgruntled engineer, uploaded 2.3 GB to personal storage before leaving." },
+      { value: "b", label: "HR says the owner of account jkessler is under stress at home; the background is attached." },
+      { value: "c", label: "Referral IRP-2026-0412 received; collection waits until HR explains why it suspects him." },
+      { value: "d", label: "Account jkessler uploaded a 2.3 GB file to personal-drive[.]example, 22:47 to 22:52 UTC." },
+    ]}
+    answer="d"
+    explanation="Only observable technical activity, with a timestamp and a source, survives review. Option A wraps the same fact in an intent label nobody has established; that is speculation, and it becomes discoverable the moment it enters a ticket. Option B records personal circumstances the SOC should never hold: HR-held context reaches the case only through the insider-risk route, never as analyst-collected notes. Option C gets the order wrong: the referral's reference, owner and technical questions are all the SOC needs, and the reason for the referral stays with HR and the insider-program lead. The working example's HR referral scenario shows the full record."
+    hint="Which line would read the same to an HR partner, a judge and the employee's lawyer?"
+    source={{ href: "/docs/subject/example/#insider-referral", label: "Subject working example: the HR referral" }}
   />
 
   <QuizItem
     prompt="Subject hands its entity map to Scope. Which entities belong on it?"
     options={[
-      { value: "named",      label: "Only the entity named in the alert. The map is a pointer; Scope rebuilds the rest." },
-      { value: "suspicious", label: "Every entity with a suspicious finding. Cleared entities are dropped to keep the map actionable." },
-      { value: "all",        label: "Primary, secondary, and downstream entities, each with its dimension assessment, including the ones ruled out." },
-      { value: "human",      label: "The human identities only. Service accounts and hosts are infrastructure, tracked elsewhere." },
+      { value: "a", label: "Only the entity named in the alert. The map is a pointer, and Scope rebuilds the rest from it." },
+      { value: "b", label: "Every entity with a suspicious finding. Cleared entities are dropped to keep the map actionable." },
+      { value: "c", label: "Every ring (primary, secondary, downstream), each with its assessment, ruled-out ones included." },
+      { value: "d", label: "The human identities only. Service accounts and hosts are infrastructure, tracked elsewhere." },
     ]}
-    answer="all"
-    explanation="The map carries three rings: primary entities directly named or implicated, secondary entities connected through trust paths (service accounts, federated identities, peers on the same host), and downstream entities the implicated identities can reach, each with its authentication, authorization, behavior, and relationships assessment. Confidence labels ride alongside in the baselines-and-deviations artifact, using the shared rubric. And ruled-out entities stay on the map, because examined-and-cleared is a finding: dropping them invites the next phase to spend depth re-answering a question Subject already closed."
+    answer="c"
+    explanation="The map carries three rings (primary entities directly named or implicated, secondary entities connected through trust paths, and downstream entities the implicated identities can reach), each with its authentication, authorization, behavior, and relationships assessment, plus any originating threat infrastructure (sender, domain, IP) tracked alongside as threat entities, not internal identities. Confidence labels ride alongside, using the shared rubric. And ruled-out entities stay on the map, because examined-and-cleared is a finding (Case C's laptop is one): dropping them invites the next phase to spend depth re-answering a question Subject already closed."
     hint="Think about what Scope would have to redo if the map only listed the suspicious entities."
+    source={{ href: "/docs/subject/transition/#the-handoff-contract", label: "Transition to Scope: the handoff contract" }}
   />
 
 </Quiz>
 
 <ContinueCard
   current="subject"
-  nextHref="/docs/subject/transition/"
-  nextLabel="Transition to Scope"
-  nextDescription="Subject produced the entity map. Scope turns that map into a formal boundary for the investigation."
-  ctaLabel="Continue to transition"
+  nextHref="/docs/scope/"
+  nextLabel="Scope"
+  nextDescription="The next question: Where are the lines?"
+  ctaLabel="Start Scope"
 />

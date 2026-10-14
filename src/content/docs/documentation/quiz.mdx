@@ -1,6 +1,7 @@
 ---
 title: "Documentation chapter quiz"
-description: "Ten questions on standards, custody, sanitization, pitfalls, and the downstream value of documentation."
+description: "Thirteen questions on standards, templates, verdicts, confidence, custody, sanitization, pitfalls, and the downstream value of documentation."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,135 +10,182 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarIndex="Quiz" pillarTotal="Documentation chapter" chapterHref="/docs/documentation/" chapterLabel="Documentation" lede="Ten questions on Documentation. The final chapter of the methodology."/>
+<SubPageHero phase="documentation" pillarIndex="Quiz" lede="Thirteen questions on Documentation. The final chapter of the methodology."/>
 
-<PillNav chapter="documentation" label="Documentation chapter" items={[
-  { label: "Standards", href: "/docs/documentation/standards/", phase: "documentation" },
-  { label: "Templates", href: "/docs/documentation/templates/", phase: "documentation" },
-  { label: "Pitfalls", href: "/docs/documentation/pitfalls/", phase: "documentation" },
-]}/>
+<PillNav chapter="documentation" />
 
 <Quiz title="Documentation chapter quiz">
 
   <QuizItem
-    prompt="When should documentation be written?"
+    prompt="A closure record reads 'False positive' for an EDR alert that correctly matched a signed IDE helper, running without its sandbox, launching a child that opened an encrypted connection to the vendor's servers. The activity was authorized. What is wrong with the label?"
     options={[
-      { value: "before", label: "Before the investigation begins, as a written plan the analyst then executes against." },
-      { value: "during", label: "During the investigation, with a cleanup pass at the end, while memory is freshest." },
-      { value: "after", label: "After closure, when the full picture is known and there is time to write it properly." },
-      { value: "review", label: "At the manager's review, so the record reflects what the reviewer actually needs." },
+      { value: "btp", label: "The detection was correct, so this is a benign true positive; record both axes." },
+      { value: "nothing", label: "Nothing. Any alert that did not find malicious activity is a false positive by definition." },
+      { value: "tp", label: "It should read 'true positive' alone: the rule fired on real behavior, and that is enough." },
+      { value: "tune", label: "The label is fine, but the record must also open a ticket to suppress the signed helper." },
     ]}
-    answer="during"
-    explanation="Documentation written during the investigation captures detail that is gone an hour later. Post-hoc documentation reads tidy and is less useful for training, audit, or trend analysis."
+    answer="btp"
+    explanation="The two axes answer different questions. Detection: the rule matched exactly the behavior it describes, so it is a true positive, not a false positive (logic) or (data). Activity: the behavior was authorized, so the verdict is a benign true positive. Calling it a false positive tells detection engineering there is a logic defect to fix when there is none, and hides why the case closed. 'True positive' alone is ambiguous, because many close codes read it as malicious; record both axes."
+    source={{ href: "/docs/documentation/standards/#clarity", label: "Documentation standards: clarity and precision" }}
   />
 
   <QuizItem
-    prompt="Which is the biggest documentation pitfall?"
+    prompt="A closed record passes every template check: all nine sections are filled and it runs four pages. Each section restates the alert in different words, and nothing in it would help the next analyst work a similar case. Which pitfall is this?"
     options={[
-      { value: "length", label: "Records that run too long. Past a page, nobody reads the record at all." },
-      { value: "form", label: "Treating the form as the work: a filled template with none of the reasoning recorded." },
-      { value: "speed", label: "Writing too quickly. Speed is what introduces the errors that undermine trust in records." },
-      { value: "templates", label: "Using templates in the first place; they shape the record around fields, not facts." },
+      { value: "delayed", label: "Delayed documentation: the record was reconstructed after the case had closed." },
+      { value: "sanitize", label: "A sanitization mistake: the record copies detail it never needed to hold." },
+      { value: "terms", label: "Inconsistent terminology: the sections describe one alert in different words." },
+      { value: "form", label: "Form over substance: every field is filled, and none of the reasoning is." },
     ]}
     answer="form"
-    explanation="One of the most damaging failures is filling the template without recording the reasoning. The form is scaffolding, not the goal. A short, complete record beats a long, empty one every time."
+    explanation="Fields filled, value absent: the template was treated as the goal. A short record that carries the reasoning beats a long one that carries none. Nothing in the record suggests it was written late or holds sensitive data, and restating the alert in other words is padding, not terminology drift."
+    source={{ href: "/docs/documentation/pitfalls/#common-failure-modes", label: "Documentation pitfalls: common failure modes" }}
   />
 
   <QuizItem
     prompt="What is the test of good documentation?"
     options={[
       { value: "length", label: "Completeness by volume: the longer the record, the more of the case it preserves." },
-      { value: "format", label: "Template fidelity: every section of the standard format is present and filled in." },
       { value: "replay", label: "A future reader can replay the analyst's reasoning without asking anyone questions." },
+      { value: "format", label: "Template fidelity: every section of the standard format is present and filled in." },
       { value: "speed", label: "Timeliness: the record was written during the case rather than reconstructed after." },
     ]}
     answer="replay"
-    explanation="The test is whether the record stands alone. A future analyst, auditor, or trainer should be able to read it and understand both what was decided and why. Length and speed are secondary."
+    explanation="The test is whether the record stands alone: a future analyst, auditor, or trainer can read it and understand both what was decided and why. Timeliness is the most important means to that outcome, since a record reconstructed afterwards rarely passes the replay test. Length and template fidelity are neither the test nor a reliable means to it."
+    source={{ href: "/docs/documentation/#why-documentation-deserves-its-own-phase", label: "Documentation: why it is its own phase" }}
   />
 
   <QuizItem
     prompt="A closed false-positive case is documented. What is its main downstream use?"
     options={[
       { value: "compliance", label: "Compliance evidence: proof for auditors that the alert queue is actually being worked." },
-      { value: "trash", label: "None. A false-positive is a non-event, and recording more than the closure wastes time." },
+      { value: "trash", label: "None. A false positive is a non-event, and recording more than the closure wastes time." },
       { value: "detection", label: "Feedback for detection engineering and a training case for newer analysts on the team." },
       { value: "manager", label: "Performance material: documented closes are how analyst throughput gets measured." },
     ]}
     answer="detection"
-    explanation="Closed false-positives, well documented, point at where the detection logic could be sharper and help newer analysts learn what to look for. The methodology treats them as contributions, not as non-events."
+    explanation="Closed false positives, well documented, point at where the detection logic could be sharper and help newer analysts learn what to look for. The methodology treats them as contributions, not as non-events."
+    source={{ href: "/docs/documentation/#downstream-uses", label: "Documentation: five downstream uses" }}
   />
 
   <QuizItem
     prompt="An investigation checked for persistence mechanisms and found none. Under time pressure, the analyst leaves that check out of the record, reasoning that there was nothing to report. What went wrong?"
     options={[
-      { value: "nothing", label: "Nothing. Records document findings, and a check that found nothing produced no finding." },
       { value: "negative", label: "Negative findings are evidence too: what was checked and ruled out bounds the case." },
+      { value: "nothing", label: "Nothing. Records document findings, and a check that found nothing produced no finding." },
       { value: "escalate", label: "The real error came earlier: a persistence check at all means the case needed escalation." },
       { value: "summary", label: "Only the placement. Ruled-out checks belong in the appendix, not the main record." },
     ]}
     answer="negative"
     explanation="Omitting negative findings is one of the classic documentation pitfalls. 'Persistence checked: none found, here is what was examined' is what lets a reviewer trust the closure, lets the case re-open without re-doing the work, and defends the analyst if persistence later surfaces through a gap the check could not see. A record that only lists positive findings reads as an investigation that never looked."
+    source={{ href: "/docs/documentation/pitfalls/#common-failure-modes", label: "Documentation pitfalls: common failure modes" }}
   />
 
   <QuizItem
     prompt="An analyst pulls a suspicious binary off a host into a personal scratch directory while working the case, then uploads it to the case-management system at close. What happened to the artifact?"
     options={[
-      { value: "fine",  label: "Nothing, as long as the file's contents did not change between acquisition and upload." },
-      { value: "break", label: "The chain of custody broke: a stretch of the artifact's history has no custodian, no re-verified hash, no access log." },
-      { value: "hash",  label: "It is fine if the analyst hashes the file at upload; the hash is what proves integrity." },
-      { value: "ir",    label: "Nothing at triage. Chain of custody is an IR responsibility that starts at escalation." },
+      { value: "fine",  label: "Nothing, as long as the file's contents did not change between acquisition and the upload." },
+      { value: "hash",  label: "It is fine if the analyst hashes the file at upload; that hash is what proves its integrity." },
+      { value: "ir",    label: "Nothing at triage. Chain of custody is IR's responsibility, and it only starts once the case escalates." },
+      { value: "break", label: "The chain of custody broke: nothing records who held the file, its hash, or access in that gap." },
     ]}
     answer="break"
-    explanation="The chain is the continuous, time-stamped trail from acquisition onward: identifier, acquisition details, every transfer with re-verification, access log, disposal. A personal scratch directory is one of the most common silent breaks, because for that stretch nobody can show who touched the file. A hash at upload proves nothing about the gap before it; the hash has to be recorded at acquisition and re-verified at each move. In practice a gap usually goes to the weight the evidence carries rather than automatic exclusion, but it invites challenge. And custody starts at acquisition, not escalation: if the case might end with IR or external counsel, treat every artifact as evidence from the moment it is collected."
+    explanation="The chain is the continuous, time-stamped trail from acquisition onward: identifier, acquisition details, every transfer with re-verification, access log, disposal. A personal scratch directory is one of the most common silent breaks: the analyst held the file the whole time, but nothing documents that stretch. A hash at upload proves nothing about the gap before it; the hash has to be recorded at acquisition and re-verified at each move. In practice a gap usually goes to the weight the evidence carries rather than automatic exclusion, but it invites challenge. And custody starts at acquisition, not escalation: if the case might end with IR or external counsel, treat every artifact as evidence from the moment it is collected."
     hint="What can the analyst prove about the file's history during the scratch-directory stretch?"
+    source={{ href: "/docs/documentation/standards/#chain-of-custody", label: "Documentation standards: chain of custody" }}
   />
 
   <QuizItem
     prompt="A closure record includes full log excerpts containing customer PII, on the reasoning that the excerpts are the evidence. What does the standard say?"
     options={[
-      { value: "keep",     label: "Keep them. Inside a security system of record, completeness beats privacy." },
-      { value: "sanitize", label: "Sanitize what the record does not need. A record can be complete and still be a data exposure." },
-      { value: "prose",    label: "Drop the excerpts and describe them in prose; raw logs never belong in the record." },
-      { value: "encrypt",  label: "Encrypt the record at rest, which makes the PII question moot." },
+      { value: "keep",     label: "Keep them. Inside a security system of record, completeness outranks the privacy question." },
+      { value: "prose",    label: "Drop the excerpts and describe them in prose; raw logs never belong in the record at all." },
+      { value: "sanitize", label: "Sanitize what it does not need: a record can be complete and still be a data exposure." },
+      { value: "encrypt",  label: "Encrypt the record at rest; once it is encrypted, the PII question no longer applies." },
     ]}
     answer="sanitize"
-    explanation="Sanitization mistakes are a named pitfall: a record holding PII, regulated data, or sensitive operational detail that should not live in the documentation system is complete and unusable for compliance reasons at the same time. The appendix standard is log excerpts sanitized as needed, with the originals preserved under access control and chain of custody where they belong. Dropping the evidence entirely fails in the other direction, and encryption at rest does not change who can read the record through the system it lives in."
+    explanation="Sanitization mistakes are a named pitfall: a record that copies PII, regulated data, or sensitive operational detail into places that do not need it is complete and a data exposure at the same time. The appendix standard is log excerpts sanitized as needed, with the originals preserved under access control and chain of custody where they belong. Dropping the evidence entirely fails in the other direction, and encryption at rest does not change who can read the record through the system it lives in."
+    source={{ href: "/docs/documentation/pitfalls/#common-failure-modes", label: "Documentation pitfalls: common failure modes" }}
   />
 
   <QuizItem
-    prompt="A record reads: 'PowerShell spawned from winword.exe at 09:11 UTC, indicating macro-based initial access.' What does the clarity standard say about this sentence?"
+    prompt="A record reads: 'powershell.exe (parent explorer.exe) started at 09:11:41 UTC on laptop-finance-09, one second after a RunMRU write, indicating paste-and-run initial access.' What does the clarity standard say about this sentence?"
     options={[
       { value: "good",    label: "It is exactly right. One sentence carrying observation and conclusion is efficient documentation." },
-      { value: "split",   label: "Split and label the halves: the process event is a fact, the initial-access reading is analysis." },
-      { value: "fact",    label: "Delete the second half. Analysis belongs to IR; triage records facts only." },
-      { value: "passive", label: "The problem is voice, not content. Rewrite it in passive voice for objectivity." },
+      { value: "split",   label: "Split and label it: the process event is a fact, the initial-access reading is analysis." },
+      { value: "fact",    label: "Delete the second half. Analysis belongs to IR, and a triage record holds facts only." },
+      { value: "passive", label: "The problem is voice, not content: rewrite it in the passive voice for objectivity." },
     ]}
     answer="split"
     explanation="The first half is a fact: observable, timestamped, checkable against telemetry. The second half is analysis, a reading of the fact that could change. The standard asks for both, labeled as which is which, so a reviewer can revisit the analysis when new evidence lands without re-litigating the facts. Fused together, a wrong conclusion contaminates a correct observation. Triage records absolutely include analysis (that reasoning is what the replay test depends on), and the voice rule points the other way: active voice, naming who did what."
+    source={{ href: "/docs/documentation/standards/#clarity", label: "Documentation standards: clarity and precision" }}
   />
 
   <QuizItem
     prompt="A closed case record contains a flawless technical timeline and nothing else. Who is left unserved?"
     options={[
       { value: "nobody", label: "Nobody. The timeline is the record; every other audience can derive what they need from it." },
-      { value: "audiences", label: "Most non-analyst readers: executives, auditors, and trainers each need a layer beyond raw events." },
       { value: "ir", label: "Only incident response, because a timeline without containment steps cannot be actioned." },
-      { value: "legal", label: "Only legal, because a timeline without chain-of-custody entries is inadmissible evidence." },
+      { value: "legal", label: "Only legal, because a timeline without chain-of-custody entries is inadmissible as evidence in court." },
+      { value: "audiences", label: "Nearly every later reader: a timeline alone has no verdict, scope, business impact, or rationale." },
     ]}
     answer="audiences"
-    explanation="The standards page asks records to serve multiple audiences: the technical timeline serves the next analyst, but an executive needs the business-impact translation, an auditor needs the decision rationale and approvals, and a trainer needs the reasoning that connects evidence to verdict. Each layer is short; what matters is that the record is written knowing that most of its future readers are not the analyst who wrote it."
+    explanation="The standards page names the readers: the timeline and origin-and-scope sections carry the next analyst, while business impact and lessons learned carry leadership and auditors. A timeline alone gives the next analyst only part of the investigation, and gives an executive, auditor, or trainer almost nothing: no business-impact translation, no decision rationale or approvals, no reasoning that connects evidence to verdict. Each layer is short; what matters is that the record is written knowing that most of its future readers are not the analyst who wrote it."
+    source={{ href: "/docs/documentation/standards/#format", label: "Documentation standards: format and structure" }}
   />
 
   <QuizItem
     prompt="When in the lifecycle should Documentation begin?"
     options={[
-      { value: "end", label: "At the end of the case. D is the seventh phase, and phases run in order." },
-      { value: "escalation", label: "At Escalation, once the case is confirmed real and a record is worth keeping." },
       { value: "alert", label: "At Alert. The record is built continuously; the final phase finalizes it." },
+      { value: "end", label: "At the end of the case. D is the seventh phase, and phases run in order." },
+      { value: "escalation", label: "At the Escalation decision, once the case is confirmed real and worth a record." },
       { value: "risk", label: "At Risk, once the verdict exists to structure the record around." },
     ]}
     answer="alert"
     explanation="D is the closure gate for a record built continuously from Alert. Observations, decisions, and actions are captured in real time as each phase runs; the Documentation phase is where that living record is finalized into the durable, audit-quality artifact. Delaying the writing until after resolution loses detail and invites post-hoc rationalization, the exact failure the pitfalls page opens with."
+    source={{ href: "/docs/documentation/standards/#timeliness", label: "Documentation standards: timeliness" }}
+  />
+
+  <QuizItem
+    prompt="A decision header labels the whole case 'High confidence'. The execution chain is corroborated by two independent sources; the attribution rests on a single hash match. What does the confidence rubric object to?"
+    options={[
+      { value: "round", label: "Nothing that rounding cannot fix: drop the whole case to Medium to stay conservative." },
+      { value: "likelihood", label: "The label is redundant: confidence is already captured in the likelihood rating." },
+      { value: "claims", label: "Label the claims, not the case: the chain is High and the attribution is Low." },
+      { value: "none", label: "Nothing. High is right, because the strongest evidence in the case sets the label." },
+    ]}
+    answer="claims"
+    explanation="The rubric's first rule is to label the claim, not the case. A record usually carries several claims at different confidence levels, and one case-level label hides exactly what the next reader needs: here the execution chain is High (direct, corroborated, alternatives ruled out) and the attribution is Low (one indicator). Rounding the whole case down hides the same information in the other direction. And confidence is recorded beside likelihood, not folded into it: likelihood is how probable it is that the activity is malicious, confidence is how well the evidence supports that judgment."
+    hint="How many different claims does this record make?"
+    source={{ href: "/docs/documentation/standards/#confidence", label: "Documentation standards: the confidence rubric" }}
+  />
+
+  <QuizItem
+    prompt="A benign true positive closes on a signed vendor binary. Where and how should the binary's hash be recorded?"
+    options={[
+      { value: "omit", label: "Leave it out. A benign close has no indicators, so the hash has no place in the record." },
+      { value: "known", label: "In section 06, marked known-good, so it feeds the allowlist and never the IOC feed." },
+      { value: "ioc", label: "In section 06 as an indicator of compromise, so future hunts find every host running it." },
+      { value: "appendix", label: "Only in the appendix log excerpts, where analysts will find it if the alert fires again." },
+    ]}
+    answer="known"
+    explanation="Section 06 is Indicators and observables, and every entry carries a disposition: malicious, suspicious, or known-good. A hash filed without that label tends to migrate into the intel platform, a blocklist, or a hunt query, and then every developer running the same signed tool matches a 'known incident artifact.' Leaving it out loses evidence the close rests on, and burying it in an appendix hides it from the correlation that should find it. Recording it as known-good keeps it findable and routes it to the allowlist or warninglist."
+    source={{ href: "/docs/documentation/standards/#format", label: "Documentation standards: format and structure" }}
+  />
+
+  <QuizItem
+    prompt="A Level 1 case on one ordinary-privilege host closes as benign-confirmed after a 25-minute pass. No pattern entry covers it. The analyst opens the nine-section event report to write it up. What does the template guidance say?"
+    options={[
+      { value: "event", label: "Keep it: every close gets the nine-section report, whatever depth the case ran at." },
+      { value: "five", label: "Use the five-field pattern-close record, since a benign close is what Level 0 records." },
+      { value: "alert", label: "Use the alert report, written as the case ran and finalized at close." },
+      { value: "none", label: "No template is needed: a benign Level 1 close only needs the ticket's close code." },
+    ]}
+    answer="alert"
+    explanation="Depth decides the artifact. Level 1 uses the alert report, written as you go and finalized at close, with the verdict on both axes and the reasoning behind the close. The nine-section event report is for Level 2 cases and every escalation. The five-field record needs a matching, current pattern entry, which this case does not have. And a bare close code is the 'just a false positive' shrug the methodology refuses: every close, at every depth, leaves a record someone can replay."
+    hint="Which depth did the case run at, and which artifact goes with it?"
+    source={{ href: "/docs/documentation/templates/#copy-ready-templates", label: "Documentation templates: copy-ready templates" }}
   />
 
 </Quiz>

@@ -1,6 +1,7 @@
 ---
 title: "Correlation and the timeline"
 description: "The verb at the center of Uncover: join keys, clock skew, timeline construction, pivot discipline, and the rules for stopping."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -9,30 +10,20 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/uncover.css";
 
 <SubPageHero
   phase="uncover"
-  parentLetter="U"
-  pillarIndex="02"
-  pillarTotal="05"
-  chapterHref="/docs/uncover/"
-  chapterLabel="Uncover"
   lede="Sources, intel, vocabulary, and tools are nouns. Correlation is the verb: joining events across sources into one ordered, confidence-labeled timeline, pivoting with discipline, and knowing when to stop."
 />
 
-<PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
-]}/>
+<PillNav chapter="uncover" />
 
-The data-sources page tells you where evidence lives. This page teaches what you actually do with it: the mechanics behind sentences like "firewall logs show outbound TLS at 09:11:43, exactly correlated with the PowerShell PID." That correlation did not happen by staring. It happened because two events shared a join key, their clocks were trustworthy enough to order them, and the analyst was testing a specific hypothesis when they ran the query.
+The data-sources page tells you where evidence lives. This page teaches what you actually do with it: the mechanics behind sentences like "proxy logs show the connection to invoice-records[.]example at 09:11:43, joined to the PowerShell process on host, source port, and time." That correlation did not happen by staring. It happened because two events shared a join key, their clocks were trustworthy enough to order them, and the analyst was testing a specific hypothesis when they ran the query.
 
 ## Join keys: how two events meet
 
-Two events from different sources correlate when they share an identifier inside a plausible time window. These are the keys, and each has a trap:
+Two events from different sources correlate when they share an identifier inside a plausible time window. "Plausible" is a number you state, not a feeling: seconds for sources on the same host or the same network path, a minute or more across organizations or vendors whose clocks you do not control, and always written in the case file. These are the keys, and each has a trap:
 
 <div class="joinkey-grid">
   <div class="joinkey-card">
@@ -42,45 +33,73 @@ Two events from different sources correlate when they share an identifier inside
   </div>
   <div class="joinkey-card">
     <h3>User</h3>
-    <p>Account name or directory SID joins authentication, endpoint, email, and SaaS events.</p>
+    <p>Account name or directory SID joins authentication, endpoint, email, and SaaS events. Prefer immutable IDs (AD objectGUID or SID, Entra object ID, Okta user ID) over UPNs, which change on rename, and map each namespace (directory account, UPN, IdP user ID, SaaS principal) once in the case file.</p>
     <p class="joinkey-card__trap"><strong>Trap:</strong> the account is not the person. Shared accounts, service accounts, and a second account for the same human all break the assumption. Subject-phase entity work is what keeps this join honest.</p>
   </div>
   <div class="joinkey-card">
     <h3>Process</h3>
     <p>PID plus host plus time window joins an EDR process event to the network connections and file writes it caused.</p>
-    <p class="joinkey-card__trap"><strong>Trap:</strong> PIDs are recycled. A PID is only unique per boot, per host, while the process lives. Prefer the EDR's globally unique process identifier when the console exposes one.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> PIDs are recycled. A PID is only unique per boot, per host, while the process lives. Prefer the EDR's globally unique process identifier when the console exposes one (Sysmon ProcessGuid, Elastic process.entity_id, CrowdStrike TargetProcessId/ContextProcessId).</p>
   </div>
   <div class="joinkey-card">
     <h3>Logon and session IDs</h3>
     <p>Windows logon IDs, IdP session IDs, and cloud session names tie every action inside one session to the authentication that started it.</p>
-    <p class="joinkey-card__trap"><strong>Trap:</strong> sessions outlive credential changes. A reset password does not kill an already-issued session token, so "we reset the account" does not end this join.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> sessions outlive credential changes. A password reset does not reliably end existing sessions. Depending on the identity provider and how the session was established, some refresh tokens and session cookies are revoked, but already-issued access tokens live until expiry, non-password-based tokens can survive, and third-party SaaS sessions are not touched at all. "We reset the account" does not end this join; "we revoked sessions everywhere and verified" might. The <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a> lists what to check.</p>
   </div>
   <div class="joinkey-card">
     <h3>Network tuple</h3>
     <p>Source IP:port to destination IP:port, inside a time window, joins host telemetry to firewall, proxy, and flow logs.</p>
-    <p class="joinkey-card__trap"><strong>Trap:</strong> proxies and NAT collapse many hosts into one source IP. The proxy log, not the firewall log, holds the original client.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> proxies and NAT collapse many hosts into one source IP. Behind a proxy, the proxy log holds the original client; behind NAT, the translating device's session log does (usually the firewall itself, which records pre- and post-NAT source). Logs further downstream see only the shared address.</p>
   </div>
   <div class="joinkey-card">
     <h3>Artifact hash</h3>
     <p>A file hash joins sightings across every host and the sandbox report, regardless of filename.</p>
-    <p class="joinkey-card__trap"><strong>Trap:</strong> ubiquity cuts both ways. A hash seen on 4,000 hosts is probably a legitimate binary being abused, not 4,000 infections. Prevalence is context, not a verdict.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> ubiquity cuts both ways. A hash seen on 4,000 hosts is probably a legitimate binary being abused, not 4,000 infections. Prevalence is context, not a verdict. And absence cuts too: per-victim builds change the hash, so pivot on fuzzy and structural hashes (imphash, ssdeep, TLSH) or on behavior before calling a sample unique.</p>
+  </div>
+  <div class="joinkey-card">
+    <h3>Message, request, and credential IDs</h3>
+    <p>The Internet Message-ID joins the email gateway, the mailbox audit, and the user's report of the same message. Cloud request IDs tie an API call to its errors and follow-on events. An AWS accessKeyId shows whether a call used temporary credentials (ASIA…) or a long-term key (AKIA…). Device IDs join the IdP, MDM, and EDR views of one machine.</p>
+    <p class="joinkey-card__trap"><strong>Trap:</strong> these keys name an artifact, not an actor. Every call a key makes shares its ID, and a sender controls the Message-ID it writes. Pair them with a session or host key before you attribute an action to someone.</p>
   </div>
 </div>
+
+A join written down looks like this: the EDR network event for the PowerShell process matched to the proxy's record of the same connection, on host and client source port, inside a stated window. The syntax is pseudo-KQL; the shape is the same in SPL or SQL.
+
+<pre><code>{`// EDR network events for the suspect process, joined to proxy logs
+edr_network
+| where host == "laptop-finance-09" and process_id == 8128
+| join kind=inner (proxy_logs | where client_host == "laptop-finance-09")
+    on $left.local_port == $right.client_port
+| where abs(datetime_diff('second', edr_time, proxy_time)) <= 2   // window: 2 s, same host
+| project edr_time, proxy_time, process_name, local_port, request, bytes_out, bytes_in`}</code></pre>
+
+The same shape joins identity to activity. In the replayed-session case (Case C), the identity provider's sign-in log and the tenant audit log meet on the session ID, and a session that acts from a network other than the one it signed in from is the replay:
+
+<pre><code>{`// IdP interactive sign-ins for the account, joined to tenant audit events on session ID
+idp_signins
+| where user == "rvega" and event_type == "interactive"
+| join kind=inner (tenant_audit | where user == "rvega") on session_id
+| where audit_client_ip != signin_ip      // same session, different network
+| project session_id, signin_time, signin_ip, audit_time, audit_client_ip, operation`}</code></pre>
+
+Run against the case, it returns session S2: issued at 08:53:37 through the proxy address, then acting from 198.51.100.77 from 09:06 onward. One join, two sources, and the replay is a corroborated row rather than a single-source suspicion.
+
+Joins at scale depend on normalization: a schema such as OCSF, ECS, ASIM, or UDM gives the same entity the same field name across sources, which is what lets one query join them.
 
 ---
 
 ## Clock skew: order is evidence, and clocks lie
 
-Whether the login preceded the download or followed it can decide a verdict, so the ordering itself is evidence, and it is only as good as the clocks that produced it.
+Whether the login preceded the download or followed it can decide a verdict, so the ordering itself is evidence, and it is only as good as the clocks that produced it. Practice: <a href="/docs/labs/#lab-3">Lab 3</a> has a host log and a packet capture of the same exchange exactly five hours apart.
 
 <div class="clock-rules">
   <div class="clock-rule">
     <span class="clock-rule__num">01</span>
-    <p><strong>Normalize everything to UTC first.</strong> Appliances log local time, cloud logs UTC, endpoints follow their user's timezone. A timeline mixing conventions manufactures false sequences. Convert at the moment you copy the event out, not later.</p>
+    <p><strong>Normalize everything to UTC first.</strong> Sources disagree about what a timestamp means. Classic syslog (RFC 3164) records device local time with no timezone and no year. Windows event logs store UTC, but Event Viewer and many exports display local time. Cloud audit logs are usually UTC. Daylight-saving changes repeat or skip an hour. A timeline mixing conventions manufactures false sequences. Convert at the moment you copy the event out, not later, and note the source's original zone.</p>
   </div>
   <div class="clock-rule">
     <span class="clock-rule__num">02</span>
-    <p><strong>Use event time, not ingest time.</strong> The SIEM's index timestamp records when the log arrived, and forwarders batch, retry, and fall behind. Sorting by ingest time can order a Tuesday event after a Wednesday one.</p>
+    <p><strong>Use event time, not ingest time.</strong> The SIEM's index timestamp records when the log arrived, and forwarders batch, retry, and fall behind. Sorting by ingest time can order a Tuesday event after a Wednesday one. Know the field names: Splunk <code>_time</code> versus <code>_indextime</code>; Microsoft Sentinel <code>TimeGenerated</code> versus <code>ingestion_time()</code> (for some custom tables <code>TimeGenerated</code> is the ingestion time unless a transform sets it); Elastic <code>@timestamp</code> versus <code>event.ingested</code>. If event time equals ingest time on every row, the parser failed and you are looking at arrival order. <a href="/docs/cases/case-d/#alert-an-arrival-not-a-burst">Case D</a> shows what this looks like in an alert: seven hours of sign-ins arriving in 54 seconds.</p>
   </div>
   <div class="clock-rule">
     <span class="clock-rule__num">03</span>
@@ -100,25 +119,28 @@ Correlated evidence goes into one place: a running timeline you build as you inv
 
 Every entry carries the same fields:
 
-<div class="timeline-shape">
-  <div class="timeline-shape__row timeline-shape__row--head">
-    <span>Time (UTC)</span><span>Source</span><span>Entity</span><span>What happened</span><span>Confidence</span>
-  </div>
-  <div class="timeline-shape__row">
-    <span>09:02:11</span><span>Email gateway</span><span>dlin</span><span>Delivery of invoice-themed message with attachment</span><span>Confirmed</span>
-  </div>
-  <div class="timeline-shape__row">
-    <span>09:11:41</span><span>EDR</span><span>laptop-finance-09</span><span>powershell.exe spawned with encoded command</span><span>Confirmed</span>
-  </div>
-  <div class="timeline-shape__row">
-    <span>09:11:43</span><span>Firewall</span><span>laptop-finance-09</span><span>Outbound TLS to newly registered domain, joined on host + time to the PowerShell PID</span><span>Corroborated</span>
-  </div>
-  <div class="timeline-shape__row">
-    <span>09:23 onward</span><span>(none)</span><span>cloud finance platform</span><span>No in-app telemetry yet: vendor logs requested but not landed, a gap, not verified quiet</span><span>Gap</span>
-  </div>
+<div class="corr-table-wrap">
+<table class="corr-table corr-table--timeline">
+  <caption>Timeline rows from the finance case (Case A)</caption>
+  <thead>
+    <tr><th scope="col">Time (UTC)</th><th scope="col">Source</th><th scope="col">Entity</th><th scope="col">What happened</th><th scope="col">Provenance</th><th scope="col">Confidence</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">09:02:11</th><td>Email gateway</td><td>dlin</td><td>Delivery of invoice-themed message with a link to the domain</td><td>Single-source</td><td>MEDIUM</td></tr>
+    <tr><th scope="row">09:10:06</th><td>Web proxy</td><td>laptop-finance-09</td><td>Browser connection to the same domain, 95 seconds before PowerShell, joined to chrome.exe on host, client source port, and time</td><td>Corroborated</td><td>HIGH</td></tr>
+    <tr><th scope="row">09:11:41</th><td>EDR</td><td>laptop-finance-09</td><td>powershell.exe spawned with encoded command</td><td>Single-source</td><td>MEDIUM</td></tr>
+    <tr><th scope="row">09:11:43</th><td>Web proxy</td><td>laptop-finance-09</td><td>Connection to a newly registered domain, 18,432 bytes in, joined to the EDR network event for the PowerShell PID on host, client source port, and time</td><td>Corroborated</td><td>HIGH</td></tr>
+    <tr><th scope="row">10:41:07</th><td>Identity provider</td><td>dlin</td><td>Sign-in to the cloud finance platform from 198.51.100.23 on dlin's existing session; no MFA prompt; user agent does not match</td><td>Corroborated</td><td>HIGH</td></tr>
+    <tr><th scope="row">10:41:07 onward</th><td>(none)</td><td>cloud finance platform</td><td>No in-app telemetry after the replayed sign-in: vendor logs requested but not landed. This is a gap, not verified quiet.</td><td>Gap</td><td>(no label: open question)</td></tr>
+  </tbody>
+</table>
 </div>
 
-Three habits make the artifact trustworthy. Label provenance on every row: confirmed by the source, corroborated across sources, single-source, or inferred. Those labels map onto the shared LOW/MEDIUM/HIGH confidence rubric the <a href="/docs/uncover/transition/">transition page</a> demands at handoff. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion; "attacker exfiltrated data" is a hypothesis, "7.2 GB outbound to unknown host over 40 minutes" is an event.
+Three habits make the artifact trustworthy. Label provenance on every row (corroborated, single-source, inferred, or gap), then map it onto the shared <a href="/docs/documentation/standards/#confidence">confidence rubric</a>: corroborated by an independent source with the alternatives tested is HIGH; a single trusted source or strong inference is MEDIUM; circumstantial inference is LOW; a gap gets no label and becomes an open question, which under Risk's unknown-is-not-Low rule lowers confidence rather than likelihood. That is the same scale the handoff to Risk uses, so each row's label travels with it. Record gaps as rows: "no telemetry between X and Y" is a finding, and hiding it makes the narrative look more complete than the evidence is. And never let a row smuggle in a conclusion: "attacker exfiltrated data" is a hypothesis; "7.2 GB outbound to an unknown host over 40 minutes" is an event.
+
+Any tool that keeps these fields will do: the case-management system's timeline, a shared spreadsheet with these six columns, or a super-timeline tool such as Timesketch fed by Plaso when host artifacts run into the thousands. What matters is that it is one artifact, built as you go.
+
+One case, one timeline. When grouped alerts form a single case (the <a href="/docs/fast-path/#correlated-cases">correlated-cases rules</a>), every member's evidence lands on the same timeline and the same ledger, while each member alert keeps its own detection-axis verdict.
 
 ---
 
@@ -126,14 +148,26 @@ Three habits make the artifact trustworthy. Label provenance on every row: confi
 
 A pivot is a query run to test a hypothesis. That definition is the discipline: if you cannot name the hypothesis your current query tests, you are browsing, not investigating.
 
-The working tool is a hypothesis ledger kept next to the timeline. Each hypothesis gets a line: what you think happened, the evidence for it, the evidence against it, and its status.
+The working tool is a hypothesis ledger kept next to the timeline. Each hypothesis gets a line: what you think happened, the evidence for it, the evidence against it, and its status. Open every ledger with at least two hypotheses, one of them the most plausible benign explanation, so the first query has something to discriminate between: a ledger with one line is a conclusion, not a test. A hunt finding arrives with its first line already written (see <a href="/docs/alert/intake/#hunt-findings">Other intake</a>). The ledger below is the finance case's as it stood at 10:35 UTC, before the identity pull.
 
-<div class="ledger-demo">
-  <div class="ledger-row ledger-row--head"><span>Hypothesis</span><span>For</span><span>Against</span><span>Status</span></div>
-  <div class="ledger-row"><span>Macro in the attachment launched the PowerShell stage</span><span>winword.exe parent; decode matches cradle</span><span></span><span class="ledger-status ledger-status--supported">Supported</span></div>
-  <div class="ledger-row"><span>Attacker moved laterally to a second host</span><span></span><span>No new logons from host; no SMB/WMI to peers in window</span><span class="ledger-status ledger-status--refuted">Refuted</span></div>
-  <div class="ledger-row"><span>Cloud finance session was attacker-driven</span><span>Timing proximity to C2</span><span>No token-theft evidence yet</span><span class="ledger-status ledger-status--open">Open</span></div>
+<div class="corr-table-wrap">
+<table class="corr-table corr-table--ledger">
+  <caption>Hypothesis ledger, finance case, 10:35 UTC</caption>
+  <thead>
+    <tr><th scope="col">Hypothesis</th><th scope="col">For</th><th scope="col">Against</th><th scope="col">Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Benign: an admin script, or a command IT support gave dlin, launched PowerShell</th><td>(none recorded)</td><td>No prior PowerShell from this account (baseline checked); no admin script or scheduled task explains the launch; no open help-desk ticket for dlin; the decoded command pulls from a four-day-old domain</td><td><span class="ledger-status ledger-status--refuted">Refuted</span></td></tr>
+    <tr><th scope="row">A command pasted from the lure page launched the PowerShell stage</th><td>explorer.exe → powershell.exe lineage; RunMRU value with the same command line written one second before the launch; browser visit to the same domain 95 seconds earlier; decoded command matches the cradle</td><td>None found: no prior PowerShell from this account (baseline checked); no admin script or scheduled task explains the launch</td><td><span class="ledger-status ledger-status--supported">Supported</span></td></tr>
+    <tr><th scope="row">Attacker moved host to host from laptop-finance-09</th><td>(none recorded)</td><td>No new logons from the host; no SMB, WMI, RDP, WinRM, or SSH to peers in window</td><td><span class="ledger-status ledger-status--refuted">Refuted</span></td></tr>
+    <tr><th scope="row">dlin's session tokens were taken and used</th><td>Stage has run as dlin with live C2 since 09:11; 09:19:40 upload far larger than a beacon</td><td>No sign-in from outside the laptop as of 09:33; identity pull not yet run</td><td><span class="ledger-status ledger-status--open">Open</span></td></tr>
+  </tbody>
+</table>
 </div>
+
+Refuted on the third line means host-to-host movement only. The identity pivot into the cloud finance platform (ATT&CK T1550.004, which ATT&CK files under Lateral Movement) has its own line, the open one, and it is the movement the escalation criteria count once it is confirmed.
+
+Weigh evidence by diagnosticity, not volume. Evidence that fits every hypothesis (PowerShell ran during business hours, on a finance laptop) moves nothing; evidence that fits only one (a sign-in whose user agent does not match dlin's browser) moves a lot. Before you run a query, name the result that would separate two lines of the ledger; a query whose every possible result fits all of them can wait. The ledger is Analysis of Competing Hypotheses scaled to triage speed; the <a href="/docs/positioning/">positioning page</a> credits the source.
 
 <div class="pivot-rules">
   <div class="pivot-rule">
@@ -142,15 +176,15 @@ The working tool is a hypothesis ledger kept next to the timeline. Each hypothes
   </div>
   <div class="pivot-rule">
     <span class="pivot-rule__bullet"></span>
-    <div><strong>Negative results get recorded.</strong> "Queried DNS logs for the domain across the fleet, zero other hosts" moves a hypothesis to refuted and defends the close later. An unrecorded negative result is work that evaporates.</div>
+    <div><strong>Negative results get recorded.</strong> "Queried proxy and DNS logs for the domain across the fleet (control query against a known-visited domain returned hits): zero other hosts" moves a hypothesis to refuted and defends the close later. The control query matters: behind an explicit proxy, clients never resolve the destination themselves, so client DNS logs would be empty either way. An unrecorded negative result is work that evaporates.</div>
   </div>
   <div class="pivot-rule">
     <span class="pivot-rule__bullet"></span>
-    <div><strong>Refuted stays in the ledger.</strong> The hypothesis you killed is part of the deliverable, the same doctrine that makes a false-positive close a finding rather than a shrug. The Risk phase needs to see what was ruled out, not just what survived.</div>
+    <div><strong>Refuted stays in the ledger.</strong> The hypothesis you killed is part of the deliverable, the same doctrine that makes a benign close a finding rather than a shrug. The Risk phase needs to see what was ruled out, not just what survived.</div>
   </div>
   <div class="pivot-rule">
     <span class="pivot-rule__bullet"></span>
-    <div><strong>New leads become hypotheses, not detours.</strong> Something interesting but unrelated to any open hypothesis gets one ledger line and no queries yet. It is triaged like everything else, not chased because it sparkled.</div>
+    <div><strong>New leads become hypotheses, not detours.</strong> A lead that bears on this case gets one ledger line and no queries yet; it is triaged like everything else, not chased because it sparkled. A curiosity that does not bear on this case goes to the hunt backlog.</div>
   </div>
 </div>
 
@@ -162,235 +196,42 @@ The intro names rabbit-holes as a defining junior failure, and Uncover is where 
 
 <div class="stop-grid">
   <div class="stop-card">
-    <h3>🧱 The Scope boundary holds</h3>
+    <h3>The Scope boundary holds</h3>
     <p>The entity, time, and infrastructure lines drawn in the Scope phase are the outer wall. Evidence pointing past them is grounds for a documented scope expansion decision, not silent drift into new territory.</p>
   </div>
   <div class="stop-card">
-    <h3>📉 Marginal return</h3>
-    <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is going dry — two empty pivots on the same hypothesis is the cue to run the dry-thread checklist below. An empty result only counts as evidence of absence after the checklist says the emptiness is real.</p>
+    <h3>Marginal return</h3>
+    <p>When consecutive pivots stop producing rows for the timeline or movement in the ledger, that thread is going dry: two empty pivots on the same hypothesis are the cue to run the dry-thread checklist below. An empty result only counts as evidence of absence after the checklist says the emptiness is real.</p>
   </div>
   <div class="stop-card">
-    <h3>⚖️ Verdict stability</h3>
-    <p>When new evidence no longer changes any hypothesis status, Uncover has done its job. More queries buy confidence theater, not confidence. Write the narrative and hand off to Risk.</p>
+    <h3>Verdict stability</h3>
+    <p>When every hypothesis that could change Risk's rating or recommended move is supported, refuted, or recorded as a gap, and the last pivots moved nothing, Uncover has done its job. More queries buy confidence theater, not confidence. Write the narrative and hand off to Risk.</p>
   </div>
   <div class="stop-card">
-    <h3>🚨 An escalation trigger fires</h3>
-    <p>Hitting an escalation criterion ends Uncover immediately, mid-thread if necessary. Confirmed active compromise belongs to incident response; continuing to dig solo delays the people who own containment.</p>
+    <h3>An escalation criterion is confirmed</h3>
+    <p>A confirmed escalation criterion ends solo Uncover immediately, mid-thread if necessary: escalate under the escalation tripwire. From then on IR owns the case; the analyst works the open hypotheses only as IR-assigned scoping support, on IR's clock and questions. A suspected criterion becomes an open hypothesis and a Scope question, not a stop. Confirmed active compromise belongs to incident response; continuing to dig solo delays the people who own containment.</p>
   </div>
 </div>
 
 <Callout variant="warn" title="Before you call a thread dry: four checks">
-An empty pivot is only meaningful if the query could have found something. Before closing a hypothesis on empty results, confirm: <strong>(1) Query validity</strong> — the query ran without error and returns rows for a known-good control (the same query against an entity that definitely has activity). A silently wrong field name looks identical to a clean host. <strong>(2) Telemetry coverage</strong> — the source actually collects for this entity over this window: sensor healthy, log source onboarded, retention reaches back far enough. A coverage gap is a finding to record, not an absence of activity. <strong>(3) Alternatives</strong> — the remaining plausible route for the hypothesis has been queried, not just the first one (a different source, join key, or window that could also confirm it). <strong>(4) Consequence</strong> — what closing this thread wrongly would cost. On a high-impact subject, unresolved uncertainty does not close quietly: record the gap and route it through Risk's override rules, where unknown is not Low. Two empty pivots plus these four checks is a defensible stop. Two empty pivots alone is a guess.
+<p>An empty pivot is only meaningful if the query could have found something. Before closing a hypothesis on empty results, confirm:</p>
+<ol>
+  <li><strong>Query validity:</strong> the query ran without error and returns rows for a known-good control (the same query against an entity that definitely has activity). A silently wrong field name looks identical to a clean host.</li>
+  <li><strong>Telemetry coverage and depth:</strong> the source collects for this entity across this whole window. The sensor heartbeat is continuous, the log source is onboarded, and retention reaches back far enough. Silence can also be manufactured, so look for tampering (a cleared event log, Windows event 1102 or 104; a sensor that stopped checking in; CloudTrail StopLogging), the behaviors ATT&amp;CK files under Defense Impairment (TA0112). A coverage gap is a finding to record, not an absence of activity.</li>
+  <li><strong>Alternatives:</strong> the remaining plausible route for the hypothesis has been queried, not just the first one (a different source, join key, or window that could also confirm it).</li>
+  <li><strong>Consequence:</strong> what closing this thread wrongly would cost. On a high-impact subject, unresolved uncertainty does not close quietly: record the gap and route it through Risk's override rules, where unknown is not Low.</li>
+</ol>
+<p>Two empty pivots plus these four checks is a defensible stop. Two empty pivots alone is a guess.</p>
 </Callout>
 
 <Callout variant="info" title="The rabbit-hole test">
-At any moment you should be able to answer one question: which open hypothesis does the query on my screen test? A clear answer means you are investigating. No answer means you are exploring, and exploring during triage is time taken from the queue. Log the curiosity as a hunt idea and return to the ledger.
+At any moment you should be able to answer one question: which open hypothesis does the query on my screen test? A clear answer means you are investigating. No answer means you are exploring, and exploring during triage is time taken from the queue. If it bears on the case, give it a ledger line; if not, log it as a hunt idea. Either way, return to the ledger.
 </Callout>
 
-<Callout variant="info" title="See it run">
-The <a href="/docs/uncover/example/">Uncover worked example</a> is this page in motion: joins on host, PID, and session across EDR, firewall, DNS, and identity sources; negative results recorded; and a benign true positive closed with the same rigor as the intrusion.
-</Callout>
+The <a href="/docs/uncover/example/">Uncover worked example</a> is this page in motion: joins on host, source port, and session across EDR, proxy, identity, and tenant audit sources; negative results recorded; and a benign true positive closed with the same rigor as the intrusion.
 
 <KeyTakeaway>
 Correlation is joining events on real keys within honest clocks; the <DefineTerm term="Timeline" display="timeline" /> is the running, confidence-labeled artifact that holds it; the hypothesis ledger keeps every pivot pointed at a question; and the stopping rules end the phase on evidence rather than exhaustion. This is the verb the rest of the chapter's nouns exist to serve.
 </KeyTakeaway>
 
 <ContinueCard current="uncover" nextHref="/docs/uncover/threat-intelligence/" nextLabel="Threat intelligence" nextDescription="Indicator matching, attribution, TTP-driven hunting, validation. How to use intel as a hypothesis source, not a verdict." ctaLabel="Read threat intelligence" />
-
-<style>
-{`
-.joinkey-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px) { .joinkey-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1200px) { .joinkey-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.joinkey-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(249, 115, 22, 0.25);
-  border-top: 3px solid #f97316;
-  border-radius: 0.7rem;
-}
-/* level changed for the heading outline; size stays as designed */
-.joinkey-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
-.joinkey-card p { margin: 0 0 0.6rem 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.89rem; }
-.joinkey-card__trap {
-  margin: 0 !important;
-  padding: 0.65rem 0.9rem;
-  background: rgba(249, 115, 22, 0.07);
-  border: 1px dashed rgba(249, 115, 22, 0.35);
-  border-radius: 0.5rem;
-  font-size: 0.85rem !important;
-}
-.joinkey-card__trap strong { color: #fdba74; }
-
-.clock-rules {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-}
-.clock-rule {
-  display: flex;
-  gap: 1rem;
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f97316;
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-.clock-rule__num {
-  flex-shrink: 0;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #f97316, #c2410c);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.clock-rule p { margin: 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.92rem; }
-.clock-rule strong { color: var(--assured-text); }
-
-.timeline-shape {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 1.5rem 0;
-}
-.timeline-shape__row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.3rem;
-  padding: 0.8rem 1.1rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.5rem;
-  color: var(--assured-text-muted);
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-@media (min-width: 900px) {
-  .timeline-shape__row { grid-template-columns: 0.9fr 0.9fr 0.9fr 2.6fr 0.8fr; gap: 0.9rem; align-items: baseline; }
-}
-.timeline-shape__row--head {
-  display: none;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 1.1rem;
-}
-@media (min-width: 900px) {
-  .timeline-shape__row--head { display: grid; }
-  .timeline-shape__row--head span {
-    color: var(--assured-text-dim);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-}
-
-.ledger-demo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 1.5rem 0;
-}
-.ledger-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.3rem;
-  padding: 0.8rem 1.1rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.5rem;
-  color: var(--assured-text-muted);
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-@media (min-width: 900px) {
-  .ledger-row { grid-template-columns: 1.6fr 1.2fr 1.2fr 0.6fr; gap: 0.9rem; align-items: baseline; }
-}
-.ledger-row--head {
-  display: none;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 1.1rem;
-}
-@media (min-width: 900px) {
-  .ledger-row--head { display: grid; }
-  .ledger-row--head span {
-    color: var(--assured-text-dim);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-}
-.ledger-status {
-  display: inline-block;
-  padding: 0.14rem 0.55rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.ledger-status--supported { background: rgba(34, 197, 94, 0.15); color: #86efac; }
-.ledger-status--refuted   { background: rgba(148, 163, 184, 0.15); color: var(--assured-text-soft); }
-.ledger-status--open      { background: rgba(249, 115, 22, 0.15); color: #fdba74; }
-
-.pivot-rules {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 1.25rem 0;
-}
-.pivot-rule {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  padding: 1rem 1.25rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.6rem;
-}
-.pivot-rule__bullet {
-  flex-shrink: 0;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #f97316, #fdba74);
-  margin-top: 0.5rem;
-}
-.pivot-rule strong { color: var(--assured-text); }
-.pivot-rule div { color: var(--assured-text-muted); line-height: 1.55; font-size: 0.93rem; }
-
-.stop-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px) { .stop-grid { grid-template-columns: 1fr 1fr; } }
-
-.stop-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f97316;
-  border-radius: 0.7rem;
-}
-/* level changed for the heading outline; size stays as designed */
-.stop-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.98rem; font-weight: 600; line-height: inherit; }
-.stop-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-`}
-</style>

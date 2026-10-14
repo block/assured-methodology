@@ -1,267 +1,64 @@
 ---
 title: "Transition to Uncover"
 description: "What Scope leaves behind, and what Uncover picks up. The handoff that turns a boundary into a set of targeted questions."
+techVerified: "2026-10-13"
 ---
 
-import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
-import Reveal from "@/components/assured/Reveal.astro";
-import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/scope.css";
 
 <SubPageHero
   phase="scope"
-  parentLetter="S"
   pillarIndex="Transition"
-  pillarTotal="Scope to Uncover"
-  chapterHref="/docs/scope/"
-  chapterLabel="Scope"
   lede="Scope drew the formal boundary. Uncover steps into that boundary and starts pulling evidence. This page is the bridge: what to hand forward, how to frame the open questions, and what to leave behind."
 />
 
-<PillNav
-  chapter="scope"
-  label="Scope chapter"
-  items={[
-    { label: "Regulatory",     href: "/docs/scope/regulatory/",     phase: "scope" },
-    { label: "Time",           href: "/docs/scope/time/",           phase: "scope" },
-    { label: "Entity",         href: "/docs/scope/entity/",         phase: "scope" },
-    { label: "Infrastructure", href: "/docs/scope/infrastructure/", phase: "scope" },
-  ]}
-/>
-
-<Callout variant="info" title="Three phases complete. The next begins.">
-Alert answered <em>what fired</em>. Subject answered <em>who acted</em>. Scope answered <em>how much of this matters</em>. Uncover now answers <em>what actually happened inside those bounds</em>. The Scope-to-Uncover handoff is what stops Uncover from re-deriving the boundary instead of investigating within it.
-</Callout>
+<PillNav chapter="scope" />
 
 ## What Scope hands forward
 
-A Scope deliverable answers five questions Uncover needs before opening a query window.
+A one-page boundary statement. Start from the <a href="/templates/scope-boundary.md" download>scope-boundary.md</a> template; Case A's is filled in on the [worked example](/docs/scope/example/#case-a). It answers eight questions, so an analyst joining mid-case knows what is in, what is out, and what Uncover is looking for:
 
-<div class="handoff">
-  <div class="handoff-row">
-    <span class="handoff-row__num">01</span>
-    <div>
-      <h3>What threat type are we investigating?</h3>
-      <p>Determines which playbooks Uncover should reach for and which data sources are most relevant. A phishing-driven intrusion and a slow-burn insider produce very different Uncover workflows.</p>
-    </div>
-  </div>
-  <div class="handoff-row">
-    <span class="handoff-row__num">02</span>
-    <div>
-      <h3>What time window applies, and to which entities?</h3>
-      <p>Primary entities may get one window, secondary entities another, extended-look entities a third. Uncover queries reference these windows directly so the work stays inside the boundary.</p>
-    </div>
-  </div>
-  <div class="handoff-row">
-    <span class="handoff-row__num">03</span>
-    <div>
-      <h3>Which entities are in scope, at what depth?</h3>
-      <p>Full depth for primary entities. Baseline comparison for secondary. Out-of-scope entities documented explicitly so Uncover does not investigate them by accident.</p>
-    </div>
-  </div>
-  <div class="handoff-row">
-    <span class="handoff-row__num">04</span>
-    <div>
-      <h3>What regulatory and infrastructure constraints apply?</h3>
-      <p>Regulatory exposure assessed, with any notification clocks running in parallel under compliance ownership. Infrastructure gaps documented. Vendor or external-team requests in flight if needed.</p>
-    </div>
-  </div>
-  <div class="handoff-row">
-    <span class="handoff-row__num">05</span>
-    <div>
-      <h3>What questions does Uncover need to answer?</h3>
-      <p>The boundary says where to look; the questions say what to look for. Scope frames them explicitly, and the six standard question areas are covered in the next section.</p>
-    </div>
-  </div>
-</div>
+1. **Threat type:** which playbooks and data sources Uncover reaches for.
+2. **Windows:** primary, extended and forward, in UTC, each with its anchor event and a retention check.
+3. **Entities and sweeps:** primary at full depth, secondary at baseline, downstream and originating threat placed, sweeps as bounded queries, and what is out, each with its reason.
+4. **Constraints:** regulatory tags with candidate timestamps and the time each owner was engaged; named visibility gaps (a source the SOC cannot see is a gap, not an out-of-scope decision); requests in flight.
+5. **Open questions** for Uncover (below).
+6. **Escalation posture:** containment status and the findings that would fire the <a href="/docs/escalation/criteria/">escalation tripwire</a>. If it has fired, say so: IR owns the case.
+7. **Preservation:** what is held, hashed or paused, so Uncover knows what still exists.
+8. **Time box:** when Uncover converges, re-scopes, or pulls in a peer or tiers the case up (escalation to IR runs on the criteria and the matrix, not on elapsed time), sized from the <a href="/docs/scope/time/">time guidance</a>.
 
-<Callout variant="info" title="The Scope output is a one-page document">
-A good Scope deliverable fits on a page. <DefineTerm term="Threat" /> type, time windows, <DefineTerm term="Entity" display="entity" /> lists, constraints, open questions. Any analyst joining mid-investigation should be able to read that page and know what is in, what is out, and what Uncover is being asked to find without having to ask.
-</Callout>
+## Depth and the close path
 
----
+Scope never closes a case; the Escalation decision does, and a confirmed criterion is an early E decision from here as from any phase. A narrow boundary is what makes a fast, defensible close possible (Case B). Level 0 has no Scope step: the eligibility gate stands in for it. Level 1 compresses Scope to three lines inside the context sweep: the window and its anchor; the subject and what is excluded; any regulatory flag and named gap. Level 2 gets the full statement. The [depth ladder](/docs/fast-path/) only moves up.
 
 ## Framing the Uncover questions
 
-Uncover's depth comes from working through specific investigative questions, not from running broad queries and hoping. Scope frames those questions before the data is even pulled.
+Uncover's depth comes from specific questions, not broad queries: initial access; extent of compromise; persistence (including OAuth consent grants, mailbox rules, new MFA methods or devices, IDE extensions and MCP servers); lateral movement; data movement; and intent. Each open question in the statement should map to a query Uncover can run.
 
-<div class="questions-grid">
-  <div class="question-card">
-    <h3>🚪 Initial access</h3>
-    <p>How did the attacker get in? Phishing, credential theft, vulnerability exploit, supply chain, social engineering. The answer drives where Uncover looks first.</p>
-  </div>
-  <div class="question-card">
-    <h3>🗺️ Scope of compromise</h3>
-    <p>What systems were touched? What data was accessed? Uncover answers this by querying within the entity and time boundaries Scope set.</p>
-  </div>
-  <div class="question-card">
-    <h3>📌 Persistence</h3>
-    <p>Are persistence mechanisms still active? Scheduled tasks, services, registry run keys, cloud automation, dormant accounts. The question shapes containment timing.</p>
-  </div>
-  <div class="question-card">
-    <h3>🔄 Lateral movement</h3>
-    <p>Did the attacker move beyond the initial entry point? Across hosts, across identity boundaries, across cloud accounts. Drives the secondary-entity follow-up depth.</p>
-  </div>
-  <div class="question-card">
-    <h3>📤 Data movement</h3>
-    <p>Was data exfiltrated? To where? Often the last question to surface in time-pressured triage, and the one with the largest impact on regulatory and business outcomes.</p>
-  </div>
-  <div class="question-card">
-    <h3>🎯 Intent indicators</h3>
-    <p>What does the activity pattern suggest about the attacker's goal? Ransomware staging looks different from espionage looks different from fraud. Intent shapes the response posture.</p>
-  </div>
-</div>
+## A good handoff vs a bad one
 
----
+**Bad:** "Investigate everything around dlin's laptop. PCI may apply." **Good:** Case A's [boundary statement](/docs/scope/example/#case-a), with its most expensive line corrected. It records that the page had not gone out; it should read "escalation tripwire met at 09:24 (criterion 1); IR paged and owns the case; Uncover runs as scoping support."
 
-## Common Scope-to-Uncover failure modes
+## When Uncover hits the line
 
-A handoff can be done well in form and still fail in substance. Four patterns reduce the value of the work.
+Stop at the boundary, write the three-line justification (evidence, risk, required actions: the <a href="/docs/scope/entity/#scope-evolution-the-decision-tree">entity decision tree</a>), and extend the statement with a timestamp. Clearing works the same way: an entity the evidence clears leaves with its reason recorded. A confirmed criterion fires the escalation tripwire; suspicion only refines Scope.
 
-<div class="failure-grid">
-  <div class="failure-card">
-    <h3>🪞 Repeating instead of bounding</h3>
-    <p>The handoff document restates Subject's entity map without making the in-scope vs. out-of-scope call. Uncover inherits ambiguity instead of a boundary and ends up redoing the scoping work.</p>
-  </div>
-  <div class="failure-card">
-    <h3>📭 Missing the open questions</h3>
-    <p>Scope hands forward a clean boundary but no framing of what Uncover should look for. Uncover starts with broad queries instead of focused ones, burning time on data exploration the methodology already specified.</p>
-  </div>
-  <div class="failure-card">
-    <h3>🚧 Silent infrastructure gaps</h3>
-    <p>Tools the SOC doesn't have, retention that won't reach back far enough, vendor data still pending. If those are not surfaced, Uncover finds out the hard way (often after writing the query that returns no data).</p>
-  </div>
-  <div class="failure-card">
-    <h3>⏰ Regulatory clocks unmarked</h3>
-    <p>Compliance triggers identified at Scope but not surfaced in the handoff. Uncover inherits a technical investigation without realizing a 72-hour clock is running in parallel. The investigation finishes; the notification window does not.</p>
-  </div>
-</div>
+## You are ready for Uncover if
 
-<Reveal summary="What 'good' looks like vs 'bad' in 30 seconds" variant="info">
-
-**Bad handoff:** "Investigate everything around the workstation. PCI may apply."
-
-**Good handoff:**
-> Threat type: <DefineTerm term="Malware" display="malware" /> suspected; <DefineTerm term="Initial Access" display="initial access" /> likely email-driven.
-> Time: alert −24h through current, primary entities only. Extension requires evidence.
-> Primary: WS-MKT-042, <DefineTerm term="User" display="user" /> mjones (full depth). Secondary: DC01 (mjones authenticated there 09:14), file <DefineTerm term="Server" display="server" /> share \\\\fs01\\marketing (mjones accessed 11:02). Both baseline-comparison only unless something surfaces.
-> Out of scope: other marketing workstations, BYOD phone (no <DefineTerm term="Telemetry" display="telemetry" />), other VLANs.
-> Regulatory: none triggered. Revisit if scope expands to systems handling regulated data.
-> Tools: EDR primary, SIEM corroboration, network analysis for egress, TI passive only.
-> Open questions: (1) how did the binary land on WS-MKT-042; (2) did it persist; (3) any C2 callbacks observed; (4) any <DefineTerm term="Lateral Movement" display="lateral movement" /> attempts; (5) was any data staged or exfiltrated.
-> Time budget: 4 hours initial, reassess at 16:00.
-
-The good handoff is what lets Uncover open the first query inside the rails and finish on time. The bad handoff is what guarantees the next four hours are spent reading instead of investigating.
-
-</Reveal>
-
----
+- Another analyst could run Uncover's first query from the statement alone: every entity in or out with a reason, every open question mapped to a query.
+- Every gap, hold, request and regulatory timestamp has a time on it, and the escalation posture says who owns the case.
 
 <KeyTakeaway>
-Scope is invisible when it works: Uncover starts inside the boundary, the investigation finishes on time, and the case ends with a complete, defensible record. The handoff itself is a one-page document, a set of framed investigative questions, and a clear answer to "is this still our investigation if we cross this line?"
+Scope is invisible when it works: Uncover starts inside the boundary and finishes on time. The line moves only with a recorded justification, and a crossing that confirms an escalation criterion makes it IR's case.
 </KeyTakeaway>
 
-<PuzzleProgress current="scope" />
+<SevenQuestions current="scope" />
 
 <div class="end-cta">
   <a href="/docs/scope/" class="assured-cta assured-cta--ghost">← Back to Scope overview</a>
-  <a href="/docs/uncover/" class="assured-cta">Continue to Uncover →</a>
+  <a href="/docs/scope/quiz/" class="assured-cta">Take the Scope quiz →</a>
 </div>
-
-<style>
-{`
-.handoff {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-.handoff-row {
-  display: flex;
-  gap: 1rem;
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  border-left: 3px solid #a855f7;
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-.handoff-row__num {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #a855f7, #7e22ce);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* level changed for the heading outline; size stays as designed */
-.handoff-row :is(h3, h4) {
-  margin: 0 0 0.3rem 0;
-  color: var(--assured-text);
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: inherit;
-}
-.handoff-row p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-  font-size: 0.93rem;
-}
-
-.questions-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .questions-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .questions-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.question-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #38bdf8;
-  border-radius: 0.6rem;
-}
-/* level changed for the heading outline; size stays as designed */
-.question-card :is(h3, h4) {
-  margin: 0 0 0.35rem 0;
-  color: #7dd3fc;
-  font-size: 0.97rem;
-  font-weight: 600;
-  line-height: inherit;
-}
-.question-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.88rem;
-}
-
-/* level changed for the heading outline; size stays as designed */
-.failure-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #fbbf24;
-  font-size: 0.98rem;
-  font-weight: 600;
-  line-height: inherit;
-}
-.end-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  margin: 2rem 0 1rem;
-}
-`}
-</style>

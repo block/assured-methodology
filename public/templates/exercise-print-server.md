@@ -1,9 +1,17 @@
 # Exercise 1: The print server's new scheduled task
 
-<!-- ASSURED hands-on exercise, learner packet
-     (https://assured-methodology.vercel.app/docs/exercises).
-     Full arc, guided, 60-90 minutes. Write every answer before
-     opening the key; the key lives on the exercises page. -->
+<!-- ASSURED Methodology by Timothy Zilber, © Block, Inc., CC BY 4.0
+     (https://creativecommons.org/licenses/by/4.0/). Reuse and adapt freely
+     with attribution; note any changes you make.
+     ASSURED hands-on exercise, learner packet
+     (https://assured-methodology.vercel.app/docs/exercises). -->
+
+**Full arc · guided · 60-90 minutes.** Work every task in writing before you
+open the answer key. The key, with the traps planted in this packet and a
+scoring grid, is on the exercises page:
+https://assured-methodology.vercel.app/docs/exercises
+
+All names, addresses and domains in this packet are fictional.
 
 ## Briefing
 
@@ -32,7 +40,7 @@ Authentication log excerpt, prt-01
 
 ```
 Proxy log excerpt
-  03:44:51  prt-01  CONNECT files-cdn-sync[.]net:443  allowed  bytes_out=2.1 MB
+  03:44:51  prt-01  CONNECT files-cdn-sync.example:443  allowed  bytes_out=2.1 MB
   90-day baseline: prt-01 outbound is Windows Update and print-vendor telemetry only
 ```
 
@@ -54,19 +62,22 @@ Work each phase in order, in writing.
 
 4. **Uncover.** List the sources you would pull, in order, with the question
    each answers. What are the two questions your timeline must answer before
-   Risk can score this? Where does your hypothesis ledger stand: leading
-   hypothesis, and the strongest surviving alternative?
+   Risk can score this? Where does your hypothesis ledger stand: what is the
+   leading hypothesis, and what is the strongest surviving alternative?
 
 5. **Risk.** Score impact and likelihood separately, one paragraph of
-   justification each. What does the matrix say?
+   justification each, and label your confidence in the likelihood judgment.
+   What cell and priority does the matrix give, and what move does Risk
+   recommend?
 
-6. **Escalation.** Which canonical criteria are confirmed by a supplied
-   artifact, and which are one query away? When does escalation fire, and
-   under which rule?
+6. **Escalation decision.** Which canonical criteria are confirmed by a
+   supplied artifact, and which are one query away? Close or escalate: on
+   what basis, on what clock, and what would change the answer?
 
 7. **Documentation.** Write the record's summary paragraph. Then write one
    detection-engineering feedback item this case earns, and say which event
    it targets.
 
-<!-- The answer key, with the traps planted in this packet, is on
-     https://assured-methodology.vercel.app/docs/exercises -->
+8. **Stretch: the handoff.** Fill sections 1, 5, 6 and 8 of the handoff
+   packet (handoff-packet.md). In section 6, state what you deliberately did
+   not do, and why.

@@ -1,0 +1,42 @@
+---
+/**
+ * GlossaryPageScript. Loads the client module for one themed glossary page
+ * (src/scripts/glossary-{clear,bad,cat}.ts).
+ *
+ * Renders a hidden marker naming the page; the bundled script below runs
+ * once per browser session and, on every astro:page-load, mounts the module
+ * the current page's marker names. Each module is a separate chunk, loaded
+ * only on its own page. Teardown on navigation lives in the modules (see
+ * glossary-common.ts) and in BaseLayout's astro:before-swap handler.
+ *
+ * Usage, at the end of the glossary MDX:
+ *   import GlossaryPageScript from "@/components/assured/GlossaryPageScript.astro";
+ *   <GlossaryPageScript page="clear" />
+ */
+
+interface Props {
+  page: "clear" | "bad" | "cat";
+}
+
+const { page } = Astro.props;
+---
+<span hidden data-glossary-page={page}></span>
+
+<script>
+  import { onPageReady } from "@/lib/dom";
+
+  const loaders: Record<string, () => Promise<{ mount: () => void }>> = {
+    clear: () => import("@/scripts/glossary-clear"),
+    bad: () => import("@/scripts/glossary-bad"),
+    cat: () => import("@/scripts/glossary-cat"),
+  };
+
+  onPageReady(() => {
+    const marker = document.querySelector<HTMLElement>("[data-glossary-page]");
+    const load = loaders[marker?.dataset.glossaryPage ?? ""];
+    if (!load) return;
+    // mount() binds once per page DOM, so the initial run and the first
+    // astro:page-load cannot double-bind.
+    void load().then((m) => m.mount());
+  });
+</script>

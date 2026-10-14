@@ -1,6 +1,7 @@
 ---
 title: "Risk chapter quiz"
-description: "Eight questions on the Risk framework, impact and likelihood, false-positives, and the dynamic loop."
+description: "Eleven questions on the priority matrix, impact and likelihood, vulnerability signals, benign closes, containment order, and the dynamic loop."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,112 +10,161 @@ import Quiz from "@/components/assured/Quiz.astro";
 import QuizItem from "@/components/assured/QuizItem.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="Quiz" pillarTotal="Risk chapter" chapterHref="/docs/risk/" chapterLabel="Risk" lede="Eight questions on the Risk chapter. Push your thinking on frameworks, the dynamic loop, and the value of false-positives."/>
+<SubPageHero phase="risk" pillarIndex="Quiz" lede="Eleven questions on the Risk chapter. Push your thinking on frameworks, the dynamic loop, and the value of benign closes."/>
 
-<PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
-]}/>
+<PillNav chapter="risk" />
 
 <Quiz title="Risk chapter quiz">
 
   <QuizItem
-    prompt="A CVSS 9.8 vulnerability is found on a system. What should the Risk verdict be?"
+    prompt="An IDS alert fires for an exploitation attempt against a CVE scored 9.8 under CVSS v3.1, aimed at an internal server. The server runs a patched version, and EDR shows no new processes or callbacks. What should drive the Risk assessment?"
     options={[
-      { value: "auto", label: "High automatically. A critical base score is the industry-standard escalation threshold." },
-      { value: "depends", label: "It depends on context: exposure, use, and mitigations. CVSS is an input, not the verdict." },
-      { value: "low", label: "Low by default, since only a small fraction of scored vulnerabilities see exploitation." },
-      { value: "compliance", label: "Whatever the compliance framework covering that system dictates for critical findings." },
+      { value: "success", label: "Whether exploitation succeeded on this target; here it did not, so it scores Low." },
+      { value: "score", label: "The 9.8 base score, because a critical score is a reason to escalate on its own." },
+      { value: "kev", label: "Whether the CVE is in the KEV catalog, since a KEV listing makes the case P1." },
+      { value: "compliance", label: "Whatever the compliance framework for this server prescribes for critical findings." },
     ]}
-    answer="depends"
-    explanation="CVSS scores severity in the abstract. The Risk verdict is about the specific environment, the specific asset, and the specific case. A CVSS 9.8 on an isolated, unused system is a different decision than the same score on a production asset."
+    answer="success"
+    explanation="CVSS scores the severity of a vulnerability, not an alert, and FIRST says it should not be used alone to assess risk. For an alert that names a CVE, ask whether the target is affected, whether the surface is exposed, whether the CVE is in KEV or high on EPSS, and above all whether exploitation succeeded. A patched target and no follow-on activity make this an attempt, scored Low on exploitation and scope whatever the base score. KEV and EPSS set how fast the patch or block elsewhere should follow; they do not set this case's band."
+    source={{ href: "/docs/risk/framework/#cvss", label: "The priority matrix: vulnerability signals" }}
   />
 
   <QuizItem
     prompt="Impact and likelihood are..."
     options={[
       { value: "same", label: "Two ways of measuring the same underlying severity from different directions." },
+      { value: "intuitive", label: "Judgment calls where a senior analyst's intuition outperforms an explicit rubric." },
       { value: "independent", label: "Independent dimensions, evaluated separately and then deliberately combined." },
-      { value: "intuitive", label: "Judgment calls where a senior analyst's intuition outperforms any explicit rubric." },
       { value: "scoring", label: "Two factors that must be multiplied into a single numeric score for the record." },
     ]}
     answer="independent"
-    explanation="Impact is 'if this is real, how bad is it.' Likelihood is 'how confident are we that this is real.' Separating them prevents the common error of letting impact bias the likelihood judgment."
+    explanation="Impact is 'if this is real, how bad is it.' Likelihood is 'how probable is it that this activity is malicious,' with the analyst's confidence in that estimate recorded beside it. Separating them prevents the common error of letting impact bias the likelihood judgment."
+    source={{ href: "/docs/risk/impact-likelihood/#evaluating-likelihood", label: "Impact and likelihood: evaluating likelihood" }}
   />
 
   <QuizItem
-    prompt="A case closes as a false-positive. What should the analyst record?"
+    prompt="A case closes benign: the rule fired correctly on an authorized admin script. What should the analyst record?"
     options={[
-      { value: "nothing", label: "Nothing beyond the closure code. False-positives are non-events by definition." },
-      { value: "summary", label: "A one-line summary, enough to show the alert was reviewed before it was closed." },
-      { value: "full", label: "The alert, what was checked, what ruled it out, and what to change in detection." },
-      { value: "complaint", label: "A tuning request to the detection team, since the rule fired on benign activity." },
+      { value: "nothing", label: "Nothing beyond the closure code. A benign close is a non-event by definition." },
+      { value: "full", label: "Both verdict axes, what was checked, what ruled malice out, and the follow-up." },
+      { value: "summary", label: "A one-line summary, enough to show the alert was reviewed before it closed." },
+      { value: "complaint", label: "A tuning request to detection engineering, since the rule fired on benign activity." },
     ]}
     answer="full"
-    explanation="A closed false-positive is a finding too. Documenting the reasoning takes minutes and compounds into sharper detection over time. The methodology treats every closure as a contribution to institutional knowledge."
+    explanation="A benign close is a finding too. Record the verdict on both axes (here: detection true positive; activity authorized, a benign true positive), what was checked, what ruled malice out, and what the close should change. Because the rule read the activity correctly, the follow-up is context-side (document it, or a pattern entry if it recurs), not a tuning request: writing 'false positive' here would invite de-tuning a rule that works."
+    source={{ href: "/docs/risk/false-positive/#what-to-record", label: "What a benign close teaches: what to record" }}
   />
 
   <QuizItem
-    prompt="The Risk verdict should include..."
+    prompt="Risk's written assessment for a case should include..."
     options={[
-      { value: "score", label: "A single composite number, so verdicts can be compared and trended across cases." },
-      { value: "matrix", label: "The matrix decision alone; the scoring detail behind it lives in the analyst's notes." },
-      { value: "full", label: "Impact, likelihood, matrix decision, open questions, and a recommended response." },
-      { value: "verbal", label: "A verbal recommendation to the SOC manager, who owns the written record of verdicts." },
+      { value: "score", label: "A single composite number, so assessments can be compared and trended across cases." },
+      { value: "matrix", label: "The matrix cell alone; the scoring detail behind it stays in the analyst's own working notes." },
+      { value: "verbal", label: "A verbal recommendation to the SOC manager, who owns the written record of the case." },
+      { value: "full", label: "Impact, likelihood, confidence, the cell and band, open questions, and a recommended move." },
     ]}
     answer="full"
-    explanation="The Risk output should be a one-page verdict that a future reviewer can read and understand without re-doing the analysis. Open questions and recommended response are part of what makes the verdict actionable and defensible."
+    explanation="The Risk output should be a one-page record that a future reviewer can read and understand without re-doing the analysis: impact and likelihood justified separately, confidence on the shared rubric, the cell and its band (plus any override that fired), open questions, and a recommended move. Risk recommends; the Escalation decision decides and records the call."
+    source={{ href: "/docs/risk/impact-likelihood/#producing-the-assessment", label: "Impact and likelihood: producing the assessment" }}
   />
 
   <QuizItem
-    prompt="The RATM rubric scores a case as High asset criticality (crown-jewel database), but the only evidence is a signature match with no behavioral confirmation. The matrix reads High impact / Low likelihood. What is the default action?"
+    prompt="The RATM rubric scores a case as High asset criticality (crown-jewel database). The only malicious indicator is a signature match; the host's EDR telemetry is complete for the window and shows no execution or follow-on behavior. The matrix reads High impact / Low likelihood. What is the default action?"
     options={[
-      { value: "escalate", label: "Escalate immediately. A crown-jewel system is at stake." },
-      { value: "continue", label: "Continue investigating; raise priority if evidence strengthens." },
-      { value: "queue", label: "Standard queue. Low likelihood means low priority." },
-      { value: "close", label: "Close as a false-positive. Signature matches without behavior are noise." },
+      { value: "continue", label: "Keep working on the high-impact clock; raise priority if evidence strengthens." },
+      { value: "escalate", label: "Escalate immediately, because a crown-jewel database is at stake in this particular case." },
+      { value: "queue", label: "Standard queue, because a Low likelihood always means a low-priority case." },
+      { value: "close", label: "Close as a false positive, because signatures without behavior are only noise." },
     ]}
     answer="continue"
-    explanation="Impact answers what is at stake if the finding is real; likelihood answers how confident you are that it is real. High impact with weak evidence is neither an escalation (that would let stakes inflate confidence) nor a closure (that would let weak evidence excuse a crown-jewel case). Two qualifiers from the override rules: this Low is legitimate only because the evidence was examined and leans benign — if likelihood were 'low' because telemetry was missing, unknown scores Medium and the cell becomes High/Medium, P2 within the shift. And a High-impact P3 runs the tightened high-impact clock: re-score within hours, not 24, with the queue lead aware."
+    explanation="Impact answers what is at stake if the finding is real; likelihood answers how probable it is that the activity is malicious. High impact with examined, benign-leaning evidence is neither an escalation (that would let the stakes inflate the estimate) nor a closure (that would let a quiet signature excuse a crown-jewel case). Two qualifiers from the override rules. This Low is legitimate because the telemetry was present and examined. If likelihood were 'low' because telemetry was missing, unknown is not Low: likelihood reads Medium with confidence Low, the cell becomes High/Medium, and the case is P2, escalate within 4 hours. And a High-impact P3 runs the tightened clock: re-score within 4 hours by default, not 24, with the queue lead aware."
+    source={{ href: "/docs/risk/framework/#overrides", label: "The priority matrix: the override rules" }}
   />
 
   <QuizItem
     prompt="Uncover confirms the adversary has reached a system outside the original Scope boundary. What does the methodology require?"
     options={[
-      { value: "ignore", label: "Note the finding for the record but keep the case inside its original Scope boundary." },
-      { value: "rescope", label: "Loop back through Scope → Uncover → Risk with the refined boundary before deciding." },
-      { value: "breakglass", label: "Escalate now, confirmed spread is a canonical criterion, and keep the loop running for IR." },
+      { value: "ignore", label: "Note the finding for the record but keep working the case inside its original Scope boundary." },
+      { value: "rescope", label: "Loop back through Scope, Uncover, and Risk with the refined boundary before deciding." },
+      { value: "tripwire", label: "Escalate now (confirmed spread is a canonical criterion) and keep the loop running for IR." },
       { value: "drop", label: "Close this case and open a fresh one scoped to the newly discovered system from the start." },
     ]}
-    answer="breakglass"
-    explanation="Confirmed lateral movement beyond the boundary meets a canonical escalation criterion, and the break-glass rule fires from any phase the moment a criterion is confirmed. The dynamic loop still runs, refining scope is exactly what IR needs next, but it runs in parallel with containment, not instead of it. The loop is for building fidelity on unresolved cases; it is never a reason to sit on a confirmed, spreading compromise."
+    answer="tripwire"
+    explanation="Confirmed lateral movement beyond the boundary meets a canonical escalation criterion, and the escalation tripwire fires from any phase the moment a criterion is confirmed (High on the shared confidence rubric). The dynamic loop still runs (refining scope is exactly what IR needs next), but it runs in parallel with containment, as tasks the IR owner assigns, not instead of it. The loop is for building fidelity on unresolved cases; it is never a reason to sit on a confirmed, spreading compromise."
+    source={{ href: "/docs/risk/#the-dynamic-loop-scope--uncover--risk", label: "Risk: the dynamic loop" }}
   />
 
   <QuizItem
     prompt="A SOC sees the same alert fire repeatedly across multiple developer workstations, and every investigation closes benign. What is the right response?"
     options={[
-      { value: "close", label: "Keep closing them individually with full records. Each case stands on its own evidence." },
-      { value: "suppress", label: "Suppress the rule entirely. A rule this noisy costs more attention than it could return." },
-      { value: "feedback", label: "Treat the pattern as detection feedback: a role-aware rule variant or documented suppression." },
-      { value: "escalate", label: "Escalate the volume to leadership so the detection budget conversation happens upstream." },
+      { value: "close", label: "Keep closing them one at a time with full records, since each case stands on its own evidence." },
+      { value: "feedback", label: "Treat the pattern as detection feedback: a role-aware rule variant or a scoped, expiring suppression." },
+      { value: "suppress", label: "Suppress the rule entirely, since a rule this noisy costs far more attention than it could ever return." },
+      { value: "escalate", label: "Escalate the volume to leadership so the detection budget conversation happens further upstream." },
     ]}
     answer="feedback"
-    explanation="A single benign fire is a closure with feedback. A pattern of benign fires on the same asset class — whether false positives or benign true positives — is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression with an owner and a review cadence, not for individual repeat closures or wholesale rule removal."
+    explanation="A single benign fire is a closure with feedback. A pattern of benign fires on the same asset class, whether false positives or benign true positives, is a signal about the detection stack itself. The methodology asks for a refined variant or a documented suppression keyed to the tool version, extension or plugin ID, and destination set, with an owner, an expiry and re-fire triggers; never one keyed to signer and install path alone, and never individual repeat closures or wholesale rule removal."
+    source={{ href: "/docs/risk/false-positive/#when-benign-close-volume-becomes-its-own-signal", label: "What a benign close teaches: when volume becomes a signal" }}
   />
 
   <QuizItem
-    prompt="The Risk verdict for the Cursor IDE case (benign true positive) reads 'low residual risk, no escalation required.' What value does the documented closure provide?"
+    prompt="The Risk assessment for the Cursor IDE case (benign true positive) reads 'High impact, Low likelihood, High confidence: P3; documented close recommended if the forward watch stays clean.' What value does the documented closure provide?"
     options={[
-      { value: "none", label: "None. A benign close that never escalated produced nothing the organization can use." },
-      { value: "audit", label: "An audit checkbox: evidence the queue is worked, with no investigative value beyond that." },
       { value: "all", label: "A defensible record, detection feedback, a coverage-gap question, and re-openable context." },
+      { value: "none", label: "None. A benign close that never escalated produced nothing the wider organization can use." },
+      { value: "audit", label: "An audit checkbox: evidence the queue is worked, with no investigative value beyond that." },
       { value: "metric", label: "A throughput metric: closed cases are how triage capacity gets measured and staffed." },
     ]}
     answer="all"
-    explanation="A documented benign closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, about coverage gaps in macOS PCAP and USB monitoring), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."
+    explanation="A documented benign closure is not a non-event. It is the artifact that defends the case if the same alert fires again, surfaces detection-engineering feedback, raises program-level questions (here, whether TLS-metadata-only visibility to AI-tool vendor endpoints and the lack of USB device control are acceptable), and provides full context if the case needs to re-open. Clarity, not escalation, is the primary outcome of effective triage."
+    source={{ href: "/docs/risk/example/#case-b", label: "Risk working example: Case B, the Cursor IDE benign true positive" }}
+  />
+
+  <QuizItem
+    prompt="Two vulnerabilities sit on comparable internet-facing production web servers. Vuln A: CVSS v3.1 9.8, not in CISA's KEV catalog, EPSS 0.01. Vuln B: CVSS v3.1 7.5, listed in KEV, EPSS 0.92. Which drives today's urgency, and why?"
+    options={[
+      { value: "a", label: "Vuln A, because its higher base score means worse damage if it is ever exploited." },
+      { value: "equal", label: "Both equally, because both base scores sit in bands that call for the same clock." },
+      { value: "neither", label: "Neither, until an alert shows exploitation; vulnerability data has no place in triage." },
+      { value: "b", label: "Vuln B: KEV confirms active exploitation, and EPSS rates near-term use as likely." },
+    ]}
+    answer="b"
+    explanation="KEV confirms the vulnerability is being exploited in the wild, and EPSS estimates a high probability of exploitation in the next 30 days; together they outweigh A's higher base severity. As the framework page puts it, a 9.8 nobody exploits matters less today than a 7.2 being actively used. The reverse does not hold, though: absence from KEV is not evidence of safety, and EPSS knows nothing about your exposure or controls, so A still gets patched on its own clock."
+    source={{ href: "/docs/risk/framework/#cvss", label: "The priority matrix: vulnerability signals" }}
+  />
+
+  <QuizItem
+    prompt="An adversary-in-the-middle phish gave an attacker a user's live session, and an OAuth app consented from that session now reads her mailbox. Evidence is preserved. Which first step actually cuts the attacker's access?"
+    options={[
+      { value: "reset", label: "Reset her password and re-enroll MFA, since a new password ends every attacker session." },
+      { value: "wait", label: "Wait for the vendor's item-level read logs, so containment matches the confirmed scope." },
+      { value: "revoke", label: "Revoke her sessions and refresh tokens, disable the app's sign-in, then verify both." },
+      { value: "block", label: "Block the phishing domain at the proxy, so no more credentials can be relayed through it." },
+    ]}
+    answer="revoke"
+    explanation="A password reset may or may not end existing sessions, depending on the identity provider and how the reset is done, and it never removes an app's consent grant. Explicit revocation is the version you can verify: revoke sessions and refresh tokens, disable the app's sign-in, then confirm the attacker's session stops presenting. Those steps are reversible, so they sit on the pre-authorized list; removing the grant and resetting the password follow with IR's approval. Blocking the domain protects the next user, not this one, and waiting for logs leaves live access open."
+    source={{ href: "/docs/risk/framework/#identity-containment", label: "The priority matrix: recommending identity containment" }}
+  />
+
+  <QuizItem
+    prompt="A sanctioned vulnerability scanner trips a port-scan rule every week, doing exactly what the rule describes. What are the verdict and the right fix?"
+    options={[
+      { value: "fp", label: "A false positive; tune the rule so port scans from internal ranges stop firing it." },
+      { value: "btp", label: "A benign true positive; a pattern entry or scoped exception with owner and expiry." },
+      { value: "disable", label: "A false positive; disable the rule, since the scanner is all it ever catches." },
+      { value: "ignore", label: "A benign true positive; no record is needed, because nothing malicious happened." },
+    ]}
+    answer="btp"
+    explanation="The rule read the activity correctly and the activity was authorized: a benign true positive. Its fix is context-side, scoped to the scanner (its hosts, schedule, and target set), with an owner, an expiry, and re-fire triggers, and the rule stays as written so it still catches an unsanctioned scan. Calling it a false positive invites de-tuning a rule that works, and every close, benign or not, still gets a record."
+    source={{ href: "/docs/risk/false-positive/#what-to-record", label: "What a benign close teaches: what to record" }}
   />
 
 </Quiz>
 
-<ContinueCard current="risk" nextHref="/docs/risk/transition/" nextLabel="Transition to Escalation" ctaLabel="Continue" />
+<ContinueCard
+  current="risk"
+  nextHref="/docs/escalation/"
+  nextLabel="Escalation decision"
+  nextDescription="The next question: Close or escalate, and who needs to know?"
+  ctaLabel="Start the Escalation decision"
+/>

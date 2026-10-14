@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/tuning-request.schema.json",
+  "title": "Tuning request (triage to detection engineering)",
+  "description": "A tuning request from triage to detection engineering: the detection, the evidence with verdicts on both axes, the proposed change and its tests, governance for exceptions, and the resolution.",
+  "x-assured-template": "tuning-request.md",
+  "type": "object",
+  "properties": {
+    "request": {
+      "x-assured-section": "1. Request",
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "x-assured-prompt": "Request ID",
+          "type": "string",
+          "pattern": "^DE-[0-9]+$",
+          "description": "Request ID (e.g. DE-NNNN)"
+        },
+        "requestType": {
+          "x-assured-prompt": "Request type",
+          "enum": [
+            "exception",
+            "enrichment",
+            "logic change",
+            "data or pipeline fix",
+            "severity change",
+            "new detection",
+            "risk-rule request",
+            "documentation",
+            "vendor case or wrapper rule",
+            "retire"
+          ],
+          "description": "Request type (one): exception · enrichment · logic change · data or pipeline fix · severity change · new detection · risk-rule request · documentation · vendor case or wrapper rule · retire"
+        },
+        "routedTo": {
+          "x-assured-prompt": "Routed to",
+          "type": "string",
+          "description": "Routed to (rule owner, pipeline owner, vendor contact, or pattern-library owner)"
+        },
+        "filedByAndDate": {
+          "x-assured-prompt": "Filed by, and date",
+          "type": "string",
+          "description": "Filed by, and date (UTC)"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which fields began as AI drafts; \"none\" if unassisted)"
+        }
+      },
+      "required": [
+        "requestId",
+        "requestType",
+        "routedTo",
+        "filedByAndDate",
+        "materialAiUse"
+      ]
+    },
+    "theDetection": {
+      "x-assured-section": "2. The detection",
+      "type": "object",
+      "properties": {
+        "ruleNameIdAnd": {
+          "x-assured-prompt": "Rule name, ID, and version as deployed when it fired",
+          "type": "string",
+          "description": "Rule name, ID, and version as deployed when it fired (for a new-detection request: \"none fired\", and the technique that went unseen)"
+        },
+        "provider": {
+          "x-assured-prompt": "Provider",
+          "type": "object",
+          "properties": {
+            "provider": {
+              "enum": [
+                "in-house",
+                "vendor-managed",
+                "community Sigma",
+                "managed provider"
+              ]
+            },
+            "inspectable": {
+              "enum": ["yes", "no"]
+            }
+          },
+          "required": ["provider", "inspectable"],
+          "description": "Provider (in-house · vendor-managed · community Sigma · managed provider) and whether the logic is inspectable (yes · no: vendor-managed)"
+        },
+        "attAndCkTechnique": {
+          "x-assured-prompt": "ATT&CK technique ID(s) and version",
+          "type": "string",
+          "description": "ATT&CK technique ID(s) and version (e.g. Enterprise v19), and the Detection Strategy (DET) and Analytic (AN) IDs where known"
+        },
+        "exceptionsSuppressionsAndPattern": {
+          "x-assured-prompt": "Exceptions, suppressions, and pattern entries active on this rule when it fired",
+          "type": "string",
+          "description": "Exceptions, suppressions, and pattern entries active on this rule when it fired (IDs)"
+        }
+      },
+      "required": [
+        "ruleNameIdAnd",
+        "provider",
+        "attAndCkTechnique",
+        "exceptionsSuppressionsAndPattern"
+      ]
+    },
+    "evidence": {
+      "x-assured-section": "3. Evidence",
+      "type": "object",
+      "properties": {
+        "cases": {
+          "x-assured-prompt": "Cases",
+          "type": "array",
+          "items": {
+            "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+          },
+          "minItems": 1,
+          "description": "Cases (every case ID that motivated the request)"
+        },
+        "sampleAlertIds": {
+          "x-assured-prompt": "Sample alert IDs",
+          "type": "string",
+          "description": "Sample alert IDs (benign samples for exceptions and fixes; for a gap, the event IDs of the activity that raised no alert)"
+        },
+        "verdictOnBothAxes": {
+          "x-assured-prompt": "Verdict on both axes, using the exact values",
+          "type": "object",
+          "properties": {
+            "detection": {
+              "x-assured-prompt": "Detection",
+              "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+              "description": "Detection: true positive · false positive (logic) · false positive (data)"
+            },
+            "activity": {
+              "x-assured-prompt": "Activity",
+              "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict",
+              "description": "Activity: malicious · policy violation · authorized (benign true positive) · benign-confirmed · undetermined"
+            }
+          },
+          "required": ["detection", "activity"],
+          "description": "Verdict on both axes, using the exact values"
+        },
+        "windowAndVolume": {
+          "x-assured-prompt": "Window and volume",
+          "type": "string",
+          "description": "Window and volume (fires in the window, and how many carried each verdict)"
+        },
+        "observedPrecision": {
+          "x-assured-prompt": "Observed precision",
+          "type": "string",
+          "description": "Observed precision (true-positive fires / fires with a detection verdict, benign true positives counted as correct) and actionability (fires that needed action beyond the close / fires), with the window"
+        },
+        "theFieldsAndValues": {
+          "x-assured-prompt": "The fields and values that justify the change",
+          "type": "string",
+          "description": "The fields and values that justify the change"
+        },
+        "whatTheAnalystCould": {
+          "x-assured-prompt": "What the analyst could not see",
+          "type": "string",
+          "description": "What the analyst could not see (missing fields, telemetry the rule does not read)"
+        }
+      },
+      "required": [
+        "cases",
+        "sampleAlertIds",
+        "verdictOnBothAxes",
+        "windowAndVolume",
+        "observedPrecision",
+        "theFieldsAndValues",
+        "whatTheAnalystCould"
+      ]
+    },
+    "proposedChange": {
+      "x-assured-section": "4. Proposed change",
+      "type": "object",
+      "properties": {
+        "theChangeAsSpecifically": {
+          "x-assured-prompt": "The change, as specifically as you can state it",
+          "type": "string",
+          "description": "The change, as specifically as you can state it. For an exception, the tuple it is keyed to (for a tool: version or pinned hash, extension or plugin ID, destination set). Never signer and install path alone."
+        },
+        "scope": {
+          "x-assured-prompt": "Scope",
+          "type": "string",
+          "description": "Scope (entity- or field-level; anything rule-wide needs the approver's explicit sign-off)"
+        },
+        "expectedEffect": {
+          "x-assured-prompt": "Expected effect",
+          "type": "string",
+          "description": "Expected effect (volume, precision and actionability before and after)"
+        },
+        "riskOfTheChange": {
+          "x-assured-prompt": "Risk of the change",
+          "type": "string",
+          "description": "Risk of the change (what it could silence, and how an attacker could ride it)"
+        }
+      },
+      "required": [
+        "theChangeAsSpecifically",
+        "scope",
+        "expectedEffect",
+        "riskOfTheChange"
+      ]
+    },
+    "tests": {
+      "x-assured-section": "5. Tests",
+      "type": "object",
+      "properties": {
+        "benignSampleThatShould": {
+          "x-assured-prompt": "Benign sample that should stop alerting, or should now carry the new field",
+          "type": "string",
+          "description": "Benign sample that should stop alerting, or should now carry the new field"
+        },
+        "maliciousSampleOrEmulation": {
+          "x-assured-prompt": "Malicious sample or emulation that must still fire",
+          "type": "string",
+          "description": "Malicious sample or emulation that must still fire (event replay, or an Atomic Red Team test ID for the technique)"
+        }
+      },
+      "required": ["benignSampleThatShould", "maliciousSampleOrEmulation"]
+    },
+    "governance": {
+      "x-assured-section": "6. Governance (exceptions and suppressions only)",
+      "type": "object",
+      "properties": {
+        "owner": {
+          "x-assured-prompt": "Owner",
+          "type": "string",
+          "description": "Owner (named person)"
+        },
+        "approver": {
+          "x-assured-prompt": "Approver",
+          "type": "string",
+          "description": "A second person, not the author or requester."
+        },
+        "expiryDate": {
+          "x-assured-prompt": "Expiry date",
+          "$ref": "assured-vocabulary.schema.json#/$defs/date",
+          "description": "Expiry date (by default 90 days; shorter for a tool that updates often)"
+        },
+        "reFireTriggers": {
+          "x-assured-prompt": "Re-fire triggers",
+          "type": "string",
+          "description": "Re-fire triggers (e.g. version change, new extension or plugin ID, destination outside the set, rule change, observed abuse)"
+        },
+        "hitCountMonitoring": {
+          "x-assured-prompt": "Hit-count monitoring",
+          "type": "string",
+          "description": "Hit-count monitoring (expected hits per week, and the threshold that forces review)"
+        },
+        "linkedPatternEntry": {
+          "x-assured-prompt": "Linked pattern entry",
+          "type": "string",
+          "description": "Linked pattern entry (PTN-NNN and version), if one exists"
+        },
+        "reTestAtExpiry": {
+          "x-assured-prompt": "Re-test at expiry",
+          "type": "boolean",
+          "description": "Re-test at expiry: the malicious sample from section 5 still fires."
+        }
+      },
+      "required": [
+        "owner",
+        "approver",
+        "expiryDate",
+        "reFireTriggers",
+        "hitCountMonitoring",
+        "linkedPatternEntry",
+        "reTestAtExpiry"
+      ]
+    },
+    "resolution": {
+      "x-assured-section": "7. Resolution (detection engineering)",
+      "type": "object",
+      "properties": {
+        "decision": {
+          "x-assured-prompt": "Decision",
+          "type": "object",
+          "properties": {
+            "decision": {
+              "enum": ["accepted", "accepted with changes", "declined"]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": ["decision", "reason"],
+          "description": "Decision (accepted · accepted with changes · declined), with the reason"
+        },
+        "changeReference": {
+          "x-assured-prompt": "Change reference",
+          "type": "string",
+          "description": "Change reference (pull request or commit) and deployed rule version"
+        },
+        "testsRunAndResults": {
+          "x-assured-prompt": "Tests run, and results",
+          "type": "string",
+          "description": "Tests run, and results (benign sample, malicious sample)"
+        },
+        "patternEntriesInvalidatedBy": {
+          "x-assured-prompt": "Pattern entries invalidated by this change, and their owners notified",
+          "type": "string",
+          "description": "Pattern entries invalidated by this change, and their owners notified"
+        },
+        "triageNotified": {
+          "x-assured-prompt": "Triage notified",
+          "type": "string",
+          "description": "Triage notified (date, channel)"
+        },
+        "resultAfter30Days": {
+          "x-assured-prompt": "Result after 30 days",
+          "type": "string",
+          "description": "Result after 30 days (volume, precision, any reversed closes or missed detections)"
+        },
+        "closed": {
+          "x-assured-prompt": "Closed",
+          "$ref": "assured-vocabulary.schema.json#/$defs/date",
+          "description": "Closed (UTC date)"
+        }
+      },
+      "required": [
+        "decision",
+        "changeReference",
+        "testsRunAndResults",
+        "patternEntriesInvalidatedBy",
+        "triageNotified",
+        "resultAfter30Days",
+        "closed"
+      ]
+    }
+  },
+  "required": ["request", "theDetection", "evidence", "proposedChange", "tests"]
+}

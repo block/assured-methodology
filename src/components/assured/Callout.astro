@@ -2,27 +2,64 @@
 /**
  * Callout, a semantic highlighted block.
  *
- * Variants: info | warn | danger | puzzle | takeaway
- * Pass an optional `title` and `icon` (emoji or text). Body is the default slot.
+ * Variants: info | warn | danger | puzzle | takeaway | rule | newcomer
+ * Pass an optional `title` and `icon`. Body is the default slot.
+ *
+ * Two variants are semantic rather than tonal and carry a default title:
+ * - rule: a key rule of the method ("Key rule"), the line a reader should
+ *   be able to quote from memory.
+ * - newcomer: context for analysts new to triage ("New to triage"), which
+ *   an experienced reader can skip.
+ *
+ * Each variant has a default line icon (inline SVG in the variant's text
+ * color), so callouts render the same on every OS instead of as emoji.
+ * `icon` accepts one of the named keys below to borrow another variant's
+ * glyph, or any other string (legacy emoji at older call sites), which
+ * renders as text. Prefer a named key. icon="" renders no icon.
  */
 
 interface Props {
-  variant?: "info" | "warn" | "danger" | "puzzle" | "takeaway";
+  variant?:
+    | "info"
+    | "warn"
+    | "danger"
+    | "puzzle"
+    | "takeaway"
+    | "rule"
+    | "newcomer";
   title?: string;
   icon?: string;
 }
 
-const { variant = "info", title, icon } = Astro.props;
+const { variant = "info", icon } = Astro.props;
 
-const defaultIcons: Record<string, string> = {
-  info: "💡",
-  warn: "⚠️",
-  danger: "🚨",
-  puzzle: "🧩",
-  takeaway: "✅",
+const DEFAULT_TITLES: Partial<Record<NonNullable<Props["variant"]>, string>> = {
+  rule: "Key rule",
+  newcomer: "New to triage",
+};
+// title="" opts out of the default title.
+const title = Astro.props.title ?? DEFAULT_TITLES[variant];
+
+// Lucide-style 24px stroke icons (inner markup only; the <svg> wrapper is
+// in the template).
+const icons: Record<string, string> = {
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  lightbulb:
+    '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+  warn: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  danger:
+    '<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+  puzzle:
+    '<path d="M19.44 7.85c-.24-.24-.36-.58-.32-.92.07-.62-.13-1.25-.6-1.72a2.03 2.03 0 0 0-2.87 0c-.47.47-.67 1.1-.6 1.72.04.34-.08.68-.32.92l-1.73 1.73-1.73-1.73a1.13 1.13 0 0 1-.32-.92 2.03 2.03 0 1 0-4.04 0c.04.34-.08.68-.32.92L4.85 9.59A2 2 0 0 0 4.27 11l.01 1.4c.01.6.5 1.08 1.1 1.08h.08c.34-.04.68.08.92.32.47.47.67 1.1.6 1.72a2.03 2.03 0 1 0 4.04 0c-.07-.62.13-1.25.6-1.72.24-.24.58-.36.92-.32h.08c.6 0 1.09-.48 1.1-1.08L13.73 11"/>',
+  takeaway:
+    '<path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/>',
+  rule: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  newcomer:
+    '<path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>',
 };
 
-const renderedIcon = icon ?? defaultIcons[variant];
+const iconKey = icon ?? variant;
+const iconSvg = icons[iconKey];
 ---
 
 {/* div + role="note", not <aside>: dense pages render up to seven callouts,
@@ -30,7 +67,21 @@ const renderedIcon = icon ?? defaultIcons[variant];
     screen-reader landmark list. role="note" keeps the semantics without the
     landmark. */}
 <div class={`assured-callout assured-callout--${variant}`} role="note">
-  {renderedIcon && <div class="assured-callout__icon" aria-hidden="true">{renderedIcon}</div>}
+  {icon !== "" && <div class="assured-callout__icon" aria-hidden="true">
+    {iconSvg ? (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={iconSvg}
+      />
+    ) : (
+      icon
+    )}
+  </div>}
   <div class="assured-callout__body">
     {title && <p class="assured-callout__title">{title}</p>}
     <slot />

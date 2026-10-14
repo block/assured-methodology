@@ -22,9 +22,11 @@ interface Props {
   description?: string | undefined;
   ogImage?: URL | undefined;
   noindex?: boolean | undefined;
+  /** ISO date for article:modified_time (docs pages). */
+  modifiedTime?: string | undefined;
 }
 
-const { title, description, ogImage, noindex } = Astro.props;
+const { title, description, ogImage, noindex, modifiedTime } = Astro.props;
 ---
 
 <html lang="en">
@@ -34,6 +36,7 @@ const { title, description, ogImage, noindex } = Astro.props;
       description={description}
       ogImage={ogImage}
       noindex={noindex}
+      modifiedTime={modifiedTime}
     />
     {/* crossorigin is required even same-origin: font requests are CORS-mode,
         and a preload whose mode differs is discarded and fetched twice. */}
@@ -46,14 +49,15 @@ const { title, description, ogImage, noindex } = Astro.props;
     />
     <ClientRouter />
   </head>
-  <body class="min-h-screen font-sans antialiased">
+  <body class="site-body">
     {/* First focusable element on every page (WCAG 2.4.1): lets keyboard users
-        jump past the sticky header's ~12 focus stops. Every page provides the
-        #main target (ContentPageLayout's <main>, or the page's own). */}
+        jump past the sticky header's navigation (about 25 focus stops on
+        desktop with every dropdown closed). Every page provides the #main
+        target (ContentPageLayout's <main>, or the page's own). */}
     <a href="#main" class="skip-link">Skip to content</a>
-    <div class="relative flex min-h-screen flex-col">
+    <div class="site-shell">
       <Header />
-      <div class="flex-1">
+      <div class="site-main">
         <slot />
       </div>
       <Footer />
@@ -85,3 +89,58 @@ const { title, description, ogImage, noindex } = Astro.props;
     outline-offset: 2px;
   }
 </style>
+
+<script>
+  /*
+   * Processed scripts run once per browser session, so these window-level
+   * listeners bind exactly once and query the DOM at event time; content
+   * swapped in by the ClientRouter is picked up without rebinding.
+   */
+
+  // Print: closed <details> (Reveal, and any other disclosure) never render
+  // on paper, so open every closed one on beforeprint and restore the
+  // reader's state afterwards. EvasionPattern opens its own panels the same
+  // way; a panel it already opened is skipped here, so the two never fight.
+  const PRINT_EXPANDED = "data-print-expanded";
+  window.addEventListener("beforeprint", () => {
+    document
+      .querySelectorAll<HTMLDetailsElement>("details:not([open])")
+      .forEach((panel) => {
+        panel.setAttribute(PRINT_EXPANDED, "true");
+        panel.open = true;
+      });
+  });
+  window.addEventListener("afterprint", () => {
+    document
+      .querySelectorAll<HTMLDetailsElement>(`details[${PRINT_EXPANDED}]`)
+      .forEach((panel) => {
+        panel.removeAttribute(PRINT_EXPANDED);
+        panel.open = false;
+      });
+  });
+
+  // ClientRouter teardown: the glossary pages register document-level key
+  // handlers and timers and expose a cleanup function, but they only call it
+  // when their own script runs again. Without this, "/" and "?" stay
+  // hijacked on every page visited after a glossary. Run every registered
+  // cleanup before each swap; a glossary page re-binds its own handlers when
+  // its script re-executes on arrival.
+  const GLOSSARY_CLEANUPS = [
+    "__clearGlossaryCleanup",
+    "__badGlossaryCleanup",
+    "__catGlossaryCleanup",
+  ] as const;
+  document.addEventListener("astro:before-swap", () => {
+    const registry = window as unknown as Record<string, unknown>;
+    for (const name of GLOSSARY_CLEANUPS) {
+      const cleanup = registry[name];
+      if (typeof cleanup === "function") {
+        try {
+          cleanup();
+        } catch {
+          // A failing teardown must not block navigation.
+        }
+      }
+    }
+  });
+</script>

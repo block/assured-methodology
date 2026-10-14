@@ -1,6 +1,7 @@
 ---
 title: "The handoff packet"
-description: "The structured deliverable Escalation produces. What it contains and why each piece matters."
+description: "The structured deliverable an escalation produces. What it contains and why each piece matters."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
@@ -10,34 +11,45 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+import "@/styles/pages/escalation.css";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="04" pillarTotal="04" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="The handoff packet is the artifact the triage analyst hands to the next tier. Done well, it lets the next analyst start where this one stopped."/>
+<SubPageHero phase="escalation" lede="When the Escalation decision is escalate, the handoff packet is the artifact the triage analyst hands to the next tier. Done well, it lets the next analyst start where this one stopped. A close produces a closure record instead, held to the same standard."/>
 
-<PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
-]}/>
+<PillNav chapter="escalation" />
 
 ## What the packet contains
 
 <div class="packet-list">
-  <div class="pl"><h3>🏷️ Case metadata</h3><p>The header above the nine sections: case ID, author, handoff time (UTC), who owns the next action, the escalation criterion that fired with a one-line rationale, and <a href="/docs/ai-triage/">material AI use</a>. The packet identifies itself before it explains itself.</p></div>
-  <div class="pl"><h3>📌 1. Case summary</h3><p>One paragraph. What happened, what is known, what the triage analyst recommends.</p></div>
-  <div class="pl"><h3>⏰ 2. Timeline</h3><p>Sequential events with timestamps. Includes both adversary actions and analyst actions (when notified, what was checked, when escalated).</p></div>
-  <div class="pl"><h3>👥 3. Entities</h3><p>Primary and secondary entities with their assessment results. The Subject and Scope output.</p></div>
-  <div class="pl"><h3>🔍 4. Evidence chain</h3><p>The Uncover narrative with sources, queries used, and <DefineTerm term="MITRE ATT&CK" display="MITRE" /> technique mappings.</p></div>
-  <div class="pl"><h3>⚖️ 5. Risk verdict</h3><p>Impact, likelihood, combined priority, and recommended response.</p></div>
-  <div class="pl"><h3>📦 6. Containment actions taken</h3><p>What <DefineTerm term="Containment" display="containment" /> was already done (host isolated, account disabled, etc.) and what was deliberately not done and why.</p></div>
-  <div class="pl"><h3>📎 7. Artifacts</h3><p>Relevant log excerpts, <DefineTerm term="Indicators of Compromise (IoC)" display="IoCs" />, hashes, screenshots, queries. Attached or linked so the next analyst does not have to re-derive them. Each artifact carries its custody and preservation state: where the original lives, its identifying hash, and who has handled it, per the <a href="/docs/documentation/standards/">chain-of-custody procedure</a>. If the case ends up in front of a regulator or a court, this field is what keeps the evidence usable.</p></div>
-  <div class="pl"><h3>🚧 8. Open questions</h3><p>What the triage analyst could not resolve and would have pursued next. The IR team picks up from this list.</p></div>
-  <div class="pl"><h3>📞 9. Communication record</h3><p>Who has been notified so far, on which channel, when. Manager paged at 14:02. Compliance flagged at 14:18. Vendor request opened at 14:35. Prevents duplicate notifications, gives IR an instant view of who already knows, and starts the audit trail for regulatory reporting.</p></div>
+  <div class="pl"><h3>Case metadata</h3><p>The header above the nine sections: case ID, author, handoff time (UTC), who owns the next action, the escalation route that fired (a confirmed criterion, the matrix cell, or an operational route such as capacity) with a one-line rationale, the depth level, distribution limits (TLP, and the insider route if it applies), <a href="/docs/scope/clocks/#flags-block">regulatory flags</a> (the regime table plus three lines under it: estimated affected individuals and their jurisdictions; preservation or legal-hold status and scope; counsel's handling instructions), <a href="/docs/ai-triage/">material AI use</a>, and on a P1 the page, its acknowledgment, and the warm handoff. Then the receipt: accepted by whom, at what time (UTC). The packet identifies itself before it explains itself, and the handoff is not complete until someone has accepted it.</p></div>
+  <div class="pl"><h3>1. Case summary</h3><p>One paragraph. What happened, what is known, what the triage analyst recommends.</p></div>
+  <div class="pl"><h3>2. Timeline</h3><p>Sequential events with UTC timestamps, each row naming its source and its confidence label on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>. Includes both adversary actions and analyst actions (when notified, what was checked, when escalated, when each containment action ran).</p></div>
+  <div class="pl"><h3>3. Entities</h3><p>Primary and secondary entities with their assessment results. The Subject and Scope output.</p></div>
+  <div class="pl"><h3>4. Evidence chain</h3><p>The Uncover narrative with sources, queries used, and <DefineTerm term="MITRE ATT&CK" display="ATT&CK" /> technique mappings, with the ATT&amp;CK version used (for example, Enterprise v19). The rejected hypotheses: each alternative tested and ruled out, with the evidence that decided it, so IR does not spend an hour re-testing it.</p></div>
+  <div class="pl"><h3>5. Risk verdict</h3><p>The verdict on both axes (detection: true positive, false positive (logic), or false positive (data); activity: malicious, policy violation, authorized (benign true positive), benign-confirmed, or undetermined). Then impact, likelihood, confidence on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>, the matrix cell and priority, any override applied, and the recommended move.</p></div>
+  <div class="pl"><h3>6. Containment actions taken</h3><p>What was <a href="/docs/escalation/preserve/">preserved before containment</a>, then what <DefineTerm term="Containment" display="containment" /> was already done from the reversible pre-authorized list (host isolated, account disabled, sessions revoked) and how each action was verified, each with its time; what was deliberately not done and why; and which actions await IR or owner approval, including every non-reversible step such as a credential reset or a consent-grant removal.</p></div>
+  <div class="pl"><h3>7. Artifacts</h3><p>Relevant log excerpts, <DefineTerm term="Indicators of Compromise (IoC)" display="IOCs" />, hashes, screenshots, queries. Attached or linked so the next analyst does not have to re-derive them. Each artifact carries its custody and preservation state: where the original lives, its identifying hash, and who has handled it, per the <a href="/docs/documentation/standards/">chain-of-custody procedure</a>. Evidence at risk is listed too: each source with its retention window and export status, and whether volatile evidence (memory) was captured. If the case ends up in front of a regulator or a court, this field is what keeps the evidence usable.</p></div>
+  <div class="pl"><h3>8. Open questions</h3><p>What the triage analyst could not resolve and would have pursued next. The IR team picks up from this list.</p></div>
+  <div class="pl"><h3>9. Communication record</h3><p>Who has been notified so far, by whom, on which channel, when, what they were told (one line), and any decision they made. For example: IR on-call paged at 14:01. SOC manager paged at 14:02. Compliance updated at 14:18. Vendor request escalated at 14:35. Prevents duplicate notifications and contradictory messages, gives IR an instant view of who already knows, and starts the audit trail for regulatory reporting. How to word those notifications is on <a href="/docs/escalation/communication/#language">the language card</a>, which channels to trust is under <a href="/docs/escalation/communication/#out-of-band">out-of-band communication</a>, and <a href="/docs/escalation/communication/#record">the communication record</a> shows the row format.</p></div>
 </div>
+
+The fields above match the shipped template, which also carries the optional P1 page block and the receipt:
+
+<TemplateEmbed name="handoff-packet.md" collapse />
 
 <Callout variant="info" title="The packet is documentation">
 The handoff packet is also the documentation record. Months later, this packet is what an auditor or a post-incident reviewer will read. Writing it for clarity (not just brevity) pays off the moment someone needs to understand the case without the analyst present.
 </Callout>
+
+<h2 id="receipt">Handoff acceptance: the receipt</h2>
+
+The packet is sent by triage but completed by the receiver. Whoever accepts the case fills in three lines at the top:
+
+- **Accepted by and at:** the named owner of the next action, and the time (UTC). Until this is filled in, triage still owns the case, and the <a href="/docs/escalation/protocols/#paging">acknowledgment fallback</a> is still running.
+- **Escalation warranted:** yes, no, or partially, with one line of why. A "no" is a handback with a named reason, not a silent close (see <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">De-escalation</a>). <a href="/docs/cases/case-d/#escalation-decision-and-the-handback">Case D shows a worked receipt</a> for a handback.
+- **Rework requested:** the sections that were missing or had to be re-investigated, or "none".
+
+A shift change uses the same receipt: until the incoming analyst fills in the receipt line, the outgoing analyst still owns every open case and its clock (see <a href="/docs/operating-variants/#shift-handover">shift handover</a>). The receipt is how a SOC learns whether its packets work. Rework requests and handback reasons, counted over a quarter, point at the sections analysts most often leave thin.
 
 ---
 
@@ -47,15 +59,15 @@ A complete packet still fails if it does not pass a few practical tests. The met
 
 <div class="actionable-tests">
   <div class="actionable-test">
-    <h3>📖 Can be read in five minutes</h3>
-    <p>The case summary plus the Risk verdict should give the receiving tier the picture in under five minutes. Detail lives in the appendix. The opening should orient, not exhaust.</p>
+    <h3>Can be read in five minutes</h3>
+    <p>The case summary plus the Risk verdict should give the receiving tier the picture in under five minutes. Detail lives in the remaining sections, which the reader navigates by heading. The opening should orient, not exhaust.</p>
   </div>
   <div class="actionable-test">
-    <h3>🎯 Names the next decision</h3>
+    <h3>Names the next decision</h3>
     <p>A good packet does not just describe the case; it tees up the decision the next tier needs to make. "Isolate the second host," "engage compliance," "contain the federated session": concrete recommendations.</p>
   </div>
   <div class="actionable-test">
-    <h3>🪞 Survives the cold read</h3>
+    <h3>Survives the cold read</h3>
     <p>An analyst who was not involved should be able to open the packet, understand the case, and continue the work. If the packet requires the triage analyst's presence to interpret, it is not actionable yet.</p>
   </div>
 </div>
@@ -66,27 +78,11 @@ A common anti-pattern: the packet reads as a sequence of analyst thoughts ("I ch
 
 The fix is structural. Replace the analyst-narrative voice with the nine-section format above. Each section answers a specific question; the reader can navigate them without reading the others. The case summary at the top tells the reader whether they need to read the rest at all.
 
-Test the packet by handing it to a peer who has no context on the case. If they cannot summarize the verdict in one sentence after five minutes, the packet is not done.
+Test the packet by handing it to a peer who has no context on the case. If they cannot summarize the verdict in one sentence after five minutes, the packet is not done. On a P1, the receiving responder is the cold reader: page first, and treat their first questions as the test results.
 
 </Reveal>
 
-<KeyTakeaway>The handoff packet is the triage analyst's deliverable. Nine named sections, each one a documented answer to a question the next tier would otherwise have to ask. Three practical tests: readable in five minutes, names the next decision, survives the cold read.</KeyTakeaway>
+<KeyTakeaway>When a case escalates, the handoff packet is the triage analyst's deliverable. A metadata header with the receipt, then nine named sections, each one a documented answer to a question the next tier would otherwise have to ask. Three practical tests: readable in five minutes, names the next decision, survives the cold read.</KeyTakeaway>
 
 <ContinueCard current="escalation" nextHref="/docs/escalation/example/" nextLabel="Escalation working example" ctaLabel="See the example" />
 
-<style>{`
-.packet-list { display: grid; grid-template-columns: 1fr; gap: 0.65rem; margin: 1.25rem 0; }
-@media (min-width: 768px) { .packet-list { grid-template-columns: 1fr 1fr; } }
-.pl { padding: 0.95rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.55rem; }
-.pl :is(h3, h4) { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.95rem; }
-.pl p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.9rem; }
-
-.actionable-tests { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .actionable-tests { grid-template-columns: repeat(3, 1fr); } }
-.actionable-test { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
-.actionable-test :is(h3, h4) { margin: 0 0 0.35rem 0; color: #a5b4fc; font-size: 0.95rem; }
-.actionable-test p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-/* level changed for the heading outline; the h4-era weight and leading stay as designed */
-.pl h3, .actionable-test h3 { font-weight: 600; line-height: 1.5; }
-`}</style>

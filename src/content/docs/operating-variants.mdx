@@ -1,0 +1,201 @@
+---
+title: "Shift handover and operating variants"
+description: "How an open case survives a shift change without losing its clock or hardening its hypothesis, how ASSURED runs inside an MSSP or MDR and as the customer of one, and what a one-person SOC may compress and must never skip."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/root.css";
+
+The chapters follow one analyst who carries a case from alert to verdict. Real queues break that picture in three common ways. The shift ends before the case does. The analyst works for a provider, not for the company that owns the asset. Or the company's first line of triage is somebody else's analyst. At the other extreme sits the team of one, where every role on this site is the same person. The method is the same in all four; what changes is who holds the facts, who owns the next action, and how ownership moves.
+
+One rule runs underneath all of them: **the case record carries the case, not the person.** Every variant below is a way of making that true at the moment it is most likely to fail.
+
+<Callout variant="info" title="What this page assumes">
+This page uses the <a href="/docs/fast-path/">depth ladder</a>, the <a href="/docs/uncover/correlation/#pivot-discipline-the-hypothesis-ledger">hypothesis ledger</a>, the <a href="/docs/escalation/handoff/">handoff packet</a> and the <a href="/docs/risk/framework/#clocks">default clocks for each band</a>. Read it after the Escalation decision chapter, or keep those pages open beside it.
+</Callout>
+
+## Shift handover
+
+A <DefineTerm term="Shift Handover" display="shift handover" /> is an escalation that stays in the same tier. The case changes owner, and every failure the handoff packet guards against can happen here too: lost context, a clock nobody is watching, a guess that hardens into a finding. It happens more often than an escalation, and with less ceremony.
+
+Medicine has measured what structure buys at this moment. In a study of the I-PASS handoff program across residency programs at nine US hospitals, the medical-error rate fell by 23 percent and preventable adverse events by 30 percent (relative reductions), and spoken handoffs took no longer (Starmer et al., "Changes in Medical Errors after Implementation of a Handoff Program", <em>New England Journal of Medicine</em> 371(19), 2014, <a href="https://doi.org/10.1056/NEJMsa1405556" target="_blank" rel="noopener noreferrer">doi:10.1056/NEJMsa1405556</a>). ASSURED has no equivalent measurement for SOC handovers, so it borrows the structure, not the result.
+
+### What transfers
+
+<div class="table-scroll">
+
+| What | For each item, the handover names | Why it cannot stay in someone's head |
+|---|---|---|
+| Open cases | Case ID, priority and matrix cell, depth level, the owner after handover, the ledger state (leading hypothesis, live alternatives, what was refuted), the next action, and the result that would change the verdict | The next analyst needs the open questions, not the conclusion so far |
+| Clocks running | The band's acknowledgment or decision clock, the P3 re-score deadline, page fallbacks, and any candidate regulatory timestamp already flagged to its owner, each with its deadline in UTC | A clock does not restart because the owner changed |
+| Pending callbacks | Who was asked what, on which channel, when, and when to chase: users, asset owners, vendors, pages awaiting acknowledgment | An answer that arrives to nobody is lost evidence |
+| Containment in effect | Each pre-authorized action still in force, what was preserved first, how it was verified, and when it is reversed or reviewed; actions awaiting IR or owner approval | An isolated host nobody remembers is an outage; a forgotten approval is an open door |
+| Watches and evidence at risk | <DefineTerm term="Forward Watch" display="Forward windows" /> Scope set ("who watches this account overnight"), and sources whose retention or export window closes before the next handover | The <a href="/docs/scope/time/#operational-considerations">coverage model</a> is only real if someone inherits the watch |
+| Queue and detection state | Queue depth and oldest-item age by priority, rules firing outside their normal volume, pattern entries suspended or due for review, sensors gone quiet | A silent sensor and a noisy rule both change how the next shift should read its queue |
+
+</div>
+
+Five rules govern the transfer:
+
+<div class="ov-rules">
+  <div class="ov-rule">
+    <h4>P1 and P2 transfer warm</h4>
+    <p>A live call, bridge or desk-side handover in which the incoming analyst confirms ownership, the same <a href="/docs/escalation/criteria/#tripwire">warm handoff</a> an escalation uses. P3 and P4 cases may transfer through the written record alone, but each still names an owner and a next action.</p>
+  </div>
+  <div class="ov-rule">
+    <h4>No clock crosses the boundary silently</h4>
+    <p>A P2 due within 4 hours is either decided before the handover or handed over warm with its deadline restated. Clocks run from their trigger, not from the new owner's arrival.</p>
+  </div>
+  <div class="ov-rule">
+    <h4>Ownership moves at the receipt</h4>
+    <p>Until the incoming analyst fills the receipt line, the outgoing analyst still owns every case and every clock on the list, as with the <a href="/docs/escalation/handoff/#receipt">packet's receipt</a>.</p>
+  </div>
+  <div class="ov-rule">
+    <h4>Hand over, do not clear the board</h4>
+    <p>A case that cannot be finished is handed over, not closed to empty the queue, and no new Level 2 case starts in the last stretch of a shift without a named owner for the next one (see <a href="/docs/cognitive-traps/#state-traps-when-the-analyst-is-the-variable">state traps</a>).</p>
+  </div>
+  <div class="ov-rule">
+    <h4>The handover links; the case record holds</h4>
+    <p>The handover points at each case record and does not retell it. Anything learned during the handover goes into the case record, timestamped, where the next reader will look (see <a href="/docs/documentation/standards/#timeliness">timeliness</a>).</p>
+  </div>
+</div>
+
+### The template
+
+The shipped template, <a href="/templates/shift-handover.md" download><span aria-hidden="true">⬇ </span>shift-handover.md</a>, carries a metadata block with the receipt, one block per P1 and P2 case, one table row per P3 and P4 case, and tables for clocks and callbacks, containment in effect, watches and evidence at risk, and queue state. An MSSP or MDR fills one per customer. Insider-route cases appear by case ID and owner only: the details stay in the restricted case.
+
+<Reveal summary="A handover line that fails, and one that passes" variant="example">
+
+**Fails:** "4471: the backup agent again, looks benign, I'll close it tomorrow."
+
+It names no priority, no clock and no owner. "Looks benign" is a conclusion with no evidence behind it, and "tomorrow" belongs to someone who will not be on shift.
+
+**Passes:** "4471 · P3 (Medium impact / Medium likelihood, confidence Low) · Level 1 · owner after handover: incoming analyst. Leading: the scheduled backup job on <code>files-02.corp.example</code>. Live alternative: a renamed binary imitating the agent; the signer matches, but the destination is not yet checked against the pattern entry's set. Next action: pull the proxy log for 02:10 to 02:20 UTC and compare destinations. Changes the verdict: any destination outside the set moves it to Level 2. Re-score due 2026-10-14T09:00Z."
+
+The incoming analyst can act on that line without asking anything, and can see what the outgoing analyst did not know yet. <a href="/docs/cases/case-d/#the-triggers-come-in">Case D</a> shows a real one: a P3 handed to the evening shift on the written record, with both hypotheses still open.
+
+</Reveal>
+
+### Handoff anchoring: re-derive, do not inherit
+
+The outgoing analyst's story arrives with an authority it has not earned: it is the first framing the incoming analyst sees, it comes from a colleague, and it usually sounds finished. That is <DefineTerm term="Handoff Anchoring" display="handoff anchoring" />, <DefineTerm term="Anchoring" display="anchoring" /> delivered by hand, and the <a href="/docs/cognitive-traps/#state-traps-when-the-analyst-is-the-variable">cognitive traps page</a> names it as a state trap that bites at every shift change. Attackers know it too: activity started late in a shift or across a handoff lands where attention and context are thinnest.
+
+The counter is to re-derive the hypothesis from the evidence rather than inherit it. For every P1, P2 and P3 case taken over:
+
+1. **Read the raw alert fields and the newest evidence before the previous note.** The note is a hypothesis about that evidence, not a substitute for it.
+2. **Restate the leading hypothesis and at least one live alternative in your own words, from the ledger's evidence, before running the next query.** This is the last step of I-PASS, "synthesis by receiver". If you cannot do it, the ledger is incomplete: ask now, while the outgoing analyst is still there.
+3. **Re-rate confidence on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>.** An inherited "high" is the previous author's label; if you have not seen the corroboration yourself, round down until you have.
+4. **Check what changed since the note was written:** new alerts on the same entities, new sign-ins, a clock that moved.
+
+The outgoing analyst's half of the bargain is to hand over the ledger, not the story: what was tested, what was refuted and by which evidence, what is still open, and the one result that would change the verdict.
+
+## Running ASSURED as an MSSP or MDR
+
+In the managed model, a <DefineTerm term="Managed Security Service Provider (MSSP)" display="managed security service provider (MSSP)" /> or a <DefineTerm term="Managed Detection and Response (MDR)" display="managed detection and response (MDR)" /> provider runs first-line triage for many customers. The provider owns the triage; the customer owns the asset, the business risk and accountability for the outcome. The phases do not change. What changes is where the facts come from: a provider analyst cannot run Subject and Scope from memory of an environment they have never worked in, so the customer has to supply those facts and keep them current.
+
+### What the customer must supply
+
+<div class="table-scroll">
+
+| The customer supplies | What it feeds in the method |
+|---|---|
+| Asset criticality, with crown-jewel systems tagged | Impact on the <a href="/docs/risk/impact-likelihood/">Risk scale</a>, item (a) of the <a href="/docs/fast-path/">eligibility gate</a>, and the Level 2 trigger |
+| Privileged identities, and automation holding deploy, signing, secrets or repository-write rights | Gate item (b); a privileged identity always routes to Level 2 |
+| The regulated-data inventory, the regimes that apply, and who owns each | Gate item (c), <a href="/docs/scope/regulatory/">regulatory scope</a>, and the packet's regulatory flags |
+| A <DefineTerm term="Containment Authorization Matrix" display="containment authorization matrix" />: which pre-authorized actions, on which asset classes, with which preservation step, and who approves anything non-reversible | The <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized immediate actions</a>, per customer |
+| Contacts: a call tree with no-answer timers and an <DefineTerm term="Out-of-Band Communication" display="out-of-band channel" /> | <a href="/docs/escalation/protocols/#paging">Paging and acknowledgment</a> on the customer's side |
+| The change and maintenance calendar, and expected-change records for recurring privileged work | Verifying a benign explanation without a phone call |
+| Data-sharing limits: what evidence may leave the tenant, at which <DefineTerm term="Traffic Light Protocol (TLP)" display="TLP" /> marking | What the packet attaches and what it only references |
+| A decision on who owns the <DefineTerm term="Pattern Library" display="pattern library" /> | One owner: either the provider maintains entries the customer approves, or the customer owns them and the provider applies them |
+
+</div>
+
+Unknown still fails the gate. A customer who has not supplied criticality or privilege data gets no Level 0 closes on the assets it covers, and the provider reports the gap as a contract issue, not a workaround. Load the supplied facts as enrichment on the customer's alerts so analysts verify them rather than research them, and review them with the customer every quarter and whenever the customer reorganizes, acquires or migrates.
+
+### The customer escalation is the handoff packet
+
+For a provider, the escalation is the customer notification, and the notification is the <a href="/docs/escalation/handoff/">handoff packet</a>: the same metadata header and nine sections, with three adjustments. The case summary ends with the decisions the customer must make ("approve the credential reset for this account"), not only the recommended move. Evidence the data-sharing limits keep in the customer's tenant is referenced by location and hash rather than attached. And the communication record names the customer contact who acknowledged the notification, the channel and the time.
+
+- **Map each contract clock to a band.** The <a href="/docs/risk/framework/#clocks">default clocks</a> are the starting point: a P1 pages immediately with a no-acknowledgment fallback at 15 minutes, a P2 is acknowledged within 15 minutes and escalated within 4 hours. Where a contract's notification clock is slower than the band it serves, the customer accepts that gap knowingly, in writing; the provider should not discover it during a P1.
+- **Non-response does not close a case.** When the customer does not acknowledge, the provider works the call tree to its end, takes only the reversible actions the customer's authorization matrix lists (preservation first), records every attempt in the communication record, and keeps the case open. A confirmed criterion is never closed for lack of an answer.
+- **The customer fills the receipt.** Accepted by whom and when, whether the escalation was warranted, and what had to be reworked. Two numbers come from it, reported per customer each month: **escalation acceptance** (escalations the customer judged warranted, divided by escalations sent) and **handoff rework** (accepted packets with rework requested, divided by packets accepted), with the <DefineTerm term="Handback" display="handback" /> reasons counted beside them. The author of an escalation never grades it (see <a href="/docs/measuring-triage/#quality-were-the-decisions-right">Measuring triage</a>).
+- **Closes are verdicts too.** Documented closes go to the customer in a periodic close report, recorded on both verdict axes with the pattern entry and version that justified each Level 0 close, so the customer can sample them.
+
+## Running ASSURED as the customer of an MDR
+
+When a provider's escalation lands in your queue, it is an alert, and its verdict is a claim to <a href="/docs/alert/validation/">validate</a>, not a decision to sign (<a href="/docs/alert/intake/#provider-escalations">provider escalations</a> covers the intake). Re-verify; do not <DefineTerm term="Rubber-Stamping" display="rubber-stamp" />. The provider sees your telemetry, not your business, so the facts it is least likely to have right are exactly the ones Subject and Scope supply.
+
+- **Accept** the provider's facts when each cites a raw event you can open yourself.
+- **Re-verify** Subject and Scope against your own inventories: who the user is, what the asset does, what data it reaches.
+- **Re-run** any claim that would confirm an escalation criterion, and re-rate its confidence on your own rubric. A provider's "confirmed" reaches High on your rubric only once you have seen the corroboration yourself.
+- **Fill the receipt honestly.** A "warranted" stamped on every escalation teaches the provider nothing, and it erases your only quality signal.
+
+The provider's notification starts your acknowledgment clock; it does not satisfy your decision clock. It can also be the moment your organization becomes aware of something a regulator counts, so flag the timestamp to the regime's owner as the <a href="/docs/scope/regulatory/">regulatory scope</a> page describes.
+
+### Map provider dispositions to the ASSURED values
+
+Providers and consoles label outcomes in their own words. Map each label once, in the contract or the service description, onto the two ASSURED axes. Microsoft's two consoles show how the mapping works; their labels below are as documented on Microsoft Learn in October 2026 (<a href="https://learn.microsoft.com/en-us/azure/sentinel/investigate-cases" target="_blank" rel="noopener noreferrer">Sentinel, closing an incident</a>; <a href="https://learn.microsoft.com/en-us/defender-xdr/manage-incidents" target="_blank" rel="noopener noreferrer">Defender XDR, incident classification</a>).
+
+<div class="table-scroll">
+
+| Provider or console label | Detection axis | Activity axis | Before you accept it |
+|---|---|---|---|
+| Sentinel "True Positive: suspicious activity"; Defender XDR "True positive" | true positive | malicious, or policy violation | Which one is your call, on your evidence. Malicious and confirmed means the escalation tripwire. |
+| Sentinel "Benign Positive: suspicious but expected"; Defender XDR "Informational, expected activity" | true positive | authorized (benign true positive) | Who authorized it, and where that is recorded. Never record it as a false positive. |
+| Sentinel "False Positive: incorrect alert logic" | false positive (logic) | benign-confirmed, once checked | A tuning request goes to the rule's owner. |
+| Sentinel "False Positive: incorrect data" | false positive (data) | benign-confirmed, once checked | Which source or parser was wrong. |
+| Defender XDR "False positive" | false positive (logic) or false positive (data) | benign-confirmed, once checked | The label does not say which; ask. |
+| Sentinel "Undetermined", or a provider's bare "benign" or "no action needed" | as the evidence supports | undetermined | A named re-score trigger, or a close the record can defend. |
+
+</div>
+
+A <DefineTerm term="Benign True Positive" display="benign true positive" /> is a correct detection of authorized activity. Recording it as a <DefineTerm term="False Positive" display="false positive" /> sends a working rule to be "fixed", and that is the most common mapping error.
+
+Sample the provider's closes the way the fast path samples Level 0: a weekly random sample re-verified against raw telemetry, with at least one close per pattern the provider applies. If the provider closes by automation, ask whether each machine close meets the conditions for <a href="/docs/ai-triage/#governed-automation">governed automation</a>: a machine-close flag on the entry, discriminators evaluated by code, an enforced eligibility gate, human QA sampling, tracked reversal and miss rates, and a kill switch with a named owner. Accountability stays with you either way.
+
+## The one-person SOC
+
+One analyst runs every phase, watches the queue and carries the pager. The method still applies; the <a href="/docs/escalation/protocols/#the-tier-model-at-3-am">tier model at 3 a.m.</a> is this team's every day. Some things compress. Some never do.
+
+<div class="ov-split">
+  <div class="ov-split__col">
+    <h3>What compresses</h3>
+    <ul>
+      <li><strong>Subject and Scope</strong> run as one sweep, as Level 1 already runs them.</li>
+      <li><strong>Tiers</strong> collapse: "tier up" becomes "engage the escalation path", whether that is an on-call engineer, an MSSP or an IR retainer.</li>
+      <li><strong>Documentation</strong> is one record written as you go; the handoff packet may be addressed to the IR retainer, or to you a week later.</li>
+      <li><strong>Peer review</strong> becomes scheduled: a monthly read of a sample of your closes by someone outside the SOC (the provider, the IR retainer, an IT lead).</li>
+      <li><strong>The second approver</strong> for a pattern entry comes from outside the SOC: the asset owner, an IT lead or a provider analyst. No second approver means no Level 0 for that pattern.</li>
+    </ul>
+  </div>
+  <div class="ov-split__col">
+    <h3>What never compresses</h3>
+    <ul>
+      <li><strong>Validating the alert:</strong> raw fields before the severity.</li>
+      <li><strong>The eligibility gate:</strong> unknown still fails it.</li>
+      <li><strong>The escalation tripwire and the preservation step:</strong> a confirmed criterion escalates now, and evidence is preserved before any containment.</li>
+      <li><strong>The record:</strong> the cell, the verdict on both axes and the reasoning, every time.</li>
+      <li><strong>The clocks:</strong> translated, never loosened. "Within 4 hours" still means hours.</li>
+      <li><strong>Capacity as a route:</strong> an analyst who cannot both watch the queue and work a confirmed case escalates on capacity, and that is not a failure (see <a href="/docs/escalation/criteria/#e-rule">the three routes</a>).</li>
+    </ul>
+  </div>
+</div>
+
+The shift handover matters more here, not less. The next shift is the on-call phone, the MDR overnight, or you tomorrow morning, and the version of you who reads the note at 08:00 has forgotten as much as any colleague would. Write the end-of-day handover against the same template, and name who watches each forward window until you are back.
+
+<Callout variant="warn" title="Nobody else reads the record">
+The specific risk of a team of one is that no second person ever reads a close note, so drift goes unnoticed. The rubric, the external sample and the receipt from whoever takes your escalations are the only feedback you will get. Schedule them; they will not happen on their own.
+</Callout>
+
+<KeyTakeaway>
+The case record carries the case, not the person. At a shift change, P1 and P2 cases transfer warm, no clock restarts, ownership moves only at the receipt, and the incoming analyst re-derives the hypothesis from the evidence instead of inheriting it. A provider runs the same method on facts the customer must supply, and escalates through the handoff packet, judged by the customer's receipt. A customer re-verifies the provider's verdict, maps its labels onto both ASSURED axes and samples its closes. A one-person SOC compresses the roles, never the gate, the tripwire, the preservation step, the record or the clocks.
+</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/templates/shift-handover.md" class="assured-cta assured-cta--ghost" download>Download the handover template</a>
+  <a href="/docs/ai-governance/" class="assured-cta">Governing automated triage →</a>
+</div>

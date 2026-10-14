@@ -1,6 +1,7 @@
 ---
 title: "Risk working example"
-description: "Turning Uncover's evidence into a defensible priority for the finance-team intrusion."
+description: "Turning Uncover's evidence into a defensible priority and recommended move for the three threaded cases."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -12,130 +13,139 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import Callout from "@/components/assured/Callout.astro";
 import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/risk.css";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="Example" pillarTotal="Risk chapter" chapterHref="/docs/risk/" chapterLabel="Risk" lede="The Risk phase applied to the finance-team intrusion. Uncover produced the evidence; Risk produces the verdict."/>
+<SubPageHero phase="risk" pillarIndex="Example" lede="The Risk phase applied to the three threaded cases. Uncover produced the evidence; Risk produces the priority and the recommendation."/>
 
-<PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
-]}/>
+<PillNav chapter="risk" />
 
-## The first scenario: the finance-team intrusion verdict
+<h2 id="case-a">Case A · The finance-team intrusion verdict</h2>
 
-<ChapterExample title="Turning evidence into a defensible priority" scenario="Uncover delivered: phishing-driven intrusion, two confirmed hosts compromised, federated SSO into a cloud finance platform from a stolen identity. Likely PCI and GDPR exposure was flagged during Scope for compliance to confirm. Risk now sets the priority.">
+Previously in Uncover: [the finance-team evidence pull](/docs/uncover/example/#case-a). The whole case on one page: [Case A in the case files](/docs/cases/#case-a).
 
-<ExampleStepper steps={["Score impact", "Score likelihood", "Combine via matrix", "Document the verdict", "Hand off to Escalation"]}>
+<ChapterExample title="Turning evidence into a defensible priority" scenario="Uncover delivered: phishing-driven intrusion, execution on two hosts, and dlin's stolen session cookie replayed into the cloud finance reporting platform from a hosting-provider address. Possible PCI and candidate GDPR exposure were flagged during Scope for compliance to determine. The escalation tripwire has been met since 09:24 UTC, so the criteria already put this case at P1; in a correctly run case this record is written under IR's clock. Risk begins at 13:05.">
+
+<ExampleStepper steps={["Score impact", "Score likelihood and confidence", "Combine via matrix", "Document the verdict", "Hand off to the Escalation decision"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Score impact</h3>
-    <p><strong>High.</strong> Two hosts compromised. A federated SSO session reached a payment-processing platform. PCI and GDPR notification duties are likely triggered, with confirmation owned by compliance and counsel (GDPR's 72-hour clock starts at awareness of a confirmed breach). If the adversary moves further, financial and regulatory consequences are direct. Even at the current evidence level, impact is high.</p>
+    <p><strong>High.</strong> Execution on two hosts. An attacker-held session reached the cloud finance reporting platform, which stores EU vendor-contact records and feeds the vendor payment workflow. Whether PCI DSS is in play depends on whether the platform touches card data at all, which compliance owns; GDPR is a candidate regime, and the data protection officer (DPO) decides whether it applies. If it does, the 72-hour clock runs from awareness, meaning a reasonable degree of certainty that personal data was compromised, not final confirmation, and the candidate moments are already in the record (09:42 regulated data in reach, 11:05 replayed session found). Impact answers "if this is real, how bad", so it is High before the vendor's logs say what the session did.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Score likelihood</h3>
-    <p><strong>High.</strong> Multiple independent sources confirm: EDR process tree, network connection to a domain registered 4 days ago, federated identity SSO, mailbox audit on three users. The chain maps cleanly to a known phishing-with-macros pattern. No legitimate explanation has survived investigation. Likelihood is high.</p>
+    <h3>Step 2. Score likelihood and confidence</h3>
+    <p><strong>High, at high confidence.</strong> Independent sources agree: the EDR process tree and decoded cradle, the proxy's record of the transfer and beacon, the identity provider's and the platform's records of the replayed sign-in, and the message trace. The alternatives (an authorized exercise, an admin script) were tested at Alert and ruled out, and nothing found since contradicts the chain. Likelihood estimates how probable it is that the activity is malicious; confidence, recorded beside it on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>, says how well the evidence supports that estimate. Here both are High.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Combine via the matrix</h3>
-    <p>High impact × high likelihood = <strong>Escalate immediately.</strong> The matrix says P1. The decision is automatic; the work is to produce the handoff package for incident response.</p>
+    <p>High impact × high likelihood = <strong>P1</strong>. The escalation criteria put the case there independently: criterion 1 confirmed at 09:24, criteria 2 and 3 at 11:05. The cell and the criteria agree, so Risk recommends escalating immediately. The call itself belongs to the Escalation decision, which records it; Risk's work is the record that makes the decision defensible.</p>
 
     <Reveal summary="The RATM record behind the two axes" variant="example">
 
-    The two axes reduce from the four RATM dimensions (<a href="/docs/risk/framework/#ratm">framework</a>). The record as written in the case:
+    The two axes reduce from the four RATM dimensions (<a href="/docs/risk/framework/#ratm">priority matrix</a>). The record as written in the case:
 
-    > **Asset criticality: High.** laptop-finance-09 is a user-class endpoint, but the compromised identity federates into the PCI-scoped payment platform, a regulated-data store.
-    > **Threat actor intent: Medium.** Spear-phish with a finance-role lure and a four-day-old C2 domain; the dropper hash matches a known campaign at medium confidence. Attribution is unconfirmed, so per the calibration note the score stays Medium with the upgrade path recorded.
-    > **Exploitation &amp; scope: High.** Execution confirmed on two hosts, credential theft with observed reuse (the federated SSO session), lateral reach into the SaaS platform.
-    > **Business impact: High.** Possible PCI exposure and a plausible GDPR clock. Confirmation is owned by compliance, but the possibility alone anchors High.
+    > **Asset criticality: High.** laptop-finance-09 is a user-class endpoint, but the compromised identity reached the cloud finance reporting platform, which stores EU vendor-contact records and feeds the vendor payment workflow: a regulated-data store in confirmed reach.
+    > **Threat actor intent: Medium.** Finance-role lure, a four-day-old C2 domain, session theft and replay within 90 minutes; one campaign hash match, attribution low. Attribution is unconfirmed, so per the calibration note the score stays Medium with the upgrade path recorded.
+    > **Exploitation &amp; scope: High.** Execution confirmed on two hosts, session cookies stolen on both, dlin's replayed against the platform from 198.51.100.23 at 10:41; host-to-host movement refuted.
+    > **Business impact: Medium, upgrade path recorded.** What the replayed session did is unknown until the vendor's in-app logs arrive, and unknown is not low. It becomes High if those logs show vendor records or payment instructions read or changed. Accounts payable is already verifying bank-detail changes out of band.
 
-    Reduction: asset criticality + business impact make the <strong>impact axis: High</strong>. Threat actor intent + exploitation &amp; scope, weighted by the multi-source evidence quality, make the <strong>likelihood axis: High</strong>. The Medium intent score does not drag likelihood down, because likelihood measures confidence that the activity is real and malicious, and the confirmed exploitation carries that question.
+    Reduction: impact is the higher of asset criticality (High) and business impact (Medium), so the <strong>impact axis: High</strong>. Threat actor intent and exploitation &amp; scope, read against the multi-source evidence, give the <strong>likelihood axis: High</strong>, with <strong>confidence: High</strong> recorded beside it. The Medium intent score does not drag likelihood down, because likelihood estimates whether the activity is malicious, and the confirmed exploitation answers that; intent speaks to who and why.
 
     </Reveal>
+
+    <p><strong>Your turn:</strong> write the Risk verdict block for this case (impact, likelihood and confidence, each with a rationale; the cell and priority; any override; the recommended move) before you open the next step.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Document the verdict</h3>
     <p>The Risk verdict records:</p>
     <ul class="example-step__list">
-      <li>Impact: <strong>High.</strong> Two hosts compromised; potential reach into PCI-scoped payment platform.</li>
-      <li>Likelihood: <strong>High.</strong> Multi-source evidence; clean ATT&CK mapping.</li>
-      <li>Priority: <strong>P1.</strong> Escalate immediately.</li>
-      <li>Open questions: vendor-side activity on the cloud platform pending; mobile device activity may be unmonitored.</li>
-      <li>Recommended response: contain the two confirmed hosts, rotate dlin's credentials, revoke the federated SSO session, notify compliance. The host isolations and session revocation sit on the SOC's pre-authorized immediate-actions list, so they execute at handoff without waiting for IR; the rest of the containment strategy is IR's call.</li>
+      <li>Impact: <strong>High.</strong> Execution on two hosts; an attacker-held session on a platform holding EU vendor-contact records.</li>
+      <li>Likelihood: <strong>High.</strong> Confidence: <strong>High.</strong> Multi-source evidence; alternatives tested and ruled out.</li>
+      <li>Matrix cell: <strong>High/High.</strong> Priority: <strong>P1.</strong> Criteria confirmed: 1 (09:24), 2 and 3 (11:05). Depth: Level 2, because regulated data was plausibly accessed by the replayed session.</li>
+      <li>Credential exposure: dlin and Finance user 2 are credential-exposed until their passwords are reset, their sessions revoked, and their MFA methods reviewed.</li>
+      <li>Open questions: the replayed session's in-app activity (vendor logs pending); whether Finance user 2's stolen cookie has been used; mobile device activity may be unmonitored.</li>
+      <li>Detection gap: the rule missed the identical chain on laptop-finance-12, because its network leg reads only the web proxy and that laptop was off the corporate network without the VPN.</li>
+      <li>Recommended response (the Escalation decision makes the call): escalate to IR now. Preserve first: memory and EDR triage collection on both hosts, identity-provider sign-in and session exports, proxy logs held. Then the SOC's <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized</a>, reversible actions: isolate both hosts, block sign-in and revoke all sessions and refresh tokens for both users, and ask the platform owner to end the session on the platform side. With IR approval: password resets for both users, a purge of the message from all four mailboxes, and blocks on the domain and both IP addresses. Notify compliance and legal.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 5. Hand off to Escalation</h3>
-    <p>Risk's deliverable is a one-page verdict the Escalation phase can act on. Impact and likelihood justified separately, the matrix decision shown, open questions named, recommended response sketched. The next analyst (Tier 2 / incident responder) has everything they need to start.</p>
+    <h3>Step 5. Hand off to the Escalation decision</h3>
+    <p>Risk's deliverable is a one-page record the Escalation decision can act on: impact and likelihood justified separately, confidence labeled, the cell and the confirmed criteria shown, open questions named, recommended response sketched. The Escalation decision makes the call. The receiver (the on-call IR lead, or the next tier if the case is tiered up) has everything they need to start.</p>
   </div>
 
 </ExampleStepper>
 
 </ChapterExample>
 
-<KeyTakeaway>Risk turned a morning of detection and a few hours of investigation into a one-page verdict. The verdict is what travels to Escalation. The reasoning behind it is what defends the case six months later.</KeyTakeaway>
+<KeyTakeaway>Risk turned a morning of detection and investigation into a one-page record of priority and recommendation. The record is what travels to Escalation. The reasoning behind it is what defends the case six months later, including the honest note that the criteria called for this escalation at 09:24.</KeyTakeaway>
 
 ---
 
-## A second scenario: the Cursor IDE benign-true-positive verdict
+<h2 id="case-b">Case B · Scoring the Cursor IDE benign true positive</h2>
 
-The first walkthrough produced a P1 escalation. The Cursor case from Uncover went the other way. Risk's job there is to record a defensible <em>low residual risk</em> verdict so the closure is durable.
+The first walkthrough produced a P1 escalation. The Cursor case from Uncover went the other way. Risk's job there is to score a High-impact, Low-likelihood case honestly and recommend a move that makes the eventual close durable. Previously in Uncover: [confirming the benign true positive](/docs/uncover/example/#case-b). The whole case on one page: [Case B in the case files](/docs/cases/#case-b).
 
-<ChapterExample title="Producing a defensible low-risk closure" scenario="Uncover concluded that the Cursor Helper alert was consistent with legitimate developer workflows on a hardened macOS endpoint. Two telemetry gaps (no full PCAP, no USB monitoring) were named but uncorroborated by any other signal. Risk now records the verdict.">
+<ChapterExample title="Scoring a High-impact, Low-likelihood case" scenario="Uncover concluded that the Cursor Helper (Plugin) alert was a bundled Cursor extension doing its documented job on an EDR-monitored, MDM-managed macOS endpoint, with the extension layer inventoried and clean. Two visibility gaps (TLS metadata only to vendor endpoints, no USB device control) were named and bounded. Risk now scores the case and recommends the move.">
 
-<ExampleStepper steps={["Score impact", "Score likelihood", "Weigh residual risk", "Document the closure", "Hand off to Escalation"]}>
+<ExampleStepper steps={["Score impact", "Score likelihood and confidence", "Combine via matrix", "Document the assessment", "Hand off to the Escalation decision"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Score impact</h3>
-    <p><strong>Medium-High.</strong> Impact is scored on the premise that the activity is real: this device holds source code, dev secrets, and SSH access to CI infrastructure, so a genuine Empire-style agent here would be a medium-high-impact compromise. The benign-looking evidence does not discount this score, that belongs entirely to likelihood. Scoring impact honestly is what keeps the closure defensible: the case closes because the likelihood collapsed, not because the asset stopped mattering.</p>
+    <p><strong>High.</strong> Impact is scored on the premise that the activity is real. This device holds source code and developer secrets, and the user's SSH keys reach the build environment and the CI runners that build the customer-facing product. Asset criticality scores the highest-value asset in confirmed reach, and that is a revenue-affecting supply-chain path, so a genuine implant here, or a malicious extension riding the IDE, would be a High-impact compromise. The benign-looking evidence does not discount this score; that belongs entirely to likelihood. Scoring impact honestly is what keeps the closure defensible: the case closes because the likelihood collapsed, not because the asset stopped mattering.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Score likelihood</h3>
-    <p><strong>Low.</strong> Multiple corroborating sources point to legitimate IDE plugin behavior: signed vendor binary, expected install path, peer baseline match, no persistence created, no credential access, no privilege escalation. The Empire-style superficial similarity is the only signal in the other direction, and it is explained by the rule's over-broad pattern.</p>
+    <h3>Step 2. Score likelihood and confidence</h3>
+    <p><strong>Likelihood: Low.</strong> Multiple corroborating sources point to a bundled IDE extension doing its documented job: the binary matches the MDM-recorded vendor release, the child ran vendor code from inside the signed bundle, every destination is on the vendor's allowlist, the extension, Model Context Protocol (MCP) and workspace-task inventories are clean, the coding agent's commands trace to the user's own prompt, peer prevalence matches, and there is no persistence, no credential-path access, no privilege escalation. The Empire-style surface similarity is the only signal in the other direction, and it is explained: the rule correctly matched behavior that is also the IDE's documented operating mode.</p>
+    <p><strong>Confidence: High.</strong> Direct evidence from EDR, corroborated by independent sources (the proxy and the MDM inventory), with the alternatives tested and ruled out: a malicious or newly updated extension, an MCP server or workspace task, an agent command the user did not ask for, credential theft. The two gaps are peripheral to the verdict question (what ran and where it connected), so "unknown is not Low" does not apply to them; each gets a reopen trigger instead.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 3. Weigh residual risk</h3>
-    <p>The methodology requires Risk to name what could change the verdict.</p>
+    <h3>Step 3. Combine via matrix</h3>
+    <p>High impact, Low likelihood: the High/Low cell, P3 on the high-impact clock, with confidence High recorded beside it. P3 does not mean close now. It means keep working to a named re-score trigger, within hours for this cell, then decide. The trigger Scope already set fits: the four-hour forward watch on the host, ending 18:03.</p><p>The methodology also requires Risk to name what could change the score.</p>
     <ul class="example-step__list">
       <li><strong>Technical alignment.</strong> Behavior aligns with known, approved developer tooling. Activity is likely part of normal operations.</li>
       <li><strong>Process integrity.</strong> No tampering, no code injection, no unauthorized privilege escalation observed.</li>
       <li><strong>User role.</strong> Activity executed by a developer within the scope of normal job duties using approved tools.</li>
-      <li><strong>Endpoint health.</strong> Security agents active, unmodified, reporting clean telemetry.</li>
-      <li><strong>Residual risk remains low.</strong> The two coverage gaps (PCAP, USB) are real but uncorroborated by any independent signal.</li>
+      <li><strong>Endpoint health.</strong> Security agents active, unmodified, reporting normally.</li>
+      <li><strong>Reopen triggers.</strong> A helper child running code from outside the app bundle, or an extension not on the approved list; a destination outside the vendor allowlist; reads of credential paths; LaunchAgent, LaunchDaemon or login-item writes; a new MCP server config; an agent command with no matching user prompt, or one that reaches outside the workspace; the same behavior on a non-developer host; a Cursor binary with a non-Anysphere signature.</li>
+      <li><strong>Recommended move.</strong> Keep the case open to the forward watch; if it comes back clean, a documented close. Risk recommends; the Escalation decision decides.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that "I cannot prove a negative" is not a reason to keep the case open. The two gaps are permanent; no additional hours of querying will fill them. The defensible move is exactly what this step does: name the gaps, note that nothing corroborates them, and record what new signal would reopen the case. Holding a case open to avoid signing an uncertain close is not rigor, it is the queue quietly absorbing the analyst's discomfort.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that "I cannot prove a negative" is not a reason to keep the case open past its trigger. The two gaps are permanent; no additional hours of querying will fill them. This case stays open for exactly one named reason, the High/Low cell's forward watch, and closes on its result. The defensible move is exactly what this step does: name the gaps, note that nothing corroborates them, and record what new signal would reopen the case. Holding a case open to avoid signing an uncertain close is not rigor; it is the queue quietly absorbing the analyst's discomfort.</p>
+    <p><strong>Your turn:</strong> write the Risk verdict block for this case (impact, likelihood and confidence, each with a rationale; the cell and priority; any override; the recommended move) before you open the next step.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 4. Document the closure</h3>
+    <h3>Step 4. Document the assessment</h3>
 
-    <Reveal summary="The risk statement for the closure record" variant="example">
+    <Reveal summary="The risk statement for the case record" variant="example">
 
-    > **Risk statement:** there is a low residual risk that the observed behavior may overlap with known adversary techniques, particularly those used by the Empire framework. This means there is a possibility the activity could be associated with malicious actors, which warrants the documentation produced during Uncover.
+    > **Risk statement:** the observed behavior overlaps with known adversary techniques, particularly the Empire framework's macOS agent pattern, and its realistic modern form runs inside the signed IDE: a malicious extension, a rogue MCP server, or a coding agent steered by content it reads. If it were malicious, impact would be **High**: the host's SSH keys reach the build environment that produces the customer-facing product.
     >
-    > However, given the presence of strong contextual indicators of legitimate developer activity (signed vendor binary, expected install path, peer baseline match, no <DefineTerm term="Persistence" display="persistence" />, clean <DefineTerm term="Endpoint" display="endpoint" /> <DefineTerm term="Telemetry" display="telemetry" />), this risk is assessed as **low**.
+    > The evidence makes that unlikely. A bundled Cursor extension, running in the signed extension host, indexed the workspace and connected only to the vendor's allowlisted endpoints. The extension, MCP and workspace-task inventories are clean, and the coding agent ran only what the user asked for; there is no <DefineTerm term="Persistence" display="persistence" /> and no credential-path access; the same behavior appears across the peer population; the <DefineTerm term="Endpoint" display="endpoint" /> <DefineTerm term="Telemetry" display="telemetry" /> is complete for the question. Likelihood is assessed as **Low**, at **High** confidence.
     >
-    > The developer was operating within the scope of their normal job duties using approved tools. The endpoint configuration was hardened and the supporting telemetry was clean, further reducing the likelihood of malicious intent.
+    > Two visibility gaps are accepted: TLS metadata only to vendor endpoints, and no USB device control on this host class. Neither bears on what ran or where it connected.
     >
-    > Based on the totality of the evidence, the behavior is assessed as **non-malicious** and attributable to approved operational tooling. The low residual risk does not warrant escalation or further investigation at this time.
+    > Cell High/Low, **P3**. Recommended move: keep working to the named re-score trigger, the forward watch on the host ending 18:03 UTC, then a documented close if it is clean. Reopen triggers are recorded in the case.
+    >
+    > Assessed by the Tier 1 analyst (day shift), 15:10 UTC; confidence High.
 
-    This is what a defensible <DefineTerm term="Benign True Positive" display="benign-true-positive" /> closure reads like. Not "dismissed." Structured, evidenced, signed.
+    This is what a defensible <DefineTerm term="Benign True Positive" display="benign-true-positive" /> assessment reads like. Not "dismissed." Structured, evidenced, signed.
 
     </Reveal>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 5. Hand off to Escalation</h3>
-    <p>Escalation receives a "no escalation required" handoff from Risk. The methodology still treats this as a formal handoff because Documentation will draw from it and because the closure becomes the artifact that defends the case if the same alert fires again.</p>
+    <h3>Step 5. Hand off to the Escalation decision</h3>
+    <p>The Escalation decision receives a scored case and a recommendation, not a verdict to rubber-stamp. The methodology still treats this as a formal handoff because Documentation will draw from it and because the record is the artifact that defends the case if the same alert fires again.</p>
     <ul class="example-step__list">
-      <li><strong>Verdict:</strong> benign true positive (detection correct, activity benign), low residual risk.</li>
-      <li><strong>Open questions for the program:</strong> are the macOS PCAP / USB monitoring gaps acceptable for the developer-workstation population? This is a program-level question, not an investigation-level one.</li>
-      <li><strong>Detection-engineering feedback:</strong> rule is over-broad for macOS developer workstations running Electron-based IDEs. Tuned variant requested.</li>
+      <li><strong>Assessment:</strong> detection true positive; activity authorized (benign true positive), pending the re-score; High impact, Low likelihood, High confidence; High/Low, P3.</li>
+      <li><strong>Recommended move:</strong> keep working to the forward watch (ends 18:03 UTC); documented close if clean.</li>
+      <li><strong>Open questions for the program:</strong> is TLS-metadata-only visibility to AI-tool vendor endpoints, with no USB device control, acceptable for the developer-workstation population? This is a program-level question, not an investigation-level one.</li>
+      <li><strong>Detection-engineering feedback:</strong> rule logic unchanged; it fired on exactly what it describes. Alert enrichment requested (extension ID, child command line, destination set). Pattern-entry proposal to follow if the close holds, keyed to the Cursor build, the bundled extension ID and the destination set.</li>
     </ul>
   </div>
 
@@ -144,62 +154,67 @@ The first walkthrough produced a P1 escalation. The Cursor case from Uncover wen
 </ChapterExample>
 
 <Callout variant="info" title="Two shapes of Risk verdict">
-The two scenarios show the two main shapes Risk produces. A high-impact, high-likelihood verdict drives immediate escalation and resource mobilization. A medium-high-impact, low-likelihood verdict still produces a defensible closure, the likelihood is where the benign evidence belongs, with documented residual risk and program-level feedback. Both are correct outputs; both deserve the same rigor in their documentation.
+The two scenarios show the two main shapes Risk produces. A high-impact, high-likelihood verdict recommends immediate escalation and resource mobilization. A High-impact, Low-likelihood score lands at P3: the case stays open to a named re-score trigger, then closes with documented reasoning, because the likelihood is where the benign evidence belongs. Both are correct outputs; both deserve the same rigor in their documentation.
 </Callout>
 
 ---
 
-## A third scenario: the token-theft verdict under time pressure
+<h2 id="case-c">Case C · Scoring the token theft after the escalation tripwire</h2>
 
-Case C arrives at Risk differently: Uncover ended on an escalation trigger, not on evidence exhaustion. The session and the OAuth grant are live persistence, so the escalation decision is effectively made. Risk still runs, in minutes, because the verdict record is what tells incident response how hard to pull and what to pull first.
+Case C arrives at Risk differently: the escalation tripwire fired at the end of Alert, at 09:22, and IR has owned the case since 09:28. The decision to escalate is already in the record as an early escalation decision. Risk still runs, in minutes, as scoping support, because the verdict record tells incident response how hard to pull, and it is the scored record the case keeps. Previously in Uncover: [pulling the evidence on the hijacked session](/docs/uncover/example/#case-c). The whole case on one page: [Case C in the case files](/docs/cases/#case-c).
 
-<ChapterExample title="Scoring a live identity compromise" scenario="Uncover delivered: confirmed AiTM session theft on rvega's account, an active inbox-hiding rule, a consented OAuth app with standing mailbox access, roughly 1,800 messages synced including billing threads, no outbound mail sent, blast radius one account with recorded negative sweeps. The compromise is live. Risk sets the priority.">
+<ChapterExample title="Scoring a live identity compromise" scenario="Uncover delivered at 10:16: adversary-in-the-middle (AiTM) session theft confirmed on rvega's account, an inbox-hiding rule and an OAuth consent made from the replayed session, about 1,800 messages read by the app and logged one by one, including billing threads, payment searches at 09:18, no outbound mail, one more user credential-exposed and reset, tenant sweeps recorded. Reversible containment has held since 09:27; the grant was removed and both passwords reset with IR's approval. Risk scores the case.">
 
-<ExampleStepper steps={["Score impact", "Score likelihood", "Combine via matrix", "Document the verdict", "Hand off to Escalation"]}>
+<ExampleStepper steps={["Score impact", "Score likelihood and confidence", "Combine via matrix", "Document the verdict", "Hand off to the Escalation decision"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Score impact</h3>
-    <p><strong>High.</strong> Customer personal data has already been read at volume (the sync is a completed data access, not a hypothetical), the mailbox feeds live payment conversations that make wire fraud the natural next move, and a GDPR assessment is open with compliance. Impact does not wait on whether the attacker gets further; the collection that already happened carries the score.</p>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the pull of "no wire went out, we caught it in time" toward a downgraded score. Interrupting the fraud is a containment win, not an impact discount: 1,800 messages of customer data were read by an unauthorized party, which is a completed breach event with its own regulatory clock, whether or not the attacker ever got to spend it.</p>
+    <p><strong>High.</strong> Customer personal data has already been read at volume (the app's reads are logged message by message: a completed data access, not a hypothetical), the mailbox feeds live payment conversations that make wire fraud the natural next move, and a GDPR assessment is open with compliance. Impact does not wait on whether the attacker gets further; the collection that already happened carries the score.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the pull of "no wire went out, we caught it in time" toward a downgraded score. Interrupting the fraud is a containment win, not an impact discount: roughly 1,800 messages of customer data were read by an attacker-controlled app, a completed unauthorized access. Whether that is a notifiable GDPR breach is compliance's determination, made against the awareness timestamp already on record, and the answer does not depend on whether the attacker ever got to spend the data.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Score likelihood</h3>
-    <p><strong>High, effectively confirmed.</strong> The session join is structurally unambiguous (one session ID, two irreconcilable presentations, no authentication ceremony), the tenant audit corroborates with attacker tradecraft (hiding rule, consent grant, bulk sync), and no benign explanation survived Uncover. This is as close to certainty as triage gets.</p>
+    <h3>Step 2. Score likelihood and confidence</h3>
+    <p><strong>High.</strong> The 08:53 sign-in through a hosting IP a minute after the click, the 09:03 replay of the session it produced with no authentication ceremony, and the tenant audit records carrying that session from the same VPS IP leave no benign explanation standing, and none survived Uncover. Confidence is recorded beside it on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>: <strong>high</strong>, because the evidence is direct, corroborated by independent sources (the <DefineTerm term="Identity Provider (IdP)" display="identity provider (IdP)" /> log, the tenant audit, the gateway record, rvega's own account), and the alternatives are ruled out. The kit-family identification stays at medium.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Combine via the matrix</h3>
-    <p>High impact × high likelihood = <strong>Escalate immediately. P1.</strong> The matrix confirms what Uncover's trigger already decided; the value Risk adds here is the ordering of the response actions, because identity containment has a sequencing trap.</p>
+    <p>High impact × high likelihood: the cell is High × High, <strong>P1</strong>, and the recommended move is escalate. That matches the decision recorded at 09:22, when the escalation tripwire fired; Risk does not reopen it. The value Risk adds here is the record of the response order, because identity containment has a sequencing trap.</p>
 
     <Reveal summary="Why the response ordering matters more than the score" variant="example">
 
-    A password reset alone contains nothing in this case. The attacker holds a session token and an application grant, and neither checks the password again. The pre-authorized immediate actions execute in this order at handoff:
+    Don't count on a password reset for containment: whether it ends existing sessions depends on the IdP and how the reset is done, and it never removes the consent grant. Explicit revocation is the version you can verify. The record shows the order the case actually ran, preservation first:
 
-    > 1. **Revoke all sessions** for rvega at the IdP (kills the replayed token).
-    > 2. **Revoke the OAuth grant** for "Mail Backup Sync" (kills the app's standing access; a separate action in a separate admin surface, which is why it gets its own line).
-    > 3. **Disable the inbox rule** and preserve it as evidence.
-    > 4. **Then** reset credentials and re-enroll MFA, with the reset treated as hygiene rather than containment.
+    > 1. **[Preserve](/docs/escalation/preserve/#case-c)** the sign-in records, the mailbox audit, the rule definition, the app's service principal and grants, and a snapshot of rvega's MFA methods and devices (09:22-09:24).
+    > 2. **Disable the account and revoke all sessions and refresh tokens** (09:24-09:25). Already-issued access tokens can stay valid for an hour or more (a random 60 to 90 minutes by default on Microsoft Entra ID) where continuous access evaluation is not enforced, so the check is that the attacker's session stops presenting: it was refused at 09:31.
+    > 3. **Disable the app's sign-in** for "Mail Backup Sync" (09:26): a separate action in a separate admin surface, reversible, with the grant left in place as evidence.
+    > 4. **Disable the inbox rule** (09:27), already exported.
+    > 5. **With IR's approval**, remove the app's delegated grant and app-role assignments while keeping its service principal disabled, so the application ID stays blocked (09:38), then reset rvega's password, because the kit relayed it, and review her MFA methods (09:40).
 
-    Reversing 1 and 4, the instinctive order, leaves the attacker connected while everyone relaxes because "the password was changed."
+    Steps 1 to 4 are on the pre-authorized list because each can be undone. Step 5 cannot, so it waited for IR. The MFA review in step 5 is one item of the [identity-persistence sweep](/docs/reference/identity-sweep/), which covers every anchor an attacker may have left on the account. The instinctive order, a password reset first and everyone relaxing because "the password was changed," leaves the consent grant in place and the session unverified.
 
     </Reveal>
+
+    <p><strong>Your turn:</strong> write the Risk verdict block for this case (impact, likelihood and confidence, each with a rationale; the cell and priority; any override; the recommended move) before you open the next step.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Document the verdict</h3>
     <ul class="example-step__list">
-      <li>Impact: <strong>High.</strong> Bulk read of customer data confirmed; payment-fraud staging interrupted before any outbound message.</li>
-      <li>Likelihood: <strong>High.</strong> Session-join evidence plus corroborating tenant artifacts; no surviving benign hypothesis.</li>
-      <li>Priority: <strong>P1.</strong> Live persistence in two forms.</li>
-      <li>Open questions: item-level read detail pending vendor; GDPR determination owned by compliance; the AiTM proxy's capture scope permanently unknowable.</li>
-      <li>Recommended response: the four ordered identity actions above, then a tenant-wide block of the app publisher and a hunt rule for the ASN.</li>
+      <li>Verdict: <strong>true positive</strong> on the detection; <strong>malicious</strong> on the activity.</li>
+      <li>Impact: <strong>High.</strong> Customer data read message by message by an attacker-controlled app; payment-fraud staging interrupted before any outbound message.</li>
+      <li>Likelihood: <strong>High.</strong> Confidence: <strong>High</strong> (independent sources, no surviving benign hypothesis); kit-family identification medium.</li>
+      <li>Cell and priority: <strong>High × High, P1.</strong> Also P1 by criterion since 09:22. Two persistence paths, the session and the consent grant, both cut and verified.</li>
+      <li>Recommended move: escalate, already recorded at 09:22.</li>
+      <li>Open questions: GDPR determination owned by compliance (candidate awareness timestamp 09:22 on record); whether the relayed passwords are reused on other services; whether the lure reached other estates; the <DefineTerm term="Adversary-in-the-Middle (AiTM)" display="AiTM" /> proxy's own capture scope lies outside any log the SOC holds.</li>
+      <li>Recommended next steps for IR: keep the app blocked by application ID tenant-wide (its sign-in disabled so no new tokens issue), restrict user consent to verified publishers or route it through admin-consent review, hunt rules for the proxy IP, the VPS <DefineTerm term="Autonomous System Number (ASN)" display="ASN" />, and the lure domain, and phishing-resistant MFA with token protection for customer-facing roles.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 5. Hand off to Escalation</h3>
-    <p>Same one-page shape as the finance case, with one addition: the verdict names the time-sensitivity explicitly. Every minute before session revocation is a minute of live mailbox access. Escalation inherits a P1 with a pre-sequenced containment list and a warning about the order.</p>
+    <h3>Step 5. Hand off to the Escalation decision</h3>
+    <p>Same one-page shape as the finance case, with one addition: the verdict names why the timing mattered. Every minute before session revocation was a minute of live mailbox access, and the case cut it at 09:25, ten minutes after the alert, instead of an hour later. The Escalation decision record carries the P1 beside the 09:22 decision, with the ordered containment list and its verification times.</p>
   </div>
 
 </ExampleStepper>
@@ -207,11 +222,13 @@ Case C arrives at Risk differently: Uncover ended on an escalation trigger, not 
 </ChapterExample>
 
 <KeyTakeaway>
-The token-theft verdict took minutes because Uncover's evidence made it automatic, and that is the point: when the trigger has already fired, Risk's contribution is not the score, it is the ordered, identity-aware response plan that keeps the containment from being theater.
+The token-theft verdict took minutes and came after the escalation, and that is the point: when the escalation tripwire has already fired, Risk does not reopen the decision. It scores the case for the record, confirms the cell agrees with the escalation tripwire, and documents the preserved, ordered, verified identity containment that keeps the response from being theater.
 </KeyTakeaway>
 
-<ContinueCard current="risk" nextHref="/docs/risk/quiz/" nextLabel="Risk quiz" ctaLabel="Take the quiz" />
-
-<style>{`
-.example-step h3 { margin: 0 0 0.85rem 0; color: #fca5a5; font-size: 1.2rem; }
-`}</style>
+<ContinueCard
+  current="risk"
+  nextHref="/docs/risk/transition/"
+  nextLabel="Transition to the Escalation decision"
+  nextDescription="The handoff contract: what Risk passes to Escalation decision, and how to know the case is ready."
+  ctaLabel="Read the handoff"
+/>

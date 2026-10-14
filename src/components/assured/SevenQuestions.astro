@@ -1,0 +1,173 @@
+---
+/**
+ * SevenQuestions. The seven phases as their anchor questions, in one strip,
+ * grouped by stage (Orient · Investigate · Resolve). The `current` phase is
+ * highlighted and the phase it hands to is marked "Next".
+ *
+ * Used at the foot of every chapter transition in place of a per-page
+ * recap of the phase questions, so the questions live in one place
+ * (src/data/navigation.ts) and cannot drift.
+ */
+import { type PhaseKey, phases, type StageName } from "@/data/navigation";
+
+interface Props {
+  current?: PhaseKey;
+  /** Mark the phase after `current` as "Next". Default true. */
+  showNext?: boolean;
+  /** Accessible name for the list. */
+  label?: string;
+}
+
+const {
+  current,
+  showNext = true,
+  label = "The seven ASSURED questions",
+} = Astro.props;
+
+const currentIndex = current
+  ? phases.findIndex((p) => p.phase === current)
+  : -1;
+const nextKey =
+  showNext && currentIndex >= 0 && currentIndex < phases.length - 1
+    ? phases[currentIndex + 1].phase
+    : undefined;
+
+const stages: StageName[] = ["Orient", "Investigate", "Resolve"];
+---
+
+<nav class="seven-q" aria-label={label} data-pagefind-ignore>
+  {stages.map((stage) => (
+    <div class="seven-q__stage">
+      <p class="seven-q__stage-name">{stage}</p>
+      <ol class="seven-q__list">
+        {phases.filter((p) => p.stage === stage).map((p) => {
+          const isCurrent = p.phase === current;
+          const isNext = p.phase === nextKey;
+          return (
+            <li>
+              <a
+                href={p.href}
+                class={`seven-q__item seven-q__item--${p.phase} ${isCurrent ? "is-current" : ""} ${isNext ? "is-next" : ""}`}
+                aria-current={isCurrent ? "page" : undefined}
+              >
+                <span class="seven-q__letter" aria-hidden="true">{p.letter}</span>
+                <span class="seven-q__text">
+                  <span class="seven-q__name">
+                    {p.name}
+                    {isCurrent && <span class="seven-q__tag">You are here</span>}
+                    {isNext && <span class="seven-q__tag">Next</span>}
+                  </span>
+                  <span class="seven-q__question">{p.question}</span>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  ))}
+</nav>
+
+<style>
+  .seven-q {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 2rem 0 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .seven-q { grid-template-columns: 3fr 2fr 2fr; }
+  }
+
+  .seven-q__stage-name {
+    margin: 0 0 0.4rem;
+    color: var(--assured-text-dim);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .seven-q__list {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .seven-q__item {
+    --phase: var(--assured-accent);
+    --phase-soft: var(--assured-accent-soft);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.5);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .seven-q__item:hover {
+    border-color: color-mix(in srgb, var(--phase) 55%, transparent);
+  }
+  .seven-q__item--alert         { --phase: var(--assured-phase-alert); --phase-soft: var(--assured-phase-alert-soft); }
+  .seven-q__item--subject       { --phase: var(--assured-phase-subject); --phase-soft: var(--assured-phase-subject-soft); }
+  .seven-q__item--scope         { --phase: var(--assured-phase-scope); --phase-soft: var(--assured-phase-scope-soft); }
+  .seven-q__item--uncover       { --phase: var(--assured-phase-uncover); --phase-soft: var(--assured-phase-uncover-soft); }
+  .seven-q__item--risk          { --phase: var(--assured-phase-risk); --phase-soft: var(--assured-phase-risk-soft); }
+  .seven-q__item--escalation    { --phase: var(--assured-phase-escalation); --phase-soft: var(--assured-phase-escalation-soft); }
+  .seven-q__item--documentation { --phase: var(--assured-phase-documentation); --phase-soft: var(--assured-phase-documentation-soft); }
+
+  .seven-q__item.is-current,
+  .seven-q__item.is-next {
+    border-color: color-mix(in srgb, var(--phase) 60%, transparent);
+    background: color-mix(in srgb, var(--phase) 12%, rgba(15, 23, 42, 0.6));
+  }
+
+  .seven-q__letter {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.4rem;
+    background: color-mix(in srgb, var(--phase) 22%, transparent);
+    color: var(--phase-soft);
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+
+  .seven-q__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+  .seven-q__name {
+    color: var(--phase-soft);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .seven-q__tag {
+    margin-left: 0.45rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 9999px;
+    background: rgba(248, 250, 252, 0.08);
+    color: var(--assured-text);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+  }
+  .seven-q__question {
+    color: var(--assured-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .seven-q__item:not(.is-current):not(.is-next) .seven-q__question {
+    color: var(--assured-text-muted);
+  }
+</style>

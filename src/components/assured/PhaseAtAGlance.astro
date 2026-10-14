@@ -1,0 +1,225 @@
+---
+/**
+ * PhaseAtAGlance. The shared "at a glance" block on every chapter index:
+ * the phase's anchor question, what it takes in and produces, when it is
+ * done, and what the phase is at each rung of the depth ladder.
+ *
+ * The page keeps its own "X at a glance" h2 (so the table of contents and
+ * existing anchors keep working); this component renders the body.
+ *
+ * The question comes from src/data/navigation.ts. Everything else is passed
+ * as named slots, so MDX can carry links and inline markup:
+ *
+ *   <PhaseAtAGlance phase="scope">
+ *     <Fragment slot="deliverable">The boundary statement ...</Fragment>
+ *     <Fragment slot="done">Every entity in the boundary ...</Fragment>
+ *     <Fragment slot="level-0">No separate Scope ...</Fragment>
+ *     <Fragment slot="level-1">...</Fragment>
+ *     <Fragment slot="level-2">...</Fragment>
+ *   </PhaseAtAGlance>
+ *
+ * Optional slots: question-detail (a sentence after the question),
+ * takes-in, runs, tripwire, any-level (a fourth ladder row).
+ */
+import { type PhaseKey, phaseInfo } from "@/data/navigation";
+
+interface Props {
+  phase: PhaseKey;
+}
+
+const { phase } = Astro.props;
+const info = phaseInfo(phase);
+const has = (name: string) => Astro.slots.has(name);
+
+const facts: { slot: string; label: string }[] = [
+  { slot: "takes-in", label: "Takes in" },
+  { slot: "runs", label: "Runs" },
+  { slot: "deliverable", label: "Deliverable" },
+  { slot: "done", label: "Done when" },
+  { slot: "tripwire", label: "Tripwire" },
+];
+
+const levels: { slot: string; label: string; rung: string }[] = [
+  { slot: "level-0", label: "Level 0", rung: "pattern close" },
+  { slot: "level-1", label: "Level 1", rung: "standard triage" },
+  { slot: "level-2", label: "Level 2", rung: "full arc" },
+  { slot: "any-level", label: "Any level", rung: "" },
+];
+
+/* Render each slot once, up front: Astro.slots.render returns HTML. */
+const rendered: Record<string, string> = {};
+for (const name of [
+  "question-detail",
+  ...facts.map((f) => f.slot),
+  ...levels.map((l) => l.slot),
+]) {
+  if (has(name)) rendered[name] = await Astro.slots.render(name);
+}
+---
+
+<div class={`phase-glance phase-glance--${phase}`}>
+  <dl class="phase-glance__facts">
+    <div class="phase-glance__fact">
+      <dt>Question</dt>
+      <dd>
+        <p class="phase-glance__question">{info.question}</p>
+        {rendered["question-detail"] && (
+          <div class="phase-glance__detail" set:html={rendered["question-detail"]} />
+        )}
+      </dd>
+    </div>
+    {facts.filter((f) => rendered[f.slot]).map((f) => (
+      <div class="phase-glance__fact">
+        <dt>{f.label}</dt>
+        <dd set:html={rendered[f.slot]} />
+      </div>
+    ))}
+  </dl>
+
+  <table class="phase-glance__levels">
+    <caption>
+      {info.name} at each level of the <a href="/docs/fast-path/">depth ladder</a>
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">Level</th>
+        <th scope="col">At this level, {info.name} is</th>
+      </tr>
+    </thead>
+    <tbody>
+      {levels.filter((l) => rendered[l.slot]).map((l) => (
+        <tr>
+          <th scope="row">
+            <span class="phase-glance__level">{l.label}</span>
+            {l.rung && <span class="phase-glance__rung">{l.rung}</span>}
+          </th>
+          <td set:html={rendered[l.slot]} />
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .phase-glance {
+    --accent: var(--assured-accent);
+    margin: 1.5rem 0 2rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: 4px solid var(--accent);
+    border-radius: 0.85rem;
+    background: var(--assured-panel);
+    overflow: hidden;
+  }
+  .phase-glance--alert         { --accent: var(--assured-phase-alert); --accent-text: var(--assured-phase-alert-soft); }
+  .phase-glance--subject       { --accent: var(--assured-phase-subject); --accent-text: var(--assured-phase-subject-soft); }
+  .phase-glance--scope         { --accent: var(--assured-phase-scope); --accent-text: var(--assured-phase-scope-soft); }
+  .phase-glance--uncover       { --accent: var(--assured-phase-uncover); --accent-text: var(--assured-phase-uncover-soft); }
+  .phase-glance--risk          { --accent: var(--assured-phase-risk); --accent-text: var(--assured-phase-risk-soft); }
+  .phase-glance--escalation    { --accent: var(--assured-phase-escalation); --accent-text: var(--assured-phase-escalation-soft); }
+  .phase-glance--documentation { --accent: var(--assured-phase-documentation); --accent-text: var(--assured-phase-documentation-soft); }
+
+  .phase-glance__facts {
+    margin: 0;
+    padding: 1.1rem 1.4rem 0.4rem;
+  }
+  .phase-glance__fact {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    padding: 0 0 0.85rem;
+  }
+  @media (min-width: 720px) {
+    .phase-glance__fact {
+      grid-template-columns: 9rem 1fr;
+      gap: 1rem;
+    }
+  }
+  .phase-glance__fact dt {
+    margin: 0;
+    color: var(--accent-text, var(--assured-accent-soft));
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-top: 0.2rem;
+  }
+  .phase-glance__fact dd {
+    margin: 0;
+    color: var(--assured-text-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .phase-glance__fact dd :global(p) { margin: 0 0 0.5rem; }
+  .phase-glance__fact dd :global(p:last-child) { margin-bottom: 0; }
+  .phase-glance__fact dd :global(ul) { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+  .phase-glance__question {
+    color: var(--assured-text);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .phase-glance__levels {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    font-size: 0.93rem;
+  }
+  .phase-glance__levels caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0.85rem 1.4rem 0.35rem;
+    color: var(--assured-text-dim);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .phase-glance__levels caption a { color: inherit; }
+  .phase-glance__levels thead th {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .phase-glance__levels tbody th,
+  .phase-glance__levels td {
+    padding: 0.7rem 1.4rem;
+    vertical-align: top;
+    text-align: left;
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
+  }
+  .phase-glance__levels tbody th {
+    width: 9rem;
+    white-space: nowrap;
+  }
+  .phase-glance__level {
+    display: block;
+    color: var(--assured-text);
+    font-weight: 700;
+  }
+  .phase-glance__rung {
+    display: block;
+    color: var(--assured-text-dim);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .phase-glance__levels td {
+    color: var(--assured-text-muted);
+    line-height: 1.6;
+  }
+  .phase-glance__levels td :global(p) { margin: 0 0 0.5rem; }
+  .phase-glance__levels td :global(p:last-child) { margin-bottom: 0; }
+
+  @media (max-width: 640px) {
+    .phase-glance__levels tbody tr { display: block; }
+    .phase-glance__levels tbody th,
+    .phase-glance__levels td { display: block; width: auto; }
+    .phase-glance__levels td { border-top: 0; padding-top: 0; }
+  }
+</style>

@@ -10,16 +10,15 @@
  * inline markup (<em>, <code>, links) without resorting to set:html.
  */
 import LetterChip from "@/components/assured/LetterChip.astro";
+import {
+  chapterPillars,
+  type PhaseKey,
+  phaseInfo,
+  phases,
+} from "@/data/navigation";
 import { timeOnTargetFor } from "@/data/time-budgets";
 
-type Phase =
-  | "alert"
-  | "subject"
-  | "scope"
-  | "uncover"
-  | "risk"
-  | "escalation"
-  | "documentation";
+type Phase = PhaseKey;
 
 interface Pillar {
   num: string;
@@ -29,67 +28,72 @@ interface Pillar {
 
 interface Props {
   phase: Phase;
-  letter: string;
-  pieceNumber: number;
+  /** Defaults to the phase letter from navigation.ts. */
+  letter?: string;
+  /** Defaults to the phase's position (1-7). */
+  pieceNumber?: number;
   totalPieces?: number;
-  question: string;
-  pillars: Pillar[];
-  /** Optional override for the on-shift chip. Defaults to the
-   *  experienced-analyst range from time-budgets.ts, the same source the
-   *  intro's time table renders, so the two can never drift apart. */
+  /** Defaults to the phase's anchor question from navigation.ts. */
+  question?: string;
+  /** Defaults to the chapter's numbered pillars from navigation.ts. */
+  pillars?: Pillar[];
+  /** Optional override for the time chip. Defaults to the experienced-
+   *  analyst range from time-budgets.ts (a full Level 2 arc), the same
+   *  source the fast path's "Time per phase, by experience level" table
+   *  renders (/docs/fast-path/#time-per-phase-by-experience-level), so the
+   *  two cannot drift. */
   timeOnTarget?: string;
-  /** Optional: override the auto-generated "Stage N · piece M of K" overline. */
+  /** Optional: override the auto-generated "Orient stage · phase M of K" overline. */
   overlineOverride?: string;
 }
 
 const PHASE_COLORS: Record<
   Phase,
-  { rgb: string; light: string; medium: string; group: number }
+  { rgb: string; light: string; medium: string }
 > = {
-  alert: { rgb: "59, 130, 246", light: "#93c5fd", medium: "#60a5fa", group: 1 },
+  alert: { rgb: "59, 130, 246", light: "#93c5fd", medium: "#60a5fa" },
   subject: {
     rgb: "34, 197, 94",
     light: "#86efac",
     medium: "#4ade80",
-    group: 1,
   },
-  scope: { rgb: "168, 85, 247", light: "#d8b4fe", medium: "#c084fc", group: 1 },
+  scope: { rgb: "168, 85, 247", light: "#d8b4fe", medium: "#c084fc" },
   uncover: {
     rgb: "249, 115, 22",
     light: "#fdba74",
     medium: "#fb923c",
-    group: 2,
   },
-  risk: { rgb: "239, 68, 68", light: "#fca5a5", medium: "#f87171", group: 2 },
+  risk: { rgb: "239, 68, 68", light: "#fca5a5", medium: "#f87171" },
   escalation: {
     rgb: "99, 102, 241",
     light: "#a5b4fc",
     medium: "#818cf8",
-    group: 3,
   },
   documentation: {
     rgb: "6, 182, 212",
     light: "#67e8f9",
     medium: "#22d3ee",
-    group: 3,
   },
 };
 
-const {
-  phase,
-  letter,
-  pieceNumber,
-  totalPieces = 7,
-  question,
-  pillars,
-  overlineOverride,
-  timeOnTarget,
-} = Astro.props;
+const { phase, totalPieces = 7, overlineOverride, timeOnTarget } = Astro.props;
+const info = phaseInfo(phase);
+const letter = Astro.props.letter ?? info.letter;
+const question = Astro.props.question ?? info.question;
+const pieceNumber =
+  Astro.props.pieceNumber ?? phases.findIndex((p) => p.phase === phase) + 1;
+const pillars: Pillar[] =
+  Astro.props.pillars ??
+  chapterPillars(phase).map((p, i) => ({
+    num: String(i + 1).padStart(2, "0"),
+    label: p.shortTitle ?? p.title,
+    href: p.href,
+  }));
 const colors = PHASE_COLORS[phase];
 const timeChip = timeOnTarget ?? timeOnTargetFor(phase);
 const overline =
   overlineOverride ??
-  `Stage ${colors.group} · piece ${pieceNumber} of ${totalPieces}`;
+  `${info.stage} stage · phase ${pieceNumber} of ${totalPieces}`;
 const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; --phase-medium: ${colors.medium};`;
 ---
 
@@ -101,16 +105,19 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
       <p class="chapter-hero__question">{question}</p>
     </div>
     {/* The visible spans ARE the accessible content (no aria-hidden, no
-        aria-label wall of text). The clarification that this is a live-shift
-        target rather than a reading time is visually-hidden text, so it
-        reaches screen readers and is not trapped in a mouse-only title. */}
+        aria-label wall of text). The caption under the value says whose
+        time it is and that it is per case, not reading time, so a newcomer
+        does not read "5–12 min" as the time to read the chapter. Only the
+        depth-ladder hint is visually hidden. The chip links to the depth
+        ladder, where the Level 0 and Level 1 budgets live. */}
     {timeChip && (
-      <span class="chapter-hero__time" role="note">
+      <a class="chapter-hero__time" href="/docs/fast-path/">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span class="chapter-hero__time-label">On-shift target</span>
+        <span class="chapter-hero__time-label">Full-arc time (Level 2)</span>
         <span class="chapter-hero__time-value">{timeChip}</span>
-        <span class="chapter-hero__time-sr">Operational target for triaging a live alert, not a reading-time estimate. Complex cases legitimately exceed it.</span>
-      </span>
+        <span class="chapter-hero__time-who">experienced analyst, per case, not reading time</span>
+        <span class="chapter-hero__time-sr">A diagnostic range, not a quota; most alerts close faster at Level 0 or 1. Opens the depth ladder.</span>
+      </a>
     )}
   </div>
 
@@ -136,11 +143,9 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
     background: linear-gradient(
       135deg,
       rgba(var(--phase-rgb), 0.16),
-      rgba(15, 23, 42, 0.6)
+      rgba(15, 23, 42, 0.82)
     );
     border: 1px solid rgba(var(--phase-rgb), 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     position: relative;
     overflow: hidden;
   }
@@ -156,17 +161,24 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
   .chapter-hero__time {
     margin-left: auto;
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem 0.4rem;
+    max-width: 17rem;
     padding: 0.35rem 0.7rem;
-    border-radius: 9999px;
+    border-radius: 0.9rem;
     background: rgba(15, 23, 42, 0.65);
     border: 1px solid rgba(var(--phase-rgb), 0.35);
     color: var(--phase-light);
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 1;
-    cursor: help;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .chapter-hero__time:hover {
+    border-color: rgba(var(--phase-rgb), 0.7);
   }
 
   .chapter-hero__time-label {
@@ -179,6 +191,16 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
   .chapter-hero__time-value {
     color: var(--assured-text);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Second line of the chip: whose time, and that it is per case. */
+  .chapter-hero__time-who {
+    flex-basis: 100%;
+    padding-left: calc(14px + 0.4rem);
+    color: var(--assured-text-muted);
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.3;
   }
 
   .chapter-hero__overline {
@@ -250,7 +272,7 @@ const styleVars = `--phase-rgb: ${colors.rgb}; --phase-light: ${colors.light}; -
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     border-radius: 0.6rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.25);
     color: var(--assured-text-soft);
     text-decoration: none;

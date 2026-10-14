@@ -1,6 +1,7 @@
 ---
 title: "Regulatory boundaries"
-description: "GDPR, CCPA, PCI DSS, HIPAA, SOX, SEC disclosure. Recognize which rules attach, start the right clocks, and get the right owners into the case."
+description: "GDPR, CCPA and California's breach law, PCI DSS, HIPAA, SOX, SEC disclosure, with pointers to NIS2, DORA, UK GDPR and sector clocks. Recognize which rules may attach, record the timestamps their clocks run from, and get the right owners into the case."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -13,419 +14,133 @@ import PillNav from "@/components/assured/PillNav.astro";
 
 <SubPageHero
   phase="scope"
-  parentLetter="S"
-  pillarIndex="01"
-  pillarTotal="04"
-  chapterHref="/docs/scope/"
-  chapterLabel="Scope"
   lede="Regulatory boundaries shape what an investigation must preserve, who has to hear about it, and how fast. The analyst's job is recognition and escalation, not legal interpretation."
 />
 
-<PillNav
-  chapter="scope"
-  label="Scope chapter"
-  items={[
-    { label: "Regulatory",     href: "/docs/scope/regulatory/",     phase: "scope" },
-    { label: "Time",           href: "/docs/scope/time/",           phase: "scope" },
-    { label: "Entity",         href: "/docs/scope/entity/",         phase: "scope" },
-    { label: "Infrastructure", href: "/docs/scope/infrastructure/", phase: "scope" },
-  ]}
-/>
+<PillNav chapter="scope" />
 
-## The analyst's regulatory job: recognize, start clocks, hand off
+## The analyst's regulatory job: recognize, timestamp, preserve, hand off
+
+*Law as of October 2026. Regulatory text changes faster than technique; check dates against your compliance team's current list.*
 
 A triage analyst is not a lawyer and does not need to be one. The regulatory work in Scope is four moves:
 
-1. **Recognize the data class.** Personal data, cardholder data, health information, financial-reporting systems. The moment a regulated class is plausibly in reach of the compromise, a framework attaches.
-2. **Commit the timestamps.** Most notification clocks run from *awareness* or *discovery*, not from confirmation. The time the SOC first had reasonable cause to believe regulated data was involved is a fact your case record must capture.
-3. **Preserve.** Stop log rotation on relevant systems, keep original artifacts intact, and do not delete anything once litigation or a regulatory response is plausible.
-4. **Get the owner into the case.** Privacy officer, counsel, compliance, the acquirer contact. They interpret the obligation; you give them the facts and the timestamps to interpret it with.
+1. **Recognize the data class.** Personal data, cardholder data, health information, financial-reporting systems. The moment a regulated class is plausibly in reach of the compromise, its framework becomes a candidate: tag the case and route the applicability call to the owner. Reach is a Scope flag; regulated data plausibly accessed by the activity under review is what moves a case to Level 2 on the [depth ladder](/docs/fast-path/).
+2. **Commit the timestamps.** Most clocks run from *awareness*, *discovery* or *suspicion*, not from confirmation. Record in UTC when the SOC first had reasonable cause to believe regulated data was involved, including the time an external notice reached the organization (see [Other intake](/docs/alert/intake/#external-notifications)), and when each owner was engaged.
+3. **Preserve.** Delete nothing, and find every rotation, teardown and cleanup job that will destroy relevant data before the case can use it. Request a retention extension or hold through the authorized path (the owning team under your documented preservation procedure, or counsel's hold once litigation or a regulatory response is plausible), and record the request and its time; when containment is coming, see [Preserve before you contain](/docs/escalation/preserve/).
+4. **Get the owner into the case.** The privacy officer or <DefineTerm term="Data Protection Officer (DPO)" />, counsel, compliance, or the owner of the acquirer relationship (the bank that processes your card payments). They interpret the obligation; you give them the facts and the timestamps. None of this waits for a final verdict, and if the activity is confirmed and regulated data is in its path, the high-impact [escalation criterion](/docs/escalation/criteria/) may already be met.
 
 <Callout variant="warn" title="This page is triage guidance, not legal advice">
-Which obligations actually apply depends on jurisdiction, contracts, and your organization's role (controller vs. processor, covered entity vs. business associate, merchant vs. service provider). The point of this page is recognition: know when to raise your hand, and how fast. Your privacy and legal teams own the rest.
+Which obligations apply depends on jurisdiction, contracts, and your organization's role (controller or processor, covered entity or business associate, merchant or service provider). This page is about recognition: knowing when to raise your hand, and how fast. Your privacy and legal teams own the rest.
 </Callout>
 
-<Reveal summary="The four moves, run on the finance-team intrusion" variant="example">
+<Reveal summary="The four moves, run on Case A" variant="example">
 
-Here is the whole regulatory pass applied to the threaded case from the [working example](/docs/scope/example/). It takes minutes, not hours:
+The regulatory pass on [Case A, the finance-team intrusion](/docs/scope/example/#case-a), takes minutes:
 
-1. **Recognize.** The compromised user's federated identity can reach a cloud finance platform that processes vendor payments and stores vendor-contact records. Two regulated classes are plausibly in reach: cardholder data (PCI DSS, *if* any in-scope system sits inside the CDE) and personal data of EU-resident vendor contacts (GDPR, *if* an Article 3 nexus attaches — the DPO's call, not the analyst's). "Can reach" is enough to tag the case; no platform activity has been confirmed yet.
-2. **Commit the timestamps.** Two entries go in the record: when the alert fired (09:11) and when the analyst recognized that regulated data was plausibly in reach. If the DPO later decides the GDPR notification duty applies, the 72-hour math runs from an awareness moment; the analyst's job is to make sure candidate moments are written down, not to pick which one counts.
-3. **Preserve.** The platform's audit logs are requested and held past their rotation schedule, the original `%TEMP%\upd.ps1` artifact and its hash stay intact, and automated cleanup on the proxy logs is paused for the case window.
-4. **Get the owners in.** Compliance (who own the acquirer relationship for the PCI question) and the DPO join the case during Scope, hours before Uncover confirms anything.
+1. **Recognize.** The compromised user's federated identity can reach a cloud finance reporting platform that feeds vendor payments and stores vendor-contact records. Two regulated classes are plausibly in reach: cardholder data (PCI DSS, *if* the platform touches card data at all; compliance owns that question) and personal data of vendor contacts in the EU (GDPR, *if* an Article 3 nexus attaches: the DPO's call). "Can reach" is enough to tag the case; no platform activity has been seen yet. If the company is publicly listed, the platform is also a likely SOX-relevant system, so finance compliance is flagged too.
+2. **Commit the timestamps.** The alert (09:11 UTC) and the moment the analyst recognized regulated data was plausibly in reach (09:42). If GDPR applies, later moments (such as finding an attacker session on the platform) join these as awareness candidates; the DPO, not the analyst, decides which one counts.
+3. **Preserve.** The platform's audit logs are requested and held past their rotation schedule, the stage's on-disk copy `%TEMP%\upd.ps1` and its hash stay intact, and automated cleanup on the proxy logs is paused for the case window.
+4. **Get the owners in.** Compliance (who own the PCI question and the acquirer relationship, if there is one) and the DPO join the case during Scope at 09:45, hours before Uncover confirms anything on the platform.
 
-What the analyst deliberately does *not* do: decide whether the CDE boundary was actually crossed, decide whether authority notification is required, or contact anyone outside the organization. And the contrast case matters just as much: the same pass on the Cursor false-positive runs, concludes "no regulated data in reach, source code is sensitive but not regulated," and records that conclusion. A documented "none" is a regulatory boundary too.
+The analyst decides neither whether the cardholder data environment (CDE) was crossed nor whether notification is required. The same pass on [Case B](/docs/scope/example/#case-b), the Cursor benign true positive, concludes "no regulated data in reach; source code is sensitive but not regulated," and records it. A documented "none" is a regulatory boundary too.
 
 </Reveal>
 
-## Six regimes an analyst should recognize
+## Regimes an analyst should recognize
 
-<div class="reg-grid">
-  <a href="#gdpr" class="reg-card">
-    <h3>🇪🇺 GDPR</h3>
-    <p>Personal data where an Article 3 nexus exists: an EU/EEA establishment, offering goods or services to people in the EU, or monitoring their behavior. 72-hour authority notification from awareness of a breach.</p>
-  </a>
-  <a href="#ccpa" class="reg-card">
-    <h3>🐻 CCPA / CPRA</h3>
-    <p>California residents' personal information. Breach notice "in the most expedient time possible"; consumer-rights clocks keep running during your investigation.</p>
-  </a>
-  <a href="#pci" class="reg-card">
-    <h3>💳 PCI DSS</h3>
-    <p>Cardholder data. Contractual, not statute: card-brand rules require prompt compromise notification and can trigger an independent forensic investigation.</p>
-  </a>
-  <a href="#hipaa" class="reg-card">
-    <h3>🏥 HIPAA</h3>
-    <p>Protected Health Information at covered entities and business associates. Minimum-necessary access during the investigation; 60-day breach clock from discovery.</p>
-  </a>
-  <a href="#sox" class="reg-card">
-    <h3>📊 SOX</h3>
-    <p>Public-company financial-reporting controls. Preservation duties (§802; Rule 2-06 covers accountants' audit records), segregation of duties that survives the incident, control-deficiency reporting.</p>
-  </a>
-  <a href="#sec" class="reg-card">
-    <h3>🏛️ SEC disclosure</h3>
-    <p>US public companies. Material cyber incidents are disclosed on Form 8-K within four business days of the materiality determination.</p>
-  </a>
-</div>
+Every regime asks three things of triage: what you may touch, what records you must leave, and which clock, if any, starts. This page teaches six. The [regulatory clock card](/docs/scope/clocks/) carries the full recognition table, including NIS2, DORA and the US sector rules, with recipients and primary sources.
 
-<Callout variant="info" title="The pattern across all six">
-Each regime has three triage implications: <strong>(1)</strong> what data the analyst can touch and how carefully, <strong>(2)</strong> what records the investigation has to leave behind, and <strong>(3)</strong> what notification clocks start running. Scope is where those three are made explicit, before Uncover starts touching regulated data.
-</Callout>
+| Regime | Recognize it when | Clock starts at | First deadline | Owner to engage |
+|---|---|---|---|---|
+| [GDPR](#gdpr) | Personal data, and an Article 3 nexus to the EU | Awareness | 72 hours to the supervisory authority, where feasible | DPO |
+| [California](#ccpa) | California residents' personal information | Discovery | 30 calendar days to residents | Privacy and legal |
+| [PCI DSS](#pci) | Account data, or a system in or connected to the CDE | Suspicion | The acquirer immediately; brands within days (Visa: three) | Acquirer-relationship owner |
+| [HIPAA](#hipaa) | Protected Health Information (PHI) at a covered entity or business associate | Discovery | Without unreasonable delay, 60 days at most | Privacy officer |
+| [SOX](#sox) | Financial-reporting systems at a public company | No clock of its own | Preservation and control-deficiency duties | Finance compliance |
+| [SEC 8-K](#sec) | A possibly material incident at a US public company | Materiality determination | Four business days | Disclosure committee |
 
----
+## GDPR
 
-<h2 id="gdpr">GDPR</h2>
+GDPR applies where one of Article 3's nexus tests is met: processing in the context of an EU/EEA establishment (Art. 3(1)), offering goods or services to people in the EU (Art. 3(2)(a)), or monitoring their behavior (Art. 3(2)(b)). A non-EU company that merely holds an EU visitor's data is not automatically in scope. That call is the DPO's; the analyst records the candidate facts (whose data, where the subjects are). Personal data is broad (IP addresses and device identifiers usually qualify), and a breach includes loss or alteration, not only disclosure (Art. 4(12)).
 
-The General Data Protection Regulation applies where one of Article 3's nexus tests is met: the processing happens in the context of an EU/EEA establishment of the controller or processor, wherever the processing itself occurs (Art. 3(1)); a non-EU organization offers goods or services to people who are in the EU (Art. 3(2)(a)); or a non-EU organization monitors the behavior of people in the EU (Art. 3(2)(b)). A non-EU company that merely holds an EU visitor's data, with none of those hooks, is not automatically in scope — and that determination is not the analyst's to make. The analyst records the candidate facts (whose data, where the subjects are, what the organization's EU footprint and targeting look like) and routes the call to the DPO or counsel. "Personal data" itself is broad: IP addresses, device identifiers, location data, and behavioral records all count.
-
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>Investigating is permitted; minimization still applies</h3>
-    <p>Processing personal data for network and information security is a recognized legitimate interest (Recital 49), so the investigation itself has a lawful basis. Data minimization (Art. 5(1)(c)) still governs how you do it: pull the data the case needs, over the window the case needs, and record why.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>The clocks: Art. 33 and Art. 34</h3>
-    <p>A personal-data breach must be reported to the supervisory authority within <strong>72 hours of the organization becoming aware of it</strong>, unless it is unlikely to result in risk to individuals (Art. 33). If the risk to individuals is high, they must be told without undue delay (Art. 34). Processors must notify their controllers without undue delay (Art. 33(2)). If your company processes other companies' data, the customer's clock is now running too.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>What Scope commits to the record</h3>
-    <p>The awareness timestamp; the categories of personal data plausibly involved; a rough count of affected data subjects if one can be estimated; and which systems the estimate is based on. These are exactly the fields the DPO needs to make the Art. 33 call.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>Cross-border handling</h3>
-    <p>If investigation work moves personal data out of the EU/EEA (an analyst in another region pulling raw logs, evidence copied to a non-EU case system), Chapter V transfer safeguards are in play, typically Standard Contractual Clauses your organization already has. You don't build that machinery; you flag the transfer so the privacy team can confirm it's covered.</p>
-  </div>
-</div>
+- **Investigate, minimally.** Strictly necessary security monitoring is a recognized legitimate interest (Recital 49; Art. 6(1)(f)), subject to the balancing test your privacy team documents. Public authorities cannot rely on legitimate interests for their own tasks; their basis is usually Art. 6(1)(c) or (e), so check with the DPO. Special-category data (health, biometrics) needs its own Art. 9(2) condition: flag it to the DPO. Pull only the data and window the case needs, and record why (Art. 5(1)(c)).
+- **The clock.** The supervisory authority hears without undue delay and, where feasible, within 72 hours of awareness, unless the breach is unlikely to result in risk (Art. 33(1)). A late notification must give the reasons for the delay, and details may follow in phases (Art. 33(4)). Every breach, notified or not, goes in the controller's internal breach record (Art. 33(5)), which is where a documented "none" lives. A processor notifies its controller without undue delay (Art. 33(2)), and that notice generally starts the controller's 72 hours. UK GDPR works the same way, through the ICO (see the [clock card](/docs/scope/clocks/#eu-and-uk)). (The proposed EU Digital Omnibus would raise the threshold and lengthen the deadline; as of October 2026 it is not adopted, and 72 hours is the law.)
+- **Cross-border handling.** An analyst outside the EU/EEA pulling or even remotely viewing raw logs is a Chapter V transfer: flag it so privacy can confirm the mechanism (an adequacy decision, <DefineTerm term="Standard Contractual Clauses (SCC)" display="Standard Contractual Clauses" /> or Binding Corporate Rules). Employee-monitoring rules can also limit who may examine an employee's data (see [insider analysis](/docs/subject/insider-analysis/)).
+- **Scope records.** The awareness candidates, the categories of personal data involved, and a rough count of data subjects.
 
 <Callout variant="warn" title="The 72-hour clock starts at awareness, not at confirmation">
-"Awareness" is generally the moment the organization has a reasonable degree of certainty that a personal-data breach occurred. That can predate full technical confirmation by hours or days. Scope is where the analyst commits a timestamp of awareness to the record so the notification math is defensible later.
+<DefineTerm term="Awareness (GDPR)" display="Awareness" /> is a reasonable degree of certainty that a security incident has compromised personal data ([EDPB Guidelines 9/2022](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-92022-personal-data-breach-notification-under_en), paras. 31 and 34). A short, prompt check on whether a breach occurred does not start the clock; an open-ended one gets no such benefit. Record when the check started and when it reached reasonable certainty.
 </Callout>
 
----
+<h2 id="ccpa">California (CCPA/CPRA and the breach statute)</h2>
 
-<h2 id="ccpa">CCPA / CPRA</h2>
+The breach duty comes from <a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.82" target="_blank" rel="noopener noreferrer">Cal. Civ. Code §1798.82</a>, which binds anyone doing business in California who owns or licenses computerized personal information, whatever the CCPA thresholds. The CCPA (as amended by the CPRA) adds consumer-rights clocks and a private right of action for certain breaches (§1798.150), which is why counsel wants facts as they develop.
 
-California's privacy regime covers California residents' personal information, with the CPRA amendments adding a "sensitive personal information" category. Two things matter to a triage analyst: the breach-notification standard and the fact that consumer-rights machinery keeps running while you investigate.
-
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>Breach notification</h3>
-    <p><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.82" target="_blank" rel="noopener noreferrer">Cal. Civ. Code §1798.82</a> requires notice to affected residents "in the most expedient time possible and without unreasonable delay." There is no fixed clock, which is why the discovery timestamp and a documented, diligent investigation are the defense. Breaches affecting more than 500 California residents also require a sample notice to the Attorney General.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Why counsel cares early</h3>
-    <p>CCPA carries a private right of action with statutory damages for certain breaches of unencrypted, unredacted personal information caused by failure to maintain reasonable security. That litigation exposure is why legal wants the facts as they develop, not after closure.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>Rights clocks keep running</h3>
-    <p>Consumer access and deletion requests run on a 45-day response clock that does not pause for your investigation. A deletion request touching data under investigation needs coordination: the statute has exceptions for security purposes (<a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.105" target="_blank" rel="noopener noreferrer">§1798.105(d)</a>), but invoking one is a privacy-team decision, not an analyst's.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>What Scope commits to the record</h3>
-    <p>The categories of personal information in reach of the compromise, an estimate of California residents affected if one is possible, the discovery timestamp, and a plain-language justification for each investigative access to personal information. Plain language beats invented code schemes: write down what you touched and why.</p>
-  </div>
-</div>
-
----
+- **The clock.** Since January 1, 2026 (SB 446), residents get notice within 30 calendar days of discovery or notification of the breach. Delay is allowed only for law enforcement's needs, or to determine the breach's scope and restore the system's integrity. When more than 500 residents are notified, a sample notice goes to the Attorney General within 15 days of notifying them. If you hold the data for someone else, notify the owner immediately after discovery (§1798.82(b)).
+- **Rights clocks keep running.** Access, correction and deletion requests run on a 45-day clock (extendable once) that does not pause for your investigation; invoking the security exception (§1798.105(d)) is the privacy team's decision.
+- **Scope records.** The discovery timestamp, the categories of personal information in reach, an estimate of affected residents, and a plain-language reason for each investigative access.
 
 <h2 id="pci">PCI DSS</h2>
 
-PCI DSS is not a law. It is a contractual standard that flows from the card brands through acquiring banks to merchants and service providers. The consequences of getting it wrong are contractual too: fines passed down by the acquirer, increased audit burden, and in the worst case losing the ability to process cards.
+PCI DSS is mostly a contractual standard flowing from the card brands through acquiring banks to merchants (a few states, such as Nevada, write it into statute).
 
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>The boundary is the CDE</h3>
-    <p>Systems that store, process, or transmit account data (PANs, track data, CVV2, PIN blocks), plus systems with unrestricted connectivity to them, form the <DefineTerm term="Cardholder Data Environment (CDE)" display="Cardholder Data Environment" definition="The people, processes, and technology that store, process, or transmit cardholder data or sensitive authentication data, plus connected systems. The scope boundary for PCI DSS controls." />. Scope's first PCI question is whether anything the compromised identity or host can reach sits inside that boundary.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Investigative access follows the same controls</h3>
-    <p>PCI DSS v4 doesn't have a special investigator lane: access into the CDE during an investigation follows the same least-privilege, unique-ID, and logging requirements (Req. 7, 8, 10) as any other access. Practically, that means going through the sanctioned access path (jump hosts, PAM, logged sessions), even under time pressure.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>The evidence window you can count on</h3>
-    <p><a href="https://www.pcisecuritystandards.org/document_library/" target="_blank" rel="noopener noreferrer">Requirement 10</a> requires audit logs to be retained for at least 12 months with the most recent 3 months immediately available (10.5.1), protected from modification, and promptly backed up to a central log server (10.3). If the environment is compliant, that is your guaranteed look-back window for CDE systems.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>Suspected compromise starts external machinery</h3>
-    <p>Card-brand rules require prompt notification of suspected or confirmed account-data compromise through the acquirer; deadlines are measured in days and set by each brand's own rules. A confirmed account-data compromise typically brings in a <DefineTerm term="PFI" display="PCI Forensic Investigator" definition="A PCI SSC-qualified forensic company engaged after a confirmed or suspected account data compromise to determine what happened and what data was exposed. Card brands can require a PFI engagement as a condition of continued processing." />. What you preserve in the first hours determines what that investigation can use.</p>
-  </div>
-</div>
+- **The boundary is the CDE.** Systems that store, process, or transmit account data, plus systems with unrestricted connectivity to them, form the <DefineTerm term="Cardholder Data Environment (CDE)" display="cardholder data environment (CDE)" definition="The system components, people, and processes that store, process, or transmit cardholder data or sensitive authentication data, plus system components with unrestricted connectivity to them. Connected-to and security-impacting systems are in PCI scope but are not part of the CDE." />. Scope's first PCI question is whether anything the compromised identity or host can reach sits inside it.
+- **No investigator lane.** Access into the CDE during an investigation follows the same least-privilege, unique-ID and logging requirements (Req. 7, 8 and 10) as any other: use the sanctioned path (jump hosts, <DefineTerm term="Privileged Access Management (PAM)" display="PAM" />, logged sessions).
+- **The evidence window you should expect.** <a href="https://www.pcisecuritystandards.org/document_library/" target="_blank" rel="noopener noreferrer">Requirement 10.5.1</a> keeps audit logs for at least 12 months, the most recent 3 immediately available. That is the minimum look-back to expect for CDE systems; verify actual retention, and tampering, before relying on it.
+- **The clock runs from suspicion.** Card-brand rules apply to suspected compromise. Visa requires immediate notice to the acquirer and a report within three calendar days; American Express, notice within 72 hours. Confirm Mastercard's rules and your acquirer agreement for the figure that binds you (see the [card-brand clocks](/docs/scope/clocks/#contractual-card-brand-and-insurance-clocks)). A confirmed compromise typically brings in a <DefineTerm term="PFI" display="PCI Forensic Investigator" definition="A PCI SSC-qualified forensic company engaged after a confirmed or suspected account data compromise to determine what happened and what data was exposed. Card brands can require a PFI engagement as a condition of continued processing." />, who can use only what you preserved.
+- **Scope's PCI checklist.** Tag the case the moment account data is plausibly in reach, request that CDE logs be held the same day, and tell the acquirer-relationship owner the same day: they own the brand-notification decision.
 
-<Callout variant="info" title="Scope's PCI checklist">
-Tag the case PCI-relevant the moment account data is plausibly in reach. Identify whether any in-scope system or identity touches the CDE. Preserve CDE logs beyond their rotation schedule. Notify whoever owns the acquirer relationship. That's usually a named person in finance or compliance, and they own the brand-notification decision.
-</Callout>
+## HIPAA
 
----
+HIPAA governs PHI held by covered entities and their business associates.
 
-<h2 id="hipaa">HIPAA</h2>
+- **You may investigate.** Internal security review is part of the covered entity's own health care operations (45 CFR §164.506), and the Security Rule requires incident procedures (§164.308(a)(6)). §164.512 governs disclosures to outside parties, not looking at your own logs.
+- **Minimum necessary applies to you.** Query the PHI the case needs (§164.502(b)), prefer metadata and masked views, and document why fuller access was needed when it was.
+- **Discovery starts the 60-day clock.** <DefineTerm term="Discovery (HIPAA)" display="Discovery" /> is the first day anyone in the workforce other than the wrongdoer knew, or with reasonable diligence would have known; the alert that starts triage can be it, so engage the privacy officer as soon as PHI is plausibly in reach. Impermissible access to unsecured PHI is presumed a breach unless the privacy officer's four-factor assessment (§164.402) shows a low probability of compromise, and that assessment does not pause the clock. HHS applies the same presumption to ransomware: encryption of ePHI by ransomware is presumed a breach unless that assessment shows a low probability of compromise, so "no exfiltration" does not clear it. Individuals hear within 60 days at the latest (§164.404). A business associate's clock runs to the covered entity (§164.410), and the agreement probably says sooner.
+- **Scope records.** The discovery timestamp, the PHI types in reach and the access justifications, which join breach documentation kept for six years (§164.530(j)).
 
-HIPAA governs Protected Health Information held by covered entities and their business associates. For a triage analyst the two operative ideas are *minimum necessary* while you investigate, and the *breach-notification machinery* your findings feed.
+## SOX
 
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>You may investigate, under the right authority</h3>
-    <p>Internal security review of PHI-bearing systems is part of the covered entity's own <strong>health care operations</strong> (45 CFR §164.506; the §164.501 definition includes auditing and fraud-and-abuse detection), and the Security Rule requires security-incident procedures outright (§164.308(a)(6)). You do not need a §164.512 public-interest disclosure permission to look at your own logs; §164.512 governs disclosures to outside parties, like law enforcement (§164.512(f)).</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Minimum necessary applies to you</h3>
-    <p>The minimum-necessary standard (§164.502(b)) covers investigative access: query the PHI the case actually needs, prefer metadata and masked views where they answer the question, and document why fuller access was required when it was. That documentation is what makes the access defensible in an OCR review.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>The breach clock</h3>
-    <p>An impermissible acquisition, access, use, or disclosure of unsecured PHI is presumed a breach unless a documented risk assessment shows a low probability of compromise: the four-factor test in §164.402 (nature and extent of the PHI, who received or used it, whether it was actually acquired or viewed, and how far mitigation went). Confirmed breaches require individual notice without unreasonable delay and no later than <strong>60 days from discovery</strong> (§164.404); 500 or more individuals adds contemporaneous HHS notice and, at 500+ in one state or jurisdiction, media notice. Smaller breaches go to HHS in an annual log.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>What the record has to hold</h3>
-    <p>HIPAA does not set a specific audit-log retention period. What it does require is that mandated documentation (policies, procedures, and records of required actions and assessments, including breach risk assessments) be retained for <strong>6 years</strong> (§164.316(b)(2)(i)). Your four-factor analysis and access justifications are part of that record. Log-retention periods themselves come from organizational policy, not the statute.</p>
-  </div>
-</div>
+Sarbanes-Oxley has no breach-notification clock. Its bite during an investigation is records, controls, and where findings flow.
 
-<Callout variant="warn" title="Discovery starts the 60-day clock">
-A breach is "discovered" on the first day it is known (or would have been known by exercising reasonable diligence) by anyone in the workforce other than the person who committed it. The alert that starts your triage can itself be the discovery event. Commit the timestamp, and get the privacy officer into the case as soon as the four-factor test looks like it will not clear.
-</Callout>
-
----
-
-<h2 id="sox">SOX</h2>
-
-Sarbanes-Oxley governs the integrity of public-company financial reporting. It contains no breach-notification requirement; its bite during an investigation is about records, controls, and where your findings have to flow.
-
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>An incident can be a control deficiency</h3>
-    <p>Section 404 requires management to assess internal control over financial reporting. A compromise that touches in-scope financial systems is not just a security event; it is potential evidence that a control failed, which is a finding the SOX compliance program must evaluate and, if material, report up.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Records: destruction is criminal; retention is scoped</h3>
-    <p>Section 802 criminalizes destroying or altering records to impede a federal investigation. SEC Rule 2-06 is narrower than its reputation: it requires <em>accountants</em> to retain audit and review workpapers and related records for seven years — it is not a universal seven-year rule for incident records or operational logs. Neither rule stops every log rotation the moment an incident looks financial. What they mean for triage: alter or delete nothing yourself, flag the case to counsel early, and preserve identified relevant records under an authorized legal hold (below) whose scope counsel decides, not the analyst.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>Segregation of duties survives the incident</h3>
-    <p>Investigation pressure does not suspend financial-system access controls. Analysts should not self-authorize access to or changes on SOX-scoped systems; use the organization's documented access and change process, even when it is slower. WORM storage and tamper-evident controls on financial records must stay intact through the investigation.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>Where the findings flow</h3>
-    <p>Disclosure controls (Section 302) mean incidents that could affect the accuracy of financial reporting must reach the CFO organization and disclosure committee. Expect finance compliance, internal audit, and often the external auditor to need a structured update. Scope marks the case SOX-relevant so those notifications start in parallel with the technical work.</p>
-  </div>
-</div>
-
----
+- **An incident can be a control deficiency.** A compromise of in-scope financial systems may show that an internal control failed (Section 404), which the SOX program must evaluate.
+- **Destruction is criminal; retention is scoped.** 18 U.S.C. §1519 (added by Section 802) makes it a crime for anyone to destroy or alter records to obstruct a federal matter, even one only contemplated. Rule 2-06 of Regulation S-X binds *accountants'* audit workpapers; it is not a universal seven-year rule for incident logs. Alter nothing, and let counsel scope any hold.
+- **Segregation of duties survives the incident.** Use the documented access and change process for SOX-scoped systems, even when it is slower.
+- **Findings flow upward.** Disclosure controls (Section 302) route incidents that could affect financial reporting to the disclosure committee, so Scope marks the case SOX-relevant early.
 
 <h2 id="sec">SEC cyber disclosure</h2>
 
-Since December 2023, US public companies disclose material cybersecurity incidents publicly. This is the regime people often mistakenly attribute to SOX; it is the SEC's own cybersecurity disclosure rule.
+US public companies disclose material cybersecurity incidents on Form 8-K Item 1.05, within four business days of determining that the incident is material. The determination itself must come without unreasonable delay after discovery, and counsel makes it from your case record: scope of access, data classes, business functions affected, and when each fact was established. Write down any link to related incidents, which can be material together. The Attorney General can delay a filing on national-security or public-safety grounds (Item 1.05(c)), which only works if law enforcement was engaged early. Item 1.05 also covers incidents on third-party systems the company uses, so a vendor's breach can raise the materiality question. An incident not yet determined to be material, or one the company chooses to disclose voluntarily, goes under Item 8.01, not 1.05 (SEC staff guidance, May 2024). Separately, Regulation S-K Item 106 requires annual disclosure of cybersecurity risk management and governance in Form 10-K Item 1C, which draws on the same records of how cases like this are handled. As of October 2026, Item 1.05 is in force.
 
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>Form 8-K Item 1.05</h3>
-    <p>A material cybersecurity incident must be disclosed on Form 8-K within <strong>four business days of the company determining the incident is material</strong>, and the materiality determination itself must be made "without unreasonable delay" after discovery. The clock runs from the determination, not from the intrusion.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Materiality is fed by triage facts</h3>
-    <p>Scope of access, data classes involved, business functions affected, operational disruption: the materiality call is made by disclosure counsel and executives, but it is made <em>from your case record</em>. Vague or missing facts slow a determination the SEC expects to happen without unreasonable delay.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">03</span>
-    <h3>What-was-known-when matters</h3>
-    <p>Because the standard is anchored to determination timing, the record of when each fact was established (first alert, confirmation of data access, scope expansion) becomes part of the disclosure defense. Timestamped case notes are not bureaucracy here; they are the evidence the timeline was reasonable.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">04</span>
-    <h3>Related-incident aggregation</h3>
-    <p>A series of related smaller intrusions can be material in aggregate. If triage recognizes an alert as part of a pattern (same actor, same campaign, same weakness), say so in the record; the aggregation judgment belongs to disclosure counsel, and they can only make it if the link is written down.</p>
-  </div>
-</div>
+## Other clocks you may meet
 
----
+Several other regimes can start a clock from the same alert, and some run in hours. In financial services or critical infrastructure, the shortest clock in the case is probably one of these.
+
+<h3 id="nis2">NIS2</h3>
+
+Recognize the <DefineTerm term="Network and Information Security Directive (NIS2)" display="NIS2 Directive" /> when the organization is an essential or important entity in a sector such as energy, transport, banking, health, digital infrastructure or managed ICT services, and the incident could be significant. The first deadline is an early warning to the national <DefineTerm term="Computer Security Incident Response Team (CSIRT)" display="CSIRT" /> or competent authority within 24 hours of awareness, which leaves no room for a next-morning handoff: record when the SOC became aware and engage the owner at once. The later stages are on the [clock card](/docs/scope/clocks/#eu-and-uk).
+
+<h3 id="dora">DORA</h3>
+
+Recognize the <DefineTerm term="Digital Operational Resilience Act (DORA)" display="Digital Operational Resilience Act" /> when the organization is an EU financial entity and an ICT incident touches clients, critical services or data. The entity classifies the incident against the regulation's criteria using your facts (clients affected, duration, data losses, critical services touched), and a major incident starts a clock measured in hours, so commit those facts with timestamps. The deadlines are on the [clock card](/docs/scope/clocks/#eu-and-uk).
+
+**Also on the [clock card](/docs/scope/clocks/):** UK GDPR, the EU Cyber Resilience Act (manufacturers, since September 11, 2026), NYDFS 500.17 (including 24-hour notice of an extortion payment), the FTC Safeguards Rule, SEC Regulation S-P, the US banking 36-hour rule, DFARS 252.204-7012, other US state laws, and CIRCIA (not yet in force). Compliance keeps the authoritative list; your job is to know the clock exists and commit the timestamp it runs from.
 
 ## Legal holds and contractual clocks
 
-Two more boundary-setters that are not regulator-driven but bind just as hard.
-
-<div class="reg-detail">
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">01</span>
-    <h3>Legal hold</h3>
-    <p>Once litigation or a regulatory proceeding is reasonably anticipated, a duty to preserve relevant evidence attaches, and spoliation (FRCP 37(e) in US federal court) can cost more than the underlying incident. Counsel issues the hold and decides its scope; the analyst's job is to flag when an investigation looks like it is heading that way and to inventory what destroys relevant data by default — log rotation, ephemeral infrastructure teardown, automated cleanup jobs — so those specific processes can be suspended for the identified systems under the hold. Suspension is a scoped, authorized action, not something the analyst switches off fleet-wide on their own authority.</p>
-  </div>
-  <div class="reg-detail__card">
-    <span class="reg-detail__num">02</span>
-    <h3>Contractual notification clocks</h3>
-    <p>B2B contracts, data-processing agreements, and cyber-insurance policies carry their own deadlines: customer-notification terms of 24–72 hours are common in enterprise DPAs, and insurers make prompt notice a condition of coverage. If your organization processes other companies' data, the shortest clock in the case is often a customer's contract, not a statute. Scope should ask: whose data is this, and what did we promise them?</p>
-  </div>
-</div>
-
----
-
-## When regulatory triggers escalate the investigation
-
-Regulatory exposure is not just a constraint. It can also be a reason to escalate sooner than the technical evidence alone would justify.
-
-<div class="reg-escalation">
-  <div class="reg-escalation__row">
-    <h3>🏥 PHI plausibly compromised</h3>
-    <p>The 60-day clock runs from discovery, and the four-factor assessment has to be documented either way. Engage the privacy officer and counsel as soon as the assessment looks unlikely to clear; the disclosure timeline runs independently of the technical investigation.</p>
-  </div>
-  <div class="reg-escalation__row">
-    <h3>💳 Account data in reach</h3>
-    <p>A compromised identity or host with CDE access may require card-brand notification within days, independent of investigation status, and a PFI may re-examine everything you did. Tag the case PCI-relevant at Scope so the acquirer owner starts their clock on time.</p>
-  </div>
-  <div class="reg-escalation__row">
-    <h3>🇪🇺 EU residents affected</h3>
-    <p>GDPR's 72-hour clock means delaying engagement of the DPO has direct financial cost. Scope is where the awareness timestamp gets committed and the supervisory-authority pathway gets opened.</p>
-  </div>
-  <div class="reg-escalation__row">
-    <h3>📊 Financial systems or materiality in play</h3>
-    <p>SOX-scoped systems mean finance compliance, internal audit, and often external auditors need structured updates; at a public company, a potentially material incident starts the SEC disclosure machinery. Both run in parallel with the technical work; neither waits for your final verdict.</p>
-  </div>
-</div>
+- **<DefineTerm term="Legal Hold" display="Legal hold" />.** Once litigation or a regulatory proceeding is reasonably anticipated, a duty to preserve attaches, and spoliation (FRCP 37(e) in US federal court) can cost more than the incident. Counsel issues the hold and sets its scope; the analyst flags when a case is heading that way and lists what destroys relevant data by default (log rotation, ephemeral teardown, cleanup jobs) so it can be suspended for the identified systems.
+- **Contractual clocks.** Data-processing agreements often set customer notice at 24 to 72 hours, and insurers make prompt notice a condition of coverage. Ask: whose data is this, and what did we promise them?
+- **Write facts, not legal conclusions.** Notes may be read by regulators and opposing counsel. Record what you observed and when; write "incident" or "event", not "breach", which is counsel's determination; label speculation as hypothesis (the [language card](/docs/escalation/communication/#language) has the wording). If counsel directs the investigation, follow their instructions on privilege and distribution.
 
 <KeyTakeaway>
-Regulatory frameworks are part of the boundary the investigation is conducted within, not paperwork after the fact. Scope is where the analyst confirms which regimes attach, commits the awareness and discovery timestamps, preserves what the clocks will need, and pulls the owning teams into the case. Recognition and escalation. The interpretation belongs to privacy and legal.
+Regulatory frameworks are part of the boundary the investigation is conducted within, not paperwork after the fact. Scope is where the analyst recognizes which regimes may attach, commits the candidate awareness and discovery timestamps, preserves what the clocks will need, and pulls the owning teams into the case. Recognition and escalation. The interpretation belongs to privacy and legal.
 </KeyTakeaway>
 
 <ContinueCard
   current="scope"
-  nextHref="/docs/scope/time/"
-  nextLabel="Time boundaries"
-  nextDescription="Historical review windows, real-time investigation, retention limits. When the investigation starts and stops."
-  ctaLabel="Read time boundaries"
+  nextHref="/docs/scope/clocks/"
+  nextLabel="Regulatory clock card"
+  nextDescription="The lookup table behind the four moves: what starts each clock, the first deadline, who decides, and the primary source."
+  ctaLabel="Open the clock card"
 />
-
-<style>
-{`
-.reg-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .reg-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .reg-grid { grid-template-columns: repeat(3, 1fr); } }
-.reg-card {
-  display: block;
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #a855f7;
-  border-radius: 0.7rem;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.reg-card:hover {
-  transform: translateY(-3px);
-  border-color: #a855f7;
-  box-shadow: 0 14px 28px -14px rgba(168, 85, 247, 0.35);
-}
-.reg-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #d8b4fe; font-size: 0.98rem; }
-.reg-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-.reg-detail {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .reg-detail { grid-template-columns: 1fr 1fr; } }
-
-.reg-detail__card {
-  position: relative;
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  border-radius: 0.7rem;
-}
-.reg-detail__num {
-  position: absolute;
-  top: 1rem;
-  right: 1.2rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: rgba(216, 180, 254, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-}
-.reg-detail__card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #d8b4fe;
-  font-size: 0.98rem;
-  padding-right: 2rem;
-}
-.reg-detail__card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-
-.reg-escalation {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px) { .reg-escalation { grid-template-columns: 1fr 1fr; } }
-.reg-escalation__row {
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f59e0b;
-  border-radius: 0.6rem;
-}
-.reg-escalation__row :is(h3, h4) {
-  margin: 0 0 0.35rem 0;
-  color: #fbbf24;
-  font-size: 0.98rem;
-}
-.reg-escalation__row p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.reg-card h3, .reg-detail__card h3, .reg-escalation__row h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

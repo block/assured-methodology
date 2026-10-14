@@ -3,9 +3,12 @@ import type { MarkdownHeading } from "astro";
 
 interface Props {
   headings: MarkdownHeading[];
+  /** Element id for the nav. The layout renders a second copy for narrow
+   *  screens, which needs its own id. */
+  id?: string;
 }
 
-const { headings } = Astro.props;
+const { headings, id = "table-of-contents" } = Astro.props;
 
 // Show the h2 section heads in the in-page navigation. (The layout renders
 // the page h1 itself, so getHeadings never yields a depth-1 entry.)
@@ -13,8 +16,10 @@ const filtered = headings.filter((h) => h.depth === 2);
 ---
 
 {filtered.length > 0 && (
-  <nav id="table-of-contents" class="toc" aria-label="On this page">
-    <h3 class="toc__title">On this page</h3>
+  <nav id={id} class="toc" aria-label="On this page">
+    {/* Not a heading: the nav's aria-label already names it, and an h3 here
+        would add a stray entry to the page outline after the content. */}
+    <p class="toc__title" aria-hidden="true">On this page</p>
 
     <ul class="toc__list">
       {filtered.map((heading) => (
@@ -125,6 +130,10 @@ const filtered = headings.filter((h) => h.depth === 2);
         // replaceState, and with the router's own state object: a null-state
         // entry is one Astro's ClientRouter refuses to restore on Back.
         history.replaceState(history.state, "", `#${target}`);
+        // The narrow-screen copy sits in a disclosure: fold it away once
+        // the reader has picked a section.
+        const disclosure = link.closest("details");
+        if (disclosure) disclosure.open = false;
       });
     });
 

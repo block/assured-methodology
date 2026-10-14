@@ -14,4 +14,4 @@
 export const METHODOLOGY_VERSION = "1.2";
 
 /** Shown next to the version so readers can judge content currency. */
-export const CONTENT_LAST_REVIEWED = "July 2026";
+export const CONTENT_LAST_REVIEWED = "2026-10-13";

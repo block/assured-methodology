@@ -7,11 +7,13 @@ stamped in the site footer.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-14
+
 The doctrine release. The decision model, the verdict vocabulary, the
 escalation tripwire, the priority clocks and the automation rules all
 change, so a team that built runbooks, training or tooling on 1.2.0 has
 rework to do. Under the rules in [GOVERNANCE.md](GOVERNANCE.md) these
-changes make the next release a major version. The rest of the release
+changes make this a major version. The rest of the release
 restructures the site around tasks, adds the pages and templates an
 operating SOC asked for, and corrects every claim that failed a fresh
 check against primary sources.
@@ -876,7 +878,8 @@ Uncover, Risk, Escalation, Documentation), each with concept pages, a worked
 example, a quiz, and a transition; three glossaries (B.A.D., C.A.T.,
 C.L.E.A.R.); two threaded cases; site search.
 
-[Unreleased]: https://github.com/block/assured-methodology/compare/v1.2.0...HEAD
-[1.2.0]: https://github.com/block/assured-methodology/releases/tag/v1.2.0
-[1.1.0]: https://github.com/block/assured-methodology/releases/tag/v1.1.0
-[1.0.0]: https://github.com/block/assured-methodology/releases/tag/v1.0.0
+[Unreleased]: https://github.com/block/assured-methodology/compare/main...HEAD
+[2.0.0]: https://github.com/block/assured-methodology/compare/cb33bbb...main
+[1.2.0]: https://github.com/block/assured-methodology/commit/cb33bbb
+[1.1.0]: https://github.com/block/assured-methodology/commit/5222895
+[1.0.0]: https://github.com/block/assured-methodology/commit/c55f486

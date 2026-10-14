@@ -7,11 +7,11 @@
  *
  * Display rule: the footer shows the two-segment methodology edition
  * (MAJOR.MINOR); CITATION.cff and package.json carry the full semver
- * (currently 1.2.0). The two refer to the same release — a patch-level
+ * (currently 2.0.0). The two refer to the same release — a patch-level
  * bump changes the semver but not the displayed edition.
  */
 
-export const METHODOLOGY_VERSION = "1.2";
+export const METHODOLOGY_VERSION = "2.0";
 
 /** Shown next to the version so readers can judge content currency. */
-export const CONTENT_LAST_REVIEWED = "2026-10-13";
+export const CONTENT_LAST_REVIEWED = "2026-10-14";

@@ -2,7 +2,7 @@
 
 > **A structured methodology designed to help security analysts triage, investigate, and document events with clarity, context, and confidence.**
 
-[![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.0.0-blue.svg)](CHANGELOG.md)
 [![Code License: MIT](https://img.shields.io/badge/Code-MIT-yellow.svg)](LICENSE)
 [![Content License: CC BY 4.0](https://img.shields.io/badge/Content-CC%20BY%204.0-lightgrey.svg)](LICENSE-CONTENT)
 [![Documentation](https://img.shields.io/badge/Documentation-Live-blue.svg)](https://assured-methodology.vercel.app)

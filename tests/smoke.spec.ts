@@ -46,6 +46,16 @@ for (const { type, path } of PAGES) {
       page,
     }, testInfo) => {
       await page.goto(path);
+      // Let entrance animations settle first: mid-fade text (the home-page
+      // hero puzzle) reads as low contrast. Infinite animations never finish.
+      await page.evaluate(() =>
+        Promise.all(
+          document
+            .getAnimations()
+            .filter((a) => a.effect?.getComputedTiming().endTime !== Infinity)
+            .map((a) => a.finished.catch(() => undefined)),
+        ),
+      );
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
         .analyze();

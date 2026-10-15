@@ -58,6 +58,12 @@ export const INTENTIONAL = [
     id: "TA0005",
     name: "Defense Evasion",
   },
+  // The downloadable packet for the same exercise carries the same defect.
+  {
+    file: "public/templates/exercise-ai-draft-verification.md",
+    id: "TA0005",
+    name: "Defense Evasion",
+  },
 ];
 
 const HISTORICAL_RE =
@@ -230,6 +236,19 @@ export function extract(text) {
         context: around(line, m.index),
         via: "text",
       });
+    }
+    // A link to a technique page shares the domain label written beside it:
+    // <a href=".../T1660/">ATT&CK T1660 (Mobile)</a>.
+    const here = out.filter((o) => o.line === i + 1);
+    for (const u of here.filter((o) => o.via === "url")) {
+      const label = here.find(
+        (o) =>
+          o.via === "text" &&
+          o.id === u.id &&
+          o.names.some((c) => DOMAIN_LABELS.has(c.text)),
+      );
+      if (label)
+        u.names = label.names.filter((c) => DOMAIN_LABELS.has(c.text));
     }
   }
   return out;

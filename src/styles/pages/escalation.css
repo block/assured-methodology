@@ -1,0 +1,204 @@
+/* Escalation decision chapter (/docs/escalation/*): page-level styles that
+   used to ship as inline <style> blocks in each MDX page. Imported from
+   every page under src/content/docs/escalation/.
+
+   Colors use the design tokens in assured.css: --assured-phase-escalation
+   (#6366f1) for borders and glyphs, --assured-phase-escalation-soft
+   (#a5b4fc) for small text. Base hues never color text; cards with a base
+   accent carry a separate --accent-text set to the matching -soft shade.
+
+   The index page's pillar cards render through
+   src/components/assured/PillarGrid.astro, not from this sheet. */
+
+/* ---- index.mdx: chapter outcomes ----------------------------------------- */
+
+.esc-outcomes .alert-outcomes__icon { display: inline-flex; color: var(--assured-phase-escalation-soft); }
+.esc-outcomes .alert-outcomes__icon svg { width: 1.3rem; height: 1.3rem; }
+
+/* ---- criteria.mdx ------------------------------------------------------- */
+
+.cat-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .cat-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
+.cat-card { display: block; padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.22); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; color: inherit; text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+.cat-card:hover { transform: translateY(-2px); border-color: var(--assured-phase-escalation); box-shadow: 0 12px 24px -14px rgba(99, 102, 241, 0.35); }
+.cat-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.95rem; }
+.cat-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.85rem; }
+
+.malicious-grid, .impact-targets, .campaign-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .malicious-grid, .impact-targets, .campaign-grid { grid-template-columns: 1fr 1fr; } }
+.malicious-card, .impact-target, .campaign-card { padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.6rem; }
+.malicious-card :is(h3, h4), .impact-target :is(h3, h4), .campaign-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.97rem; }
+/* level changed for the heading outline; size stays as designed */
+.cat-card h3, .malicious-card h3, .impact-target h3, .campaign-card h3 { font-weight: 600; line-height: inherit; }
+.malicious-card p, .impact-target p, .campaign-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+
+.stages-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .stages-grid { grid-template-columns: repeat(4, 1fr); } }
+.stage-card { position: relative; padding: 1.15rem 1.3rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+/* rgba(165, 180, 252, 0.75) is --assured-phase-escalation-soft at 0.75:
+   >= 4.5:1 over the card at both gradient ends. */
+.stage-card__num { position: absolute; top: 0.85rem; right: 1.1rem; font-size: 0.7rem; font-weight: 800; color: rgba(165, 180, 252, 0.75); }
+.stage-card h4 { margin: 0 0 0.3rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.93rem; }
+.stage-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
+
+.clock-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); color: var(--assured-text-muted); font-size: 0.86rem; line-height: 1.5; }
+.clock-table :is(th, td) { padding: 0.75rem 0.9rem; border-top: 1px solid rgba(148, 163, 184, 0.15); text-align: left; vertical-align: top; }
+.clock-table thead th { background: rgba(99, 102, 241, 0.12); color: var(--assured-phase-escalation-soft); font-weight: 700; font-size: 0.83rem; }
+
+.e-routes { margin: 1.25rem 0; padding: 1.1rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; }
+.e-routes p { margin: 0 0 0.6rem 0; line-height: 1.6; }
+.e-routes p:last-child { margin-bottom: 0; }
+.e-routes__title { color: var(--assured-phase-escalation-soft); font-weight: 700; }
+.e-routes ol { margin: 0 0 0.6rem 1.2rem; line-height: 1.6; }
+.e-rules { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 900px) { .e-rules { grid-template-columns: repeat(3, 1fr); } }
+.e-rules__item { padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 0.6rem; }
+.e-rules__item h3 { margin: 0 0 0.35rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.97rem; font-weight: 600; line-height: inherit; }
+.e-rules__item p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
+.closure-check { line-height: 1.6; }
+
+/* ---- protocols.mdx ------------------------------------------------------ */
+
+.tier-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
+.tier-row { padding: 1.1rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; }
+.tier-row__label { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: var(--assured-phase-escalation-soft); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.tier-row :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-text); font-size: 1rem; }
+.tier-row p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+.tier-row__bullets { margin: 0.6rem 0 0 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
+
+.stakeholder-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .stakeholder-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .stakeholder-grid { grid-template-columns: repeat(3, 1fr); } }
+.stakeholder-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.55rem; }
+.stakeholder-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.93rem; }
+.stakeholder-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
+
+.page-template { margin: 1rem 0 1.25rem; padding: 1rem 1.3rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; font-size: 0.92rem; }
+.page-template p { margin: 0 0 0.35rem 0; color: var(--assured-text-muted); line-height: 1.5; }
+.page-template p:last-child { margin-bottom: 0; }
+.page-template strong { color: var(--assured-phase-escalation-soft); }
+
+/* level changed for the heading outline; size stays as designed */
+.tier-row h3, .stakeholder-card h3 { font-weight: 600; line-height: inherit; }
+
+/* ---- communication.mdx -------------------------------------------------- */
+
+.comm-rules { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
+@media (min-width: 900px) { .comm-rules { grid-template-columns: repeat(3, 1fr); } }
+.comm-rule { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.55rem; }
+.comm-rule h3 { margin: 0 0 0.3rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.93rem; font-weight: 600; line-height: inherit; }
+.comm-rule p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
+
+.call-script { margin: 1rem 0 1.25rem; padding: 1rem 1.3rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; font-size: 0.92rem; }
+.call-script p { margin: 0 0 0.45rem 0; color: var(--assured-text-muted); line-height: 1.5; }
+.call-script p:last-child { margin-bottom: 0; }
+.call-script strong { color: var(--assured-phase-escalation-soft); }
+
+/* ---- triage-vs-ir.mdx --------------------------------------------------- */
+
+.vs-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .vs-grid { grid-template-columns: 1fr 1fr; } }
+.vs-card { padding: 1.4rem 1.6rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.85rem; border-top: 4px solid var(--accent); }
+/* --accent is the border hue; --accent-text is its -soft shade for text. */
+.vs-card--triage { --accent: var(--assured-accent); --accent-text: var(--assured-accent-soft); }
+.vs-card--ir { --accent: var(--assured-danger); --accent-text: var(--assured-danger-soft); }
+.vs-card__tag { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: var(--accent-text); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.65rem; }
+.vs-card h3 { margin: 0 0 0.5rem 0; color: var(--accent-text); font-size: 1.1rem; }
+.vs-card p { margin: 0 0 0.6rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
+.vs-card p:last-child { margin-bottom: 0; }
+
+.vocab-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .vocab-grid { grid-template-columns: repeat(3, 1fr); } }
+.vocab-card { padding: 1.25rem 1.4rem; background: var(--assured-panel); border: 1px solid rgba(148, 163, 184, 0.22); border-top: 4px solid var(--vocab-color); border-radius: 0.7rem; }
+/* --vocab-color is the border hue; --vocab-text is the lighter shade for the tag text. */
+.vocab-card--event { --vocab-color: var(--assured-accent-soft); --vocab-text: var(--assured-accent-soft); }
+.vocab-card--alert { --vocab-color: var(--assured-warn); --vocab-text: #fcd34d; }
+.vocab-card--incident { --vocab-color: var(--assured-danger); --vocab-text: var(--assured-danger-soft); }
+.vocab-card__tag { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 9999px; background: rgba(15, 23, 42, 0.7); color: var(--vocab-text); font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+.vocab-card h4 { margin: 0 0 0.35rem 0; color: var(--assured-text); font-size: 0.97rem; }
+.vocab-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+.triage-tenets, .ir-phases { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .triage-tenets, .ir-phases { grid-template-columns: 1fr 1fr; } }
+.triage-tenet, .ir-phase { position: relative; padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+/* level changed for the heading outline; size stays as designed */
+.triage-tenet :is(h3, h4), .ir-phase :is(h3, h4) { margin: 0 0 0.35rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.95rem; font-weight: 600; line-height: inherit; }
+.triage-tenet p, .ir-phase p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+.side-effects { width: 100%; min-width: 40rem; border-collapse: collapse; border: 1px solid rgba(148, 163, 184, 0.22); color: var(--assured-text-muted); font-size: 0.87rem; line-height: 1.5; }
+.side-effects :is(th, td) { padding: 0.7rem 0.9rem; border-top: 1px solid rgba(148, 163, 184, 0.15); text-align: left; vertical-align: top; }
+.side-effects thead th { background: rgba(99, 102, 241, 0.12); color: var(--assured-phase-escalation-soft); font-weight: 700; font-size: 0.83rem; }
+.side-effects tbody th { color: var(--assured-text); font-weight: 700; }
+
+.which-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .which-grid { grid-template-columns: repeat(3, 1fr); } }
+.which-card { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; }
+.which-card p { margin: 0 0 0.45rem 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.9rem; }
+.which-card p:last-child { margin-bottom: 0; }
+.which-card strong { color: var(--assured-text); }
+.which-answer { color: var(--assured-phase-escalation-soft) !important; font-style: italic; font-weight: 600; }
+
+/* ---- shared by triage-vs-ir.mdx and preserve.mdx ------------------------- */
+
+.table-scroll { overflow-x: auto; margin: 1.25rem 0; }
+
+/* ---- preserve.mdx ------------------------------------------------------- */
+
+.volatility-ladder { counter-reset: vol; list-style: none; margin: 1.5rem 0; padding: 0; display: grid; gap: 0.6rem; }
+.volatility-ladder li { counter-increment: vol; position: relative; padding: 0.85rem 1.1rem 0.85rem 3.1rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+.volatility-ladder li::before { content: counter(vol); position: absolute; left: 0.9rem; top: 0.8rem; width: 1.6rem; height: 1.6rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: var(--assured-phase-escalation-soft); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+.volatility-ladder strong { color: var(--assured-text); }
+
+.tipoff-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .tipoff-grid { grid-template-columns: repeat(3, 1fr); } }
+.tipoff-card { padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(148, 163, 184, 0.22); border-top: 4px solid var(--tip-color); border-radius: 0.7rem; }
+.tipoff-card--act { --tip-color: var(--assured-danger); }
+.tipoff-card--hold { --tip-color: var(--assured-warn); }
+.tipoff-card--insider { --tip-color: var(--assured-accent-soft); }
+.tipoff-card h3 { margin: 0 0 0.45rem 0; color: var(--assured-text); font-size: 0.98rem; }
+.tipoff-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+.pbc-table { width: 100%; border-collapse: collapse; border: 1px solid rgba(148, 163, 184, 0.22); color: var(--assured-text-muted); font-size: 0.87rem; line-height: 1.5; }
+.pbc-table--wide { min-width: 44rem; }
+.pbc-table :is(th, td) { padding: 0.65rem 0.85rem; border-top: 1px solid rgba(148, 163, 184, 0.15); text-align: left; vertical-align: top; }
+.pbc-table thead th { background: rgba(99, 102, 241, 0.12); color: var(--assured-phase-escalation-soft); font-weight: 700; font-size: 0.83rem; }
+.pbc-table tbody th { color: var(--assured-text); font-weight: 700; white-space: nowrap; }
+.pbc-table--wide tbody th { white-space: normal; }
+.pbc-table strong { color: var(--assured-text); }
+
+/* ---- handoff.mdx -------------------------------------------------------- */
+
+.packet-list { display: grid; grid-template-columns: 1fr; gap: 0.65rem; margin: 1.25rem 0; }
+@media (min-width: 768px) { .packet-list { grid-template-columns: 1fr 1fr; } }
+.pl { padding: 0.95rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.55rem; }
+.pl :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.95rem; }
+.pl p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.9rem; }
+
+.actionable-tests { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .actionable-tests { grid-template-columns: repeat(3, 1fr); } }
+.actionable-test { padding: 1.15rem 1.35rem; background: var(--assured-panel); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.6rem; }
+.actionable-test :is(h3, h4) { margin: 0 0 0.35rem 0; color: var(--assured-phase-escalation-soft); font-size: 0.95rem; }
+.actionable-test p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
+
+/* level changed for the heading outline; the h4-era weight and leading stay as designed */
+.pl h3, .actionable-test h3 { font-weight: 600; line-height: 1.5; }
+
+/* ---- example.mdx -------------------------------------------------------- */
+
+.example-step h3 { margin: 0 0 0.85rem 0; color: var(--assured-phase-escalation-soft); font-size: 1.2rem; }
+
+/* ---- transition.mdx ----------------------------------------------------- */
+
+.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
+.handoff-contract { display: grid; grid-template-columns: 1fr; gap: 0; margin: 1.25rem 0 1.75rem; border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-phase-escalation); border-radius: 0.6rem; overflow: hidden; color: var(--assured-text-muted); font-size: 0.92rem; line-height: 1.55; }
+.handoff-contract dt { margin: 0; padding: 0.75rem 1.1rem 0.15rem; color: var(--assured-phase-escalation-soft); font-weight: 700; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+.handoff-contract dt:first-child { border-top: 0; }
+.handoff-contract dd { margin: 0; padding: 0 1.1rem 0.8rem; }
+.handoff-contract dd ul { margin: 0.25rem 0 0; padding-left: 1.2rem; }
+@media (min-width: 768px) {
+  .handoff-contract { grid-template-columns: 11rem 1fr; }
+  .handoff-contract dt { padding: 0.8rem 1.1rem; }
+  .handoff-contract dd { padding: 0.8rem 1.1rem; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+  .handoff-contract dd:nth-of-type(1) { border-top: 0; }
+}

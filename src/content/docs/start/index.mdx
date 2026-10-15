@@ -1,0 +1,107 @@
+---
+title: "Start here: choose your path"
+shortTitle: "Choose your path"
+description: "Six routes into ASSURED: the analyst on shift, the learner, the SOC lead, the teacher, the detection engineer, and the reader evaluating the method."
+slug: "start"
+techVerified: "2026-10-13"
+---
+
+import "@/styles/pages/start.css";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
+import { phases } from "@/data/navigation";
+
+export const readingTimes = {
+  alert: "about 75 min",
+  subject: "about 1 hr 45 min",
+  scope: "about 80 min",
+  uncover: "about 85 min",
+  risk: "about 50 min",
+  escalation: "about 80 min",
+  documentation: "about 50 min",
+};
+
+ASSURED is one method read by very different people. An analyst with an alert open needs the desk card now; a new analyst needs the chapters in order; a SOC lead needs the operating pages. Pick the route that matches why you are here. Every route ends in the same seven questions.
+
+<SevenQuestions label="The seven questions every route leads to" />
+
+<div class="path-grid">
+
+<section class="path-card" aria-labelledby="on-shift-now">
+
+## On shift now
+
+You have an alert open and minutes, not hours.
+
+1. [The one-page reference](/docs/reference/): the seven questions, the escalation criteria, the verdict vocabulary and the priority bands on one card.
+2. [The fast path](/docs/fast-path/): pick the depth (Level 0, 1 or 2) and run the eligibility gate before you close anything.
+3. When an identity is involved, the [identity-persistence sweep](/docs/reference/identity-sweep/).
+
+</section>
+
+<section class="path-card" aria-labelledby="learning-triage">
+
+## Learning triage
+
+Read the [introduction](/docs/intro/), then the seven chapters in order. Each chapter closes with a worked example on the same cases and a quiz. Reading times cover each chapter's pages except the quiz, at a steady 230 words a minute; a first read with the exercises takes longer.
+
+<table class="path-times">
+  <thead>
+    <tr><th scope="col">Chapter</th><th scope="col">Question</th><th scope="col">Reading time</th></tr>
+  </thead>
+  <tbody>
+    {phases.map((p) => (
+      <tr>
+        <th scope="row"><a href={p.href}>{p.name}</a></th>
+        <td>{p.question}</td>
+        <td>{readingTimes[p.phase]}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+Then the [case files](/docs/cases/) put each worked case back together, and [cognitive traps](/docs/cognitive-traps/) names the reasoning failures the method is built to catch.
+
+</section>
+
+<section class="path-card" aria-labelledby="leading-a-soc">
+
+## Leading a SOC
+
+1. [Adopting ASSURED](/docs/adoption/): rollout, roles and maturity.
+2. [Measuring triage](/docs/measuring-triage/): the metric set and how each metric gets gamed.
+3. [Shift handover and operating variants](/docs/operating-variants/): shifts, MSSP and MDR models, the one-person SOC.
+4. [Governing automated triage](/docs/ai-governance/): what an AI agent may close, and under which controls.
+
+</section>
+
+<section class="path-card" aria-labelledby="teaching">
+
+## Teaching
+
+1. [Teaching ASSURED](/docs/teaching/): sessions, routing with a pre-assessment, and assessment design.
+2. [Hands-on exercises](/docs/exercises/) and [telemetry labs](/docs/labs/) for practice.
+3. The [facilitator kit](/docs/teaching/kit/) for grading and the capstone.
+
+</section>
+
+<section class="path-card" aria-labelledby="detection-engineering">
+
+## Detection engineering
+
+1. [Triage and detection engineering](/docs/detection-feedback/): what triage owes detection engineering, and the tuning request.
+2. [How detections work](/docs/alert/detection-mechanisms/) and [alert provenance](/docs/alert/validation/#alert-provenance): what an analyst can and cannot learn from a rule.
+3. [What a benign close teaches](/docs/risk/false-positive/): turning closes into tuning.
+
+</section>
+
+<section class="path-card" aria-labelledby="evaluating-assured">
+
+## Evaluating ASSURED
+
+1. [How ASSURED compares](/docs/positioning/) with incident-response frameworks and SOC models.
+2. [Standards mapping](/docs/standards-mapping/): NIST, ISO, SANS DAIR, CERT and FIRST, with the records an auditor can sample.
+3. [Development and evidence](/docs/development/): what is established, what is not, and the planned evaluation.
+
+</section>
+
+</div>

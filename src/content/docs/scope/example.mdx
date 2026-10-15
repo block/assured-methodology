@@ -1,6 +1,7 @@
 ---
 title: "Scope working example"
 description: "Drawing the formal boundary of the investigation around the entity map Subject produced."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,88 +10,83 @@ import ChapterExample from "@/components/assured/ChapterExample.astro";
 import ExampleStepper from "@/components/assured/ExampleStepper.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import Callout from "@/components/assured/Callout.astro";
 import Reveal from "@/components/assured/Reveal.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/scope.css";
 
 <SubPageHero
   phase="scope"
-  parentLetter="S"
   pillarIndex="Example"
-  pillarTotal="Scope chapter"
-  chapterHref="/docs/scope/"
-  chapterLabel="Scope"
-  lede="The Scope phase applied to the same intrusion the Alert and Subject chapters walked through. Same finance team scenario, now formally bounded."
+  lede="Scope applied to all three threaded cases from the Alert and Subject chapters: the finance-team intrusion gets an expanding, regulated boundary; the Cursor alert a deliberately narrow one; the token theft a boundary drawn in log queries."
 />
 
-<PillNav
-  chapter="scope"
-  label="Scope chapter"
-  items={[
-    { label: "Regulatory",     href: "/docs/scope/regulatory/",     phase: "scope" },
-    { label: "Time",           href: "/docs/scope/time/",           phase: "scope" },
-    { label: "Entity",         href: "/docs/scope/entity/",         phase: "scope" },
-    { label: "Infrastructure", href: "/docs/scope/infrastructure/", phase: "scope" },
-  ]}
-/>
+<PillNav chapter="scope" />
 
-## The first scenario: scoping the finance-team intrusion
+<h2 id="case-a">Case A · Scoping the finance-team intrusion</h2>
+
+Previously, in [Subject's Case A](/docs/subject/example/#case-a): dlin's cloud identity showed no sign-in from anywhere but the laptop as of 09:33, but its tokens are presumed exposed, and the escalation tripwire has been met since 09:24 without a page. The whole thread is in the [case files](/docs/cases/#case-a).
 
 <ChapterExample
   title="Drawing the lines around the finance-team intrusion"
-  scenario="Subject handed Scope an entity map: 3 primary entities (dlin, the laptop, the cloud identity) + 3 secondary entities (the laptop's machine account, two finance peers) + 1 downstream system (the cloud finance platform feeding the vendor payment workflow), plus the external sender tracked as the originating threat. Scope's job is to turn that map into a formal investigation boundary."
+  scenario="Subject handed Scope an entity map: 3 primary entities (dlin, the laptop, dlin's federated cloud identity) + 4 secondary entities (the laptop's machine account and the three other finance recipients of the same email) + 1 downstream system (the cloud finance reporting platform), plus the originating threat (the external sender and invoice-records[.]example). Scope's job is to turn that map into a formal investigation boundary. In a correctly run case this is scoping support under IR's clock, because the escalation tripwire was met at 09:24 UTC."
 >
 
 <ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Regulatory check</h3>
-    <p>The compromised user dlin has read access to a cloud finance platform that processes payment data. That does not by itself place the investigation inside a cardholder data environment, but it is the cue to flag possible PCI DSS exposure and engage compliance, who own that determination. The platform also stores personally identifiable information for vendors, including EU residents, which makes GDPR a candidate regime for the case — whether it attaches is an Article 3 determination that belongs to the DPO, and the analyst's contribution is the tag and the timestamp.</p>
-    <p><strong>Decisions:</strong> Document the possible PCI exposure now. Engage compliance early so any breach-notification clock can run in parallel with the technical investigation. Tag the case as both PCI and GDPR relevant.</p>
+    <p>The compromised user dlin has read access to the cloud finance reporting platform, which feeds the vendor payment workflow and stores vendor-contact records, including those of people in the EU. Two regulated classes are plausibly in reach. Cardholder data, and with it the <DefineTerm term="Cardholder Data Environment (CDE)" display="cardholder data environment" />, is a question only if the platform touches card data at all (virtual-card vendor payments, for example); nothing in the case shows that, so PCI DSS is a possibility for compliance, who own that determination. Personal data of vendor contacts in the EU makes GDPR a candidate regime: whether it attaches is an Article 3 question for the <DefineTerm term="Data Protection Officer (DPO)" /> or privacy counsel, and the analyst's contribution is the tag and the timestamp. If the organization is publicly listed, the platform is also a likely SOX-relevant financial-reporting system. "Can reach" is enough to tag the case; nothing on the platform has been seen accessed.</p>
+    <p><strong>Decisions:</strong> Commit two timestamps to the record: the alert (09:11) and the moment regulated data was recognized as in reach (09:42). Tag the case PCI-possible and GDPR-candidate (and SOX-candidate if listed). Engage compliance and the DPO now (09:45) so any notification clock can run in parallel with the technical investigation, and have the platform's audit logs held past rotation. Because the workflow pays vendors, ask accounts payable to verify any vendor bank-detail change out of band until the case closes.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Time window</h3>
-    <p>The alert is a phishing-driven intrusion that fired today. The Subject phase did not find slow-burn signals. The default window for this threat type is 24 to 72 hours of historical review, with a 4-week look at the primary entities to confirm no prior staging.</p>
-    <p><strong>Decisions:</strong> Set primary window at 72 hours pre-alert through current time. Set extended check at 4 weeks for dlin's account specifically. Note that endpoint telemetry has 90-day retention, identity telemetry has 1 year, both are sufficient.</p>
+    <p>The alert is a phishing-driven intrusion that fired today, with the stage still beaconing. The Subject phase did not find slow-burn signals. The default window for this threat type is 24 to 72 hours of historical review, with a 4-week look at the primary entities to confirm no prior staging.</p>
+    <p><strong>Decisions:</strong> Set the primary window at 72 hours pre-alert through current time: the top of the default range, widened from Subject's recommended 24 hours so the window certainly covers the lure's delivery and any earlier contact or reconnaissance from the sending domain. Set the 4-week extended check on all three primary entities. Retention check: endpoint telemetry keeps 90 days and identity telemetry keeps 1 year; both cover the windows.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Entity boundaries</h3>
-    <p>Subject's entity map gets categorized:</p>
+    <p>Subject handed over a provisional classification. Scope confirms it against the evidence and makes it binding:</p>
     <ul class="example-step__list">
-      <li><strong>Primary:</strong> dlin (user), laptop-finance-09 (host), dlin's cloud identity.</li>
-      <li><strong>Secondary:</strong> The machine account of laptop-finance-09. The two other finance users who opened the same email.</li>
-      <li><strong>Downstream:</strong> The cloud finance platform dlin's identity federates into. Inside the boundary as the system the compromised identity can reach; it gets no entity profile of its own, but its authentication and API logs are pinned to the infrastructure check.</li>
-      <li><strong>Originating threat:</strong> The external sender. Tracked as the adversary side of the case rather than as an entity under investigation; its sending domain and infrastructure indicators feed Uncover's threat-intelligence work.</li>
-      <li><strong>Out of scope (for now):</strong> The one finance team member who received but did not open the email. Their inbox still gets a baseline check, but no full investigation unless something new surfaces.</li>
+      <li><strong>Primary:</strong> dlin (user), laptop-finance-09 (host), dlin's federated cloud identity. Full investigation depth.</li>
+      <li><strong>Secondary:</strong> The machine account of laptop-finance-09. Finance users 2, 3, and 4, the other recipients of the same email: baseline check of each mailbox and host, upgraded on any signal.</li>
+      <li><strong>Downstream:</strong> The cloud finance reporting platform dlin's identity federates into. Inside the boundary as the system the compromised identity can reach; it gets no entity profile of its own, but its authentication and API logs are pinned to the infrastructure check.</li>
+      <li><strong>Originating threat:</strong> The external sender (accounts@invoice-records[.]example) and its infrastructure (invoice-records[.]example, 203.0.113.77). Tracked as the adversary side of the case rather than as an entity under investigation; these indicators drive the sweeps below and feed Uncover's threat-intelligence work.</li>
+      <li><strong>Sweeps:</strong> Every host that resolved or connected to invoice-records[.]example or 203.0.113.77, and every mailbox that received mail from the sending domain or a link to it, over the 72-hour window. A sweep is a snapshot, so it is re-run before Uncover hands off.</li>
+      <li><strong>Out of scope (for now):</strong> Finance-team hosts and mailboxes that did not receive the email, unless a sweep finds them.</li>
     </ul>
-    <p><strong>Decisions:</strong> Primary entities get full investigation depth. Secondary entities get baseline comparison and are upgraded only on a signal.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Infrastructure check</h3>
     <p>What can the SOC see for this case?</p>
     <ul class="example-step__list">
-      <li><strong>In scope:</strong> EDR on the laptop, cloud identity logs, firewall logs, proxy logs, mailbox audit.</li>
-      <li><strong>Limited:</strong> The cloud finance platform's in-app activity is in the vendor's logs; the SOC sees authentication and gross API calls only. A vendor request is needed for deeper investigation.</li>
-      <li><strong>Gaps:</strong> If the user worked from a personal phone via the cloud platform's mobile app, that activity may not show up in corporate telemetry.</li>
+      <li><strong>In scope:</strong> EDR on the laptop and the three recipients' hosts, cloud identity (<DefineTerm term="Identity Provider (IdP)" display="IdP" />) logs, web proxy and firewall logs, DNS logs, email gateway message trace, mailbox audit.</li>
+      <li><strong>Limited:</strong> The cloud finance platform's in-app activity is in the vendor's logs; the SOC sees authentication events and aggregate API call counts only. In-app detail needs a vendor request.</li>
+      <li><strong>Gaps:</strong> The web proxy is enforced only on the corporate network and on VPN, so a laptop off both reaches the internet directly and only EDR sees its traffic. If dlin used the platform's mobile app on a personal phone, the IdP still logs the federated sign-in, but device and in-app activity on the unmanaged phone is invisible to corporate telemetry.</li>
     </ul>
-    <p><strong>Decisions:</strong> Note the cloud-platform gap explicitly. If Uncover needs deeper data, request from the vendor now so it arrives in parallel.</p>
+    <p><strong>Decisions:</strong> Name the cloud-platform gap and the off-proxy gap explicitly, and submit the vendor request for in-app audit logs now (09:48), so the data arrives in parallel with Uncover's first queries.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Hand off to Uncover</h3>
     <p>The Scope deliverable is a one-page boundary statement Uncover can pin above their query window:</p>
     <ul class="example-step__list">
-      <li><strong>Threat type:</strong> phishing-driven intrusion.</li>
-      <li><strong>Time:</strong> 72 hours primary, 4 weeks extended for dlin.</li>
-      <li><strong>Primary entities:</strong> dlin, laptop-finance-09, cloud identity. Full depth.</li>
-      <li><strong>Secondary entities:</strong> machine account, 2 other finance users. Baseline depth. External sender tracked as the originating threat.</li>
-      <li><strong>Downstream:</strong> cloud finance platform inside the boundary for reachability; vendor logs requested.</li>
-      <li><strong>Regulatory:</strong> likely PCI and GDPR exposure; confirmation owned by compliance. Compliance engaged.</li>
-      <li><strong>Infrastructure gaps:</strong> mobile app activity on the cloud platform may be invisible; vendor request submitted.</li>
-      <li><strong>Open questions for Uncover:</strong> do the two other openers' hosts show the same execution chain; were dlin's cloud session tokens exposed or replayed; what do the vendor's in-app logs show beyond the federated login?</li>
+      <li><strong>Threat type:</strong> phishing-driven intrusion with a live C2 beacon.</li>
+      <li><strong>Time:</strong> 72 hours primary (anchor: the alert at 09:11 UTC), 4 weeks extended for the three primary entities; secondaries on the 72-hour window at baseline depth.</li>
+      <li><strong>Primary entities:</strong> dlin, laptop-finance-09, dlin's federated cloud identity. Full depth.</li>
+      <li><strong>Secondary entities:</strong> machine account; Finance users 2, 3, and 4 (recipients, opens unassessed). Baseline depth, upgraded on any signal.</li>
+      <li><strong>Originating threat:</strong> accounts@invoice-records[.]example, invoice-records[.]example, 203.0.113.77.</li>
+      <li><strong>Downstream:</strong> cloud finance reporting platform inside the boundary for reachability; vendor in-app logs requested.</li>
+      <li><strong>Out of scope:</strong> finance-team hosts and mailboxes that did not receive the email, unless a sweep finds them.</li>
+      <li><strong>Sweeps:</strong> hosts touching the domain or IP, mailboxes receiving from the sending domain or a link to it; 72 hours; re-run before handoff.</li>
+      <li><strong>Regulatory:</strong> possible PCI exposure (only if the platform touches card data) and candidate GDPR exposure; both determinations owned by compliance and the DPO, engaged at 09:45; candidate timestamps 09:11 and 09:42 in the record.</li>
+      <li><strong>Preservation:</strong> <code>%TEMP%\upd.ps1</code> and its hash held; dlin's RunMRU value exported; proxy-log cleanup paused for the window; platform audit logs held past rotation.</li>
+      <li><strong>Infrastructure gaps:</strong> off-network hosts bypass the proxy (EDR only); mobile app activity on the cloud platform may be invisible; vendor request submitted.</li>
+      <li><strong>Escalation posture:</strong> tripwire flagged at Alert (criterion 1, 09:24); the page has not gone out. A federated session from anywhere but the laptop, or execution on a second host, would confirm further criteria.</li>
+      <li><strong>Open questions for Uncover:</strong> do the three other recipients' hosts show the same execution chain; were dlin's cloud session tokens taken or replayed; what do the vendor's in-app logs show beyond any federated login?</li>
+      <li><strong>Time box:</strong> first convergence check at 10:35 UTC, 45 minutes into Uncover: converge, re-scope, or pull in a peer or tier the case up. Escalation to IR runs on the criteria and the matrix, not on elapsed time; here the escalation tripwire is already met.</li>
     </ul>
   </div>
 
@@ -100,79 +96,88 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 ---
 
-## A second scenario: scoping the Cursor IDE Empire-pattern alert
+<h2 id="case-b">Case B · Scoping the Cursor IDE Empire-pattern alert</h2>
 
-The first walkthrough showed Scope refining Subject's rich, expanding map for a real intrusion. The second case is the parallel thread that started in the Alert chapter: the developer-workstation alert now leaning benign true positive. Scope here is about *restraint*, the alert's surface match to Empire tradecraft is real, but everything else points to legitimate IDE behavior. The deliverable is a narrow, defensible boundary that lets Uncover confirm or refute the benign read without sprawling.
+Previously, in [Subject's Case B](/docs/subject/example/#case-b): the user, the device and the signed host binary read legitimate, and the case now leans <DefineTerm term="Benign True Positive" display="benign true positive" />. Scope here is about *restraint*: the surface match to Empire tradecraft is real, but everything else points to legitimate IDE behavior. The deliverable is a narrow, defensible boundary that lets Uncover confirm or refute the benign read without sprawling. The whole thread is in the [case files](/docs/cases/#case-b).
 
 <ChapterExample
-  title="Drawing the lines around the Cursor Empire-pattern benign true positive"
-  scenario="Subject handed Scope a tight entity map: a frontend engineer, a managed macOS laptop, the signed Cursor Helper binary, and the vendor's documented inference endpoints. All four read as legitimate across the four dimensions. Scope's job is to draw boundaries that let Uncover validate that read with rigor, not boundaries that invite a fishing expedition."
+  title="Drawing the lines around the Cursor Empire-pattern alert (leaning benign true positive)"
+  scenario="Subject handed Scope a tight entity map: a frontend engineer, a managed macOS laptop, Cursor Helper (Plugin) and its child process, and Cursor's vendor endpoints. The user, the device and the host binary read legitimate across the four dimensions; the extension code the host runs is still unchecked. Scope's job is to draw boundaries that let Uncover validate that read with rigor, not boundaries that invite a fishing expedition."
 >
 
-<ExampleStepper steps={["Time scope", "Subject scope", "Environment scope", "Data sources", "Boundary statement"]}>
+<ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
 
   <div data-step class="example-step">
-    <h3>Step 1. Time scope</h3>
-    <p>The Cursor case has a narrower time horizon than the finance-team intrusion. Subject's reads were all clean; there is no expanding pattern to chase. The boundary is sized to validate the benign-true-positive hypothesis, not to investigate a compromise.</p>
+    <h3>Step 1. Regulatory check</h3>
+    <p>Scope runs the regulatory pass first, as in every case, and records the answer even when it is "none."</p>
     <ul class="example-step__list">
-      <li><strong>Primary window:</strong> alert minus 1 hour through alert plus 4 hours. Five-hour total, enough to capture the IDE session that produced the alert and any follow-on behavior.</li>
+      <li><strong>Source code:</strong> sensitive, not regulated.</li>
+      <li><strong>Test fixtures:</strong> Subject flagged possibly customer-derived fixtures. The fixture registry for the repositories the IDE indexed lists synthetic data only; no real personal data.</li>
+      <li><strong>Vendor processing:</strong> code context passes through the vendor's backend to model providers for AI features. The team runs Cursor with Privacy Mode enforced at the team level under the vendor agreement. Recorded; not a trigger.</li>
+      <li><strong>Conclusion:</strong> no cardholder data, personal data, or PHI in reach. Regulatory: none triggered, with the reasoning recorded.</li>
+    </ul>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 2. Time window</h3>
+    <p>Subject's reads agree, so there is no expanding pattern to chase: the window is sized to test the benign read, not to investigate a compromise.</p>
+    <ul class="example-step__list">
+      <li><strong>Primary window:</strong> alert minus 1 hour through alert plus 45 minutes (13:03 to 14:48 UTC). Enough to capture the IDE session that produced the alert, the work around it, and everything up to Uncover's final pull.</li>
+      <li><strong>Forward watch:</strong> the host stays under EDR and proxy watch for four hours after the alert, to 18:03. If Risk lands the case at P3, this is the named re-score trigger.</li>
+      <li><strong>Identity window:</strong> the day's session from the 09:14 SSO sign-in onward.</li>
       <li><strong>Comparison window:</strong> the same user's prior 14 days of IDE activity, used only for behavioral baselining, not for incident reconstruction.</li>
-      <li><strong>Extension trigger:</strong> if Uncover surfaces any signal inconsistent with the benign read (new persistence, unexpected network destinations, credential access), the time window expands to 24 hours pre-alert and the case is escalated within Risk.</li>
+      <li><strong>Extension trigger:</strong> any Uncover finding inconsistent with the benign read (an unexpected extension or MCP server, a destination off the allowlist, credential-path reads, new persistence) re-opens Scope. The window extends back to the earliest related artifact, such as the install date of the extension in question, and the case returns to Risk for re-scoring. A confirmed escalation criterion fires the escalation tripwire at once, from any phase.</li>
     </ul>
-    <p>A short window is the correct call when Subject's reads agree. Extending it preemptively would burn time investigating absence of compromise.</p>
+    <p>Extending the window preemptively would spend time investigating the absence of compromise.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Subject scope</h3>
-    <p>Subject's per-entity assessment is the input. Scope translates it into investigative boundaries that don't expand the entity list.</p>
+    <h3>Step 3. Entity boundaries</h3>
+    <p>Scope turns Subject's per-entity reads into boundaries without growing the entity list.</p>
     <ul class="example-step__list">
-      <li><strong>Primary subject:</strong> the developer's laptop and the Cursor Helper (Plugin) binary. Full process telemetry, file activity, and network behavior for this host during the time window.</li>
-      <li><strong>User context:</strong> the named frontend engineer. Authentication and authorization checks for the period; no peer-group expansion required because Subject's relationship-dimension read was clean.</li>
-      <li><strong>Excluded:</strong> other developer laptops, other engineers on the team, the vendor's infrastructure beyond observable DNS and TLS. Subject's read was conclusive on these surfaces; Scope does not re-open them.</li>
+      <li><strong>Primary subject:</strong> the developer's laptop, Cursor Helper (Plugin) and its child process. Full process telemetry, file activity, and network behavior for this host during the time window.</li>
+      <li><strong>User context:</strong> the frontend engineer. Authentication and authorization checks for the period; no peer-group expansion required because Subject's relationship-dimension read was clean.</li>
+      <li><strong>Extension layer (one bounded check):</strong> Subject validated the host binary. It did not validate the code the host runs. Scope adds one check: the installed extension list (<code>&#126;/.cursor/extensions</code>), the MCP server config (<code>&#126;/.cursor/mcp.json</code> and the workspace's <code>.cursor/mcp.json</code>), the workspace's <code>.vscode/tasks.json</code>, and the Cursor version, compared against the approved list and the peer population.</li>
+      <li><strong>Fleet prevalence (one query):</strong> how many managed hosts run this Cursor build with the same extension-host child and destination set over 30 days. Counts only, no per-host investigation.</li>
+      <li><strong>Excluded:</strong> per-host investigation of other developer laptops and engineers, and the vendor's infrastructure beyond observable DNS and TLS. Subject's read was clean on these surfaces; Scope does not re-open them.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that over-scoping is the failure mode here. It would look like pulling every developer laptop running Cursor into the investigation, or expanding to investigate Anysphere as a vendor. Both are tempting because the binary is the focal artifact. The methodology says no: Subject already validated the binary and the trust chain. Re-opening that question is wasted work.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that over-scoping is the failure mode here. It would look like pulling every developer laptop running Cursor into the investigation, or expanding to investigate Anysphere as a vendor. Both are tempting because the binary is the focal artifact. The methodology says no: Subject already validated the binary and its trust chain, and re-opening that question is wasted work. What Subject did not validate is the code the host runs, so the one bounded extension-layer check stays in. Restraint means the smallest boundary that still answers the verdict question, not the smallest boundary.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 3. Environment scope</h3>
-    <p>The environment for a single managed developer workstation is genuinely narrow, and Scope keeps it that way.</p>
+    <h3>Step 4. Infrastructure check</h3>
+    <p>The subject surface of one managed developer workstation is genuinely small, so Scope names each source precisely and Uncover does not improvise.</p>
     <ul class="example-step__list">
-      <li><strong>In scope:</strong> the laptop's EDR telemetry, the corporate egress proxy logs for this device, the developer's SSO authentication events, the MDM compliance record for the laptop.</li>
-      <li><strong>Conditionally in:</strong> internal source-control access logs for the user's repositories during the window (read-only, no payload reconstruction).</li>
-      <li><strong>Out of scope:</strong> peer laptops, the vendor's own infrastructure beyond DNS / TLS observability, any system the laptop did not actually reach during the window.</li>
-    </ul>
-  </div>
-
-  <div data-step class="example-step">
-    <h3>Step 4. Data sources and tooling</h3>
-    <p>The Cursor case has fewer data sources than the finance-team intrusion because the subject surface is genuinely smaller. Scope names them precisely so Uncover does not improvise.</p>
-    <ul class="example-step__list">
-      <li><strong>EDR (CrowdStrike on macOS).</strong> Primary. Process tree, file activity, network sockets, signing-status events.</li>
-      <li><strong>Corporate egress proxy.</strong> Outbound destinations, TLS metadata, byte counts. Used to corroborate that the network signal mapped to vendor inference endpoints, not staging infrastructure.</li>
-      <li><strong>Identity provider logs.</strong> Authentication events for this user during the window. No password reset, no MFA bypass, no anomalous geographies.</li>
-      <li><strong>MDM compliance record.</strong> Confirms the laptop is enrolled, encrypted, OS-current, and reporting normally.</li>
-      <li><strong>Threat intelligence.</strong> Passive only. Confirm the vendor and inference endpoints have no prior incident associations. No active hash pivots, no speculative attribution.</li>
+      <li><strong>EDR (CrowdStrike on macOS):</strong> primary. Process tree, file activity, network sockets, signing-status events.</li>
+      <li><strong>Corporate egress proxy:</strong> this device's destinations and TLS metadata (destination name, certificate, byte counts), to confirm the traffic went to the vendor's allowlisted endpoints and not to staging infrastructure. It does not inspect content to those endpoints.</li>
+      <li><strong>Identity provider:</strong> this user's authentication events from the 09:14 sign-in onward: resets, MFA changes, new devices, sign-in locations.</li>
+      <li><strong>MDM compliance record:</strong> enrollment, encryption, OS version, the installed Cursor version and hash, and the extension inventory.</li>
+      <li><strong>Threat intelligence:</strong> passive only. The vendor domains and the binary's hash, checked for prior incident associations. No active pivots, no speculative attribution.</li>
+      <li><strong>Conditionally in:</strong> internal source-control access logs for the user's repositories during the window (pulled if EDR or the proxy shows bulk repository cloning or a push to an unfamiliar remote), and the IDE's local agent-activity record for the window, to settle whether terminal commands were typed or agent-run. Both read-only.</li>
+      <li><strong>Out of scope:</strong> per-host review of peer laptops, the vendor's own infrastructure beyond DNS and TLS observability, any system the laptop did not actually reach during the window.</li>
     </ul>
 
     <Reveal summary="Why the threat-intel posture stays passive" variant="info">
 
-    The temptation on an Empire-pattern match is to pivot aggressively: "what other hosts ever saw a similar pattern?" That is an Uncover-phase decision, not a Scope-phase one, and even in Uncover it would only be appropriate if the benign read started to fail. At Scope, with Subject's reads agreeing on legitimate, active threat-intel pivots would be effort spent investigating the wrong question.
+    The temptation on an Empire-pattern match is to pivot aggressively: "which other hosts ever talked to anything like this?" The one fleet query Scope allows is narrower: a count of hosts with the same build and the same behavior, to test the peer baseline. Hunting beyond that is an Uncover decision, and appropriate only if the benign read starts to fail.
 
     </Reveal>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 5. Boundary statement</h3>
+    <h3>Step 5. Hand off to Uncover</h3>
     <p>The Scope deliverable for the Cursor case is deliberately compact:</p>
     <ul class="example-step__list">
-      <li><strong>Time:</strong> alert minus 1h through alert plus 4h. Comparison window: prior 14 days for behavioral baselining only.</li>
-      <li><strong>Subject:</strong> one laptop, one engineer, one binary, the vendor's documented endpoints. No expansion.</li>
-      <li><strong>Environment:</strong> EDR, corporate egress proxy, identity provider, MDM. Source-control reads conditional.</li>
-      <li><strong>Data sources:</strong> as above. Threat intel passive only.</li>
-      <li><strong>Regulatory:</strong> none triggered. The source code on the laptop is sensitive but is not regulated data; no PCI/PII/PHI in scope.</li>
-      <li><strong>Infrastructure gaps:</strong> macOS full-packet capture not available; USB monitoring not deployed on this host class. Uncover will note these as bounded confidence reductions, not as expansion triggers.</li>
-      <li><strong>Escalation trigger:</strong> any Uncover finding inconsistent with the benign read expands the time window to 24 hours pre-alert and bumps the case to the Risk phase for re-evaluation.</li>
-      <li><strong>Open questions for Uncover:</strong> do the connections match the vendor's documented endpoints exactly; does the binary hash match the vendor-signed release; is there any activity in the window the benign read does not explain?</li>
+      <li><strong>Threat type:</strong> Empire-style post-exploitation pattern on a developer workstation, leaning authorized IDE behavior.</li>
+      <li><strong>Time:</strong> 13:03 to 14:48 UTC primary; forward watch to 18:03; identity from the 09:14 sign-in; prior 14 days for behavioral baselining only.</li>
+      <li><strong>Subject:</strong> one laptop, one engineer, the extension host and its child, the extensions and MCP servers it runs, Cursor's vendor endpoints. One count-only fleet query. No other expansion.</li>
+      <li><strong>Out of scope:</strong> per-host review of peer laptops; the vendor's infrastructure beyond DNS and TLS.</li>
+      <li><strong>Environment:</strong> EDR, corporate egress proxy, identity provider, MDM including the extension inventory; threat intel passive only. Source-control reads and the IDE's agent-activity record conditional.</li>
+      <li><strong>Regulatory:</strong> none triggered; reasoning recorded in Step 1.</li>
+      <li><strong>Infrastructure gaps:</strong> the proxy sees TLS metadata only, with no content inspection to the vendor's endpoints; USB device control is not deployed on this host class. Uncover will note these as bounded confidence reductions, not as expansion triggers.</li>
+      <li><strong>Escalation trigger:</strong> any Uncover finding inconsistent with the benign read re-opens Scope back to the earliest related artifact and returns the case to Risk; a confirmed escalation criterion fires the escalation tripwire.</li>
+      <li><strong>Open questions for Uncover:</strong> which extension owned the child, and is it the bundled one its path suggests; do the extension, MCP and workspace-task inventories match the approved list and the peers; do the connections match the vendor's allowlist exactly; does the installed build match the MDM record; is there any activity in the window the benign read does not explain?</li>
+      <li><strong>Time box:</strong> first convergence check at 15:15 UTC, 45 minutes into Uncover. Any finding that breaks the benign read ends the box early.</li>
     </ul>
     <p>Uncover starts inside narrow rails. The case is shaped to confirm or refute the benign read efficiently, not to manufacture a compromise narrative from absence of evidence.</p>
   </div>
@@ -181,73 +186,72 @@ The first walkthrough showed Scope refining Subject's rich, expanding map for a 
 
 </ChapterExample>
 
-<Callout variant="info" title="Two cases so far, two boundary shapes">
-The two scenarios show what Scope looks like when the inputs differ. The finance-team intrusion got an expanding, regulated boundary because Subject's map already pointed at lateral movement and a regulated downstream system. The Cursor benign true positive got a tight, restrained boundary because Subject's reads agreed on legitimate. Both are correct Scope outcomes for their case. The methodology is the same; what changes is what the evidence permitted.
-</Callout>
-
 ---
 
-## A third scenario: scoping the SaaS token-theft case
+<h2 id="case-c">Case C · Scoping the SaaS token-theft case</h2>
 
-Case C continues: rvega's hijacked session, the hiding rule, and the consented OAuth app. Scoping an identity case has a property the endpoint cases did not: the compromise is plausibly live while the boundary is being drawn. The session may still be valid, the app grant definitely is, and the inbox rule is working right now. Scope still comes before deep investigation, it just gets drawn fast and with a live adversary assumed.
+Previously, in [Subject's Case C](/docs/subject/example/#case-c): rvega's <DefineTerm term="Session Hijack" display="replayed session" />, the hiding rule, the <DefineTerm term="OAuth Consent Grant (Illicit Consent)" display="consented OAuth app" />, and a second user whose password the kit captured. The escalation tripwire fired at the end of Alert (09:22), so IR owns this case and Scope runs as scoping support under IR's clock. That changes the posture, not the method. Reversible containment has held since 09:27, but the boundary still has to say what the attacker could reach before it did, so Scope is drawn fast and its answers go to the IR lead as they land. The whole thread is in the [case files](/docs/cases/#case-c).
 
 <ChapterExample
   title="Drawing the lines around the hijacked session"
-  scenario="Subject handed Scope 3 primary entities (rvega's account, the hijacked session, the OAuth application) + 3 secondary (a second click-through user, the shared billing mailbox, the inbox rule) + the CRM downstream, with the AiTM domain and VPS IP as the originating threat. Nothing on the map is a host. Scope's job is a boundary drawn in identity and tenant terms."
+  scenario="Subject handed Scope 4 primary entities (rvega's account, the replayed session, the OAuth application, the second user's credential-exposed account) + 2 secondary (the shared billing mailbox, and rvega's laptop, examined and cleared) + the inbox rule as an artifact + the CRM downstream, with the lure domain, the proxy IP, and the VPS IP as the originating threat. Nothing still in question is a host. Scope's job is a boundary drawn in identity and tenant terms."
 >
 
 <ExampleStepper steps={["Regulatory check", "Time window", "Entity boundaries", "Infrastructure check", "Hand off to Uncover"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Regulatory check</h3>
-    <p>The mailbox holds customer contract and billing correspondence: names, contacts, account details, some of it for EU residents, so GDPR is flagged and compliance engaged now, before anyone knows what the attacker read. The staging pattern points at payment-redirect fraud, which adds a financial-crime dimension: if a fraudulent payment instruction has already gone out, finance and legal need to know on a different clock than the technical investigation.</p>
-    <p><strong>Decisions:</strong> tag the case GDPR-relevant, engage compliance, and put finance on notice that outbound payment instructions from the customer-success mailboxes need out-of-band verification until the case closes.</p>
+    <p>The mailbox holds customer contract and billing correspondence (names, contacts, account details), some of it about people in the EU. GDPR is flagged as a candidate regime (the Article 3 call is compliance's), and compliance is engaged now, before anyone knows what the attacker read: by phone at 09:50, because the mail tenant is the compromised system. Whether this is a notifiable breach is compliance's determination. Scope's job is to put the candidate awareness timestamp on the record: 09:22, when attacker control of a mailbox holding customer personal data was confirmed. GDPR's 72-hour clock runs from awareness, meaning a reasonable degree of certainty that personal data was compromised, not from full confirmation of what was read. Customer contracts with data-processing terms and the cyber-insurance policy carry their own notice clocks, and both are noted for compliance. The staging pattern points at payment-redirect fraud: if a fraudulent payment instruction has already gone out, finance and legal need to know on a faster clock than the technical investigation, because a bank recall and a law-enforcement report are measured in hours.</p>
+    <p><strong>Decisions:</strong> tag the case GDPR-relevant, record 09:22 as the candidate awareness timestamp, engage compliance, and put finance on notice (09:52, by phone) that payment instructions from or about the customer-success mailboxes need out-of-band verification until the case closes.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Time window</h3>
-    <p>The forward edge of the window is open because the compromise may be live. The backward edge is set by the artifacts: rvega clicked the lure at 08:52 today, but consent grants and rules can predate the alert that finally exposed them.</p>
+    <p>The forward edge of the window was open until containment, which now has a time: the reversible actions completed at 09:27 and the replayed session was refused at 09:31. The backward edge is set by the artifacts: the lure arrived at 08:41 and rvega clicked at 08:52 today, but consent grants and rules can predate the alert that finally exposed them.</p>
     <ul class="example-step__list">
-      <li><strong>Primary window:</strong> 08:00 UTC today through current time, held open until containment.</li>
-      <li><strong>Extended check:</strong> 14 days back across the tenant for consent grants to the same application and for inbox rules with the same shape, and 90 days of rvega's sign-in history, the same baseline window Alert and Subject read, to confirm today was the first foreign presentation.</li>
-      <li><strong>Retention check:</strong> IdP sign-in logs and the tenant audit log both cover the windows. Noted: mailbox item-level read events exist only at the tenant's current audit tier; if the tier had been lower, the "what did they read" question would be unanswerable.</li>
+      <li><strong>Primary window:</strong> 08:00 UTC today through containment plus one access-token lifetime (up to 90 minutes on Microsoft Entra ID defaults), so a token issued before the 09:25 revocation cannot act unseen.</li>
+      <li><strong>Extended check:</strong> 14 days back across the tenant for consent grants to the same application and for inbox and forwarding rules with the same shape, plus rvega's authentication-method, device-registration and mailbox-forwarding changes over the same 14 days; and 90 days of rvega's sign-in history, the same baseline window Alert and Subject read, to confirm today was the first foreign presentation.</li>
+      <li><strong>Retention check:</strong> the 90-day sign-in baseline comes from the SIEM copy, because the IdP console's own retention can be shorter (for example, 30 days on Microsoft Entra ID P1/P2). The tenant audit log covers the 14-day lookback, and rvega's mailbox records item-level mail access (on Microsoft 365, MailItemsAccessed is part of Audit (Standard) and on by default for E3/E5 users), so "what did they read" is answerable from the tenant's own logs. Confirm that coverage per mailbox before promising an answer: without those records, it becomes an inference rather than a lookup.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Entity boundaries</h3>
     <ul class="example-step__list">
-      <li><strong>Primary:</strong> rvega's account, the hijacked session, the "Mail Backup Sync" OAuth application. Full depth.</li>
-      <li><strong>Secondary:</strong> the second click-through user, the shared billing mailbox, the inbox rule artifact, and the two remaining lure recipients who did not click. Baseline depth, upgraded on any signal.</li>
-      <li><strong>Tenant-wide sweep dimension:</strong> any session presented from the attacker ASN, and any consent grant to the same app ID, across all users. This is a bounded query set, not an open-ended hunt; it is written into the boundary so Uncover runs it once, deliberately.</li>
+      <li><strong>Primary:</strong> rvega's account, the replayed session, the "Mail Backup Sync" OAuth application, and the second user's credential-exposed account. Full depth.</li>
+      <li><strong>Secondary:</strong> the shared billing mailbox and the two remaining lure recipients who did not click. Baseline depth, upgraded on any signal. The inbox rule rides with rvega's account as an artifact.</li>
+      <li><strong>Tenant-wide sweep dimension:</strong> any sign-in from the proxy IP, any session presented from the attacker <DefineTerm term="Autonomous System Number (ASN)" display="ASN" />, any session ID seen from more than one network, any consent grant to the same app ID, any inbox or forwarding rule matching the same shape (single-character name, payment keywords, move and mark as read), and any MFA method or device registered from either attacker IP, across all users, 14 days. This is a bounded query set, not an open-ended hunt; it is written into the boundary so Uncover runs it once, deliberately. The per-identity counterpart, for rvega and the second user, is the <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a>.</li>
       <li><strong>Downstream:</strong> the CRM rvega's SSO reaches. Inside the boundary as reachable-from-the-session; its authentication logs are already in the infrastructure check, and it gets no deeper look unless the session touched it.</li>
-      <li><strong>Originating threat:</strong> the AiTM domain and VPS IP, feeding Uncover's intelligence work.</li>
-      <li><strong>Out of scope:</strong> rvega's laptop beyond the already-completed EDR check, and every SaaS tenant with no observed attacker activity, pending the sweep results.</li>
+      <li><strong>Originating threat:</strong> the lure domain <code>docs-share-portal[.]example</code>, the proxy IP 203.0.113.41, and the VPS IP 198.51.100.77, feeding Uncover's intelligence work.</li>
+      <li><strong>Out of scope:</strong> rvega's laptop beyond the completed EDR check that cleared it, and every SSO-connected application other than the CRM with no sign-in from attacker infrastructure, pending the sweep results.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Infrastructure check</h3>
     <ul class="example-step__list">
-      <li><strong>In scope:</strong> IdP sign-in and risk logs, the tenant unified audit log, the email gateway's click and delivery records, CRM authentication logs.</li>
-      <li><strong>Limited:</strong> the OAuth application's actual read activity is visible only as aggregate sync events at the current audit tier; per-message detail may require a vendor request.</li>
-      <li><strong>Gaps:</strong> the AiTM proxy sits outside the environment entirely; what rvega saw on that page is reconstructable only from the gateway's URL verdict and the phishing kit's known behavior, not from logs.</li>
+      <li><strong>In scope:</strong> IdP sign-in and risk logs, the IdP audit log (authentication-method and device-registration events), the tenant unified audit log including item-level mail-access records, message trace, the email gateway's click and delivery records, CRM authentication logs.</li>
+      <li><strong>Limited:</strong> nothing that blocks the regulatory question. The app's reads appear in the tenant audit as item-level records. For the regulatory assessment, every item in any folder the audit shows as synced is treated as accessed; compliance does not wait for item-level detail the platform never recorded.</li>
+      <li><strong>Gaps:</strong> the <DefineTerm term="Adversary-in-the-Middle (AiTM)" display="AiTM" /> proxy sits outside the environment entirely; what the kit captured beyond the sign-ins the IdP recorded, and where it sent them, is reconstructable only from the gateway's URL verdict and the kit family's known behavior, not from logs.</li>
     </ul>
-    <p><strong>Decisions:</strong> submit the vendor request for app-activity detail now so it runs in parallel, and record the proxy blind spot as a permanent evidence boundary for this case.</p>
+    <p><strong>Decisions:</strong> point Uncover at the item-level records in the tenant audit, and record the proxy blind spot as a permanent evidence boundary for this case.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Hand off to Uncover</h3>
     <ul class="example-step__list">
-      <li><strong>Threat type:</strong> AiTM session theft with BEC staging.</li>
-      <li><strong>Time:</strong> 08:00 today through containment; 14-day tenant lookback for grants and rules; 30-day sign-in history for rvega.</li>
-      <li><strong>Primary entities:</strong> the account, the session, the app. Full depth.</li>
-      <li><strong>Secondary entities:</strong> second click-through user, billing mailbox, inbox rule, two non-click recipients. Baseline depth.</li>
-      <li><strong>Tenant sweep:</strong> attacker-ASN sessions and same-app consents, all users, one pass.</li>
-      <li><strong>Regulatory:</strong> GDPR flagged, compliance engaged, finance warned on payment instructions.</li>
-      <li><strong>Infrastructure gaps:</strong> app read-detail pending vendor; AiTM proxy permanently invisible.</li>
-      <li><strong>Escalation posture:</strong> the session and app grant are live persistence. Any evidence of payment-thread access or outbound mail moves this case to Escalation immediately, mid-phase.</li>
-      <li><strong>Open questions for Uncover:</strong> what did the session and the OAuth app actually read; did the attacker reach payment threads or the CRM; do the tenant sweeps surface other sessions or grants?</li>
+      <li><strong>Threat type:</strong> AiTM session theft with <DefineTerm term="Business Email Compromise (BEC)" display="BEC" /> staging.</li>
+      <li><strong>Time:</strong> 08:00 UTC on 12 March 2026 through containment plus one token lifetime; 14-day tenant lookback for grants and rules; 90-day sign-in history for rvega from the SIEM copy.</li>
+      <li><strong>Primary entities:</strong> the account, the session, the app, the second user's account. Full depth.</li>
+      <li><strong>Secondary entities:</strong> billing mailbox, two non-click recipients, with the inbox rule as an artifact. Baseline depth.</li>
+      <li><strong>Out of scope:</strong> rvega's laptop beyond the EDR check that cleared it; SSO-connected applications other than the CRM with no attacker sign-in, pending the sweep.</li>
+      <li><strong>Tenant sweep (14 days, all users, one pass):</strong> proxy-IP sign-ins, attacker-ASN sessions, session IDs seen from more than one network, same-app consents, same-shape inbox and forwarding rules, MFA registrations from either attacker IP, CRM sign-ins from attacker infrastructure. The <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a> runs on both primary accounts.</li>
+      <li><strong>Regulatory:</strong> GDPR flagged; candidate awareness timestamp 09:22 on record; compliance engaged at 09:50; finance on notice at 09:52; contract and insurance notice clocks noted.</li>
+      <li><strong>Preservation:</strong> sign-in records, the mailbox audit for the window, the rule definition, the app's service principal and grants, and rvega's MFA methods and devices exported 09:22 to 09:24, before containment.</li>
+      <li><strong>Infrastructure gaps:</strong> the AiTM proxy's own logs and what the kit captured are permanently out of reach (its relayed sign-ins are in the IdP log); nothing else blocking.</li>
+      <li><strong>Escalation posture:</strong> escalated at 09:22 on the escalation tripwire; IR owns the case. Uncover runs as scoping support, and anything that changes impact (payment-thread access, outbound mail, another exposed account) goes to the IR lead the moment it lands, not at the end of the phase.</li>
+      <li><strong>Open questions for Uncover:</strong> what did the session and the OAuth app actually read; did the attacker reach payment threads or the CRM; do the tenant sweeps surface other sessions, grants, rules, MFA registrations, or exposed accounts?</li>
+      <li><strong>Time box:</strong> full sweep results to the IR lead by 10:30 UTC; findings that change impact go at once.</li>
     </ul>
   </div>
 
@@ -255,23 +259,28 @@ Case C continues: rvega's hijacked session, the hiding rule, and the consented O
 
 </ChapterExample>
 
-<Callout variant="info" title="The identity boundary is a query set, not a perimeter">
-The finance case's boundary was drawn around hosts and users. Case C's boundary is drawn around log queries: which sessions, which grants, which mailboxes, over which windows. That is what an infrastructure boundary means when the infrastructure is someone else's cloud, and it is why the tenant sweep is written into the boundary statement instead of left to Uncover's discretion.
-</Callout>
+## Three boundary shapes side by side
+
+The method is the same in all three cases; what changes is what the evidence permitted. Case A's boundary expands and carries regulatory tags because Subject's map already pointed at an identity pivot path and a regulated downstream system. Case B's stays tight because Subject's reads agreed the activity was legitimate, with one bounded check on the code the signed host runs. Case C's is drawn in log queries (which sessions, which grants, which mailboxes, over which windows), because that is what an infrastructure boundary means when the infrastructure is someone else's cloud, and it is why the tenant sweep is written into the boundary statement instead of left to Uncover's discretion.
+
+| | Case A · finance-team intrusion | Case B · Cursor alert | Case C · token theft |
+|---|---|---|---|
+| Shape | Expanding and regulated | Deliberately narrow | A set of log queries |
+| Time | 72 hours primary; 4-week extended look on the primaries | 13:03 to 14:48 UTC; forward watch to 18:03; 14-day baseline | 08:00 UTC through containment plus one token lifetime; 14-day tenant lookback; 90-day sign-in history |
+| Entities | 3 primary, 4 secondary, 1 downstream, originating threat | One host, one user, the extension host and its child | 4 primary, 3 secondary, inbox rule as an artifact, CRM downstream |
+| Sweeps | Hosts and mailboxes touching the lure infrastructure, 72 hours | One count-only fleet prevalence query | Tenant-wide query set, 14 days, one pass |
+| Regulatory | PCI possible, GDPR candidate, SOX if listed; owners engaged 09:45 | None triggered, reasoning recorded | GDPR flagged, awareness timestamp 09:22; contract and insurance clocks noted |
+| Named gaps | Off-proxy traffic, the mobile app, vendor in-app logs | TLS metadata only; no USB device control | The AiTM kit's own logs |
+| Escalation posture | Tripwire met at 09:24; page not yet sent | No criterion met; the forward watch is the re-score trigger | Escalated at 09:22; IR owns the case |
 
 <KeyTakeaway>
-A Scope deliverable fits on one page: time windows, entity list, environment, data sources, regulatory triggers, the named visibility gaps, and the open questions Uncover should answer first. Whether the boundary expands like the finance case, stays tight like the Cursor case, or is drawn in queries like the token-theft case, Uncover starts with a boundary it can defend later.
+A Scope deliverable fits on one page: threat type, time windows, entities and their depth (including what is out and the sweeps that test for more), regulatory and infrastructure constraints (including the named visibility gaps), what has been preserved, the escalation posture, the open questions Uncover should answer first, and the time box. Whether the boundary expands like the finance case, stays tight like the Cursor case, or is drawn in queries like the token-theft case, Uncover starts with a boundary it can defend later.
 </KeyTakeaway>
 
 <ContinueCard
   current="scope"
-  nextHref="/docs/scope/quiz/"
-  nextLabel="Scope chapter quiz"
-  ctaLabel="Take the quiz"
+  nextHref="/docs/scope/transition/"
+  nextLabel="Transition to Uncover"
+  nextDescription="The handoff contract: what Scope passes to Uncover, and how to know the case is ready."
+  ctaLabel="Read the handoff"
 />
-
-<style>
-{`
-.example-step h3 { margin: 0 0 0.85rem 0; color: #d8b4fe; font-size: 1.2rem; }
-`}
-</style>

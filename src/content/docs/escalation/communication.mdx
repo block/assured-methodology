@@ -1,0 +1,171 @@
+---
+title: "Talking to people during triage"
+description: "Verifying with users, owners, and executives without tipping off an attacker or an insider: when to ask and when not to, out-of-band channels when mail, chat, or identity may be compromised, a language card, and the special routes."
+techVerified: "2026-10-13"
+---
+
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Callout from "@/components/assured/Callout.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/escalation.css";
+
+<SubPageHero phase="escalation" pillarIndex="Companion" lede="Most of triage is queries, but some answers only a person can give. Every conversation is evidence collection, and an action the adversary may be able to see. This page covers who to ask, on which channel, in what words, and when to say nothing at all."/>
+
+<PillNav chapter="escalation" />
+
+Analysts talk to people in almost every phase: the user in Subject, a data owner and finance in Scope, a change approver in Uncover, IR, managers, and compliance at the Escalation decision. Each contact can settle a hypothesis, warn an attacker, or put a sentence into the record that a regulator or opposing counsel reads later. Three rules hold throughout:
+
+<div class="comm-rules">
+  <div class="comm-rule">
+    <h3>Pick the channel before the words</h3>
+    <p>If the attacker may hold the mailbox, the chat workspace, or the identity behind them, that channel is closed for this case.</p>
+  </div>
+  <div class="comm-rule">
+    <h3>The subject answers "was it you", never "was it allowed"</h3>
+    <p>A user's reply can rule a hypothesis in or out. Authorization comes from someone independent of the subject.</p>
+  </div>
+  <div class="comm-rule">
+    <h3>Every contact is a row in the record</h3>
+    <p>Who, by whom, which channel, when, what they were told, and what they said. A contact you chose not to make gets a row too.</p>
+  </div>
+</div>
+
+---
+
+<h2 id="verifying">Verifying with the user</h2>
+
+The user is often the fastest discriminator in an account-takeover case. In Case C, one phone call at 09:19 UTC established that rvega was at her desk on her laptop, used no VPN, created no inbox rule, approved no application, and remembered a push prompt right after opening a shared-document link. Together with two independent log sources, that call took the case to High confidence and tripped the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a> at 09:22 (see the <a href="/docs/alert/example/">Alert example</a>). It worked because only rvega could separate "rvega did this" from "someone using her session did this".
+
+### When not to ask
+
+Ask the user when their answer can change the decision and the asking cannot hurt the case. Do not ask in these situations:
+
+| Situation | Why not | What to do instead |
+|---|---|---|
+| An <DefineTerm term="Insider Threat" display="insider" /> hypothesis is live, even as one branch of several | You would be asking the suspect, and the question itself is the tip-off. | Take the <a href="/docs/subject/insider-analysis/">insider route</a>: the insider-program lead (or HR) and legal, before anyone talks to the subject. |
+| The subject works in IT, security, or the SOC, or administers the systems in scope | They can see the case, the queries, or the logs, and can act on what they see. | Restrict the case to named people and verify through the owner of the change or the data instead. |
+| The only channel you have is one the attacker may be reading | Asking on a compromised channel asks the attacker to vouch for themselves. | Use a channel from the <a href="#out-of-band">out-of-band ladder</a>, or do not ask yet. |
+| A criterion is already confirmed | The answer cannot change the decision; escalation does not wait on it. | Escalate first. Contact the user afterward, to inform them, on IR's timing. |
+| Hands-on-keyboard activity or ransomware is suspected and containment is not yet coordinated | A warned user, or an attacker reading the warning, can trigger the rush to impact. | IR owns the timing. Preserve, take the <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized actions</a> in a coordinated way, then talk. |
+
+### How to ask
+
+The SOC's call looks exactly like the attack users have been trained to refuse. Scattered Spider calls employees while posing as IT or help-desk staff, and calls the help desk while posing as employees (CISA AA23-320A); Storm-1811 has messaged and called users in Microsoft Teams under display names such as "Help Desk" and "IT Support" (Microsoft Threat Intelligence, May 2024, updated June 2024). A good verification call is built so that the user can check you, and so that nothing in it would help an attacker who later tries the same opening.
+
+<div class="call-script">
+<p><strong>Open:</strong> name, team, and how to check you: "You can hang up and call me back through the service desk number on the intranet; ask for the security on-call." Never ask them to trust the inbound call.</p>
+<p><strong>Purpose:</strong> "We're looking into some unusual activity on your account and need a few minutes of your help." Not "your account was breached" and not "you clicked a phishing link".</p>
+<p><strong>Ask open questions about a window:</strong> "Walk me through what you were doing between 08:45 and 09:00." "Which devices have you used today?" Then the specific ones: "Did you create any mail rules or approve any apps this morning?" Not "You didn't approve an app, did you?"</p>
+<p><strong>Disclose nothing you do not need to:</strong> no other users' names, no indicators, no detail of what the detection saw, no containment plans or timing.</p>
+<p><strong>Ask for nothing an attacker would ask for:</strong> never a password, a one-time code, a push approval, a remote-support session, or a tool to install.</p>
+<p><strong>Protect the evidence:</strong> "Please don't delete or forward the message, and leave the laptop on." If containment is coming, say only what the user must do next.</p>
+<p><strong>Close:</strong> how they will hear from you next, and on which channel. Record the answers in the user's own words, with the time and the channel.</p>
+</div>
+
+<Callout variant="warn" title="The answer is a lead, not the verification">
+A user's reply moves confidence only as far as the evidence beside it. In the <a href="/docs/uncover/example/#iam-mini-example">IAM mini-example</a>, the engineer's "manual export, CI was backed up" stayed a lead until the ticket owner and the data owner confirmed it independently, because if the session was attacker-operated the message asked the attacker, and if the engineer was an insider it asked the suspect. Label what the user said as what the user said, on the <a href="/docs/documentation/standards/#confidence">shared confidence rubric</a>.
+</Callout>
+
+### Owners, approvers, and managers
+
+Authorization questions go to someone independent of the subject: the approver on the change ticket, the owner of the data store, the service owner for an automation account. Reach them through a contact you looked up, not one the case supplied. A ticket, a calendar invite, or an email thread can be a <a href="/docs/cognitive-traps/#traps-the-adversary-sets">planted pretext</a>, and the phone number in it can belong to the attacker. The same applies to an assisted password or MFA reset: verify it against its ticket and a call-back to a number already on file, as <a href="/docs/subject/entity-types/">entity types</a> describes for <DefineTerm term="Help-Desk Social Engineering" display="help-desk social engineering" />.
+
+The subject's manager is a business-context source for routine questions (is this person on the quarter-end close, are they traveling). The manager is not a default contact. In an insider case the manager is told nothing unless the insider route decides otherwise, and in any case, ask the manager about the work, not about the person.
+
+---
+
+<h2 id="out-of-band">Out-of-band communication when the tools may be compromised</h2>
+
+Attackers read the response. Scattered Spider searches a target's Slack, Microsoft Teams, and Exchange Online for conversations about its intrusion, and frequently joins incident response calls (CISA AA23-320A, revised July 2025). The #StopRansomware Guide (May 2023) tells responders to use <DefineTerm term="Out-of-Band Communication" display="out-of-band methods" /> such as phone calls so they do not tip off actors, and MITRE ATT&amp;CK lists the control as mitigation M1060.
+
+Treat the in-band channels as compromised for a case when it touches any of these: the mail tenant, the chat workspace, the identity provider that signs users into them, the subject's own account or device, or a session token the attacker holds for anyone on the response. In Case C, every contact went by pager, phone, or phone bridge, and the item-level message list went to compliance through the case system, because the mail tenant was the compromised system (see the <a href="/docs/escalation/example/#case-c">Escalation example</a>).
+
+| Channel | Use it when | Do not use it when |
+|---|---|---|
+| Corporate email and chat | Neither identity nor collaboration tools are in scope, and the subject is not an insider. | The case touches the mail tenant, chat, the IdP, or the subject's account. Never notify a suspected victim by email from the affected tenant. |
+| Case or ticketing system | Its access is restricted to named people and it does not sign in through the affected IdP. | It federates through the compromised identity provider, or the subject can read it. |
+| Phone, to a number from a source the attacker could not edit | Verifying with users, owners, and stakeholders during an identity or mail compromise. | The only number you have came from the case itself, or from a directory profile the attacker could have changed. |
+| Pager and on-call platform | Paging IR and the escalation chain, per the <a href="/docs/escalation/protocols/#paging">paging protocol</a>. | The page would carry more than the six-line <a href="/docs/escalation/protocols/#p1-page">P1 page</a>; keep case detail on the bridge. |
+| Pre-provisioned out-of-band bridge or workspace | Coordinating a P1 or a declared incident: a phone bridge, or a workspace whose accounts do not federate to the affected IdP. | It was never tested, or its member list was built from the compromised directory. |
+
+Five habits keep the out-of-band channel out of band:
+
+- **Numbers from a trusted source.** Take phone numbers from HR records or a contact list kept outside the affected systems, as they stood before the incident window. Attackers change the phone number on a profile and register their own MFA phone.
+- **No case detail in the tenant.** A calendar invite, a meeting link, or a "call me" chat message in the compromised tenant announces the response. Send the bridge details out of band too.
+- **Bridge hygiene.** Lock the bridge, take a roll call, and verify every voice that joins. Anyone you cannot place gets dropped and the bridge details are replaced.
+- **Callers prove who they are.** Anyone who calls the response, including someone who sounds like an executive or a colleague, gets a <DefineTerm term="Call-Back Verification" display="call back" /> on a number you looked up. AI-generated voice is now often difficult to identify (FBI PSA I-051525-PSA, May 2025).
+- **Tell the business what to distrust.** When mail is compromised, put the people who move money on notice that payment and bank-detail instructions from or about the affected mailboxes need out-of-band verification until the case closes, as Cases A and C did (see the <a href="/docs/scope/example/">Scope example</a>). That is the <DefineTerm term="Business Email Compromise (BEC)" display="business email compromise" /> path the attacker was building toward.
+
+<Callout variant="info" title="Out of band is a preparation item">
+The analyst cannot build a trusted channel during the incident. Adopters provision it in advance: an out-of-band bridge and workspace with accounts outside the production identity provider, an offline copy of the contact list and the escalation chain, and a tabletop that runs a case with email and chat assumed lost. The <a href="/docs/escalation/protocols/#exercise-the-protocols">protocols page</a> asks for the same test.
+</Callout>
+
+---
+
+<h2 id="language">The language card</h2>
+
+Everything said in a ticket, a chat thread, or a call note can be read later by a regulator, an auditor, or opposing counsel, and involving counsel does not by itself shield it. Courts ordered breach forensic reports produced in *In re Capital One* (E.D. Va. 2020) and <a href="https://www.courtlistener.com/opinion/4847115/wengui-v-clark-hill-plc/" target="_blank" rel="noopener noreferrer"><em>Wengui v. Clark Hill</em></a> (D.D.C. 2021). The <a href="/docs/documentation/standards/#discovery">writing for discovery</a> standard governs the written record; the card below carries the same discipline into conversation and chat.
+
+| Say | Not | Why |
+|---|---|---|
+| "event", "incident", "suspected unauthorized access" | "breach" | Whether something is a <DefineTerm term="Data Breach" display="breach" /> is a legal determination that counsel makes, with its own clocks. |
+| "unauthorized access to mailbox content confirmed: about 1,800 messages read by the consented app" | "they stole everything" | State what the evidence shows, with its scope. Volume claims without a source become the number everyone repeats. |
+| "the account was used from 198.51.100.77 after a session was replayed" | "the user got hacked", "fell for it" | Describe what people did, not what they are. The user is the first victim (see <a href="/docs/documentation/standards/#people">writing about people</a>). |
+| "not yet determined", "no outbound mail in message trace for the case window" | "probably nation-state", "probably nothing", "nothing happened" | Speculation in writing hardens into fact. Absence of evidence is scoped to a source and a window. |
+| "control gap: push MFA, not phishing-resistant" | "negligent", "failed to comply", "our fault" | Control findings are facts; fault and compliance are legal conclusions. |
+| "compliance is assessing obligations" | "we have to notify", "we don't need to report this" | Notification is legal's call. The analyst's job is the timestamp and the facts (see <a href="/docs/scope/regulatory/">Scope: regulatory</a>). |
+
+Three rules go with the card:
+
+- **Do not speculate in writing.** Chat is a record. Hypotheses belong in the case, labeled as hypotheses, not in a side thread.
+- **Mark counsel communications, and follow counsel's instructions.** Once counsel directs the investigation, follow their instructions on where analysis is written, how it is labeled, and who receives it. Keep the factual triage record complete and separate from counsel-directed analysis. A "privileged" label does not create privilege, and forwarding counsel's messages widely can waive the protection they have.
+- **Say less on the phone than you know.** A user, a manager, or a vendor needs what they must do next, not the case. "We're looking into unusual activity on your account" is the whole briefing for most users.
+
+---
+
+<h2 id="special-routes">Special routes</h2>
+
+Four kinds of case change who you talk to, and who you must not. Each route is named in the <a href="/docs/escalation/protocols/">escalation protocols</a>; this table is the triage view.
+
+| Route | Talk to | Do not talk to | First move |
+|---|---|---|---|
+| **Insider and HR** | The insider-program lead (or HR where no program exists) and legal, on one bridge with the IR lead. | The subject, the subject's manager or team, or HR about "why". | Restrict the case to named people. Record observable technical activity only; HR-held context reaches the case only through the <a href="/docs/subject/insider-analysis/">insider-risk route</a>, never as analyst-collected notes. The <a href="/docs/subject/example/#insider-referral">HR referral example</a> runs the route end to end. |
+| **Executive or VIP subject** | The contact the protocol names (often the CISO or the security lead for executive protection), who decides how the executive is approached. | Executive assistants and delegates by default: they often hold delegate rights on the mailbox, so they are both in scope and a possible channel for the attacker. | Treat urgency and seniority as signals, not authority. Any instruction from or for the executive is verified by call-back on a known number; <DefineTerm term="Whaling" display="whaling" /> and <DefineTerm term="Deepfake" display="deepfake" /> voice target exactly this route. |
+| **Suspected ransomware or extortion** | The IR lead, out of band from the first message. Legal engages the insurer and law enforcement; the SOC does not. | The threat actor, ever. Users who receive extortion contact report it and do not reply; negotiation belongs to IR, counsel, and the insurer. | Isolate in a coordinated way, after <a href="/docs/escalation/preserve/">preservation</a>, and do not warn users in a channel the attacker can read. Any payment discussion is legal's, with sanctions screening and its own <a href="/docs/scope/clocks/#ransom-and-extortion-payments">payment reporting clocks</a> (see <a href="/docs/escalation/protocols/#external-parties">external parties</a>). |
+| **Regulator, law enforcement, or press** | Legal (and communications for press), immediately. | The caller, beyond taking details. The SOC does not contact regulators or law enforcement directly. | Take the name, agency, reference, and a call-back number; confirm nothing, deny nothing, and verify the caller through a published number. An outside notice of compromise can be the moment of awareness: record its time for legal (see <a href="/docs/scope/regulatory/">Scope: regulatory</a> and the <a href="/docs/scope/clocks/">regulatory clock card</a>). |
+
+For a <DefineTerm term="Managed Security Service Provider (MSSP)" display="managed security service provider (MSSP)" /> or <DefineTerm term="Managed Detection and Response (MDR)" display="managed detection and response (MDR)" /> provider, the escalation is the customer notification, and the language card applies to it as much as to internal chat. The contract's named contacts may sit inside the compromised tenant, so agree an out-of-band contact path at onboarding.
+
+---
+
+<h2 id="record">The communication record</h2>
+
+Every contact on this page ends as one row in the communication record, section 9 of the <a href="/docs/escalation/handoff/">handoff packet</a> and the matching part of a closure record. The row carries the time (UTC), who was contacted and by whom, the channel, what they were told in one line, what they said or decided, and the reason when a contact was deliberately not made. Case C's record shows the shape:
+
+<div class="call-script">
+<p><strong>09:19</strong> rvega, by phone, by the triage analyst: asked about her morning sign-ins and mailbox changes. Said: at her desk on the laptop, no VPN, created no rule, approved no app, remembers a push prompt after opening a shared-document link.</p>
+<p><strong>09:22</strong> IR lead paged by pager and phone bridge, not tenant email or chat: the mail tenant is the compromised system.</p>
+<p><strong>09:24</strong> rvega informed by phone that her account is disabled while the security team works.</p>
+<p><strong>09:52</strong> Finance accounts payable and receivable put on notice by phone: payment instructions from or about the customer-success mailboxes need out-of-band verification until the case closes.</p>
+</div>
+
+The record prevents duplicate and contradictory messages and starts the audit trail regulatory reporting will need. If priority later moves down, everyone told about the escalation is told about the downgrade.
+
+<KeyTakeaway>
+Choose the channel before the words, and go out of band to a number you looked up when the attacker may hold mail, chat, or identity. Ask the subject only what the subject can answer; get authorization from someone independent. Say "incident", not "breach", and keep speculation out of writing. Route insider, executive, ransomware, and regulator contact through the people the protocol names, and record every contact.
+</KeyTakeaway>
+
+## Sources
+
+- CISA, FBI and partners, <a href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-320a" target="_blank" rel="noopener noreferrer">Scattered Spider, AA23-320A</a> (released November 16, 2023; revised July 29, 2025): searching Slack, Teams, and Exchange Online for the security response, and joining remediation calls.
+- CISA, FBI, NSA, and MS-ISAC, <a href="https://www.cisa.gov/stopransomware/ive-been-hit-ransomware" target="_blank" rel="noopener noreferrer">#StopRansomware Guide response checklist</a> (updated May 2023): out-of-band communication methods to avoid tipping off actors.
+- MITRE ATT&amp;CK, <a href="https://attack.mitre.org/mitigations/M1060/" target="_blank" rel="noopener noreferrer">M1060 Out-of-Band Communications Channel</a> (created August 2024).
+- Microsoft Threat Intelligence, <a href="https://www.microsoft.com/en-us/security/blog/2024/05/15/threat-actors-misusing-quick-assist-in-social-engineering-attacks-leading-to-ransomware/" target="_blank" rel="noopener noreferrer">Threat actors misusing Quick Assist in social engineering attacks leading to ransomware</a> (May 15, 2024; updated June 2024 with Storm-1811's Teams help-desk impersonation).
+- FBI, <a href="https://www.ic3.gov/PSA/2025/PSA250515" target="_blank" rel="noopener noreferrer">Senior US Officials Impersonated in Malicious Messaging Campaign, I-051525-PSA</a> (May 15, 2025): verify by independently identifying a number and calling back.
+- <a href="https://www.courtlistener.com/opinion/4847115/wengui-v-clark-hill-plc/" target="_blank" rel="noopener noreferrer"><em>Wengui v. Clark Hill, PLC</em></a>, No. 19-3195 (D.D.C. January 12, 2021), and *In re Capital One Consumer Data Security Breach Litigation* (E.D. Va. 2020): forensic reports ordered produced despite counsel's involvement.
+
+<ContinueCard current="escalation" nextHref="/docs/escalation/triage-vs-ir/" nextLabel="Triage vs. incident response" ctaLabel="Read the distinction" />
+

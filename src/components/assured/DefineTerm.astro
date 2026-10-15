@@ -2,10 +2,20 @@
 /**
  * DefineTerm. Inline glossary tooltip.
  *
- * Wraps a term in a subtle dotted underline. Hover, keyboard focus, or
- * tap/click reveals a small panel with the definition; Esc dismisses it.
- * The inline text is always `display ?? term`. Slot children never render
- * inline; they replace the definition body.
+ * Wraps a term in a quiet dotted underline (body-text color: teal stays
+ * reserved for links). Hover, keyboard focus, or a click or tap reveals a
+ * small panel with the definition; Esc dismisses it. The inline text is
+ * always `display ?? term`. Slot children never render inline; they replace
+ * the definition body.
+ *
+ * First occurrence per page: only the first in-flow use of a term on a
+ * page stays a tooltip; later uses of the same term render as plain text
+ * (done in the browser, in document order, before the triggers bind). Uses
+ * inside collapsible or hidden-until-chosen content (Reveal and other
+ * <details>, stepper steps, flip-card backs, quiz items, another tooltip)
+ * always keep their tooltip and do not count as the first, since a reader
+ * may meet them on their own. Pass `always` to keep a specific use. Without
+ * JavaScript every use keeps its tooltip.
  *
  * Definition body, first match wins:
  *
@@ -40,64 +50,91 @@ interface Props {
   display?: string;
   /** Optional explicit definition. If absent, looked up from src/data/glossary.ts. */
   definition?: string;
+  /** Keep this use as a tooltip even if the term already appeared above. */
+  always?: boolean;
 }
 
-const { term, display, definition } = Astro.props;
+const { term, display, definition, always = false } = Astro.props;
 const hasExplicitBody = Astro.slots.has("default");
 const lookup = lookupTerm(term);
 const resolvedDefinition =
   definition ?? (hasExplicitBody ? null : (lookup?.definition ?? null));
-const resolvedTitle = lookup?.term ?? term;
+// An alias record (another vendor's name for a B.A.D. actor) titles the
+// panel "Cozy Bear (APT29)"; a retired key that merely extends the
+// canonical name shows the canonical name alone.
+const canonical = lookup?.aliasOf;
+const resolvedTitle = lookup
+  ? canonical && !lookup.term.startsWith(canonical)
+    ? `${lookup.term} (${canonical})`
+    : (canonical ?? lookup.term)
+  : term;
+const methodTerm = lookup?.methodTerm === true;
 const displayText = display ?? term;
 const panelId = stableId("defterm", Astro.url.pathname);
----
+const termKey = resolvedTitle.trim().toLowerCase();
 
-{/* No aria-haspopup: the panel is a tooltip, not a menu/dialog, and haspopup
-    makes screen readers announce a popup that never opens as one. The trigger
-    is linked to the panel with aria-describedby instead, so the definition is
-    read as the button's description. */}
-<span class="define-term">
-  <button type="button" class="define-term__trigger" aria-expanded="false" aria-describedby={panelId}>
-    {displayText}
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-      <circle cx="12" cy="12" r="10"></circle>
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-      <line x1="12" y1="17" x2="12.01" y2="17"></line>
-    </svg>
-  </button>
-  <span class="define-term__panel" role="tooltip" id={panelId}>
-    <strong class="define-term__title">{resolvedTitle}</strong>
+// No aria-haspopup: the panel is a tooltip, not a menu/dialog, and haspopup
+// makes screen readers announce a popup that never opens as one. The trigger
+// is linked to the panel with aria-describedby instead, so the definition is
+// read as the button's description.
+//
+// data-pagefind-ignore on the panel: the definition is glossary text, not
+// this page's content. Indexing it made every page that uses a term match
+// searches for that term's definition. The glossary pages index the terms.
+//
+// The trigger is a span with role="button", not a <button>: a button is an
+// atomic inline box, so a multi-word term could never wrap at a line end and
+// pushed whole phrases onto the next line. The script gives the span the
+// button keyboard contract (Enter and Space activate).
+//
+// This comment lives in the frontmatter on purpose: the template must start
+// directly with the wrapper <span>. Astro 7's compiler keeps the whitespace
+// after a leading {/* */} expression as a text node, which renders as a stray
+// space before every inline term ("( Okta", "threat- intelligence").
+---
+<span class="define-term" data-term-key={termKey} data-term-always={always ? "" : undefined}>
+  <span class="define-term__trigger" role="button" tabindex="0" aria-expanded="false" aria-describedby={panelId}>{displayText}</span>
+  <span class="define-term__panel" role="tooltip" id={panelId} data-pagefind-ignore>
+    <strong class="define-term__title">{resolvedTitle}{methodTerm && <span class="define-term__tag">ASSURED term</span>}</strong>
     {hasExplicitBody ? <slot /> : resolvedDefinition ? <span>{resolvedDefinition}</span> : <span>(definition missing)</span>}
   </span>
 </span>
 
 <style>
+  /* Inline, not inline-block, so a multi-word term wraps like the text
+     around it; position: relative still anchors the panel. */
   .define-term {
     position: relative;
-    display: inline-block;
+    display: inline;
   }
 
+  /* Quiet by design: dense pages carry dozens of terms, and a teal trigger
+     with a "?" icon read the same as a link. The term keeps the surrounding
+     text color with a dotted slate underline; hover and focus firm the
+     underline up. */
   .define-term__trigger {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.2rem;
+    display: inline;
     background: transparent;
     border: none;
     padding: 0;
     margin: 0;
     font: inherit;
-    color: var(--assured-accent-soft);
+    color: inherit;
+    text-align: inherit;
     cursor: help;
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-decoration-color: rgba(94, 234, 212, 0.6);
+    text-decoration-color: rgba(148, 163, 184, 0.75);
+    text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    transition: color 0.15s ease;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
   }
 
   .define-term__trigger:hover,
-  .define-term__trigger:focus-visible {
-    color: #99f6e4;
+  .define-term__trigger:focus-visible,
+  .define-term__trigger[aria-expanded="true"] {
+    color: var(--assured-text);
+    text-decoration-color: var(--assured-accent-soft);
   }
 
   /* Keyboard users need a visible focus indicator (WCAG 2.4.7); the color
@@ -106,11 +143,6 @@ const panelId = stableId("defterm", Astro.url.pathname);
     outline: 2px solid rgba(94, 234, 212, 0.7);
     outline-offset: 2px;
     border-radius: 0.2rem;
-  }
-
-  .define-term__trigger svg {
-    opacity: 0.55;
-    transform: translateY(1px);
   }
 
   /*
@@ -182,6 +214,19 @@ const panelId = stableId("defterm", Astro.url.pathname);
     letter-spacing: 0.05em;
   }
 
+  /* Marks a term ASSURED coined or uses in its own sense. */
+  .define-term__tag {
+    margin-left: 0.5rem;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid rgba(94, 234, 212, 0.4);
+    border-radius: 9999px;
+    color: var(--assured-text-soft);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
   /* :hover on the wrapper (not just the trigger) keeps the panel open while
      the pointer is over the panel itself (WCAG 1.4.13 hoverable). */
   .define-term:hover .define-term__panel,
@@ -211,6 +256,9 @@ const panelId = stableId("defterm", Astro.url.pathname);
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .define-term__trigger {
+      transition: none;
+    }
     .define-term:hover .define-term__panel,
     .define-term__trigger:focus-visible + .define-term__panel,
     .define-term__trigger[aria-expanded="true"] + .define-term__panel {
@@ -267,20 +315,66 @@ const panelId = stableId("defterm", Astro.url.pathname);
     wrapper.style.setProperty("--define-term-shift", `${shift}px`);
   }
 
+  // Uses inside these containers keep their tooltip and never count as a
+  // term's first occurrence: the reader may open or reach them on their own.
+  const SELF_CONTAINED = [
+    "details",
+    "[data-step]",
+    ".flip-card__face--back",
+    ".quiz-item",
+    ".define-term__panel",
+  ].join(", ");
+
+  // First occurrence per page: later in-flow uses of a term become plain
+  // text. querySelectorAll returns document order, and a term already
+  // reduced is gone from the DOM, so re-running on the same page (the
+  // initial run plus astro:page-load) changes nothing.
+  function dedupeDefineTerms() {
+    const seen = new Set<string>();
+    document.querySelectorAll<HTMLElement>(".define-term[data-term-key]").forEach((wrapper) => {
+      if (wrapper.parentElement?.closest(SELF_CONTAINED)) return;
+      const key = wrapper.dataset.termKey ?? "";
+      if (!seen.has(key)) {
+        seen.add(key);
+        return;
+      }
+      if (wrapper.hasAttribute("data-term-always")) return;
+      const text = wrapper.querySelector(".define-term__trigger")?.textContent ?? "";
+      wrapper.replaceWith(document.createTextNode(text));
+    });
+  }
+
   function bindDefineTerms() {
-    const triggers = document.querySelectorAll<HTMLButtonElement>(
+    dedupeDefineTerms();
+    const triggers = document.querySelectorAll<HTMLElement>(
       ".define-term__trigger:not([data-defterm-bound])"
     );
     triggers.forEach((trigger) => {
       trigger.setAttribute("data-defterm-bound", "true");
       const wrapper = trigger.closest<HTMLElement>(".define-term");
+      // The button keyboard contract for the role="button" span: Enter
+      // activates on keydown, Space on keyup (and never scrolls the page).
+      trigger.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          trigger.click();
+        } else if (e.key === " ") {
+          e.preventDefault();
+        }
+      });
+      trigger.addEventListener("keyup", (e) => {
+        if (e.key === " ") {
+          e.preventDefault();
+          trigger.click();
+        }
+      });
       trigger.addEventListener("click", (e) => {
         e.preventDefault();
         wrapper?.classList.remove("is-dismissed");
         const isOpen = trigger.getAttribute("aria-expanded") === "true";
         // Close all other open triggers on this page (live query so newly-mounted ones count).
         document
-          .querySelectorAll<HTMLButtonElement>(".define-term__trigger[aria-expanded='true']")
+          .querySelectorAll<HTMLElement>(".define-term__trigger[aria-expanded='true']")
           .forEach((other) => {
             if (other !== trigger) other.setAttribute("aria-expanded", "false");
           });
@@ -308,7 +402,7 @@ const panelId = stableId("defterm", Astro.url.pathname);
 
   function closeAllDefineTerms(dismissRevealed = false) {
     document
-      .querySelectorAll<HTMLButtonElement>(".define-term__trigger")
+      .querySelectorAll<HTMLElement>(".define-term__trigger")
       .forEach((t) => t.setAttribute("aria-expanded", "false"));
     if (dismissRevealed) {
       // Esc must also hide panels held open purely by :hover/:focus-visible,

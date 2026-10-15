@@ -1,0 +1,132 @@
+---
+title: "Asset and user criticality"
+shortTitle: "Criticality"
+description: "Weigh alerts by what they could affect and who is involved. Criticality is how triage stays proportional to risk, from the first queue position to the scope decision."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import CaseStudy from "@/components/assured/CaseStudy.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/scope.css";
+
+<SubPageHero
+  phase="scope"
+  pillarIndex="Companion"
+  lede="Not every alert deserves the same response. Criticality is a risk-based lens that weighs alerts by what they could affect and who is involved, so analyst time concentrates where it matters. Alert reads it to order the queue; Scope owns the classification."
+/>
+
+<PillNav chapter="scope" />
+
+<Callout variant="info" title="How far to go in Alert">
+This page lives in Scope because Scope owns the classification, but Alert uses it first. In Alert, criticality is one lookup with a stopping point: read the existing tier for the asset and the account type for the identity, and let them order the queue. Criticality is a weighting, not a truth test: it says how much an alert matters, not whether it is real. Classifying assets is Scope's job (see [entity boundaries](/docs/scope/entity/) and [infrastructure boundaries](/docs/scope/infrastructure/)); Alert reads the classification that exists and flags gaps in the handoff. The [fast-path depth ladder](/docs/fast-path/) sets how much a given alert needs, and the [Alert transition](/docs/alert/transition/) lists what to hand off.
+</Callout>
+
+## How criticality validation works
+
+Two alerts can be identical in content and very different in importance. An anomalous login to a developer's sandbox account is one situation. The same anomalous login to a service account with administrative rights on the <DefineTerm term="Domain Controller" display="domain controllers" /> is another. Criticality validation is the strategy that builds this distinction into triage by attaching weights to the entities involved.
+
+The strategy has two halves. **<DefineTerm term="Asset Criticality" display="Asset criticality" />** describes the business and operational importance of the systems involved. **User criticality** describes the privilege level, access scope, and authority of the identities involved. Together they produce a risk-weighted view of the alert that the analyst can use to allocate time proportionally.
+
+## Asset criticality
+
+Assets are usually classified into tiers like Critical / High / Medium / Low, or scored numerically. The classification reflects three things:
+
+<div class="criticality-list">
+  <div class="criticality-item">
+    <h3>Business value</h3>
+    <p>Revenue impact if the asset is degraded, customer-facing visibility, contractual obligations. Revenue-generating systems and customer-data stores sit at the top of most classification schemes.</p>
+  </div>
+  <div class="criticality-item">
+    <h3>Regulatory exposure</h3>
+    <p>Whether the asset stores or processes data covered by HIPAA, GDPR, SOX or sector-specific regulation, or by contractual regimes such as PCI DSS. Compliance-bound systems may demand investigation regardless of where they sit on the tier list.</p>
+  </div>
+  <div class="criticality-item">
+    <h3>Network and identity proximity</h3>
+    <p>An asset is as critical as the most critical thing reachable from it, over the network or through credentials and permissions. A workstation where a domain admin logs on is Tier 0 in practice, and a low-tier workstation with direct access to the production database is no longer low-tier. Ask how many hops separate it from Tier 0 (domain controllers, identity-provider admins, the cloud organization root); attack-path tools such as BloodHound make these paths visible. Reachability raises the weighting and travels to Scope as a flag; on its own it does not set Level 2, which needs a crown-jewel subject, a privileged identity, or regulated data plausibly accessed by the activity under review.</p>
+  </div>
+</div>
+
+## User criticality
+
+User accounts carry their own weight. Three factors define it:
+
+<div class="criticality-list">
+  <div class="criticality-item">
+    <h3>Privilege level</h3>
+    <p>Standard user, privileged user, service accounts and other non-human identities (cloud service principals, OAuth apps, API keys, automation and AI-agent identities). Each has a different blast radius if compromised. Non-human identities are especially important to model because they often outlive the people who created them. Privileged identities never qualify for a Level 0 close; they route to Level 2 on the depth ladder.</p>
+  </div>
+  <div class="criticality-item">
+    <h3>Access scope</h3>
+    <p>How many systems and how much data the account can touch. A privileged user with narrow scope is less dangerous than a standard user with wide scope. Both are worth weighting.</p>
+  </div>
+  <div class="criticality-item">
+    <h3>Authority and exposure</h3>
+    <p>What the person can approve or move (payments, payroll, access grants) and how attractive they are as a target (executives, finance approvers, public-facing staff). A CFO can authorize a wire with no admin rights at all.</p>
+  </div>
+</div>
+
+---
+
+## Example: identical alerts, very different responses
+
+<CaseStudy
+  title="Two anomalous logins"
+  scenario="Two anomaly alerts fire at 03:00 reporting unusual login times. Both alerts look identical in shape. They are not equivalent in priority."
+>
+
+**Alert 1**: anomalous 03:00 login on a workstation belonging to a contractor account, a Low-criticality asset, no access to production systems. The contractor's role is to maintain a single sandboxed application.
+
+**Alert 2**: an interactive 03:00 logon by a service account that normally authenticates only non-interactively, and whose role includes administrative access to two <DefineTerm term="Domain Controller" display="domain controllers" /> and a database tier holding regulated patient data.
+
+Without criticality validation, both alerts compete for the same investigator at the same time. With criticality validation, the analyst's queue is automatically ordered: Alert 2 is investigated first, now; Alert 1 is queued for review during regular hours unless other signals raise it. Alert 2 also sets its own depth: a service account with administrative rights on domain controllers is a privileged identity, so it fails the Level 0 eligibility gate and routes to Level 2 on the [depth ladder](/docs/fast-path/).
+
+The validation logic is doing two things at once. It is sorting by potential impact, and it is providing the analyst with a defensible justification for the choice. Months later, in a <DefineTerm term="Post-Mortem" display="post-mortem" /> or an audit, the criticality data attached to the alert at the time of triage is what makes the prioritization decision reviewable.
+
+</CaseStudy>
+
+---
+
+## Implementation requirements
+
+Criticality validation is only as good as the data underneath it. Three sources matter most.
+
+<div class="cmdb-grid">
+  <div class="cmdb-card">
+    <h3>Asset inventory</h3>
+    <p>A CMDB (ServiceNow, custom) or asset platform that knows every system, its classification, its owner, its data sensitivity, and its network position. The inventory should update as the environment changes.</p>
+  </div>
+  <div class="cmdb-card">
+    <h3>Identity directory</h3>
+    <p>Active Directory, Microsoft Entra ID, Okta, or equivalent, with an identity-governance platform such as SailPoint as the usual source of entitlements and account ownership. The directory should know account types, role assignments, group memberships, and the relationships between them. Service accounts and other non-human identities should be tagged separately, each with a named owner.</p>
+  </div>
+  <div class="cmdb-card">
+    <h3>Compliance mapping</h3>
+    <p>An explicit map of which assets and data flows are covered by which regulations. The map should be authoritative enough that an analyst can rely on it during triage without consulting legal counsel for every alert.</p>
+  </div>
+</div>
+
+---
+
+## Operational practice
+
+- **Keep inventories current.** Stale CMDB data degrades criticality scoring silently. The alerts still fire, but their priorities become wrong without anyone noticing for weeks.
+- **Define classification criteria clearly.** "Critical" should mean the same thing in two different teams' heads. A short documented definition with examples is worth the time.
+- **Re-classify during organizational change.** Mergers, divestitures, system migrations, and major reorganizations all change criticality in ways that need to flow into the validation logic.
+- **Integrate compliance triggers explicitly.** HIPAA-relevant systems may need investigation even when the tier score would not have demanded it. Make that rule visible in the validation logic rather than relying on analysts to remember it.
+
+<KeyTakeaway>
+Criticality validation is what keeps a SOC's response proportional to risk as the environment grows. Without it, every alert competes equally for attention, and the most consequential intrusions get the same response time as the most routine ones. With it, analyst time concentrates where the cost of inattention is highest.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/infrastructure/"
+  nextLabel="Infrastructure boundaries"
+  nextDescription="Criticality says what is at stake. Infrastructure boundaries map how far the activity could reach across networks, cloud accounts and shared services."
+  ctaLabel="Read infrastructure boundaries"
+/>

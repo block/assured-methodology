@@ -1,4 +1,9 @@
-@import "tailwindcss";
+/* Cascade layers, lowest first. The reset sits below base so the element
+   defaults in base (here and in assured.css) override it regardless of
+   source order; component and page styles are un-layered and win over
+   both. */
+@layer theme, reset, base, components, utilities;
+
 @import "./assured.css";
 @import "./print.css";
 
@@ -17,43 +22,212 @@
   line-gap-override: 0%;
 }
 
-@theme {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+@layer theme {
+  :root {
+    /* Fonts only. The site's colors and radii are the --assured-* tokens in
+       assured.css. */
+    --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui,
+      sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+      "Noto Color Emoji";
+    --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo,
+      Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+}
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+/*
+ * Reset. Components were written against a zeroed baseline (no default
+ * margins or padding, unstyled lists, borders opt-in, links and form
+ * controls inheriting color and font, replaced elements as blocks), so
+ * these rules keep that baseline in plain CSS. Adapted from the MIT-licensed
+ * modern-normalize / Tailwind CSS preflight (Copyright (c) Tailwind Labs,
+ * Inc.).
+ */
+@layer reset {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  html,
+  :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+  abbr:where([title]) {
+    text-decoration: underline dotted;
+  }
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
 
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+  b,
+  strong {
+    font-weight: bolder;
+  }
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 1em;
+  }
 
-  --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-    "Noto Color Emoji";
-  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  small {
+    font-size: 80%;
+  }
+
+  sub,
+  sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+
+  :-moz-focusring:where(:not(iframe)) {
+    outline: auto;
+  }
+
+  summary {
+    display: list-item;
+  }
+
+  ol,
+  ul,
+  menu {
+    list-style: none;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  button,
+  input,
+  select,
+  optgroup,
+  textarea,
+  ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+
+  ::placeholder {
+    opacity: 1;
+    color: color-mix(in oklab, currentcolor 50%, transparent);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  button,
+  input:where([type="button"], [type="reset"], [type="submit"]),
+  ::file-selector-button {
+    appearance: button;
+  }
+
+  ::-webkit-inner-spin-button,
+  ::-webkit-outer-spin-button {
+    height: auto;
+  }
+}
+
+/* The hidden attribute always wins. hidden="until-found" is left to the
+   browser (content-visibility), so find-in-page can still reveal it. This
+   one rule lives in base rather than reset: an !important declaration in an
+   earlier layer beats one in a later layer, and the print overrides that
+   unhide quiz feedback and stepper panels (print.css, QuizItem.astro) are
+   !important rules in base that win here on specificity. */
+@layer base {
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+
+/* App shell (BaseLayout): a full-height column whose middle grows, so the
+   footer sits at the bottom of short pages. */
+.site-body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.site-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-main {
+  flex: 1;
 }
 
 @layer base {
@@ -62,30 +236,9 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-
-  :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 173 80% 40%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 215 25% 27%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 215 25% 27%;
-    --muted-foreground: 215 16% 65%;
-    --accent: 173 80% 40%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 215 25% 27%;
-    --input: 215 25% 27%;
-    --ring: 173 80% 40%;
-    --radius: 0.75rem;
+    /* Light slate, so an element that sets a border width without a color
+       gets a quiet hairline rather than its text color. */
+    border-color: oklch(92.8% 0.006 264.531);
   }
 
   @media (prefers-reduced-motion: no-preference) {

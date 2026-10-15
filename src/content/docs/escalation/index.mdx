@@ -1,6 +1,6 @@
 ---
-title: "Escalation: Triage to broader response"
-description: "Hand off cleanly. The triage analyst's deliverable is the handoff packet."
+title: "Escalation decision: Close or escalate"
+description: "Close or escalate, deliberately. Most cases close with a documented, first-class verdict; when you escalate, the handoff packet is the deliverable."
 slug: "escalation"
 wide: true
 ---
@@ -8,105 +8,75 @@ wide: true
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
+import PillarGrid from "@/components/assured/PillarGrid.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/escalation.css";
 
 <ChapterHero
   phase="escalation"
-  letter="E"
-  pieceNumber={6}
-  question="Who needs to know, and with what context?"
-  pillars={[
-    { num: "01", label: "Criteria",            href: "/docs/escalation/criteria/" },
-    { num: "02", label: "Protocols",           href: "/docs/escalation/protocols/" },
-    { num: "03", label: "Triage vs. IR",       href: "/docs/escalation/triage-vs-ir/" },
-    { num: "04", label: "The handoff packet",  href: "/docs/escalation/handoff/" },
-  ]}
 >
-  Escalation is the triage analyst's most consequential deliverable. The handoff packet is the artifact that determines whether the next tier starts strong or starts from scratch.
+  The Escalation decision is where the close-or-escalate call is made and recorded. Most triaged cases close here, as a documented, first-class verdict; the ones that meet a criterion leave with a handoff packet that lets the next tier start strong. Either way, the deliverable is a record the next reader can trust.
 </ChapterHero>
 
-<Callout variant="info" title="What Escalation is for">
-Escalation is not just "send it to the IR team." It is the deliberate, documented handoff of the work the triage analyst has done so far, in a form the next tier can pick up without re-investigating. Done well, escalation makes <DefineTerm term="Incident Response" display="incident response" /> start from where triage finished. Done poorly, it costs the IR team hours of rework; teams that <a href="/docs/adoption/#measuring-triage-quality">measure their triage</a> track exactly that rework as a first-class signal.
+<Callout variant="info" title="What the Escalation decision is for">
+Risk scores the case and recommends a move; the Escalation decision makes the call and records it. A documented close is a full outcome, held to the same evidence standard as an escalation. When the answer is escalate, Escalation is not just "send it to the IR team." It is the deliberate, documented handoff of the work the triage analyst has done so far, in a form the next tier can pick up without re-investigating. Done well, escalation makes <DefineTerm term="Incident Response" display="incident response" /> start from where triage finished. Done poorly, it costs the IR team hours of rework; teams that <a href="/docs/measuring-triage/">measure their triage</a> track exactly that rework as a first-class signal.
 </Callout>
 
 ---
 
 ## What you will get from this chapter
 
-<div class="alert-outcomes">
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">🚪</span><div><strong>Recognize escalation criteria</strong>: confirmed malicious activity, business-critical systems, lateral movement, exfiltration, ongoing campaigns.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📋</span><div><strong>Use internal and external protocols</strong>: Tier 1, Tier 2, Tier 3 responsibilities, plus vendor and law-enforcement when needed.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">🧭</span><div><strong>Understand the line</strong> between event triage and incident response, and when the work crosses it.</div></div>
-  <div class="alert-outcomes__row"><span class="alert-outcomes__icon">📦</span><div><strong>Produce a handoff packet</strong> that lets the next tier start from where you stopped.</div></div>
+<div class="alert-outcomes esc-outcomes">
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Close defensibly</strong>: apply the E rule and the five-check closure check, and write a closure record that survives a cold read months later.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Recognize escalation criteria</strong>: confirmed malicious activity not fully contained by a control, high-impact or business-critical systems, lateral movement or exfiltration, and ongoing campaigns.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Use internal and external protocols</strong>: Tier 1, Tier 2, Tier 3 responsibilities, the organizational stakeholders, and the external parties when they apply.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Classify a case as triage-closable or IR-bound</strong>: use the four escalation criteria and the E rule, and name the point where the work crosses into incident response.</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Preserve before you contain</strong>: capture what a containment action would destroy, then take only the reversible pre-authorized actions (see <a href="/docs/escalation/preserve/">Preserve before you contain</a>).</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Talk to people safely</strong>: verify with users and owners out of band when the attacker may be reading mail or chat (see <a href="/docs/escalation/communication/">Talking to people during triage</a>).</div></div>
+  <div class="alert-outcomes__row"><span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.8 10A10 10 0 1 1 17 3.34"/><path d="m9 11 3 3L22 4"/></svg></span><div><strong>Produce a handoff packet</strong> that lets the next tier start from where you stopped.</div></div>
 </div>
 
 ---
 
-## The four pillars
+## The five pillars
 
-<div class="pillars-grid">
-  <a href="/docs/escalation/criteria/" class="pillar pillar--esc">
-    <div class="pillar__num">01</div><div class="pillar__icon">🚪</div>
-    <h3>Criteria for escalation</h3>
-    <p>The thresholds that should trigger escalation regardless of who is on shift.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/escalation/protocols/" class="pillar pillar--esc">
-    <div class="pillar__num">02</div><div class="pillar__icon">📋</div>
-    <h3>Internal and external protocols</h3>
-    <p>Tier 1 / 2 / 3 responsibilities, plus the external paths (vendor, legal, law-enforcement) when they apply.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/escalation/triage-vs-ir/" class="pillar pillar--esc">
-    <div class="pillar__num">03</div><div class="pillar__icon">🧭</div>
-    <h3>Triage vs. incident response</h3>
-    <p>Triage frames the puzzle; IR completes it. The two are different work, and the difference decides what a clean handoff contains.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/escalation/handoff/" class="pillar pillar--esc">
-    <div class="pillar__num">04</div><div class="pillar__icon">📦</div>
-    <h3>The handoff packet</h3>
-    <p>The structured deliverable Escalation produces. What it contains and why each piece matters.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-</div>
+<PillarGrid
+  phase="escalation"
+  items={[
+    { href: "/docs/escalation/criteria/", title: "Close or escalate: the criteria", body: "The E rule, the thresholds that trigger escalation regardless of who is on shift, and the closure check a documented close must pass." },
+    { href: "/docs/escalation/protocols/", title: "Internal and external protocols", body: "Tier 1 / 2 / 3 responsibilities, plus organizational stakeholders (IT operations, legal and compliance, HR, business units, communications) and external parties (insurers, vendors, customers, regulators, law enforcement) when they apply." },
+    { href: "/docs/escalation/triage-vs-ir/", title: "Triage vs. incident response", body: "Triage frames the puzzle; IR completes it. The two are different work, and the difference decides what a clean handoff contains." },
+    { href: "/docs/escalation/preserve/", title: "Preserve before you contain", body: "Capture what a pre-authorized action would destroy, run the tip-off check, and record custody, then contain with reversible actions only." },
+    { href: "/docs/escalation/handoff/", title: "The handoff packet", body: "The structured deliverable an escalation produces. What it contains and why each piece matters." },
+  ]}
+/>
+
+A companion page sits beside the pillars: <a href="/docs/escalation/communication/">Talking to people during triage</a>, for verifying with users and owners without tipping off an attacker or an insider.
 
 ---
 
-## Why Escalation is its own phase
+<a id="why-the-escalation-decision-is-its-own-phase"></a>
+## The Escalation decision at a glance
 
-<div class="why-subject-grid">
-  <FlipCard icon="📦" title="The handoff is the artifact" accent="indigo">
-    The triage analyst's most consequential output is not "we found something." It is the structured packet that lets the next tier act without re-investigating. The packet is the artifact, not the alert.
-  </FlipCard>
-  <FlipCard icon="🧭" title="Triage and IR are different work" accent="indigo">
-    Triage frames the puzzle. IR completes it. Confusing the two leads to either premature escalation (IR doing triage's job) or delayed escalation (triage trying to do IR's). Escalation is the phase where the analyst decides which work this is.
-  </FlipCard>
-  <FlipCard icon="🚪" title="Criteria beat judgment under pressure" accent="indigo">
-    Pre-defined escalation criteria prevent the case where a stressed analyst hesitates on something that should have escalated five minutes ago. Criteria are the SOC's collective judgment encoded ahead of time.
-  </FlipCard>
-  <FlipCard icon="📋" title="External paths exist" accent="indigo">
-    Sometimes the escalation goes to a vendor, to legal, to law enforcement, to a parent company's SOC, or to the customer. Escalation is the phase that knows which path applies and when.
-  </FlipCard>
-</div>
+<PhaseAtAGlance phase="escalation">
+  <Fragment slot="takes-in">Risk's priority band, matrix cell, confidence, and recommended move, plus any criterion flagged in an earlier phase.</Fragment>
+  <Fragment slot="deliverable">A closure record for a documented close, or a <a href="/docs/escalation/handoff/">handoff packet</a> for an escalation. Either way, the decision with its time, its route, and its reasoning, and a communication record of who was told what.</Fragment>
+  <Fragment slot="done">The decision is recorded in the E fields; a close has passed the <a href="/docs/escalation/criteria/#closing">closure check</a>, or an escalation has been accepted by a named receiver; every notification is in the communication record.</Fragment>
+  <Fragment slot="level-0">The pattern close is an early Escalation decision, recorded as field 5 of the <a href="/docs/fast-path/#five-field">five-field record</a>. No packet and no notifications beyond the record.</Fragment>
+  <Fragment slot="level-1">The E rule applied to Risk's recommendation in a few minutes: a documented close that passes the closure check, or an escalation with a packet.</Fragment>
+  <Fragment slot="level-2">The full chapter: the E rule, the closure check or the packet with a warm handoff, the stakeholder map, and preservation before any containment.</Fragment>
+  <Fragment slot="any-level">A confirmed criterion is an early Escalation decision from whatever phase the case is in: the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a>.</Fragment>
+</PhaseAtAGlance>
 
-<KeyTakeaway>Escalation is the phase where the triage analyst's work becomes someone else's starting point. The cleaner the handoff, the better the response.</KeyTakeaway>
+Four reasons it is a phase of its own, rather than the last line of Risk:
 
-<PuzzleProgress current="escalation" />
+- **The record is the artifact.** An escalation is worth what the next tier can act on without re-investigating; a close is worth what a future reader can trust about the absence of compromise.
+- **Triage and IR are different work.** Confusing them produces premature escalation (IR doing triage's job) or delayed escalation (triage trying to do IR's). This is where the analyst decides which work the case now needs.
+- **Criteria beat judgment under pressure.** Pre-defined criteria are the SOC's collective judgment encoded ahead of time, so a pressured analyst does not hesitate on a case that should have escalated an hour ago.
+- **Paths outside the SOC exist.** IT operations, legal, HR, communications, an insurer, a vendor, a customer, a regulator through counsel, or law enforcement through counsel: this phase knows which one applies and when.
 
-<ContinueCard current="escalation" nextHref="/docs/escalation/criteria/" nextLabel="Criteria for escalation" ctaLabel="Read criteria" />
+<KeyTakeaway>The Escalation decision closes the case or hands it on, and records why either way. A documented close is a first-class verdict; an escalation turns the triage analyst's work into someone else's starting point. The cleaner the record, the better the next decision.</KeyTakeaway>
 
-<style>{`
-@media (min-width: 768px) { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(4, 1fr); } }
-.pillar--esc { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 0.85rem; color: var(--assured-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
-.pillar--esc:hover { transform: translateY(-3px); border-color: #6366f1; box-shadow: 0 16px 32px -12px rgba(99, 102, 241, 0.35); }
-.pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(165, 180, 252, 0.75); /* 0.75: >= 4.5:1 at both gradient ends (0.7 measured 4.34) */ }
-.pillar--esc h3 { margin: 0; color: var(--assured-text); font-size: 1.1rem; }
-.pillar--esc p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.95rem; }
-.pillar__cta { margin-top: auto; color: #818cf8; font-weight: 600; font-size: 0.9rem; }
-
-`}</style>
+<ContinueCard current="escalation" nextHref="/docs/escalation/criteria/" nextLabel="Close or escalate: the criteria" ctaLabel="Read criteria" />

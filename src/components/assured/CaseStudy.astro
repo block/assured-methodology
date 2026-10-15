@@ -32,13 +32,22 @@ const { title, scenario, headingLevel = 3 } = Astro.props;
 </section>
 
 <style>
+  /* Worked-example hue (--assured-example), outside the seven phase
+     colors, so a case study in any chapter never reads as Scope purple. */
   .case-study {
     margin: 1.75rem 0;
     padding: 1.5rem;
     border-radius: 1rem;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(15, 23, 42, 0.55));
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    backdrop-filter: blur(8px);
+    background: linear-gradient(135deg, rgba(var(--assured-example-rgb), 0.08), rgba(15, 23, 42, 0.68));
+    border: 1px solid rgba(var(--assured-example-rgb), 0.3);
+  }
+
+  /* Phones: a nested Reveal or Callout inside a case study left ~30
+     characters per line at the desktop padding. */
+  @media (max-width: 640px) {
+    .case-study {
+      padding: 1.1rem 0.9rem;
+    }
   }
 
   .case-study__head {
@@ -58,9 +67,9 @@ const { title, scenario, headingLevel = 3 } = Astro.props;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     border-radius: 9999px;
-    background: rgba(139, 92, 246, 0.2);
-    color: #c4b5fd;
-    border: 1px solid rgba(139, 92, 246, 0.4);
+    background: rgba(var(--assured-example-rgb), 0.2);
+    color: var(--assured-example-soft);
+    border: 1px solid rgba(var(--assured-example-rgb), 0.4);
   }
 
   .case-study__title {

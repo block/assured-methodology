@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/alert-report.schema.json",
+  "title": "Alert report",
+  "description": "The core alert report for Level 1 cases. Risk records the cell, band, confidence and a recommended move; the Escalation decision section records the decision.",
+  "x-assured-template": "alert-report.md",
+  "type": "object",
+  "properties": {
+    "eventTitleAndIdentifier": {
+      "x-assured-section": "Event title and identifier",
+      "type": "object",
+      "properties": {
+        "title": {
+          "x-assured-prompt": "Title",
+          "type": "string",
+          "description": "Title"
+        },
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID: CASE-YYYYMMDD-NNN"
+        },
+        "relatedIncidentId": {
+          "x-assured-prompt": "Related incident ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/incidentId",
+          "description": "Related incident ID (only if declared): INC-YYYYMMDD-NNN"
+        },
+        "reopensCase": {
+          "x-assured-prompt": "Reopens case",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Reopens case (optional: the prior case ID, when this alert reopens a closed case)"
+        },
+        "analyst": {
+          "x-assured-prompt": "Analyst",
+          "type": "string",
+          "description": "Analyst"
+        },
+        "depthLevel": {
+          "x-assured-prompt": "Depth level",
+          "$ref": "assured-vocabulary.schema.json#/$defs/depth",
+          "description": "Depth level (0 / 1 / 2), and any upward moves with their reason (a case moves up the ladder, never down)"
+        },
+        "groupedAlerts": {
+          "x-assured-prompt": "Grouped alerts",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Grouped alerts (optional: every member alert ID, when several alerts form this one case; the riskiest member sets the level)"
+        },
+        "distribution": {
+          "x-assured-prompt": "Distribution",
+          "$ref": "assured-vocabulary.schema.json#/$defs/distribution",
+          "description": "Distribution (optional: TLP, the Traffic Light Protocol, and any need-to-know limits)"
+        },
+        "regulatoryFlags": {
+          "x-assured-prompt": "Regulatory flags",
+          "type": "string",
+          "description": "Data classes plausibly involved, candidate awareness timestamp, owner engaged."
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which sections began as AI drafts; \"none\" if unassisted)"
+        }
+      },
+      "required": [
+        "title",
+        "caseId",
+        "relatedIncidentId",
+        "analyst",
+        "depthLevel",
+        "materialAiUse"
+      ]
+    },
+    "detectionTimestampAndSource": {
+      "x-assured-section": "Detection timestamp and source",
+      "type": "object",
+      "properties": {
+        "detected": {
+          "x-assured-prompt": "Detected",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Detected (UTC)"
+        },
+        "localTime": {
+          "x-assured-prompt": "Local time",
+          "type": "string",
+          "description": "Local time (optional)"
+        },
+        "detectionSource": {
+          "x-assured-prompt": "Detection source",
+          "type": "string",
+          "description": "Detection source (tool or control, e.g. EDR / SIEM / CSPM)"
+        },
+        "detectionRule": {
+          "x-assured-prompt": "Detection rule",
+          "$ref": "assured-vocabulary.schema.json#/$defs/ruleRef",
+          "description": "Detection rule (name, ID, and version)"
+        },
+        "intakeChannel": {
+          "x-assured-prompt": "Intake channel",
+          "type": "object",
+          "properties": {
+            "channel": {
+              "enum": [
+                "detection",
+                "user report",
+                "external notification",
+                "bug-bounty report",
+                "hunt finding",
+                "provider escalation",
+                "internal referral"
+              ]
+            },
+            "sourceGrade": {
+              "type": "string",
+              "description": "How reliable the reporter or source is (optional)."
+            }
+          },
+          "required": ["channel"],
+          "description": "Intake channel (detection / user report / external notification / bug-bounty report / hunt finding / provider escalation / internal referral) and source grade (optional)"
+        },
+        "received": {
+          "x-assured-prompt": "Received",
+          "type": "object",
+          "properties": {
+            "organizationReceived": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "socReceived": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "receivedBy": {
+              "type": "string"
+            }
+          },
+          "required": ["socReceived", "receivedBy"],
+          "description": "Received (UTC): when the report or notice reached the organization, when it reached the SOC, and who received it"
+        }
+      },
+      "required": ["detected", "detectionSource", "detectionRule", "received"]
+    },
+    "activitySummary": {
+      "x-assured-section": "Activity summary",
+      "type": "string",
+      "minLength": 1
+    },
+    "initialTriageOutcome": {
+      "x-assured-section": "Initial triage outcome",
+      "type": "object",
+      "properties": {
+        "classificationDetectionAxis": {
+          "x-assured-prompt": "Classification, detection axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Classification, detection axis"
+        },
+        "classificationActivityAxis": {
+          "x-assured-prompt": "Classification, activity axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict",
+          "description": "Classification, activity axis"
+        },
+        "justification": {
+          "x-assured-prompt": "Justification",
+          "type": "string",
+          "description": "Justification"
+        },
+        "hypothesisLedger": {
+          "x-assured-section": "Hypothesis ledger (optional)",
+          "type": "object",
+          "properties": {
+            "attAndCkTechniques": {
+              "x-assured-prompt": "ATT&CK techniques, if mapped",
+              "$ref": "assured-vocabulary.schema.json#/$defs/attackMapping",
+              "description": "ATT&CK techniques, if mapped (with the ATT&CK version, e.g. Enterprise v19)"
+            },
+            "rows": {
+              "x-assured-columns": [
+                "Hypothesis",
+                "Status (leading / rejected / open)",
+                "Deciding evidence",
+                "Confidence"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hypothesis": {
+                    "x-assured-column": "Hypothesis",
+                    "type": "string"
+                  },
+                  "status": {
+                    "x-assured-column": "Status (leading / rejected / open)",
+                    "enum": ["leading", "rejected", "open"]
+                  },
+                  "decidingEvidence": {
+                    "x-assured-column": "Deciding evidence",
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "x-assured-column": "Confidence",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "classificationDetectionAxis",
+        "classificationActivityAxis",
+        "justification"
+      ]
+    },
+    "affectedSystems": {
+      "x-assured-section": "Affected systems",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "riskAssessment": {
+      "x-assured-section": "Risk assessment",
+      "x-assured-phase": "risk",
+      "type": "object",
+      "properties": {
+        "impact": {
+          "x-assured-prompt": "Impact",
+          "$ref": "assured-vocabulary.schema.json#/$defs/rating",
+          "description": "Impact (H/M/L)"
+        },
+        "likelihood": {
+          "x-assured-prompt": "Likelihood",
+          "$ref": "assured-vocabulary.schema.json#/$defs/rating",
+          "description": "Likelihood (H/M/L)"
+        },
+        "confidenceInTheLikelihood": {
+          "x-assured-prompt": "Confidence in the likelihood judgment",
+          "$ref": "assured-vocabulary.schema.json#/$defs/confidence",
+          "description": "Confidence in the likelihood judgment (high / medium / low)"
+        },
+        "matrixCell": {
+          "x-assured-prompt": "Matrix cell",
+          "type": "object",
+          "properties": {
+            "cell": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+            },
+            "band": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+            }
+          },
+          "required": ["cell", "band"],
+          "description": "Matrix cell (impact / likelihood) and priority (P1-P4)"
+        },
+        "recommendedMove": {
+          "x-assured-prompt": "Recommended move",
+          "type": "object",
+          "properties": {
+            "move": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/recommendedMove"
+            },
+            "reScoreTrigger": {
+              "type": "string",
+              "description": "For keep-working: the named finding that would raise or lower the priority."
+            }
+          },
+          "required": ["move"],
+          "description": "Recommended move (close, escalate, or keep working to a named re-score trigger)"
+        }
+      },
+      "required": [
+        "impact",
+        "likelihood",
+        "confidenceInTheLikelihood",
+        "matrixCell",
+        "recommendedMove"
+      ]
+    },
+    "actionsTaken": {
+      "x-assured-section": "Actions taken",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Timestamp (UTC)",
+            "Actor",
+            "Action taken",
+            "Rationale",
+            "Outcome / result"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "x-assured-column": "Timestamp (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "actor": {
+                "x-assured-column": "Actor",
+                "type": "string"
+              },
+              "actionTaken": {
+                "x-assured-column": "Action taken",
+                "type": "string"
+              },
+              "rationale": {
+                "x-assured-column": "Rationale",
+                "type": "string"
+              },
+              "outcomeResult": {
+                "x-assured-column": "Outcome / result",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "escalationDecisionAndFinal": {
+      "x-assured-section": "Escalation decision and final disposition",
+      "x-assured-phase": "escalation",
+      "x-assured-e-rule": true,
+      "type": "object",
+      "properties": {
+        "escalated": {
+          "x-assured-prompt": "Escalated",
+          "type": "object",
+          "properties": {
+            "escalated": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/yesNo"
+            },
+            "to": {
+              "type": "string"
+            },
+            "why": {
+              "type": "string"
+            }
+          },
+          "required": ["escalated", "why"],
+          "description": "E's close-or-escalate decision, to whom, and why (or why not)."
+        },
+        "decidedByAt": {
+          "x-assured-prompt": "Decided by, at",
+          "type": "object",
+          "properties": {
+            "decidedBy": {
+              "type": "string",
+              "description": "The person (or, for a Level 0 machine close, the automation and its named owner) who made the close-or-escalate decision."
+            },
+            "decidedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["decidedBy", "decidedAt"],
+          "description": "Decided by, at (UTC)"
+        },
+        "escalationBasisIfEscalated": {
+          "x-assured-prompt": "Escalation basis, if escalated",
+          "$ref": "assured-vocabulary.schema.json#/$defs/escalationBasis",
+          "description": "Escalation basis, if escalated (confirmed criterion under the escalation tripwire / matrix cell at P1 or P2 / operational route such as capacity)"
+        },
+        "closureJustificationIfClosed": {
+          "x-assured-prompt": "Closure justification, if closed",
+          "type": "string",
+          "description": "The closure check: no criterion confirmed or suspected; the cell allows it; no persistence or credential access seen; the case's own alternatives checked clean; gaps bounded."
+        },
+        "gapsAndTheCondition": {
+          "x-assured-prompt": "Gaps, and the condition that would reopen the case",
+          "type": "object",
+          "properties": {
+            "gaps": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reopenConditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["reopenConditions"],
+          "description": "Gaps, and the condition that would reopen the case"
+        },
+        "finalDispositionBothAxes": {
+          "x-assured-prompt": "Final disposition, both axes, and status",
+          "type": "object",
+          "properties": {
+            "detection": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict"
+            },
+            "activity": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict"
+            },
+            "status": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/caseStatus"
+            }
+          },
+          "required": ["detection", "activity", "status"],
+          "description": "Final disposition, both axes, and status (closed / escalated / merged into case)"
+        },
+        "keyTimes": {
+          "x-assured-prompt": "Key times",
+          "type": "object",
+          "properties": {
+            "detected": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "acknowledged": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "verdict": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "escalatedOrClosed": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "reopened": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": [
+            "detected",
+            "acknowledged",
+            "verdict",
+            "escalatedOrClosed"
+          ],
+          "description": "Key times (UTC): detected / acknowledged / verdict / escalated or closed / reopened"
+        },
+        "nextAction": {
+          "x-assured-prompt": "Next action",
+          "type": "string",
+          "description": "Next action (tuning request, pattern-entry proposal, handoff, or \"nothing further\", with the reason)"
+        }
+      },
+      "required": [
+        "escalated",
+        "decidedByAt",
+        "gapsAndTheCondition",
+        "finalDispositionBothAxes",
+        "keyTimes",
+        "nextAction"
+      ]
+    }
+  },
+  "required": [
+    "eventTitleAndIdentifier",
+    "detectionTimestampAndSource",
+    "activitySummary",
+    "initialTriageOutcome",
+    "affectedSystems",
+    "riskAssessment",
+    "actionsTaken",
+    "escalationDecisionAndFinal"
+  ]
+}

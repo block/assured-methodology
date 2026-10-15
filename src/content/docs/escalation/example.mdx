@@ -1,6 +1,7 @@
 ---
 title: "Escalation working example"
-description: "Producing the handoff packet for the finance-team intrusion. Triage stops here; IR begins."
+description: "Three Escalation decisions: a late handoff of the finance-team intrusion to IR, a documented close of the Cursor benign true positive, and an escalation tripwire fired at the end of Alert on a token theft."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -11,117 +12,117 @@ import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import Callout from "@/components/assured/Callout.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import CaseFile from "@/components/assured/CaseFile.astro";
+import "@/styles/pages/escalation.css";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="Example" pillarTotal="Escalation chapter" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="The Escalation phase applied to the finance-team intrusion. Risk delivered the P1 verdict; Escalation produces the handoff."/>
+<SubPageHero phase="escalation" pillarIndex="Example" lede="The Escalation decision applied to three cases. In the finance-team intrusion, Risk recorded P1 and recommended escalation; the Escalation decision makes the call and produces the handoff."/>
 
-<PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
-]}/>
+<PillNav chapter="escalation" />
 
-## The first scenario: the finance-team handoff to IR
+<h2 id="case-a">Case A · The finance-team handoff to IR</h2>
 
-<ChapterExample title="Handing the finance-team intrusion to IR" scenario="Risk said P1. Two confirmed compromises, lateral movement into a PCI-scoped cloud platform via SSO. Escalation now turns the case over to incident response.">
+<ChapterExample title="Handing the finance-team intrusion to IR" scenario="Risk recorded P1 with three criteria confirmed: execution on two hosts, and dlin's stolen session replayed into the cloud finance reporting platform. The escalation tripwire was met at 09:24 UTC; it is now 14:00. Escalation turns the case over to incident response.">
 
 <ExampleStepper steps={["Confirm criteria met", "Choose the path", "Build the packet", "Notify stakeholders", "Transition cleanly"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Confirm criteria met</h3>
-    <p>Pre-defined criteria check: <strong>confirmed malicious activity</strong> ✓, <strong>business-critical systems affected</strong> ✓ (PCI-scoped platform), <strong><DefineTerm term="Lateral Movement" display="lateral movement" /></strong> ✓ (federated SSO from compromised identity). Three triggers, all confirmed during Uncover. No discretion required; escalation is automatic, and as the callout below this example admits, it was overdue.</p>
+    <p>Pre-defined criteria check: <strong>confirmed malicious activity not fully contained by a control</strong> ✓ (09:24: decoded cradle, transfer recorded by EDR and the proxy, live beacon), <strong>business-critical systems affected</strong> ✓ (11:05: an attacker-held session on a platform that stores regulated vendor-contact data and feeds vendor payments), <strong><DefineTerm term="Lateral Movement" display="lateral movement" /></strong> ✓ (11:05: the stolen session cookie replayed from 198.51.100.23). Ongoing campaign: not met (one delivery wave, no further deliveries in the 72-hour trace). Any one confirmed criterion makes the case P1 from any phase, so there is no discretion here. As the callout below this example admits, the first was met four and a half hours ago.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Choose the path</h3>
-    <p><strong>Internal:</strong> Tier 2 incident responder, on-call. <strong>External:</strong> Compliance notified (possible PCI exposure flagged during Scope). Legal counsel looped in (GDPR assessment underway). Cloud finance platform vendor request escalated. No law-enforcement engagement at this stage.</p>
-    <p>In parallel, the analyst executes the SOC's <a href="/docs/escalation/triage-vs-ir/">pre-authorized immediate actions</a>: disable dlin's account, isolate the two confirmed hosts, terminate the federated SSO session. The authority comes from the playbook, agreed with IR in advance. Containment beyond that list waits for IR's strategy.</p>
+    <p><strong>Internal tiers:</strong> On-call IR lead paged first (the escalation tripwire bypasses the SOC tiers). <strong>Organizational stakeholders:</strong> SOC manager paged for shift visibility. Compliance and the data protection officer (DPO), engaged since Scope, are updated with the confirmed compromise. Legal counsel is looped in for the <DefineTerm term="General Data Protection Regulation (GDPR)" display="GDPR" /> assessment. The platform owner is asked to end the attacker's session on the platform side, because revoking it at the identity provider does not end a session the platform already issued. <strong>External:</strong> the vendor request for in-app logs is escalated. No law-enforcement engagement at this stage.</p>
+    <p>On IR's bridge, the analyst <a href="/docs/escalation/preserve/">preserves first</a> and then executes the SOC's <a href="/docs/escalation/triage-vs-ir/">pre-authorized immediate actions</a>. Preservation: memory capture and EDR triage collection on both hosts, exports of the identity provider's sign-in and session records for both users, proxy logs held. Then the reversible actions: isolate laptop-finance-09 and laptop-finance-12, and block sign-in and revoke all sessions and refresh tokens for dlin and Finance user 2. The authority comes from the playbook, agreed with IR in advance. Password resets, the message purge, and infrastructure blocks are not on that list; they wait for IR's approval.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Build the packet</h3>
-    <p>Nine sections, written and attached:</p>
+    <p>A case-metadata header, then nine sections, written and attached:</p>
     <ul class="example-step__list">
-      <li><strong>Summary:</strong> phishing-driven intrusion, 2 hosts compromised, federated SSO into PCI-scoped platform, P1.</li>
-      <li><strong>Timeline:</strong> 09:08 dlin interactive login → 09:11 macro execution and alert fired → 09:23 federated SSO → 14:00 P1 declared.</li>
-      <li><strong>Entities:</strong> 3 primary, 3 secondary, 1 downstream system.</li>
-      <li><strong>Evidence chain:</strong> <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" />, network, identity, mailbox, SaaS. ATT&CK chain documented.</li>
-      <li><strong>Risk verdict:</strong> high impact, high likelihood, P1.</li>
-      <li><strong>Containment taken:</strong> dlin's account disabled, two hosts isolated, federated SSO session terminated, all from the pre-authorized immediate-actions list. Cloud platform queries paused. Containment strategy beyond the list is IR's.</li>
-      <li><strong>Artifacts:</strong> file hashes, domain <DefineTerm term="Indicators of Compromise (IoC)" display="IoCs" />, screenshot of the originating email, ATT&CK technique chain.</li>
-      <li><strong>Open questions:</strong> cloud platform vendor response pending; mobile device activity not yet reviewed.</li>
-      <li><strong>Communication record:</strong> 14:02 SOC manager paged; 14:08 Tier 2 IR notified; 14:18 compliance flagged (possible PCI exposure); 14:22 legal looped in (GDPR assessment); 14:35 cloud finance platform vendor request opened.</li>
+      <li><strong>Case metadata:</strong> CASE-2026-0303-007 (alert ALERT-2026-0303-0191), escalated to INC-2026-0303-001; author: Tier 1 analyst (day shift); handoff 2026-03-03 14:08 UTC, packet complete 14:40; next action owned by the IR on-call; criterion: confirmed malicious activity not fully contained by a control, met 09:24; material AI use: none.</li>
+      <li><strong>Summary:</strong> Paste-and-run phishing intrusion; execution on 2 hosts; dlin's session cookie stolen and replayed against the cloud finance reporting platform; P1, criteria 1 to 3 confirmed.</li>
+      <li><strong>Timeline:</strong> 09:02:11 delivery to 4 mailboxes → 09:10:05 dlin follows the link → 09:11:40 command pasted into the Run dialog → 09:11:41 PowerShell stage, 09:11:43 <DefineTerm term="Command and Control (C2)" display="C2" /> transfer, alert fires → 09:19:12 cookie store read, 09:19:40 upload → 09:24 tripwire met (not acted on) → 10:41:07 replayed sign-in from 198.51.100.23 → 10:52:14 Finance user 2 follows the link on laptop-finance-12, chain runs, no alert → 14:00 P1 set and IR engaged.</li>
+      <li><strong>Entities:</strong> 5 primary (dlin, laptop-finance-09, dlin's federated identity, Finance user 2, laptop-finance-12), 3 secondary (machine account; Finance user 3, blocked by a control; Finance user 4, not opened), 1 downstream system, plus the originating threat.</li>
+      <li><strong>Evidence chain:</strong> <DefineTerm term="Endpoint Detection and Response (EDR)" display="EDR" />, proxy, identity provider, platform authentication log, message trace. ATT&CK chain documented, confidence labeled per claim.</li>
+      <li><strong>Risk verdict:</strong> high impact, high likelihood, high confidence; High/High, P1. Detection: true positive. Activity: malicious. Status: escalated to IR (INC-2026-0303-001).</li>
+      <li><strong>Containment taken:</strong> preservation 14:10 to 14:19; both hosts isolated 14:20; sign-in blocked and all sessions and refresh tokens revoked for dlin and Finance user 2 at 14:21; <DefineTerm term="Multi-Factor Authentication (MFA)" display="MFA" /> methods reviewed at 14:23 (none added); platform-side session termination requested 14:24. All from the pre-authorized list. Awaiting IR approval: password resets for both users, message purge from all four mailboxes, blocks on the domain and both IPs.</li>
+      <li><strong>Artifacts:</strong> the hash of upd.ps1 and the RunMRU values from both hosts; memory images and triage packages for both hosts; the original message exported from the gateway; <DefineTerm term="Indicators of Compromise (IoC)" display="IOCs" /> (domain, both IPs, sender); ATT&CK technique chain. Each with custody state: original in the evidence store, hash recorded, handled only by the triage analyst.</li>
+      <li><strong>Open questions:</strong> what the replayed session did on the platform (vendor logs pending); whether Finance user 2's stolen cookie has been used; mobile device activity not yet reviewed.</li>
+      <li><strong>Communication record:</strong> 09:45 compliance and DPO engaged (regulated data in reach); 09:48 vendor log request opened; 14:01 IR on-call paged; 14:02 SOC manager paged; 14:08 IR acknowledged, warm handoff; 14:18 compliance updated with confirmed compromise; 14:22 legal looped in (GDPR assessment); 14:24 platform owner asked to end the session; 14:35 vendor request escalated to urgent.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Notify stakeholders</h3>
-    <p>Tier 2 IR notified directly. Compliance notified with regulatory implications. Legal looped in. SOC manager informed for shift visibility. The vendor request to the cloud platform is sent in parallel.</p>
+    <p>IR's on-call responder paged first and acknowledged inside seven minutes. Compliance and the DPO, already engaged, updated with what is now confirmed. Legal looped in. SOC manager informed for shift visibility. Platform owner asked to end the session on the platform side, and the vendor request escalated in parallel.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Transition cleanly</h3>
-    <p>The triage analyst stays on standby for questions but does not continue the investigation. The IR responder owns the case from here. The triage record is locked, the handoff packet is the authoritative reference, and Tier 2 begins work from a complete starting point rather than from scratch.</p>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that "standby" means stop. Running one more query against the compromised hosts after handoff feels helpful, but it forks the record IR just inherited: new access timestamps on evidence, findings that live outside the packet, two investigators pivoting on the same entities without coordination. If a new idea surfaces after the handoff, it goes to the IR owner as a message, not into the environment as a query.</p>
+    <p>Once the packet is complete at 14:40, the triage analyst stays on standby for questions and works only on tasks the IR owner assigns. The IR responder owns the case from here. The triage record becomes <a href="/docs/documentation/standards/#amending">append-only</a> (Documentation finalizes it; nobody edits what triage wrote), the handoff packet is the authoritative reference, and IR begins work from a complete starting point rather than from scratch.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> that "standby" means no freelancing: triage works only what the IR owner assigns, inside IR's case record. Running one more query against the compromised hosts after handoff feels helpful, but it forks the record IR just inherited: new access timestamps on evidence, findings that live outside the packet, two investigators pivoting on the same entities without coordination. If a new idea surfaces after the handoff, it goes to the IR owner as a message, not into the environment as a query.</p>
   </div>
 
 </ExampleStepper>
 
 </ChapterExample>
 
-<Callout variant="warn" title="Read the timeline critically: this P1 was declared late">
-Hold the packet's own timeline against the [criteria page](/docs/escalation/criteria/). The federated session into the PCI-scoped platform began at 09:23, and the moment Uncover validated the macro chain, the four-day-old C2 domain, and that session, three canonical criteria were confirmed, hours before the 14:00 declaration. Under the break-glass rule, this case escalates from inside Uncover: IR gets paged at the moment of that third confirmation, the warm handoff happens then, and the Scope → Uncover → Risk work you read in the previous chapters continues under IR's clock as scoping support. The walkthrough keeps the 14:00 timestamp because it is the honest record of methodical phase-walking on a live intrusion, which is exactly the failure mode the criteria exist to prevent. Learn the packet from this example; do not learn the clock.
+<Callout variant="warn" title="Read the timeline critically: this P1 was set late">
+Hold the packet's own timeline against the [criteria page's clock rule](/docs/escalation/criteria/#late-p1). Criterion 1 was confirmed at 09:24, at the end of Alert: a decoded download cradle, a transfer recorded independently by EDR and the proxy, and a beacon no control had stopped. Under the escalation tripwire, IR gets paged at that moment, the host is preserved and contained, and the Subject → Scope → Uncover → Risk work you read in the previous chapters continues under IR's clock as scoping support. The cost of not doing so is in the timeline: the replayed session at 10:41 and Finance user 2's compromise at 10:52 both landed in the hours a 09:24 page would very likely have closed off, and the replay found at 11:05 confirmed two more criteria without moving the case either. The walkthrough keeps the 14:00 timestamp because it is the honest record of methodical phase-walking on a live intrusion, which is exactly the failure mode the criteria exist to prevent. Learn the packet from this example; do not learn the clock.
 </Callout>
 
 <KeyTakeaway>Escalation moved the case from triage to incident response without losing context. The handoff packet is the artifact that made the transition clean. The IR responder started from the packet instead of re-running the investigation.</KeyTakeaway>
 
 ---
 
-## A second scenario: closing the Cursor benign true positive at triage
+<h2 id="case-b">Case B · Closing the Cursor benign true positive</h2>
 
-Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-pattern case that began in the Alert chapter has worked through Subject, Scope, Uncover, and Risk, and Risk produced a defensible low-residual-risk verdict. The Escalation phase still runs, but the outcome is different: a documented close at triage, not a transfer to IR. The methodology demands the same rigor for the close as for the escalation. The two walkthroughs are also written at different depths on purpose: the finance case above is the summary view (what each step produces), while this one is the deep dive, showing the actual content of the record section by section. One reading note: this is a different case on a different day. Its 14:03-15:18 timeline below is unrelated to the finance case's 14:02-14:35 notification record above, despite the near-identical clock times.
+Not every Escalation decision ends in a handoff to IR. The Cursor <DefineTerm term="Integrated Development Environment (IDE)" display="IDE" /> Empire-pattern case that began in the Alert chapter has worked through Subject, Scope, Uncover, and Risk, and Risk scored it High/Low, P3, with a recommended move: keep working to the forward watch, then close if clean. The decision still has to be made and recorded, and here it is a documented close, not a transfer to IR. The methodology demands the same rigor for the close as for the escalation. The two walkthroughs are also written at different depths on purpose: the finance case above is the summary view (what each step produces), while this one is the deep dive, showing the actual content of the record section by section.
 
-<ChapterExample title="Closing the Cursor case with a documented triage record" scenario="Risk concluded: low residual risk, signed vendor binary, behavioral baseline match, no persistence, no credential access, two named telemetry gaps explicitly accepted. Escalation now produces the close-at-triage record.">
+<ChapterExample title="Closing the Cursor case with a documented decision record" scenario="Risk scored the case High impact, Low likelihood, High confidence: High/Low, P3, with the four-hour forward watch as the named re-score trigger. Evidence: a vendor binary confirmed by mobile device management (MDM), a bundled extension running vendor code, allowlisted destinations, a clean extension and Model Context Protocol (MCP) server inventory, coding-agent commands that trace to the user's own prompt, peer prevalence match, no persistence, no credential access, two named gaps bounded. The Escalation decision now makes and records the call.">
 
-<ExampleStepper steps={["Confirm closure criteria met", "Choose the path", "Build the closure record", "Notify the right people", "Hand to Documentation"]}>
+<ExampleStepper steps={["Apply the E rule", "Confirm the closure check", "Choose the path", "Write the closure record", "Hand to Documentation"]}>
 
   <div data-step class="example-step">
-    <h3>Step 1. Confirm closure criteria met</h3>
-    <p>Closure criteria check: <strong>no confirmed malicious activity</strong> ✓, <strong>no impact to business-critical systems</strong> ✓, <strong>no lateral movement</strong> ✓, <strong>no persistence or credential access</strong> ✓, <strong>residual risk explicitly bounded</strong> ✓. Five criteria. The case meets the bar for documented close, not escalation.</p>
-    <p>The methodology does not treat "close at triage" as a lesser outcome. It demands the same evidentiary standard: five named criteria, each backed by Uncover findings, each defensible to a peer or auditor.</p>
+    <h3>Step 1. Apply the E rule</h3>
+    <p>The E rule: escalate if a criterion is confirmed or the case sits at P1 or P2; at P3, keep working to the named re-score trigger, then decide; close at P4. At 15:11 UTC no criterion is confirmed or open as a suspicion, and the case is P3, so the analyst records the decision to hold to the trigger and tells the SOC manager a P3 is open with a re-score due by 18:03.</p>
+    <p>At 18:05 the re-score: through the forward watch, the extension host launched only its bundled language server and the same indexing child on its periodic re-sync, every connection stayed on the vendor allowlist, and no credential-path reads or persistence writes appeared. The cell stays High/Low at High confidence. At 18:08 the analyst decides: documented close. Holding was not indecision. It was the cell's rule, with a named end.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 2. Choose the path</h3>
-    <p><strong>Internal:</strong> the detection-engineering team is notified because the rule that fired is over-broad for macOS developer hosts. <strong>External:</strong> no compliance notification (no regulated data in scope). <strong>Manager:</strong> SOC manager informed for shift-visibility and review-queue assignment, not for action. <strong>User:</strong> no user notification; the activity was legitimate, no disruption needed.</p>
-    <p>The "path" for a close-at-triage is a quieter set of channels than an IR escalation, but it is not zero. Every channel that does receive a notice gets a specific, named reason.</p>
+    <h3>Step 2. Confirm the closure check</h3>
+    <p><a href="/docs/escalation/criteria/#closing">Closure check</a>: <strong>no escalation criterion confirmed or open as a suspicion</strong> ✓, <strong>the P3 re-score trigger came back clean</strong> ✓, <strong>no persistence or credential access</strong> ✓, <strong>extension, MCP, workspace-task and agent-command review clean</strong> ✓, <strong>gaps bounded, with reopen triggers written</strong> ✓. Five checks. The case meets the bar for a documented close.</p>
+    <p>The methodology does not treat a documented close as a lesser outcome. It demands the same evidentiary standard: five named checks, each backed by an Uncover finding or the re-score, each defensible to a peer or auditor.</p>
   </div>
 
   <div data-step class="example-step">
-    <h3>Step 3. Build the closure record</h3>
-    <p>All nine handoff-packet sections, written and attached, same structure as a full escalation, with the verdict reversed:</p>
+    <h3>Step 3. Choose the path</h3>
+    <p><strong>Internal:</strong> detection engineering receives an alert-enrichment request and a pattern-entry proposal; the rule logic stays as written, because it fired on exactly what it describes. <strong>Organizational stakeholders:</strong> no compliance notification (no regulated data in scope). <strong>Manager:</strong> the SOC manager was told at 15:11 that a P3 was open, and approves the close at 18:10 under the team's closure-review policy for High-impact closes. <strong>User:</strong> no user notification; the activity was legitimate, no disruption needed. <strong>External:</strong> none.</p>
+    <p>The path for a documented close is a quieter set of channels than an IR escalation, but it is not zero. Quiet, targeted, and traceable: every channel that receives a notice gets a specific, named reason. Nobody else needs to be told; loud notifications for a documented benign close train the team to discount future ones.</p>
+  </div>
+
+  <div data-step class="example-step">
+    <h3>Step 4. Write the closure record</h3>
+    <p>No containment ran, so there was nothing to preserve first, and no handoff packet: nobody is receiving the case. What the Escalation decision writes is the closure record: the decision header the event report opens with, plus the justification and communication trail behind it.</p>
     <ul class="example-step__list">
-      <li><strong>Summary:</strong> EDR alert on a developer macOS workstation; signed Cursor IDE helper matched an Empire behavioral pattern at the surface, but signature, install path, peer baseline, and absence of persistence all support legitimate IDE behavior. Closed at triage with documented confidence and explicit coverage gaps.</li>
-      <li><strong>Timeline:</strong> 14:03 alert fired → 14:08 Alert phase complete → 14:22 Subject complete → 14:30 Scope complete → 14:58 Uncover complete → 15:10 Risk verdict → 15:18 closure approved by SOC manager.</li>
-      <li><strong>Entities:</strong> 1 user, 1 host, 1 vendor binary. No secondary entities required by the evidence.</li>
-      <li><strong>Evidence chain:</strong> EDR process tree, network destinations, signing chain, MDM compliance record, peer-group baseline. ATT&CK chain explicitly empty, the activity does not map to any technique.</li>
-      <li><strong>Risk verdict:</strong> medium-high impact if real, low likelihood, low residual risk. Verdict justified in case notes.</li>
-      <li><strong>Containment taken:</strong> none. The activity was legitimate; no isolation, no account changes, no policy action.</li>
-      <li><strong>Artifacts:</strong> EDR query, signing-chain validation, peer-baseline comparison, vendor-endpoint TLS metadata. All linked from the case.</li>
-      <li><strong>Open questions:</strong> none requiring further investigation. One detection-engineering improvement ticket created (rule tuning for macOS developer host class).</li>
-      <li><strong>Communication record:</strong> SOC manager notified 15:11 (case visibility). Detection-engineering team notified 15:14 (rule-tuning request). No user notification, no compliance notification, no vendor notification.</li>
+      <li><strong>Summary:</strong> EDR alert on a developer macOS workstation; Cursor Helper (Plugin), the IDE's extension host, launched a bundled extension's indexing child that matched an Empire behavioral pattern at the surface. MDM-confirmed binary, vendor code inside the signed bundle, allowlisted destinations, a clean extension inventory, agent commands that match the user's prompt, peer prevalence and absence of persistence all support legitimate IDE behavior. Closed with documented confidence and explicit gaps.</li>
+      <li><strong>Decision:</strong> Detection: true positive · Activity: authorized (benign true positive) · Status: closed. Case CASE-20260311-017.</li>
+      <li><strong>Timeline:</strong> 14:03:11 alert fired → 14:08 Alert complete (Level 2) → 14:22 Subject complete → 14:30 Scope complete → 15:02 Uncover complete → 15:10 Risk: High/Low, P3 → 15:11 hold to the re-score trigger, SOC manager notified → 18:05 re-score clean → 18:08 documented close → 18:10 close approved by the SOC manager → 18:12 requests to detection engineering.</li>
+      <li><strong>Entities:</strong> 1 user, 1 host, the extension host and its child, 1 bundled extension. No secondary entities required by the evidence.</li>
+      <li><strong>Evidence chain:</strong> EDR process tree and file activity, proxy TLS metadata, signing chain, MDM version, hash and extension inventory, fleet prevalence count. ATT&CK chain explicitly empty: the activity does not map to any technique.</li>
+      <li><strong>Risk assessment:</strong> High impact if real, Low likelihood, High confidence; High/Low, P3; re-score at 18:05 clean. Reasoning in case notes.</li>
+      <li><strong>Containment taken:</strong> none. The activity was legitimate; no isolation, no account changes, no policy action, so no preservation step was needed.</li>
+      <li><strong>Artifacts:</strong> EDR queries, signing-chain validation, MDM inventory export, extension and MCP inventory, the agent-activity record (read-only export), fleet prevalence query, vendor-endpoint TLS metadata. All linked from the case.</li>
+      <li><strong>Open questions and gaps:</strong> none requiring further investigation on this case. Accepted gaps: TLS metadata only to vendor endpoints, no USB device control on this host class (both permanent here, neither corroborated by any other signal). Program-level question carried forward: are those gaps acceptable for the developer-workstation population? <strong>Reopen if:</strong> a helper child runs code from outside the app bundle or an extension not on the approved list; a destination falls outside the vendor allowlist; credential paths are read; a LaunchAgent, LaunchDaemon or login item is written; a new MCP server config appears; an agent command has no matching user prompt or reaches outside the workspace; the same behavior fires on a non-developer host; a Cursor binary carries a non-Anysphere signature.</li>
+      <li><strong>Communication record:</strong> SOC manager notified 15:11 (P3 open, re-score due 18:03). Close approved by the SOC manager 18:10. Detection engineering notified 18:12 (alert-enrichment request and pattern-entry proposal PTN-031, draft). No user notification, no compliance notification, no vendor notification.</li>
     </ul>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> what actually makes this close defensible. The 15:18 manager approval distributes accountability; it does not create the defense. If the same alert fires in three weeks and turns out real, the artifact that protects the analyst is this record: five criteria each tied to a named finding, the gaps admitted, the reopening conditions written down. A close that leans on "my lead agreed" instead of the evidence is one personnel change away from indefensible.</p>
-  </div>
-
-  <div data-step class="example-step">
-    <h3>Step 4. Notify the right people</h3>
-    <p>Quiet, targeted, and traceable. The SOC manager gets shift visibility. Detection engineering gets the rule-tuning ticket with the specific signal that produced the benign fire. Nobody else needs to be told; loud notifications for a documented benign close train the team to discount future ones.</p>
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> what actually makes this close defensible. The 18:10 manager approval is a review; it does not create the defense. If the same alert fires in three weeks and turns out real, the artifact that protects the analyst is this record: five checks each tied to a named finding, the gaps admitted, the reopening conditions written down. A close that leans on "my lead agreed" instead of the evidence is one personnel change away from indefensible.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Hand to Documentation</h3>
-    <p>The Documentation phase picks up the closure record and finalizes it as the audit-quality event report. The triage analyst stays available for the closure review but does not continue the case: there is nothing to continue. The detection-engineering ticket becomes a separate workstream owned by that team.</p>
+    <p>The Documentation phase picks up the closure record and finalizes it as the audit-quality event report. The triage analyst stays available for the closure review but does not continue the case: there is nothing to continue. The enrichment request and the pattern-entry proposal become a separate workstream owned by detection engineering.</p>
   </div>
 
 </ExampleStepper>
@@ -129,53 +130,54 @@ Not every Escalation phase ends in a handoff to IR. The Cursor IDE Empire-patter
 </ChapterExample>
 
 <Callout variant="info" title="Close at triage is not 'just close'">
-The Cursor case demonstrates the methodology's hardest call: deciding *not* to escalate when the pattern matches but the evidence does not. Done well, this close is more disciplined than a routine escalation, because the analyst is asking the reader to trust the absence of compromise. The closure record built on the nine handoff-packet sections, the explicit Risk verdict, the named coverage gaps, and the detection-engineering feedback are what make the close defensible months later.
+The Cursor case demonstrates the methodology's hardest call: deciding *not* to escalate when the pattern matches but the evidence does not. Done well, this close is more disciplined than a routine escalation, because the analyst is asking the reader to trust the absence of compromise. The closure record (the decision header and the five-check justification), the explicit Risk assessment, the named gaps with their reopen triggers, and the detection-engineering feedback are what make the close defensible months later.
 </Callout>
 
 ---
 
-## A third scenario: escalating the token theft from inside Uncover
+<h2 id="case-c">Case C · Escalating the token theft at the end of Alert</h2>
 
-The finance case's callout admitted its P1 was declared late. Case C, the SaaS token theft, shows the break-glass rule working as written: the escalation fires mid-phase, the moment the criteria are confirmed, while the attacker still holds a live session.
+The finance case's callout admitted its P1 was set late. Case C, the SaaS token theft, shows the escalation tripwire working as written: the escalation fires at the end of Alert, the moment a criterion is confirmed, while the attacker still holds a live session, and Subject, Scope, Uncover, and Risk continue as scoping support under IR's clock.
 
-<ChapterExample title="Escalating the hijacked session on the trigger" scenario="At 10:20, inside Uncover, the evidence chain confirmed active compromise with live persistence: a replayed session still valid, an OAuth grant with standing mailbox access, bulk collection already completed. Risk's verdict took minutes and confirmed P1 with an ordered containment list. Escalation begins mid-investigation, by design.">
+<ChapterExample title="Escalating the hijacked session on the trigger" scenario="At 09:22 UTC, at the end of Alert, the evidence established at high confidence that an attacker was operating rvega's mailbox through a replayed session: the identity provider (IdP) log showed the session issued through a proxy at 08:53 and replayed from a virtual private server (VPS) at 09:03, and the tenant audit independently showed that session creating a hiding rule and consenting an OAuth app. No control had contained it. The escalation decision comes seven minutes after the alert, by design.">
 
 <ExampleStepper steps={["Confirm criteria met", "Choose the path", "Build the packet", "Notify stakeholders", "Transition cleanly"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Confirm criteria met</h3>
-    <p>Criteria check at 10:20, against the <a href="/docs/escalation/criteria/">canonical categories</a>: <strong>confirmed malicious activity</strong> ✓ (the session join plus attacker tradecraft in the tenant audit), <strong>high impact</strong> ✓ (a regulated customer-correspondence mailbox, bulk-collected at 09:26), <strong>exfiltration</strong> ✓ (the OAuth app's sync pulled that mailbox content out to attacker infrastructure). Three triggers. The live session and standing grant are not a fourth criterion; they are the urgency multiplier on all three. Uncover stops mid-thread; the remaining open items travel with the packet as pending instead of delaying it.</p>
+    <p>Criteria check at 09:22, against the <a href="/docs/escalation/criteria/">canonical categories</a>: <strong>confirmed malicious activity not fully contained by a control</strong> ✓ (two independent sources, with rvega's own account ruling out the alternatives; the IdP's risk policy flagged the session but runs in report-only mode, so nothing blocked it). One criterion is enough: the case is P1 by criterion, and the escalation is an early escalation decision, recorded with its time. The live session and standing grant are not a further criterion; they are the urgency multiplier. Two more criteria were confirmed later under IR's clock and added when they landed: <strong>high impact</strong> ✓ and <strong>exfiltration</strong> ✓ at 10:08 (item-level records show the unverified app, consented from the hijacked session, read about 1,800 messages including billing threads from an external backend, presumed attacker-controlled). Alert did not wait for them; the later phases run as scoping support and send their findings to IR as they land.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Choose the path</h3>
-    <p><strong>Internal:</strong> Tier 2 IR paged at 10:21, warm handoff within minutes. <strong>External:</strong> compliance was engaged during Scope, so the GDPR assessment is already running; finance was warned during Scope to verify payment instructions out-of-band. The vendor request for app read-detail is escalated to urgent.</p>
-    <p>In parallel, the analyst executes the pre-authorized immediate actions in the order Risk specified: 10:24 all sessions revoked at the IdP, 10:26 the OAuth grant revoked, 10:28 the inbox rule disabled and preserved as evidence, 10:31 credential reset and MFA re-enrollment. The ordering is the containment; the reset alone would have contained nothing.</p>
+    <p><strong>Internal tiers:</strong> IR lead paged at 09:22 by pager and phone bridge, not tenant email or chat, because the mail tenant is the compromised system; acknowledged at 09:28, inside the 15-minute no-acknowledgment fallback, with the warm handoff on the bridge. <strong>Organizational stakeholders:</strong> SOC manager informed by phone at 09:23; compliance engaged at 09:50 and finance put on notice at 09:52, both by phone, during Scope. <strong>External:</strong> none at this stage; a bank recall and a law-enforcement report apply only if a fraudulent payment instruction goes out, and none did.</p>
+    <p>In parallel, the analyst <a href="/docs/escalation/preserve/">preserves before containing</a>, then executes the <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized immediate actions</a>, all of them reversible: 09:22-09:24 exports of the sign-in records, the mailbox audit, the rule definition, the app's service principal and grants, and rvega's MFA methods and devices; 09:24 account disabled; 09:25 all sessions and refresh tokens revoked; 09:26 the app's sign-in disabled; 09:27 the inbox rule disabled. Revocation is verified, not assumed: already-issued access tokens can outlive it for an hour or more (a random 60 to 90 minutes by default on Microsoft Entra ID) where continuous access evaluation is not enforced, so the check is the replayed session's next presentation, refused at 09:31. The steps that cannot be undone waited for IR's approval at 09:36: at 09:38 the app's delegated grant and app-role assignments were removed, with its service principal kept disabled so the application ID stays blocked; at 09:40 rvega's password was reset (the kit relayed it) and her MFA methods reviewed against the <a href="/docs/reference/identity-sweep/">identity-persistence sweep</a>, none added by the attacker. When Subject found a second user who had reached the kit's credential step, the same split applied: her sessions revoked at 09:41, her password reset and MFA methods reviewed at 09:44 with IR's approval.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Build the packet</h3>
     <ul class="example-step__list">
-      <li><strong>Summary:</strong> AiTM session theft on a customer-success account, BEC staging interrupted after bulk collection, before any outbound mail. P1, live persistence contained at 10:26.</li>
-      <li><strong>Timeline:</strong> 08:47 legitimate sign-in → 08:52 lure click → 09:03 token replay from VPS ASN → 09:06 hiding rule → 09:09 OAuth consent → 09:14-09:26 bulk sync → 09:15 alert → 10:20 criteria confirmed, escalation fired → 10:24-10:31 ordered containment.</li>
-      <li><strong>Entities:</strong> 3 primary (account, session, app), 3 secondary, CRM downstream, attacker infrastructure named.</li>
-      <li><strong>Evidence chain:</strong> IdP sign-in log, tenant unified audit, gateway click record, tenant-wide sweep with recorded negative results. ATT&CK chain documented end to end.</li>
-      <li><strong>Risk verdict:</strong> high impact (collection completed), high likelihood (no surviving benign hypothesis), P1.</li>
-      <li><strong>Containment taken:</strong> the four ordered identity actions, all from the pre-authorized list, timestamped. Tenant-wide app-publisher block and ASN hunt rule recommended to IR, not taken unilaterally.</li>
-      <li><strong>Artifacts:</strong> the session's two presentation records, the rule definition, the consent-grant event, the sync aggregates, the phishing URL and kit fingerprint.</li>
-      <li><strong>Open questions:</strong> item-level read detail pending vendor; GDPR determination with compliance; whether any other tenant in the company's estate saw the same lure domain.</li>
-      <li><strong>Communication record:</strong> 10:21 IR paged; 10:23 SOC manager informed; 10:27 compliance updated with the collection volume; 10:33 finance re-confirmed on out-of-band payment verification.</li>
+      <li><strong>Case metadata:</strong> CASE-20260312-022, 2026-03-12, P1 by criterion, escalated 09:22 UTC, owned by the IR lead from 09:28. The packet went to IR in two passes: the initial packet on the bridge at 09:28 and the complete nine-section packet at 10:24.</li>
+      <li><strong>Summary:</strong> Adversary-in-the-middle (AiTM) session theft on a customer-success account, <DefineTerm term="Business Email Compromise (BEC)" display="business email compromise (BEC)" /> staging interrupted after the app's mail collection, before any outbound mail. P1 by criterion; reversible containment complete at 09:27, verified at 09:31.</li>
+      <li><strong>Timeline:</strong> 08:41 lure delivered to 4 users → 08:47 legitimate laptop sign-in → 08:52 lure click → 08:53 proxied sign-in (password and MFA relayed, session S2 issued) → 08:54 second user's password captured, MFA not completed → 09:03 S2 replayed from the VPS → 09:06 hiding rule → 09:09 OAuth consent → 09:14-09:26 app reads → 09:15 alert → 09:18 payment searches → 09:22 criterion confirmed, escalation tripwire fired → 09:22-09:24 preservation → 09:24-09:27 reversible containment → 09:31 replay refused → 09:38-09:44 approved grant removal and password resets.</li>
+      <li><strong>Entities:</strong> 4 primary (rvega's account, session S2, the app, the second user's credential-exposed account), 3 secondary (billing mailbox, two non-click recipients), the inbox rule as an artifact, CRM downstream, phishing infrastructure named (<code>docs-share-portal[.]example</code>, 203.0.113.41, 198.51.100.77); app backend presumed attacker-controlled.</li>
+      <li><strong>Evidence chain:</strong> IdP sign-in log, tenant unified audit including the item-level mail-access records, gateway delivery and click records, message trace, tenant-wide sweep with recorded negative results. Each claim is marked as fact or inference: the replay, the rule, the consent, and the reads come straight from the logs; the backend's ownership and the kit family are inferences, labeled with their confidence. ATT&CK chain documented end to end.</li>
+      <li><strong>Risk verdict:</strong> true positive, malicious; high impact (collection completed), high likelihood, high confidence; cell High × High, P1; recommended move escalate, matching the 09:22 decision.</li>
+      <li><strong>Containment taken:</strong> preservation first, then the four reversible actions from the pre-authorized list, timestamped and verified; the grant removal and both password resets with IR's approval, timestamped. Restricting user consent, hunt rules for the proxy IP, the VPS <DefineTerm term="Autonomous System Number (ASN)" display="ASN" />, and the lure domain, and phishing-resistant MFA with token protection recommended to IR, not taken unilaterally.</li>
+      <li><strong>Artifacts:</strong> the proxied sign-in and both presentations of S2, the rule definition, the consent event, the item-level access records and the message list, the phishing URL and kit fingerprint, and the preservation exports with their retrieval times.</li>
+      <li><strong>Open questions:</strong> GDPR determination with compliance (candidate awareness timestamp 09:22 on record); whether the relayed passwords are reused on other services; whether any other tenant in the company's estate saw the same lure domain.</li>
+      <li><strong>Communication record:</strong> 09:22 IR paged; 09:23 SOC manager informed; 09:24 rvega informed by phone; 09:28 IR acknowledged, warm handoff on the bridge; 09:36 IR approval recorded; 09:39 second user reported to IR; 09:42 approval for her reset; 09:50 compliance engaged; 09:52 finance on notice; 10:08 and 10:14 scoping updates to IR; 10:22 message list to compliance through the case system, not tenant mail; 10:24 complete packet.</li>
     </ul>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Notify stakeholders</h3>
-    <p>The notification set is wider than a routine P1 because money and regulated data are both in motion: IR owns the technical response, compliance owns the notification clock, finance owns the fraud-prevention posture. Each got a message scoped to what they own, and each message is in the record.</p>
+    <p>The notification set is wider than a routine P1 because money and regulated data are both in motion: IR owns the technical response, compliance owns the notification clock, finance owns the fraud-prevention posture. Each got a message scoped to what they own, through a channel outside the compromised tenant (see <a href="/docs/escalation/communication/">Talking to people during triage</a>), and each message is in the record.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Transition cleanly</h3>
-    <p>IR inherits a contained-but-open case: the attacker is locked out, but what they read, whether the kit harvested the password for later use, and whether other estates saw the lure are all live questions. The triage analyst hands over the packet, walks IR through the containment timestamps, and returns to the queue. The tenant sweep queries transfer with the packet so IR re-runs them on their own cadence instead of reinventing them.</p>
+    <p>IR inherits a contained-but-open case: the attacker is locked out and both exposed passwords are reset, but whether those passwords (which passed through the AiTM proxy and are treated as compromised) are reused on other services, the GDPR determination, and whether other estates saw the lure are all live questions. After the 09:28 handoff the triage analyst worked Subject through Risk as IR-assigned scoping support, delivered the complete packet at 10:24, walks IR through the containment timestamps, and returns to the queue. The tenant sweep queries transfer with the packet so IR re-runs them on their own cadence instead of reinventing them.</p>
   </div>
 
 </ExampleStepper>
@@ -183,15 +185,25 @@ The finance case's callout admitted its P1 was declared late. Case C, the SaaS t
 </ChapterExample>
 
 <Callout variant="info" title="The counter-example to the late P1">
-Hold this timeline against the finance case's. Same methodology, opposite clock discipline: 65 minutes from alert to escalation, with containment executing while the packet was still being written. The difference is not analyst speed; it is that the escalation criteria were treated as tripwires during Uncover instead of as a checklist at the end. This is what the break-glass rule looks like when it works.
+Hold this timeline against the finance case's. Same methodology, opposite clock discipline: about seven minutes from alert to escalation and about twelve to reversible containment, with the evidence preserved first and the packet completed under IR's clock. The difference is not analyst speed; it is that the escalation criteria were treated as tripwires from the first phase instead of as a checklist at the end. This is what the escalation tripwire looks like when it works.
 </Callout>
 
+<a id="case-d"></a>
+## Case D · A handback, and a close on an undetermined verdict
+
+The three cases above each run one Escalation decision. The fourth case file runs two: a P2 escalation that Tier 2 handed back with a receipt and a named reason, then, after a P3 on named triggers, a documented close with the activity verdict still undetermined. Read it for the <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">de-escalation path</a> working as written.
+
+<CaseFile caseKey="D" heading={false} link="page" />
+
 <KeyTakeaway>
-Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff, the Cursor benign true positive produced a close-at-triage record, and the token theft produced a mid-phase break-glass escalation with ordered identity containment. Same chapter, same methodology, three different verdicts.
+Escalation's deliverable is the structured record that survives the case, whether the path is "to IR" or "closed at triage." The finance-team intrusion produced an IR handoff, the Cursor benign true positive produced a documented close, and the token theft produced an escalation tripwire fired at the end of Alert, with preserved, ordered, verified identity containment. Same chapter, same methodology, three different verdicts.
 </KeyTakeaway>
 
-<ContinueCard current="escalation" nextHref="/docs/escalation/quiz/" nextLabel="Escalation quiz" ctaLabel="Take the quiz" />
+<ContinueCard
+  current="escalation"
+  nextHref="/docs/escalation/transition/"
+  nextLabel="Transition to Documentation"
+  nextDescription="The handoff contract: what the Escalation decision passes to Documentation, and how to know the case is ready."
+  ctaLabel="Read the handoff"
+/>
 
-<style>{`
-.example-step h3 { margin: 0 0 0.85rem 0; color: #a5b4fc; font-size: 1.2rem; }
-`}</style>

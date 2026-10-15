@@ -1,0 +1,245 @@
+---
+title: "Triage and detection engineering"
+description: "The interface between the triage desk and the people who write the rules: what each side owes the other, a routing table for every verdict, the tuning request, exception governance, reading a rule and its exceptions during triage, and the per-rule numbers both teams share."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import TemplateEmbed from "@/components/assured/TemplateEmbed.astro";
+import "@/styles/pages/root.css";
+
+Every chapter of this site says that closes feed <DefineTerm term="Detection Engineering" display="detection engineering" />. This page is the interface that sentence depends on: what the triage desk sends, in what shape, to whom, and what it should get back. Without it, feedback arrives as "this rule is noisy" in a chat channel, the wrong team gets the ticket, and a rule that works gets de-tuned because nobody wrote down that it fired correctly.
+
+The page is for both sides of the desk. Analysts get the routing rules and the request template; SOC leads and detection engineers get the governance and the shared numbers. In a small SOC the same person may wear both hats. The request still gets written, because the written request is what lets a second person review the change.
+
+## What each side owes the other
+
+<div class="df-owes">
+  <div class="df-owes__col">
+    <h3>Triage owes detection engineering</h3>
+    <ul>
+      <li><strong>The verdict on both axes:</strong> the exact values, on every close. Detection: true positive, false positive (logic), false positive (data). Activity: malicious, policy violation, authorized (benign true positive), benign-confirmed, undetermined. Every per-rule number below is computed from these two fields.</li>
+      <li><strong>The rule's identity:</strong> name, ID and version as deployed when it fired, and the exceptions active on it at the time.</li>
+      <li><strong>Evidence by ID, not by impression:</strong> the case IDs, the sample alert IDs, and the field values that justify a change.</li>
+      <li><strong>A proposed change with its risk:</strong> what to change, what it could silence, and the two test samples that prove it.</li>
+      <li><strong>The gaps found in Uncover:</strong> techniques observed in a case that raised no alert, written so detection engineering can act on them (see <a href="/docs/uncover/">Uncover's deliverables</a>).</li>
+      <li><strong>No silencing from the console:</strong> a suppression or alert-tuning rule created to clear a queue, outside a request, is a detection change nobody reviewed.</li>
+    </ul>
+  </div>
+  <div class="df-owes__col">
+    <h3>Detection engineering owes back</h3>
+    <ul>
+      <li><strong>A readable rule, or a recorded reason it cannot be read:</strong> an <DefineTerm term="Alerting and Detection Strategy (ADS)" /> record or equivalent, with its known false positives and blind spots.</li>
+      <li><strong>Calibration facts:</strong> the rule's version, last review, precision here, known benign triggers and active exceptions, findable in seconds (see <a href="/docs/alert/detection-mechanisms/#trust-calibration">trust calibration</a>).</li>
+      <li><strong>A decision on every request:</strong> accepted, changed or declined, with a reason, within a time both teams agreed in writing.</li>
+      <li><strong>Change notices:</strong> every rule change versioned and announced, because a change to a linked rule invalidates the pattern entries that rely on it.</li>
+      <li><strong>Tests:</strong> every change proved against a malicious sample before it ships.</li>
+      <li><strong>Enrichment:</strong> the fields triage needs to decide fast, added to the alert when a request shows they were missing.</li>
+    </ul>
+  </div>
+</div>
+
+## The routing table
+
+The verdict decides the route. A benign close that is a false positive goes to whoever owns the defect; a benign close that is a <DefineTerm term="Benign True Positive" display="benign true positive" /> goes to context, and the rule stays as written. <a href="/docs/risk/false-positive/">What a benign close teaches</a> explains the fork; this table extends it to every finding a case can hand detection engineering.
+
+<table class="df-table">
+  <caption>Where each finding goes. Request types refer to the tuning request below.</caption>
+  <thead>
+    <tr><th scope="col">Finding</th><th scope="col">What it looks like</th><th scope="col">Route</th><th scope="col">Owner and artifact</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row"><DefineTerm term="False Positive" display="False positive" /> (logic)</th><td>The rule matched something it was not meant to describe: an over-broad pattern, the wrong field, a broken condition.</td><td>A logic change plus a regression test proving the rule still fires on the malicious variant.</td><td>The rule's owner. Tuning request: logic change.</td></tr>
+    <tr><th scope="row">False positive (data)</th><td>The logic was right and its input was wrong: a parser error, a missing or mis-mapped field, clock skew, duplicate ingestion, a stale asset tag.</td><td>A pipeline or parser fix, not a rule ticket. Working around bad data inside one rule hides the defect from every other rule that reads the same field.</td><td>The log-pipeline or platform owner. Tuning request: data or pipeline fix. <a href="/docs/cases/case-d/">Case D</a> follows one: a parser that stamped receipt time as event time.</td></tr>
+    <tr><th scope="row">Benign true positive, one-off</th><td>The rule read the activity correctly, the activity was authorized, and it is not expected to recur (a one-time migration, a ticketed penetration test).</td><td>Document it in the close. No request.</td><td>The analyst. The close record.</td></tr>
+    <tr><th scope="row">Benign true positive, recurring class</th><td>The same authorized behavior fires again and again: a sanctioned tool, a scheduled job, a role's normal workflow.</td><td>A pattern entry first, so the alert still fires and closes fast against written discriminators. Only when volume demands a silencing control: a scoped, expiring exception keyed to the context that makes it benign. The rule logic stays as written.</td><td>The <DefineTerm term="Pattern Library" display="pattern library" /> owner (<a href="/templates/pattern-entry.md" download>pattern entry</a>); detection engineering for any exception. Tuning request: exception.</td></tr>
+    <tr><th scope="row">Correct fire, too little context</th><td>The verdict was right but slow, because the alert lacked the fields that decide it. In <a href="/docs/documentation/example/#case-b">Case B</a> those were the extension ID, the child's command line and the destination set.</td><td>An <DefineTerm term="Enrichment" display="enrichment" /> request: put the deciding fields on the alert.</td><td>Detection engineering. Tuning request: enrichment.</td></tr>
+    <tr><th scope="row">True positive, under-rated</th><td>A malicious true positive the rule caught at a severity that left it waiting in the queue, or caught only at a late step when an earlier one was visible.</td><td>A severity change, or a new detection on the earlier step.</td><td>Detection engineering. Tuning request: severity change or new detection.</td></tr>
+    <tr><th scope="row">Coverage gap found in Uncover</th><td>A technique observed in the case that raised no alert: a <DefineTerm term="False Negative" display="false negative" />. In <a href="/docs/documentation/example/#case-a">Case A</a>, the rule's network leg read only the web proxy, so the same chain on a laptop off the VPN raised nothing.</td><td>A new-detection request, mapped to the ATT&amp;CK technique and its Detection Strategy.</td><td>Detection engineering. Tuning request: new detection.</td></tr>
+    <tr><th scope="row">A chain no rule linked</th><td>Several low-signal events on one entity over days, each closed alone or never alerted (the <a href="/docs/alert/validation/attack-chains/">attack-chains</a> example).</td><td>A risk-rule request: let those observations add risk to the entity instead of raising alerts of their own.</td><td>Detection engineering. Tuning request: risk-rule request.</td></tr>
+    <tr><th scope="row">A rule you could not read</th><td>An undocumented or misleading in-house rule, or a vendor detection whose fires stay ambiguous from one case to the next.</td><td>In-house: a documentation request (an ADS record). Vendor-managed: a vendor case, or a wrapper rule the team can read (see <a href="/docs/alert/validation/#alert-provenance">alert provenance</a>).</td><td>The rule owner, or the platform owner for vendor content. Tuning request: documentation, or vendor case or wrapper rule.</td></tr>
+    <tr><th scope="row">A control gap, not a detection gap</th><td>The case shows a missing preventive control: in <a href="/docs/documentation/example/#case-c">Case C</a>, push MFA that is not phishing-resistant and user consent open to unverified publishers.</td><td>IR's recommendations, or the control owner. Not the detection backlog.</td><td>IR or the control owner. The event report's recommendations.</td></tr>
+    <tr><th scope="row"><DefineTerm term="Undetermined" /></th><td>The activity verdict could not be reached.</td><td>No rule change until the case resolves. The case closes with its gaps named and a <DefineTerm term="Reopen Trigger" display="reopen trigger" />, or moves up a level (see <a href="/docs/risk/framework/#undetermined">undetermined verdicts</a>). File an enrichment or data request only when a missing field is what kept it undetermined (<a href="/docs/cases/case-d/#escalation-decision-a-documented-close-undetermined">Case D</a> closes this way).</td><td>The analyst. The close record.</td></tr>
+  </tbody>
+</table>
+
+<Callout variant="warn" title="Three rules the table does not override">
+A request never holds up a case decision: file it after the verdict, and if an escalation criterion is confirmed, the <DefineTerm term="Escalation Tripwire" display="escalation tripwire" /> escalates first and the request waits. Never add or widen an exception on a rule while a case it fired on is open at P1 or P2 or is with IR, because IR may be using those fires to track scope. And one request covers one rule (or one missing detection), so each can be decided, tested and closed on its own.
+</Callout>
+
+### Mapping the console's close codes
+
+Many teams close in a console whose classifications do not match these values one for one. Record the ASSURED values in the case record, and map them like this:
+
+| ASSURED verdict | Microsoft Sentinel close classification | Microsoft Defender XDR alert classification |
+|---|---|---|
+| True positive · malicious or policy violation | True Positive - suspicious activity | True positive |
+| True positive · authorized or benign-confirmed | Benign Positive - suspicious but expected | Informational, expected activity |
+| False positive (logic) | False Positive - incorrect alert logic | False positive |
+| False positive (data) | False Positive - incorrect data | False positive |
+| Undetermined | Undetermined | No equivalent; keep the value in the case record |
+
+Defender XDR has one false-positive value for both kinds, so the logic-or-data split lives only in your case record. Without it, the two rows of the routing table that send work to different owners collapse into one queue. Sources: Microsoft Learn, <a href="https://learn.microsoft.com/en-us/azure/sentinel/incident-navigate-triage" target="_blank" rel="noopener noreferrer">Sentinel incident triage</a> (updated July 2026) and <a href="https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts" target="_blank" rel="noopener noreferrer">Investigate alerts in Defender XDR</a> (updated September 2026), both checked October 2026.
+
+## The tuning request
+
+The <DefineTerm term="Tuning Request" display="tuning request" /> is the one artifact that carries every row of the routing table except the one-off close and the control gap. The name is historical: the request type field covers exceptions, enrichment, logic and data fixes, severity changes, new detections, risk rules, documentation, vendor cases and retirements. The [one-page reference](/docs/reference/) calls it the detection-engineering feedback, and the Documentation phase is where it is written.
+
+A good request does five things:
+
+1. **Names one rule at one version.** A request against "the PowerShell rules" cannot be tested or closed.
+2. **Carries evidence by ID.** Case IDs, sample alert IDs, the window, and how many fires in it carried each verdict. Reference the case; do not paste it. Copy only the fields the change needs, and refer to insider-risk cases by case ID alone.
+3. **States the change and its scope.** Entity- or field-level by default. Anything rule-wide needs the approver's explicit sign-off.
+4. **States the risk of the change.** What the change could silence, and how an attacker who learned of it could ride it. A request that cannot answer this is not ready.
+5. **Brings two test samples.** A benign sample that should stop alerting (or should now carry the new field), and a malicious sample or emulation that must still fire. An <DefineTerm term="Atomic Red Team" /> test for the technique is the usual source of the second.
+
+<TemplateEmbed name="tuning-request.md" />
+
+<Reveal summary="A filled request: the exception shown later on this page" variant="example">
+
+<pre><code>{`DE-NNNN · type: exception · routed to: rule owner, detection engineering
+Rule: "Rclone copies data to cloud storage", id 3f6a2c1e..., version of 2026-07-15
+Provider: in-house Sigma; logic inspectable: yes
+ATT&CK: T1567.002 Exfiltration Over Web Service: Exfiltration to
+  Cloud Storage (Enterprise v19)
+Active exceptions when it fired: none
+Cases: CASE-20260814-031 and the 26 later closes (case query linked)
+Verdict, all 27 fires in 30 days: true positive · authorized (benign true positive)
+Precision 27/27; actionability 0/27
+Subject: svc-archive-upload, not privileged (read scope: the export share
+  only; write scope: the archive bucket; identity inventory, 2026-08-30)
+Justifying fields: User = that service account; Hashes = the build the
+  backup team pinned; CommandLine target = the archive remote; proxy log shows
+  only the archive's storage endpoint
+Change: filter keyed to all three fields together, never to the binary alone
+Risk: an attacker holding the service account who reuses the pinned build and
+  the remote label passes the filter; mitigated by the separate egress rule on
+  the job's destinations, which this request leaves untouched
+Tests: benign = last night's job events (stop alerting); malicious = the same
+  binary run by another account, and the pinned build run to any other
+  remote (both must still fire)
+Owner: backup-platform lead · approver: detection-engineering lead
+Expiry: 2026-11-30 · re-fire triggers: new rclone build, new remote, any other
+  account, rule change · expected hits: about 7 a week; review above 15`}</code></pre>
+
+</Reveal>
+
+## Exception and suppression governance
+
+Four tools reduce what reaches the queue, and they cost different amounts of visibility. Choose the cheapest one that solves the problem:
+
+| Tool | What happens | What is lost | Right for |
+|---|---|---|---|
+| <DefineTerm term="Pattern Entry" display="Pattern entry" /> | The alert still fires; triage closes it at Level 0 against written discriminators | Analyst minutes, nothing else | A recurring benign true-positive class |
+| <DefineTerm term="Exception (Detection)" display="Exception" /> | The rule still runs; a narrow, context-keyed tuple is excluded from alerting | Alerts on that tuple only | A recurring class whose volume a pattern entry cannot absorb |
+| <DefineTerm term="Suppression" /> | The alert is hidden, by rule, host set or time window | Everything the suppression matches | Rarely; a short window with a named reason |
+| <DefineTerm term="Tuning" /> | The rule's logic changes | Whatever the new logic no longer matches | False positives (logic), never benign true positives |
+
+Every exception and every suppression is governed the same way:
+
+- **A record with eight parts:** its scope (entity- and field-level, never rule-wide), a rationale with the case link, an owner, an approver who is not the requester, an expiry date, storage as code next to the rule, a monitored hit count, and a re-test at expiry proving the rule still fires on the malicious variant.
+- **Keyed to the context that makes it benign.** For a sanctioned tool, that is the tuple of tool version, extension or plugin ID, and destination set, with re-fire triggers for a version change, a new extension and a new destination. Never signer and install path alone: code running inside a signed host (an IDE extension, an MCP server, a package-manager script) inherits both. <a href="/docs/documentation/example/#case-b">Case B</a>'s pattern entry is the worked example.
+- **Expired means off.** An exception past its expiry stops applying until the owner re-tests and renews it. It does not roll over quietly.
+- **Watched by hit count.** Zero hits for a full review period means the exception can be retired. A spike needs review: either the sanctioned activity changed, or someone who learned the tuple is riding it.
+- **Never looser than Level 0.** An exception hides alerts that a Level 0 close would at least have seen, so it never covers a subject that would fail the <a href="/docs/fast-path/">eligibility gate</a>: a crown-jewel asset, a privileged identity, or automation with deploy, signing, secrets or repository-write capability.
+- **Listed in one register.** Every active exception and suppression, its owner and expiry, and how many are past due. This <DefineTerm term="Exception Register" display="exception register" /> is what makes the inventory numbers below computable.
+
+Vendor consoles use their own words for these tools, so read what a feature does rather than what it is called. Defender XDR's alert tuning (previously alert suppression) offers three actions: <em>Hide alert</em> suppresses the alert (Defender for Endpoint alerts only); <em>Set as behavior</em> keeps the signal for hunting without queueing it, which preserves more than a suppression does; and <em>Resolve alert</em> resolves the alert and its incidents automatically. In this methodology that last one is a machine close, so it is allowed only under the <a href="/docs/ai-triage/#governed-automation">governed tier</a>: a pattern entry carrying the <DefineTerm term="Machine-Close Flag" display="machine-close flag" />, discriminators evaluated by code, the eligibility gate enforced, human QA sampling, tracked reversal and miss rates, and a <DefineTerm term="Kill Switch" display="kill switch" /> with a named owner (Microsoft Learn, <a href="https://learn.microsoft.com/en-us/defender-xdr/investigate-alerts#tune-an-alert" target="_blank" rel="noopener noreferrer">Tune an alert</a>, updated September 2026).
+
+## Reading a rule and its exceptions during triage
+
+The <a href="/docs/alert/detection-mechanisms/#one-rule-three-ways">rule family page</a> walks a full <DefineTerm term="Sigma" /> rule and its ADS record field by field. The skill this page adds is reading the exception that sits next to a rule, because an alert in front of you is also evidence about every exception that did not apply to it. Sigma keeps exceptions as separate <DefineTerm term="Sigma filter" display="filter files" /> that name the rules they apply to; at conversion the filter's condition is appended to the rule's, so the rule file itself stays unedited (<a href="https://github.com/SigmaHQ/sigma-specification" target="_blank" rel="noopener noreferrer">Sigma Filters Specification</a> v2.1.0, 2025-08-02; <a href="https://sigmahq.io/docs/meta/filters.html" target="_blank" rel="noopener noreferrer">SigmaHQ filter documentation</a>, checked October 2026).
+
+```yaml
+# rules/proc_creation_win_rclone_cloud_copy.yml
+title: Rclone copies data to cloud storage
+id: 3f6a2c1e-8b4d-4e7a-9c2f-1d5e7b9a0c34
+status: stable
+modified: 2026-07-15
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    Image|endswith: '\rclone.exe'
+    CommandLine|contains: [' copy ', ' sync ', ' move ']
+  condition: selection
+falsepositives:
+  - Sanctioned backup jobs (see filter EXC-0142)
+level: high
+tags:
+  - attack.exfiltration
+  - attack.t1567.002
+```
+
+```yaml
+# filters/exc-0142_backup_rclone.yml
+title: EXC-0142 nightly backup job to the sanctioned archive
+description: DE-NNNN from CASE-20260814-031. Owner, approver and expiry are in the exception register.
+date: 2026-09-01
+logsource:
+  category: process_creation
+  product: windows
+filter:
+  rules:
+    - 3f6a2c1e-8b4d-4e7a-9c2f-1d5e7b9a0c34
+  selection:
+    User: 'CORP\svc-archive-upload'
+    Hashes|contains: 'SHA256=(pinned build hash)'
+    CommandLine|contains: ' corp-archive:'
+  condition: not selection
+```
+
+What an analyst reads, top to bottom:
+
+- **status and modified.** A stable rule, last changed on 2026-07-15, before the exception below was written (2026-09-01). A rule change after an exception or pattern entry was written is an invalidation trigger for both, so check the two dates before trusting either.
+- **detection.** The logic needs a binary named <code>rclone.exe</code>. A renamed copy escapes it. That is a blind spot to remember when the rule stays quiet on a host where you expected it to fire, not a reason to trust the quiet.
+- **falsepositives.** It points at the filter. Read the filter before you close anything as known noise.
+- **filter, rules.** The exception names this one rule by ID. A filter with <code>rules: any</code> applies to every rule on the log source, and is the first thing to question in an exception review.
+- **filter, selection and condition.** All three fields must match for <code>not selection</code> to remove an event: the service account, the pinned build (the tool version) and the archive remote. An alert that matches two of the three is exactly the case the exception was not written for, and it is real work. The remote name is a label from rclone's configuration file, not a network destination, so the request that created this exception kept a separate egress rule on the job's destinations. The exception is only as strong as its weakest field.
+- **description.** It carries the request and case IDs. Owner, approver and expiry live in the register, because the filter format has no fields for them.
+
+Record what you read: the rule ID and version that fired, the exceptions active on it, and whether the event matched any of them in part. When the rule has an ADS record, four of its nine sections earn a look on shift: False Positives, Blind Spots and Assumptions, Validation, and Response (<a href="https://github.com/palantir/alerting-detection-strategy-framework" target="_blank" rel="noopener noreferrer">Palantir's ADS framework</a>). When the logic cannot be read at all, validate by the evidence instead, as <a href="/docs/alert/detection-mechanisms/#when-you-cannot-read-the-rule">reading a black-box alert</a> describes.
+
+## How a request becomes a change
+
+Keeping detections as code (<DefineTerm term="Detection-as-Code" display="detection-as-code" />) is what makes every step below possible. The flow most programs converge on:
+
+1. **Triage files the request** after the case verdict, from the template.
+2. **Detection engineering decides** within the agreed time: accepted, accepted with changes, or declined with a reason. A declined request with a reason is a good outcome; a silent one is not.
+3. **The change lands as code:** a rule, filter or parser change in version control, reviewed by a second person in a pull request that links the request.
+4. **Automated tests run before merge:** the rule still converts for each platform it ships to, the benign sample stops alerting, and the malicious sample (replayed events, or an emulation run) still fires.
+5. **It ships with a new version and a change notice.** Triage hears about it, and closes against the pattern entries linked to the rule move to Level 1 until each entry's owner re-verifies it.
+6. **Someone watches it for 30 days:** volume, precision, and any closes reversed or detections missed. The request closes with that result written in.
+
+<Callout variant="warn" title="A quiet rule is a finding">
+Every logic change, exception and parser fix risks silencing the malicious variant along with the noise. A rule that suddenly stops firing after a change is a finding to investigate, not a relief. The same goes for a rule with no fires at all over a long period and no recent validation test: it may be broken, or its telemetry may be gone.
+</Callout>
+
+## Per-rule numbers both teams share
+
+A few numbers per rule are enough to tell broken logic from noisy-but-correct rules, and to tell whether the loop is working. Each comes from fields the templates already carry: the rule ID and version, the two verdict axes, and the request ID. Count per rule version, because a logic change starts a new series. The site-wide metric set, with denominators and gaming risks, belongs to <a href="/docs/measuring-triage/#detection-health-per-rule-shared-with-detection-engineering">Measuring triage</a>; these are the ones detection engineering reads.
+
+| Number | Formula | How to read it |
+|---|---|---|
+| <DefineTerm term="Precision (Detection)" display="Precision" /> | True-positive fires ÷ fires with a detection verdict (benign true positives count as correct) | Low precision is a logic or data defect: the first two routing rows |
+| False-positive split | False positive (logic) fires ÷ fires, and false positive (data) fires ÷ fires | Which owner gets the work |
+| Benign-true-positive share | Authorized and benign-confirmed fires ÷ fires | High with high precision: a healthy rule that needs context (a pattern entry, enrichment, an exception), not tuning |
+| <DefineTerm term="Actionability" /> | Fires that needed action beyond the close ÷ fires | The share of the rule's volume that changed anything |
+| Undetermined share | Undetermined fires ÷ fires | High: the alert lacks the fields that decide it; an enrichment request |
+| Exception inventory | Active exceptions per rule, their age, the number past expiry, hits per exception per period | Past expiry should be zero; zero hits retires an exception; a spike triggers review |
+| Reversed closes | Level 0 closes on this rule later found wrong ÷ Level 0 closes on it | The pattern entries on this rule need review |
+| Time to tune | Request filed → change deployed | The speed of the loop itself |
+| Misses found | False negatives found by hunts, IR or Uncover gap requests, per technique | Coverage measured where it failed, not where a cell is colored |
+
+Coverage needs one more caveat. A colored cell on a <DefineTerm term="MITRE ATT&CK" display="MITRE ATT&CK" /> heatmap means at least one analytic maps to the technique, not that its procedures are covered (see <a href="/docs/uncover/mitre/">ATT&CK in Uncover</a>). Since v18 (October 2025), each technique carries a Detection Strategy (a DET ID) with platform-specific Analytics (AN IDs). T1556, Modify Authentication Process, for example, lists DET0104 with analytics AN0287 to AN0291 for Windows, Linux, macOS, identity providers and cloud IAM (<a href="https://attack.mitre.org/techniques/T1556/" target="_blank" rel="noopener noreferrer">attack.mitre.org</a>, checked October 2026). A new-detection request names the DET ID, so detection engineering can see which analytics already exist and which platform the gap sits on.
+
+<KeyTakeaway>Triage and detection engineering share one loop, and the verdict decides where each piece of it goes: logic defects to the rule owner, data defects to the pipeline, benign true positives to context, gaps to new detections, control gaps to IR. The tuning request carries it, with one rule, evidence by ID, the risk of the change and two tests. Exceptions are keyed to the context that makes the activity benign, expire, and get counted. And both teams read the same per-rule numbers, computed from the two verdict fields every close already records.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/measuring-triage/" class="assured-cta assured-cta--ghost">← Measuring triage</a>
+  <a href="/docs/adoption/" class="assured-cta">Adopting ASSURED →</a>
+</div>

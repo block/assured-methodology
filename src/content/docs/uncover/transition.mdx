@@ -1,154 +1,81 @@
 ---
 title: "Transition to Risk"
-description: "Uncover produced the evidence. Risk is the analytical checkpoint that asks: is the investigation complete enough to draw conclusions?"
+description: "Uncover produced the evidence. Risk rates impact, likelihood, and confidence on it and recommends a move: close, escalate, or rescope and keep looking."
+techVerified: "2026-10-13"
 ---
 
-import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import Reveal from "@/components/assured/Reveal.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/uncover.css";
 
-<SubPageHero phase="uncover" parentLetter="U" pillarIndex="Transition" pillarTotal="Uncover to Risk" chapterHref="/docs/uncover/" chapterLabel="Uncover" lede="Uncover produced the chain of evidence and the MITRE-tagged narrative. Risk is the analytical checkpoint that asks whether the investigation, given current evidence and visibility, is complete enough to draw conclusions, or whether gaps remain that require rescoping or continued analysis."/>
+<SubPageHero phase="uncover" pillarIndex="Transition" lede="Uncover produced the chain of evidence and the MITRE-tagged narrative. Risk rates how bad it would be if real, how likely it is to be malicious, and how confident the evidence lets us be, then recommends a move: close, escalate, or rescope and keep looking when confidence is too low."/>
 
-<PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
-]}/>
-
-<Callout variant="info" title="Four phases complete. The next begins.">
-Alert answered <em>what fired</em>. Subject answered <em>who acted</em>. Scope answered <em>how much of this matters</em>. Uncover answered <em>what actually happened</em>. Risk now asks <em>is the picture complete enough to act on, or do we need to keep looking?</em>
-</Callout>
-
-## What Risk actually does
-
-Risk is the analytical checkpoint that follows evidence gathering: it evaluates whether Uncover's output is complete enough to draw a conclusion, then makes a constrained call, close with confidence, escalate, or rescope and continue. How that evaluation works is the <a href="/docs/risk/">Risk chapter</a>'s subject; this page is about handing it evidence worth evaluating.
-
----
+<PillNav chapter="uncover" />
 
 ## What Uncover hands forward
 
-A clean Uncover handoff makes Risk's job possible. Five <DefineTerm term="Artifacts" display="artifacts" /> cover what Risk needs.
+The evidence package Risk rates. Write it into the timeline (section 2) and evidence chain (section 4) of the <a href="/templates/handoff-packet.md" download>handoff-packet.md</a> template; at Level 1 the same items fit in a few lines of the <a href="/templates/alert-report.md" download>alert report</a>. Six items:
 
-<div class="handoff-grid">
-  <div class="handoff-card">
-    <span class="handoff-card__num">01</span>
-    <h3>📊 The evidence chain</h3>
-    <p>What happened, in order, with timestamps. Each step linked to the data source that confirmed it. Mapped to MITRE ATT&CK techniques where applicable.</p>
-  </div>
-  <div class="handoff-card">
-    <span class="handoff-card__num">02</span>
-    <h3>🎯 Confirmed entities</h3>
-    <p>Which of Scope's primary and secondary entities were actually involved in the activity. Which were investigated and ruled out. Each verdict with its supporting evidence.</p>
-  </div>
-  <div class="handoff-card">
-    <span class="handoff-card__num">03</span>
-    <h3>🌐 Intelligence context</h3>
-    <p>Which threat-intelligence sources matched, at what confidence, with what corroboration. Where the intel was hypothesis-only vs. directly evidenced.</p>
-  </div>
-  <div class="handoff-card">
-    <span class="handoff-card__num">04</span>
-    <h3>🚧 Coverage gaps</h3>
-    <p>Tools, telemetry, retention, and visibility limits that bounded the investigation. Explicit names of what could not be examined and why.</p>
-  </div>
-  <div class="handoff-card">
-    <span class="handoff-card__num">05</span>
-    <h3>🛠️ Detection gaps</h3>
-    <p>Techniques observed but not flagged automatically. Rules that fired but should have been more specific. Feedback the detection-engineering team can act on.</p>
-  </div>
-</div>
+1. **The evidence chain:** what happened, in order, in UTC, each step with its source and confidence label, tagged with ATT&CK techniques where one applies and "none observed" where none does. ATT&CK is an unordered taxonomy, so the sequence is the analyst's contribution.
+2. **Entity verdicts:** which of Scope's entities were involved, which were ruled out, and which a control contained, each with its evidence.
+3. **Intelligence context:** what matched, at what confidence, and whether it was evidence or only a hypothesis source. Attribution carries its own label.
+4. **Coverage gaps:** what could not be examined, and why. A gap is written as a gap, never as quiet.
+5. **Detection gaps:** techniques no rule flagged, rules that should have been narrower, and the requests filed.
+6. **The hypothesis ledger:** every line with its status, refuted ones included, plus the four dry-thread checks for any thread closed on empty results.
 
----
+<a id="what-risk-actually-does"></a>
+## What Risk does with it
 
-## Common Uncover-to-Risk failure modes
+Risk rates impact if real, the likelihood that the activity is malicious or unauthorized, and analytic confidence on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>, then turns them into a matrix cell, a priority and a recommended move: close, escalate, or rescope and keep looking. Risk recommends; the Escalation decision makes and records the call. The <a href="/docs/risk/">Risk chapter</a> covers how.
 
-Uncover can be thorough and still fail at the handoff to Risk.
+## Depth and the close path
 
-<div class="failure-grid">
-  <div class="failure-card">
-    <h3>🪞 Evidence without confidence labels</h3>
-    <p>Uncover produced a chain but did not say "high confidence on the first three steps, medium on the fourth, low on the fifth" (per the <a href="/docs/documentation/standards/#confidence">shared rubric</a>). Risk inherits a chain that looks more certain than it is, and the close/escalate/rescope decision is made on shaky ground.</p>
-  </div>
-  <div class="failure-card">
-    <h3>📭 Silent coverage gaps</h3>
-    <p>Uncover did the work it could but did not name what it could not see. Risk closes the case without realizing a key telemetry source was offline during the relevant window. The case re-opens a week later when the data lands.</p>
-  </div>
-  <div class="failure-card">
-    <h3>🎭 Premature attribution</h3>
-    <p>Uncover claimed attribution at high confidence on isolated technical indicators. Risk inherits a verdict that survives only as long as no one questions the attribution. The methodology asks for explicit confidence on every attribution claim.</p>
-  </div>
-  <div class="failure-card">
-    <h3>📚 Free-form prose instead of ATT&CK</h3>
-    <p>Uncover wrote a narrative that does not map to the framework. Risk has to translate before it can compare against prior cases, against threat intelligence, or against detection-engineering gaps. The chain of techniques is what makes the handoff portable.</p>
-  </div>
-</div>
+Uncover never closes a case. A benign chain (benign-confirmed, or authorized: a benign true positive) goes to Risk with the same rigor as a malicious one, and the documented close is recorded at the Escalation decision. A confirmed criterion is the early exit, from here as from any phase: escalate under the <a href="/docs/escalation/criteria/">escalation tripwire</a>, and Uncover continues only as IR-assigned scoping support. Level 0 never reaches Uncover. Level 1 narrows it to the one question the verdict turns on. Level 2 gets the full package.
 
-<Reveal summary="What a clean Uncover-to-Risk handoff reads like" variant="example">
+<a id="common-uncover-to-risk-failure-modes"></a>
+## Four ways the handoff fails
 
-> **<DefineTerm term="Threat" /> type:** confirmed compromise via spearphishing attachment.
-> **Chain:** T1566.001 → T1204.002 → T1059.001 → T1105 → T1071.001 → T1539 → T1550.004.
-> **Primary entities (confirmed):** dlin (<DefineTerm term="User" display="user" />), laptop-finance-09 (host), dlin's cloud SSO identity. All high confidence.
-> **Secondary entities (confirmed):** one peer host also executed the payload (laptop-finance-12). Cloud finance platform shows federated login but no in-app activity yet.
-> **<DefineTerm term="Intelligence" /> context:** the dropper hash matches a known campaign at medium confidence. The C2 <DefineTerm term="Domain" display="domain" /> is brand-new and does not match prior intel.
-> **Coverage gaps:** cloud finance platform's in-app activity is in vendor logs, request pending. Mobile-app activity on BYOD phones is invisible.
-> **Detection gaps:** the rule that fired on host A did not fire on host B even though both ran the same payload. Cause: rule expects file path X; host B used path Y. Feature request opened.
-> **Open question for Risk:** Is the current scope (3 primary + 1 peer + 1 SaaS) sufficient, or should Risk push back to Scope to widen to other finance-team mailboxes that may have received the same email?
+Missing confidence labels make the chain look more certain than it is. Silent coverage gaps let Risk recommend a close the late data reopens. Premature attribution survives only until someone questions it. An untagged narrative forces Risk to translate before it can compare. The tags make the narrative portable; they do not replace it.
 
-The handoff is one screen of structured text. Every line points Risk at a specific decision. Nothing requires re-reading the SIEM query history.
+## One handoff, filled in
+
+<Reveal summary="Case A: a clean Uncover-to-Risk handoff" variant="example">
+
+> - **<DefineTerm term="Threat" /> type:** confirmed compromise via a spearphishing link to a paste-and-run lure, with a stolen session replayed into the cloud finance platform.
+> - **Chain:** delivery 09:02:11 (T1566.002) → link followed 09:10:05, command pasted into the Run dialog 09:11:40 (T1204.004) → PowerShell cradle 09:11:41 (T1059.001) → transfer 09:11:43 (T1105) → beacon (T1071.001) → cookie theft 09:19:12 (T1539) → replayed sign-in 10:41:07 (T1550.004). All times UTC.
+> - **Confidence per step:** delivery and execution high (message trace and EDR, corroborated by the proxy); cookie theft high (EDR process access and file read, corroborated by the 09:19:40 upload in the proxy log); replay high (identity provider, corroborated by the platform's own log); attribution low.
+> - **Primary entities (confirmed):** dlin and laptop-finance-09 (execution: high, EDR corroborated by the proxy); dlin's cloud SSO identity (replay: high, identity provider corroborated by the platform's own log); Finance user 2 and laptop-finance-12 (execution: high, EDR corroborated by separately collected PowerShell logs and a matching hash).
+> - **Secondary entities:** laptop-finance-09's machine account (no unusual activity, medium); Finance user 3 on laptop-finance-14 (PowerShell blocked at launch by the EDR's script-control policy, no execution, high: contained by a control); Finance user 4 (never opened, high). Cloud finance platform: replayed session confirmed, in-app activity unknown.
+> - **Escalation status:** escalation tripwire met at 09:24 UTC on criterion 1; criteria 2 and 3 confirmed at 11:05. The page has not gone out, so the first recommendation is to escalate now.
+> - **Regulatory:** possible PCI exposure (compliance owns whether the platform touches card data) and candidate GDPR exposure (EU vendor-contact records) flagged in Scope; compliance and the DPO engaged at 09:45.
+> - **Live status:** the replayed session was still active on the platform at 13:00. No containment has run; session revocation and platform-side termination wait on the escalation.
+> - **<DefineTerm term="Intelligence" /> context:** the stage's hash (the upd.ps1 self-copy) matches one known campaign entry: one indicator, one category, attribution low. The C2 <DefineTerm term="Domain" display="domain" /> is four days old and does not match prior intel.
+> - **Coverage gaps:** cloud finance platform's in-app activity is in vendor logs, request pending (a gap, not quiet). Hosts off the corporate network and VPN bypass the proxy. Mobile-app activity on BYOD phones is invisible.
+> - **Detection gaps:** the rule fired on laptop-finance-09 and not on laptop-finance-12, though both ran the same payload. Cause: the rule's network leg reads only the web proxy, and laptop-finance-12 was off the corporate network without the VPN. Nothing alerted on a non-browser process reading the browser's cookie store, or on an existing session used from a hosting-provider address. Feature requests opened.
+> - **Open question for Risk:** Is the current scope (5 primary + 3 secondary + 1 SaaS platform) sufficient, or should Risk push back to Scope to widen the sweep to every host that was off the proxy during the window, since the proxy-based sweep cannot see them?
+
+One screen of structured text, every line pointing Risk toward its rating and recommendation, none requiring the SIEM query history.
 
 </Reveal>
 
----
+The benign close (Case B) uses the same format, shifted to what makes the close defensible; the escalation-tripwire case (Case C) is shorter on deliberation and longer on pending items. Both are in the [working example](/docs/uncover/example/#case-b).
+
+## You are ready for Risk if
+
+- Every timeline row and ledger line carries a confidence label or is recorded as a gap, and every "zero" names the query behind it.
+- Risk could recommend a move from the handoff alone, without re-running a query.
 
 <KeyTakeaway>
-Uncover's deliverable is a narrative supported by evidence, with explicit confidence and explicit gaps. Risk's job is to evaluate whether that deliverable is complete enough to act on. Done well, the decision (close, escalate, or rescope) is obvious from the handoff document alone. Done poorly, Risk has to redo Uncover's work before it can decide.
+Uncover's deliverable is a narrative supported by evidence, with explicit confidence and explicit gaps. Done well, Risk's recommendation is obvious from the handoff alone; done poorly, Risk has to redo Uncover's work first.
 </KeyTakeaway>
 
-<PuzzleProgress current="uncover" />
+<SevenQuestions current="uncover" />
 
 <div class="end-cta">
   <a href="/docs/uncover/" class="assured-cta assured-cta--ghost">← Back to Uncover overview</a>
-  <a href="/docs/risk/" class="assured-cta">Continue to Risk →</a>
+  <a href="/docs/uncover/quiz/" class="assured-cta">Take the Uncover quiz →</a>
 </div>
-
-<style>
-{`
-@media (min-width: 1100px) { .handoff-grid { grid-template-columns: repeat(5, 1fr); } }
-
-.handoff-card {
-  position: relative;
-  padding: 1.2rem 1.35rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(249, 115, 22, 0.25);
-  border-radius: 0.7rem;
-}
-.handoff-card__num {
-  position: absolute;
-  top: 0.95rem;
-  right: 1.15rem;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: rgba(253, 186, 116, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-}
-.handoff-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fdba74; font-size: 0.93rem; }
-.handoff-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.86rem; }
-
-.failure-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #fbbf24; font-size: 0.97rem; }
-.end-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  margin: 2rem 0 1rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.handoff-card h3, .failure-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

@@ -1,6 +1,7 @@
 ---
 title: "Internal and external escalation protocols"
-description: "Tier 1, 2, 3 responsibilities; vendor, legal, law-enforcement paths; communication structure."
+description: "Tier 1, 2, 3 responsibilities; organizational stakeholders; external parties from insurers to law enforcement; acknowledgment, fallback, and out-of-band communication."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
@@ -9,38 +10,36 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/escalation.css";
 
-<SubPageHero phase="escalation" parentLetter="E" pillarIndex="02" pillarTotal="04" chapterHref="/docs/escalation/" chapterLabel="Escalation" lede="Where the case goes matters. Internal tiers define who picks up; external paths exist when the response goes beyond the organization."/>
+<SubPageHero phase="escalation" lede="Where the case goes matters. Internal tiers define who picks up; organizational stakeholders own the non-technical consequences; external parties come in when the response goes beyond the organization."/>
 
-<PillNav chapter="escalation" label="Escalation chapter" items={[
-  { label: "Criteria", href: "/docs/escalation/criteria/", phase: "escalation" },
-  { label: "Protocols", href: "/docs/escalation/protocols/", phase: "escalation" },
-  { label: "Triage vs. IR", href: "/docs/escalation/triage-vs-ir/", phase: "escalation" },
-  { label: "The handoff packet", href: "/docs/escalation/handoff/", phase: "escalation" },
-]}/>
+<PillNav chapter="escalation" />
 
 ## Internal tiers
+
+ASSURED is written for the analyst who owns the case from alert to verdict, Tier 1 or Tier 2 depending on staffing. In a strict three-tier SOC, Tier 1 often stops after Scope and tiers the case up for Uncover and Risk; the packet structure is the same either way. Two verbs keep the moves apart: **tier up** hands a case to the next tier inside the SOC; **engage IR** brings in incident response, on the escalation tripwire or a P1 or P2 cell. The escalation tripwire engages IR directly and bypasses the tiers. (These SOC tiers are analyst roles. They are unrelated to Active Directory and Entra administrative tiering, where Tier 0 means the identity systems themselves.)
 
 <div class="tier-list">
   <div class="tier-row">
     <span class="tier-row__label">Tier 1</span>
     <h3>Initial detection and triage</h3>
-    <p>Receives alerts, validates the signal, applies initial triage protocols to categorize events by type and severity. Determines true positive vs. false-positive. The Alert, Subject, and Scope work usually lives here. Escalates anything that meets predefined criteria or exceeds Tier 1 mandate.</p>
+    <p>Receives alerts, validates the signal, applies initial triage protocols to categorize events by type and priority. Records the two-axis verdict (detection correctness and activity disposition). The Alert, Subject, and Scope work usually lives here, and in many SOCs the whole case. Tiers up anything that exceeds the Tier 1 mandate, and engages IR on a confirmed criterion.</p>
     <ul class="tier-row__bullets">
       <li>Alert validation and preliminary risk assessment</li>
-      <li>False-positive closure with detection feedback</li>
-      <li>Categorization by event type and severity</li>
+      <li>Documented benign closes (false positive or benign true positive) with detection feedback</li>
+      <li>Categorization by event type and priority</li>
       <li>Initial scope and entity identification</li>
     </ul>
   </div>
   <div class="tier-row">
     <span class="tier-row__label">Tier 2</span>
     <h3>In-depth investigation</h3>
-    <p>Security engineers with specialized expertise pick up escalated cases. Conduct deeper technical investigation, develop containment strategies, and create remediation plans for confirmed incidents. Uncover and Risk work usually completes here.</p>
+    <p>Incident responders and senior analysts pick up escalated cases. They conduct deeper technical investigation, develop containment strategies, and create remediation plans for confirmed incidents.</p>
     <ul class="tier-row__bullets">
       <li>Technical analysis with deep forensic capability</li>
       <li>Containment planning and remediation design</li>
-      <li>Decision on whether case becomes a declared incident</li>
+      <li>Decision on whether the case becomes a declared incident (in this model; many organizations name one role for it, such as the IR lead or incident commander)</li>
       <li>Coordination with detection engineering for rule refinement</li>
     </ul>
   </div>
@@ -58,86 +57,128 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 </div>
 
 <Callout variant="info" title="Incident command is a function, not a tier">
-When a case becomes a declared incident, a different structure activates alongside the tiers: an incident commander who orchestrates the response, legal counsel for compliance, communications for stakeholder messaging, executive leadership for strategic decisions. That cross-functional coordination is often mislabeled "Tier 3," but it is a separate function that draws on the tiers rather than sitting above them. A Tier 3 analyst may be the technical lead inside that structure; they are not the incident commander by default.
+When a case becomes a declared incident, a different structure activates alongside the tiers: <DefineTerm term="Incident Command" display="incident command" /> (modeled on the Incident Command System used in emergency management), with an incident commander who orchestrates the response, legal counsel for compliance, communications for stakeholder messaging, and executive leadership for strategic decisions. That cross-functional coordination is often mislabeled "Tier 3," but it is a separate function that draws on the tiers rather than sitting above them. A Tier 3 analyst may be the technical lead inside that structure; they are not the incident commander by default.
 </Callout>
 
-<Callout variant="info" title="Proportional response, efficient resource allocation">
-The tiered approach ensures proportional response and efficient resource allocation based on incident severity and scope. Tier 1 handles the high-volume, lower-complexity events. Tier 2 brings specialized expertise. Tier 3 brings the deepest technical capability, and the incident-command function mobilizes the organizational response around them when an incident is declared. The line between tiers is clear escalation criteria, not subjective judgment.
+<Callout variant="info" title="Tiers are roles, not org charts">
+Pod-based teams, managed detection and response (MDR) providers, and AI triage agents all fit the model: whoever (or whatever) does Tier 1 work produces the same handoff packet, and for a provider <a href="/docs/operating-variants/#the-customer-escalation-is-the-handoff-packet">the customer escalation is the handoff packet</a>. Per the <a href="/docs/ai-triage/#governed-automation">governed automation tier</a> and the controls in <a href="/docs/ai-governance/">AI governance</a>, an agent may draft the packet and the notifications, but the decision to escalate, and who gets paged, stays with a named analyst. Tier boundaries are set by written criteria and mandates; capacity and confidence are legitimate reasons to escalate early.
 </Callout>
 
-<Callout variant="info" title="The tier model at 3 a.m.">
-The tier language assumes staffed tiers, and most SOCs are not staffed that way around the clock. On nights and weekends the tiers often collapse into one analyst and an on-call rotation. The model still applies; what changes is the transport: escalation means paging the on-call responder, not walking a case to the next desk, and the pre-authorized immediate actions (see <a href="/docs/escalation/triage-vs-ir/">Triage vs. IR</a>) matter most in exactly this window, because waiting for a phone to be answered is the cost of not having them. Two practical rules: the page itself carries the case summary and Risk verdict (the five-minute read), and a single analyst who cannot both watch the queue and work a confirmed case escalates on that basis alone. Capacity is a legitimate operational escalation trigger, separate from the four evidence-based criteria, and using it is not a failure.
+### The tier model at 3 a.m.
+
+The tier language assumes staffed tiers, and most SOCs are not staffed that way around the clock. On nights and weekends the tiers often collapse into one analyst and an on-call rotation. The model still applies (<a href="/docs/operating-variants/#the-one-person-soc">the one-person SOC</a> covers the staffing side); what changes is the transport. Escalation means paging the on-call responder, not walking a case to the next desk, and the <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized immediate actions</a> matter most in exactly this window, because waiting for a phone to be answered is the cost of not having them.
+
+Capacity is a legitimate operational escalation route, separate from the four evidence-based criteria: a single analyst who cannot both watch the queue and work a confirmed case escalates on that basis alone, and using it is not a failure.
+
+---
+
+<h2 id="paging">Paging and acknowledgment</h2>
+
+A page is not a handoff until someone acknowledges it. Every P1 and P2 page has an acknowledgment window, set by the <a href="/docs/risk/framework/#clocks">default clocks</a>: a P1 pages immediately and falls back at 15 minutes with no acknowledgment, and a P2 is acknowledged within 15 minutes. Adopters tune these to their paging model; what must survive is that the window exists and someone watches it.
+
+When the window lapses, the page moves down a written fallback chain:
+
+1. The primary on-call responder (the IR lead or Tier 2 on-call).
+2. The secondary on-call, at the end of the acknowledgment window.
+3. The SOC manager, if the secondary does not answer either.
+4. Meanwhile, triage preserves and takes the reversible pre-authorized actions; it does not wait for the phone.
+
+If the receiver declines a case you believe meets a confirmed criterion, record the disagreement in the packet and escalate to the IR lead. Disagreement is not insubordination.
+
+<span id="p1-page"></span>**The P1 page.** The page itself carries the five-minute read, in six lines:
+
+<div class="page-template">
+<p><strong>Case:</strong> case ID, and the alert or incident ID it relates to</p>
+<p><strong>Priority and route:</strong> P1, and the route that fired (the criterion confirmed, with its time)</p>
+<p><strong>Summary:</strong> one line on what is happening and what is still live</p>
+<p><strong>Already done:</strong> what is preserved and what is contained, with times</p>
+<p><strong>Join:</strong> the bridge or channel, outside any affected tenant</p>
+<p><strong>From:</strong> who is paging, and how to reach them out of band</p>
+</div>
+
+The <a href="/templates/handoff-packet.md" download>handoff-packet.md</a> template records the page, the acknowledgment, and the warm handoff in its P1 page block, and the receiver fills in the receipt.
+
+<Callout variant="warn" title="Escalate out of band when the attacker may be listening">
+If the incident touches email, chat, or identity, escalate and coordinate out of band: a phone bridge, a pager, or a pre-provisioned channel outside the affected tenant. The adversary may be reading the mailbox or the chat workspace the page would go through. Never notify a suspected victim by email from the affected tenant, and record the channel used for every notification. <a href="/docs/escalation/communication/#out-of-band">Out-of-band communication</a> gives the channel ladder, and <a href="/docs/escalation/communication/#verifying">verifying with the user</a> covers users, owners, and executives when the usual channels cannot be trusted.
 </Callout>
 
 ## De-escalation: the path back down
 
 Escalation is not one-way. Two legitimate reverse flows exist, and modeling them keeps the tiers honest.
 
-**Tier 2 can hand a case back.** A rejection is a quality signal with a named reason: the packet lacks the evidence chain, the criteria claimed are not actually met, or the case is really a detection-tuning problem rather than an incident. The case returns to Tier 1 with the reason recorded, the gap gets fixed (or the close gets written), and the reason feeds the same loop as false-positive patterns: repeated rejections for the same gap point at packet quality or criteria calibration, not at an individual analyst.
+**Tier 2 can hand a case back.** A rejection is a quality signal with a named reason: the packet lacks the evidence chain, the criteria claimed are not actually met, or the case is really a detection-tuning problem rather than an incident. The case returns to Tier 1 with the reason recorded, the gap gets fixed (or the close gets written), and the reason feeds the same loop as false-positive patterns: repeated rejections for the same gap point at packet quality or criteria calibration, not at an individual analyst. A confirmed criterion is handed back or de-escalated only by the receiving owner, never by the analyst who raised it. <a href="/docs/cases/case-d/#escalation-decision-and-the-handback">Case D shows a handback with its receipt and the P2 to P3 downgrade</a>.
 
 **Priority can move down as well as up.** A P1 declared on strong initial evidence de-escalates when the evidence weakens under investigation, with the same discipline as the upgrade: a named reason in the record, and every stakeholder who was notified of the escalation notified of the downgrade. A case that can only ever get more severe trains analysts to under-declare in the first place.
 
+Both flows are measurable. Time from the first confirmed criterion to the page, handback rate by reason, and de-escalation rate belong beside the other <a href="/docs/measuring-triage/#quality-were-the-decisions-right">triage-quality measures</a>; the worked example's late P1 is exactly what the first one catches.
+
 ---
 
-## Beyond the internal tiers: organizational stakeholders
+## Organizational stakeholders
 
-Internal escalation moves the case through Tiers 1 → 2 → 3. Established protocols then govern when to engage other organizational stakeholders.
+Internal escalation moves the case from Tier 1 to Tier 2, and on to Tier 3 only when it needs specialist depth. Established protocols then govern when to engage other owners inside the organization.
 
 <div class="stakeholder-grid">
   <div class="stakeholder-card">
-    <h3>🛠️ IT Operations</h3>
+    <h3>IT Operations</h3>
     <p>Engaged when system or network-level compromises require configuration changes, patching, or network-wide defensive measures. Containment in production environments often needs IT Ops on the call.</p>
   </div>
   <div class="stakeholder-card">
-    <h3>🧑‍⚖️ Legal &amp; compliance</h3>
-    <p>Engaged when events potentially affect regulated information. Assesses reporting obligations and legal implications. Often early in the timeline for incidents with regulatory exposure.</p>
+    <h3>Legal &amp; compliance</h3>
+    <p>Engaged when events potentially affect regulated information. Assesses reporting obligations and legal implications, and owns every notification to regulators. Often early in the timeline for incidents with regulatory exposure: some clocks run from awareness, not confirmation (see <a href="/docs/scope/regulatory/">Scope: regulatory</a>).</p>
   </div>
   <div class="stakeholder-card">
-    <h3>🏢 Business units</h3>
-    <p>Engaged for business-specific incidents affecting departmental systems or data. Ensures remediation aligns with operational requirements and that affected workflows are restored.</p>
+    <h3>The insider route (HR and legal)</h3>
+    <p>When the subject is an employee or contractor, the escalation puts the IR lead, the insider-program lead (or HR, where no program exists) and legal on one bridge. Preserve under legal hold with a chain-of-custody record; take reversible, quiet containment first; time the visible steps (account suspension, the conversation with the subject) with legal. Need-to-know only: restrict case visibility, do not notify the subject's manager or team, and keep the case out of reach when the subject works in IT or the SOC. Analysts record observable technical activity; HR-held context reaches the case only through the <a href="/docs/subject/insider-analysis/">insider-risk route</a>, and never as analyst-collected notes. The <a href="/docs/subject/example/#insider-referral">HR referral example</a> runs this route end to end.</p>
   </div>
   <div class="stakeholder-card">
-    <h3>📢 Communications</h3>
+    <h3>Business units and asset owners</h3>
+    <p>Engaged for business-specific incidents affecting departmental systems or data. Ensures remediation aligns with operational requirements and that affected workflows are restored. Physical security joins when the case has an on-premises component.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>Communications</h3>
     <p>For incidents that may become public. Press, customer, and partner messaging is its own workstream. Legal counsel coordinates with comms before any external disclosure.</p>
-  </div>
-  <div class="stakeholder-card">
-    <h3>🤝 Vendors</h3>
-    <p>When the incident involves a vendor's product, platform, or data. Vendor disclosure may be required by contract. Coordination follows the terms of the master service agreement (MSA) and data processing agreement (DPA).</p>
-  </div>
-  <div class="stakeholder-card">
-    <h3>👮 Law enforcement</h3>
-    <p>For criminal activity, extortion, or cross-border threats. Engaged through legal counsel, not directly by the SOC. Engagement decisions usually require executive sign-off.</p>
   </div>
 </div>
 
-<Callout variant="warn" title="Protocols must be exercised, not just documented">
-These protocols must be documented, regularly tested through tabletop exercises, and continuously refined based on <DefineTerm term="Lessons Learned" display="lessons learned" /> from actual incidents. Clear escalation paths with defined thresholds, contact information, and decision-making authorities reduce ambiguity during high-pressure events and support timely, appropriate response actions.
-</Callout>
+## External parties
 
-<KeyTakeaway>Internal tiers handle the technical work. External paths handle the non-technical consequences. Both are part of the escalation map, and both should be tested before they are needed under real-incident pressure.</KeyTakeaway>
+<div class="stakeholder-grid">
+  <div class="stakeholder-card">
+    <h3>Insurer / breach coach</h3>
+    <p>Notify per the policy terms, often before engaging outside IR or counsel. Prompt notice is often a coverage condition, and many policies name panel IR firms and breach counsel. Legal or risk management usually owns the call.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>IR retainer</h3>
+    <p>An external IR firm on retainer extends Tier 2 and Tier 3 when the case outgrows in-house capacity. Know the activation path and the contractual response time before you need them.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>Vendors</h3>
+    <p>When the incident involves a vendor's product, platform, or data. Vendor disclosure may be required by contract. Coordination follows the terms of the master service agreement (MSA) and data processing agreement (DPA). Inbound vendor notices (a SaaS provider or processor reporting their own breach) enter triage as an alert (see <a href="/docs/alert/intake/#external-notifications">external notifications</a>): Subject is your accounts and data at that vendor, and the clock may already be running from their awareness, not yours.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>Customers (MSSP / MDR)</h3>
+    <p>For a managed security service provider (MSSP) or MDR provider, the escalation is the customer notification, delivered on the contract's service-level agreement (SLA) through the channel the contract names, and <a href="/docs/operating-variants/#the-customer-escalation-is-the-handoff-packet">the customer escalation is the handoff packet</a>. The customer's own escalation chain takes it from there.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>Regulators and government</h3>
+    <p>Data protection authorities, national computer security incident response teams (CSIRTs), and sector regulators. Legal owns every notification; the SOC's job is to know which clocks apply and to hand legal the facts in time (see <a href="/docs/scope/regulatory/">Scope: regulatory</a> and the <a href="/docs/scope/clocks/">regulatory clock card</a>).</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>ISACs and peers</h3>
+    <p>Share indicators and campaign context with an <DefineTerm term="Information Sharing and Analysis Centers (ISACs)" display="ISAC" /> or trusted peers under the Traffic Light Protocol (TLP 2.0), after legal review.</p>
+  </div>
+  <div class="stakeholder-card">
+    <h3>Law enforcement</h3>
+    <p>For criminal activity, extortion, or cross-border threats. Engaged through legal counsel, not directly by the SOC (an inbound notice from law enforcement enters triage as an <a href="/docs/alert/intake/#external-notifications">external notification</a>); engagement decisions usually require executive sign-off. Ransomware and extortion: legal engages the FBI (through its Internet Crime Complaint Center, IC3, or a field office) early, and any payment discussion requires sanctions screening against the Treasury Office of Foreign Assets Control (OFAC) lists. Early engagement matters for the clocks too: a law-enforcement request is a recognized ground for delaying notice under many breach laws, including California's, and only a US Attorney General determination can delay a Form 8-K Item 1.05 filing, so record when law enforcement was engaged. Covered US critical-infrastructure entities should track the <a href="/docs/scope/clocks/#us-federal-and-sector">Cyber Incident Reporting for Critical Infrastructure Act (CIRCIA)</a>, which will add incident and ransom-payment reports to the Cybersecurity and Infrastructure Security Agency (CISA) once its final rule takes effect; it is not yet in force.</p>
+  </div>
+</div>
 
-<ContinueCard current="escalation" nextHref="/docs/escalation/triage-vs-ir/" nextLabel="Triage vs. incident response" ctaLabel="Read the distinction" />
+## Exercise the protocols
 
-<style>{`
-.tier-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
-.tier-row { padding: 1.1rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-left: 3px solid #6366f1; border-radius: 0.6rem; }
-.tier-row__label { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 9999px; background: rgba(99, 102, 241, 0.18); color: #a5b4fc; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
-.tier-row :is(h3, h4) { margin: 0 0 0.3rem 0; color: var(--assured-text); font-size: 1rem; }
-.tier-row p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.92rem; }
+A protocol nobody has run is a guess. Test the paging chain, the out-of-band bridge, and the external contacts in tabletop exercises, refine them from the <DefineTerm term="Lessons Learned" display="lessons learned" /> of real incidents, and keep the contact list, the thresholds, and the decision authorities current. The first time an analyst discovers that the insurer's hotline number is stale should not be during a ransomware case.
 
-.ext { padding: 0.95rem 1.15rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; }
-.ext h4 { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.92rem; }
-.ext p { margin: 0; color: var(--assured-text-muted); line-height: 1.45; font-size: 0.85rem; }
+<KeyTakeaway>Internal tiers handle the technical work. Organizational stakeholders and external parties handle the non-technical consequences. All three are part of the escalation map, and all three should be tested before they are needed under real-incident pressure.</KeyTakeaway>
 
-.tier-row__bullets { margin: 0.6rem 0 0 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
+<ContinueCard current="escalation" nextHref="/docs/escalation/communication/" nextLabel="Talking to people during triage" ctaLabel="Read the companion page" />
 
-.stakeholder-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
-@media (min-width: 768px) { .stakeholder-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .stakeholder-grid { grid-template-columns: repeat(3, 1fr); } }
-.stakeholder-card { padding: 1rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid #6366f1; border-radius: 0.55rem; }
-.stakeholder-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #a5b4fc; font-size: 0.93rem; }
-.stakeholder-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
-
-/* level changed for the heading outline; size stays as designed */
-.tier-row h3, .stakeholder-card h3 { font-weight: 600; line-height: inherit; }
-`}</style>

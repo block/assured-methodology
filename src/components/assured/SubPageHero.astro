@@ -2,77 +2,101 @@
 /**
  * SubPageHero. Context box that sits below the layout's h1 page title.
  *
- * Renders the breadcrumb back to the chapter, a pillar/section badge, and
- * a lede paragraph. The page title itself is rendered by ContentPageLayout
- * as h1. SubPageHero adds context, not a duplicate title.
+ * Renders the chapter's letter chip, a pillar/section badge, and a lede
+ * paragraph, inside a <header> (it introduces the page; it is not
+ * tangential content, so not an <aside>). The page title itself is
+ * rendered by ContentPageLayout as h1, and the way back to the chapter is
+ * the layout's breadcrumb trail, so the hero carries no link of its own
+ * unless chapterHref points somewhere the breadcrumbs do not (a related
+ * chapter page).
  */
 
 import LetterChip from "@/components/assured/LetterChip.astro";
-
-type Phase =
-  | "alert"
-  | "subject"
-  | "scope"
-  | "uncover"
-  | "risk"
-  | "escalation"
-  | "documentation";
+import {
+  findNavItem,
+  groupPosition,
+  isInTrail,
+  type PhaseKey,
+  phaseInfo,
+  pillarPosition,
+} from "@/data/navigation";
 
 interface Props {
-  phase: Phase;
-  parentLetter: string;
-  /** Current pillar position. Number-like strings render as
-   *  "Pillar N of M"; non-numeric labels (e.g. "Example") render as-is. */
+  phase: PhaseKey;
+  /** Defaults to the phase letter. */
+  parentLetter?: string;
+  /** Badge override. Pillar pages need nothing: "Pillar N of M" is derived
+   *  from src/data/navigation.ts, and so is "NN of MM" for a page in a
+   *  plain navigation group (the Reading telemetry pages). Chapter
+   *  companions default to "Companion". Non-numeric labels (e.g.
+   *  "Example") render as-is; a numeric "NN of MM" is ignored when the
+   *  navigation can supply the position. */
   pillarIndex?: string;
-  /** Total pillars in this chapter (e.g. "04"). */
+  /** Legacy total for a numeric pillarIndex on a page navigation does not
+   *  list as a pillar. */
   pillarTotal?: string;
-  chapterHref: string;
-  chapterLabel: string;
+  /** Related link target. Defaults to the chapter index, which the
+   *  breadcrumbs already carry, so by default no link renders. */
+  chapterHref?: string;
+  chapterLabel?: string;
   lede?: string;
 }
 
-const {
-  phase,
-  parentLetter,
-  pillarIndex,
-  pillarTotal,
-  chapterHref,
-  chapterLabel,
-  lede,
-} = Astro.props;
+const { phase, pillarIndex, pillarTotal, lede } = Astro.props;
+const info = phaseInfo(phase);
+const parentLetter = Astro.props.parentLetter ?? info.letter;
+const chapterHref = Astro.props.chapterHref ?? info.href;
+const chapterLabel = Astro.props.chapterLabel ?? info.name;
 
-const resolvedIndex = pillarIndex ?? "";
-const resolvedTotal = pillarTotal ?? "";
+const pagePath = Astro.url.pathname.endsWith("/")
+  ? Astro.url.pathname
+  : `${Astro.url.pathname}/`;
+const position = pillarPosition(pagePath);
+const group = position ? undefined : groupPosition(pagePath);
+const navEntry = findNavItem(pagePath);
+const pad = (n: number) => String(n).padStart(2, "0");
+
+const label = pillarIndex?.trim();
+const numericLabel = !!label && /^\d+(\s+of\s+\d+)?$/.test(label);
+const badge = position
+  ? `Pillar ${pad(position.index)} of ${pad(position.total)}`
+  : label && !numericLabel
+    ? label
+    : group
+      ? `${pad(group.index)} of ${pad(group.total)}`
+      : label && /^\d+$/.test(label)
+        ? `Pillar ${label} of ${pillarTotal ?? ""}`
+        : (label ?? (navEntry?.kind === "companion" ? "Companion" : ""));
+
+// Only link out when the target is not already in the breadcrumb trail.
+const relatedHref = isInTrail(pagePath, chapterHref) ? null : chapterHref;
 ---
 
-<aside class={`subpage-hero subpage-hero--${phase}`}>
+<header class={`subpage-hero subpage-hero--${phase}`}>
   <div class="subpage-hero__top">
-    <a href={chapterHref} class="subpage-hero__crumb">
-      <LetterChip letter={parentLetter} phase={phase} size="sm" />
-      <span class="subpage-hero__crumb-text">
-        {chapterLabel}
-        <span class="subpage-hero__crumb-arrow" aria-hidden="true">›</span>
-      </span>
-    </a>
-    <span class="subpage-hero__pillar">
-      {/^\d+$/.test(resolvedIndex.trim())
-        ? `Pillar ${resolvedIndex} of ${resolvedTotal}`
-        : resolvedIndex}
-    </span>
+    <LetterChip letter={parentLetter} phase={phase} size="sm" />
+    {relatedHref && (
+      <a href={relatedHref} class="subpage-hero__crumb">
+        <span class="subpage-hero__crumb-text">
+          {chapterLabel}
+          <span class="subpage-hero__crumb-arrow" aria-hidden="true">›</span>
+        </span>
+      </a>
+    )}
+    {badge && <span class="subpage-hero__pillar">{badge}</span>}
   </div>
 
   {lede && <p class="subpage-hero__lede">{lede}</p>}
-</aside>
+</header>
 
 <style>
   .subpage-hero {
     margin: -0.75rem 0 1.75rem;
     padding: 1.1rem 1.5rem 1.25rem;
     border-radius: 0.85rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel-solid);
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-left: 4px solid var(--accent, var(--assured-accent));
-    backdrop-filter: blur(8px);
     position: relative;
     overflow: hidden;
   }

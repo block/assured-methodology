@@ -1,0 +1,215 @@
+---
+title: "Measuring triage"
+description: "The triage metric set with formulas, denominators, data sources, review cadence and the way each one gets gamed: flow, decision quality, detection health, fast-path health and AI use. Plus the capacity math that says whether a queue is staffable, the record fields the numbers depend on, and a one-page monthly report."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/root.css";
+
+Speed metrics measure how fast the queue moves. They say nothing about whether the verdicts were right, and a team that is measured only on speed learns to be confident, fast and wrong. This page defines the numbers a triage team should report instead: each one with its formula, its denominator, the record field it comes from, how often to read it, and the way it gets gamed. The definitions are written so they can be pasted into a SIEM search or a ticketing report, and so two teams using them get numbers that compare.
+
+It is written for the SOC lead who runs the metrics review, and for the analyst who wants to know what their records are counted for. The <a href="/docs/adoption/">adoption guide</a> says when to start measuring (a baseline before anything changes) and how often to review; this page says what to measure.
+
+## Principles
+
+- **Diagnostic, not target.** A measure made into a target stops measuring (Goodhart's law, in its popular form). Every number here is a question to ask about the queue, never a quota. The moment closes-per-shift becomes the implicit scoreboard, every other triage metric starts lying.
+- **Never rank individual analysts on speed.** Flow and quality numbers belong to the team. Per-analyst speed rankings teach people to take the easy cases and skip the hard checks; close-note quality turned into a leaderboard kills the honesty the <a href="/docs/teaching/#what-to-grade-the-close-note-rubric">rubric</a> depends on.
+- **Every number has a pair.** Speed is read beside a quality check, and each quality check beside the failure it hides. The pairs are in the tables below; a metric reported without its pair is not reported.
+- **The case is the unit of work.** Queue and quality metrics count cases (alerts grouped as the <a href="/docs/fast-path/#correlated-cases">fast path</a> describes). Detection metrics count alerts, per rule, because detection engineering tunes rules, not cases.
+- **Medians and the 90th percentile, not means.** Triage times have long tails. One case stuck for three days moves a mean more than a hundred quick closes; report the median (p50) and the 90th percentile (p90).
+- **Write the formula down before the dashboard.** Numerator, denominator, window, segment and source field, recorded next to the baseline, or the number will be quietly redefined the first time it looks bad.
+- **The receiver judges the escalation.** Escalation acceptance and handoff rework come from whoever receives the case, never from its author.
+- **Counts beside rates when the denominator is small.** Two missed incidents out of four is a rate of 50 percent and a sample of four. Below about twenty in the denominator, report the count and review each case.
+
+<Callout variant="info" title="Translate the IR-coupled metrics to your team model">
+Several metrics below are written as if a separate incident response (IR) function receives the escalations. On a small or single-person team, translate the counterparty without dropping the measurement: "IR accepts" means whoever your escalation path engages (an on-call engineer, a managed provider, an IR retainer) agrees the case warranted it, and "rework" means the packet's next reader had to ask for something it should have contained, even when that reader is you a week later. When a managed provider runs first-line triage, your team measures its escalations the same way. What must survive the translation is the independence.
+</Callout>
+
+## Which clock: the timestamps triage owns
+
+Every flow metric is a difference between two timestamps, so the timestamps come first. The <a href="/templates/event-report.md" download>event report's</a> decision header records the key times; the handoff packet adds the page and the receipt.
+
+| Timestamp | What it marks | Where it is recorded |
+|---|---|---|
+| Detected | The detection's own time: when the alert fired | Alert report, Level 0 record, event report key times |
+| Acknowledged | The first recorded analyst action on the case: a query, a note, a step. Opening or claiming the ticket does not count | Event report key times, or the case tool's activity log |
+| Verdict | When both verdict axes were first recorded | Event report key times |
+| Escalated or closed | The Escalation decision, including early exits (a Level 0 close, a tripwire escalation) | Event report key times; Level 0 record "Closed at" |
+| First criterion confirmed | When the first escalation criterion reached High confidence | Handoff packet timeline |
+| Paged, page acknowledged | The P1 page and its acknowledgment, or the 15-minute fallback | Handoff packet P1 page block |
+| Accepted | When the receiver took ownership | Handoff packet receipt |
+| Contained, reopened | Containment taken effect; the case reopened on new evidence | Event report key times |
+
+<Callout variant="warn" title="MTTD and MTTR are not triage metrics">
+<DefineTerm term="Mean Time To Detect (MTTD)" display="Mean time to detect" /> needs the time of the first malicious activity, which only the compromise timeline that IR reconstructs can establish; for a benign close it does not exist. FIRST's <DefineTerm term="Security Incident Timing Metrics (SITM)" display="Security Incident Timing Metrics" /> measure time to detect, respond, contain and remediate all from that time of first activity, which makes them incident metrics. Report them from IR's timelines, joined to triage's key times, never from the queue alone. <DefineTerm term="Mean Time To Respond/Resolve (MTTR)" display="MTTR" /> is the worse of the two, because the R is read as respond, resolve, remediate or recover: never report it without its formula. The triage clocks are time to acknowledge, time to verdict and time to escalate.
+</Callout>
+
+## The metric set
+
+Five groups. Windows are defaults; pick yours, write it down, and keep it. "Cases" means cases closed or escalated in the window unless a row says otherwise.
+
+### Flow: how the queue moves
+
+| Metric | Formula | Source | Cadence | Gamed by, and its pair |
+|---|---|---|---|---|
+| Time to acknowledge (<DefineTerm term="Mean Time To Acknowledge (MTTA)" display="MTTA" />) | p50 and p90 of `acknowledged − detected`, per priority band | Key times | Weekly | Auto-acknowledge rules and bulk claiming. Count only a recorded action. Pair: SLA-breach rate |
+| Time to verdict by level | p50 and p90 of `verdict − acknowledged`, per depth level | Key times, depth level | Weekly | Closing before the checks are done. Pair: reopen rate for the same level |
+| Time to escalate | p50 and p90 of `escalated − detected`, P1 and P2 only | Key times, priority | Monthly | Sending P2 packets before they are complete to beat the clock (a P1 pages first by design). Pair: handoff rework |
+| Criterion-to-page interval | `paged − first criterion confirmed`, every P1, listed | Packet timeline, P1 page block | Every P1 | Back-dating the confirmation. Each one is reviewed, not averaged; a long one is a <a href="/docs/escalation/criteria/#late-p1">late P1</a> |
+| SLA-breach rate | Cases whose acknowledge or decision clock was exceeded ÷ cases in that band, per band | Priority, key times, the <a href="/docs/risk/framework/#clocks">default clocks</a> | Weekly | Downgrading the priority to escape the clock. Pair: de-escalation rate and reopens |
+| Uninvestigated share | Alerts closed with no disposition (aged out, bulk-closed, auto-closed outside a machine-close entry) ÷ alerts received | Case tool status, verdict fields | Weekly | Bulk closes stamped with a boilerplate verdict, which moves them into "investigated". Pair: a QA sample drawn from bulk closes |
+
+**Time-in-phase** belongs here too, as a diagnostic only. Where the case tool records phase transitions, it shows where cases spend their clock: long Uncover tails point at retrieval and coverage gaps (the <a href="/docs/scope/infrastructure/">three visibility questions</a>), long Alert phases at parsing and enrichment debt. Time stalled before the Escalation decision on cases that end P1 points at criteria treated as an end-of-arc checklist instead of a tripwire. Never set per-phase time targets: they produce phase-skipping.
+
+### Quality: were the decisions right
+
+| Metric | Formula | Source | Cadence |
+|---|---|---|---|
+| Escalation acceptance | Escalations whose receipt says "Escalation warranted? yes" ÷ escalations with a filled receipt. Report "partially" on its own line | Handoff packet receipt | Monthly |
+| Receipt fill rate | Escalations with a filled receipt ÷ escalations | Handoff packet receipt | Monthly |
+| Handoff rework | Escalations whose receipt names rework (anything but "none") ÷ escalations with a filled receipt, broken down by packet section | Handoff packet receipt | Monthly |
+| <DefineTerm term="Handback" /> and de-escalation | Cases handed back ÷ escalations, by reason; P1 and P2 cases lowered ÷ P1 and P2 cases (<a href="/docs/cases/case-d/#escalation-decision-and-the-handback">Case D</a> is one handback) | Packet, <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">protocols</a> | Monthly |
+| <DefineTerm term="Reopen Rate" display="Reopen rate" /> | Cases closed in the month and reopened on new evidence within 30 days of their close ÷ cases closed in the month, per level and per pattern entry | Key times "reopened", reopen conditions | Monthly, one month in arrears |
+| Missed-incident rate | Confirmed incidents with at least one related alert or case that triage had closed as benign ÷ confirmed incidents. Always list them | IR post-incident reviews, threat hunts, red-team findings | Quarterly |
+| Close-note quality | Sampled notes passing all five rubric checks ÷ notes sampled; plus the failure rate per check; report the sample size | Weekly QA sample | Weekly, read as a trend |
+| <DefineTerm term="Verdict Agreement" display="Verdict agreement" /> | Blind re-triage cases where the second analyst records the same activity verdict ÷ cases re-triaged; the same for priority band and for the decision. Add Cohen's kappa, because most cases are benign and raw agreement flatters | Monthly blind re-triage | Monthly |
+
+The quality metrics are where gaming does the most damage, so each carries its trap:
+
+<div class="mt-list">
+  <div class="mt-item">
+    <h4>Escalation acceptance <span class="mt-item__tag">quality of the E decision</span></h4>
+    <p>Low acceptance means noisy escalation, criteria applied loosely, or packets too thin to judge. <strong>The trap:</strong> driving it to 100 percent, which a team achieves by under-escalating. A healthy number sits below perfect, because some defensible escalations turn out benign. Read it only beside missed incidents.</p>
+  </div>
+  <div class="mt-item">
+    <h4>Reopen rate <span class="mt-item__tag">honesty of the closes</span></h4>
+    <p>The most practical routine check on close quality, and only as complete as the paths that bring new evidence back to closed cases (re-fired alerts, retro-hunts, purple-team results, the missed-incident reviews below): reopens concentrate where discriminators were skipped, negatives went unrecorded, or the pattern reflex closed something the pattern did not cover. Count a new case that cites an earlier close on the same entity as a reopen, or the number can be dodged by opening fresh tickets. <strong>The trap:</strong> punishing reopens, which teaches analysts to argue against reopening instead of writing better closes. A reopen against a rubric-passing note is a detection lesson; against a thin note, a QA lesson.</p>
+  </div>
+  <div class="mt-item">
+    <h4>Missed incidents <span class="mt-item__tag">the heaviest signal</span></h4>
+    <p>Rare, and each one outweighs a quarter of good numbers. Every miss gets a blameless review against the original record, asking which phase's deliverable would have caught it. <strong>The trap:</strong> treating zero as the target and shading post-incident timelines to protect it. The record discipline in the <a href="/docs/documentation/example/">Documentation example</a> exists so these reviews have honest material.</p>
+  </div>
+  <div class="mt-item">
+    <h4>Handoff rework <span class="mt-item__tag">quality of the packet</span></h4>
+    <p>Cheap to collect and directly actionable: recurring gaps point at one <a href="/docs/escalation/handoff/">packet</a> section going unfilled. <strong>The trap:</strong> measuring it without the receiver, which turns it into triage grading its own homework. A low receipt fill rate makes acceptance and rework meaningless, so report it first.</p>
+  </div>
+  <div class="mt-item">
+    <h4>Close-note quality <span class="mt-item__tag">sampled, not census</span></h4>
+    <p>The weekly sample is stratified so Level 0 records and AI-assisted notes are always in it. Trend matters more than level, and the score belongs to the team: a falling trend is a training or workload signal. <strong>The trap:</strong> a per-analyst leaderboard, which converts an editing tool into a surveillance tool. Check 3 asks analysts to admit uncertainty, and nobody does that for a leaderboard.</p>
+  </div>
+  <div class="mt-item">
+    <h4>Verdict agreement <span class="mt-item__tag">is the method shared?</span></h4>
+    <p>A second analyst re-works a random sample from the same raw evidence without seeing the first verdict. Disagreement is not an error count: it is where the team's reading of the method diverges, and the <a href="/docs/teaching/">teaching guide</a> treats exactly that as the thing to train. The <a href="/docs/teaching/kit/#the-agreement-target">facilitator kit</a> has the kappa worksheet and the agreement thresholds. <strong>The trap:</strong> letting the second analyst see the first verdict, or picking the cases; both inflate agreement.</p>
+  </div>
+</div>
+
+### Detection health: per rule, shared with detection engineering
+
+These count alerts, per rule and version, over a rolling 30 days. They feed the conversation the <a href="/docs/risk/false-positive/#is-the-feedback-working">benign-close feedback loop</a> starts, and they use the detection-axis verdict on every member alert of a grouped case.
+
+| Metric | Formula | What it separates |
+|---|---|---|
+| <DefineTerm term="Precision (Detection)" display="Precision" /> | Detection-axis true positives (which include <DefineTerm term="Benign True Positive" display="benign true positives" />) ÷ alerts with a detection verdict | Broken logic from noisy but correct rules |
+| <DefineTerm term="Actionability" /> | Alerts whose activity verdict is malicious or policy violation ÷ alerts with a verdict | Rules that need <DefineTerm term="Exception (Detection)" display="exceptions" /> or enrichment from rules that need logic fixes |
+| Benign-true-positive share | True positives with activity "authorized" ÷ alerts with a verdict | Work for an exception or enrichment, owned and expiring |
+| False-positive share, logic and data | <DefineTerm term="False Positive" display="False positive" /> (logic) ÷ alerts; false positive (data) ÷ alerts, reported separately | A rule fix versus a parsing or pipeline fix |
+| Malicious yield | Alerts ÷ malicious true positives (alerts per real finding) | The base rate the analyst should <a href="/docs/alert/detection-mechanisms/#trust-calibration">calibrate trust</a> against |
+| Tuning cycle time | p50 of `change merged − request opened` | Whether the feedback loop moves at all |
+| Exception inventory | Active exceptions per rule; share past expiry | Stale exceptions, where attackers hide |
+
+**Gamed by:** tuning a rule until its precision looks good, which can silence the malicious variant along with the noise; and relabeling benign true positives as false positives, which sends a correct rule for a logic change it does not need. **Pair:** missed incidents, and a known-malicious test sample re-run after every tuning change.
+
+### Fast-path health: is Level 0 earning its speed
+
+| Metric | Formula | Cadence | Gamed by, and its pair |
+|---|---|---|---|
+| Level mix | Cases closed at Level 0, Level 1 and Level 2 ÷ cases closed, plus machine closes as their own line | Weekly, as a trend | Celebrating a rising Level 0 share. Pair: reopen rate per level |
+| <DefineTerm term="Level 0 Reversal Rate" display="Level 0 reversal rate" /> | Level 0 closes overturned on re-verification ÷ Level 0 closes re-verified, per <DefineTerm term="Pattern Library" display="pattern entry" /> | Weekly sample, read monthly | Sampling only the easy closes. The sample is random, per pattern |
+| Re-verification coverage | Active entries with at least one close re-verified this week ÷ active entries with closes this week | Weekly | Skipping low-volume entries. Should be 100 percent |
+| Entries past review date | Count, and ÷ active entries | Monthly | Extending the date without a review. Should be zero, and a review leaves a version-history line |
+| Close-rate anomalies | Entries whose closes or host spread this week fall outside their normal range (count) | Weekly | Widening the normal range. Each one is a Level 2 trigger under the <a href="/docs/fast-path/#ladder-rules">ladder rules</a> |
+| Benign-close feedback | <DefineTerm term="Tuning Request" display="Tuning requests" /> filed from benign-close findings, and closed | Monthly | Filing tickets nobody reads. Pair: tuning cycle time |
+
+The tell of a fast path going wrong is a rising Level 0 share with rising reopens: the reflex is winning, not the library.
+
+### AI use: is the assistant earning its place
+
+Split every quality metric three ways, using the Material AI use field and the closer named on the record: **unassisted** (Material AI use "none"), **AI-assisted** (the field names an assistant), and **machine-executed** (closed by automation on an entry with the <DefineTerm term="Machine-Close Flag" display="machine-close flag" />). The gap between the segments is the only local evidence of whether the assistant helps. Reopen rate, missed incidents, close-note quality and reversal rate matter most, and machine-executed closes carry the reversal and miss tracking the <a href="/docs/ai-governance/#level-0-parity">governed tier</a> requires.
+
+Three more numbers apply only to AI-assisted work, measured on the QA sample:
+
+- **Draft correction rate:** AI-drafted sections the analyst changed materially ÷ AI-drafted sections reviewed. Near zero is not a sign of a perfect assistant; it is one of the <a href="/docs/ai-governance/#rubber-stamp">rubber-stamp signals</a>, alongside approval times shorter than the checks take.
+- **Citation validity:** claims in AI drafts whose evidence link resolves to the cited tool output ÷ claims checked.
+- **<a href="/docs/ai-governance/#evaluating">False-benign rate per alert class</a>:** on the fixed regression set of closed cases, re-run on every model, prompt or tool change. The governance page covers <DefineTerm term="Golden Set" display="golden-set" /> sizing and <DefineTerm term="Shadow Mode" display="shadow mode" />.
+
+**The trap:** accepting the vendor's aggregate accuracy figure, measured on someone else's alerts, in place of these.
+
+## Capacity math
+
+Whether a queue is staffable is arithmetic, and it is worth running before arguing about tooling. The <a href="/docs/fast-path/#run-the-math-on-the-ladder-too">fast path</a> gives the short form; here it is in full.
+
+<div class="mt-formula">
+  <p><strong>Analyst-hours a day</strong> = cases reaching a person × Σ (level share × minutes at that level) ÷ 60</p>
+  <p><strong>Analyst-shifts a day</strong> = analyst-hours ÷ productive hours per shift</p>
+</div>
+
+"Cases reaching a person" is what is left after grouping, tuning and governed machine closes. Productive hours are what is left of a shift after handover, meetings, the QA and re-verification samples, pattern maintenance and training; the table assumes 6 of 8. The worked example uses the intro's volume of 3,000 alerts a day and minutes per level of 5 (Level 0), 30 (Level 1, the middle of its range) and 90 (Level 2, an experienced analyst's full arc).
+
+| Scenario | Level 0 | Level 1 | Level 2 | Analyst-hours | Shifts (6 h) |
+|---|---|---|---|---|---|
+| 3,000 cases, 70/25/5 | 2,100 → 175 h | 750 → 375 h | 150 → 225 h | 775 | about 129 |
+| 3,000 cases, 80/17/3 | 2,400 → 200 h | 510 → 255 h | 90 → 135 h | 590 | about 98 |
+| 600 cases (80% removed upstream), 70/25/5 | 420 → 35 h | 150 → 75 h | 30 → 45 h | 155 | about 26 |
+| 600 cases, 80/17/3 | 480 → 40 h | 102 → 51 h | 18 → 27 h | 118 | about 20 |
+
+Three things the table says:
+
+- **An 80 percent Level 0 rate does not rescue an unreduced queue.** Raising the Level 0 share from 70 to 80 percent saves about a quarter of the hours, and Level 0 alone still costs 200 analyst-hours a day at 3,000 cases. The lever is the volume that reaches a person: grouping, tuning and governed machine closes, in that order of safety.
+- **The middle rung is where the hours go.** At 70/25/5, Level 1 is a quarter of the cases and almost half the hours. Cheaper context (enrichment that fetches the eligibility-gate facts, a <a href="/docs/fast-path/#ladder-rules">gate made cheap</a>) moves more time than a faster Level 0.
+- **Run it backwards to set the intake you can honor.** Weighted minutes per case are 15.5 at 70/25/5 and 11.8 at 80/17/3. Twelve analyst-shifts a day at 6 productive hours is 4,320 minutes, enough for about 280 cases at the first mix and about 365 at the second. Demand above that does not disappear: it shows up as uninvestigated share and SLA breaches.
+
+Plan below full load. As utilization approaches 100 percent, queue waiting time grows without limit, and the P1 that arrives at a full queue waits behind everything else. Leave headroom for the cases that climb the ladder mid-shift, and treat capacity as a legitimate escalation reason when it runs out (the <a href="/docs/escalation/protocols/#the-tier-model-at-3-am">tier model at 3 a.m.</a> shows how).
+
+## Fields the records must carry
+
+None of these numbers can be computed from free text. Each one depends on a field that the <a href="/docs/documentation/templates/#copy-ready">templates</a> already define; wire them into the case tool as structured fields, with the verdict and priority values spelled exactly as the templates spell them.
+
+| Field | Where it lives | Feeds |
+|---|---|---|
+| Case ID and every member alert ID | All templates | Case counts, grouping ratio |
+| Detection rule name, ID and version | Alert report, Level 0 record | Every detection-health metric |
+| Depth level, and any upward moves | Alert report, event report | Level mix, time to verdict by level |
+| Both verdict axes and the status (closed, escalated, merged into case) | All templates | Precision, shares, actionability, uninvestigated share |
+| Priority and matrix cell | Alert report, event report | SLA-breach rate, time to escalate |
+| Key times (detected, acknowledged, verdict, escalated or closed, contained, reopened) | Event report decision header; at Levels 0 and 1, the case tool's own timestamps or an added line | Every flow metric, reopen rate |
+| Pattern entry ID and version; closed by an analyst or by automation | Level 0 record | Fast-path health, the machine-executed segment |
+| Material AI use | All templates | The AI split |
+| Receipt: accepted by and at, escalation warranted, rework requested | Handoff packet | Acceptance, rework, receipt fill rate |
+| Packet timeline and P1 page block | Handoff packet | Criterion-to-page interval |
+| Reopen conditions, and a link from a reopened case to its earlier close | Event report, case tool | Reopen rate |
+
+## The monthly triage report
+
+One page, the same every month, built from the fields above: <a href="/templates/monthly-triage-report.md" download><span aria-hidden="true">⬇ </span>monthly-triage-report.md</a>. It opens with volume and capacity (alerts in, cases reaching a person, demand in analyst-hours against hours available), then shows each quality metric beside its pair and its baseline, the detection-health table for the noisiest rules, fast-path health, the AI split, and a short list of every missed incident and reopen. It ends with the work items the numbers produced, each with an owner. A report that produces no work item is a meeting, not a steering input.
+
+The monthly report feeds the quarterly metrics review the <a href="/docs/adoption/">adoption guide</a> describes, run against the Stage 2 baseline. It never carries a per-analyst ranking.
+
+<Reveal summary="How this relates to published metric sets (as of October 2026)" variant="deep-dive">
+
+- **FIRST Security Incident Timing Metrics (SITM) v1.0** (released 29 May 2023; SITM is owned by FIRST): eleven timeline records and four key metrics (time to detect, respond, contain and remediate), each measured from the time of first activity. These are incident-level clocks; this page's triage clocks start at detection. <a href="https://www.first.org/global/sigs/metrics/" target="_blank" rel="noopener noreferrer">FIRST Metrics SIG</a>.
+- **FIRST Metrics for the <DefineTerm term="FIRST CSIRT Services Framework" display="CSIRT Services Framework" /> v1.1** (May 2026): its event-management and incident-triage sections include time to acknowledge alerts and incident reports, false-positive ratios per detection use case, time from incident receipt to triage completion, and the error rate of incident triage. Time to acknowledge, per-rule precision, time to verdict and verdict agreement here are close relatives. <a href="https://www.first.org/global/sigs/metrics/metrics_csirt_services_framework_v1-1" target="_blank" rel="noopener noreferrer">Version 1.1</a>.
+- **MITRE, 11 Strategies of a World-Class Cybersecurity Operations Center** (second edition, 2022): Strategy 10, "Measure performance to improve performance", including a section on measures that do not lead to positive outcomes. <a href="https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-operations-center" target="_blank" rel="noopener noreferrer">MITRE</a>.
+- **<DefineTerm term="SOC-CMM" />** assesses the whole SOC; the <a href="/docs/adoption/#the-maturity-model">adoption guide's maturity model</a> shows where a triage-practice score sits inside it.
+
+</Reveal>
+
+<KeyTakeaway>Measure decision quality first and speed only as its pair: escalation acceptance against missed incidents, Level 0 share against reopens, time to verdict against the reopen rate for the same level. Write each formula down with its denominator and source field before anyone builds a dashboard, let the receiver judge the escalation, split every quality metric by AI use, and never rank analysts on speed. Then run the capacity math: the depth ladder only works on the volume that grouping, tuning and governed machine closes leave for people.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/ai-governance/" class="assured-cta assured-cta--ghost">← Governing automated triage</a>
+  <a href="/docs/detection-feedback/" class="assured-cta">Triage and detection engineering →</a>
+</div>

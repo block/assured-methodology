@@ -1,18 +1,119 @@
 ---
 /**
  * AnimatedPhaseDiagram. The three-stage methodology flowchart with a
- * scroll-triggered reveal. Stage headers fade up first, then each phase
+ * scroll-triggered reveal. Stage bands fade up first, then each phase
  * piece slides into place, then the connecting arrows draw in, then the
- * feedback loop arc fades in last.
+ * dashed feedback loop draws in last. A red escalation-tripwire bus above
+ * the cells shows the early exit: a confirmed criterion leaves any Orient
+ * or Investigate phase straight for the Escalation decision.
+ *
+ * Stage and phase names come from src/data/navigation.ts. The stage bands
+ * are neutral (slate), so the only colors in the diagram are the seven
+ * phase colors and the teal loop.
  *
  * Uses an IntersectionObserver to trigger animation when the diagram enters
  * the viewport. Respects prefers-reduced-motion.
  */
+import { phases, type StageName } from "@/data/navigation";
+
+const stages: StageName[] = ["Orient", "Investigate", "Resolve"];
+
+/* AA-dark phase variants (--assured-phase-*-deep in assured.css), hardcoded
+   because SVG fill attributes can't read CSS custom properties. White cell
+   text clears 4.5:1 on each. */
+const DEEP: Record<string, string> = {
+  alert: "#1d4ed8",
+  subject: "#15803d",
+  scope: "#7e22ce",
+  uncover: "#c2410c",
+  risk: "#b91c1c",
+  escalation: "#4338ca",
+  documentation: "#0e7490",
+};
+
+/* Geometry (viewBox units). Each stage band is 240 wide; its phase cells
+   sit under it in one row, so the arrows run left to right in phase order.
+   Gaps between cells are at least 16 units, so an 8-unit arrowhead never
+   overlaps a cell. */
+const STAGE_X = [20, 290, 560];
+const STAGE_W = 240;
+/* CELL_Y leaves a band between the stage headers and the cells for the
+   escalation-tripwire bus (TRIP_Y) and its label. */
+const CELL_Y = 130;
+const TRIP_Y = 110;
+const VIEW_H = 300;
+const CELL_H = 70;
+const cellsFor = (stageIndex: number, count: number) => {
+  const gap = count === 3 ? 21 : 20;
+  const w = (STAGE_W - gap * (count - 1)) / count;
+  return Array.from({ length: count }, (_, i) => ({
+    x: STAGE_X[stageIndex] + i * (w + gap),
+    w,
+  }));
+};
+
+const cells = stages.flatMap((stage, si) => {
+  const inStage = phases.filter((p) => p.stage === stage);
+  const boxes = cellsFor(si, inStage.length);
+  return inStage.map((p, i) => ({
+    ...p,
+    ...boxes[i],
+    cx: boxes[i].x + boxes[i].w / 2,
+    /* Long names wrap one word per line. */
+    lines:
+      p.name.length > 13 && p.name.includes(" ") ? p.name.split(" ") : [p.name],
+  }));
+});
+
+/* Arrows between consecutive cells, 2 units off each edge. */
+const arrows = cells.slice(0, -1).map((c, i) => {
+  const next = cells[i + 1];
+  return { x1: c.x + c.w + 2, x2: next.x - 2, delay: 900 + i * 90 };
+});
+
+const cellOf = (key: string) => {
+  const cell = cells.find((c) => c.phase === key);
+  if (!cell)
+    throw new Error(`AnimatedPhaseDiagram: no cell for phase "${key}"`);
+  return cell;
+};
+const risk = cellOf("risk");
+const scope = cellOf("scope");
+const loopBottom = CELL_Y + CELL_H + 52;
+const loopMid = (risk.cx + scope.cx) / 2;
+const loopPath = `M ${risk.cx} ${CELL_Y + CELL_H + 2} Q ${risk.cx} ${loopBottom} ${loopMid} ${loopBottom} Q ${scope.cx} ${loopBottom} ${scope.cx} ${CELL_Y + CELL_H + 4}`;
+const LOOP_LABEL = "Feedback loop: refine scope, re-uncover, re-validate";
+
+/* Escalation tripwire: a stub up from each Orient and Investigate cell to a
+   bus, which drops into the Escalation decision cell. */
+const escalation = cellOf("escalation");
+const tripSources = cells.filter(
+  (c) => c.stage === "Orient" || c.stage === "Investigate",
+);
+const tripStubs = tripSources.map((c) => c.cx);
+const tripBusX1 = tripStubs[0];
+const TRIP_LABEL =
+  "Escalation tripwire: a confirmed criterion exits from any phase";
+
+const stageMembers = (stage: StageName) =>
+  phases.filter((p) => p.stage === stage);
+const letters = (stage: StageName) =>
+  stageMembers(stage)
+    .map((p) => p.letter)
+    .join(", ");
+const names = (stage: StageName) =>
+  stageMembers(stage)
+    .map((p) => p.name)
+    .join(", ");
+const description =
+  `Three stages in order: ${stages.map((st) => `${st} (${names(st)})`).join(", then ")}. ` +
+  `A dashed feedback loop runs from Risk back to Scope: refine scope, re-uncover, re-validate. ` +
+  `An escalation tripwire runs from every Orient and Investigate phase straight to the Escalation decision: a confirmed criterion exits from any phase.`;
 ---
 
 <figure class="anim-diagram" data-anim-diagram>
   {/* No-JS fallback: the IntersectionObserver is the only thing that adds
-      .is-revealed, and the pre-animation state is opacity 0 — a no-JS
+      .is-revealed, and the pre-animation state is opacity 0, so a no-JS
       desktop reader would get an empty framed box. Force the final frame
       (the same end-state the reduced-motion block uses). These styles never
       apply once scripts run, so the JS reveal animation is unchanged. */}
@@ -26,109 +127,77 @@
         transform: none !important;
         transition: none !important;
       }
-      .anim-diagram .anim-feedback-path {
+      .anim-diagram .anim-feedback-reveal {
         stroke-dashoffset: 0 !important;
       }
     </style>
   </noscript>
-  <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="anim-diagram-title anim-diagram-desc">
-    <title id="anim-diagram-title">ASSURED three-stage flow</title>
-    <desc id="anim-diagram-desc">Stage one (Preparation and Context) feeds stage two (Investigation and Assessment), which feeds stage three (Resolution and Documentation). A feedback loop returns insight to the earlier stages.</desc>
+  <svg viewBox={`0 0 820 ${VIEW_H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="anim-diagram-title anim-diagram-desc">
+    <title id="anim-diagram-title">ASSURED: seven phases in three stages</title>
+    <desc id="anim-diagram-desc">{description}</desc>
 
     <defs>
-      <!-- Both stops of every gradient clear WCAG AA 4.5:1 under the white
-           16px labels; the lighter brand shades sit at 2.2-2.9:1. -->
-      <linearGradient id="anim-phase1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#15803d"/>
-        <stop offset="100%" stop-color="#166534"/>
-      </linearGradient>
-      <linearGradient id="anim-phase2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#1d4ed8"/>
-        <stop offset="100%" stop-color="#1e40af"/>
-      </linearGradient>
-      <linearGradient id="anim-phase3" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#b45309"/>
-        <stop offset="100%" stop-color="#92400e"/>
-      </linearGradient>
-      <marker id="anim-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      {/* userSpaceOnUse keeps the head 8 units long whatever the stroke
+          width, so it fits the gaps between cells. refX 10 puts the tip on
+          the path's end point. */}
+      <marker id="anim-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="#cbd5e1"/>
       </marker>
+      <marker id="anim-arrow-loop" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#14b8a6"/>
+      </marker>
+      <marker id="anim-arrow-trip" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#f87171"/>
+      </marker>
+      {/* The loop is dashed. Animating its own stroke-dasharray would
+          replace the dash pattern, so a solid stroke in this mask draws in
+          instead and reveals the dashed path underneath. */}
+      <mask id="anim-loop-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="820" height={VIEW_H}>
+        <path class="anim-feedback-reveal" d={loopPath} stroke="white" stroke-width="16" fill="none" style="--delay: 1600ms;"/>
+      </mask>
     </defs>
 
-    <!-- Phase header band -->
-    <g class="anim-row" data-reveal="phase-headers">
-      <g class="anim-item" style="--delay: 0ms;">
-        <rect x="20"  y="20" width="240" height="70" rx="14" fill="url(#anim-phase1)"/>
-        <text x="140" y="50" text-anchor="middle" class="anim-label">Preparation</text>
-        <text x="140" y="72" text-anchor="middle" class="anim-label">&amp; Context</text>
-      </g>
-      <path class="anim-arrow-h" style="--delay: 280ms;" d="M 265 55 L 285 55" stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
-      <g class="anim-item" style="--delay: 220ms;">
-        <rect x="290" y="20" width="240" height="70" rx="14" fill="url(#anim-phase2)"/>
-        <text x="410" y="50" text-anchor="middle" class="anim-label">Investigation</text>
-        <text x="410" y="72" text-anchor="middle" class="anim-label">&amp; Assessment</text>
-      </g>
-      <path class="anim-arrow-h" style="--delay: 480ms;" d="M 535 55 L 555 55" stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
-      <g class="anim-item" style="--delay: 440ms;">
-        <rect x="560" y="20" width="240" height="70" rx="14" fill="url(#anim-phase3)"/>
-        <text x="680" y="50" text-anchor="middle" class="anim-label">Resolution</text>
-        <text x="680" y="72" text-anchor="middle" class="anim-label">&amp; Documentation</text>
-      </g>
+    <!-- Stage bands: neutral, so they do not compete with the phase colors -->
+    <g class="anim-row" data-reveal="stage-headers">
+      {stages.map((stage, i) => (
+        <g class="anim-item" style={`--delay: ${i * 220}ms;`}>
+          <rect x={STAGE_X[i]} y="20" width={STAGE_W} height="50" rx="12" class="anim-stage"/>
+          <text x={STAGE_X[i] + STAGE_W / 2} y="51" text-anchor="middle" class="anim-label">{`${stage} (${letters(stage)})`}</text>
+        </g>
+      ))}
+      <path class="anim-arrow-h" style="--delay: 280ms;" d={`M ${STAGE_X[0] + STAGE_W + 2} 45 L ${STAGE_X[1] - 2} 45`} stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      <path class="anim-arrow-h" style="--delay: 480ms;" d={`M ${STAGE_X[1] + STAGE_W + 2} 45 L ${STAGE_X[2] - 2} 45`} stroke="#cbd5e1" stroke-width="2" marker-end="url(#anim-arrow)"/>
     </g>
 
-    <!-- Component pieces. Cell fills are the AA-dark phase variants
-         (--assured-phase-*-deep in assured.css, hardcoded here because SVG
-         fill attributes can't read CSS custom properties), so the white cell
-         text clears 4.5:1.
-         Group 1 (Preparation): Alert=blue, Subject=green, Scope=purple.
-         Group 2 (Investigation): Uncover=orange, Risk=red.
-         Group 3 (Resolution): Escalation=indigo, Documentation=cyan. -->
+    <!-- Phase cells, in order, under their stage -->
     <g class="anim-components">
-      <g class="anim-item" style="--delay: 620ms;">
-        <rect x="20" y="130" width="110" height="55" rx="10" fill="#1d4ed8"/>
-        <text x="75" y="163" text-anchor="middle" class="anim-cell">A · Alert</text>
-      </g>
-      <g class="anim-item" style="--delay: 720ms;">
-        <rect x="140" y="130" width="120" height="55" rx="10" fill="#15803d"/>
-        <text x="200" y="163" text-anchor="middle" class="anim-cell">S · Subject</text>
-      </g>
-      <g class="anim-item" style="--delay: 820ms;">
-        <rect x="80" y="200" width="120" height="55" rx="10" fill="#7e22ce"/>
-        <text x="140" y="232" text-anchor="middle" class="anim-cell">S · Scope</text>
-      </g>
-
-      <path class="anim-line" style="--delay: 900ms;" d="M 75 187 L 75 220 L 78 220" stroke="#94a3b8" stroke-width="2" fill="none"/>
-      <path class="anim-line" style="--delay: 920ms;" d="M 200 187 L 200 220 L 197 220" stroke="#94a3b8" stroke-width="2" fill="none"/>
-      <path class="anim-line" style="--delay: 980ms;" d="M 202 228 L 285 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
-
-      <g class="anim-item" style="--delay: 1060ms;">
-        <rect x="290" y="200" width="120" height="55" rx="10" fill="#c2410c"/>
-        <text x="350" y="232" text-anchor="middle" class="anim-cell">U · Uncover</text>
-      </g>
-      <g class="anim-item" style="--delay: 1160ms;">
-        <rect x="420" y="200" width="120" height="55" rx="10" fill="#b91c1c"/>
-        <text x="480" y="232" text-anchor="middle" class="anim-cell">R · Risk</text>
-      </g>
-
-      <path class="anim-line" style="--delay: 1220ms;" d="M 412 228 L 418 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
-      <path class="anim-line" style="--delay: 1260ms;" d="M 542 228 L 548 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
-
-      <g class="anim-item" style="--delay: 1320ms;">
-        <rect x="550" y="200" width="120" height="55" rx="10" fill="#4338ca"/>
-        <text x="610" y="232" text-anchor="middle" class="anim-cell">E · Escalation</text>
-      </g>
-      <g class="anim-item" style="--delay: 1420ms;">
-        <rect x="680" y="200" width="125" height="55" rx="10" fill="#0e7490"/>
-        <text x="742" y="232" text-anchor="middle" class="anim-cell">D · Documentation</text>
-      </g>
-
-      <path class="anim-line" style="--delay: 1480ms;" d="M 670 228 L 678 228" stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      {cells.map((c, i) => (
+        <g class="anim-item" style={`--delay: ${620 + i * 100}ms;`}>
+          <rect x={c.x} y={CELL_Y} width={c.w} height={CELL_H} rx="10" fill={DEEP[c.phase]}/>
+          <text x={c.cx} y={CELL_Y + 26} text-anchor="middle" class="anim-cell-letter" aria-hidden="true">{c.letter}</text>
+          <text x={c.cx} y={c.lines.length > 1 ? CELL_Y + 45 : CELL_Y + 50} text-anchor="middle" class="anim-cell" aria-hidden="true">
+            {c.lines.map((line, j) => <tspan x={c.cx} dy={j === 0 ? 0 : 14}>{line}</tspan>)}
+          </text>
+        </g>
+      ))}
+      {arrows.map((a) => (
+        <path class="anim-line" style={`--delay: ${a.delay}ms;`} d={`M ${a.x1} ${CELL_Y + CELL_H / 2} L ${a.x2} ${CELL_Y + CELL_H / 2}`} stroke="#94a3b8" stroke-width="2" marker-end="url(#anim-arrow)"/>
+      ))}
     </g>
 
-    <!-- Feedback loop -->
+    <!-- Escalation tripwire: early exit from any Orient/Investigate phase -->
+    <g class="anim-tripwire" data-tripwire>
+      {tripStubs.map((x, i) => (
+        <path class="anim-line anim-trip-line" style={`--delay: ${1300 + i * 60}ms;`} d={`M ${x} ${CELL_Y - 2} L ${x} ${TRIP_Y}`}/>
+      ))}
+      <path class="anim-line anim-trip-line" style="--delay: 1600ms;" d={`M ${tripBusX1} ${TRIP_Y} L ${escalation.cx} ${TRIP_Y} L ${escalation.cx} ${CELL_Y - 2}`} marker-end="url(#anim-arrow-trip)"/>
+      <text class="anim-feedback-text anim-trip-text" style="--delay: 1800ms;" x={(tripBusX1 + escalation.cx) / 2} y={TRIP_Y - 7} text-anchor="middle" aria-hidden="true">{TRIP_LABEL}</text>
+    </g>
+
+    <!-- Feedback loop: Risk back to Scope -->
     <g class="anim-loop" data-feedback>
-      <path class="anim-feedback-path" style="--delay: 1600ms;" d="M 480 270 Q 480 320 280 320 Q 140 320 140 270" stroke="#14b8a6" stroke-width="2" stroke-dasharray="6 6" fill="none" marker-end="url(#anim-arrow)"/>
-      <text class="anim-feedback-text" style="--delay: 1900ms;" x="310" y="340" text-anchor="middle">↻ Feedback loop, refine scope, re-uncover, re-validate</text>
+      <path class="anim-feedback-path" d={loopPath} stroke="#14b8a6" stroke-width="2" stroke-dasharray="6 6" fill="none" marker-end="url(#anim-arrow-loop)" mask="url(#anim-loop-mask)"/>
+      <text class="anim-feedback-text" style="--delay: 1900ms;" x={loopMid} y={loopBottom + 22} text-anchor="middle" aria-hidden="true">{`↻ ${LOOP_LABEL}`}</text>
     </g>
   </svg>
 
@@ -136,33 +205,28 @@
        uniformly, which turns its labels into ~6px text at 375px wide. Below
        640px the SVG hides and this legible vertical flow shows instead;
        display:none keeps the hidden variant out of the accessibility tree,
-       so screen readers only encounter one rendering. -->
+       so screen readers only encounter one rendering. The loop sits after
+       Investigate, where it starts. -->
   <div class="anim-stack">
-    <div class="anim-stack__phase" style="--phase-a: #15803d; --phase-b: #166534;">
-      <p class="anim-stack__label">Preparation &amp; Context</p>
-      <ul class="anim-stack__cells">
-        <li style="--cell: #1d4ed8;">A · Alert</li>
-        <li style="--cell: #15803d;">S · Subject</li>
-        <li style="--cell: #7e22ce;">S · Scope</li>
-      </ul>
-    </div>
-    <div class="anim-stack__arrow" aria-hidden="true">↓</div>
-    <div class="anim-stack__phase" style="--phase-a: #1d4ed8; --phase-b: #1e40af;">
-      <p class="anim-stack__label">Investigation &amp; Assessment</p>
-      <ul class="anim-stack__cells">
-        <li style="--cell: #c2410c;">U · Uncover</li>
-        <li style="--cell: #b91c1c;">R · Risk</li>
-      </ul>
-    </div>
-    <div class="anim-stack__arrow" aria-hidden="true">↓</div>
-    <div class="anim-stack__phase" style="--phase-a: #b45309; --phase-b: #92400e;">
-      <p class="anim-stack__label">Resolution &amp; Documentation</p>
-      <ul class="anim-stack__cells">
-        <li style="--cell: #4338ca;">E · Escalation</li>
-        <li style="--cell: #0e7490;">D · Documentation</li>
-      </ul>
-    </div>
-    <p class="anim-stack__loop">↻ Feedback loop, refine scope, re-uncover, re-validate</p>
+    {stages.map((stage, i) => (
+      <>
+        {i > 0 && <div class="anim-stack__arrow" aria-hidden="true">↓</div>}
+        <div class="anim-stack__phase">
+          <p class="anim-stack__label">{`${stage} (${letters(stage)})`}</p>
+          <ul class="anim-stack__cells">
+            {stageMembers(stage).map((p) => (
+              <li style={`--cell: ${DEEP[p.phase]};`}>{`${p.letter} · ${p.name}`}</li>
+            ))}
+          </ul>
+        </div>
+        {stage === "Investigate" && (
+          <>
+            <p class="anim-stack__loop"><span aria-hidden="true">↻ </span>{`${LOOP_LABEL}. The loop runs from Risk back to Scope.`}</p>
+            <p class="anim-stack__trip"><span aria-hidden="true">⇥ </span>{`${TRIP_LABEL}, straight to the Escalation decision.`}</p>
+          </>
+        )}
+      </>
+    ))}
   </div>
 </figure>
 
@@ -171,9 +235,8 @@
     margin: 2rem auto;
     padding: 1.75rem;
     border-radius: 1rem;
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--assured-panel-solid);
     border: 1px solid rgba(148, 163, 184, 0.2);
-    backdrop-filter: blur(8px);
     max-width: 920px;
   }
 
@@ -200,7 +263,8 @@
   .anim-stack__label {
     margin: 0;
     padding: 0.6rem 0.85rem;
-    background: linear-gradient(135deg, var(--phase-a), var(--phase-b));
+    background: #1e293b;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.3);
     color: #fff;
     font-weight: 700;
     font-size: 0.95rem;
@@ -232,9 +296,23 @@
   }
 
   .anim-stack__loop {
-    margin: 0.35rem 0 0;
+    margin: 0.35rem 0;
+    padding: 0.4rem 0.6rem;
+    border: 1px dashed #14b8a6;
+    border-radius: 0.5rem;
     text-align: center;
     color: var(--assured-accent-soft);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .anim-stack__trip {
+    margin: 0.35rem 0;
+    padding: 0.4rem 0.6rem;
+    border: 1px dashed #f87171;
+    border-radius: 0.5rem;
+    text-align: center;
+    color: var(--assured-danger-soft);
     font-size: 0.85rem;
     font-weight: 500;
   }
@@ -251,6 +329,19 @@
     }
   }
 
+  .anim-stage {
+    fill: #1e293b;
+    stroke: rgba(148, 163, 184, 0.45);
+    stroke-width: 1;
+  }
+
+  .anim-cell-letter {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    fill: white;
+  }
+
   .anim-label {
     font-family: var(--font-sans, system-ui), sans-serif;
     font-size: 16px;
@@ -260,7 +351,7 @@
 
   .anim-cell {
     font-family: var(--font-sans, system-ui), sans-serif;
-    font-size: 15px;
+    font-size: 12.5px;
     font-weight: 700;
     fill: white;
   }
@@ -270,6 +361,18 @@
     font-size: 13px;
     fill: var(--assured-accent-soft);
     font-weight: 500;
+  }
+
+  .anim-trip-line {
+    fill: none;
+    stroke: #f87171;
+    stroke-width: 2;
+    stroke-dasharray: 3 4;
+  }
+
+  .anim-trip-text {
+    font-size: 12px;
+    fill: var(--assured-danger-soft);
   }
 
   /* Pre-animation state */
@@ -288,10 +391,10 @@
     transition-delay: var(--delay, 0ms);
   }
 
-  .anim-feedback-path {
+  /* The mask stroke, not the visible dashed path, carries the draw-in. */
+  .anim-feedback-reveal {
     stroke-dasharray: 600;
     stroke-dashoffset: 600;
-    opacity: 1;
     transition: stroke-dashoffset 1s ease;
     transition-delay: var(--delay, 0ms);
   }
@@ -313,12 +416,21 @@
     opacity: 1;
   }
 
-  .anim-diagram.is-revealed .anim-feedback-path {
+  .anim-diagram.is-revealed .anim-feedback-reveal {
     stroke-dashoffset: 0;
   }
 
   .anim-diagram.is-revealed .anim-feedback-text {
     opacity: 1;
+  }
+
+  /* print.css prints the final frame of the cells and arrows; the loop's
+     draw-in lives on the mask stroke, so finish it here too. */
+  @media print {
+    .anim-feedback-reveal {
+      stroke-dashoffset: 0 !important;
+      transition: none !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -330,8 +442,9 @@
       transform: none;
       transition: none;
     }
-    .anim-feedback-path {
+    .anim-feedback-reveal {
       stroke-dashoffset: 0;
+      transition: none;
     }
   }
 </style>

@@ -1,35 +1,30 @@
 ---
 title: "Scope: Defining investigation boundaries"
-description: "Scope decides where the lines of the investigation are. Time windows, entities in play, regulatory boundaries, infrastructure paths."
+description: "Scope decides where the lines of the investigation are. Regulatory boundaries, time windows, entities in play, infrastructure paths."
 slug: "scope"
 wide: true
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
+import PillarGrid from "@/components/assured/PillarGrid.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/scope.css";
 
 <ChapterHero
   phase="scope"
-  letter="S"
-  pieceNumber={3}
-  question="Where are the lines?"
-  pillars={[
-    { num: "01", label: "Regulatory",     href: "/docs/scope/regulatory/" },
-    { num: "02", label: "Time",           href: "/docs/scope/time/" },
-    { num: "03", label: "Entity",         href: "/docs/scope/entity/" },
-    { num: "04", label: "Infrastructure", href: "/docs/scope/infrastructure/" },
-  ]}
 >
-  Scope decides what is in the investigation and what is out. Without it, investigations sprawl indefinitely. With it, every minute of analyst time is directed at material questions.
+  Scope decides what is in the investigation and what is out. Without it, investigations sprawl indefinitely. With it, analyst time goes to the questions that matter for this case.
 </ChapterHero>
 
 <Callout variant="info" title="What Scope is for">
-Subject produced a map of identities and relationships. Scope takes that map and draws the formal boundary: which entities are in this investigation, which time windows apply to each, which regulations constrain the work, and which <DefineTerm term="Infrastructure" display="infrastructure" /> paths get walked. Without scope, Uncover has no idea where to look.
+Subject produced a map of identities and relationships, with a provisional primary, secondary and downstream classification. Scope takes that map and draws the formal boundary: which regulations constrain the work, which time windows apply, which entities are in this investigation, and which <DefineTerm term="Infrastructure" display="infrastructure" /> paths get walked. Without scope, Uncover has no idea where to look.
+
+Regulatory comes first not because it is most important, but because its clocks may already be running: tag it from Subject's map now, and refine it as the entity boundary firms up. The boundary is not fixed once drawn either. When Uncover or Risk surfaces a new entity, a new window, or a new regulated data class, Scope redraws it, in both directions; that loop is the method working.
 </Callout>
 
 ---
@@ -38,25 +33,25 @@ Subject produced a map of identities and relationships. Scope takes that map and
 
 <div class="alert-outcomes">
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">⚖️</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
     <div>
-      <strong>Recognize which regulatory frameworks attach</strong>, GDPR, CCPA, PCI DSS, HIPAA, SOX, SEC disclosure, and start the right clocks at the right moment.
+      <strong>Recognize which regulatory frameworks may attach</strong> (GDPR, California's privacy and breach laws, PCI DSS, HIPAA, SOX, SEC disclosure, and the shorter EU and sector clocks) and record the timestamps their clocks run from, with the <a href="/docs/scope/clocks/">regulatory clock card</a> as the lookup table.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🕐</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
     <div>
       <strong>Set defensible time windows</strong> for historical review and real-time investigation, calibrated to the threat type.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🧭</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z"/></svg></span>
     <div>
       <strong>Decide which entities are in scope</strong> and how to handle access modeling, dependency tracing, and relationship mapping.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🏗️</span>
+    <span class="alert-outcomes__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></span>
     <div>
       <strong>Recognize the infrastructure boundaries</strong> that constrain what an investigation can actually see.
     </div>
@@ -67,65 +62,44 @@ Subject produced a map of identities and relationships. Scope takes that map and
 
 ## The four boundary types
 
-<div class="pillars-grid">
-  <a href="/docs/scope/regulatory/" class="pillar pillar--scope">
-    <div class="pillar__num">01</div>
-    <div class="pillar__icon">⚖️</div>
-    <h3>Regulatory boundaries</h3>
-    <p>GDPR, CCPA, PCI DSS, HIPAA, SOX, SEC disclosure. The clocks, preservation duties, and owners that attach to regulated data.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/scope/time/" class="pillar pillar--scope">
-    <div class="pillar__num">02</div>
-    <div class="pillar__icon">🕐</div>
-    <h3>Time boundaries</h3>
-    <p>Historical review windows, real-time investigation, retention limits. When the investigation starts and stops.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/scope/entity/" class="pillar pillar--scope">
-    <div class="pillar__num">03</div>
-    <div class="pillar__icon">🧭</div>
-    <h3>Entity boundaries</h3>
-    <p>Primary and secondary entities, relationship mapping, access modeling, dependency tracing. Which subjects are in.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/scope/infrastructure/" class="pillar pillar--scope">
-    <div class="pillar__num">04</div>
-    <div class="pillar__icon">🏗️</div>
-    <h3>Infrastructure boundaries</h3>
-    <p>What the SOC actually has visibility into. Network segments, cloud accounts, geographic regions, retention.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-</div>
+<PillarGrid
+  phase="scope"
+  items={[
+    { href: "/docs/scope/regulatory/", icon: "scale", title: "Regulatory boundaries", body: "GDPR, CCPA and California's breach law, PCI DSS, HIPAA, SOX, SEC disclosure, with pointers to NIS2, DORA and the sector clocks on the regulatory clock card. The clocks, preservation duties, and owners that attach to regulated data." },
+    { href: "/docs/scope/time/", icon: "clock", title: "Time boundaries", body: "Historical review windows, real-time investigation, retention limits. When the investigation starts and stops." },
+    { href: "/docs/scope/entity/", icon: "compass", title: "Entity boundaries", body: "Primary and secondary entities, relationship mapping, access modeling, dependency tracing. Which subjects are in." },
+    { href: "/docs/scope/infrastructure/", icon: "building", title: "Infrastructure boundaries", body: "What the SOC actually has visibility into. Network segments, cloud accounts, geographic regions, retention." },
+  ]}
+/>
 
 ---
 
+## Scope at a glance
+
+<PhaseAtAGlance phase="scope">
+  <Fragment slot="deliverable">The boundary statement: one page covering the threat type, the windows, the entities in and out, regulatory tags with their candidate timestamps, visibility gaps, preservation, open questions and a time box. Start from the [Scope boundary template](/templates/scope-boundary.md).</Fragment>
+  <Fragment slot="done">Every entity in the boundary has a category, a depth and a one-line justification. Each window has an anchor event and a retention check. Every regulatory tag has its candidate timestamps and an owner engaged. Every gap is named. Uncover has its questions and its time box.</Fragment>
+  <Fragment slot="level-0">No separate Scope. The eligibility gate's items (asset criticality, privilege, regulated-data reach), each proven from its source system, stand in for it. An item that fails or cannot be proven ends Level 0.</Fragment>
+  <Fragment slot="level-1">Subject and Scope run as one sweep, and Scope is the three-line minimum below.</Fragment>
+  <Fragment slot="level-2">The full boundary statement across all four boundary types, versioned each time Uncover or Risk sends the case back.</Fragment>
+</PhaseAtAGlance>
+
+<Callout variant="info" title="Minimum viable Scope">
+A Level 1 case gets three lines instead of a page: the window and its anchor; the subject and what is excluded; any regulatory flag (or a documented "none") and any named gap. If any of those will not fit on one line, the case has outgrown Level 1. Regulated data merely in reach is a Scope flag. Regulated data plausibly accessed by the activity under review is what moves a case to Level 2.
+</Callout>
+
 ## Why Scope is its own phase
 
-<div class="why-subject-grid">
-  <FlipCard icon="🎯" title="Without scope, investigations sprawl" accent="purple">
-    Analysts who skip Scope often follow every interesting thread they find. Each thread feels productive in the moment. By the end of the shift, three threads are open, none are resolved, and the alert that started it all is still triaging itself.
-  </FlipCard>
-  <FlipCard icon="⚖️" title="Compliance lives at this step" accent="purple">
-    Investigating an account that touched HIPAA-bound data carries different obligations than investigating a developer's sandbox. Scope is where those obligations are recognized and formalized, before Uncover starts touching data that has rules attached.
-  </FlipCard>
-  <FlipCard icon="🕐" title="Time is a boundary, not a default" accent="purple">
-    A typical alert is investigated against the last 24 hours. A slow-burn insider case may need 6 months. The window is a choice about the threat, not a SIEM default.
-  </FlipCard>
-  <FlipCard icon="🏗️" title="Visibility is finite" accent="purple">
-    Scope is also honest about what the SOC cannot see. Air-gapped systems, third-party SaaS without logging access, off-network mobile devices. Naming the gaps upfront is what keeps Uncover from spending time on impossible queries.
-  </FlipCard>
-</div>
+- **Without scope, investigations sprawl.** Analysts who skip Scope follow every interesting thread. Each one feels productive; by the end of the shift three are open, none is resolved, and the alert that started it is still waiting for a decision.
+- **Compliance lives at this step.** An account that touched HIPAA-bound data carries different obligations than a developer's sandbox. Scope recognizes those obligations before Uncover starts touching data that has rules attached.
+- **Time is a boundary, not a default.** A fast-moving intrusion may need a day of lookback; a slow-burn insider case may need six months. The window is a choice about the threat, not a SIEM setting.
+- **Visibility is finite.** Air-gapped systems, SaaS without logging access, off-network devices: naming the gaps up front keeps Uncover from spending time on queries that cannot be answered.
 
 ---
 
 <KeyTakeaway>
-Scope is the phase that says "this and not that." Four boundary types, regulatory, time, entity, infrastructure, and one page of output: the clocks, windows, entities, and visibility limits that every later phase works within.
+Scope is the phase that says "this and not that." It covers four boundary types (regulatory, time, entity, infrastructure) and produces one page of output: the clocks, windows, entities, and visibility limits that every later phase works within.
 </KeyTakeaway>
-
-<PuzzleProgress
-  current="scope"
-/>
 
 <ContinueCard
   current="scope"
@@ -134,23 +108,3 @@ Scope is the phase that says "this and not that." Four boundary types, regulator
   nextDescription="GDPR, CCPA, PCI DSS, HIPAA, SOX, SEC disclosure. The rules that shape investigation."
   ctaLabel="Read regulatory"
 />
-
-<style>
-{`
-@media (min-width: 768px)  { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.pillar--scope {
-  position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(168, 85, 247, 0.25);
-  border-radius: 0.85rem; color: var(--assured-text); text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.pillar--scope:hover { transform: translateY(-3px); border-color: #a855f7; box-shadow: 0 16px 32px -12px rgba(168, 85, 247, 0.35); }
-.pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(216, 180, 254, 0.7); letter-spacing: 0.06em; }
-.pillar--scope h3 { margin: 0; color: var(--assured-text); font-size: 1.1rem; }
-.pillar--scope p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.95rem; }
-.pillar__cta { margin-top: auto; color: #c084fc; font-weight: 600; font-size: 0.9rem; }
-
-`}
-</style>

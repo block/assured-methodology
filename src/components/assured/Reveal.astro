@@ -4,7 +4,8 @@
  *
  * Built on native <details>/<summary> for accessibility and works without
  * JavaScript. Styled to look like a deliberate UI affordance rather than a
- * bare disclosure widget.
+ * bare disclosure widget. Closed panels still print: BaseLayout opens every
+ * closed <details> on beforeprint and restores it afterwards.
  *
  * Usage in MDX:
  *   <Reveal summary="Show the worked example">
@@ -39,10 +40,9 @@ const { summary, variant = "default", open = false } = Astro.props;
   .reveal {
     margin: 1.25rem 0;
     border-radius: 0.75rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(15, 23, 42, 0.68);
     border: 1px solid rgba(148, 163, 184, 0.25);
     overflow: hidden;
-    backdrop-filter: blur(8px);
     transition: border-color 0.2s ease;
   }
 
@@ -94,22 +94,23 @@ const { summary, variant = "default", open = false } = Astro.props;
   .reveal__body :first-child { margin-top: 0; }
   .reveal__body :last-child { margin-bottom: 0; }
 
-  /* Variants */
+  /* Variants. The example variant uses the shared worked-example hue
+     (--assured-example), outside the seven phase colors. */
   .reveal--example {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(15, 23, 42, 0.55));
-    border-color: rgba(168, 85, 247, 0.3);
+    background: linear-gradient(135deg, rgba(var(--assured-example-rgb), 0.08), rgba(15, 23, 42, 0.68));
+    border-color: rgba(var(--assured-example-rgb), 0.3);
   }
 
   .reveal--example[open] {
-    border-color: rgba(168, 85, 247, 0.55);
+    border-color: rgba(var(--assured-example-rgb), 0.55);
   }
 
   .reveal--example .reveal__icon {
-    color: #c4b5fd;
+    color: var(--assured-example-soft);
   }
 
   .reveal--deep-dive {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.55));
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(15, 23, 42, 0.68));
     border-color: rgba(59, 130, 246, 0.3);
   }
 
@@ -119,5 +120,21 @@ const { summary, variant = "default", open = false } = Astro.props;
 
   .reveal--deep-dive .reveal__icon {
     color: #93c5fd;
+  }
+
+  @media (max-width: 640px) {
+    .reveal__summary {
+      padding: 0.85rem 1rem;
+    }
+    .reveal__body {
+      padding: 1rem 1rem 1.1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal__icon {
+      transition: none;
+    }
   }
 </style>

@@ -1,0 +1,23 @@
+# Single-package repo: this file holds pnpm settings only. pnpm 11 and later
+# no longer read the "pnpm" field in package.json, so the security overrides
+# live here, where every pnpm major picks them up.
+
+# Forced resolutions for transitive advisories. Each entry rewrites only the
+# vulnerable range. Delete an entry once nothing in the tree can resolve into
+# it (check with `pnpm why <name>`). The former vite@>=6.0.0 <6.4.3 entry was
+# removed with the Astro 7 upgrade: Astro 7 ships Vite 8, and the entry's
+# "<7" cap rewrote peer ranges back onto Vite 6.
+overrides:
+  "js-yaml@>=4.0.0 <4.2.0": ">=4.2.0 <5"
+  "mdast-util-to-hast@>=13.0.0 <13.2.1": ">=13.2.1"
+  "smol-toml@<1.6.1": ">=1.6.1"
+
+# Supply-chain delay: do not resolve a version until it has been on the
+# registry for 3 days (value in minutes). pnpm's default is 1 day.
+minimumReleaseAge: 4320
+
+# Dependency install scripts pnpm may run. esbuild's postinstall only
+# re-verifies the platform binary that its optional dependency already
+# ships, so it stays disabled (same behavior as before pnpm 11).
+allowBuilds:
+  esbuild: false

@@ -1,0 +1,557 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/event-report.schema.json",
+  "title": "Event report",
+  "description": "The closure-time event report: a decision header (the Escalation decision's record: verdict on both axes, decision, status, priority and confidence) above nine sections written for the future reader.",
+  "x-assured-template": "event-report.md",
+  "type": "object",
+  "properties": {
+    "decisionHeader": {
+      "x-assured-section": "Decision header",
+      "x-assured-phase": "escalation",
+      "type": "object",
+      "properties": {
+        "bottomLine": {
+          "x-assured-prompt": "Bottom line",
+          "type": "string",
+          "description": "Two or three plain-language sentences for a non-technical reader."
+        },
+        "finalVerdictDetection": {
+          "x-assured-prompt": "Final verdict, detection",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Final verdict, detection (true positive / false positive (logic) / false positive (data))"
+        },
+        "finalVerdictActivity": {
+          "x-assured-prompt": "Final verdict, activity",
+          "type": "object",
+          "properties": {
+            "verdict": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict"
+            },
+            "justification": {
+              "type": "string"
+            }
+          },
+          "required": ["verdict", "justification"],
+          "description": "Final verdict, activity (malicious / policy violation / authorized (benign true positive) / benign-confirmed / undetermined, one line of justification)"
+        },
+        "escalationDecision": {
+          "x-assured-prompt": "Escalation decision",
+          "type": "object",
+          "properties": {
+            "decision": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/escalationDecision"
+            },
+            "decidedBy": {
+              "type": "string"
+            },
+            "decidedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["decision", "decidedBy", "decidedAt"],
+          "description": "E's decision: close or escalate, who decided, and when. Risk recommends; E decides."
+        },
+        "status": {
+          "x-assured-prompt": "Status",
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/caseStatus"
+            },
+            "relatedIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["status"],
+          "description": "Status (closed / escalated / merged into case), with related case or incident IDs"
+        },
+        "priorityAtClose": {
+          "x-assured-prompt": "Priority at close",
+          "type": "object",
+          "properties": {
+            "band": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+            },
+            "cell": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+            },
+            "override": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/override"
+            }
+          },
+          "required": ["band"],
+          "anyOf": [
+            {
+              "required": ["cell"]
+            },
+            {
+              "required": ["override"]
+            }
+          ],
+          "description": "Priority at close (P1-P4), with the matrix cell (e.g. High/Medium) or named override (escalation tripwire, high-impact clock, documented downgrade) that produced it"
+        },
+        "confidenceInTheFinal": {
+          "x-assured-prompt": "Confidence in the final verdict",
+          "$ref": "assured-vocabulary.schema.json#/$defs/confidence",
+          "description": "Confidence in the final verdict (high / medium / low, shared rubric; round down). Other claims carry their own labels where they appear, e.g. each claim in section 3 and each indicator in section 6"
+        },
+        "depthLevelWorked": {
+          "x-assured-prompt": "Depth level worked",
+          "$ref": "assured-vocabulary.schema.json#/$defs/depth",
+          "description": "Depth level worked (0 / 1 / 2), and any upward moves with their reason"
+        },
+        "openUncertainty": {
+          "x-assured-prompt": "Open uncertainty",
+          "type": "string",
+          "description": "\"none\" must be earned."
+        },
+        "reopenConditions": {
+          "x-assured-prompt": "Reopen conditions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Observable triggers that would revisit the verdict; required for benign and authorized closes."
+        },
+        "keyTimes": {
+          "x-assured-prompt": "Key times",
+          "type": "object",
+          "properties": {
+            "detected": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "acknowledged": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "verdict": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "escalatedOrClosed": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "contained": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "reopened": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["detected", "verdict", "escalatedOrClosed"],
+          "description": "Key times (UTC): detected / acknowledged / verdict / escalated or closed / contained / reopened"
+        },
+        "distribution": {
+          "x-assured-prompt": "Distribution",
+          "$ref": "assured-vocabulary.schema.json#/$defs/distribution",
+          "description": "Distribution (TLP, the Traffic Light Protocol, and any need-to-know limits, e.g. insider cases)"
+        },
+        "notificationClocks": {
+          "x-assured-prompt": "Notification clocks",
+          "$ref": "assured-vocabulary.schema.json#/$defs/yesNo",
+          "description": "Notification clocks (optional: yes / no; if yes, fill the regulatory flags block below)"
+        },
+        "preparedBy": {
+          "x-assured-prompt": "Prepared by",
+          "type": "string",
+          "description": "Prepared by (analyst)"
+        },
+        "preparedAt": {
+          "x-assured-prompt": "Prepared at",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Prepared at (UTC)"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which sections began as AI drafts; \"none\" if unassisted)"
+        },
+        "regulatoryFlags": {
+          "x-assured-section": "Regulatory flags (optional, when regulated data is plausibly involved)",
+          "type": "object",
+          "properties": {
+            "rows": {
+              "x-assured-columns": [
+                "Regime",
+                "Data class and trigger observed",
+                "Candidate awareness or trigger timestamp (UTC)",
+                "Owner engaged (who), at (UTC)",
+                "Owner's decision"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "regime": {
+                    "x-assured-column": "Regime",
+                    "type": "string"
+                  },
+                  "dataClassAndTrigger": {
+                    "x-assured-column": "Data class and trigger observed",
+                    "type": "string"
+                  },
+                  "candidateAwarenessOrTrigger": {
+                    "x-assured-column": "Candidate awareness or trigger timestamp (UTC)",
+                    "type": "string"
+                  },
+                  "ownerEngaged": {
+                    "x-assured-column": "Owner engaged (who), at (UTC)",
+                    "type": "string"
+                  },
+                  "ownerSDecision": {
+                    "x-assured-column": "Owner's decision",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "estimatedAffected": {
+              "x-assured-prompt": "Estimated affected individuals and their jurisdictions",
+              "type": "string",
+              "description": "Estimated affected individuals and their jurisdictions (if known)"
+            },
+            "legalHold": {
+              "x-assured-prompt": "Preservation or legal-hold status and scope",
+              "type": "string",
+              "description": "Preservation or legal-hold status and scope (who authorized it, and when, UTC)"
+            },
+            "counselInstructions": {
+              "x-assured-prompt": "Counsel handling instructions",
+              "type": "string",
+              "description": "Counsel handling instructions (labeling, channel, distribution), if any"
+            }
+          }
+        }
+      },
+      "required": [
+        "bottomLine",
+        "finalVerdictDetection",
+        "finalVerdictActivity",
+        "escalationDecision",
+        "status",
+        "priorityAtClose",
+        "confidenceInTheFinal",
+        "depthLevelWorked",
+        "openUncertainty",
+        "reopenConditions",
+        "keyTimes",
+        "distribution",
+        "preparedBy",
+        "preparedAt",
+        "materialAiUse"
+      ]
+    },
+    "eventOverview": {
+      "x-assured-section": "1. Event overview",
+      "type": "object",
+      "properties": {
+        "alertIdentifier": {
+          "x-assured-prompt": "Alert identifier",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Alert identifier (or the case ID and every member alert ID)"
+        },
+        "detectionDateTime": {
+          "x-assured-prompt": "Detection date/time",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Detection date/time (UTC)"
+        },
+        "affectedSystemOrEnvironment": {
+          "x-assured-prompt": "Affected system or environment",
+          "type": "string",
+          "description": "Affected system or environment"
+        },
+        "plainLanguageDescriptionOf": {
+          "x-assured-prompt": "Plain-language description of observed behavior",
+          "type": "string",
+          "description": "Plain-language description of observed behavior"
+        },
+        "status": {
+          "x-assured-prompt": "Status",
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/caseStatus"
+            },
+            "relatedIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["status"],
+          "description": "Status: closed / escalated / merged into case (related case or incident IDs)"
+        }
+      },
+      "required": [
+        "alertIdentifier",
+        "detectionDateTime",
+        "affectedSystemOrEnvironment",
+        "plainLanguageDescriptionOf",
+        "status"
+      ]
+    },
+    "timelineOfEvents": {
+      "x-assured-section": "2. Timeline of events",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Timestamp (UTC)",
+            "Actor",
+            "Action taken",
+            "Rationale",
+            "Source",
+            "Confidence",
+            "Outcome / result"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "x-assured-column": "Timestamp (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "actor": {
+                "x-assured-column": "Actor",
+                "type": "string"
+              },
+              "actionTaken": {
+                "x-assured-column": "Action taken",
+                "type": "string"
+              },
+              "rationale": {
+                "x-assured-column": "Rationale",
+                "type": "string"
+              },
+              "source": {
+                "x-assured-column": "Source",
+                "type": "string"
+              },
+              "confidence": {
+                "x-assured-column": "Confidence",
+                "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+              },
+              "outcomeResult": {
+                "x-assured-column": "Outcome / result",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "originAndScope": {
+      "x-assured-section": "3. Origin and scope",
+      "description": "How the event originated and its impact radius, as established at triage; each claim with its own confidence label.",
+      "type": "object",
+      "properties": {
+        "scope": {
+          "x-assured-section": "Scope (optional)",
+          "type": "object",
+          "properties": {
+            "entitiesInScopeTime": {
+              "x-assured-prompt": "Entities in scope, time window and lookback",
+              "type": "string",
+              "description": "Entities in scope, time window and lookback"
+            },
+            "deliberatelyOutOfScope": {
+              "x-assured-prompt": "Deliberately out of scope, and the observation that would have pulled each in",
+              "type": "string",
+              "description": "Deliberately out of scope, and the observation that would have pulled each in"
+            },
+            "reachableButNotShown": {
+              "x-assured-prompt": "Reachable but not shown to be touched",
+              "type": "string",
+              "description": "Reachable but not shown to be touched (Scope flags; regulated data that was plausibly accessed goes in the regulatory flags block)"
+            },
+            "visibilityGaps": {
+              "x-assured-prompt": "Visibility gaps",
+              "type": "string",
+              "description": "Visibility gaps (sources missing, retention limits, pending vendor data)"
+            }
+          },
+          "required": [
+            "entitiesInScopeTime",
+            "deliberatelyOutOfScope",
+            "reachableButNotShown",
+            "visibilityGaps"
+          ]
+        },
+        "hypothesisLedger": {
+          "x-assured-section": "Hypothesis ledger (optional)",
+          "type": "object",
+          "properties": {
+            "rows": {
+              "x-assured-columns": [
+                "Hypothesis",
+                "Status (leading / rejected / open)",
+                "Deciding evidence",
+                "Source and query (provenance)",
+                "Confidence"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hypothesis": {
+                    "x-assured-column": "Hypothesis",
+                    "type": "string"
+                  },
+                  "status": {
+                    "x-assured-column": "Status (leading / rejected / open)",
+                    "enum": ["leading", "rejected", "open"]
+                  },
+                  "decidingEvidence": {
+                    "x-assured-column": "Deciding evidence",
+                    "type": "string"
+                  },
+                  "sourceAndQuery": {
+                    "x-assured-column": "Source and query (provenance)",
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "x-assured-column": "Confidence",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "actionsTaken": {
+      "x-assured-section": "4. Actions taken",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "businessImpact": {
+      "x-assured-section": "5. Business impact",
+      "type": "string",
+      "minLength": 1
+    },
+    "indicatorsAndObservables": {
+      "x-assured-section": "6. Indicators and observables",
+      "type": "object",
+      "properties": {
+        "attAndCkChain": {
+          "x-assured-prompt": "ATT&CK chain",
+          "$ref": "assured-vocabulary.schema.json#/$defs/attackMapping",
+          "description": "ATT&CK chain (version)"
+        },
+        "rows": {
+          "x-assured-columns": [
+            "Indicator or observable",
+            "Type",
+            "Disposition (malicious / suspicious / known-good)",
+            "Confidence",
+            "Detection logic",
+            "TLP"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "indicatorOrObservable": {
+                "x-assured-column": "Indicator or observable",
+                "type": "string"
+              },
+              "type": {
+                "x-assured-column": "Type",
+                "type": "string"
+              },
+              "disposition": {
+                "x-assured-column": "Disposition (malicious / suspicious / known-good)",
+                "enum": ["malicious", "suspicious", "known-good"]
+              },
+              "confidence": {
+                "x-assured-column": "Confidence",
+                "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+              },
+              "detectionLogic": {
+                "x-assured-column": "Detection logic",
+                "type": "string"
+              },
+              "tlp": {
+                "x-assured-column": "TLP",
+                "$ref": "assured-vocabulary.schema.json#/$defs/tlp"
+              }
+            }
+          }
+        }
+      },
+      "required": ["attAndCkChain"]
+    },
+    "lessonsLearned": {
+      "x-assured-section": "7. Lessons learned",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "postEventRecommendations": {
+      "x-assured-section": "8. Post-event recommendations",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    },
+    "appendicesAndEvidence": {
+      "x-assured-section": "9. Appendices and evidence",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["items"]
+    }
+  },
+  "required": [
+    "decisionHeader",
+    "eventOverview",
+    "timelineOfEvents",
+    "originAndScope",
+    "actionsTaken",
+    "businessImpact",
+    "indicatorsAndObservables",
+    "lessonsLearned",
+    "postEventRecommendations",
+    "appendicesAndEvidence"
+  ]
+}

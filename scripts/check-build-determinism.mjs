@@ -4,9 +4,10 @@
  * fresh build can be diffed against the deployed artifact, which is only
  * possible when two builds of the same tree are byte-identical.
  *
- * Runs `astro build` twice and compares SHA-256 manifests of dist/. Not in
- * the default `pnpm build` chain (it doubles build time); run it before a
- * release with `pnpm check:determinism`, or in CI as a separate job.
+ * Runs `astro build` (plus the post-build template stamp) twice and
+ * compares SHA-256 manifests of dist/. Not in the default `pnpm build`
+ * chain (it doubles build time); run it before a release with
+ * `pnpm check:determinism`, or in CI as a separate job.
  *
  * Exit codes: 0 byte-identical, 1 differences (lists the varying files —
  * the usual cause is randomness evaluated at build time; see
@@ -34,6 +35,9 @@ function build(label) {
   }
   console.log(`check-build-determinism: ${label} (cold cache)...`);
   execSync("npx astro build", { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] });
+  // The deployed dist/ carries the template version stamps, so the compared
+  // builds must too.
+  execSync("node scripts/stamp-templates.mjs", { cwd: ROOT, stdio: ["ignore", "ignore", "inherit"] });
 }
 
 function manifest() {

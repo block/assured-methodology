@@ -17,6 +17,43 @@ export async function getStaticPaths() {
   }));
 }
 
+/** Words a minute for reading-time estimates (the rate the site's own
+ *  reading-time claims are measured at). */
+const WORDS_PER_MINUTE = 230;
+
+/** Attributes whose values are markup plumbing, not prose. */
+const NON_PROSE_ATTRS =
+  /^(class|className|style|href|src|id|for|d|viewBox|points|transform|fill|stroke|width|height|x|y|cx|cy|r|rx|ry|role|aria-[\w-]+|data-[\w-]+|target|rel|type|phase|variant|icon|pattern|letter|current|slot|name|key|layout|size)$/;
+
+/**
+ * Estimate the minutes a careful read of the page takes from its MDX
+ * source: prose text plus the prose passed to components as string props,
+ * excluding code blocks, styles, scripts, imports and quizzes.
+ */
+function readingMinutesFor(body: string): number {
+  let src = body
+    .replace(/^```[\s\S]*?^```/gm, " ")
+    .replace(/<(style|script)\b[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<Quiz\b[\s\S]*?<\/Quiz>/g, " ")
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ")
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/^(import|export)\s.*$/gm, " ");
+  const propText: string[] = [];
+  src = src.replace(/<\/?[A-Za-z][^<>]*>/g, (tag) => {
+    for (const m of tag.matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)) {
+      if (!NON_PROSE_ATTRS.test(m[1]) && /\s\S+\s/.test(m[2])) {
+        propText.push(m[2]);
+      }
+    }
+    return " ";
+  });
+  const text = `${src} ${propText.join(" ")}`
+    .replace(/&[a-z#0-9]+;/gi, " ")
+    .replace(/\]\([^)]*\)/g, " ");
+  const words = text.match(/[\p{L}\p{N}][\p{L}\p{N}'’.-]*/gu)?.length ?? 0;
+  return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+}
+
 /**
  * Properties used on this page
  */
@@ -26,7 +63,16 @@ const description = doc.data.description;
 const wide = doc.data.wide ?? false;
 const chromeless = doc.data.chromeless ?? false;
 const showToc = doc.data.showToc ?? true;
+const techVerified = doc.data.techVerified;
 const { Content, headings } = await render(doc);
+// The real source file (chapter index pages override their slug, so the
+// route alone does not name the file).
+const sourcePath = doc.filePath;
+// No reading time where it means nothing: quizzes are exercises, and the
+// chromeless glossaries are lookup pages.
+const isQuiz = /(^|\/)quiz$/.test(doc.id);
+const readingMinutes =
+  chromeless || isQuiz || !doc.body ? undefined : readingMinutesFor(doc.body);
 ---
 
 <ContentPageLayout
@@ -36,6 +82,9 @@ const { Content, headings } = await render(doc);
   wide={wide}
   chromeless={chromeless}
   showToc={showToc}
+  techVerified={techVerified}
+  sourcePath={sourcePath}
+  readingMinutes={readingMinutes}
   showTitleAsH1={true}
   showBreadcrumbs={true}
 >

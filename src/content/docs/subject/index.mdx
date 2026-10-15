@@ -1,29 +1,21 @@
 ---
 title: "Subject: Identifying key entities"
-description: "Subject is the second piece of the ASSURED puzzle. Identify every entity that authenticated or acted: user, robot account, cloud instance, cloud role, service."
+description: "Subject is the second piece of the ASSURED puzzle. Identify every entity that authenticated or acted: human users, service accounts and other non-human identities (cloud roles, workloads, OAuth apps, AI agents), endpoints, and network identifiers."
 slug: "subject"
 wide: true
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
+import "@/styles/pages/subject.css";
 
 <ChapterHero
   phase="subject"
-  letter="S"
-  pieceNumber={2}
-  question="Who is involved?"
-  pillars={[
-    { num: "01", label: "Four dimensions",       href: "/docs/subject/four-dimensions/" },
-    { num: "02", label: "Entity types",          href: "/docs/subject/entity-types/" },
-    { num: "03", label: "Behavioral framework",  href: "/docs/subject/behavioral-framework/" },
-    { num: "04", label: "Insider analysis",      href: "/docs/subject/insider-analysis/" },
-  ]}
 >
   Subject is the <em>who</em> of the alert. Every entity that authenticated, executed, or acted on the systems the alert touched. Not just humans. Anyone or anything with an identity that the system trusted.
 </ChapterHero>
@@ -32,8 +24,39 @@ import FlipCard from "@/components/assured/FlipCard.astro";
 Alert told the analyst what fired. Subject answers <em>who acted</em>. The answer is rarely a single person. It is often a chain of identities (a user, the laptop they were on, a service account the laptop authenticated against, a cloud role the service account assumed) and the relationships between them. Subject is how the investigation moves from event to actor.
 </Callout>
 
-<Callout variant="info" title="How the four sub-pages relate (they're not parallel pillars)">
-The four sub-pages below aren't four equivalent things to memorize. They're four <em>different shapes</em> of the same question. **Four dimensions** is the *primary lens*, apply it to every entity (Authentication, Authorization, Behavior, Relationships). **Entity types** is the *typology* of what to apply it to (humans, service accounts, machines, cloud roles). **Behavioral framework** is the *toolkit* for the Behavior dimension specifically, pattern recognition, baselines, anomalies. **Insider analysis** is the *special case*, what to do differently when the actor turns out to be an authorized user, framed against the Insider Threat Matrix. Read in that order and the chapter feels like one continuous skill, not four disconnected sub-skills.
+<figure class="identity-chain">
+  <svg viewBox="0 0 760 112" role="img" aria-labelledby="identity-chain-title identity-chain-desc" class="identity-chain__svg">
+    <title id="identity-chain-title">One alert, four identities</title>
+    <desc id="identity-chain-desc">A chain of four boxes joined by arrows. The user account alice signs in on the endpoint alice-laptop. The laptop triggers a pipeline job that runs as the service account svc-ci. The service account assumes the cloud role deploy-prod. Each arrow is a separate inference with its own confidence.</desc>
+    <defs>
+      <marker id="identity-chain-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" class="identity-chain__arrowhead"/>
+      </marker>
+    </defs>
+    <rect x="10" y="34" width="150" height="50" rx="8" class="identity-chain__node"/>
+    <text x="85" y="56" text-anchor="middle" class="identity-chain__name">alice</text>
+    <text x="85" y="73" text-anchor="middle" class="identity-chain__type">user account</text>
+    <path d="M 162 59 L 198 59" class="identity-chain__link" marker-end="url(#identity-chain-arrow)"/>
+    <text x="180" y="24" text-anchor="middle" class="identity-chain__verb">signs in on</text>
+    <rect x="200" y="34" width="150" height="50" rx="8" class="identity-chain__node"/>
+    <text x="275" y="56" text-anchor="middle" class="identity-chain__name">alice-laptop</text>
+    <text x="275" y="73" text-anchor="middle" class="identity-chain__type">endpoint</text>
+    <path d="M 352 59 L 388 59" class="identity-chain__link" marker-end="url(#identity-chain-arrow)"/>
+    <text x="370" y="24" text-anchor="middle" class="identity-chain__verb">triggers a job as</text>
+    <rect x="390" y="34" width="150" height="50" rx="8" class="identity-chain__node"/>
+    <text x="465" y="56" text-anchor="middle" class="identity-chain__name">svc-ci</text>
+    <text x="465" y="73" text-anchor="middle" class="identity-chain__type">service account</text>
+    <path d="M 542 59 L 578 59" class="identity-chain__link" marker-end="url(#identity-chain-arrow)"/>
+    <text x="560" y="24" text-anchor="middle" class="identity-chain__verb">assumes</text>
+    <rect x="580" y="34" width="170" height="50" rx="8" class="identity-chain__node"/>
+    <text x="665" y="56" text-anchor="middle" class="identity-chain__name">deploy-prod</text>
+    <text x="665" y="73" text-anchor="middle" class="identity-chain__type">cloud role</text>
+  </svg>
+  <figcaption>One alert, four identities. Each arrow is a separate inference with its own confidence, and the identities further right often hold more trust than the person at the left.</figcaption>
+</figure>
+
+<Callout variant="info" title="How the sub-pages fit together">
+The sub-pages aren't equivalent things to memorize. They're <em>different shapes</em> of the same question. **[Four dimensions](/docs/subject/four-dimensions/)** is the *primary lens*: apply it to every entity (Authentication, Authorization, Behavior, Relationships) to turn it into a structured profile. **[Entity types](/docs/subject/entity-types/)** is the *typology* of what to apply it to (user accounts, endpoints, applications and services, network identifiers), with the first checks for each. **[Non-human identities](/docs/subject/non-human-identities/)** takes the identities no person sits behind (service accounts, cloud roles, workload identities, OAuth apps, CI/CD tokens, AI agents) and shows how to find the owner and the baseline for each. **[Behavioral framework](/docs/subject/behavioral-framework/)** is the *toolkit* for the Behavior dimension: pattern recognition, baselines, anomalies. **[Insider analysis](/docs/subject/insider-analysis/)** is the *special case*: what to do differently when the actor turns out to be an authorized user, framed against the Insider Threat Matrix. Read in that order and the chapter feels like one continuous skill, not a set of disconnected sub-skills.
 </Callout>
 
 ---
@@ -44,25 +67,25 @@ By the end of Subject you should be able to:
 
 <div class="alert-outcomes">
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">👤</span>
+    <span class="alert-outcomes__icon subject-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
     <div>
-      <strong>Enumerate every entity</strong> connected to the alert: humans, service accounts, machines, cloud roles, network identifiers.
+      <strong>Enumerate every entity</strong> connected to the alert: user accounts, endpoints, applications and services, and network identifiers, including every non-human identity in the chain.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🔐</span>
+    <span class="alert-outcomes__icon subject-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
     <div>
-      <strong>Evaluate each entity across four dimensions</strong>, authentication, authorization, behavior, relationships, so the assessment is repeatable across alert types.
+      <strong>Evaluate each entity across four dimensions</strong> (authentication, authorization, behavior, relationships) so the assessment is repeatable across alert types.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">📈</span>
+    <span class="alert-outcomes__icon subject-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
     <div>
       <strong>Compare current activity against historical baselines</strong> to separate normal-for-this-entity from anomalous.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🕵️</span>
+    <span class="alert-outcomes__icon subject-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
     <div>
       <strong>Recognize insider patterns</strong> using the <DefineTerm term="Insider Threat Matrix">A public framework maintained at insiderthreatmatrix.org that catalogs insider techniques across motive, means, preparation, infringement, and anti-forensics. Useful as a shared vocabulary for describing insider risk and threat.</DefineTerm> and produce a Subject-level risk picture.
     </div>
@@ -71,91 +94,78 @@ By the end of Subject you should be able to:
 
 ---
 
-## Subjects are not just users
+## Subject at a glance
 
-A common mistake when teaching Subject is to map "<DefineTerm term="Entity" display="entity" />" to "<DefineTerm term="User Account" display="user account" />." Modern environments have far more identities than people. Understanding what counts as a subject is the first skill of the phase.
+<PhaseAtAGlance phase="subject">
+  <Fragment slot="question-detail">Every identity that authenticated, executed, or acted, human or not, and how the identities connect.</Fragment>
+  <Fragment slot="deliverable">The Subject handoff: the entity map, baselines and deviations with their confidence, the relationship graph, and insider indicators, carried in the handoff document the <a href="/docs/subject/transition/">transition to Scope</a> lays out.</Fragment>
+  <Fragment slot="done"><ul><li>every identifier resolves to an entity with an owner, and the confidence of each hop is noted;</li><li>every entity in the chain has a line per dimension (fine, not fine, or unknown), labeled per the <a href="/docs/documentation/standards/#confidence">shared confidence rubric</a>;</li><li>what could not be checked is written down as an open question for Uncover;</li><li>first-pass scope parameters are recommended.</li></ul></Fragment>
+  <Fragment slot="tripwire">An escalation criterion confirmed during Subject (supported at High confidence) escalates now under the <a href="/docs/escalation/criteria/">escalation tripwire</a>. Subject keeps working as scoping support under IR's clock. Suspicion refines Scope instead.</Fragment>
+  <Fragment slot="level-0">Subject compresses into one item of the <a href="/docs/fast-path/">eligibility gate</a>: not a privileged identity, and not automation holding deploy, signing, secrets, or repository-write rights, each proven from its source system. Unknown fails the gate. A privileged identity always fails it and routes the case to Level 2.</Fragment>
+  <Fragment slot="level-1">Subject and Scope run as one context sweep: <em>who is this, and what can they reach?</em> The ten-minute pass below is the Subject half. A second subject, a privileged account, or regulated data the activity plausibly touched moves the case to Level 2.</Fragment>
+  <Fragment slot="level-2">The full chapter: every identity in the chain, human and non-human, profiled across the four dimensions, baselines read at every available scale, the insider check, and the complete handoff.</Fragment>
+</PhaseAtAGlance>
 
-<div class="evasion-grid">
-  <div class="evasion-card evasion-card--subject">
-    <h3>👤 Human users</h3>
-    <p>Standard users, administrators, contractors, executives, vendor logins. Each has a different risk profile based on access and job function.</p>
-  </div>
-  <div class="evasion-card evasion-card--subject">
-    <h3>🤖 Non-human identities</h3>
-    <p>Service accounts, automation bots, deployment pipelines, scheduled tasks. Often have broader access than humans and outlive the people who created them.</p>
-  </div>
-  <div class="evasion-card evasion-card--subject">
-    <h3>☁️ Cloud and infrastructure</h3>
-    <p>EC2 instances, Kubernetes pods, Lambda functions, cloud roles, federated identities. Each represents an identity boundary the SOC needs to track.</p>
-  </div>
-  <div class="evasion-card evasion-card--subject">
-    <h3>🔗 Network and trust</h3>
-    <p>IP addresses, MAC addresses, certificates, API keys. Not identities in the traditional sense, but the markers that systems use to decide who is who.</p>
-  </div>
-</div>
+<Callout variant="info" title="Subject in ten minutes">
+In a full Level 2 investigation an experienced analyst typically spends 8 to 15 minutes on Subject and a new analyst 20 to 40: a diagnostic range, not a quota (see the [time-per-phase table](/docs/fast-path/#time-per-phase-by-experience-level)). The rest of the chapter describes far more work than that, so this is what "done enough" looks like on a routine case. Every step links to the page that develops it.
+
+1. **Resolve the identifier to an owner** and note the confidence of each hop ([From identifier to identity](/docs/subject/entity-types/#from-identifier-to-identity)).
+2. **List the non-human identities in the chain:** service accounts, cloud roles, OAuth apps, AI agents ([Entity types](/docs/subject/entity-types/), [Non-human identities](/docs/subject/non-human-identities/)).
+3. **Write one line per dimension:** fine, not fine, or unknown ([Four dimensions](/docs/subject/four-dimensions/)).
+4. **Check the baseline at the highest available scale:** the entity's own history, then its peers, then its role's expectations ([Behavioral framework](/docs/subject/behavioral-framework/#baseline-development)).
+5. **Record what could not be checked.** A gap is an open question, not a clean result.
+
+When any of the five turns up something that does not fit, that is the lead, and the deeper pages are where to follow it.
+</Callout>
 
 ---
 
-## The four sub-pages of Subject analysis
+## Subjects are not just users
 
-ASSURED splits Subject into four sub-pages. The first three structure how to think about an entity. The fourth handles a special case.
+A common mistake in Subject analysis is to map "<DefineTerm term="Entity" display="entity" />" to "<DefineTerm term="User Account" display="user account" />." Modern environments have far more identities than people. Understanding what counts as a subject is the first skill of the phase. The four types below are the same four the [Entity types](/docs/subject/entity-types/) page develops.
 
-<div class="pillars-grid">
-  <a href="/docs/subject/four-dimensions/" class="pillar pillar--subject">
-    <div class="pillar__num">01</div>
-    <div class="pillar__icon">🧭</div>
-    <h3>Four dimensions</h3>
-    <p>Authentication, authorization, behavior, relationships. The lens that turns any entity into a structured profile.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-
-  <a href="/docs/subject/entity-types/" class="pillar pillar--subject">
-    <div class="pillar__num">02</div>
-    <div class="pillar__icon">🗂️</div>
-    <h3>Entity types</h3>
-    <p>User accounts, endpoints, applications, services, network identifiers. Each type has its own analysis pattern.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-
-  <a href="/docs/subject/behavioral-framework/" class="pillar pillar--subject">
-    <div class="pillar__num">03</div>
-    <div class="pillar__icon">📊</div>
-    <h3>Behavioral framework</h3>
-    <p>Pattern recognition, baseline development, anomaly detection. The toolkit for separating normal from suspicious.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-
-  <a href="/docs/subject/insider-analysis/" class="pillar pillar--subject">
-    <div class="pillar__num">04</div>
-    <div class="pillar__icon">🕵️</div>
-    <h3>Insider analysis</h3>
-    <p>Risk vs. threat. Motive, means, preparation, infringement, anti-forensics. Plus the Insider Threat Matrix as a structured lens.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
+<div class="evasion-grid">
+  <div class="evasion-card evasion-card--subject">
+    <h3>User accounts</h3>
+    <p>Standard users, administrators, contractors, vendor logins, federated and guest identities, and the service accounts that sign in like them. Service accounts are non-human identities: they often hold broader access than people and outlive the people who created them.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Endpoints</h3>
+    <p>Workstations, servers, mobile devices, VMs (EC2, Azure VMs, GCE), Kubernetes pods. The host is the place where activity actually happens, and each one is an identity boundary the SOC needs to track.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Applications and services</h3>
+    <p>Deployment pipelines, automation bots, serverless functions, OAuth apps, AI agents, and the cloud roles and managed identities they run as. Non-human identities with predictable but consequential behavior.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Network identifiers</h3>
+    <p>IP addresses, MAC addresses, domains. Not identities themselves, but the markers systems use to decide who is who. Certificates and API keys are credentials that belong to the identities above.</p>
+  </div>
 </div>
 
 ---
 
 ## Why Subject deserves its own phase
 
-A pattern experienced analysts will recognize: many missed intrusions are not missed at Alert, they are missed at Subject. The detection engine often fires correctly, but the analyst stops at "<DefineTerm term="User" display="user" /> X did Y" without asking what kind of identity X is, what X normally does, or what other identities connect to X.
+A pattern experienced analysts will recognize: many missed intrusions are missed at Subject. The detection engine fired correctly and the alert was understood, but the analyst stopped at "<DefineTerm term="User" display="user" /> X did Y" without asking what kind of identity X is, what X normally does, or what other identities connect to X.
 
-<div class="why-subject-grid">
-  <FlipCard icon="🪪" title="Identity is not the same as person" accent="green">
-    The user account named alice@example.com is an identity. So is the service account that alice's CI/CD pipeline uses. So is the cloud role that pipeline assumes when it deploys to staging. All three can act with alice's level of trust. Treating them as the same person is how <DefineTerm term="Privilege Escalation" display="privilege escalation" /> gets missed.
-  </FlipCard>
-
-  <FlipCard icon="🕒" title="Identities outlive people" accent="green">
-    Service accounts created five years ago, by engineers who have since left, often still have production access. They have no manager, no review cadence, and no normal user to compare against. Subject analysis is what surfaces these forgotten identities.
-  </FlipCard>
-
-  <FlipCard icon="🔁" title="Behavior is the strongest signal" accent="green">
-    For any identity, the question "is this normal for this identity" is more informative than "is this normal in general." A 03:00 login is unremarkable for a follow-the-sun support account and alarming for a finance executive. The same alert means different things depending on whose history it touches.
-  </FlipCard>
-
-  <FlipCard icon="🌐" title="Relationships reveal scope" accent="green">
-    A compromised identity is rarely the destination. It is the starting point for <DefineTerm term="Lateral Movement" display="lateral movement" />. Mapping which other identities and systems a compromised entity can reach is how the analyst sets the bounds of the investigation, which feeds directly into the Scope phase next.
-  </FlipCard>
+<div class="evasion-grid">
+  <div class="evasion-card evasion-card--subject">
+    <h3>Identity is not the same as person</h3>
+    <p>The user account named alice@example.com is an identity. So is the service account that alice's CI/CD pipeline uses. So is the cloud role that pipeline assumes when it deploys to staging. Each can hold more trust than alice herself: if alice can trigger the pipeline, she effectively wields the pipeline's role. Collapsing all three into "alice" is how <DefineTerm term="Privilege Escalation" display="privilege escalation" /> paths get missed.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Identities outlive people</h3>
+    <p>Service accounts created five years ago, by engineers who have since left, often still have production access. They have no manager, no review cadence, and no normal user to compare against. Subject analysis is what surfaces these forgotten identities.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Behavior is the strongest signal</h3>
+    <p>For any identity, the question "is this normal for this identity" is more informative than "is this normal in general." A 03:00 login is unremarkable for a night-shift on-call engineer and alarming for a finance executive based in the same office. The same alert means different things depending on whose history it touches.</p>
+  </div>
+  <div class="evasion-card evasion-card--subject">
+    <h3>Relationships reveal scope</h3>
+    <p>A compromised identity is rarely the destination. It is the starting point for <DefineTerm term="Lateral Movement" display="lateral movement" />. Mapping which other identities and systems a compromised entity can reach is how the analyst sets the bounds of the investigation, which feeds directly into the Scope phase next.</p>
+  </div>
 </div>
 
 ---
@@ -164,10 +174,6 @@ A pattern experienced analysts will recognize: many missed intrusions are not mi
 Subject is not "look up the user in HR." It is the structured assessment of every identity connected to the alert, across four dimensions, including the non-human and <DefineTerm term="Infrastructure" display="infrastructure" /> identities that systems trust as if they were people.
 </KeyTakeaway>
 
-<PuzzleProgress
-  current="subject"
-/>
-
 <ContinueCard
   current="subject"
   nextHref="/docs/subject/four-dimensions/"
@@ -175,82 +181,3 @@ Subject is not "look up the user in HR." It is the structured assessment of ever
   nextDescription="The lens that turns any entity into a structured profile: authentication, authorization, behavior, relationships."
   ctaLabel="Read the four dimensions"
 />
-
-<style>
-{`
-.evasion-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 640px)  { .evasion-grid { grid-template-columns: 1fr 1fr; } }
-
-.evasion-card--subject {
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border-left: 3px solid #22c55e;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
-  border-right: 1px solid rgba(148, 163, 184, 0.2);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 0.55rem;
-  transition: border-left-width 0.15s ease;
-}
-.evasion-card--subject:hover { border-left-width: 5px; }
-/* level changed for the heading outline; size stays as designed */
-.evasion-card--subject :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #86efac;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: inherit;
-}
-.evasion-card--subject p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-
-@media (min-width: 768px)  { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.pillar--subject {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  border-radius: 0.85rem;
-  color: var(--assured-text);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden;
-}
-.pillar--subject:hover {
-  transform: translateY(-3px);
-  border-color: #22c55e;
-  box-shadow: 0 16px 32px -12px rgba(34, 197, 94, 0.35);
-}
-.pillar__num {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: rgba(134, 239, 172, 0.7);
-  letter-spacing: 0.06em;
-}
-.pillar--subject h3 { margin: 0; color: var(--assured-text); font-size: 1.1rem; }
-.pillar--subject p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.95rem; }
-.pillar__cta {
-  margin-top: auto;
-  color: #4ade80;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-`}
-</style>

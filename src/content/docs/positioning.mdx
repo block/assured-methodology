@@ -1,80 +1,193 @@
 ---
-title: "Where ASSURED sits"
-description: "Honest positioning against Investigation Theory, NIST 800-61r3, SANS PICERL and SEC450, the SOC books, and the analyst's thinking tools."
+title: "How ASSURED compares"
+description: "How ASSURED relates to Investigation Theory, NIST 800-61r3, ISO/IEC 27035, SANS DAIR, PICERL and SEC450, the CSIRT process models, the SOC books, and the analyst's thinking tools."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import VendorStatus from "@/components/assured/VendorStatus.astro";
+import "@/styles/pages/root.css";
 
-ASSURED did not invent triage, and the field around it is full of work worth reading. This page is the map: what each neighboring framework, course, and thinking tool actually covers, where it is excellent, and where the gap sits that ASSURED fills. If a claim on this page makes you want to read the source instead, follow the link; that is the point of a related-work section.
+ASSURED did not invent triage, and the field around it is full of work worth reading. This page is the map: what each neighboring framework, standard, course, and thinking tool actually covers, where it is excellent, and where ASSURED's narrower contribution fits alongside it. If a claim on this page makes you want to read the source instead, follow the link; that is the point of a related-work section.
 
 ## The claim, stated carefully
 
-ASSURED does not claim that event triage was undocumented, unstudied, or unteachable before this project. Investigation Theory directly teaches vendor-agnostic investigation and alert-triage skills. Incident-response standards, books, courses, research, and thinking tools cover substantial parts of the work.
+ASSURED does not claim that event triage was undocumented, unstudied, or unteachable before this project. CERT/SEI named "Triage Events" as its own incident-management process in 2004, the FIRST CSIRT Services Framework lists event qualification and incident triage as services, and Investigation Theory directly teaches vendor-agnostic investigation and alert-triage skills. Incident-response standards, books, courses, research, and thinking tools cover substantial parts of the work.
 
-The defensible contribution is narrower and concrete: **ASSURED publishes one open, named, versioned operational workflow for the work between an alert firing and the documented close-or-escalate decision.** Its seven phases have explicit questions, deliverables, transitions, and depth rules. Its templates, exercises, teaching guide, adoption guide, version history, and citation record are public. That positive contribution can be inspected; a universal claim that no other methodology exists cannot.
+The defensible contribution is narrower and concrete: **ASSURED publishes one open, named, versioned operational workflow for the work between an alert firing and the documented close-or-escalate decision.** The <a href="/docs/intro/">introduction</a> sets out the method; its templates, exercises, version history, and citation record are public. That positive contribution can be inspected; a universal claim that no other methodology exists cannot.
+
+## At a glance
+
+The cards below give each neighbor its due. This matrix is the short version: what kind of work each one is, how it treats triage, what it costs, whether it includes practice, what it says about AI, and how it is maintained.
+
+| Work | Form | How it treats triage | Cost and license | Hands-on practice | AI guidance | Maintained |
+| --- | --- | --- | --- | --- | --- | --- |
+| ASSURED | Open operational methodology | Seven phases with required outputs, a depth ladder, and a close-or-escalate rule for each alert or grouped case | Free; content CC BY 4.0, site code MIT | Exercises with answer keys, quizzes, telemetry labs on public attack data with a blind-scored capstone | A dedicated page: assistants advisory above Level 0 parity; machine closes only under a governed tier | Versioned releases and changelog since May 2026; one maintainer |
+| SANS DAIR | Incident-response model and book | One waypoint, Verify and Triage, inside a dynamic response model | Free book, CC BY 4.0 | Checklists; taught hands-on in SEC504 | A chapter on AI in incident response | Book published September 2026 |
+| NIST SP 800-61r3 | Recommendations (CSF 2.0 Community Profile) | Outcomes to achieve (DE.AE, RS.MA), not a per-alert procedure | Free | None | Not a focus | April 2025, with an online companion |
+| ISO/IEC 27035-1:2023 | International standard | One phase, Assess and decide, in a five-phase process | Paid standard | None in the standard | Not a focus | Revised 2016 and 2023 |
+| CERT/SEI 2004, FIRST v2.1 | CSIRT process and services models | Triage named as a process or service, defined at team level | Free | None | Not covered | 2004; 2019 |
+| SANS PICERL | Incident-handling process | Part of Identification | Free white paper; taught in SANS courses | In SANS courses | Not covered | 2012 handbook; SEC504 now teaches DAIR |
+| Investigation Theory | Course and research | The reasoning behind investigation, across alert types | Paid training; free papers and talks | Course labs | Not assessed here | Ongoing |
+| SANS SEC450 | Hands-on course with certification (GIAC GSOC) | A triage and investigation section, including ACH | Paid | Hands-on labs | AI-assisted SOC workflows with approval gates and audit trails | Rebuilt in 2026 |
+| OSCAR | Forensics methodology | A five-step investigation process | Commercial book | None | Predates the question | 2012 book |
+| Crafting the InfoSec Playbook | Book | Plays with guidance on reading results | Commercial book | None | Predates the question | 2015 book |
+
+## Mapping ASSURED to the standards
+
+The crosswalk below is an informal mapping by the author, not one NIST or ISO has reviewed. It shows where each phase does most of the work toward the outcomes the standards name. Several outcomes span more than one phase.
+
+| ASSURED phase | NIST CSF 2.0 outcomes (800-61r3) | ISO/IEC 27035-1:2023 | PICERL | DAIR |
+| --- | --- | --- | --- | --- |
+| Alert | DE.AE-02 (analyze potentially adverse events), DE.AE-07 (integrate threat intelligence and context) | Detect and report; Assess and decide | Identification | Detect; Verify and Triage |
+| Subject | DE.AE-03 (correlate information from multiple sources), DE.AE-07 | Assess and decide | Identification | Verify and Triage |
+| Scope | DE.AE-04 (estimate impact and scope) | Assess and decide | Identification | Verify and Triage |
+| Uncover | DE.AE-02, DE.AE-03, RS.AN-07 (collect incident data with integrity and provenance) | Assess and decide | Identification | Verify and Triage |
+| Risk | DE.AE-04; feeds RS.MA-03 (IR categorizes and prioritizes) | Assess and decide | Identification | Verify and Triage |
+| Escalation decision | DE.AE-08 (declare incidents against defined criteria), RS.MA-02 (triage and validate incident reports); hands to RS.MA-01 (RS.MA-04 is IR escalation of a declared incident) | Assess and decide, ending at the hand to Respond | End of Identification | End of Verify and Triage |
+| Documentation | RS.AN-06 (record investigation actions with integrity and provenance), DE.AE-06 (provide information to authorized staff and tools) | Records that feed Learn lessons | Feeds Lessons Learned | Feeds Debrief |
+
+The full crosswalk, with the evidence an auditor can sample for each row and the version pins, is on the <a href="/docs/standards-mapping/">Standards mapping</a> page.
+
+Risk scoring has its own neighbors (NIST's risk evaluation factors, CISA's SSVC, ITIL impact × urgency, and the similarly named Splunk Risk-Based Alerting). The Risk chapter's <a href="/docs/risk/framework/#other-scoring-schemes">priority matrix page</a> explains how the RATM relates to each of those scoring schemes.
 
 ## The lifecycles and standards
 
 <div class="pos-list">
   <div class="pos-item">
     <h3>NIST SP 800-61r3 <span class="pos-item__kind">incident-response recommendations</span></h3>
-    <p><strong>What it is:</strong> the U.S. standard for incident-response, revised in April 2025 to restructure around the CSF 2.0 functions. Its <a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener noreferrer">r3 revision</a> deliberately dropped r2's step-by-step detection-and-analysis guidance, stating that lifecycle-level operational detail is no longer feasible to maintain in a single static publication.</p>
-    <p><strong>How it relates:</strong> that retreat is the strongest argument for something like ASSURED existing. 800-61 tells an organization what its IR program must cover; it now explicitly leaves the alert-by-alert <em>how</em> to each organization. ASSURED is one published answer to the how, ending exactly where 800-61's response lifecycle takes ownership: the <a href="/docs/escalation/handoff/">handoff</a>.</p>
+    <p><strong>What it is:</strong> NIST's incident-response guidance, <a href="https://csrc.nist.gov/pubs/sp/800/61/r3/final" target="_blank" rel="noopener noreferrer">SP 800-61r3</a> (<em>Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile</em>). It was published in April 2025, replaces r2 (2012, withdrawn on 3 April 2025), and is restructured around the CSF 2.0 Functions. It is a set of recommendations, not a mandatory standard. The revision deliberately dropped r2's step-by-step guidance, stating that the details of how to perform incident response change so often and vary so much that capturing them in a single static publication is no longer feasible, and it points readers to NIST's Incident Response project page and online mappings instead.</p>
+    <p><strong>How it relates:</strong> that shift is a strong argument for something like ASSURED existing. r3 recommends what an IR program should achieve, not how to achieve it, and tells organizations to use the incident response life cycle framework or model that suits them best. Triage still appears inside r3's model, as outcomes: DE.AE-02 to DE.AE-08 (analyze, correlate, estimate impact and scope, integrate threat intelligence, declare incidents against defined criteria) and RS.MA-02 ("Incident reports are triaged and validated"). ASSURED works inside those Detect and Respond outcomes, not before them: it is one published way to reach them for a single alert. It ends at the incident-declaration point (DE.AE-08), where executing the incident response plan (RS.MA-01) takes over: the <a href="/docs/escalation/handoff/">handoff</a>.</p>
+  </div>
+  <div class="pos-item">
+    <h3>ISO/IEC 27035 <span class="pos-item__kind">international standard</span></h3>
+    <p><strong>What it is:</strong> the international standard for information security incident management. <a href="https://www.iso.org/standard/78973.html" target="_blank" rel="noopener noreferrer">ISO/IEC 27035-1:2023</a> (<em>Principles and process</em>) sets out five phases: Plan and prepare, Detect and report, Assess and decide, Respond, and Learn lessons. ISO/IEC 27001:2022 control A.5.25, "Assessment and decision on information security events", is the related control auditors test, which is why many ISO 27001-certified and non-US SOCs work to this model.</p>
+    <p><strong>How it relates:</strong> Assess and decide is the event-versus-incident decision point, named as a phase of its own. The standard says what that phase must accomplish; ASSURED is one way to perform it for each alert, with the close-or-escalate decision recorded so an auditor can follow it.</p>
+  </div>
+  <div class="pos-item">
+    <h3>CERT/SEI and FIRST CSIRT models <span class="pos-item__kind">prior art, 2004 and 2019</span></h3>
+    <p><strong>What it is:</strong> the work that first defined triage as a process in its own right. Alberts, Dorofee, Killcrece, Ruefle, and Zajicek's <a href="https://resources.sei.cmu.edu/library/asset-view.cfm?assetid=7153" target="_blank" rel="noopener noreferrer"><em>Defining Incident Management Processes for CSIRTs</em></a> (CERT/SEI, CMU/SEI-2004-TR-015) models five processes: Prepare/Sustain/Improve, Protect Infrastructure, Detect Events, Triage Events, and Respond, with explicit handoffs from Detect to Triage and from Triage to Respond. The <a href="https://www.first.org/standards/frameworks/csirts/csirt_services_framework_v2.1" target="_blank" rel="noopener noreferrer">FIRST CSIRT Services Framework v2.1</a> lists event analysis (correlation and qualification) under Information Security Event Management, and incident triage under incident report acceptance and incident analysis.</p>
+    <p><strong>How it relates:</strong> these models say what triage is and where it sits in a team's work, at the level of a CSIRT's process map. ASSURED works one level down: the per-alert sequence, its required outputs, and the evidence standard for the decision. Its handoff to IR is the same Triage-to-Respond boundary the 2004 model drew.</p>
+  </div>
+  <div class="pos-item">
+    <h3>SANS DAIR <span class="pos-item__kind">IR model, free book, 2026</span></h3>
+    <p><strong>What it is:</strong> the Dynamic Approach to Incident Response, the model taught in SANS SEC504 since at least 2024 and published by Joshua Wright in September 2026 as a free CC BY 4.0 book, <a href="https://dynamicincidentresponse.com/" target="_blank" rel="noopener noreferrer"><em>Dynamic Incident Response: A Framework for Security Teams</em></a>. Its waypoints are Prepare, Detect, Verify and Triage, an iterative response loop (Scope, Contain, Eradicate, Recover), and Debrief. Verify and Triage covers confirming that an event is real before committing resources.</p>
+    <p><strong>How it relates:</strong> DAIR is the closest open neighbor. It names verification and triage as an explicit step inside an incident-response model. ASSURED expands that single step into seven phases, each with required outputs, plus a depth ladder and a close-or-escalate rule. The two are complementary: ASSURED can be read as one detailed way to run DAIR's Verify and Triage.</p>
   </div>
   <div class="pos-item">
     <h3>SANS PICERL <span class="pos-item__kind">IR lifecycle</span></h3>
-    <p><strong>What it is:</strong> the six-phase incident-response process (Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned) that most IR teams can recite, and for good reason: it survives contact with real incidents.</p>
-    <p><strong>How it relates:</strong> triage is a slice of Identification, and PICERL does not decompose that slice. ASSURED's seven phases are, roughly, Identification expanded to full resolution, with the explicit rule that a confirmed criterion hands the case to the PICERL-shaped process mid-phase. See <a href="/docs/escalation/triage-vs-ir/">Triage vs. IR</a> for the boundary in detail.</p>
+    <p><strong>What it is:</strong> the classic six-step incident-handling process (Preparation, Identification, Containment, Eradication, Recovery, Lessons Learned) that most IR teams can still recite. SANS popularized it, building on earlier incident-handling work going back to Eugene Schultz in 1990; Patrick Kral's <a href="https://www.sans.org/white-papers/33901/" target="_blank" rel="noopener noreferrer"><em>Incident Handler's Handbook</em></a> (SANS Institute, 2012) is the usual written reference. SANS's flagship incident-handling course, SEC504, now teaches the iterative DAIR model (above).</p>
+    <p><strong>How it relates:</strong> triage is a slice of Identification, and PICERL does not decompose that slice. ASSURED's seven phases are, roughly, Identification expanded to full resolution, with an explicit escalation tripwire: the moment any pre-agreed <a href="/docs/escalation/criteria/">escalation criterion</a> is confirmed (supported at High confidence; for example, confirmed malicious activity not fully contained by a control), the case goes to IR from whatever phase it is in. See <a href="/docs/escalation/triage-vs-ir/">Triage vs. IR</a> for the boundary in detail.</p>
   </div>
   <div class="pos-item">
     <h3>MITRE ATT&amp;CK <span class="pos-item__kind">knowledge base</span></h3>
     <p><strong>What it is:</strong> the <a href="https://attack.mitre.org/" target="_blank" rel="noopener noreferrer">public catalog</a> of adversary tactics and techniques observed in the wild, and the industry's shared vocabulary for describing attacker behavior.</p>
-    <p><strong>How it relates:</strong> a vocabulary, not a process. ATT&CK tells you what the behavior you found is called and what tends to come before and after it; it does not tell you how to run the investigation that finds it. ASSURED uses ATT&CK inside <a href="/docs/uncover/mitre/">Uncover</a> as the mapping layer for reconstructed chains.</p>
+    <p><strong>How it relates:</strong> a vocabulary, not a process. ATT&amp;CK tells you what the behavior you found is called, which adversary goal (tactic) it serves, and which groups and software have used it; it does not tell you how to run the investigation that finds it. Its tactics are deliberately unordered; for chaining techniques into a sequence, see the Center for Threat-Informed Defense's <a href="https://center-for-threat-informed-defense.github.io/attack-flow/" target="_blank" rel="noopener noreferrer">Attack Flow</a>. ASSURED uses ATT&amp;CK inside <a href="/docs/uncover/mitre/">Uncover</a> as the mapping layer for reconstructed chains.</p>
   </div>
 </div>
 
-## The training and the books
+## The training, the books, and the research
 
 <div class="pos-list">
   <div class="pos-item">
     <h3>Investigation Theory and Chris Sanders's public work <span class="pos-item__kind">course and research</span></h3>
-    <p><strong>What it is:</strong> <a href="https://chrissanders.org/training/investigationtheory/" target="_blank" rel="noopener noreferrer">Investigation Theory</a> is vendor-agnostic training centered on the mental models used by investigators: diagnostic inquiry, evidence, questions, decisions, data transformation, playbooks, bias, and reporting. Sanders's <a href="https://chrissanders.org/publications/" target="_blank" rel="noopener noreferrer">publications and presentations</a> extend that work into analyst cognition and education. The 2019 <a href="https://www.chrissanders.org/wp-content/uploads/2020/03/Creative-Choices-Developing-a-Theory-of-Divergence-Convergence-and-Intuition-in-Security-Analysts.pdf" target="_blank" rel="noopener noreferrer"><em>Creative Choices</em></a> study with Stef Rand used interviews, investigation scenarios, and quantitative self-report measures to derive a model of divergent and convergent analyst thinking, and his 2021 doctoral dissertation, <a href="https://chrissanders.org/2021/12/dissertation/" target="_blank" rel="noopener noreferrer"><em>The Analyst Mindset: A Cognitive Skills Assessment of Digital Forensic Analysts</em></a> (Baylor University), used cognitive task analysis with practicing analysts to model how diagnostic inquiry works in investigations.</p>
-    <p><strong>How it relates:</strong> the overlap is real: both projects try to make tacit investigative reasoning teachable, and both cover evidence selection, questions, bias, and decisions. Investigation Theory goes deeper into cognition and the transferable craft of investigation. ASSURED is narrower and more procedural: it defines the sequence and required artifacts for carrying one event from alert to close or incident-response handoff. ASSURED was not derived from Investigation Theory, but the earlier omission of this work made the related-work map incomplete. See <a href="/docs/development/#relationship-to-investigation-theory">Development and evidence</a> for the provenance record.</p>
+    <p><strong>What it is:</strong> <a href="https://chrissanders.org/training/investigationtheory/" target="_blank" rel="noopener noreferrer">Investigation Theory</a> is vendor-agnostic training centered on the mental models used by investigators: diagnostic inquiry, evidence, questions, decisions, data transformation, playbooks, bias, and reporting. Sanders's <a href="https://chrissanders.org/publications/" target="_blank" rel="noopener noreferrer">publications and presentations</a> extend that work into analyst cognition and education. His earlier <em>Applied Network Security Monitoring</em> (with Jason Smith, 2013) describes two analysis methods, relational investigation and differential diagnosis, that anticipate ASSURED's entity pivoting and hypothesis ledger. The 2019 <a href="https://www.chrissanders.org/wp-content/uploads/2020/03/Creative-Choices-Developing-a-Theory-of-Divergence-Convergence-and-Intuition-in-Security-Analysts.pdf" target="_blank" rel="noopener noreferrer"><em>Creative Choices</em></a> study with Stef Rand used interviews, investigation scenarios, and quantitative self-report measures to derive a model of divergent and convergent analyst thinking, and his 2021 doctoral dissertation, <a href="https://chrissanders.org/2021/12/dissertation/" target="_blank" rel="noopener noreferrer"><em>The Analyst Mindset: A Cognitive Skills Assessment of Digital Forensic Analysts</em></a> (Baylor University), used cognitive task analysis with practicing analysts to model how diagnostic inquiry works in investigations.</p>
+    <p><strong>How it relates:</strong> the overlap is real: both projects try to make tacit investigative reasoning teachable, and both cover evidence selection, questions, bias, and decisions. Investigation Theory goes deeper into cognition and the transferable craft of investigation. ASSURED is narrower and more procedural: it defines the sequence and required artifacts for carrying one event from alert to close or incident-response handoff. ASSURED was not derived from Investigation Theory; see <a href="/docs/development/#relationship-to-investigation-theory">Development and evidence</a> for the provenance record.</p>
   </div>
   <div class="pos-item">
-    <h3>SANS SEC450 <span class="pos-item__kind">commercial course</span></h3>
-    <p><strong>What it is:</strong> <a href="https://www.sans.org/cyber-security-courses/blue-team-fundamentals-security-operations-analysis/" target="_blank" rel="noopener noreferrer">Blue Team Fundamentals: Security Operations and Analysis</a>, SANS's SOC-analyst course, and the closest neighbor to ASSURED in intent: structured, bias-aware alert triage, prioritization, and analysis under pressure.</p>
-    <p><strong>How it relates:</strong> if your organization can send analysts through it, do; the instruction is excellent. The difference is form, not respect: SEC450 is paywalled courseware an individual takes once, not an open standard a team can adopt, cite, version, and hold each other to. ASSURED is free, public, versioned, and citable, which is what a shared methodology has to be.</p>
+    <h3>SANS SEC450: AI-Enabled Security Operations <span class="pos-item__kind">commercial course</span></h3>
+    <p><strong>What it is:</strong> <a href="https://www.sans.org/cyber-security-courses/ai-enabled-security-operations/" target="_blank" rel="noopener noreferrer">SEC450: AI-Enabled Security Operations: Hands-on Investigation, Detection, and Automation</a> (formerly Blue Team Fundamentals: Security Operations and Analysis), SANS's hands-on SOC-analyst course, aligned to the GIAC GSOC certification. It is the closest commercial neighbor to ASSURED in intent. Its current syllabus covers a triage and investigation mindset, Analysis of Competing Hypotheses to reduce bias, and AI-assisted SOC workflows with approval gates and audit trails, so its overlap with ASSURED, including the <a href="/docs/ai-triage/">AI-assisted triage</a> guidance, is substantial.</p>
+    <VendorStatus id="sans-sec450" />
+    <p><strong>How it relates:</strong> if your organization can send analysts through it, do; the instruction is excellent. The difference is form: SEC450 is instructor-led courseware with a certification, while ASSURED is a free, versioned, citable workflow a team can adopt and hold each other to. The two complement each other: the course builds the analyst, and ASSURED gives the team a shared record shape. Practice platforms such as CyberDefenders, Blue Team Labs Online, LetsDefend, and TryHackMe's SOC path are places to practice the method on realistic alerts, not alternatives to it. ASSURED now ships its own free <a href="/docs/labs/">telemetry lab track</a>, one lab per phase on public attack telemetry, ending in a blind-scored capstone.</p>
   </div>
   <div class="pos-item">
     <h3>Crafting the InfoSec Playbook <span class="pos-item__kind">book, 2015</span></h3>
-    <p><strong>What it is:</strong> the <a href="https://www.oreilly.com/library/view/crafting-the-infosec/9781491913598/" target="_blank" rel="noopener noreferrer">O'Reilly book</a> on playbook-driven detection and response: build a library of plays, run alerts through them, handle false-positives as a first-class outcome.</p>
-    <p><strong>How it relates:</strong> its play-library discipline is the direct ancestor of what ASSURED's <a href="/docs/fast-path/">fast path</a> calls the pattern library, and its false-positive seriousness anticipates the <a href="/docs/risk/false-positive/">false-positive-as-finding doctrine</a>. It is a decade old and book-shaped, but the thinking holds up; read it.</p>
+    <p><strong>What it is:</strong> Jeff Bollinger, Brandon Enright, and Matthew Valites's <a href="https://www.oreilly.com/library/view/crafting-the-infosec/9781491913598/" target="_blank" rel="noopener noreferrer">O'Reilly book</a> (2015) on playbook-driven security monitoring, written from the Cisco CSIRT's practice: each play is a documented detection report with an objective, a guide to analyzing its results, the query, and analyst notes.</p>
+    <p><strong>How it relates:</strong> its play-library discipline is the closest published precedent for what ASSURED's <a href="/docs/fast-path/">fast path</a> calls the pattern library, and its insistence on documenting how to tell benign output from a real finding anticipates ASSURED's <a href="/docs/risk/false-positive/">benign-close-as-finding doctrine</a>. It is a decade old and book-shaped, but the thinking holds up; read it.</p>
+  </div>
+  <div class="pos-item">
+    <h3>The network security monitoring and intelligence books <span class="pos-item__kind">practitioner books</span></h3>
+    <p><strong>What it is:</strong> Richard Bejtlich's <a href="https://nostarch.com/nsm" target="_blank" rel="noopener noreferrer"><em>The Practice of Network Security Monitoring</em></a> (No Starch Press, 2013), which defines network security monitoring as the collection, analysis, and escalation of indications and warnings to detect and respond to intrusions, and Scott J. Roberts and Rebekah Brown's <a href="https://www.oreilly.com/library/view/intelligence-driven-incident-response/9781098120672/" target="_blank" rel="noopener noreferrer"><em>Intelligence-Driven Incident Response</em></a> (O'Reilly, 2nd ed., 2023), which joins incident response to the intelligence cycle.</p>
+    <p><strong>How it relates:</strong> both treat analysis and escalation as disciplined work rather than instinct, and both are worth reading beside the Uncover and Escalation decision chapters. Neither sets out a per-alert sequence with required outputs; that is the gap ASSURED aims at.</p>
   </div>
   <div class="pos-item">
     <h3>Blue Team Handbook: SOC, SIEM, and Threat Hunting <span class="pos-item__kind">field reference</span></h3>
-    <p><strong>What it is:</strong> Don Murdoch's dense, practical desk reference for SOC operations: use cases, SIEM engineering, metrics, hunting.</p>
+    <p><strong>What it is:</strong> Don Murdoch's dense, practical desk reference for SOC operations (<a href="https://openlibrary.org/books/OL36635545M" target="_blank" rel="noopener noreferrer"><em>Blue Team Handbook: SOC, SIEM, and Threat Hunting</em></a>, v1.02, 2019): use cases, SIEM engineering, metrics, hunting.</p>
     <p><strong>How it relates:</strong> a reference, not a methodology; it answers "what should I know about X" rather than "what do I do next with this alert." It pairs well with ASSURED the way a dictionary pairs with a writing course.</p>
   </div>
   <div class="pos-item">
     <h3>MITRE's 11 Strategies of a World-Class Cybersecurity Operations Center <span class="pos-item__kind">free book, 2022</span></h3>
-    <p><strong>What it is:</strong> <a href="https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-security-operations-center" target="_blank" rel="noopener noreferrer">MITRE's freely available book</a> on building and running a SOC: staffing, tiering, tooling, metrics, program design.</p>
-    <p><strong>How it relates:</strong> it operates one level up. 11 Strategies designs the SOC; ASSURED runs one function inside it (the triage desk). The program-level content ASSURED deliberately scopes away from the on-shift analyst is exactly the altitude 11 Strategies covers well.</p>
+    <p><strong>What it is:</strong> <a href="https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-operations-center" target="_blank" rel="noopener noreferrer">MITRE's freely available book</a> (Kathryn Knerler, Ingrid Parker, and Carson Zimmerman, 2022) on building and running a SOC: staffing, tiering, tooling, metrics, program design.</p>
+    <p><strong>How it relates:</strong> it operates one level up. 11 Strategies designs the SOC; ASSURED runs one function inside it (the triage desk). The program-level content ASSURED deliberately scopes away from the on-shift analyst is exactly the altitude 11 Strategies covers well. SOC maturity models such as SOC-CMM sit at the same altitude: they assess whether a SOC has a defined triage process, and ASSURED is one candidate for that process.</p>
+  </div>
+  <div class="pos-item">
+    <h3>Research on SOC triage and alert fatigue <span class="pos-item__kind">academic studies</span></h3>
+    <p><strong>What it is:</strong> peer-reviewed studies of how SOC analysts actually work, including Sundaramurthy and colleagues on analyst burnout (SOUPS 2015), Kokulu and colleagues' <em>Matched and Mismatched SOCs</em> (ACM CCS 2019), and Alahmadi, Axon, and Martinovic's <a href="https://www.usenix.org/conference/usenixsecurity22/presentation/alahmadi" target="_blank" rel="noopener noreferrer"><em>99% False Positives</em></a> (USENIX Security 2022), a qualitative study of analysts' views of security alarms.</p>
+    <p><strong>How it relates:</strong> these studies describe the problems ASSURED is shaped by (alert volume, benign noise, uneven process, burnout) from the analysts' side. They are qualitative and practitioner-reported, so they support the problem statement, not a measured rate. None of them proposes a per-alert workflow; ASSURED is one practitioner response to the conditions they document.</p>
   </div>
 </div>
+
+<a id="playbooks-and-automation"></a>
+
+## Playbooks, runbooks and SOAR: where ASSURED fits
+
+Most SOCs already run vendor or government playbooks and SOAR flows, so the first question a lead asks is whether ASSURED replaces them. It does not. Playbooks say what to do for a scenario; ASSURED says what every case must establish and record, whatever the scenario. Keep the playbooks, and use the phases to structure the reasoning and the record around each one.
+
+<div class="pos-list">
+  <div class="pos-item">
+    <h3>Open playbook libraries <span class="pos-item__kind">government and vendor playbooks</span></h3>
+    <p><strong>What it is:</strong> free, operational runbooks such as CISA's <a href="https://www.cisa.gov/resources-tools/resources/federal-government-cybersecurity-incident-and-vulnerability-response-playbooks" target="_blank" rel="noopener noreferrer">Federal Government Cybersecurity Incident and Vulnerability Response Playbooks</a> (2021), Microsoft's incident-response playbooks, and the AWS Security Incident Response Guide. They are the free alternatives a SOC lead will actually compare ASSURED against.</p>
+    <p><strong>How it relates:</strong> playbooks are scenario-specific and often tool-specific: they say what to do for phishing, or for a compromised cloud key, in a given environment. ASSURED is the method underneath them, the same seven questions for every alert.</p>
+  </div>
+  <div class="pos-item">
+    <h3>Automated and AI-assisted triage <span class="pos-item__kind">2026 platforms</span></h3>
+    <p><strong>What it is:</strong> SOAR enrichment, risk-based alerting that reduces volume before an alert reaches a person, vendor incident correlation, and the AI SOC agents now built into SIEM and XDR platforms, which draft or carry out triage steps on their own.</p>
+    <p><strong>How it relates:</strong> these tools change who executes the steps, not what a defensible decision needs. ASSURED supplies what the tooling still needs from the team: a named owner for each verdict, an evidence and confidence standard, and a record a reviewer can audit. Accountability is never delegated; execution may be, at Level 0 parity, under the governed machine-close conditions on the <a href="/docs/ai-triage/#governed-automation">AI-assisted triage</a> page, with QA rates, pause triggers and the kill switch on <a href="/docs/ai-governance/">Governing automated triage</a>.</p>
+  </div>
+</div>
+
+### Playbook, pattern entry, ASSURED phase
+
+Three artifacts overlap on a triage desk, and each answers a different question:
+
+| | Playbook or runbook | Pattern entry | ASSURED phase |
+| --- | --- | --- | --- |
+| Answers | What do we do for this scenario, in this environment? | Is this alert the documented benign behavior, and how do we know? | What must this case establish next? |
+| Covers | One scenario (phishing, a leaked cloud key) | One detection's known-benign behavior | Every case |
+| Owned by | IR or SOC engineering | A named owner, with a second person's approval | The analyst working the case |
+| Produces | Steps taken and actions run | A Level 0 close that cites the entry and its version | The phase deliverable in the case record |
+| Changes when | The scenario or the tooling changes | A rule change, an observed abuse, or a reversal threshold | The method's version changes |
+
+A playbook's steps land inside phases. "Check the sender's reputation" is Alert validation, "pull the message trace" is Subject and Scope evidence, and "reset the password" is a response action that follows the Escalation decision. Map an existing playbook onto the seven phases and the gaps usually show at the end: many playbooks have no recorded decision and no closure record. The <a href="/docs/fast-path/">fast path</a> describes the pattern library and the depth ladder that pattern entries feed.
+
+### Converting a playbook step into a discriminator
+
+A playbook step names a check; a discriminator names the result that separates the benign behavior from the threat it mimics. "Confirm the process is the approved backup agent" is a step. The discriminators behind it might be "parent process is the backup service, destinations fall within the entry's documented set, no reads of credential stores". To convert a step:
+
+1. Name the threat the benign behavior resembles.
+2. Write the observable that differs between the two, and the authoritative source that shows it.
+3. State the failing result and what it triggers: one failed discriminator turns a Level 0 case into a Level 1 case.
+4. Prefer observables an attacker cannot cheaply forge (exact destination, parent process, extension or plugin ID, group membership). Names, paths and ports are cheap to fake, and a signer or install path does not vouch for code that a signed host runs.
+
+### What SOAR may automate under Level 0 parity
+
+- **Enrichment and assembly, always:** identity lookups, asset criticality, sandbox verdicts, timeline assembly. These pre-answer Subject and Scope questions. They are input to the ladder, never a verdict.
+- **Pre-authorized containment, when the protocol lists it:** reversible actions only, after the preservation step, under the <a href="/docs/escalation/triage-vs-ir/#pre-authorized">pre-authorized immediate actions</a> agreed with IR. Non-reversible actions (a credential reset, an OAuth grant revocation) need IR or owner approval unless the protocol lists them for that scenario.
+- **Closes, only at <a href="/docs/ai-governance/#level-0-parity">Level 0 parity</a>:** the pattern entry carries a machine-close flag, every discriminator and the eligibility gate are evaluated by code, humans sample the closes, reversal and miss rates are tracked, and a kill switch and a named owner exist.
+- **Never:** a verdict above Level 0 parity, or a Level 0 close of a grouped case in which any member fails eligibility. The record names the automation and the pattern version either way.
 
 ## The thinking tools
 
 <div class="pos-list">
   <div class="pos-item">
     <h3>OODA <span class="pos-item__kind">decision cycle</span></h3>
-    <p><strong>What it is:</strong> John Boyd's Observe, Orient, Decide, Act loop, the general-purpose model for decision-making under adversarial pressure.</p>
-    <p><strong>How it relates:</strong> ASSURED is a domain-specific instantiation: Alert through Uncover observe and orient, Risk decides, Escalation acts, and the Scope → Uncover → Risk loop is the re-orientation cycle. OODA explains why the loop exists; ASSURED specifies what each turn of it produces.</p>
+    <p><strong>What it is:</strong> John Boyd's Observe, Orient, Decide, Act loop, developed in his briefings (summarized in <a href="https://www.danford.net/boyd/essence.htm" target="_blank" rel="noopener noreferrer">"The Essence of Winning and Losing"</a>, 1995), and the general-purpose model for decision-making under adversarial pressure.</p>
+    <p><strong>How it relates:</strong> ASSURED is a domain-specific instantiation. Alert through Uncover observe and orient. Risk completes the orientation: it rates impact and likelihood, states its confidence, sets the priority, and recommends a move. The Escalation decision is the decide step, where the close or the escalation is made and recorded. The close, the handoff, and any pre-authorized containment are the act, and the Scope → Uncover → Risk loop is the re-orientation cycle. OODA explains why the loop exists; ASSURED specifies what each turn of it produces.</p>
   </div>
   <div class="pos-item">
     <h3>ACH <span class="pos-item__kind">analytic technique</span></h3>
-    <p><strong>What it is:</strong> Richards Heuer's <a href="https://en.wikipedia.org/wiki/Analysis_of_competing_hypotheses" target="_blank" rel="noopener noreferrer">Analysis of Competing Hypotheses</a>, from CIA intelligence tradecraft: enumerate the explanations, test evidence against all of them, and privilege disconfirmation over confirmation.</p>
+    <p><strong>What it is:</strong> Richards J. Heuer Jr.'s Analysis of Competing Hypotheses, from Chapter 8 of <a href="https://www.cia.gov/resources/csi/books-monographs/psychology-of-intelligence-analysis-2/" target="_blank" rel="noopener noreferrer"><em>Psychology of Intelligence Analysis</em></a> (CIA Center for the Study of Intelligence, 1999; free): enumerate the explanations, test evidence against all of them, and privilege disconfirmation over confirmation.</p>
     <p><strong>How it relates:</strong> Uncover's <a href="/docs/uncover/correlation/">hypothesis ledger</a> is ACH scaled to triage speed: competing explanations held open, negatives recorded, refuted stays refuted. If the ledger feels useful, ACH is the deeper well it draws from.</p>
   </div>
   <div class="pos-item">
@@ -84,28 +197,18 @@ The defensible contribution is narrower and concrete: **ASSURED publishes one op
   </div>
   <div class="pos-item">
     <h3>OSCAR <span class="pos-item__kind">forensics methodology</span></h3>
-    <p><strong>What it is:</strong> Obtain information, Strategize, Collect evidence, Analyze, Report, from Davidoff and Ham's <em>Network Forensics: Tracking Hackers through Cyberspace</em> (2012), and applied by some SOCs to alert investigations.</p>
-    <p><strong>How it relates:</strong> the nearest open neighbor by shape. OSCAR structures the investigation itself, roughly ASSURED's Uncover through Documentation; it does not carry the triage-specific decisions around it (validation, subject resolution, scoping, escalation criteria, the depth ladder). The two are compatible: an OSCAR-trained analyst will recognize Uncover immediately.</p>
+    <p><strong>What it is:</strong> OSCAR (Obtain information, Strategize, Collect evidence, Analyze, Report), from Sherri Davidoff and Jonathan Ham's <a href="https://www.informit.com/store/network-forensics-tracking-hackers-through-cyberspace-9780132565097" target="_blank" rel="noopener noreferrer"><em>Network Forensics: Tracking Hackers through Cyberspace</em></a> (Prentice Hall, 2012), which some SOCs apply to alert investigations.</p>
+    <p><strong>How it relates:</strong> the nearest neighbor by shape. Obtain information and Strategize overlap Alert, Subject, and Scope, and Collect evidence, Analyze, and Report overlap Uncover and Documentation. What OSCAR does not carry are the triage-specific decisions: the validation verdict, Risk's ratings and priority, escalation criteria, and the depth ladder. The two are compatible: an OSCAR-trained analyst will recognize Uncover immediately.</p>
   </div>
 </div>
 
 <Callout variant="warn" title="A name adjacency worth knowing">
-The UK's National Cyber Security Centre operates <a href="https://www.ncsc.gov.uk/section/products-services/assured-services" target="_blank" rel="noopener noreferrer">"Assured" schemes</a>: NCSC-assured services, consultancies, and training marks. This ASSURED methodology has no affiliation with the NCSC or its assurance schemes; the shared word is coincidence. When searching, "ASSURED triage" or "ASSURED methodology" finds this project.
+The UK's National Cyber Security Centre operates <a href="https://www.ncsc.gov.uk/section/products-services/assured-services" target="_blank" rel="noopener noreferrer">"Assured" schemes</a>: NCSC-assured services, including the assured Cyber Incident Response and Cyber Incident Exercising schemes, consultancies, and NCSC Assured Training. A search for "assured incident response" therefore finds NCSC-assured IR providers first. The US Defense Information Systems Agency's ACAS (Assured Compliance Assessment Solution) is a vulnerability-scanning program, also unrelated. This ASSURED methodology has no affiliation with the NCSC, DISA, or other "Assured" products and schemes; the shared word is coincidence. When searching, "ASSURED triage" or "ASSURED methodology" finds this project.
 </Callout>
 
-<KeyTakeaway>The field already contains strong investigation training, research, IR lifecycles, books, and thinking tools. ASSURED does not claim to originate investigative reasoning. It contributes a specific open operational workflow: seven linked phases, explicit deliverables, a close-or-escalate boundary, and public material a team can teach, adopt, review, and revise.</KeyTakeaway>
+<KeyTakeaway>The field already contains strong investigation training, research, IR lifecycles and standards, CSIRT process models, playbooks, books, and thinking tools. ASSURED does not claim to originate investigative reasoning or triage. It contributes one open per-alert workflow that a team can teach, adopt, review, and revise.</KeyTakeaway>
 
 <div class="end-cta">
   <a href="/docs/intro/" class="assured-cta assured-cta--ghost">← The introduction</a>
-  <a href="/docs/development/" class="assured-cta">Development and evidence →</a>
+  <a href="/docs/standards-mapping/" class="assured-cta">Standards mapping →</a>
 </div>
-
-<style>{`
-.pos-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
-.pos-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-accent); border-radius: 0.7rem; }
-.pos-item h3 { margin: 0 0 0.55rem 0; font-size: 1.05rem; color: var(--assured-text); }
-.pos-item__kind { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px; background: rgba(20, 184, 166, 0.14); color: var(--assured-accent-soft); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
-.pos-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
-.pos-item p:last-child { margin-bottom: 0; }
-.pos-item strong { color: var(--assured-text); }
-`}</style>

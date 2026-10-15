@@ -1,60 +1,53 @@
 ---
 title: "Closing the loop"
-description: "The methodology, complete. What you have across the seven chapters, what ASSURED is and is not, and where to take it from here."
+description: "The methodology, complete. What you have across the seven chapters, what ASSURED is and is not, and where to take it from here, with a cumulative review across all seven chapters."
+techVerified: "2026-10-13"
 ---
 
-import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import Reveal from "@/components/assured/Reveal.astro";
 import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import Quiz from "@/components/assured/Quiz.astro";
+import QuizItem from "@/components/assured/QuizItem.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
+import "@/styles/pages/documentation.css";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarIndex="Closure" pillarTotal="Methodology" chapterHref="/docs/documentation/" chapterLabel="Documentation" lede="Seven chapters, seven letters, one methodology. This page closes the loop: what you now have, what ASSURED is and is not, and where to take it next. Each closed case becomes feedback for the next one; the five downstream uses of that feedback are covered in the chapter overview."/>
+<SubPageHero phase="documentation" pillarIndex="Closure" lede="Seven chapters, seven letters, one methodology. This page closes the loop: what you now have, what ASSURED is and is not, and where to take it next. Each closed case becomes feedback for the next one; the five downstream uses of that feedback are covered in the chapter overview."/>
 
 ## What you have, across all seven chapters
 
-Across seven chapters, the methodology gave you four things.
+Across seven chapters, the methodology gave you four things. A **vocabulary**: seven letters, each answering one question, a shared language that travels across teams and cases and survives turnover. A **structure**: three stages that group the seven phases, Orient (Alert, Subject, Scope), Investigate (Uncover, Risk), and Resolve (Escalation decision, Documentation), so the structure does the orienting and attention goes to the evidence. A **discipline**: each phase hands one deliverable forward, and a skipped phase shows up downstream, however small the case. And a **scaffold**: a map for new analysts and a checklist for experienced ones, which improves as cases reveal where it bends.
 
-<div class="recap-grid">
-  <div class="recap-card">
-    <h3>🔤 A vocabulary</h3>
-    <p>Seven letters, each answering one question. A shared language that travels across teams and across cases, and that survives team turnover.</p>
-  </div>
-  <div class="recap-card">
-    <h3>🏗️ A structure</h3>
-    <p>Three phases that group the seven letters into a logical flow: preparation, investigation, resolution. The structure does the orienting; attention goes to the evidence.</p>
-  </div>
-  <div class="recap-card">
-    <h3>🧭 A discipline</h3>
-    <p>Each phase has a deliverable. Each deliverable is the input to the next phase. Skipping a phase shows up downstream. The discipline holds even when the case is small or the analyst is junior.</p>
-  </div>
-  <div class="recap-card">
-    <h3>🪜 A scaffold</h3>
-    <p>New analysts have a map. Experienced analysts have a checklist. Both find the methodology useful for their own reasons, and the methodology improves as cases reveal where it bends.</p>
-  </div>
-</div>
+Each phase answers one question and hands one deliverable forward, and each deliverable lands somewhere specific in the record:
+
+| Phase | Anchor question | Deliverable | Where it lands in the record |
+|---|---|---|---|
+| Alert | What fired, and why? | The validated alert and its detection context | 01 Event overview |
+| Subject | Who is involved? | Entity assessments | 03 Origin and scope |
+| Scope | Where are the lines? | The boundary: entities, time window, systems in and out | 03 Origin and scope |
+| Uncover | What does the evidence say? | The evidence chain, with confidence labels and coverage gaps | 02 Timeline, 03, 06 Indicators and observables |
+| Risk | How bad is it, and how confident are we? | Impact, likelihood, confidence, matrix cell, priority, and a recommended move | Decision header, 05 Business impact |
+| Escalation decision | Close or escalate, and who needs to know? | The documented close or the handoff packet, plus the communication record | Decision header, 04 Actions taken, 09 Appendices |
+| Documentation | What did we decide, and what did we learn? | The event report, reviewed and linked | 07 Lessons learned, 08 Post-event recommendations |
 
 ---
 
 ## What ASSURED is, and is not
 
-ASSURED is a triage methodology. Seven phases, Alert, Subject, Scope, Uncover, Risk, Escalation, Documentation, that take an analyst from "an alert fired" to "the case is closed or handed off, and the record survives." It is not an incident-response framework. It is not a SOAR playbook. It is the work an analyst does before either of those starts.
+ASSURED is a triage methodology: seven phases (Alert, Subject, Scope, Uncover, Risk, Escalation decision, Documentation) that take an analyst from "an alert fired" to "the case is closed or handed off, and the record survives." It is neither an incident-response framework nor a SOAR playbook but the analyst's decision work between those two points, building on whatever automation has already enriched and handing IR a structured starting point; the <a href="/docs/intro/">introduction</a> sets out the whole arc, the <a href="/docs/positioning/">positioning page</a> shows how it compares with the frameworks around it, and the <a href="/docs/standards-mapping/">standards mapping</a> shows where its records meet NIST CSF 2.0, ISO/IEC 27001 and the other frameworks an auditor tests against.
 
 <Reveal summary="The methodology's four commitments" variant="info">
 
-**Decisions are based on named inputs, not feelings.** Two analysts working the same alert produce comparable outputs because the inputs are explicit: which detection mechanism fired, which dimensions of Subject came back clean or dirty, which entities are in or out of scope, which ATT&CK techniques the chain maps to, which RATM dimensions score high.
+**Decisions are based on named inputs, not feelings.** Two analysts working the same alert should reach comparable outputs, because every input is explicit, from the detection logic that fired to the matrix cell, with confidence recorded beside the rating.
 
-**Roles and handoffs are explicit.** The triage analyst owns the verdict and the handoff packet. The incident responder owns the lifecycle. The SOC manager owns the closure review. When the handoff is structured, no role does the other's work.
+**Roles and handoffs are explicit.** Risk recommends; the Escalation decision decides close or escalate, and records it. The triage analyst owns that decision, the verdict, and the handoff packet. The incident responder owns the incident lifecycle once the packet is accepted. The SOC manager owns the closure review: per case for Level 2, P1/P2 and escalated-then-closed records, and through the weekly QA sample for Level 0 and 1 closes. When the handoff is structured, no role does the other's work.
 
-**False-positives are first-class cases.** A documented close at triage carries the same evidentiary weight as a documented escalation. The methodology refuses the false-positive shrug: a full-arc investigation gets the nine-section event report whichever way the verdict lands, and even a Level 0 pattern close gets its five-field record (the <a href="/docs/fast-path/">fast path</a>). Depth follows the case; the discipline of writing it down does not.
+**Benign closes are first-class cases.** A documented close carries the same evidentiary weight as a documented escalation. The methodology refuses the "just a false positive" shrug: a full-arc investigation gets the nine-section event report whichever way the verdict lands, and even a Level 0 pattern close gets its five-field record (the <a href="/docs/fast-path/">fast path</a>). Depth follows the case; the discipline of writing it down does not. Those records are also the audit evidence for CSF 2.0 DE.AE-08 and ISO/IEC 27001 A.5.25; the <a href="/docs/standards-mapping/">standards mapping</a> lists which record serves which outcome.
 
 **The loop is real.** Scope → Uncover → Risk iterates as new evidence surfaces. Refining a scope mid-case is the methodology working, not the methodology failing.
 
 </Reveal>
-
-<Callout variant="info" title="What ASSURED is, plainly">
-Structured but not rigid. Thorough but not exhaustive. The methodology gives an analyst a place to stand on every alert that fires, and a record the team can read months later.
-</Callout>
 
 ---
 
@@ -62,49 +55,292 @@ Structured but not rigid. Thorough but not exhaustive. The methodology gives an 
 
 <div class="next-grid">
   <div class="next-card">
-    <h3>🎯 Apply it to your next alert</h3>
-    <p>The methodology is not a textbook; it is a practice. Use the structure on your next investigation and notice where you would otherwise have skipped a step. The patterns reveal themselves through use.</p>
+    <h3>Practice: run Exercise 1 and write its event report</h3>
+    <p>The <a href="/docs/exercises/">hands-on exercises</a> close the reading order: synthetic scenario packets with answer keys. Work the first one end to end, write its event report against the <a href="/docs/documentation/templates/#copy-ready">templates</a>, and review it against the <a href="/docs/documentation/standards/#closure-review">closure review checklist</a>. Then read <a href="/docs/cases/case-d/">Case D</a>, the fourth case file, for the outcomes the three threaded cases never reach: a false positive caused by bad data and a documented close on an undetermined activity verdict.</p>
   </div>
   <div class="next-card">
-    <h3>🧑‍🏫 Teach it</h3>
-    <p>The methodology was designed to be taught. Mentoring a newer analyst through their first ASSURED-structured case is one of the fastest ways to refine your own use of it; the <a href="/docs/teaching/">teaching guide</a> and <a href="/docs/exercises/">exercise packets</a> carry the materials. The act of explaining sharpens application.</p>
+    <h3>Capstone: one Level 2 case, scored blind</h3>
+    <p>When the exercises feel routine, test the whole arc on raw telemetry. The <a href="/docs/labs/#capstone-a-level-2-case-scored-blind">telemetry-labs capstone</a> takes a Level 2 case on public attack telemetry all the way to a complete handoff packet, which two scorers grade blind against a fixed grid, and the <a href="/docs/teaching/kit/#the-capstone">facilitator kit's capstone</a> is the cohort version: one unguided Linux bastion case that each candidate works alone and in writing.</p>
   </div>
   <div class="next-card">
-    <h3>📈 Bring your team</h3>
+    <h3>Apply it to your next alert</h3>
+    <p>Use the structure on your next investigation and notice where you would otherwise have skipped a step. Keep the <a href="/docs/reference/">one-page reference</a> beside you, match depth to the case with the <a href="/docs/fast-path/">fast path</a>, and check your reasoning against the <a href="/docs/cognitive-traps/">cognitive traps</a>.</p>
+  </div>
+  <div class="next-card">
+    <h3>Teach it</h3>
+    <p>The methodology was designed to be taught. Mentoring a newer analyst through their first ASSURED-structured case is one of the fastest ways to refine your own use of it; the <a href="/docs/teaching/">teaching guide</a> and <a href="/docs/exercises/">exercise packets</a> carry the materials.</p>
+  </div>
+  <div class="next-card">
+    <h3>Bring your team</h3>
     <p>Taking a whole SOC onto the methodology is a different project from adopting it yourself: it has a rollout sequence, a set of quality metrics, and a short list of duties only the team lead can carry. The <a href="/docs/adoption/">adoption guide</a> maps all three.</p>
   </div>
   <div class="next-card">
-    <h3>🤝 Contribute</h3>
-    <p>The methodology lives at <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">github.com/block/assured-methodology</a>. Feedback, corrections, and contributions are welcome: releases follow the repo's <a href="https://github.com/block/assured-methodology/blob/main/GOVERNANCE.md" target="_blank" rel="noopener noreferrer">versioning policy</a> and are recorded in the <a href="https://github.com/block/assured-methodology/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">changelog</a>. The next version of ASSURED is shaped by the people who use it.</p>
+    <h3>Contribute</h3>
+    <p>The methodology lives at <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">github.com/block/assured-methodology</a>. Feedback, corrections, and contributions are welcome: releases follow the repo's <a href="https://github.com/block/assured-methodology/blob/main/GOVERNANCE.md" target="_blank" rel="noopener noreferrer">versioning policy</a> and are recorded in the <a href="https://github.com/block/assured-methodology/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">changelog</a>.</p>
   </div>
   <div class="next-card">
-    <h3>📚 Keep the glossaries close</h3>
+    <h3>Keep the glossaries close</h3>
     <p>The three glossaries are built as ongoing references, not one-time reads: <a href="/docs/glossaries/bad/">B.A.D.</a> for adversary behaviors and tradecraft, <a href="/docs/glossaries/cat/">C.A.T.</a> for the tools and platforms of security operations, and <a href="/docs/glossaries/clear/">C.L.E.A.R.</a> for the shared vocabulary of triage itself.</p>
   </div>
 </div>
+
+---
+
+## Cumulative review
+
+Twenty questions that mix all seven phases, in no particular order, on situations the chapter quizzes did not use. Retrieval across chapters is what makes the method stick; if an answer surprises you, go back to that chapter before moving on.
+
+<Quiz title="Cumulative review: all seven phases" subtitle="No grades. The questions jump between phases on purpose, the way a real case does.">
+
+  <QuizItem
+    prompt="An EDR alert fires on a scheduled task created on a finance laptop. Before looking at the host, the analyst opens the rule definition. What is that step for?"
+    options={[
+      { value: "severity", label: "To set the priority band, since the rule's severity field is what decides it." },
+      { value: "mechanism", label: "To learn what the rule actually detects, and how far its mechanism can be trusted for this claim." },
+      { value: "history", label: "To see whether the rule has fired on this host before, which would make this one a known false positive." },
+      { value: "copy", label: "To copy the rule's description into the event overview, so the record matches the vendor's wording." },
+    ]}
+    answer="mechanism"
+    explanation="Alert asks what fired and why, and its deliverable names the detection mechanism and its trust level. The rule's severity is an input to Risk, not the priority; earlier fires on the host are prevalence, not a verdict; and the vendor's description is no substitute for reading the logic."
+  />
+
+  <QuizItem
+    prompt="A sign-in alert for a domain admin account matches a pattern-library entry exactly: same VPN egress, same managed device, every discriminator passes. Can it close at Level 0?"
+    options={[
+      { value: "yes-gate", label: "Yes: every discriminator passed, the pattern entry is current, and that is all the eligibility gate asks for." },
+      { value: "yes-note", label: "Yes, as long as the five-field record notes that the account is privileged." },
+      { value: "no-signin", label: "No, because sign-in alerts are never eligible for the pattern library." },
+      { value: "no-priv", label: "No: a privileged identity always fails the eligibility gate and routes the case to Level 2." },
+    ]}
+    answer="no-priv"
+    explanation="Discriminators and the eligibility gate are separate tests. The gate fails on any privileged identity, whatever the discriminators say, and a privileged identity is itself a Level 2 trigger. Sign-in patterns can be library entries; this one cannot close at Level 0 because of who the subject is."
+  />
+
+  <QuizItem
+    prompt="Four alerts fire within ten minutes: three on one user's laptop and one on the same user's mailbox. One of the laptop alerts matches a Level 0 pattern. How does the work proceed?"
+    options={[
+      { value: "one-case", label: "As one case at the level of its riskiest member; it cannot close at Level 0 while any member fails the gate." },
+      { value: "split", label: "Close the matching alert at Level 0 now and work the other three together as a separate case." },
+      { value: "four", label: "As four cases, one per alert, so that each verdict stays independent and can be counted on its own." },
+      { value: "one-zero", label: "As one case at Level 0, because one member matching a governed pattern clears the whole group." },
+    ]}
+    answer="one-case"
+    explanation="The case, not the alert, is the unit of work. Alerts on the same entity in the same window form one case, which takes the level of its riskiest member, and a grouped case never closes at Level 0 if any member fails eligibility. Splitting off the matching alert is how a real intrusion loses its first clue."
+  />
+
+  <QuizItem
+    prompt="While working a bulk-download alert, a teammate passes on office talk about the employee's private life and suggests it explains a motive. What goes into the case record?"
+    options={[
+      { value: "hearsay", label: "The office talk, labeled as hearsay, because a possible motive helps the next analyst weigh intent." },
+      { value: "note", label: "A one-line note in the Subject section, marked sensitive and kept out of the shared training version of the record." },
+      { value: "none", label: "None of it: the record holds observable technical activity, and HR context reaches a case only via the insider-risk route." },
+      { value: "name", label: "The teammate's name, so that the insider-risk team knows whom to interview later on." },
+    ]}
+    answer="none"
+    explanation="Analysts record observable technical activity. HR-held context reaches the case only through the insider-risk route, and never as analyst-collected notes, however well meant. Talk about someone's private life is not an indicator an analyst writes down, labeled, sanitized or otherwise."
+  />
+
+  <QuizItem
+    prompt="Subject comes back clean on all four dimensions, and a sanctioned change ticket explains the alert. What does the analyst hand Scope?"
+    options={[
+      { value: "clean", label: "The clean verdict, recorded explicitly, and a narrow recommendation; later phases become single moves." },
+      { value: "nothing", label: "Nothing at all: a clean Subject ends the case, so Scope and every later phase are skipped entirely." },
+      { value: "wide", label: "A full-width scope regardless, because a clean subject is exactly where an attacker would choose to hide." },
+      { value: "ticket", label: "The change ticket on its own, since the ticket is the evidence and the case needs no recorded verdict." },
+    ]}
+    answer="clean"
+    explanation="A clean Subject still produces a deliverable: the clean verdict, written down, and a narrow recommendation. The remaining phases run at Level 1 as single moves toward a documented close at the Escalation decision. Skipping them leaves no record of why the case closed; widening the scope anyway spends effort the evidence does not justify."
+  />
+
+  <QuizItem
+    prompt="The user's baseline says they always sign in from one city, but the baseline covers only the nine days since a log-source migration. How should it be recorded?"
+    options={[
+      { value: "solid", label: "As a settled baseline: nine days of consistent behavior is plenty to call it the user's normal." },
+      { value: "label", label: "With a confidence label for the short window, so later phases do not lean on it." },
+      { value: "discard", label: "Not at all: any baseline shorter than thirty days has to be discarded and rebuilt from scratch." },
+      { value: "appendix", label: "As the user's normal pattern, with the migration date noted only in the record's appendices." },
+    ]}
+    answer="label"
+    explanation="Subject's baselines carry confidence labels for exactly this reason. A short window is still evidence, but a reader needs to know how much weight it bears. Calling it settled overstates it; discarding it throws away what little there is; burying the migration in an appendix hides the reason it is weak."
+  />
+
+  <QuizItem
+    prompt="Midway through Scope, the analyst finds that the compromised mailbox held EU customer records the attacker plausibly read. Nothing is confirmed yet. What does the analyst do about the GDPR clock?"
+    options={[
+      { value: "wait", label: "Wait for Uncover to confirm access, because the GDPR clock only starts once access is confirmed." },
+      { value: "notify", label: "Notify the supervisory authority directly, because the 72 hours may already be running out." },
+      { value: "later", label: "Note it for the event report at the end, since regulatory work belongs to Documentation." },
+      { value: "timestamp", label: "Commit the recognition timestamp to the record now and engage the privacy owner, who decides." },
+    ]}
+    answer="timestamp"
+    explanation="The GDPR clock runs from awareness, a reasonable degree of certainty that personal data was compromised, not from confirmation. The analyst recognizes, timestamps and routes; counsel and the privacy owners decide whether the clock started and whether to notify. Waiting or deferring loses hours the owner may need; notifying directly takes a decision that is not the analyst's."
+  />
+
+  <QuizItem
+    prompt="The scope's time window covers two days when the proxy logs for the affected site were not collected. Where does that go?"
+    options={[
+      { value: "nowhere", label: "Nowhere in particular: an analyst cannot be expected to scope what the tooling never saw." },
+      { value: "lessons", label: "Into lessons learned at close, once the outcome of the case is known and the gap can be judged." },
+      { value: "visibility", label: "Into the visibility map, named as a gap, so later phases read the silence as missing evidence." },
+      { value: "shorten", label: "Into the time window itself, which is shortened so that it covers only the days with full logs." },
+    ]}
+    answer="visibility"
+    explanation="The visibility map is part of the one-page scope: what the tooling cannot see, named. Naming the gap keeps Uncover from reading silence as a clean result and keeps Risk honest about confidence. Shortening the window to fit the logs hides the gap instead of recording it."
+  />
+
+  <QuizItem
+    prompt="In Uncover, the analyst finds a second laptop that received the same lure email, though nothing shows it was opened. The signed boundary covers only the first laptop. What now?"
+    options={[
+      { value: "rescope", label: "Re-scope to bring the second laptop inside the lines and keep working; the loop is the method working." },
+      { value: "finish", label: "Finish Uncover on the original boundary first, then open a new case for the second laptop." },
+      { value: "note", label: "Note the laptop as an open question for the handoff and leave the signed boundary as it stands." },
+      { value: "tripwire", label: "Escalate as P1 under the escalation tripwire, since a second host is confirmed lateral movement." },
+    ]}
+    answer="rescope"
+    explanation="Scope, Uncover and Risk loop as new evidence surfaces, and refining the lines mid-case is expected. A received but unopened lure is not attacker activity on a second host, so no criterion is confirmed; it is a reason to widen the boundary. Splitting it into a new case or parking it as an open question loses the connection."
+  />
+
+  <QuizItem
+    prompt="A query for outbound connections from the host over the incident window returns no rows. How does the hypothesis ledger record it?"
+    options={[
+      { value: "noexfil", label: "As 'no exfiltration', because the query covered the whole window and came back empty." },
+      { value: "negative", label: "As a recorded negative: the source, the query, the range, and what the source cannot see." },
+      { value: "omit", label: "It is left out: the ledger holds evidence, and an empty result set is not evidence of anything." },
+      { value: "nothing", label: "As 'nothing found', which is all a reviewer needs in order to accept the negative finding." },
+    ]}
+    answer="negative"
+    explanation="Negative findings name what was examined. An empty result means something only relative to the source, the query and the window, and only for what that source can see; 'no exfiltration' claims more than the query showed, and 'nothing found' cannot be checked. Recorded negatives are part of Uncover's deliverable, not something to drop."
+  />
+
+  <QuizItem
+    prompt="An AI assistant drafts a timeline row saying the attacker created a mailbox rule at 10:14. The analyst has not opened the audit log. What is the status of that row?"
+    options={[
+      { value: "high", label: "High confidence, because the assistant read the same logs that the analyst would have read." },
+      { value: "medium", label: "Medium confidence, because a single tool produced it and nothing has contradicted it yet." },
+      { value: "declared", label: "Fine to keep as written, provided the record's Material AI use field declares the assistant." },
+      { value: "unverified", label: "Unverified until the analyst finds the raw audit record behind it." },
+    ]}
+    answer="unverified"
+    explanation="AI output is a draft, not evidence. Before a row enters the record, the analyst finds the raw field behind it and labels it on the rubric like any other claim. Declaring AI use is required, but it does not verify anything; and a confidence label applied to an unchecked claim is a guess with a label on it."
+  />
+
+  <QuizItem
+    prompt="EDR shows a non-browser process reading the browser's cookie store, and the identity provider shows that session used from a hosting address minutes later. The plausible alternatives were tested and ruled out. What confidence does the theft claim earn?"
+    options={[
+      { value: "review", label: "Medium: two sources only count as corroboration once an incident responder has reviewed both." },
+      { value: "never", label: "Low: session-cookie theft can never be shown directly from logs, only inferred from them." },
+      { value: "high", label: "High: direct, independently corroborated, with the alternatives ruled out." },
+      { value: "memory", label: "High only with a memory image to confirm it; log evidence alone tops out at Medium." },
+    ]}
+    answer="high"
+    explanation="That is the High definition on the rubric: direct evidence from a source trusted for this kind of claim, corroborated by an independent source, with the alternatives tested and ruled out. The rubric does not require a reviewer's sign-off or a particular artifact type, and two independent telemetry sources are direct evidence of the theft chain."
+  />
+
+  <QuizItem
+    prompt="Logs from a production database server for the suspicious window could not be retrieved. The analyst rates likelihood Low because nothing bad was found. What is the correct read?"
+    options={[
+      { value: "unknown", label: "Unknown is not Low: likelihood reads Medium at minimum and confidence Low, so the case is High/Medium, P2." },
+      { value: "low-note", label: "Low likelihood with an explanatory note, since nothing in the evidence reviewed points to malice." },
+      { value: "low-low", label: "Low likelihood and Low confidence, which leaves the case at P3 on the tighter high-impact clock." },
+      { value: "wait", label: "Not rated yet: the case waits in the queue until somebody finds the missing database logs." },
+    ]}
+    answer="unknown"
+    explanation="Evidence that could not be examined means low confidence, never low likelihood. On a high-impact asset the override reads missing evidence as Medium likelihood at minimum, which makes the cell High/Medium, P2, and an escalation within 4 hours. Leaving it unrated lets the clock run with no decision at all."
+  />
+
+  <QuizItem
+    prompt="Risk lands at High/Low, P3. The analyst writes 'close' as the outcome of the Risk section. What is wrong?"
+    options={[
+      { value: "nothing", label: "Nothing is wrong: Risk decides close or escalate, and the Escalation decision only records it." },
+      { value: "owner", label: "Risk only recommends; E decides, after the named P3 re-score trigger." },
+      { value: "p2", label: "High/Low is a P2 cell, so the section should read 'escalate within 4 hours' instead." },
+      { value: "always", label: "Every P3 case closes, so the section should read 'documented close' rather than 'close'." },
+    ]}
+    answer="owner"
+    explanation="Risk produces the ratings, the cell, the priority and a recommended move; the Escalation decision makes and records close or escalate. High/Low is P3 on the high-impact clock: keep working, re-score within hours on the named trigger, then close or escalate. Writing 'close' at Risk skips both the trigger and the owner of the decision."
+  />
+
+  <QuizItem
+    prompt="EDR quarantined a malicious attachment as it was downloaded. No process ran from it, and there is no follow-on activity anywhere. How is the case recorded?"
+    options={[
+      { value: "p1", label: "P1 under the escalation tripwire, because malware on an endpoint was confirmed at High confidence." },
+      { value: "fp", label: "False positive (logic), because the file never executed and so nothing actually happened." },
+      { value: "p2", label: "P2, escalated within 4 hours, so that IR can confirm for itself that the quarantine held." },
+      { value: "contained", label: "Contained by control: P3 or P4, and a pattern-entry candidate, not a page." },
+    ]}
+    answer="contained"
+    explanation="The first escalation criterion is confirmed malicious activity not fully contained by a control. Blocked or quarantined, with no execution or follow-on evidence, is the contained-by-control path: recorded at P3 or P4, never paged. The detection was correct and the file was malicious, so it is a true positive, not a false positive of any kind."
+  />
+
+  <QuizItem
+    prompt="A P4 case closes with a full written rationale. A colleague reads it and says, 'So it was nothing.' What is the methodology's position?"
+    options={[
+      { value: "nonevent", label: "The colleague is right: a P4 close is a non-event and needs no record beyond its status." },
+      { value: "upgrade", label: "The close should be raised to P3, so that it counts in the metrics as a real verdict." },
+      { value: "firstclass", label: "A documented close is a first-class verdict, as weighty as an escalation." },
+      { value: "provisional", label: "The close stays provisional until an incident responder has reviewed and accepted it." },
+    ]}
+    answer="firstclass"
+    explanation="Most verdicts close, and a documented close carries the same evidentiary weight as a documented escalation. The rationale is what lets the next analyst, the reviewer and the auditor see why it closed. Inflating the priority to make it count, or waiting for IR to bless it, misreads what a close is."
+  />
+
+  <QuizItem
+    prompt="At 10:05, still in Subject, the analyst confirms at High confidence that the attacker's session reached a second host. The matrix has not been scored. What happens?"
+    options={[
+      { value: "now", label: "Escalate now under the escalation tripwire as P1, then work only the scoping tasks the IR owner assigns." },
+      { value: "finish", label: "Finish Scope, Uncover and Risk first, because the Escalation decision comes after Risk." },
+      { value: "score", label: "Score the matrix first; if the cell comes out at P3, keep working toward the re-score trigger." },
+      { value: "crown", label: "Page IR only if the second host is a crown-jewel system; otherwise carry on with Scope." },
+    ]}
+    answer="now"
+    explanation="Attacker activity reaching a second host is the lateral-movement criterion, and once it is confirmed (High on the rubric) it escalates from any phase and makes the case P1 whatever the cell. The escalation is an early E decision, recorded in the E fields. Finishing the phases first is how a tripwire met at 09:24 gets acted on at 14:00."
+  />
+
+  <QuizItem
+    prompt="An identity compromise is confirmed, and the protocol pre-authorizes session revocation for this scenario. What comes first?"
+    options={[
+      { value: "revoke", label: "Revoke the sessions immediately; every minute the attacker keeps access matters more than logs." },
+      { value: "preserve", label: "Export the sign-in records and snapshot what revocation will remove, then revoke the sessions." },
+      { value: "reset", label: "Reset the password first, since a credential reset is always pre-authorized for identity cases." },
+      { value: "wait", label: "Touch nothing, including the logs, until the incident responder has joined and taken over." },
+    ]}
+    answer="preserve"
+    explanation="Preserve before you contain: the preservation step comes before the pre-authorized action, because revocation destroys the session evidence. A password reset is not reversible, so it needs IR or owner approval unless the protocol lists it explicitly. Doing nothing while waiting lets both the attacker and the retention window keep running."
+  />
+
+  <QuizItem
+    prompt="After a case closes, a reviewer finds that the timeline gives 09:40 for a step the SIEM records at 09:14. How is it corrected?"
+    options={[
+      { value: "edit", label: "Edit the row to read 09:14, so that the record matches the system of record." },
+      { value: "rewrite", label: "Delete the row and rewrite that part of the timeline from scratch." },
+      { value: "leave", label: "Leave it alone: a locked record is never changed after the case closes." },
+      { value: "append", label: "Append a correction with author, time and reason; the original stays." },
+    ]}
+    answer="append"
+    explanation="Entries lock at handoff or close, and corrections are appended with author, time and reason, never overwritten. The record then shows both what was believed and what was corrected, which is what makes it trustworthy as evidence. Leaving a known error in place is not what locking means."
+  />
+
+  <QuizItem
+    prompt="A case closes as a benign true positive: the rule correctly caught an authorized admin tool doing what it is approved to do. What does Documentation send to detection engineering?"
+    options={[
+      { value: "tuning", label: "A tuning request to fix the rule's logic, because the rule produced a false positive." },
+      { value: "nothing", label: "Nothing: a correct detection is working as intended and needs no feedback at all." },
+      { value: "pattern", label: "A pattern-entry proposal or a scoped, expiring exception; the rule stays as written." },
+      { value: "disable", label: "A request to disable the rule for the admin team permanently, to stop the repeats." },
+    ]}
+    answer="pattern"
+    explanation="The detection was right and the activity was authorized, so there is no logic defect to fix. The feedback is a pattern-entry proposal or a scoped, expiring exception keyed to that tool, with an owner and re-fire triggers. A permanent exclusion for a whole team is the blind spot an attacker using the same tool would hide in."
+  />
+
+</Quiz>
 
 <PuzzleProgress current={null} />
 
 <KeyTakeaway>The methodology is a shared way of working. The picture you assembled across seven chapters is the framework. The cases you apply it to are the practice. And the documentation you produce becomes the feedback loop that improves the next case.</KeyTakeaway>
 
+<ContinueCard current="documentation" nextHref="/docs/cognitive-traps/" nextLabel="Cognitive traps" nextDescription="The method is complete. Next: the reasoning failures it is built to catch, and the counter for each." ctaLabel="Read cognitive traps" />
+
 <div class="end-cta">
   <a href="/docs/intro/" class="assured-cta assured-cta--ghost">← Revisit the introduction</a>
-  <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer" class="assured-cta">Contribute on GitHub →</a>
+  <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer" class="assured-cta assured-cta--ghost">Contribute on GitHub →</a>
 </div>
-
-<style>{`
-.recap-grid, .next-grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .recap-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .recap-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (min-width: 768px) { .next-grid { grid-template-columns: repeat(2, 1fr); } }
-.recap-card, .next-card { padding: 1.2rem 1.35rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 0.7rem; }
-.recap-card :is(h3, h4), .next-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #67e8f9; font-size: 0.97rem; }
-.recap-card p, .next-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-.next-card a { color: #67e8f9; text-decoration: underline; }
-
-.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.recap-card h3, .next-card h3 { font-weight: 600; line-height: inherit; }
-`}</style>

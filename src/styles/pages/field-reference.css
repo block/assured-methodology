@@ -1,0 +1,157 @@
+/* Field reference leaf pages: /docs/field-reference/telemetry-sources/
+   (source index, per-source detail columns, sub-card grids) and
+   /docs/field-reference/tool-families/ (family index, capability and
+   limitation columns). Both pages use the Uncover hue. Imported from each
+   page; the hub itself uses hubs.css. */
+
+/* ---- Shared: index cards that jump to a section ---- */
+.src-grid,
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+@media (min-width: 640px) { .src-grid, .tool-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) {
+  .src-grid { grid-template-columns: repeat(3, 1fr); }
+  .tool-grid { grid-template-columns: repeat(5, 1fr); }
+}
+.src,
+.tool-card {
+  display: block;
+  padding: 0.95rem 1.15rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-uncover);
+  border-radius: 0.55rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.src:hover,
+.tool-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--assured-phase-uncover);
+  box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--assured-phase-uncover) 35%, transparent);
+}
+/* level changed for the heading outline; size stays as designed */
+.src :is(h3, h4),
+.tool-card :is(h3, h4) {
+  margin: 0 0 0.3rem 0;
+  color: var(--assured-phase-uncover-soft);
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+.src :is(h3, h4) { line-height: 1.5; }
+.tool-card :is(h3, h4) { line-height: inherit; }
+.src p,
+.tool-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.45; }
+.src p { font-size: 0.85rem; }
+.tool-card p { font-size: 0.84rem; }
+
+/* ---- Shared: two-column "when to use / limitations" and
+   "capabilities / limitations" blocks ---- */
+.src-detail,
+.tool-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px) { .src-detail, .tool-detail { grid-template-columns: 1fr 1fr; } }
+
+.src-detail__col,
+.tool-detail__col {
+  padding: 1.2rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.7rem;
+}
+.src-detail__col--use,
+.tool-detail__col--brings { border-top: 3px solid var(--assured-success); }
+.src-detail__col--limit,
+.tool-detail__col--limits { border-top: 3px solid var(--assured-warn); }
+
+/* telemetry-sources: column labels are paragraphs, not headings, so heading
+   navigation is not a wall of identical "When to use" / "Limitations"
+   entries */
+.src-detail__col .src-detail__label {
+  margin: 0 0 0.55rem 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 1.5;
+}
+/* tool-families: level changed for the heading outline; weight and
+   line-height stay as designed */
+.tool-detail__col :is(h3, h4) {
+  margin: 0 0 0.55rem 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: inherit;
+}
+.src-detail__col--use .src-detail__label,
+.tool-detail__col--brings :is(h3, h4) { color: var(--assured-success-soft); }
+/* amber-400: no token sits between --assured-warn and a soft tint */
+.src-detail__col--limit .src-detail__label,
+.tool-detail__col--limits :is(h3, h4) { color: #fbbf24; }
+
+.src-detail__col ul,
+.tool-detail__col ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+.tool-detail__col ul strong { color: var(--assured-text); }
+
+/* tool-families: the pointer from each family to its C.A.T. glossary section */
+.tool-vendors {
+  margin: 0.25rem 0 0;
+  color: var(--assured-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ---- telemetry-sources: sub-card grids inside a source section ---- */
+.iam-grid,
+.appdb-grid,
+.dlp-grid,
+.deception-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin: 1.25rem 0;
+}
+@media (min-width: 768px) { .iam-grid, .appdb-grid, .dlp-grid, .deception-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .iam-grid, .dlp-grid, .deception-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1100px) { .appdb-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.iam-card, .appdb-card, .dlp-card, .deception-card {
+  padding: 1rem 1.2rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--assured-phase-uncover);
+  border-radius: 0.55rem;
+}
+/* level changed for the heading outline; size stays as designed */
+.iam-card :is(h3, h4), .appdb-card :is(h3, h4), .dlp-card :is(h3, h4), .deception-card :is(h3, h4) {
+  margin: 0 0 0.3rem 0;
+  color: var(--assured-phase-uncover-soft);
+  font-size: 0.93rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.iam-card p, .appdb-card p, .dlp-card p, .deception-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.87rem;
+}
+
+.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }

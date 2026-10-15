@@ -1,0 +1,442 @@
+/*
+ * Alert chapter page styles (src/content/docs/alert/*.mdx).
+ *
+ * Moved out of the per-page <style> blocks. Each page imports this sheet,
+ * so every selector here is unique to one Alert page, or carries an
+ * Alert-only modifier class (.alert-outcomes--alert). Colors use the
+ * design tokens in
+ * src/styles/assured.css where an equivalent exists; the remaining hex
+ * values (#60a5fa link text, the threat-intel yellows) have no token.
+ *
+ * Not here: the index page's pillar cards, which render through
+ * src/components/assured/PillarGrid.astro.
+ *
+ * The translucent number color below (.parsing-surface__num,
+ * rgba(147, 197, 253, 0.7)) measured >= 4.5:1 over the card at both
+ * gradient ends when it was inline.
+ */
+
+/* ---------------------------------------------------------------- */
+/* index.mdx                                                         */
+/* ---------------------------------------------------------------- */
+
+.alert-outcomes--alert .alert-outcomes__icon {
+  display: inline-flex;
+  color: var(--assured-phase-alert-soft);
+}
+
+.alert-outcomes--alert .alert-outcomes__icon svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.evasion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+
+.strategic-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .strategic-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.strategic-card {
+  padding: 1.25rem 1.5rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.strategic-card :is(h3, h4) {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.strategic-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------------- */
+/* detection-mechanisms.mdx                                          */
+/* ---------------------------------------------------------------- */
+
+.trust-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 1.25rem 0;
+}
+
+.trust-item {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--accent, var(--assured-accent));
+  border-radius: 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .trust-item { grid-template-columns: 1fr; }
+}
+
+.trust-item--classifier { --accent: var(--assured-accent); --accent-text: var(--assured-accent-soft); }
+.trust-item--intel      { --accent: #eab308; --accent-text: #fde047; }
+.trust-item--vendor     { --accent: var(--assured-text-dim); --accent-text: var(--assured-text-muted); }
+
+.trust-item__label {
+  color: var(--accent-text, var(--assured-accent-soft));
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.trust-item__body {
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.mech-table {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.mech-table table {
+  font-size: 0.88rem;
+}
+
+.ads-table {
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+
+.ads-table table {
+  font-size: 0.9rem;
+}
+
+.family {
+  margin: 1.25rem 0 1.75rem;
+  padding: 1.1rem 1.4rem 0.4rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--accent, var(--assured-accent));
+  border-radius: 0.7rem;
+}
+
+/* Border hues only; the family text stays on the neutral text tokens. */
+.family--signature  { --accent: var(--assured-phase-alert); }
+.family--anomaly    { --accent: var(--assured-phase-subject); }
+.family--rule       { --accent: var(--assured-phase-scope); }
+.family--behavioral { --accent: var(--assured-phase-uncover); }
+
+.family dt {
+  font-weight: 700;
+  color: var(--assured-text);
+  margin-top: 0.55rem;
+}
+
+.family dd {
+  margin: 0.2rem 0 0.6rem;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- */
+/* example.mdx                                                       */
+/* ---------------------------------------------------------------- */
+
+.example-step h3 { margin: 0 0 0.85rem 0; color: var(--assured-phase-alert-soft); font-size: 1.2rem; }
+
+/* ---------------------------------------------------------------- */
+/* validation.mdx                                                    */
+/* ---------------------------------------------------------------- */
+
+.validation-flip-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  max-width: 40rem;
+}
+
+.dims-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .dims-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.dim-card {
+  padding: 1.5rem;
+  background: var(--assured-panel-solid);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.dims-matrix {
+  overflow-x: auto;
+  margin: 1.25rem 0;
+}
+
+.dims-matrix table {
+  font-size: 0.9rem;
+}
+
+.dim-card p:not(.dim-card__q):not(:last-of-type) {
+  margin: 0 0 0.65rem 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+.dim-card h4 {
+  margin: 0 0 0.4rem 0;
+  color: var(--assured-text);
+  font-size: 1.1rem;
+}
+
+.dim-card__q {
+  margin: 0 0 0.65rem 0;
+  color: var(--assured-accent-soft);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.dim-card p:last-of-type {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.6;
+  font-size: 0.93rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* parsing.mdx                                                       */
+/* ---------------------------------------------------------------- */
+
+.evasion-grid-blue {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px)  { .evasion-grid-blue { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .evasion-grid-blue { grid-template-columns: repeat(4, 1fr); } }
+
+.evasion-blue-card {
+  padding: 1.15rem 1.35rem;
+  background: var(--assured-panel);
+  border-left: 3px solid var(--assured-phase-alert);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.6rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.evasion-blue-card :is(h3, h4) {
+  margin: 0 0 0.35rem 0;
+  color: var(--assured-phase-alert-soft);
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.evasion-blue-card p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.88rem;
+}
+
+.parsing-surfaces {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px)  { .parsing-surfaces { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1200px) { .parsing-surfaces { grid-template-columns: 1fr 1fr 1fr; } }
+
+.parsing-surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.85rem;
+  color: var(--assured-text);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.parsing-surface:hover {
+  transform: translateY(-3px);
+  border-color: var(--assured-phase-alert);
+  box-shadow: 0 16px 32px -12px rgba(59, 130, 246, 0.35);
+}
+
+.parsing-surface__num {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: rgba(147, 197, 253, 0.7); /* >= 4.5:1 over the card at both gradient ends */
+  letter-spacing: 0.06em;
+}
+
+.parsing-surface__icon {
+  display: inline-flex;
+  color: var(--assured-phase-alert-soft);
+}
+
+.parsing-surface__icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.parsing-surface h3 {
+  margin: 0;
+  color: var(--assured-text);
+  font-size: 1.1rem;
+}
+
+.parsing-surface p {
+  margin: 0;
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+.parsing-surface__cta {
+  margin-top: auto;
+  color: #60a5fa;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.info-buckets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .info-buckets { grid-template-columns: repeat(3, 1fr); }
+}
+
+.info-bucket {
+  padding: 1.5rem;
+  background: var(--assured-panel-solid);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.85rem;
+}
+
+.info-bucket__label {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.14);
+  color: var(--assured-accent-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.info-bucket > p {
+  margin: 0 0 0.85rem 0;
+  color: var(--assured-text-soft);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.info-bucket ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.info-bucket li {
+  color: var(--assured-text-muted);
+  line-height: 1.5;
+  font-size: 0.88rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* transition.mdx                                                    */
+/* ---------------------------------------------------------------- */
+
+/* Two classes, so the column count beats content-patterns.css's single-class
+   .deliverables-grid base rule whatever order the two sheets load in. */
+@media (min-width: 1024px) {
+  .deliverables-grid.deliverables-grid--alert { grid-template-columns: repeat(3, 1fr); }
+}
+
+.deliverable-card {
+  padding: 1.5rem;
+  background: var(--assured-panel);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 0.85rem;
+}
+
+/* level changed for the heading outline; size stays as designed */
+.deliverable-card :is(h3, h4) {
+  margin: 0 0 0.75rem 0;
+  color: var(--assured-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.deliverable-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.deliverable-card li {
+  color: var(--assured-text-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.end-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 2rem 0 1rem;
+}

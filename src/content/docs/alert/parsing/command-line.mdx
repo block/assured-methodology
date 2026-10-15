@@ -1,6 +1,7 @@
 ---
 title: "Command line analysis"
 description: "Decode the true intent of process execution. The encoded-command workflow, the flags that abbreviate themselves, the 4688 gap, and execution context."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -10,33 +11,21 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/alert-parsing.css";
 
 <SubPageHero
   phase="alert"
   parentLetter="A"
-  pillarIndex="03 · 02"
-  pillarTotal="06 pages"
-  chapterHref="/docs/alert/parsing/"
-  chapterLabel="Parsing"
+  chapterHref="/docs/field-reference/#reading-telemetry"
+  chapterLabel="Field reference: Reading telemetry"
   lede="Command lines reveal intent. Adversaries use native scripting environments to do real work while looking like legitimate processes. Effective analysis means actually decoding what ran, then weighing it against execution context."
 />
 
-<PillNav
-  chapter="alert"
-  label="Parsing pages"
-  items={[
-    { label: "Normalization",    href: "/docs/alert/parsing/multi-format/",          phase: "alert" },
-    { label: "Command line",     href: "/docs/alert/parsing/command-line/",          phase: "alert" },
-    { label: "Process trees",    href: "/docs/alert/parsing/process-relationships/", phase: "alert" },
-    { label: "Network",          href: "/docs/alert/parsing/network/",               phase: "alert" },
-    { label: "File system",      href: "/docs/alert/parsing/file-system/",           phase: "alert" },
-    { label: "Cloud & identity", href: "/docs/alert/parsing/cloud-identity/",        phase: "alert" },
-  ]}
-/>
+<PillNav section="/docs/field-reference/#reading-telemetry" phase="alert" />
 
 ## What to look for: inspection
 
-Common <DefineTerm term="Obfuscation" display="obfuscation" /> patterns observed in frameworks like <DefineTerm term="PowerShell" /> Empire and <DefineTerm term="Cobalt Strike" />:
+Common <DefineTerm term="Obfuscation" display="obfuscation" /> patterns (ATT&CK T1027.010, Command Obfuscation). Base64-encoded <DefineTerm term="PowerShell" /> launchers are standard output from post-exploitation frameworks such as <DefineTerm term="Cobalt Strike" /> and BC Security's Empire; caret and substring tricks are catalogued in Daniel Bohannon's Invoke-DOSfuscation research (2018):
 
 <div class="obfuscation-grid">
   <div class="obfuscation-card">
@@ -47,16 +36,20 @@ Common <DefineTerm term="Obfuscation" display="obfuscation" /> patterns observed
   <div class="obfuscation-card">
     <h3>Caret insertion</h3>
     <code>cmd.exe /c e^ch^o "Hello"</code>
-    <p>cmd strips the escape carets before execution, so the command runs normally while breaking naive substring signatures. Interior quotes (<code>w"h"oami</code>) work the same way.</p>
+    <p>cmd strips the escape carets before execution, so the command runs normally while breaking naive substring signatures. Interior quotes (<code>w"h"oami</code>) work the same way. Parsing tip: carets survive only in the cmd.exe line itself. Read the child process's command line, which arrives with the carets already stripped.</p>
   </div>
   <div class="obfuscation-card">
     <h3>Variable expansion</h3>
     <code>$env:COMSPEC</code>
-    <p>Uses environment variables to mask binary references. cmd can even assemble strings from variable substrings (<code>%COMSPEC:~-7,1%</code> extracts a single letter), so the payload never appears literally.</p>
+    <p>Uses environment variables to mask binary references. cmd can even assemble strings from variable substrings (<code>%COMSPEC:&#126;-7,1%</code> extracts a single letter), so the payload never appears literally.</p>
   </div>
 </div>
 
-Adversaries also abuse trusted system binaries: <DefineTerm term="LOLBins" display="LOLBins" /> such as `certutil.exe` for downloads, `regsvr32.exe` for DLL execution, `bitsadmin.exe` for transfers. These leave minimal forensic footprint because the binary itself is signed and trusted.
+Adversaries also abuse trusted system binaries (ATT&CK T1218, System Binary Proxy Execution): <DefineTerm term="LOLBins" display="LOLBins" /> such as `certutil.exe` for downloads, `regsvr32.exe` for DLL execution, `bitsadmin.exe` for transfers. These blend in because the binary is signed, trusted, and present on every host, which defeats allowlisting and hash-based detection. They are not footprint-free: downloaded files land on disk (certutil can also leave entries under CryptnetUrlCache), BITS jobs appear in the Microsoft-Windows-Bits-Client/Operational log and the QMGR job database, and the command line itself is usually the strongest artifact. The LOLBAS project (lolbas-project.github.io) catalogs Windows examples; GTFOBins and LOOBins cover Linux/Unix and macOS.
+
+<Callout variant="info" title="Paste-and-run (ClickFix)">
+A fake CAPTCHA, browser error or "verification" page tells the user to paste a command into the Run dialog (Win+R), a terminal, or File Explorer's address bar (ATT&CK T1204.004, Malicious Copy and Paste). Look for <code>explorer.exe</code> launching <code>powershell.exe</code>, <code>mshta.exe</code> or <code>curl.exe</code> with a URL, seconds after a browser visit, often with flags such as <code>-w h</code> and <code>iex(irm ...)</code>. Run-dialog variants leave the pasted command as a new value under <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU</code>. The user ran it themselves, so no exploit or attachment appears in the tree.
+</Callout>
 
 <Callout variant="warn" title="Educational, not operational">
 The examples in this chapter are illustrative. We deliberately do not show fully working invocation strings. Analysts need to recognize the *shape* of adversary technique, not have a copy-pasteable cookbook. Decoding what an attacker already ran is defensive analysis, and everything below stays on that side of the line. If you need to test detections, use isolated lab environments and sanctioned red-team tools.
@@ -70,10 +63,17 @@ The single most common parsing task this page exists for: an alert hands you `po
 
 <div class="decode-steps">
   <div class="decode-step">
+    <span class="decode-step__num">0</span>
+    <div>
+      <h3>Check whether Windows already decoded it</h3>
+      <p>If PowerShell Script Block Logging is enabled (or the block tripped PowerShell's automatic logging of suspicious script blocks, which runs even when full logging is off), Event 4104 in Microsoft-Windows-PowerShell/Operational holds the decoded text of every layer, joined by <code>ScriptBlockId</code>. Module logging (4103), AMSI telemetry in your EDR, and transcription files can hold it too. Pull that first; decode by hand only when it is absent, and record which you used. The old <code>powershell -version 2</code> downgrade that evaded these controls is gone on hosts where Microsoft has removed PowerShell 2.0.</p>
+    </div>
+  </div>
+  <div class="decode-step">
     <span class="decode-step__num">1</span>
     <div>
       <h3>Extract the blob</h3>
-      <p>Copy the Base64 string out of the alert into a local decoder. Never paste it into a terminal that could execute it, and never run the command to "see what it does." <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a> running locally in a browser tab is the standard tool.</p>
+      <p>Copy the Base64 string out of the alert into a local decoder. Never paste it into a terminal that could execute it, and never run the command to "see what it does." <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a>, which runs entirely client-side in the browser (use the downloadable offline build for sensitive cases), is the standard tool.</p>
     </div>
   </div>
   <div class="decode-step">
@@ -87,14 +87,14 @@ The single most common parsing task this page exists for: an alert hands you `po
     <span class="decode-step__num">3</span>
     <div>
       <h3>Read the result, and expect another layer</h3>
-      <p>The example blob above opens with <code>IEX (New-Object ...</code>, the classic download-and-execute-in-memory cradle. Real payloads often nest: the decoded text itself calls <code>FromBase64String</code> plus a Gzip or Deflate decompress, then <code>IEX</code> again. Keep unwinding layers in the decoder until you reach readable intent, and record each layer in your notes.</p>
+      <p>The example blob above opens with <code>IEX (New-Object ...</code>: the classic download-and-execute-in-memory cradle. Real payloads often nest: the decoded text itself calls <code>FromBase64String</code> plus a Gzip or Deflate decompress, then <code>IEX</code> again. Keep unwinding layers in the decoder until you reach readable intent, and record each layer in your notes.</p>
     </div>
   </div>
   <div class="decode-step">
     <span class="decode-step__num">4</span>
     <div>
       <h3>Treat what falls out as hot</h3>
-      <p>URLs, domains, and IPs inside the decoded payload are live attacker infrastructure until proven otherwise. Do not browse them to check. They are IoCs: record them, look them up in <DefineTerm term="Threat Intelligence" display="threat intelligence" />, and pivot on them in the network telemetry.</p>
+      <p>URLs, domains, and IPs inside the decoded payload are live attacker infrastructure until proven otherwise. Do not browse them to check. They are IOCs: record them, look them up in <DefineTerm term="Threat Intelligence" display="threat intelligence" />, and pivot on them in the network telemetry.</p>
     </div>
   </div>
 </div>
@@ -103,7 +103,7 @@ The single most common parsing task this page exists for: an alert hands you `po
 
 ## The flags do not spell themselves out
 
-PowerShell accepts abbreviated parameter prefixes: `-e`, `-en`, and `-enc` all resolve to `-EncodedCommand`, even though `-ExecutionPolicy` shares the `-e` prefix. A detection or a triage search that string-matches the full flag name misses every abbreviated form, which is exactly why attackers abbreviate. Parse by meaning, not by literal string.
+PowerShell accepts abbreviated parameter prefixes: `-e`, `-en`, and `-enc` all resolve to `-EncodedCommand`, even though `-ExecutionPolicy` shares the `-e` prefix. A detection or a triage search that string-matches the full flag name misses every abbreviated form, which is exactly why attackers abbreviate. Parse by meaning, not by literal string. Normalize before you match: PowerShell also accepts <code>/</code> and Unicode dashes such as the en dash as the parameter prefix (<code>/enc</code>, <code>–enc</code>), and abbreviated values (<code>-w h</code>). A search for "-enc" misses all of them.
 
 <div class="flags-table" role="table" aria-label="PowerShell flag abbreviations">
   <div class="flags-row flags-row--head" role="row">
@@ -144,7 +144,7 @@ No single flag is a verdict. `-nop -w hidden -enc` together on a workstation, sp
 
 ## When there is no command line to parse
 
-Sometimes the alert's command-line field is simply empty. The most common reason is not evasion; it is configuration. Windows Security Event 4688 records process creations, but its CommandLine field populates only when the "Include command line in process creation events" policy is enabled, and it is off by default. If it was never turned on, every historical event is blank and there is no retroactive fix.
+Sometimes the alert's command-line field is simply empty. The most common reason is not evasion; it is configuration. Windows Security Event 4688 records process creations, but its CommandLine field populates only when the "Include command line in process creation events" policy is enabled, and it is off by default. If it was never turned on, every historical event is blank and there is no retroactive fix. 4688 itself has a prerequisite too: the Audit Process Creation subcategory, also off by default, so on an unconfigured host there is no 4688 at all. When both are on, command lines can carry passwords and tokens: redact them before pasting into tickets or chat.
 
 <div class="gap-cards">
   <div class="gap-card">
@@ -157,6 +157,31 @@ Sometimes the alert's command-line field is simply empty. The most common reason
   </div>
 </div>
 
+<Reveal summary="Annotated sample: a 4688 with the command line missing" variant="deep-dive">
+
+Trimmed and fictional; the field names are real.
+
+```xml
+<EventData>
+  <Data Name="SubjectUserName">jdoe</Data>
+  <Data Name="SubjectLogonId">0x3e7a21</Data>
+  <Data Name="NewProcessId">0x1fc0</Data>
+  <Data Name="NewProcessName">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</Data>
+  <Data Name="TokenElevationType">%%1938</Data>
+  <Data Name="ProcessId">0x1d4c</Data>
+  <Data Name="CommandLine"></Data>
+  <Data Name="ParentProcessName">C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE</Data>
+  <Data Name="MandatoryLabel">S-1-16-8192</Data>
+</EventData>
+```
+
+- <code>CommandLine</code> is present and empty: the event schema has the field, the policy did not fill it. Record it as not captured, then pull the same process from Sysmon Event ID 1 or the EDR by host, PID and start time.
+- The IDs are hexadecimal. <code>NewProcessId</code> 0x1fc0 is PID 8128, the new process. <code>ProcessId</code> 0x1d4c (PID 7500) is the creator, not the new process, which is the field juniors swap most often.
+- <code>TokenElevationType</code> <code>%%1938</code> is a limited (UAC-filtered) token; <code>%%1937</code> is elevated, and <code>%%1936</code> is a full token with UAC off or the built-in administrator. <code>MandatoryLabel</code> S-1-16-8192 is Medium integrity.
+- <code>SubjectLogonId</code> ties the creation to the logon session in the matching 4624.
+
+</Reveal>
+
 ---
 
 ## Execution context
@@ -166,7 +191,7 @@ The same command can be benign or malicious depending on context. Four contextua
 <div class="context-grid">
   <div class="context-card">
     <span class="context-card__label">01 · User context</span>
-    <p><code>NT AUTHORITY\SYSTEM</code> vs. a standard user account. System-level execution from a user-initiated process is rarely legitimate.</p>
+    <p><code>NT AUTHORITY\SYSTEM</code> vs. a standard user. A SYSTEM-context process whose lineage leads back to a user's interactive session suggests privilege escalation; installers handed off to the Windows Installer service are the common benign exception.</p>
   </div>
   <div class="context-card">
     <span class="context-card__label">02 · Timing</span>
@@ -178,17 +203,18 @@ The same command can be benign or malicious depending on context. Four contextua
   </div>
   <div class="context-card">
     <span class="context-card__label">04 · Directory</span>
-    <p><code>C:\Windows\Temp</code> or <code>%APPDATA%</code> is suspicious. <code>C:\Program Files</code> is expected.</p>
+    <p><code>C:\Windows\Temp</code>, <code>%TEMP%</code> and <code>C:\Users\Public</code> deserve a second look. <code>%APPDATA%</code> and <code>%LOCALAPPDATA%</code> are mixed: per-user installs such as OneDrive and VS Code live there legitimately, so check the software inventory before reading location as intent. <code>C:\Program Files</code> is expected.</p>
   </div>
 </div>
 
-<Reveal summary="Example: PowerShell from Outlook">
-A PowerShell script launched by Outlook signals likely macro <DefineTerm term="Execution" display="execution" /> from an email attachment. What you would check next:
+<Reveal summary="Example: PowerShell under an Office chain">
+Outlook → Word → PowerShell signals a macro in an opened attachment: the macro runs inside Word (or Excel), which becomes PowerShell's parent, with Outlook one level above. That is less common now that Office blocks macros in internet-sourced files by default, so check whether the file carried the Mark of the Web and how the block was bypassed (unblocked by the user, saved to a Trusted Location, or delivered in a container that strips the mark). PowerShell spawned directly by outlook.exe is rarer and high-signal: it points at Outlook-based persistence (a malicious rule, a custom form, a folder Home Page, or the Outlook VBA project; ATT&CK T1137) or an exploit of Outlook itself. What you would check next:
 
-- The Outlook session's recent attachment activity.
+- The attachment that was opened, and whether it carried the Mark of the Web.
 - The script's <DefineTerm term="Command Line" display="command line" /> for download cradle patterns.
 - Outbound network activity from PowerShell in the next 60 seconds.
-- Whether the <DefineTerm term="User" display="user" />'s mailbox shows similar emails to other recipients.
+- For a direct outlook.exe parent: the mailbox's rules, custom forms, folder Home Page settings, and the <code>VbaProject.OTM</code> file.
+- Whether the user's mailbox shows similar emails to other recipients.
 
 The same PowerShell command from Task Scheduler during a maintenance window is almost certainly legitimate. Same command, different parent, different verdict.
 </Reveal>
@@ -203,13 +229,13 @@ The same analysis transfers off Windows; only the vocabulary changes.
   <div class="platform-item">
     <span class="platform-item__bullet"></span>
     <div>
-      <strong>macOS and Linux pipes.</strong> <code>curl ... | sh</code> and <code>echo &lt;base64&gt; | base64 -d | bash</code> are the download cradle and the encoded command of the Unix world. <code>osascript -e</code> running AppleScript from a non-interactive parent is the macOS counterpart of an Office macro spawning a shell.
+      <strong>macOS and Linux pipes.</strong> <code>curl ... | sh</code> and <code>echo &lt;base64&gt; | base64 -d | bash</code> are the download cradle and the encoded command of the Unix world. <code>osascript -e</code> running AppleScript from a non-interactive parent is the macOS counterpart of an Office macro spawning a shell. Two shapes dominate current macOS stealer intrusions (AMOS, MacSync, Odyssey): <code>osascript</code> drawing a fake system password prompt (<code>display dialog ... with hidden answer</code>), and a user pasting a <code>curl | bash</code> or base64 one-liner into Terminal from a fake "verification" page.
     </div>
   </div>
   <div class="platform-item">
     <span class="platform-item__bullet"></span>
     <div>
-      <strong>Vendor-standard noise to recognize.</strong> Electron apps launch helpers with flags like <code>--type=utility</code> or <code>--type=renderer</code>. The Alert worked example's Case B command line is exactly this shape: long, odd-looking, and vendor-standard. Knowing the legitimate shapes is what keeps them from eating triage time.
+      <strong>Vendor-standard noise to recognize.</strong> Electron apps launch helpers with flags like <code>--type=utility</code> or <code>--type=renderer</code>. The command line in <a href="/docs/alert/example/#case-b">Case B</a> of the Alert worked example (a macOS developer workstation running the Cursor IDE) is exactly this shape: long, odd-looking, and vendor-standard. Knowing the legitimate shapes is what keeps them from eating triage time.
     </div>
   </div>
 </div>
@@ -224,13 +250,13 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   <div class="pattern-item">
     <span class="pattern-item__bullet"></span>
     <div>
-      <strong>Unusual LOLBin invocations.</strong> <code>rundll32.exe</code>, <code>mshta.exe</code>, <code>wmic.exe</code>, <code>regsvr32.exe</code> invoked outside their normal contexts.
+      <strong>Unusual LOLBin invocations.</strong> <code>rundll32.exe</code>, <code>mshta.exe</code>, <code>regsvr32.exe</code> invoked outside their normal contexts, and <code>wmic.exe</code> (legacy: removed from current Windows 11 builds in 2026; on modern hosts expect the same WMI abuse via <code>Get-CimInstance</code> / <code>Invoke-CimMethod</code>, or <code>wmiprvse.exe</code> as the parent).
     </div>
   </div>
   <div class="pattern-item">
     <span class="pattern-item__bullet"></span>
     <div>
-      <strong>Framework flags.</strong> Command-line flags that suggest framework use: <code>-NoP</code>, <code>-EncodedCommand</code> (or any prefix of it), <code>-WindowStyle Hidden</code>, <code>-NonInteractive</code>.
+      <strong>Framework flags.</strong> The combinations in the flag table above, especially <code>-nop -w hidden -enc</code> together.
     </div>
   </div>
   <div class="pattern-item">
@@ -240,6 +266,14 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
     </div>
   </div>
 </div>
+
+## Check yourself
+
+An alert shows <code>powershell.exe /w 1 /enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA...</code> with <code>explorer.exe</code> as its parent, twenty seconds after the user's browser loaded an unfamiliar page. Parse it before you open the answer: what do the flags mean, what is the first source you check for the payload, and what does the parent tell you?
+
+<Reveal summary="One way to answer">
+<code>/w 1</code> is <code>-WindowStyle Hidden</code> (1 is the numeric value for Hidden) and <code>/enc</code> is <code>-EncodedCommand</code>, both with the <code>/</code> prefix a search for "-enc" would miss. Check Event 4104 for the decoded script blocks first; if it is absent, decode by hand (Base64, then UTF-16LE), and the opening <code>IEX (New-Object</code> says a download cradle follows. A browser visit followed by explorer.exe launching PowerShell is the paste-and-run (ClickFix) shape: look for a new RunMRU value, and treat the URL inside the payload as live infrastructure.
+</Reveal>
 
 <KeyTakeaway>
 <DefineTerm term="Command Line Analysis" display="Command line analysis" /> is where <DefineTerm term="Parsing" display="parsing" /> becomes investigation. The decode workflow turns an encoded blob into readable intent, the flag table keeps abbreviations from hiding it, and the 4688 gap reminds you to know what your telemetry actually captured. What the command says, weighed against its context, anchors everything downstream.
@@ -252,268 +286,3 @@ Build mental patterns for atypical use of common binaries. These are the shapes 
   nextDescription="Parent-child chains and lineage reconstruction. Macro execution, persistence, hollowing, token theft."
   ctaLabel="Read process relationships"
 />
-
-<style>
-{`
-.obfuscation-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) {
-  .obfuscation-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.obfuscation-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f97316;
-  border-radius: 0.7rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.obfuscation-card h3 {
-  margin: 0;
-  color: #fdba74;
-  font-size: 0.95rem;
-}
-
-.obfuscation-card code {
-  font-size: 0.78rem;
-  padding: 0.4rem 0.6rem;
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 0.35rem;
-  word-break: break-word;
-  display: block;
-}
-
-.obfuscation-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.85rem;
-}
-
-.obfuscation-card p code {
-  display: inline;
-  padding: 0.05rem 0.3rem;
-  font-size: 0.8em;
-}
-
-.decode-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-.decode-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #3b82f6;
-  border-radius: 0.7rem;
-}
-
-.decode-step__num {
-  flex-shrink: 0;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.18);
-  border: 1px solid rgba(59, 130, 246, 0.45);
-  color: #93c5fd;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.decode-step :is(h3, h4) {
-  margin: 0 0 0.35rem 0;
-  color: #93c5fd;
-  font-size: 0.98rem;
-}
-
-.decode-step p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.6;
-  font-size: 0.92rem;
-}
-
-.decode-step a {
-  color: #93c5fd;
-  text-decoration: underline;
-}
-
-.flags-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 1.25rem 0;
-}
-
-.flags-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.35rem;
-  padding: 0.85rem 1.15rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.5rem;
-}
-
-@media (min-width: 900px) {
-  .flags-row { grid-template-columns: 1.1fr 1fr 1.9fr; gap: 1rem; align-items: baseline; }
-}
-
-.flags-row--head {
-  display: none;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 1.15rem;
-}
-
-@media (min-width: 900px) {
-  .flags-row--head { display: grid; }
-  .flags-row--head span {
-    color: var(--assured-text-dim);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-}
-
-.flags-row span {
-  color: var(--assured-text-muted);
-  line-height: 1.5;
-  font-size: 0.88rem;
-}
-
-.flags-row code {
-  font-size: 0.82rem;
-  padding: 0.05rem 0.35rem;
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 0.3rem;
-}
-
-.gap-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px) { .gap-cards { grid-template-columns: 1fr 1fr; } }
-
-.gap-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #a855f7;
-  border-radius: 0.7rem;
-}
-
-.gap-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: #d8b4fe;
-  font-size: 0.95rem;
-}
-
-.gap-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.9rem;
-}
-
-.context-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 640px)  { .context-grid { grid-template-columns: 1fr 1fr; } }
-
-.context-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-}
-
-.context-card__label {
-  display: inline-block;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #93c5fd;
-  font-weight: 700;
-  margin-bottom: 0.45rem;
-}
-
-.context-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-.platform-list,
-.pattern-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 1.25rem 0;
-}
-
-.platform-item,
-.pattern-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  padding: 1rem 1.25rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.6rem;
-}
-
-.platform-item__bullet,
-.pattern-item__bullet {
-  flex-shrink: 0;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, var(--assured-accent), #3b82f6);
-  margin-top: 0.5rem;
-}
-
-.platform-item strong,
-.pattern-item strong {
-  color: var(--assured-text);
-}
-
-.platform-item div,
-.pattern-item div {
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.decode-step h3, .gap-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

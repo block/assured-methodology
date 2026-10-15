@@ -1,0 +1,188 @@
+---
+title: "Non-human identities and cloud roles"
+description: "Service accounts, cloud roles and assumed-role sessions, workload identity federation, OAuth apps, CI/CD tokens and AI agents: who can become each one, how to trace a session back to a person or pipeline, how to baseline automation, and the abuse signals that matter."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/subject.css";
+
+<SubPageHero
+  phase="subject"
+  lede="Many alerts name no person at all. They name a role session, a service principal, a pipeline token or an agent. These identities skip MFA, hold standing privilege, and behave the same way every day, which makes them easy to abuse and, once you know where to look, cheap to check."
+/>
+
+<PillNav chapter="subject" />
+
+[Entity types](/docs/subject/entity-types/#applications-and-services) gave the first pass on applications and services. This page goes deeper on the identities behind them. In many cloud tenants, <DefineTerm term="Non-Human Identity (NHI)" display="non-human identities" /> outnumber the people, and the depth ladder already depends on telling them apart: the Level 0 [eligibility gate](/docs/fast-path/#the-depth-ladder) fails any automation with deploy, signing, secrets or repository-write capability, because a CI runner can outrank its owner. To apply that gate, and to run the [four dimensions](/docs/subject/four-dimensions/) on a subject that never types a password, you need four answers: what kind of identity this is, who can become it, who is behind this session, and what its normal looks like.
+
+---
+
+## What counts as a non-human identity
+
+An identity used by software rather than a person. The table lists the kinds triage meets most, how each one authenticates, and where its activity is recorded. Credentials (API keys, client secrets, certificates, access keys) are not identities of their own: each belongs to one of the rows below, and you analyze it as that identity's credential.
+
+| Type | What it is | How it authenticates | Where to read it |
+| --- | --- | --- | --- |
+| <DefineTerm term="Service Account" display="Service accounts" /> | A directory or cloud account run by software: an AD service account, a GCP service account, an AWS IAM user created for a tool. | Long-lived password or key. | Directory logon events; CloudTrail <code>userIdentity.type</code> <code>IAMUser</code>; GCP <code>authenticationInfo</code>. |
+| Cloud roles and <DefineTerm term="Assumed-Role Session" display="assumed-role sessions" /> | An AWS IAM role, an Azure <DefineTerm term="Managed Identity" display="managed identity" />, or a GCP service account that others impersonate. The role holds permissions; a session borrows them for a while. | Short-lived credentials from a token service (AWS keys starting <code>ASIA</code>). | CloudTrail <code>AssumedRole</code> events; Entra managed identity sign-in log; GCP <code>serviceAccountDelegationInfo</code>. |
+| <DefineTerm term="Workload Identity Federation" display="Workload identity federation" /> | A workload outside the cloud (a GitHub Actions job, a Kubernetes pod, another cloud) trades its own signed OIDC token for cloud credentials. No stored secret exists. | The external token, accepted only if it matches the role's trust conditions. | CloudTrail <code>AssumeRoleWithWebIdentity</code>; the Entra app's federated credentials; GCP workload identity pool. |
+| OAuth and consented apps | An app registration and its <DefineTerm term="Service Principal" display="service principal" /> (Entra ID), or a third-party app granted access to a tenant's data. Delegated permissions act as a user; application permissions act as the app itself. | Client secret, certificate, or federated credential; refresh tokens for delegated access. | Entra service principal sign-in log and AuditLogs; Google Workspace token audit. |
+| CI/CD tokens | <DefineTerm term="Personal Access Token (PAT)" display="Personal access tokens" />, deploy keys, runner registration tokens, the job's built-in token, and the cloud keys stored as pipeline secrets. | Bearer token or key, often long-lived and broadly scoped. | The source-control audit log; the cloud log of whatever the token reached. |
+| Kubernetes service accounts | The identity a pod runs as. Current clusters issue short-lived tokens bound to the pod. | Projected token mounted in the pod. | API server audit log, where the user reads <code>system:serviceaccount:NAMESPACE:NAME</code>. |
+| AI agents and MCP servers | An <DefineTerm term="AI Agent" display="agent" /> with an identity of its own (Microsoft Entra Agent ID records owners and sponsors for each), or with tokens delegated by a user; an <DefineTerm term="Model Context Protocol (MCP)" display="MCP" /> server holding tokens for the downstream APIs it calls. | Delegated user token, app-only token, or the MCP server's own credentials. | Agent sign-ins in the Entra sign-in logs; the agent's tool-call logs; the MCP gateway's logs. See [AI agents as subjects](/docs/ai-triage/#ai-agents-as-subjects). |
+
+For the Subject handoff, a role, service principal or service account goes in the entity inventory as a <em>service account</em> row, its session or token as a <em>session or token</em> row, and a consented app as an <em>application or OAuth grant</em> row (the [handoff schema](/docs/subject/transition/)).
+
+---
+
+## Who can become this identity
+
+For a person, the Authentication dimension asks whether the right human proved who they are. For a non-human identity the question moves one step back: who is allowed to obtain its credentials at all? That list is the identity's real attack surface, and it is usually longer than its owner thinks.
+
+- **AWS roles.** The role's <DefineTerm term="Trust Policy" display="trust policy" /> names the principals that may call <code>sts:AssumeRole</code>, plus any conditions. A role that trusts a whole account trusts every principal in it that has permission to assume it. For GitHub Actions federation, the condition on <code>token.actions.githubusercontent.com:sub</code> is the control: without it, a workflow in any repository can obtain the role's credentials.
+- **GCP service accounts.** Anyone holding Service Account Token Creator on the account can mint tokens for it; Service Account User lets a principal attach it to a workload they control; Service Account Key Admin can create a key that never expires by default.
+- **Entra apps and service principals.** The app's owners, and anyone holding Application Administrator or Cloud Application Administrator, can add a secret or certificate and then sign in as the app with every permission it holds. A <DefineTerm term="Federated Identity Credential" display="federated identity credential" /> on the app is a standing trust to an external issuer.
+- **Kubernetes.** Anyone who can create a pod in the namespace can run it as that namespace's service accounts, unless an admission policy restricts which accounts pods may use.
+- **CI/CD.** Anyone who can change the pipeline definition, or merge to a branch the pipeline trusts, controls what the pipeline's identity does next.
+
+These are the trust edges the [Relationships dimension](/docs/subject/four-dimensions/#relationships) maps. When an attack-path tool already holds the graph, query the identity's inbound edges before building anything by hand.
+
+---
+
+## Answering "who is behind this"
+
+A non-human subject still has people behind it. Four facts answer most of the question, and each one is a field in an inventory, not a judgment:
+
+<div class="nhi-facts">
+  <div class="nhi-fact">
+    <h3>Owner of record</h3>
+    <p>The team or person accountable for it, from the CMDB, the app registration's owners, or a resource tag. No owner on record is an <DefineTerm term="Orphaned Credentials" display="orphaned" /> identity: record it as a gap, and it fails the eligibility gate.</p>
+  </div>
+  <div class="nhi-fact">
+    <h3>Creator and creation date</h3>
+    <p>Who created it, through which pipeline or change, and when. A creation date inside the alert window is a lead: an identity born during the intrusion has no history to flag it.</p>
+  </div>
+  <div class="nhi-fact">
+    <h3>Last rotation and last use</h3>
+    <p>Credential age and last-used date (AWS access key last used, Entra credential start and end dates, GCP Activity Analyzer). The last rotation is the last known-good point, so it anchors the <a href="/docs/scope/time/#choosing-the-historical-window">lookback window</a>.</p>
+  </div>
+  <div class="nhi-fact">
+    <h3>Permitted scopes</h3>
+    <p>What it may do and on which resources: its policies, Graph permissions, OAuth scopes or repository rights. Deploy, signing, secrets or repository write makes it a privileged identity for the depth ladder.</p>
+  </div>
+</div>
+
+Those facts describe the identity. The alert is about one session, and the session has to be traced back to whatever started it. The logs that do this differ by platform:
+
+| Platform | Start here | What names the human or pipeline behind it |
+| --- | --- | --- |
+| AWS | <code>userIdentity.type</code>: <code>AssumedRole</code> for a role session, <code>IAMUser</code> for a long-term key, <code>AWSService</code> when a service acted. | <code>sessionContext.sourceIdentity</code> if your organization enforces it; otherwise join back through each <code>AssumeRole</code> call on the temporary <code>accessKeyId</code>. The role session name is caller-chosen and never proof. Chained role sessions are capped at one hour. For Lambda and ECS, <code>inScopeOf.credentialsIssuedTo</code> names the resource the credentials were issued to. |
+| AWS federation | The <code>AssumeRoleWithWebIdentity</code> event, where <code>userIdentity.type</code> is <code>WebIdentityUser</code>. | <code>userName</code> carries the token's subject, for GitHub Actions <code>repo:ORG/REPO:ref:refs/heads/BRANCH</code>. A repository outside your organization here means the trust policy is too wide. |
+| Microsoft Entra ID | <code>AADServicePrincipalSignInLogs</code> and <code>AADManagedIdentitySignInLogs</code> (service principals do not appear in the user sign-in tables). | <code>ServicePrincipalCredentialKeyId</code>, <code>ServicePrincipalCredentialThumbprint</code> or <code>FederatedCredentialId</code> name which credential signed in. Match it to the app's credential list and to the AuditLogs event that added it, whose <code>InitiatedBy</code> names the person or app. |
+| Google Cloud | <code>authenticationInfo.principalEmail</code> names the service account. | <code>serviceAccountDelegationInfo</code> names the principal impersonating it; <code>serviceAccountKeyName</code> names the key; <code>GenerateAccessToken</code> records who minted a short-lived token, but only with IAM Data Access audit logs enabled. |
+| Kubernetes | The API server audit log entry for the call. | The pod the token is bound to, then whoever created or changed that pod's workload. |
+
+Repeat the hop until the chain ends at a human, a workload, or a long-term key. When it ends at a key, the question becomes who holds the key: where it is stored (a vault, a pipeline secret, a developer's laptop) and who can read that store. Note the confidence of every hop, as with any [identifier-to-identity pivot](/docs/subject/entity-types/#from-identifier-to-identity). The field-level walk through a CloudTrail role chain, with the join keys, is in [Cloud and identity logs](/docs/alert/parsing/cloud-identity/#follow-the-identity-chain-not-the-process-tree).
+
+---
+
+## Baselines for automation
+
+Automation does the same thing every day. That makes its baseline narrow, and a narrow baseline makes deviation cheap to see: a <DefineTerm term="Service Account" display="service account" /> touching a database it has never touched is a louder signal than the same access from a person. Baseline five things:
+
+- **Source:** the runner, subnet, VPC endpoint or egress IP it always acts from.
+- **Client:** the SDK or tool in the user agent, corroborating only, since the caller sets it.
+- **Action set:** the API calls it makes. Pipelines rarely enumerate, so a burst of list and describe calls is new behavior.
+- **Targets:** the buckets, mailboxes, repositories and regions it touches.
+- **Cadence:** its schedule and volume, often a fixed interval.
+
+The peers of a non-human identity are the other instances of the same thing: jobs from the same pipeline, pods from the same image, functions that run as the same role (see [choosing peer groups](/docs/subject/behavioral-framework/#choosing-peer-groups)).
+
+The deviations worth stopping for:
+
+- **Human use.** Interactive sign-in, console use, or a call from a laptop IP. Even when a known engineer did it, that is at least a policy violation, and the [IAM mini-example](/docs/uncover/example/#iam-mini-example) shows why it still needs a full read.
+- **Off-box use.** Workload credentials used from somewhere other than the workload (the [IMDS pattern](/docs/alert/parsing/cloud-identity/#the-imds-pattern)).
+- **A first use of a new credential.** Especially a new credential on an identity that has used one credential for years.
+- **Waking after dormancy.** First use after months of silence, from a new source.
+- **New scope in use.** A permission the identity holds but has never exercised.
+
+Two cautions. Deploys legitimately change behavior, so before a deviation is cleared, match it to the change ticket or pipeline run that explains it, and check that the run itself is the expected one. And a compromise older than the baseline window is part of the baseline: static, rarely rotated credentials are where long-dwell access hides ([when the baseline lies](/docs/alert/validation/#when-the-baseline-lies)). A newly created identity has no baseline at all; treat that as unknown, not normal ([cold start](/docs/subject/behavioral-framework/#when-the-baseline-doesnt-exist-cold-start)).
+
+---
+
+## Federation and token abuse signals
+
+Attackers favor non-human identities for persistence because a password reset on a person does not touch them. These are the patterns that recur, with the events that show them. The user-side identity attacks (consent phishing, AiTM, device code, Golden SAML) are on the [four dimensions page](/docs/subject/four-dimensions/#cloud-identity-patterns-youll-see-today), and their protocol depth is in [Cloud and identity logs](/docs/alert/parsing/cloud-identity/#identity-attacks-at-protocol-depth).
+
+| Pattern | What it looks like in the logs | ATT&CK |
+| --- | --- | --- |
+| Credential added to an existing identity | Entra AuditLogs "Update application - Certificates and secrets management" or "Add service principal credentials"; AWS <code>CreateAccessKey</code>; GCP <code>CreateServiceAccountKey</code>. Then a sign-in that uses the new key ID from a new source. | T1098.001 |
+| Permissions granted to an app or role | Entra "Add app role assignment to service principal" (an application permission such as <code>full_access_as_app</code>, which reads every mailbox); AWS <code>AttachRolePolicy</code> or <code>PutRolePolicy</code>; GCP <code>SetIamPolicy</code> on a project. | T1098.003 |
+| Trust widened | AWS <code>UpdateAssumeRolePolicy</code>; a federated identity credential added to an Entra app; an <code>AssumeRoleWithWebIdentity</code> whose subject is a repository you do not own. | T1098 |
+| New identity created | AWS <code>CreateUser</code> or <code>CreateRole</code>, Entra "Add service principal", GCP <code>CreateServiceAccount</code>, with no matching change or pipeline run. | T1136.003 |
+| Workload credentials replayed | A role's temporary credentials used off-box; a stolen app token replayed from a new ASN. | T1552.005 then T1078.004; T1550.001 for app tokens |
+| Leaked secrets | A secret-scanning alert, a key in a public repository or build log, then first use from an unfamiliar source. | T1552.001 |
+| Third-party integration tokens | A vendor's OAuth or API token used to bulk-export data from your tenant: no user password or MFA involved. | T1528, T1550.001 |
+| Agent misuse | An agent calling tools or reading data outside its baseline after reading attacker-written content. Its token is legitimate. | See [AI agents as subjects](/docs/ai-triage/#ai-agents-as-subjects) |
+
+Three real cases show the shapes. In the Midnight Blizzard intrusion (disclosed January 2024), the actor took over a legacy test OAuth app with elevated access, created more OAuth apps, and used the test app to grant the <code>full_access_as_app</code> role in Exchange Online. In March 2025 the compromised <code>tj-actions/changed-files</code> GitHub Action printed CI runner secrets into workflow logs, public by default for public repositories; CISA's guidance was to treat every exposed secret as compromised and rotate it. And in August 2025, OAuth tokens stolen from the <DefineTerm term="Salesloft Drift OAuth-token theft" display="Salesloft Drift integration" /> were used to export data from hundreds of Salesforce instances, then mined for cloud keys.
+
+The MCP specification forbids token passthrough, an MCP server forwarding a client's token to a downstream API, partly because the downstream logs then show the wrong identity. When an agent's actions appear in a downstream audit log, check whether the identity recorded there is the agent, the MCP server, or the user, before you attribute anything.
+
+<Reveal summary="Example: a new secret on a mail-reading app" variant="example">
+A Sentinel rule fires: a credential was added to <code>invoice-sync</code>, a finance integration with the application permission <code>Mail.Read</code> on every mailbox. The initiator is <code>admin-jdoe</code>, who holds Cloud Application Administrator.
+
+**Who is behind the identity.** Owner of record: the finance-integrations team. Created in 2023 through the change process. One certificate, renewed in March, is its only credential. Scope: read any mailbox in the tenant, which makes it a privileged identity for the gate.
+
+**Baseline.** Every 15 minutes, a certificate sign-in from the integration server's fixed egress IP, to Exchange Online only.
+
+**The session.** Thirty-eight minutes after the change, <code>AADServicePrincipalSignInLogs</code> shows <code>invoice-sync</code> signing in with a <code>ServicePrincipalCredentialKeyId</code> that matches the new secret, from a hosting-provider ASN. Credential, source and cadence all break the baseline at once.
+
+**Who is behind the change.** Following <code>InitiatedBy</code> back: <code>admin-jdoe</code> signed in interactively from a new device twelve minutes before the change, shortly after a help-desk reset of the account's MFA. The owner team confirms no rotation was planned, and there is no change ticket. The benign explanations were checked and failed.
+
+**What follows.** An attacker-added credential, used from attacker infrastructure, on an identity that can read every mailbox: confirmed malicious activity at High confidence, not contained by any control. The [escalation tripwire](/docs/escalation/criteria/#tripwire) fires from Subject; the case is P1. Before containment, export the app's credential list, its permissions, the audit events and the sign-ins. Disabling the service principal's sign-in is reversible and stops new tokens for every credential the app holds (tokens already issued run until they expire), but it also stops invoice processing, so the owner is told. Removing the secret and resetting <code>admin-jdoe</code> wait for IR. The admin account goes on the entity map as the upstream subject.
+</Reveal>
+
+---
+
+## What it means for depth and containment
+
+- **Depth.** A non-human identity with deploy, signing, secrets or repository-write capability, or broad data access, is a privileged identity: it fails the Level 0 eligibility gate and routes the case to Level 2, whatever the activity looks like. Unknown fails the gate too, and for non-human identities unknown is common, because ownership records are thin. Record which fact was missing.
+- **Escalation.** An attacker-controlled credential on a working identity is ongoing access. Confirmed at High confidence, it is malicious activity not fully contained by a control, and the [E rule](/docs/escalation/criteria/#e-rule) makes it P1 from any phase.
+- **Containment.** [Preserve first](/docs/escalation/preserve/#decision-table): snapshot the credential list, trust policy, grants and recent sign-ins before anything changes. Reversible actions, such as disabling a service principal's sign-in or deactivating an access key, can be [pre-authorized](/docs/escalation/triage-vs-ir/#pre-authorized). Deleting a key, removing a grant, or rotating a secret that production consumes cannot be undone and needs IR or owner approval. Every action on a pipeline identity can break production, so check its dependents first ([containment and the entity scope](/docs/scope/entity/#containment-and-the-entity-scope)).
+
+<Callout variant="info" title="Where this maps">
+The page covers the OWASP Non-Human Identities Top 10 (2025) from the triage side. Owner, creator and last use address NHI1 (Improper Offboarding). The abuse signals cover NHI2 (Secret Leakage), NHI3 (Vulnerable Third-Party NHI) and NHI7 (Long-Lived Secrets). Who can become the identity addresses NHI4 (Insecure Authentication) and NHI6 (Insecure Cloud Deployment Configurations), including over-broad federation trust. Permitted scopes address NHI5 (Overprivileged NHI). Baselines and peers catch NHI9 (NHI Reuse) and NHI10 (Human Use of NHI).
+</Callout>
+
+## Sources and further reading
+
+- OWASP, <a href="https://owasp.org/www-project-non-human-identities-top-10/2025/top-10-2025/" target="_blank" rel="noopener noreferrer">Non-Human Identities Top 10, 2025</a> (checked October 2026).
+- AWS, <a href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-user-identity.html" target="_blank" rel="noopener noreferrer">CloudTrail userIdentity element</a>, including source identity and web identity federation, and <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html" target="_blank" rel="noopener noreferrer">IAM roles: terms and concepts</a>, including role chaining and trust policies (both checked October 2026).
+- Microsoft Learn, <a href="https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/aadserviceprincipalsigninlogs" target="_blank" rel="noopener noreferrer">AADServicePrincipalSignInLogs table reference</a> (updated August 2026), <a href="https://learn.microsoft.com/en-us/entra/identity/monitoring-health/reference-audit-activities" target="_blank" rel="noopener noreferrer">Microsoft Entra audit log activities</a>, and <a href="https://learn.microsoft.com/en-us/entra/agent-id/sign-in-audit-logs-agents" target="_blank" rel="noopener noreferrer">Microsoft Entra Agent ID logs</a> (checked October 2026).
+- Google Cloud, <a href="https://docs.cloud.google.com/iam/docs/audit-logging/examples-service-accounts" target="_blank" rel="noopener noreferrer">Examples of audit logs for service accounts</a> and <a href="https://docs.cloud.google.com/policy-intelligence/docs/activity-analyzer-service-account-authentication" target="_blank" rel="noopener noreferrer">View recent usage for service accounts and keys</a> (both checked October 2026).
+- GitHub Docs, <a href="https://docs.github.com/en/actions/reference/security/oidc" target="_blank" rel="noopener noreferrer">OpenID Connect reference</a>, and Datadog Security Labs, <a href="https://securitylabs.datadoghq.com/articles/exploring-github-to-aws-keyless-authentication-flaws/" target="_blank" rel="noopener noreferrer">No keys attached: exploring GitHub-to-AWS keyless authentication flaws</a> (July 2023, updated June 2025).
+- Kubernetes, <a href="https://kubernetes.io/docs/reference/access-authn-authz/authentication/" target="_blank" rel="noopener noreferrer">Authenticating</a>: service account tokens (checked October 2026).
+- Model Context Protocol, <a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/security_best_practices" target="_blank" rel="noopener noreferrer">Security best practices</a>, token passthrough (specification version 2025-11-25).
+- MITRE ATT&CK, <a href="https://attack.mitre.org/techniques/T1098/001/" target="_blank" rel="noopener noreferrer">T1098.001 Account Manipulation: Additional Cloud Credentials</a>.
+- Microsoft Threat Intelligence, <a href="https://www.microsoft.com/en-us/security/blog/2024/01/25/midnight-blizzard-guidance-for-responders-on-nation-state-attack/" target="_blank" rel="noopener noreferrer">Midnight Blizzard: guidance for responders on nation-state attack</a> (25 January 2024).
+- CISA, <a href="https://www.cisa.gov/news-events/alerts/2025/03/18/supply-chain-compromise-third-party-tj-actionschanged-files-cve-2025-30066-and-reviewdogaction" target="_blank" rel="noopener noreferrer">Supply chain compromise of third-party tj-actions/changed-files (CVE-2025-30066)</a> (18 March 2025).
+
+<KeyTakeaway>
+A non-human identity is a subject in its own right. Ask who can become it, then trace the session back through the role chain, the credential that signed in, or the impersonating principal until you reach a person, a workload or a key. Its baseline is narrow, so human use, off-box use, a new credential or a new scope in use is a strong lead. Any one with deploy, signing, secrets, repository-write or broad data access is privileged: it never closes at Level 0.
+</KeyTakeaway>
+
+<ContinueCard
+  current="subject"
+  nextHref="/docs/subject/behavioral-framework/"
+  nextLabel="Behavioral framework"
+  nextDescription="Pattern recognition, baseline development, anomaly detection. The toolkit for separating normal from suspicious at the Subject level."
+  ctaLabel="Read behavioral framework"
+/>

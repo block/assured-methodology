@@ -7,18 +7,23 @@
  * mates with the next piece's slot. After the assembly animation finishes,
  * a faint glow runs across the seam to signal "locked."
  *
+ * Each piece carries its phase name under the letter, so the row reads as
+ * the seven phases and not as a bare acronym. Names come from
+ * src/data/navigation.ts; a name too wide for the 80-unit piece
+ * ("Escalation decision") wraps onto a second line.
+ *
  * Respects prefers-reduced-motion.
  */
+import { phases as navPhases } from "@/data/navigation";
 
-const phases = [
-  { letter: "A", phase: "alert" },
-  { letter: "S", phase: "subject" },
-  { letter: "S", phase: "scope" },
-  { letter: "U", phase: "uncover" },
-  { letter: "R", phase: "risk" },
-  { letter: "E", phase: "escalation" },
-  { letter: "D", phase: "documentation" },
-];
+const phases = navPhases.map((p) => ({
+  letter: p.letter,
+  phase: p.phase,
+  /* One line per word once a multi-word name passes 13 characters. */
+  lines:
+    p.name.length > 13 && p.name.includes(" ") ? p.name.split(" ") : [p.name],
+}));
+const fullNames = navPhases.map((p) => p.name).join(", ");
 
 /*
  * Path for a piece. Piece body is 80 wide x 80 tall. Tab bulges 14px to
@@ -56,13 +61,13 @@ const scatter = [
 <div class="hero-puzzle" data-hero-puzzle>
   <svg
     class="hero-puzzle__svg"
-    viewBox="-20 -30 600 140"
+    viewBox="-20 -30 600 160"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
     aria-labelledby="hero-puzzle-title hero-puzzle-desc"
   >
     <title id="hero-puzzle-title">ASSURED methodology, seven pieces locking into place</title>
-    <desc id="hero-puzzle-desc">Seven puzzle pieces labeled A, S, S, U, R, E, D fly in from scattered positions and lock together edge-to-edge.</desc>
+    <desc id="hero-puzzle-desc">{`Seven puzzle pieces, one per phase (${fullNames}), fly in from scattered positions and lock together edge-to-edge.`}</desc>
 
     <defs>
       <!-- The 30px/800 white letters are WCAG large text, so every gradient
@@ -135,7 +140,10 @@ const scatter = [
         filter="url(#piece-shadow)"
       >
         <path d={pathFor(i, phases.length)} fill={`url(#g-${p.phase})`}/>
-        <text x="40" y="52" text-anchor="middle" class="hero-puzzle__letter">{p.letter}</text>
+        <text x="40" y="52" text-anchor="middle" class="hero-puzzle__letter" aria-hidden="true">{p.letter}</text>
+        <text x="40" y="104" text-anchor="middle" class="hero-puzzle__name" aria-hidden="true">
+          {p.lines.map((line, j) => <tspan x="40" dy={j === 0 ? 0 : 14}>{line}</tspan>)}
+        </text>
       </g>
     ))}
   </svg>
@@ -165,14 +173,13 @@ const scatter = [
   }
 
   .hero-puzzle__piece path {
-    transition: filter 0.25s ease, transform 0.25s ease;
+    transition: filter 0.25s ease;
     transform-origin: center;
     transform-box: fill-box;
   }
 
   .hero-puzzle__piece:hover path {
     filter: brightness(1.18) drop-shadow(0 0 12px currentColor);
-    transform: translateY(-3px);
   }
 
   .hero-puzzle__letter {
@@ -180,6 +187,17 @@ const scatter = [
     font-size: 30px;
     font-weight: 800;
     fill: white;
+    pointer-events: none;
+  }
+
+  /* Phase name under each piece: 12px on the dark page background, so a
+     light slate keeps it well above 4.5:1. */
+  .hero-puzzle__name {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    fill: #cbd5e1;
     pointer-events: none;
   }
 

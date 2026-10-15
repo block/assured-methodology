@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/monthly-triage-report.schema.json",
+  "title": "Monthly triage report",
+  "description": "The monthly triage report: volume and capacity, flow by band and level, paired quality metrics, detection and fast-path health, the AI split, and every missed incident and reopen.",
+  "x-assured-template": "monthly-triage-report.md",
+  "type": "object",
+  "properties": {
+    "header": {
+      "x-assured-section": "Header",
+      "type": "object",
+      "properties": {
+        "monthAndTeam": {
+          "x-assured-prompt": "Month and team",
+          "type": "string",
+          "description": "Month and team"
+        },
+        "preparedByAndReviewed": {
+          "x-assured-prompt": "Prepared by, and reviewed with",
+          "type": "string",
+          "description": "Prepared by, and reviewed with (the SOC lead; IR for the receiver-judged metrics)"
+        },
+        "dataWindow": {
+          "x-assured-prompt": "Data window",
+          "type": "string",
+          "description": "Data window (UTC) and the record sources it was drawn from"
+        },
+        "formulaChangesSinceLast": {
+          "x-assured-prompt": "Formula changes since last month",
+          "type": "string",
+          "description": "Formula changes since last month (\"none\", or what changed and why)"
+        },
+        "baselineDate": {
+          "x-assured-prompt": "Baseline date",
+          "type": "string",
+          "description": "Baseline date (the Stage 2 baseline these numbers compare against)"
+        }
+      },
+      "required": [
+        "monthAndTeam",
+        "preparedByAndReviewed",
+        "dataWindow",
+        "formulaChangesSinceLast",
+        "baselineDate"
+      ]
+    },
+    "volumeAndCapacity": {
+      "x-assured-section": "1. Volume and capacity",
+      "type": "object",
+      "properties": {
+        "alertsReceived": {
+          "x-assured-prompt": "Alerts received",
+          "type": "string",
+          "description": "Alerts received"
+        },
+        "casesOpened": {
+          "x-assured-prompt": "Cases opened",
+          "type": "string",
+          "description": "Cases opened (after grouping), and alerts per case"
+        },
+        "machineCloses": {
+          "x-assured-prompt": "Machine closes",
+          "type": "string",
+          "description": "Machine closes (on machine-close entries)"
+        },
+        "casesReachingAPerson": {
+          "x-assured-prompt": "Cases reaching a person",
+          "type": "string",
+          "description": "Cases reaching a person"
+        },
+        "levelMixOfCases": {
+          "x-assured-prompt": "Level mix of cases closed",
+          "type": "string",
+          "description": "Level mix of cases closed (Level 0 / Level 1 / Level 2, and machine as its own line)"
+        },
+        "analystHoursDemandedAnd": {
+          "x-assured-prompt": "Analyst-hours demanded, and the minutes per level used",
+          "type": "string",
+          "description": "Analyst-hours demanded, and the minutes per level used"
+        },
+        "analystHoursAvailableAnd": {
+          "x-assured-prompt": "Analyst-hours available, and the productive hours per shift assumed",
+          "type": "string",
+          "description": "Analyst-hours available, and the productive hours per shift assumed"
+        },
+        "uninvestigatedShare": {
+          "x-assured-prompt": "Uninvestigated share",
+          "type": "string",
+          "description": "Uninvestigated share (alerts closed with no disposition / alerts received)"
+        }
+      },
+      "required": [
+        "alertsReceived",
+        "casesOpened",
+        "machineCloses",
+        "casesReachingAPerson",
+        "levelMixOfCases",
+        "analystHoursDemandedAnd",
+        "analystHoursAvailableAnd",
+        "uninvestigatedShare"
+      ]
+    },
+    "flow": {
+      "x-assured-section": "2. Flow",
+      "type": "object",
+      "properties": {
+        "timeToEscalate": {
+          "x-assured-prompt": "Time to escalate",
+          "type": "string",
+          "description": "Time to escalate (P1 and P2), p50 / p90"
+        },
+        "everyP1ThisMonth": {
+          "x-assured-prompt": "Every P1 this month",
+          "type": "string",
+          "description": "Every P1 this month: case ID, first criterion confirmed (UTC), paged (UTC), interval, and one line on any delay"
+        },
+        "p1P2P3Table": {
+          "x-assured-columns": ["Measure", "P1", "P2", "P3", "P4"],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "measure": {
+                "x-assured-column": "Measure",
+                "type": "string"
+              },
+              "p1": {
+                "x-assured-column": "P1",
+                "type": "string"
+              },
+              "p2": {
+                "x-assured-column": "P2",
+                "type": "string"
+              },
+              "p3": {
+                "x-assured-column": "P3",
+                "type": "string"
+              },
+              "p4": {
+                "x-assured-column": "P4",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "level0LevelTable": {
+          "x-assured-columns": ["Measure", "Level 0", "Level 1", "Level 2"],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "measure": {
+                "x-assured-column": "Measure",
+                "type": "string"
+              },
+              "level0": {
+                "x-assured-column": "Level 0",
+                "type": "string"
+              },
+              "level1": {
+                "x-assured-column": "Level 1",
+                "type": "string"
+              },
+              "level2": {
+                "x-assured-column": "Level 2",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["timeToEscalate", "everyP1ThisMonth"]
+    },
+    "qualityEachBesideIts": {
+      "x-assured-section": "3. Quality, each beside its pair",
+      "type": "object",
+      "properties": {
+        "thisMonthLastTable": {
+          "x-assured-columns": [
+            "Metric",
+            "This month",
+            "Last month",
+            "Baseline",
+            "Read with",
+            "Note"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metric": {
+                "x-assured-column": "Metric",
+                "type": "string"
+              },
+              "thisMonth": {
+                "x-assured-column": "This month",
+                "type": "string"
+              },
+              "lastMonth": {
+                "x-assured-column": "Last month",
+                "type": "string"
+              },
+              "baseline": {
+                "x-assured-column": "Baseline",
+                "type": "string"
+              },
+              "readWith": {
+                "x-assured-column": "Read with",
+                "type": "string"
+              },
+              "note": {
+                "x-assured-column": "Note",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "detectionHealth": {
+      "x-assured-section": "4. Detection health (the five noisiest rules, rolling 30 days)",
+      "type": "object",
+      "properties": {
+        "tuningCycleTimeP50": {
+          "x-assured-prompt": "Tuning cycle time, p50",
+          "type": "string",
+          "description": "Tuning cycle time, p50 (request opened to change merged)"
+        },
+        "exceptionsPastExpiry": {
+          "x-assured-prompt": "Exceptions past expiry",
+          "type": "string",
+          "description": "Exceptions past expiry (count, and the rules they sit on)"
+        },
+        "rows": {
+          "x-assured-columns": [
+            "Rule and version",
+            "Alerts",
+            "Precision",
+            "Actionability",
+            "Benign TP share",
+            "FP (logic)",
+            "FP (data)",
+            "Open tuning requests"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleAndVersion": {
+                "x-assured-column": "Rule and version",
+                "type": "string"
+              },
+              "alerts": {
+                "x-assured-column": "Alerts",
+                "type": "string"
+              },
+              "precision": {
+                "x-assured-column": "Precision",
+                "type": "string"
+              },
+              "actionability": {
+                "x-assured-column": "Actionability",
+                "type": "string"
+              },
+              "benignTpShare": {
+                "x-assured-column": "Benign TP share",
+                "type": "string"
+              },
+              "fp": {
+                "x-assured-column": "FP (logic)",
+                "type": "string"
+              },
+              "fp2": {
+                "x-assured-column": "FP (data)",
+                "type": "string"
+              },
+              "openTuningRequests": {
+                "x-assured-column": "Open tuning requests",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": ["tuningCycleTimeP50", "exceptionsPastExpiry"]
+    },
+    "fastPathHealth": {
+      "x-assured-section": "5. Fast-path health",
+      "type": "object",
+      "properties": {
+        "level0ReversalRate": {
+          "x-assured-prompt": "Level 0 reversal rate on the re-verification sample",
+          "type": "string",
+          "description": "Level 0 reversal rate on the re-verification sample (reversed / sampled), and every entry suspended this month"
+        },
+        "reVerificationCoverage": {
+          "x-assured-prompt": "Re-verification coverage",
+          "type": "string",
+          "description": "Re-verification coverage (entries with a close re-verified / entries with closes; should be 100 percent)"
+        },
+        "patternEntriesPastReview": {
+          "x-assured-prompt": "Pattern entries past review date",
+          "type": "string",
+          "description": "Pattern entries past review date (should be zero)"
+        },
+        "closeRateAnomalies": {
+          "x-assured-prompt": "Close-rate anomalies",
+          "type": "string",
+          "description": "Close-rate anomalies (entries outside their normal close volume or host spread), and what the Level 2 review found"
+        },
+        "machineCloseEntriesActive": {
+          "x-assured-prompt": "Machine-close entries active, their closes, their reversal and miss rates, and kill-switch tests",
+          "type": "string",
+          "description": "Machine-close entries active, their closes, their reversal and miss rates, and kill-switch tests"
+        },
+        "tuningRequestsFiledFrom": {
+          "x-assured-prompt": "Tuning requests filed from benign-close findings, and closed",
+          "type": "string",
+          "description": "Tuning requests filed from benign-close findings, and closed"
+        }
+      },
+      "required": [
+        "level0ReversalRate",
+        "reVerificationCoverage",
+        "patternEntriesPastReview",
+        "closeRateAnomalies",
+        "machineCloseEntriesActive",
+        "tuningRequestsFiledFrom"
+      ]
+    },
+    "aiSplit": {
+      "x-assured-section": "6. AI split",
+      "type": "object",
+      "properties": {
+        "draftCorrectionRate": {
+          "x-assured-prompt": "Draft correction rate",
+          "type": "string",
+          "description": "Draft correction rate (AI-drafted sections changed materially / reviewed)"
+        },
+        "citationValidity": {
+          "x-assured-prompt": "Citation validity",
+          "type": "string",
+          "description": "Citation validity (claims whose evidence link resolves / claims checked)"
+        },
+        "regressionSetFalseBenign": {
+          "x-assured-prompt": "Regression-set false-benign rate per alert class, and the model, prompt or tool change that triggered the last run",
+          "type": "string",
+          "description": "Regression-set false-benign rate per alert class, and the model, prompt or tool change that triggered the last run"
+        },
+        "unassistedAiAssistedTable": {
+          "x-assured-columns": [
+            "Metric",
+            "Unassisted",
+            "AI-assisted",
+            "Machine-executed"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metric": {
+                "x-assured-column": "Metric",
+                "type": "string"
+              },
+              "unassisted": {
+                "x-assured-column": "Unassisted",
+                "type": "string"
+              },
+              "aiAssisted": {
+                "x-assured-column": "AI-assisted",
+                "type": "string"
+              },
+              "machineExecuted": {
+                "x-assured-column": "Machine-executed",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "draftCorrectionRate",
+        "citationValidity",
+        "regressionSetFalseBenign"
+      ]
+    },
+    "everyMissedIncidentAnd": {
+      "x-assured-section": "7. Every missed incident and every reopen",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Case ID",
+            "What surfaced it (reopen, IR review, hunt, red team)",
+            "Which phase's deliverable would have caught it",
+            "Action taken"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caseId": {
+                "x-assured-column": "Case ID",
+                "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+              },
+              "whatSurfacedIt": {
+                "x-assured-column": "What surfaced it (reopen, IR review, hunt, red team)",
+                "type": "string"
+              },
+              "whichPhaseSDeliverable": {
+                "x-assured-column": "Which phase's deliverable would have caught it",
+                "type": "string"
+              },
+              "actionTaken": {
+                "x-assured-column": "Action taken",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "workItems": {
+      "x-assured-section": "8. Work items",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Item",
+            "Metric that produced it",
+            "Owner",
+            "Due",
+            "Status of last month's items"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "x-assured-column": "Item",
+                "type": "string"
+              },
+              "metricThatProducedIt": {
+                "x-assured-column": "Metric that produced it",
+                "type": "string"
+              },
+              "owner": {
+                "x-assured-column": "Owner",
+                "type": "string"
+              },
+              "due": {
+                "x-assured-column": "Due",
+                "type": "string"
+              },
+              "statusOfLastMonth": {
+                "x-assured-column": "Status of last month's items",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "header",
+    "volumeAndCapacity",
+    "flow",
+    "qualityEachBesideIts",
+    "detectionHealth",
+    "fastPathHealth",
+    "aiSplit",
+    "everyMissedIncidentAnd",
+    "workItems"
+  ]
+}

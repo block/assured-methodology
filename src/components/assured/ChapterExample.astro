@@ -6,21 +6,31 @@
  * not from this component.
  *
  * Designed to live at the end of every chapter as the capstone.
+ *
+ * Each example page introduces a case with its own h2 ("Case A · ..."), so
+ * the title here is an h3 by default and nests under it in the outline.
+ * Pass `level={2}` only where the component is not under a case heading.
  */
 
 interface Props {
   title?: string;
   scenario?: string;
+  /** Heading level for the title. Default 3. */
+  level?: 2 | 3 | 4;
 }
 
-const { title = "Working example: from alert to handoff", scenario } =
-  Astro.props;
+const {
+  title = "Working example: from alert to handoff",
+  scenario,
+  level = 3,
+} = Astro.props;
+const Heading = `h${level}` as "h2" | "h3" | "h4";
 ---
 
 <section class="chapter-example" data-chapter-example>
   <header class="chapter-example__head">
     <span class="chapter-example__badge">Working example</span>
-    <h2 class="chapter-example__title">{title}</h2>
+    <Heading class="chapter-example__title">{title}</Heading>
     {scenario && <p class="chapter-example__scenario">{scenario}</p>}
   </header>
 
@@ -32,9 +42,21 @@ const { title = "Working example: from alert to handoff", scenario } =
     margin: 3rem 0 2rem;
     padding: 2rem;
     border-radius: 1.25rem;
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.10), rgba(15, 23, 42, 0.65));
-    border: 1px solid rgba(168, 85, 247, 0.35);
-    backdrop-filter: blur(8px);
+    /* The shared worked-example hue (the stepper, Reveal and CaseStudy use
+       it too), so a worked example reads the same in every chapter rather
+       than borrowing Scope's purple. */
+    background: linear-gradient(
+      135deg,
+      rgba(var(--assured-example-rgb), 0.08),
+      rgba(15, 23, 42, 0.82)
+    );
+    border: 1px solid rgba(var(--assured-example-rgb), 0.3);
+  }
+
+  @media (max-width: 640px) {
+    .chapter-example {
+      padding: 1.25rem 1rem;
+    }
   }
 
   .chapter-example__head {
@@ -46,8 +68,8 @@ const { title = "Working example: from alert to handoff", scenario } =
     display: inline-block;
     padding: 0.25rem 0.85rem;
     border-radius: 9999px;
-    background: rgba(168, 85, 247, 0.22);
-    color: #d8b4fe;
+    background: rgba(var(--assured-example-rgb), 0.2);
+    color: var(--assured-example-soft);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.1em;

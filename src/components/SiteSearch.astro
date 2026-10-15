@@ -3,14 +3,15 @@
  * SiteSearch, Pagefind-powered site-wide search.
  *
  * Renders a small search trigger button (intended for the header) plus a
- * modal panel that hosts Pagefind's default UI. The index lives at
+ * native <dialog> that hosts Pagefind's default UI (behavior in
+ * src/scripts/site-search.ts). The index lives at
  * /pagefind/, generated at build time by `pagefind --site dist` (chained
  * into pnpm build). In dev the index does not exist, so the modal shows
  * a graceful "build to use" message.
  *
  * Keyboard:
- *   - ⌘K / Ctrl+K  open
- *   - Esc          close
+ *   - ⌘K (macOS) / Ctrl+K  open; the hint renders per platform
+ *   - Esc          close (native dialog cancel)
  *   - ↓ / ↑        move through results (↑ from the first result returns to the input)
  *   - /            NOT bound here, CLEAR glossary owns / for its own search.
  */
@@ -20,19 +21,19 @@
   type="button"
   class="site-search-trigger"
   data-search-open
-  aria-label="Search the site (press Cmd or Ctrl + K)"
-  title="Search (⌘K)"
+  aria-label="Search the site (press Control + K)"
+  title="Search (Ctrl K)"
 >
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="11" cy="11" r="8"></circle>
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
   <span class="site-search-trigger__label">Search</span>
-  <span class="site-search-trigger__kbd" aria-hidden="true">⌘K</span>
+  {/* Ctrl K by default; the script switches it to ⌘K on macOS. */}
+  <span class="site-search-trigger__kbd" data-search-kbd aria-hidden="true">Ctrl K</span>
 </button>
 
-<div class="site-search-modal" data-search-modal data-pagefind-base={import.meta.env.BASE_URL} hidden role="dialog" aria-modal="true" aria-label="Search the site">
-  <div class="site-search-modal__backdrop" data-search-close></div>
+<dialog class="site-search-modal" data-search-modal data-pagefind-base={import.meta.env.BASE_URL} aria-label="Search the site">
   <div class="site-search-modal__panel">
     <button type="button" class="site-search-modal__close" data-search-close aria-label="Close search">×</button>
     {/* Visually-hidden live region: announces the "search unavailable"
@@ -40,7 +41,7 @@
     <div class="site-search-modal__status" data-search-status role="status"></div>
     <div id="site-search-ui" data-pagefind-ignore></div>
   </div>
-</div>
+</dialog>
 
 <style>
   .site-search-trigger {
@@ -67,11 +68,11 @@
   }
   .site-search-trigger__kbd {
     display: none;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: 0.7rem;
     color: var(--assured-text-dim);
     padding: 0.05rem 0.35rem;
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.18);
     border-radius: 0.3rem;
   }
@@ -80,11 +81,11 @@
     .site-search-trigger__kbd { display: inline; }
   }
 
-  /* At laptop widths (1240-1449px) the desktop nav needs the header's full
-     width for its eleven links, so the trigger drops back to icon-only; the
-     aria-label and title keep it discoverable. */
+  /* At laptop widths (1240-1449px) the header's six groups, the Quick
+     reference button and GitHub leave room for the "Search" label but not
+     the shortcut hint, so only the hint drops; the title keeps the
+     shortcut discoverable. */
   @media (min-width: 1240px) and (max-width: 1449px) {
-    .site-search-trigger__label { display: none; }
     .site-search-trigger__kbd { display: none; }
   }
 
@@ -98,26 +99,27 @@
     }
   }
 
+  /* The dialog box is the panel's frame: no padding or border of its own,
+     so a click whose target is the dialog itself landed on the backdrop. */
   .site-search-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 4rem 1rem 1rem;
+    width: min(640px, calc(100% - 2rem));
+    max-width: none;
+    max-height: none;
+    margin: 4rem auto auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    overflow: visible;
   }
-  .site-search-modal[hidden] { display: none; }
-  .site-search-modal__backdrop {
-    position: absolute;
-    inset: 0;
+  .site-search-modal::backdrop {
     background: rgba(2, 6, 23, 0.78);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
   .site-search-modal__panel {
     position: relative;
-    width: min(640px, 100%);
+    width: 100%;
     max-height: calc(100vh - 6rem);
     /* dvh tracks iOS Safari's collapsing toolbars; 100vh above is the
        fallback and would put the panel's bottom edge behind the toolbar. */
@@ -167,6 +169,14 @@
     }
   }
 
+  .site-search-modal__fallback {
+    margin: 0;
+    padding: 0.5rem 2rem 0 0;
+    color: var(--assured-text-dim);
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+
   /* Visually hidden but present in the accessibility tree. */
   .site-search-modal__status {
     position: absolute;
@@ -208,219 +218,6 @@
   }
 </style>
 
-<script is:inline data-astro-rerun>
-  /*
-   * ClientRouter idempotency:
-   *   - Re-runs after every view transition (data-astro-rerun).
-   *   - Element-bound handlers (trigger/closers) use the data-search-bound marker.
-   *   - Document-bound keydown handler is registered once via window.__siteSearchKeydownBound
-   *     so view transitions never stack duplicates (every Cmd+K toggles open AND close
-   *     if the listener accumulates).
-   *
-   * H-USER-2 fix: in dev the pagefind index doesn't exist, so the empty-state message
-   * must reach the user. The script tag's onerror rejection (loadPagefindUI) is the
-   * missing-index signal; ensureUI catches it and shows the dev-fallback. No separate
-   * availability probe: a serial HEAD request before the script tag just delayed the
-   * first open() in production by a round-trip.
-   */
-  (function () {
-    function init() {
-      var trigger = document.querySelector("[data-search-open]:not([data-search-bound])");
-      var modal = document.querySelector("[data-search-modal]");
-      var closers = document.querySelectorAll("[data-search-close]:not([data-search-bound])");
-      var uiHost = document.getElementById("site-search-ui");
-      if (!trigger || !modal || !uiHost) return;
-      trigger.setAttribute("data-search-bound", "true");
-      closers.forEach(function (c) { c.setAttribute("data-search-bound", "true"); });
-
-      var uiInstance = null;
-
-      // Resolve the pagefind bundle against the configured base path so a
-      // non-root deployment doesn't silently lose search. The base is
-      // rendered server-side onto the modal (the script is is:inline, so it
-      // can't read import.meta.env itself).
-      var pagefindBase =
-        (modal.getAttribute("data-pagefind-base") || "/").replace(/\/+$/, "") +
-        "/pagefind/";
-
-      function showUnavailableFallback() {
-        var message = "Search index not found. If you are running locally, build it with `pnpm build && pnpm preview`; the index is generated at build time.";
-        uiHost.replaceChildren();
-        var p = document.createElement("p");
-        p.style.color = "#94a3b8";
-        p.style.padding = "0.5rem 0 0";
-        p.style.lineHeight = "1.5";
-        p.style.fontSize = "0.95rem";
-        p.textContent = message;
-        uiHost.appendChild(p);
-        // Mirror into the role="status" live region so screen readers hear it;
-        // the injected <p> renders silently otherwise.
-        var status = modal.querySelector("[data-search-status]");
-        if (status) status.textContent = message;
-      }
-
-      function loadPagefindUI() {
-        return new Promise(function (resolve, reject) {
-          if (window.PagefindUI) { resolve(window.PagefindUI); return; }
-          if (!document.querySelector('link[data-pagefind-css]')) {
-            var link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = pagefindBase + "pagefind-ui.css";
-            link.setAttribute("data-pagefind-css", "");
-            document.head.appendChild(link);
-          }
-          var script = document.createElement("script");
-          script.src = pagefindBase + "pagefind-ui.js";
-          script.onload = function () {
-            if (window.PagefindUI) resolve(window.PagefindUI);
-            else reject(new Error("PagefindUI global not available after load"));
-          };
-          script.onerror = function () { reject(new Error("Failed to load " + pagefindBase + "pagefind-ui.js")); };
-          document.head.appendChild(script);
-        });
-      }
-
-      async function ensureUI() {
-        if (uiInstance) return;
-        try {
-          var PagefindUI = await loadPagefindUI();
-          uiInstance = new PagefindUI({
-            element: "#site-search-ui",
-            showImages: false,
-            showSubResults: true,
-            autofocus: true,
-            resetStyles: false,
-          });
-        } catch (e) {
-          showUnavailableFallback();
-        }
-      }
-
-      function open() {
-        modal.hidden = false;
-        document.body.style.overflow = "hidden";
-        // Focus must land inside the dialog the moment it opens: aria-modal
-        // tells AT the background doesn't exist, and the close button is the
-        // only control guaranteed to exist before Pagefind loads. Without
-        // this, a slow or failed pagefind-ui.js load leaves focus (and Tab)
-        // behind the open dialog.
-        var closeBtn = modal.querySelector(".site-search-modal__close");
-        if (closeBtn) closeBtn.focus();
-        ensureUI().then(function () {
-          setTimeout(function () {
-            var input = uiHost.querySelector("input");
-            if (input) input.focus();
-          }, 50);
-        });
-      }
-      function close() {
-        modal.hidden = true;
-        document.body.style.overflow = "";
-        // Modal dialog pattern: focus returns to the control that opened it,
-        // otherwise keyboard users are dumped back to <body> after every search.
-        trigger.focus();
-      }
-
-      trigger.addEventListener("click", open);
-      closers.forEach(function (c) { c.addEventListener("click", close); });
-
-      // Arrow-key navigation through results: ↓ from the input focuses the
-      // first result link, ↓/↑ walk the list, ↑ from the first result returns
-      // to the input. Bound per modal element (view transitions swap the DOM,
-      // so the marker travels with the element).
-      if (!modal.hasAttribute("data-search-nav-bound")) {
-        modal.setAttribute("data-search-nav-bound", "true");
-        modal.addEventListener("keydown", function (e) {
-          if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-          var links = Array.prototype.slice.call(
-            uiHost.querySelectorAll(".pagefind-ui__result-link")
-          );
-          if (links.length === 0) return;
-          var idx = links.indexOf(document.activeElement);
-          // ArrowUp while still in the input keeps its native caret behavior.
-          if (e.key === "ArrowUp" && idx === -1) return;
-          e.preventDefault();
-          if (e.key === "ArrowDown") {
-            links[Math.min(idx + 1, links.length - 1)].focus();
-          } else if (idx === 0) {
-            var input = uiHost.querySelector("input");
-            if (input) input.focus();
-          } else {
-            links[idx - 1].focus();
-          }
-        });
-
-        // Focus trap: aria-modal="true" tells SRs the background doesn't
-        // exist, so Tab must cycle within the dialog instead of walking out
-        // into the page behind the backdrop.
-        modal.addEventListener("keydown", function (e) {
-          if (e.key !== "Tab") return;
-          var focusables = Array.prototype.slice.call(
-            modal.querySelectorAll("button, [href], input, select, textarea")
-          ).filter(function (el) { return el.offsetParent !== null; });
-          if (focusables.length === 0) return;
-          var first = focusables[0];
-          var last = focusables[focusables.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        });
-      }
-
-      // Document-level keydown: register ONCE for the lifetime of the SPA session.
-      // Marker on window prevents duplicate registrations across view transitions.
-      if (!window.__siteSearchKeydownBound) {
-        window.__siteSearchKeydownBound = true;
-        document.addEventListener("keydown", function (e) {
-          // Re-resolve modal each keypress (DOM is swapped on view transition)
-          var liveModal = document.querySelector("[data-search-modal]");
-          if (!liveModal) return;
-          function closeLive() {
-            liveModal.hidden = true;
-            document.body.style.overflow = "";
-            var liveTrigger = document.querySelector("[data-search-open]");
-            if (liveTrigger) liveTrigger.focus();
-          }
-          if (e.key === "Escape" && !liveModal.hidden) {
-            // Topmost layer only: stop the header's document-level Escape
-            // handler from also closing the menu behind the open dialog on
-            // the same keypress.
-            e.stopImmediatePropagation();
-            closeLive();
-            return;
-          }
-          // toLowerCase: with CapsLock on, e.key is "K" and the shortcut
-          // would silently stop working.
-          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-            e.preventDefault();
-            var liveTrigger = document.querySelector("[data-search-open]");
-            if (liveModal.hidden) {
-              // Synthesize a click so the per-page open() runs with its own ensureUI scope
-              if (liveTrigger) liveTrigger.click();
-            } else {
-              closeLive();
-            }
-          }
-        });
-      }
-    }
-
-    init();
-    // This is:inline script re-runs on every view transition (data-astro-rerun),
-    // so registering astro:page-load here unguarded would stack one extra init
-    // call per navigation. Register once for the SPA session.
-    if (!window.__siteSearchPageLoadBound) {
-      window.__siteSearchPageLoadBound = true;
-      document.addEventListener("astro:page-load", init);
-      // If the user navigates while the modal is open (clicks a result), the
-      // body scroll lock would otherwise leak onto the next page.
-      document.addEventListener("astro:after-swap", function () {
-        document.body.style.overflow = "";
-      });
-    }
-  })();
+<script>
+  import "@/scripts/site-search.ts";
 </script>

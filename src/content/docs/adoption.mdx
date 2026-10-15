@@ -1,140 +1,131 @@
 ---
 title: "Adopting ASSURED in your SOC"
-description: "The team-level rollout guide: a five-stage adoption arc, the triage-quality metrics that measure decision quality instead of speed, a four-level maturity model, and the duties the SOC lead owns."
+description: "The team-level rollout guide: a five-stage adoption arc, the triage-quality metrics a rollout needs (decision quality before speed), a per-practice maturity model mapped to SOC-CMM, and the duties the SOC lead owns."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import "@/styles/pages/root.css";
 
 An individual analyst can adopt ASSURED alone by reading the chapters and using the structure; nothing on this page is required for that. This page is for the SOC lead or manager taking a *team* onto the methodology, which is a different project: it touches tooling, tickets, tier definitions, and habits, and it fails in predictable ways when run as a memo. The arc below is deliberately incremental, and its stages are ordered so that each one produces the evidence the next one needs.
 
 ## The rollout arc
 
+| Stage | Typical duration | Exit when |
+|---|---|---|
+| 1 · Pilot small | 2-3 weeks | The pilot analysts defend their close notes to each other in the shared vocabulary, and the friction list has stopped growing. |
+| 2 · Baseline before changing anything | 1-2 weeks, alongside Stage 1 | The numbers and their formulas are written down where they cannot be quietly revised. |
+| 3 · Train the team | 4 sessions or 1 ramp | Every analyst has produced at least one rubric-passing close note on a real case. |
+| 4 · Reconcile policy and tooling | The long stage | An analyst can run the full arc without leaving the case tool. |
+| 5 · Operate and review | Ongoing | No exit: the steady state, reviewed quarterly against the Stage 2 baseline. |
+
+The stages in detail:
+
 <div class="adopt-list">
   <div class="adopt-item">
     <h3>Stage 1 · Pilot small <span class="adopt-item__tag">2-3 weeks</span></h3>
-    <p>Two to four analysts, one or two alert families they already know well. They work their normal queue but write ASSURED-shaped records: close notes against the <a href="/docs/teaching/">rubric</a>, handoff packets on escalations, phase vocabulary in their case notes. No tooling changes, no renamed fields, no announcements. The pilot's outputs are a stack of real records in the new shape and a friction list: where the methodology fought the case tool, where a phase felt redundant for the alert family, where the templates needed a local field.</p>
+    <p>Two to four analysts, one or two alert families they already know well. They work their normal queue but write ASSURED-shaped records: close notes against the <a href="/docs/teaching/#what-to-grade-the-close-note-rubric">rubric</a>, handoff packets on escalations, phase vocabulary in their case notes. No tooling changes, no renamed fields, no announcements. The pilot's outputs are a stack of real records in the new shape and a friction list: where the methodology fought the case tool, where a phase felt redundant for the alert family, where the templates needed a local field.</p>
     <p><strong>Exit when:</strong> the pilot analysts can defend their close notes to each other using the shared vocabulary, and the friction list has stopped growing.</p>
   </div>
   <div class="adopt-item">
-    <h3>Stage 2 · Baseline before changing anything <span class="adopt-item__tag">1-2 weeks, parallel</span></h3>
-    <p>Measure the current state while it still exists: pull ninety days of history for the <a href="#measuring-triage-quality">metrics below</a>, and rubric-score a random sample of twenty existing close notes. This step gets skipped in most rollouts, and its absence is why most rollouts cannot answer "did this help?" a year later. The baseline is also the honest sales pitch to the team: if escalation rework and reopen rates are already visible problems, the methodology arrives as a solution rather than a compliance exercise.</p>
-    <p><strong>Exit when:</strong> the numbers are written down somewhere they cannot be quietly revised.</p>
+    <h3>Stage 2 · Baseline before changing anything <span class="adopt-item__tag">1-2 weeks, alongside Stage 1</span></h3>
+    <p>Measure the current state while it still exists. Pull ninety days of history for the <a href="/docs/measuring-triage/">triage metrics</a> that history can answer (reopen rate, missed incidents, escalation volume, close times). Start forward collection now for the ones it cannot (escalation acceptance, handoff rework, time-in-phase, verdict agreement), so the Stage 5 reviews have pre-training data to compare against; the longer it runs before Stage 3, the better. Then check a random sample of twenty existing close notes against the rubric, drawn only from notes closed before the pilot began. This step is the easiest to skip, and skipping it is why a rollout cannot answer "did this help?" a year later. The baseline is also the honest sales pitch to the team: if escalation rework and reopen rates are already visible problems, the methodology arrives as a solution rather than a compliance exercise.</p>
+    <p><strong>Exit when:</strong> the numbers, and the formulas that produced them, are written down somewhere they cannot be quietly revised.</p>
   </div>
   <div class="adopt-item">
     <h3>Stage 3 · Train the team <span class="adopt-item__tag">4 sessions or 1 ramp</span></h3>
-    <p>The <a href="/docs/teaching/">teaching guide's</a> four-session plan, facilitated by the pilot analysts, whose real records from Stage 1 become local worked examples alongside the site's three cases. The <a href="/docs/reference/">one-page reference</a> goes up at every desk; the <a href="/docs/exercises/">exercise packets</a> run in-session. Vocabulary adoption is the checkpoint that matters: the letters showing up unprompted in handoffs and standups is the signal the training landed.</p>
+    <p>Run the <a href="/docs/teaching/">teaching guide's</a> four-session plan, facilitated by the pilot analysts; their real records from Stage 1 become local worked examples alongside the site's four <a href="/docs/cases/">case files</a>, and the <a href="/docs/teaching/kit/">facilitator kit</a> supplies the alert sets, the graded exemplars and the capstone. The <a href="/docs/reference/">one-page reference</a> goes up at every desk; the <a href="/docs/exercises/">exercise packets</a> run in-session. Vocabulary adoption is the checkpoint that matters: the letters showing up unprompted in handoffs and standups is the signal the training landed.</p>
     <p><strong>Exit when:</strong> every analyst has produced at least one rubric-passing close note on a real case.</p>
   </div>
   <div class="adopt-item">
     <h3>Stage 4 · Reconcile policy and tooling <span class="adopt-item__tag">the long stage</span></h3>
-    <p>Now, and only now, change the machinery. Map existing SOPs and playbooks to the phase deliverables: most survive as-is under a vocabulary crosswalk, and a rename is only worth its retraining cost where the old term actively conflicts (a playbook whose "escalation" step means "assign to senior analyst" needs the rename; one whose steps are just unlabeled A-S-S needs a header). Wire the <a href="/docs/documentation/templates/">templates</a> into the case-management tool as forms or macros so the structure is the path of least resistance. Reconcile tier definitions with the <a href="/docs/escalation/protocols/">protocols page's</a> model, and negotiate the pre-authorized immediate-actions list with IR in writing, because Stage 5's break-glass discipline depends on it existing.</p>
+    <p>Now, and only now, change the machinery. Map existing SOPs (standard operating procedures) and playbooks to the phase deliverables: most survive as-is under a vocabulary crosswalk, and a rename is only worth its retraining cost where the old term actively conflicts (a playbook whose "escalation" step means "assign to senior analyst" needs the rename; one whose steps are just unlabeled Alert, Subject and Scope work needs a header). Wire the <a href="/docs/documentation/templates/">templates</a> into the case-management tool as forms or macros so the structure is the path of least resistance, and keep their verdict and priority values exactly as the templates spell them, so records from different analysts and teams can be counted together.</p>
+    <p>Reconcile tier definitions with the <a href="/docs/escalation/protocols/">protocols page's</a> model, and negotiate the pre-authorized immediate-actions list with the incident response (IR) team in writing, because every live escalation under the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a> leans on it: it is what triage may execute before IR picks up. Keep that list to reversible actions, each preceded by its preservation step (preserve before you contain). Credential resets and OAuth grant revocations need IR or owner approval unless the list names them for a specific scenario.</p>
+    <p>If AI assistants or agents are in the workflow, run the <a href="/docs/ai-triage/#before-the-first-prompt-the-admission-gate">AI-triage admission gate</a> before wiring them into the case tool, make the Material AI use field mandatory, and include AI-drafted notes in the weekly quality assurance (QA) sample. Accountability is never delegated; execution may be, at Level 0 parity. A machine close needs every condition the <a href="/docs/fast-path/">fast path</a> sets: a machine-close flag on the pattern entry, discriminators evaluated by code, an enforced eligibility gate, human QA sampling of the closes, tracked reversal and miss rates, and a kill switch with a named owner. <a href="/docs/ai-governance/#level-0-parity">Governing automated triage</a> covers how to run each one.</p>
     <p><strong>Exit when:</strong> an analyst can run the full arc without leaving the case tool, and nobody needs the crosswalk taped to their monitor anymore.</p>
   </div>
   <div class="adopt-item">
     <h3>Stage 5 · Operate and review <span class="adopt-item__tag">ongoing</span></h3>
-    <p>The steady state has four moving parts: the pattern library with a named owner and enforced review dates, the QA cadence (a weekly sample of close notes against the rubric, graded kindly and in the open), the quarterly metrics review against the Stage 2 baseline, and the feedback loop upstream, where local deviations that keep proving right become <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">contributions</a> to the methodology itself. The <a href="#the-maturity-model">maturity model</a> below is the map for this stage.</p>
+    <p>The steady state has four moving parts. The pattern library is governed like code: a named owner, a second person's approval for every entry and change, version history, enforced review dates, invalidation triggers (a rule change, observed abuse), and a reversal threshold that suspends an entry automatically. The QA cadence runs a weekly sample of close notes against the rubric, anonymized and stratified so Level 0 records and AI-assisted notes are always included, alongside the weekly re-verification sample of Level 0 closes the <a href="/docs/fast-path/">fast path</a> requires. The metrics review runs quarterly against the Stage 2 baseline. And the feedback loop runs upstream, where local deviations that keep proving right become <a href="https://github.com/block/assured-methodology" target="_blank" rel="noopener noreferrer">contributions</a> to the methodology itself. The <a href="#the-maturity-model">maturity model</a> below is the map for this stage.</p>
   </div>
 </div>
 
 <Callout variant="warn" title="Adopt the vocabulary, not a re-org">
-The expensive failure mode is the big-bang rollout: rename every queue, retrofit every playbook, and announce a new era. Six weeks later the team has reverted and the methodology is blamed. ASSURED is a way of working a case, not an org design; it coexists with any tier structure, any SIEM, and any ticket taxonomy. Adopt the thinking first, let the tooling follow the friction list, and treat every rename as a cost to be justified.
+The expensive failure mode is the big-bang rollout: rename every queue, retrofit every playbook, and announce a new era. Six weeks later the team has reverted and the methodology is blamed. ASSURED is a way of working a case, not an org design; it coexists with any tier structure, any SIEM (security information and event management platform), and any ticket taxonomy. Adopt the thinking first, let the tooling follow the friction list, and treat every rename as a cost to be justified.
+</Callout>
+
+<Callout variant="info" title="When first-line triage is a vendor (MSSP or MDR)">
+If a managed security service provider (MSSP) or a managed detection and response (MDR) provider runs your first-line triage, the arc still applies, with three changes (the provider's side and yours are on <a href="/docs/operating-variants/#running-assured-as-an-mssp-or-mdr">operating variants</a>). The templates and the verdict values go into the contract or service description, so the provider's records arrive in the shape your team and IR read. Your team measures the receiver-judged metrics (escalation acceptance, handoff rework) on the provider's escalations, which keeps the independence intact. And the pattern library gets exactly one owner: either the provider maintains entries your team approves, or your team owns them and the provider applies them. Never both, and never neither. Each escalation the provider sends is intake for your team to validate, not a verdict to sign (see <a href="/docs/alert/intake/#provider-escalations">provider escalations</a> and <a href="/docs/operating-variants/#running-assured-as-the-customer-of-an-mdr">running ASSURED as the customer of an MDR</a>).
 </Callout>
 
 ## Measuring triage quality
 
-Speed metrics measure how fast the queue moves; they say nothing about whether the verdicts were right. Mean time to detect, respond, or close are worth tracking, but as *paired* metrics only: speed with no quality check optimizes for confident, fast, wrong. The metrics below measure decision quality, and each one carries its failure mode, because any metric made a target gets gamed.
+Speed metrics measure how fast the queue moves; they say nothing about whether the verdicts were right. The <a href="/docs/measuring-triage/">Measuring triage</a> page carries the full metric set, each with its formula, denominator, data source, cadence and the way it gets gamed. What the rollout needs from it is short:
 
-<Callout variant="info" title="Translate the IR-coupled metrics to your team model">
-Several metrics below are written as if a separate IR function receives the escalations. On a small or single-person team, translate the counterparty without dropping the measurement: "IR accepts" means whoever your escalation path engages (an on-call engineer, an MSSP, an IR retainer) agrees the case warranted it, and "IR comes back with questions" means the packet's next reader had to ask for something it should have contained, even when that reader is you a week later. What must survive the translation is the independence: the quality of an escalation decision is judged by its receiver, not its author.
-</Callout>
-
-<div class="adopt-list">
-  <div class="adopt-item adopt-item--metric">
-    <h3>Escalation acceptance <span class="adopt-item__tag">quality of the E decision</span></h3>
-    <p>The share of escalations that IR accepts as genuinely warranting IR. Low acceptance means noisy escalation, criteria applied loosely, or packets too thin to judge. <strong>The trap:</strong> driving it to 100%, which a team achieves by under-escalating; a healthy number sits below perfect, because some defensible escalations legitimately turn out benign. Pair it with the missed-incident count, never read alone.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Reopen rate <span class="adopt-item__tag">honesty of the closes</span></h3>
-    <p>Closed cases reopened on new evidence within thirty days. The single best check on close quality: reopens concentrate where discriminators were skipped, negatives went unrecorded, or the pattern reflex closed something the pattern did not cover. <strong>The trap:</strong> punishing reopens, which teaches analysts to argue against reopening instead of writing better closes. A reopen against a rubric-passing note is a detection lesson; against a thin note, a QA lesson.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Missed incidents <span class="adopt-item__tag">the heaviest signal</span></h3>
-    <p>Confirmed incidents that earlier passed through triage as a close. Rare, and each one outweighs a quarter of good numbers: every miss gets a blameless case review against the original record, asking which phase's deliverable would have caught it. <strong>The trap:</strong> treating zero as the achievable target and shading post-incident timelines to protect it. The record discipline from the <a href="/docs/documentation/example/">Documentation example</a> exists exactly so these reviews have honest material.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Handoff rework <span class="adopt-item__tag">quality of the packet</span></h3>
-    <p>How often IR comes back with questions the packet should have answered, or re-runs investigation triage already did. Cheap to collect (ask IR to tag it) and directly actionable: recurring gaps point at a specific packet section going unfilled. <strong>The trap:</strong> measuring it without IR's participation, which turns it into triage grading its own homework.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Time-in-phase <span class="adopt-item__tag">diagnostic, not target</span></h3>
-    <p>Where cases actually spend their clock. Long Uncover tails point at retrieval and coverage gaps (the <a href="/docs/scope/infrastructure/">three visibility questions</a>); long Alert phases point at parsing and enrichment debt; time stalled before Escalation on cases that end P1 points at criteria being treated as end-of-arc checklists instead of tripwires. <strong>The trap:</strong> setting per-phase time targets, which produces phase-skipping. This one diagnoses; it is never a quota.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Pattern-library health <span class="adopt-item__tag">the fast path's engine</span></h3>
-    <p>Three numbers: the share of queue volume closing at Level 0 against a documented entry (rising is good, if reopens stay flat), entries past their review date (should be zero), and tuning tickets filed and closed from false-positive findings (the <a href="/docs/risk/false-positive/">false-positive-as-finding doctrine</a> made countable). <strong>The trap:</strong> celebrating Level 0 share alone; paired with rising reopens it means the reflex is winning, not the library.</p>
-  </div>
-  <div class="adopt-item adopt-item--metric">
-    <h3>Close-note quality <span class="adopt-item__tag">sampled, not census</span></h3>
-    <p>The weekly QA sample scored against the <a href="/docs/teaching/">five-check rubric</a>. Trend matters more than level, and the score belongs to the team, not the individual: a falling trend is a training or workload signal. <strong>The trap:</strong> making it a per-analyst leaderboard, which converts an editing tool into a surveillance tool and kills the honesty the rubric depends on (check 3 requires admitting uncertainty).</p>
-  </div>
-</div>
+- **Measure decision quality first, speed only as its pair.** The core set is escalation acceptance, reopen rate, missed incidents, handoff rework, close-note quality against the <a href="/docs/teaching/#what-to-grade-the-close-note-rubric">five-check rubric</a>, verdict agreement on blind re-triage, and pattern-library health. Time to acknowledge and time to escalate are reported beside their quality pair, and never ranked by analyst.
+- **Write the formula down before the dashboard.** Each metric needs a numerator, a denominator and a source field, recorded next to the Stage 2 baseline, or two teams' numbers will never compare.
+- **Let the receiver judge the escalation.** Escalation acceptance and handoff rework come from the handoff packet's receipt block, filled by whoever your escalation path engages (IR, an on-call engineer, an MSSP, or you a week later). The author of an escalation never grades it.
+- **Time-in-phase is diagnostic, not a target.** It shows where cases spend their clock; per-phase time targets produce phase-skipping.
+- **Split every quality metric by AI use.** Compute it once for records whose Material AI use field is filled and once for those without; that gap is the only local evidence of whether the assistant helps.
 
 ## The maturity model
 
-Four levels, defined by what is *true*, not what is aspired to. Most teams discover they are at Level 1 in places and Level 0 in others; the model is per-practice, not a badge.
+Four levels, defined by what is *true*, not what is aspired to. Most teams discover they are at M1 in places and M0 in others; the model is per-practice, not a badge, and the grid after the level descriptions is the honest way to record it.
 
 <div class="adopt-list">
   <div class="adopt-item adopt-item--maturity">
-    <h3>Level 0 · Ad hoc <span class="adopt-item__tag">quality = who is on shift</span></h3>
+    <h3>M0 · Ad hoc <span class="adopt-item__tag">quality = who is on shift</span></h3>
     <p>Verdicts ride on individual instinct; close notes say "FP, known noise"; escalations are chat messages with a ticket link; what the last analyst learned leaves with them. Nothing is wrong with the people; there is simply no structure for the quality to accumulate in. <strong>The tell:</strong> two analysts giving different verdicts on the same alert, and there being no way to say which was right.</p>
   </div>
   <div class="adopt-item adopt-item--maturity">
-    <h3>Level 1 · Structured <span class="adopt-item__tag">the arc is in use</span></h3>
-    <p>The phases structure real cases, close notes cite artifacts, escalations carry packets, and the vocabulary shows up in handoffs. This is where the site's chapters plus Stage 3 training lands a team. <strong>The tell you are not past it:</strong> the structure lives in people's discipline rather than the tooling, so it erodes under queue pressure and skips phases on busy days.</p>
+    <h3>M1 · Structured <span class="adopt-item__tag">the arc is in use</span></h3>
+    <p>The phases structure real cases, close notes cite artifacts, escalations carry packets, and the vocabulary shows up in handoffs. The site's chapters plus Stage 3 training land a team here. <strong>The tell you are not past it:</strong> the structure lives in people's discipline rather than the tooling, so it erodes under queue pressure and skips phases on busy days.</p>
   </div>
   <div class="adopt-item adopt-item--maturity">
-    <h3>Level 2 · Measured <span class="adopt-item__tag">the numbers exist</span></h3>
-    <p>A baseline exists, the metrics above are reviewed on a cadence, the pattern library has an owner and current review dates, and QA samples close notes weekly. The templates live inside the case tool. <strong>The tell you are not past it:</strong> the metrics get reported but nothing changes because of them; the review is a meeting, not a steering input.</p>
+    <h3>M2 · Measured <span class="adopt-item__tag">the numbers exist</span></h3>
+    <p>A baseline exists, the <a href="/docs/measuring-triage/">triage metrics</a> are reviewed on a cadence with their formulas written down, the pattern library has an owner, an approver and current review dates, and QA samples close notes weekly. The templates live inside the case tool. <strong>The tell you are not past it:</strong> the metrics get reported but nothing changes because of them; the review is a meeting, not a steering input.</p>
   </div>
   <div class="adopt-item adopt-item--maturity">
-    <h3>Level 3 · Improving <span class="adopt-item__tag">the loop is closed</span></h3>
+    <h3>M3 · Improving <span class="adopt-item__tag">the loop is closed</span></h3>
     <p>The metrics drive work: reopen clusters become detection tickets, time-in-phase tails become tooling investments, one real case a month becomes an <a href="/docs/exercises/">exercise packet</a>, and missed-incident reviews change the criteria or the coverage rather than just the write-up. Deviations that keep proving right go upstream as contributions. <strong>The tell:</strong> you can point at a detection rule, a tool purchase, and a training session that each exist because a metric moved.</p>
   </div>
 </div>
 
+Record the level per practice, not for the team as a whole. One line per cell is enough:
+
+| Practice | M0 · Ad hoc | M1 · Structured | M2 · Measured | M3 · Improving | Closest SOC-CMM domain |
+|---|---|---|---|---|---|
+| Pattern library | memory | written entries | owned, approved, versioned, reviewed on date | reversals and re-verification fix or retire entries | Process |
+| QA | none | occasional peer review | weekly stratified sample, pass/fail per check | failure rates change training and templates | Process |
+| Metrics | speed only | baseline taken | formulas written, reviewed quarterly | each review produces work items | Process |
+| IR agreement | chat messages | packets on escalation | written pre-authorized list, receipt block filled | acceptance and rework reviewed jointly with IR | Services |
+| Training | shadowing | four-session plan and the telemetry labs run | sign-off on real cases and the blind-scored lab capstone | packets built from misses and reopens | People |
+| Tooling | free-text tickets | templates as documents | templates as case-tool forms | record fields feed the metrics directly | Technology |
+| AI tooling | unvetted assistants, no record of use | admission gate run, Material AI use field filled | AI-assisted notes in every QA sample, metrics split by AI use | machine closes only on flagged entries, with kill switch, owner and tracked reversals | Technology |
+
+This is a lens on the triage practice, not a whole-SOC assessment. For that, use <a href="https://www.soc-cmm.com/" target="_blank" rel="noopener noreferrer">SOC-CMM</a>, whose five domains (Business, People, Process, Technology, Services) cover the whole operation. The right-hand column names the domain each practice sits closest to, as a starting point for placing a triage-practice score inside a SOC-CMM assessment, not as an official mapping; most of the practices here land in Process, with training in People, tooling in Technology, and the IR agreement in Services. MITRE's <a href="https://www.mitre.org/news-insights/publication/11-strategies-world-class-cybersecurity-operations-center" target="_blank" rel="noopener noreferrer">11 Strategies of a World-Class Cybersecurity Operations Center</a> makes the argument behind <a href="/docs/measuring-triage/">measuring triage</a> in its Strategy 10, "Measure performance to improve performance", and FIRST's <a href="https://www.first.org/standards/frameworks/csirts/csirt_services_framework_v2.1" target="_blank" rel="noopener noreferrer">CSIRT Services Framework</a> names the triage function these practices sit inside.
+
 ## What the SOC lead owns
 
-The methodology gives analysts their part; these are the parts only the lead can carry, collected from where they appear across the site:
+The methodology gives analysts their part; these are the parts only the lead can carry, collected from where they appear across the site. When control owners or auditors ask what triage contributes to CSF 2.0 or ISO/IEC 27001, hand them the <a href="/docs/standards-mapping/">standards mapping</a>.
 
 <ul class="adopt-duties">
-  <li><strong>The QA cadence:</strong> the weekly close-note sample against the rubric, run as revision practice in the open, never as a leaderboard.</li>
-  <li><strong>The pattern library:</strong> a named owner, enforced review dates, and the discipline that "I've seen this before" never substitutes for an entry (the <a href="/docs/fast-path/">ladder rules</a>).</li>
-  <li><strong>The metrics review:</strong> quarterly, against the baseline, with each number paired to its quality check and at least one action item per review.</li>
-  <li><strong>The IR agreement:</strong> the pre-authorized immediate-actions list and the handoff expectations, negotiated in writing with the team that receives the escalations (<a href="/docs/escalation/protocols/">protocols</a>).</li>
-  <li><strong>The training arc:</strong> the <a href="/docs/teaching/">sessions</a>, the onboarding ramp, and the monthly conversion of one real case into a packet.</li>
+  <li><strong>The QA cadence:</strong> the weekly close-note sample against the rubric, run as revision practice on anonymized notes, never as a leaderboard, and stratified so Level 0 records and AI-assisted notes are always included; plus the weekly Level 0 re-verification sample and the monthly blind re-triage.</li>
+  <li><strong>The pattern library:</strong> a named owner, a second-person approver, version history, enforced review dates, invalidation triggers, reversal thresholds, and the discipline that "I've seen this before" never substitutes for an entry (the <a href="/docs/fast-path/">ladder rules</a>).</li>
+  <li><strong>The metrics review:</strong> quarterly, against the baseline, with each formula written down, each number paired to its quality check, and at least one action item per review.</li>
+  <li><strong>The IR agreement:</strong> the pre-authorized immediate-actions list (reversible actions only, preservation first) and the handoff expectations, including who fills the receipt block, negotiated in writing with the team that receives the escalations (<a href="/docs/escalation/protocols/">protocols</a>).</li>
+  <li><strong>The training arc:</strong> the <a href="/docs/teaching/">sessions</a>, the <a href="/docs/teaching/#routing-with-a-pre-assessment">pre-assessment</a> that routes each analyst, the onboarding ramp, sign-off on real cases, a spaced review of each session's material (roughly 1, 7 and 30 days after it), and the monthly conversion of one real case into a packet.</li>
+  <li><strong>AI governance:</strong> the admission gate for every assistant or agent, the Material AI use field, metrics split by AI use, and, for any machine close, the kill switch and its named owner (<a href="/docs/ai-governance/">Governing automated triage</a>). Accountability stays with people even where execution does not.</li>
+  <li><strong>The detection feedback loop:</strong> tuning requests decided and answered, the exception register kept current with owners and expiry dates, and the per-rule numbers reviewed with detection engineering (<a href="/docs/detection-feedback/">Triage and detection engineering</a>).</li>
   <li><strong>Tabletops and post-incident reviews:</strong> exercising the escalation path before it is needed, and running blameless reviews whose findings land as tickets, not paragraphs.</li>
-  <li><strong>The timebox culture:</strong> protecting the depth ladder from throughput pressure, because the moment closes-per-shift becomes the implicit scoreboard, every metric above starts lying.</li>
+  <li><strong>The timebox culture:</strong> protecting the depth ladder from throughput pressure, because the moment closes-per-shift becomes the implicit scoreboard, every triage metric starts lying.</li>
+  <li><strong>Analyst workload:</strong> rotation between queue time and project or detection work; a cap on consecutive P1s and after-hours pages per analyst before the next case goes to someone else; recovery time after a P1; and per-analyst speed numbers never used to rank or discipline (see <a href="/docs/measuring-triage/">Measuring triage</a>).</li>
 </ul>
 
-<KeyTakeaway>Adoption is a sequencing problem: pilot for evidence, baseline before change, train on local cases, reconcile tooling last, and then run the loop where metrics create work items. The methodology holds up the analyst's side on every page of this site; the lead's side is the seven duties above, and no rollout survives their absence.</KeyTakeaway>
+<KeyTakeaway>Adoption is a sequencing problem: pilot for evidence, baseline before change, train on local cases, reconcile tooling last, and then run the loop where metrics create work items. The methodology holds up the analyst's side on every page of this site; the lead's side is the ten duties above, and no rollout survives their absence.</KeyTakeaway>
 
 <div class="end-cta">
-  <a href="/docs/teaching/" class="assured-cta assured-cta--ghost">← Teaching ASSURED</a>
+  <a href="/docs/detection-feedback/" class="assured-cta assured-cta--ghost">← Triage and detection engineering</a>
   <a href="/docs/reference/" class="assured-cta">The one-page reference →</a>
 </div>
-
-<style>{`
-.adopt-list { display: flex; flex-direction: column; gap: 0.85rem; margin: 1.25rem 0; }
-.adopt-item { padding: 1.15rem 1.4rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--assured-accent); border-radius: 0.7rem; }
-.adopt-item--metric { border-left-color: rgba(99, 102, 241, 0.6); }
-.adopt-item--maturity { border-left-color: rgba(168, 85, 247, 0.55); }
-.adopt-item h3 { margin: 0 0 0.55rem 0; font-size: 1.05rem; color: var(--assured-text); }
-.adopt-item__tag { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.55rem; border-radius: 9999px; background: rgba(20, 184, 166, 0.14); color: var(--assured-accent-soft); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
-.adopt-item p { margin: 0 0 0.5rem 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.93rem; }
-.adopt-item p:last-child { margin-bottom: 0; }
-.adopt-item strong { color: var(--assured-text); }
-.adopt-duties { margin: 1.25rem 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
-.adopt-duties li { color: var(--assured-text-muted); line-height: 1.6; }
-.adopt-duties strong { color: var(--assured-text); }
-`}</style>

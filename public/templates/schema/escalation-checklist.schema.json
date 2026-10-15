@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/escalation-checklist.schema.json",
+  "title": "Escalation-criteria checklist",
+  "description": "The escalation-criteria checklist: each criterion box marked suspected or confirmed, the decision under the E rule, the closure check and the default clocks.",
+  "x-assured-template": "escalation-checklist.md",
+  "type": "object",
+  "properties": {
+    "header": {
+      "x-assured-section": "",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID"
+        },
+        "checkedByInWhich": {
+          "x-assured-prompt": "Checked by, in which phase, at",
+          "type": "object",
+          "properties": {
+            "by": {
+              "type": "string"
+            },
+            "phase": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["by", "phase", "at"],
+          "description": "Checked by, in which phase, at (UTC)"
+        }
+      },
+      "required": ["caseId", "checkedByInWhich"]
+    },
+    "confirmedMalicious": {
+      "x-assured-section": "1. Confirmed malicious activity not fully contained by a control",
+      "x-assured-phase": "escalation",
+      "type": "object",
+      "properties": {
+        "verifiedMaliciousInfrastructure": {
+          "x-assured-checkbox": "Verified malicious infrastructure: IPs or domains tied to known C2 (command and control), phishing, or attacker infrastructure in threat-intelligence sources, corroborated by host or identity telemetry showing what the connection did (a listing alone is a lead)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "malwareIndicators": {
+          "x-assured-checkbox": "Malware indicators: file hashes matching documented malware or unauthorized tools with verified malicious functionality, plus a second source showing the file ran or was staged to run",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "exploitationEvidence": {
+          "x-assured-checkbox": "Exploitation evidence: attacker tools or exploits executed, consistent with known malware families or attacker profiles",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "attAndCkMappedBehavior": {
+          "x-assured-checkbox": "ATT&CK-mapped behavior outside any sanctioned change, in tactics such as privilege escalation, persistence, or defense impairment (ATT&CK v19), corroborated by an independent source (benign administration maps to ATT&CK routinely; the mapping names the behavior, it does not prove malice)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        }
+      }
+    },
+    "highImpact": {
+      "x-assured-section": "2. High impact / business-critical systems affected",
+      "x-assured-phase": "escalation",
+      "x-assured-clocks": [
+        {
+          "key": "p2DecisionHours",
+          "unit": "hours"
+        }
+      ],
+      "type": "object",
+      "properties": {
+        "productionSystemsDirectlySupportingRevenue": {
+          "x-assured-checkbox": "Production systems directly supporting revenue or customer experience",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "regulatedDataRepositories": {
+          "x-assured-checkbox": "Regulated data repositories: personally identifiable information (PII), protected health information (PHI), or payment card data (mandatory breach-notification clocks may apply)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "cloudInfrastructureHostingCriticalWorkloads": {
+          "x-assured-checkbox": "Cloud infrastructure hosting critical workloads, especially with privileged access or broad connections to organizational data",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "identityAndAccessInfrastructure": {
+          "x-assured-checkbox": "Identity and access infrastructure: domain controllers, identity providers (IdPs), public key infrastructure (PKI), secrets management, VPN and remote-access gateways",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "securityAndRecoveryInfrastructure": {
+          "x-assured-checkbox": "Security and recovery infrastructure: endpoint detection and response (EDR), security information and event management (SIEM), backup consoles (tampering blinds detection or removes the ability to recover)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "systemsWhoseDisruptionCausesSubstantial": {
+          "x-assured-checkbox": "Systems whose disruption causes substantial operational, financial, or reputational harm",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        }
+      }
+    },
+    "lateralMovementOrExfiltration": {
+      "x-assured-section": "3. Lateral movement or exfiltration",
+      "x-assured-phase": "escalation",
+      "type": "object",
+      "properties": {
+        "attackerDrivenExpansion": {
+          "x-assured-checkbox": "Attacker-driven expansion: the activity has reached a second host, account, or service beyond the original subject, and the benign explanations for the hop (sanctioned administration, automation) have been ruled out",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "dataStagingObserved": {
+          "x-assured-checkbox": "Data staging observed: unusual or password-protected archives, collection folders, large internal transfers",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "outboundTransferToExternalOr": {
+          "x-assured-checkbox": "Outbound transfer to external or anomalous destinations, measured against the host's own baseline, especially destinations the organization does not sanction",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "credentialDumpingFollowedByCredential": {
+          "x-assured-checkbox": "Credential dumping followed by credential use, or credential use that crosses a trust boundary (new segment, new tenant, new privilege tier)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        }
+      }
+    },
+    "ongoingCampaign": {
+      "x-assured-section": "4. Ongoing or widespread campaign",
+      "x-assured-phase": "escalation",
+      "type": "object",
+      "properties": {
+        "multipleHostsOrUsersShowing": {
+          "x-assured-checkbox": "Multiple hosts or users showing the same or related activity",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "theSameLure": {
+          "x-assured-checkbox": "The same lure, infrastructure, or artifact appearing across teams or business units",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "aPasswordSprayThatProduced": {
+          "x-assured-checkbox": "A password spray that produced at least one successful authentication, or that targets the organization specifically (custom username lists, your naming convention)",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "variantChurn": {
+          "x-assured-checkbox": "Variant churn: the same behavior from samples with different hashes on multiple hosts within days",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "externalIntelligenceReportingAnActive": {
+          "x-assured-checkbox": "External intelligence reporting an active campaign targeting the organization or sector, matched to a local artifact (an indicator, lure, or technique seen here), not the report alone",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        },
+        "coordinatedTimingThatSuggestsAn": {
+          "x-assured-checkbox": "Coordinated timing that suggests an operator, not an opportunistic one-off",
+          "$ref": "assured-vocabulary.schema.json#/$defs/criterionMark"
+        }
+      }
+    },
+    "decision": {
+      "x-assured-section": "Decision",
+      "x-assured-phase": "escalation",
+      "x-assured-e-rule": true,
+      "x-assured-clocks": [
+        {
+          "key": "p2DecisionHours",
+          "unit": "hours"
+        }
+      ],
+      "x-assured-instructions": [
+        "Any box CONFIRMED, in any phase",
+        "Boxes suspected but not confirmed",
+        "No box confirmed",
+        "Operational routes",
+        "Insider route"
+      ],
+      "type": "object",
+      "properties": {
+        "cellRecorded": {
+          "x-assured-prompt": "Cell recorded",
+          "type": "object",
+          "properties": {
+            "cell": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+            },
+            "confidence": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+            },
+            "reasoning": {
+              "type": "string"
+            }
+          },
+          "required": ["cell", "confidence", "reasoning"],
+          "description": "Cell recorded (impact / likelihood, with confidence beside it), and the reasoning"
+        },
+        "regulatoryFlagsAndCandidateAwareness": {
+          "x-assured-checkbox": "Regulatory flags and candidate awareness timestamps recorded; owners engaged.",
+          "type": "boolean",
+          "default": false
+        },
+        "closureCheck": {
+          "x-assured-section": "Closure check (before a documented close)",
+          "type": "object",
+          "properties": {
+            "noEscalationCriterionConfirmed": {
+              "x-assured-checkbox": "No escalation criterion confirmed, or open as a suspicion",
+              "type": "boolean",
+              "default": false
+            },
+            "theCellAllowsIt": {
+              "x-assured-checkbox": "The cell allows it: P4, or a P3 whose named re-score trigger came back clean",
+              "type": "boolean",
+              "default": false
+            },
+            "noPersistenceOrCredentialAccess": {
+              "x-assured-checkbox": "No persistence or credential access observed in the evidence examined",
+              "type": "boolean",
+              "default": false
+            },
+            "theCaseSOwnAlternatives": {
+              "x-assured-checkbox": "The case's own alternatives checked clean",
+              "type": "boolean",
+              "default": false
+            },
+            "gapsBounded": {
+              "x-assured-checkbox": "Gaps bounded: each named, with the reopen triggers written down",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "priorityClocks": {
+          "x-assured-section": "Priority clocks",
+          "x-assured-clocks": [
+            {
+              "key": "p1NoAckFallbackMinutes",
+              "unit": "minutes"
+            },
+            {
+              "key": "p3RescoreHours",
+              "unit": "hours"
+            }
+          ],
+          "type": "object",
+          "properties": {
+            "clocks": {
+              "x-assured-columns": ["Band", "Acknowledge", "Decision"],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "band": {
+                    "x-assured-column": "Band",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+                  },
+                  "acknowledge": {
+                    "x-assured-column": "Acknowledge",
+                    "type": "string"
+                  },
+                  "decision": {
+                    "x-assured-column": "Decision",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["cellRecorded", "closureCheck", "priorityClocks"]
+    }
+  },
+  "required": [
+    "header",
+    "confirmedMalicious",
+    "highImpact",
+    "lateralMovementOrExfiltration",
+    "ongoingCampaign",
+    "decision"
+  ]
+}

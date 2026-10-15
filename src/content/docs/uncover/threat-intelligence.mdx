@@ -1,6 +1,7 @@
 ---
 title: "Leveraging threat intelligence"
-description: "Indicator matching, attribution, TTP-driven hunting, automated enrichment, dark web. How to use intel as a hypothesis source, not a verdict."
+description: "Validating a match, enriching without leaking, attribution, TTP-driven hunting, dark web. How to use intel as a hypothesis source, not a verdict."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -10,122 +11,127 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
+import "@/styles/pages/uncover.css";
 
 <SubPageHero
   phase="uncover"
-  parentLetter="U"
-  pillarIndex="03"
-  pillarTotal="05"
-  chapterHref="/docs/uncover/"
-  chapterLabel="Uncover"
   lede="Threat intelligence is most useful as a hypothesis generator. The skill is matching the right tier and the right validation to the question being asked, and using intel as a correlation layer rather than a verdict."
 />
 
-<PillNav chapter="uncover" label="Uncover chapter" items={[
-  { label: "Data sources", href: "/docs/uncover/data-sources/", phase: "uncover" },
-  { label: "Correlation & timeline", href: "/docs/uncover/correlation/", phase: "uncover" },
-  { label: "Threat intelligence", href: "/docs/uncover/threat-intelligence/", phase: "uncover" },
-  { label: "MITRE ATT&CK", href: "/docs/uncover/mitre/", phase: "uncover" },
-  { label: "Tool integration", href: "/docs/uncover/tooling/", phase: "uncover" },
-]}/>
+<PillNav chapter="uncover" />
 
 ## Five ways to use intel
 
 <div class="ti-grid">
-  <a href="#indicator-matching" class="ti-card"><h3>🎯 Indicator matching</h3><p>The simplest use. Compare observed artifacts against known-bad lists. Reactive by nature.</p></a>
-  <a href="#attribution" class="ti-card"><h3>👤 Adversary attribution</h3><p>Connect observed behavior to specific actors or campaigns. Useful for context, less directly actionable.</p></a>
-  <a href="#ttp-hunting" class="ti-card"><h3>🔍 TTP-based hunting</h3><p>Use known techniques to search for similar patterns. More durable than indicator matching.</p></a>
-  <a href="#enrichment" class="ti-card"><h3>⚙️ Automated enrichment</h3><p>Append intel data to alerts in flight. Reduces manual lookup work and speeds triage.</p></a>
-  <a href="#dark-web" class="ti-card"><h3>🕸️ Dark-web monitoring</h3><p>Watch for leaked credentials, organization mentions, attack planning. Early warning signal.</p></a>
+  <a href="#indicator-matching" class="ti-card"><h3>Indicator matching</h3><p>The simplest use. Compare observed artifacts against known-bad lists. Reactive by nature.</p></a>
+  <a href="#enrichment" class="ti-card"><h3>Automated enrichment</h3><p>Append intel data to alerts in flight. Reduces manual lookup work and speeds triage.</p></a>
+  <a href="#attribution" class="ti-card"><h3>Adversary attribution</h3><p>Connect observed behavior to specific actors or campaigns. Useful for context, less directly actionable.</p></a>
+  <a href="#ttp-hunting" class="ti-card"><h3>TTP-based hunting</h3><p>Use known techniques to search for similar patterns. More durable than indicator matching.</p></a>
+  <a href="#dark-web" class="ti-card"><h3>Dark-web monitoring</h3><p>Watch for leaked credentials, organization mentions, attack planning. Early warning signal.</p></a>
 </div>
 
-<Callout variant="info" title="The integration principle">
-<DefineTerm term="Threat Intelligence" display="Threat intelligence" /> should be used not in isolation, but as a correlation layer applied across internal data sets such as logs, EDR <DefineTerm term="Telemetry" display="telemetry" />, and <DefineTerm term="Network Traffic" display="network traffic" />. Its goals during Uncover are validation, prioritization, contextualization, and prediction.
+<DefineTerm term="Threat Intelligence" display="Threat intelligence" /> works as a correlation layer across your own data (logs, EDR <DefineTerm term="Telemetry" display="telemetry" />, network traffic), not in isolation. During Uncover it helps validate, prioritize and contextualize what the evidence shows.
+
+The page starts with the two things a triage analyst does on a live case: validating an intel match and reading enrichment. Attribution follows. The program machinery that produces the matches (the indicator pipeline, hunting, dark-web collection, intelligence tiers) comes last.
+
+---
+
+## An IOC hit on your case
+
+A proxy alert fires: a workstation connected to <code>update-telemetry.example</code>, which a commercial feed lists as "C2, high confidence". The match is the question, not the answer. Working it takes a few minutes:
+
+1. **Read the match itself.** Which feed, which tag, when the feed first listed the domain, which IP it reported, and the TLP marking on the report.
+2. **Check your own history.** Was the domain seen in your environment before the feed listed it, and by how many hosts? One host, first seen today, is a different case from a domain 300 hosts have resolved daily for a year.
+3. **Check what it resolved to at the time.** Passive DNS for the moment of your connection: is it the IP the feed reported, and is that IP shared hosting or a CDN edge, where an IP proves little?
+4. **Look it up, do not touch it.** Reputation and relations from passive sources (GreyNoise, VirusTotal relations, urlscan.io history). No uploads, no browsing to the domain from the corporate network; the <a href="#enrichment">enrichment OPSEC rules</a> below explain why.
+5. **Go back to your own telemetry.** Which process made the connection, what preceded it on the host, and whether anything was downloaded or executed.
+6. **Label it on the shared scale.** For example: "Validated, MEDIUM: resolved to the reported C2 IP at connection time; an unsigned process made the call; no second independent source yet." Or: "Not supported: the reported IP is a shared CDN edge, the domain has been resolved fleet-wide since last year, and the caller is the browser loading a vendor's assets." The second is a false positive (data) for that feed entry, and the case record says so, which is the feedback step 06 of the indicator pipeline depends on.
+
+---
+
+## Validation and confidence
+
+Not all intel is equal. Before acting on a piece of intelligence, validate it across four checks.
+
+<div class="validate-grid">
+  <div class="validate-card">
+    <h3>Source reliability</h3>
+    <p>Where did this come from? Typically higher-reliability sources include government agencies, established vendors and vetted ISACs, but reliability is a track record, not a category. Grade each source on its history; the Admiralty (NATO) system's A-F source reliability and 1-6 information credibility is the standard shorthand.</p>
+  </div>
+  <div class="validate-card">
+    <h3>Recency</h3>
+    <p>When was this observed? Indicators decay at different rates: IPs in shared cloud and residential-proxy ranges can be reassigned to legitimate tenants within days, domains get re-registered, and hashes stay malicious but grow less relevant as tooling changes. Retire indicators by type, not on a single clock.</p>
+  </div>
+  <div class="validate-card">
+    <h3>Specificity</h3>
+    <p>Is the intel about the exact thing being investigated, or a loose analogy? "This domain is associated with phishing" is less actionable than "This specific subdomain pattern is used by this specific campaign."</p>
+  </div>
+  <div class="validate-card">
+    <h3>Corroboration</h3>
+    <p>Does any other source say the same thing? Two independent sources reporting the same indicator is a stronger signal than one source repeating itself. Check that the sources really are independent: five feeds republishing one blog post are one source.</p>
+  </div>
+</div>
+
+### One scale, not two
+
+Validated intel is labeled with the same LOW / MEDIUM / HIGH scale used for <a href="#attribution">attribution</a> below and defined once in the <a href="/docs/documentation/standards/#confidence">shared rubric</a>: the four checks map directly onto it (corroboration and source reliability drive the level; recency and specificity cap it). The only state this section adds is **unverified**: intel that has not yet been scored against the four checks. Unverified intel can generate hypotheses, but it never drives an operational decision until it has been validated and labeled.
+
+<Callout variant="info" title="Intel is a hypothesis, not a verdict">
+Threat intelligence tells the analyst what to look for. It does not tell them what they have. Validate intel-driven hypotheses against the actual telemetry before acting. The matched IOC is the question, not the answer.
 </Callout>
 
 ---
 
-<h2 id="indicator-matching">Indicator matching</h2>
+<a id="enrichment"></a>
+## Automated threat enrichment
 
-Indicator matching compares local telemetry (DNS queries, process <DefineTerm term="Hashes" display="hashes" />, outbound connections) against known IOCs from <DefineTerm term="Threat" display="threat" />-intel sources. Sources span commercial threat feeds, government advisories, ISACs, open-source databases, and internal reports.
+Automated enrichment attaches threat-intelligence context to events as they arrive, so the analyst opens an alert that already carries reputation, attribution, and infrastructure detail instead of spending the first minutes of triage on manual lookups.
 
-<div class="ioc-grid">
-  <div class="ioc-card">
-    <h3>🌐 Network indicators</h3>
-    <p>IP addresses, URLs, and domain names associated with malicious infrastructure (C2 servers, phishing sites, malware staging).</p>
+<div class="enrich-cols">
+  <div class="enrich-col">
+    <h3>Enrichment data types</h3>
+    <ul>
+      <li><strong>Reputation scores:</strong> trust ratings for IPs, domains, files, URLs.</li>
+      <li><strong>Threat-actor attribution:</strong> adversary groups associated with observed indicators.</li>
+      <li><strong>Malware classification:</strong> family, variant, and capability profiles.</li>
+      <li><strong>Contextual metadata:</strong> domain registration data (RDAP, formerly WHOIS), infrastructure details, certificate validation.</li>
+      <li><strong>Historical intelligence:</strong> previous indicator sightings and campaign activities.</li>
+    </ul>
   </div>
-  <div class="ioc-card">
-    <h3>📄 File indicators</h3>
-    <p>Cryptographic hashes (MD5/SHA256) identifying known malware payloads or tools.</p>
+  <div class="enrich-col">
+    <h3>Common enrichment services</h3>
+    <ul>
+      <li><strong>VirusTotal (Google):</strong> multi-engine file and URL reputation; the free community service remains, while enterprise access now runs through Google Threat Intelligence.</li>
+      <li><strong>abuse.ch (URLhaus, ThreatFox, MalwareBazaar):</strong> free community tracking of malware URLs, IOCs, and samples.</li>
+      <li><strong>urlscan.io:</strong> rendered-page snapshots and history for suspicious URLs.</li>
+      <li><strong>Shodan / Censys:</strong> internet-exposed services and scan history.</li>
+      <li><strong>GreyNoise:</strong> background-noise filtering and benign-activity identification.</li>
+      <li><strong>VPN and proxy attribution (e.g., Spur, IPinfo):</strong> is this sign-in IP a commercial VPN, Tor, or a residential proxy?</li>
+      <li><strong>Threat intelligence in Microsoft Defender (formerly Microsoft Defender Threat Intelligence / RiskIQ PassiveTotal):</strong> domain and IP infrastructure mapping. MDTI's convergence into the Defender portal and Microsoft Sentinel completed in August 2026, so it is no longer a standalone product.</li>
+      <li><strong>LevelBlue Open Threat Exchange (OTX, formerly AlienVault OTX):</strong> crowd-sourced threat indicators and community intel.</li>
+    </ul>
   </div>
-  <div class="ioc-card">
-    <h3>📧 Email indicators</h3>
-    <p>Suspicious senders, subject patterns, attachment signatures from known campaigns.</p>
-  </div>
-  <div class="ioc-card">
-    <h3>🧬 Behavioral indicators</h3>
-    <p>Specific system modifications: registry changes, scheduled tasks, mutex creation, or other distinctive patterns observed in known malware.</p>
+  <div class="enrich-col">
+    <h3>Implementation approaches</h3>
+    <ul>
+      <li><strong>Native tool integration:</strong> purpose-built connectors within SIEM/SOAR.</li>
+      <li><strong>API orchestration:</strong> custom scripts or middleware for intelligence aggregation.</li>
+      <li><strong>Intelligence platforms:</strong> dedicated TIP solutions with advanced enrichment.</li>
+      <li><strong>Inline enrichment:</strong> network tools that tag traffic with real-time threat context.</li>
+    </ul>
   </div>
 </div>
 
-### Indicator matching process
-
-The six steps below are the pipeline that stands up and maintains indicator matching, and most of it is CTI-team and detection-engineering work, not triage. The on-shift analyst lives at steps 04 and 05, querying newly published indicators against history and receiving the real-time matches as alerts, and contributes to step 06 every time a close records whether a match was real. The rest is here so the analyst knows what the matches they consume rest on.
-
-<div class="ti-process">
-  <div class="ti-process__step">
-    <span class="ti-process__num">01</span>
-    <div>
-      <h4>Ingestion</h4>
-      <p>Collect and normalize indicators from diverse sources into structured formats optimized for automated matching.</p>
-    </div>
-  </div>
-  <div class="ti-process__step">
-    <span class="ti-process__num">02</span>
-    <div>
-      <h4>Validation</h4>
-      <p>Evaluate indicator quality, relevance, and reliability before operational deployment.</p>
-    </div>
-  </div>
-  <div class="ti-process__step">
-    <span class="ti-process__num">03</span>
-    <div>
-      <h4>Integration</h4>
-      <p>Deploy matching capabilities across SIEM, EDR, NDR, and proxy systems.</p>
-    </div>
-  </div>
-  <div class="ti-process__step">
-    <span class="ti-process__num">04</span>
-    <div>
-      <h4>Retroactive hunting</h4>
-      <p>Analyze historical data to uncover previously undetected compromises using newly acquired indicators.</p>
-    </div>
-  </div>
-  <div class="ti-process__step">
-    <span class="ti-process__num">05</span>
-    <div>
-      <h4>Real-time monitoring</h4>
-      <p>Implement alerting mechanisms for immediate detection of indicator matches in ongoing activity.</p>
-    </div>
-  </div>
-  <div class="ti-process__step">
-    <span class="ti-process__num">06</span>
-    <div>
-      <h4>Feedback</h4>
-      <p>Systematically document true and false-positives to continuously refine intelligence quality.</p>
-    </div>
-  </div>
-</div>
-
-<Callout variant="warn" title="The limits of indicator matching">
-Indicator matching is fundamentally reactive and depends on current, verified <DefineTerm term="Intelligence" display="intelligence" />. Advanced adversaries deliberately employ techniques like <DefineTerm term="Domain" display="domain" /> rotation, <DefineTerm term="Fileless Malware" display="fileless malware" />, and living-off-the-land tactics to circumvent <DefineTerm term="Signature-Based Detection" display="signature-based detection" />. Indicator matching is necessary; it is not sufficient. Pair it with behavioral analysis and TTP-based hunting for defensive depth.
+<Callout variant="warn" title="Enrichment without leaking">
+Look up the hash before uploading a file. Anything submitted to a public multiscanner or public sandbox is retrievable by its subscribers, including the attacker watching for their own samples. Never upload documents that may contain internal or customer data; use a private sandbox. Prefer passive sources (passive DNS, scan history from Shodan, Censys or urlscan) to visiting or probing attacker infrastructure from corporate IP space, which can tip off the operator. Honor TLP markings: TLP:RED and TLP:AMBER+STRICT intel stays out of broadly visible tickets and third-party tools.
 </Callout>
 
 ---
 
-<h2 id="attribution">Adversary attribution</h2>
+<a id="attribution"></a>
+## Adversary attribution
 
-Adversary attribution is the methodical process of connecting observed <DefineTerm term="Attack Patterns" display="attack patterns" /> to specific threat actors, groups, or campaigns. The analysis integrates behavioral signatures, <DefineTerm term="Infrastructure" display="infrastructure" /> reuse, <DefineTerm term="Malware" display="malware" /> family characteristics, and documented TTPs from authoritative threat-intel sources such as Mandiant, CrowdStrike, <DefineTerm term="Recorded Future" />, and the MITRE ATT&amp;CK framework.
+Adversary attribution is the methodical process of connecting observed <DefineTerm term="Attack Patterns" display="attack patterns" /> to specific threat actors, groups, or campaigns. The analysis integrates behavioral signatures, <DefineTerm term="Infrastructure" display="infrastructure" /> reuse, <DefineTerm term="Malware" display="malware" /> family characteristics, and documented TTPs from vendor threat-intel reporting (Google Threat Intelligence Group, which absorbed Mandiant Intelligence; CrowdStrike; Microsoft Threat Intelligence; <DefineTerm term="Recorded Future" />), government advisories (CISA, NCSC), and MITRE ATT&amp;CK group pages, which cross-reference vendor reporting. Each vendor names and bounds clusters from its own telemetry, so no single source is authoritative on its own.
 
 <div class="attribution-grid">
   <div class="attribution-card attribution-card--tech">
@@ -163,22 +169,117 @@ Attribution claims use the same LOW / MEDIUM / HIGH scale as every other claim i
 
 <Reveal summary="Attribution challenges to recognize" variant="warn">
 
-- **False flag operations.** Sophisticated adversaries deliberately impersonate other threat actors to obscure responsibility and complicate attribution.
-- **Shared tooling.** Widespread use of common malware families or publicly available frameworks creates attribution ambiguity.
-- **Evolution of TTPs.** Actors change their techniques over time, so a profile built on last year's tradecraft can misattribute this year's intrusion.
-- **Confirmation bias.** Analytical tendency to disproportionately value evidence supporting initial attribution hypotheses while discounting contradictory indicators.
+- **False flag operations:** sophisticated adversaries deliberately impersonate other threat actors to obscure responsibility and complicate attribution.
+- **Shared tooling:** widespread use of common malware families or publicly available frameworks creates attribution ambiguity.
+- **Name fragmentation:** each vendor names clusters from its own telemetry, and the boundaries differ. APT29 is Midnight Blizzard to Microsoft, Cozy Bear to CrowdStrike and, since July 2026, ICE RELIC to Google. Record the ATT&amp;CK group ID (G0016) next to whichever name the source used, and do not treat two vendors' names as proof of the same actor.
+- **Evolution of TTPs:** actors change their techniques over time, so a profile built on last year's tradecraft can misattribute this year's intrusion.
+- **Confirmation bias:** the analytical tendency to overvalue evidence that supports the first attribution hypothesis while discounting contradictory indicators.
 
-Attribution at low or medium confidence should be labeled as such in the case file. Promoting low-confidence attribution to operational decisions is the most common attribution failure mode.
+Attribution at low or medium confidence should be labeled as such in the case file. Promoting low-confidence attribution into operational decisions is a common and costly attribution failure: the decision survives long after the caveat is forgotten.
 
 </Reveal>
 
+### Actor names across vendors
+
+The same activity carries a different name in each vendor's reporting. Record the ATT&amp;CK group ID next to whichever name your source used, so two reports can be compared on one key.
+
+| ATT&amp;CK group | Microsoft | CrowdStrike | Google (since July 2026) |
+|---|---|---|---|
+| APT29 (G0016) | Midnight Blizzard | Cozy Bear | ICE RELIC |
+| APT28 (G0007) | Forest Blizzard | Fancy Bear | LAKE RELIC |
+| Sandworm Team (G0034) | Seashell Blizzard | Voodoo Bear | SANDWORM RELIC (formerly APT44) |
+| FIN7 (G0046) | Sangria Tempest | Carbon Spider | WILD COMET |
+
+A crosswalk row means the vendors track overlapping activity, not that their clusters are identical: each vendor draws the boundary from its own telemetry. Treat a match across vendors' names as one more attribution input, not as confirmation.
+
 ---
 
-<h2 id="ttp-hunting">Threat hunting with TTPs</h2>
+## The program behind the intel
+
+The rest of this page is the machinery that produces what reaches the triage desk: the indicator pipeline, TTP-based hunting, dark-web collection, and the intelligence tiers. Most of it is CTI-team and detection-engineering work. It is here so the analyst knows what the matches and labels they consume rest on.
+
+## Indicator matching
+
+Indicator matching compares local telemetry (DNS queries, process <DefineTerm term="Hash" display="hashes" />, outbound connections) against known IOCs from threat-intel sources. Sources span commercial threat feeds, government advisories, ISACs, open-source databases, and internal reports.
+
+<div class="ioc-grid">
+  <div class="ioc-card">
+    <h3>Network indicators</h3>
+    <p>IP addresses, URLs, and domain names associated with malicious infrastructure (C2 servers, phishing sites, malware staging).</p>
+  </div>
+  <div class="ioc-card">
+    <h3>File indicators</h3>
+    <p>Cryptographic hashes (MD5/SHA256) identifying known malware payloads or tools.</p>
+  </div>
+  <div class="ioc-card">
+    <h3>Email indicators</h3>
+    <p>Suspicious senders, subject patterns, attachment signatures from known campaigns.</p>
+  </div>
+  <div class="ioc-card">
+    <h3>Host-based indicators</h3>
+    <p>Artifacts known malware leaves on a host: registry keys and values, scheduled-task or service names, mutex names, dropped file paths. These are still exact-match indicators; matching on behavior is the TTP-based hunting below.</p>
+  </div>
+</div>
+
+### Indicator matching process
+
+The six steps below are the pipeline that stands up and maintains indicator matching, and most of it is CTI-team and detection-engineering work, not triage. The on-shift analyst works at steps 04 and 05 (querying newly published indicators against history and receiving real-time matches as alerts) and contributes to step 06 every time a closed case records whether a match was real. The rest is here so the analyst knows what the matches they consume rest on.
+
+<div class="ti-process">
+  <div class="ti-process__step">
+    <span class="ti-process__num">01</span>
+    <div>
+      <h4>Ingestion</h4>
+      <p>Collect and normalize indicators into structured formats (<DefineTerm term="Structured Threat Information Expression (STIX)" display="STIX" /> 2.1 objects over TAXII 2.1 feeds is the common standard; MISP and OpenCTI are widely used open-source platforms), preserving each item's source and TLP marking (FIRST TLP 2.0: RED, AMBER+STRICT, AMBER, GREEN, CLEAR).</p>
+    </div>
+  </div>
+  <div class="ti-process__step">
+    <span class="ti-process__num">02</span>
+    <div>
+      <h4>Validation</h4>
+      <p>Evaluate indicator quality, relevance, and reliability before operational deployment.</p>
+    </div>
+  </div>
+  <div class="ti-process__step">
+    <span class="ti-process__num">03</span>
+    <div>
+      <h4>Integration</h4>
+      <p>Deploy matching capabilities across SIEM, EDR, NDR, and proxy systems.</p>
+    </div>
+  </div>
+  <div class="ti-process__step">
+    <span class="ti-process__num">04</span>
+    <div>
+      <h4>Retroactive hunting</h4>
+      <p>Analyze historical data to uncover previously undetected compromises using newly acquired indicators.</p>
+    </div>
+  </div>
+  <div class="ti-process__step">
+    <span class="ti-process__num">05</span>
+    <div>
+      <h4>Real-time monitoring</h4>
+      <p>Implement alerting mechanisms for immediate detection of indicator matches in ongoing activity.</p>
+    </div>
+  </div>
+  <div class="ti-process__step">
+    <span class="ti-process__num">06</span>
+    <div>
+      <h4>Feedback</h4>
+      <p>Systematically document true and false positives to continuously refine intelligence quality.</p>
+    </div>
+  </div>
+</div>
+
+Know the limits of what this pipeline delivers. Indicator matching is reactive and only as good as current, verified intelligence. Adversaries rotate domains and use <DefineTerm term="Fileless Malware" display="fileless malware" /> and living-off-the-land tradecraft precisely to slip past <DefineTerm term="Signature-Based Detection" display="signature-based detection" />. Matching is necessary, not sufficient: pair it with behavioral analysis and TTP-based hunting.
+
+---
+
+<a id="ttp-hunting"></a>
+## Threat hunting with TTPs
 
 Proactive <DefineTerm term="Threat Hunting" display="threat hunting" /> based on known Tactics, Techniques, and Procedures uncovers sophisticated threats that have evaded traditional detection. Unlike IOC matching, which relies on known <DefineTerm term="Artifacts" display="artifacts" />, TTP-based hunting focuses on adversary behavior patterns regardless of the particular tools employed.
 
-By transforming TTPs into actionable hunt hypotheses (for example, "Identify <DefineTerm term="PowerShell" /> <DefineTerm term="Execution" display="execution" /> originating from non-administrative accounts" or "Detect scheduled tasks created within temporary directories") security teams can methodically query logs, EDR telemetry, or SIEM platforms for evidence of stealthy or emerging attacks.
+By turning TTPs into testable hunt hypotheses (for example, "an adversary with a foothold is launching encoded <DefineTerm term="PowerShell" /> from Office applications: look for winword.exe or excel.exe spawning powershell.exe with -enc", or "an adversary is persisting with scheduled tasks whose action runs a binary from a user-writable temp path"), security teams can methodically query logs, EDR telemetry, or SIEM platforms for evidence of stealthy or emerging attacks. Note the shape: the hypothesis states what an adversary is doing and why it would show; the query is how you test it. Published hunting frameworks such as PEAK and TaHiTI formalize the same loop.
 
 <div class="hunt-grid">
   <div class="hunt-card">
@@ -199,7 +300,7 @@ By transforming TTPs into actionable hunt hypotheses (for example, "Identify <De
   <div class="hunt-card">
     <span class="hunt-card__num">04</span>
     <h3>Finding analysis</h3>
-    <p>Investigate initial results to eliminate false-positives and validate genuine security concerns.</p>
+    <p>Investigate initial results to eliminate false positives and validate genuine security concerns.</p>
   </div>
   <div class="hunt-card">
     <span class="hunt-card__num">05</span>
@@ -208,63 +309,28 @@ By transforming TTPs into actionable hunt hypotheses (for example, "Identify <De
   </div>
 </div>
 
-<Callout variant="info" title="Why TTPs outlast indicators">
-TTP-based hunting keeps working because behavior is expensive to change. An attacker can recompile malware or stand up new infrastructure in an afternoon, but abandoning a technique that works means retooling an entire operation. The techniques stay stable long after every indicator has rotated.
-</Callout>
+### Why TTPs outlast indicators: the Pyramid of Pain
+
+TTP-based hunting keeps working because behavior is expensive to change. David J. Bianco's Pyramid of Pain (2013) ranks indicators by how much it costs the adversary when defenders deny them: hash values (trivial), IP addresses, domain names, network and host artifacts, tools, and TTPs (tough). An attacker can recompile malware or stand up new infrastructure in an afternoon, but abandoning a technique that works means retooling an entire operation. The techniques stay stable long after every indicator has rotated.
 
 ---
 
-<h2 id="enrichment">Automated threat enrichment</h2>
+<a id="dark-web"></a>
+## Dark web and underground monitoring
 
-Automated enrichment attaches threat-intelligence context to events as they arrive, so the analyst opens an alert that already carries reputation, attribution, and infrastructure detail instead of spending the first minutes of triage on manual lookups.
-
-<div class="enrich-cols">
-  <div class="enrich-col">
-    <h3>Enrichment data types</h3>
-    <ul>
-      <li><strong>Reputation scores.</strong> Trust ratings for IPs, domains, files, URLs.</li>
-      <li><strong>Threat-actor attribution.</strong> Adversary groups associated with observed indicators.</li>
-      <li><strong>Malware classification.</strong> Family, variant, and capability profiles.</li>
-      <li><strong>Contextual metadata.</strong> WHOIS, infrastructure details, certificate validation.</li>
-      <li><strong>Historical intelligence.</strong> Previous indicator sightings and campaign activities.</li>
-    </ul>
-  </div>
-  <div class="enrich-col">
-    <h3>Common enrichment services</h3>
-    <ul>
-      <li><strong>VirusTotal.</strong> Multi-engine file and URL reputation.</li>
-      <li><strong>Shodan / Censys.</strong> Internet-exposed services and vulnerability intel.</li>
-      <li><strong>GreyNoise.</strong> Background-noise filtering and benign-activity identification.</li>
-      <li><strong>Microsoft Defender Threat Intelligence (MDTI, formerly RiskIQ / PassiveTotal).</strong> Domain and IP infrastructure mapping. Retiring as a standalone product in August 2026; the capabilities fold into Microsoft Defender XDR and Sentinel.</li>
-      <li><strong>LevelBlue Open Threat Exchange (OTX, formerly AlienVault OTX).</strong> Crowd-sourced threat indicators and community intel.</li>
-    </ul>
-  </div>
-  <div class="enrich-col">
-    <h3>Implementation approaches</h3>
-    <ul>
-      <li><strong>Native tool integration.</strong> Purpose-built connectors within SIEM/SOAR.</li>
-      <li><strong>API orchestration.</strong> Custom scripts or middleware for intelligence aggregation.</li>
-      <li><strong>Intelligence platforms.</strong> Dedicated TIP solutions with advanced enrichment.</li>
-      <li><strong>Inline enrichment.</strong> Network tools that tag traffic with real-time threat context.</li>
-    </ul>
-  </div>
-</div>
-
----
-
-<h2 id="dark-web">Dark web and underground monitoring</h2>
-
-Dark web surveillance can detect exposed credentials, breach preparations, targeted attack discussions, <DefineTerm term="Exploit" display="exploit" /> development, and brand impersonation. This is a program capability, not a triage activity: specialized vendors and dedicated threat-intel teams do the monitoring, using automated scraping plus human intelligence, and the collection challenges below are theirs to solve. What reaches the triage analyst is the output, a credential-exposure alert in the queue or an enrichment note on a case, and the reason to understand the collection is to weigh that output: where it came from, how noisy the space is, and why it arrives with a confidence label rather than as fact.
+Dark web surveillance can detect exposed credentials, breach preparations, targeted attack discussions, <DefineTerm term="Exploit" display="exploit" /> development, and brand impersonation. This is a program capability, not a triage activity: specialized vendors and dedicated threat-intel teams do the monitoring, using automated scraping plus human intelligence, and the collection challenges below are theirs to solve. What reaches the triage analyst is the output: a credential-exposure alert in the queue or an enrichment note on a case. Understanding the collection matters because it tells you how to weigh that output (where it came from, how noisy the space is, and why it arrives with a confidence label rather than as fact).
 
 <div class="darkweb-grid">
   <div class="darkweb-card">
     <h3>Sources</h3>
     <ul>
-      <li><strong>Criminal forums.</strong> Boards for technique sharing, service sales, recruiting.</li>
-      <li><strong>Marketplaces.</strong> Underground markets for malware, exploits, credentials, stolen data.</li>
-      <li><strong>Leak sites.</strong> Where ransomware groups and hacktivists publish stolen data.</li>
-      <li><strong>Chat platforms.</strong> Encrypted messaging for private actor communications.</li>
-      <li><strong>Paste sites.</strong> Anonymous data dumps and credential leaks.</li>
+      <li><strong>Criminal forums:</strong> boards for technique sharing, service sales, recruiting.</li>
+      <li><strong>Marketplaces:</strong> underground markets for malware, exploits, credentials, stolen data.</li>
+      <li><strong>Infostealer logs:</strong> passwords, session cookies and tokens harvested from infected devices, sold in markets and Telegram channels. Today's dominant source of credential exposure (see <DefineTerm term="Infostealers" display="infostealers" />).</li>
+      <li><strong>Initial access brokers:</strong> listings that sell working access (VPN credentials, a session, a foothold) into named organizations.</li>
+      <li><strong>Leak sites:</strong> where ransomware groups and hacktivists publish stolen data.</li>
+      <li><strong>Chat platforms:</strong> encrypted messaging for private actor communications.</li>
+      <li><strong>Paste sites:</strong> anonymous data dumps and credential leaks.</li>
     </ul>
   </div>
   <div class="darkweb-card">
@@ -288,13 +354,17 @@ Dark web surveillance can detect exposed credentials, breach preparations, targe
   <div class="darkweb-card">
     <h3>Use cases</h3>
     <ul>
-      <li>Credential exposure monitoring and forced resets.</li>
+      <li>Credential exposure: reset the password, revoke active sessions and refresh tokens (a stolen session cookie can outlive a password reset), and review MFA methods, then find the infected device the log came from.</li>
       <li>Early vulnerability patching based on exploit chatter.</li>
       <li>Brand protection and impersonation detection.</li>
-      <li>Insider threat identification via data leakage.</li>
+      <li>Spotting leaked internal data that points to an insider or a compromised account.</li>
     </ul>
   </div>
 </div>
+
+<Callout variant="info" title="When a sign-in has no phishing event behind it">
+A sign-in or session with no phishing event behind it often traces to a stealer log from a personal or contractor device, so check stealer-log feeds for the user and the domain. Attacker traffic now routinely comes through residential proxies on consumer ISPs, so a clean IP reputation does not mean benign.
+</Callout>
 
 ---
 
@@ -302,375 +372,63 @@ Dark web surveillance can detect exposed credentials, breach preparations, targe
 
 Intelligence operates across three tiers, each serving distinct purposes and distinct audiences. Triage runs almost entirely on the tactical tier; the operational tier serves threat hunters and detection engineers between cases; the strategic tier is program material for leadership and architects. The table is here so the analyst can place any piece of intel that crosses their desk, not because a triage case calls for a geopolitical briefing.
 
-<div class="tier-table">
-  <div class="tier-table__row tier-table__head">
-    <div></div>
-    <div>Tactical</div>
-    <div>Operational</div>
-    <div>Strategic</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Time horizon</div>
-    <div>Hours to days</div>
-    <div>Weeks to months</div>
-    <div>Months to years</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Primary users</div>
-    <div>SOC analysts, IR responders</div>
-    <div>Threat hunters, detection eng.</div>
-    <div>Leadership, architects</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Format</div>
-    <div>Machine-readable indicators</div>
-    <div>Behavioral analytics, TTP docs</div>
-    <div>Reports, briefings, risk assessments</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Measurement</div>
-    <div>Detection effectiveness, FP rate</div>
-    <div>Campaign coverage, TTP detection</div>
-    <div>Risk reduction, strategic alignment</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Update frequency</div>
-    <div>Continuous, automated</div>
-    <div>Regular, semi-automated</div>
-    <div>Periodic, manually curated</div>
-  </div>
-  <div class="tier-table__row">
-    <div class="tier-table__label">Example sources</div>
-    <div>OSINT feeds, TIP, vendor alerts</div>
-    <div>Campaign analysis, malware research</div>
-    <div>Industry reports, geopolitical analysis</div>
-  </div>
+<div class="tier-table-wrap">
+  <table class="tier-table">
+    <thead>
+      <tr>
+        <td></td>
+        <th scope="col">Tactical</th>
+        <th scope="col">Operational</th>
+        <th scope="col">Strategic</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">Time horizon</th>
+        <td>Hours to days</td>
+        <td>Weeks to months</td>
+        <td>Months to years</td>
+      </tr>
+      <tr>
+        <th scope="row">Primary users</th>
+        <td>SOC analysts, IR responders</td>
+        <td>Threat hunters, detection eng.</td>
+        <td>Leadership, architects</td>
+      </tr>
+      <tr>
+        <th scope="row">Format</th>
+        <td>Machine-readable indicators</td>
+        <td>Behavioral analytics, TTP docs</td>
+        <td>Reports, briefings, risk assessments</td>
+      </tr>
+      <tr>
+        <th scope="row">Measurement</th>
+        <td>Detection effectiveness, false-positive rate</td>
+        <td>Campaign coverage, TTP detection</td>
+        <td>Risk reduction, strategic alignment</td>
+      </tr>
+      <tr>
+        <th scope="row">Update frequency</th>
+        <td>Continuous, automated</td>
+        <td>Regular, semi-automated</td>
+        <td>Periodic, manually curated</td>
+      </tr>
+      <tr>
+        <th scope="row">Example sources</th>
+        <td>OSINT and commercial indicator feeds (often delivered through a TIP), vendor alerts</td>
+        <td>Campaign analysis, malware research</td>
+        <td>Industry reports, geopolitical analysis</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
-<Callout variant="info" title="Why the tiers matter">
-Tactical intel without operational context produces noise. Strategic intel without tactical depth produces strategy decks no one can operationalize. The methodology asks the SOC to use all three: tactical for triage, operational for hunting, strategic for the program-level decisions about what to detect and what to defend.
-</Callout>
+Some models split a fourth, technical tier for raw IOCs; here it is folded into tactical.
 
----
-
-## Validation and confidence
-
-Not all intel is equal. Before acting on a piece of intelligence, validate it across four checks.
-
-<div class="validate-grid">
-  <div class="validate-card">
-    <h3>📡 Source reliability</h3>
-    <p>Where did this come from? Premium sources include government agencies, established vendors, vetted ISACs. Higher-risk sources include crowdsourced platforms lacking verification. Triangulation across multiple providers strengthens confidence.</p>
-  </div>
-  <div class="validate-card">
-    <h3>⏱️ Recency</h3>
-    <p>When was this observed? Indicators age out fast. Systematically retire obsolete indicators (formerly malicious infrastructure repurposed as benign cloud edges, for instance).</p>
-  </div>
-  <div class="validate-card">
-    <h3>🎯 Specificity</h3>
-    <p>Is the intel about the exact thing being investigated, or a loose analogy? "This domain is associated with phishing" is less actionable than "This specific subdomain pattern is used by this specific campaign."</p>
-  </div>
-  <div class="validate-card">
-    <h3>🔗 Corroboration</h3>
-    <p>Does any other source say the same thing? Two independent sources reporting the same indicator is a stronger signal than one source repeating itself.</p>
-  </div>
-</div>
-
-### One scale, not two
-
-Validated intel is labeled with the same LOW / MEDIUM / HIGH scale used for <a href="#attribution">attribution</a> above and defined once in the <a href="/docs/documentation/standards/#confidence">shared rubric</a>: the four checks map directly onto it (corroboration and source reliability drive the level; recency and specificity cap it). The only state this section adds is **unverified**: intel that has not yet been scored against the four checks. Unverified intel can generate hypotheses, but it never drives an operational decision until it has been validated and labeled.
-
-<Callout variant="info" title="Intel is a hypothesis, not a verdict">
-Threat intelligence tells the analyst what to look for. It does not tell them what they have. Validate intel-driven hypotheses against the actual telemetry before acting. The matched IOC is the question, not the answer.
-</Callout>
+The tiers depend on each other. Tactical intel without operational context produces noise, and strategic intel without tactical depth produces strategy decks no one can operationalize. The methodology asks the SOC to use all three: tactical for triage, operational for hunting, strategic for the program-level decisions about what to detect and what to defend.
 
 <KeyTakeaway>
-Threat intelligence makes Uncover faster when used as a hypothesis generator. It makes Uncover slower when treated as ground truth. The methodology asks the analyst to use intel deliberately, score it across source/recency/specificity/corroboration, and confirm with the environment's own evidence before acting.
+Threat intelligence makes Uncover faster when used as a hypothesis generator. It makes Uncover slower when treated as ground truth. The methodology asks the analyst to use intel deliberately, score it across source/recency/specificity/corroboration, enrich without leaking, and confirm with the environment's own evidence before acting.
 </KeyTakeaway>
 
 <ContinueCard current="uncover" nextHref="/docs/uncover/mitre/" nextLabel="MITRE ATT&CK" nextDescription="The shared vocabulary for adversary behavior. Tactics, techniques, procedures." ctaLabel="Read MITRE ATT&CK" />
-
-<style>
-{`
-.ti-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .ti-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .ti-grid { grid-template-columns: repeat(5, 1fr); } }
-
-.ti-card {
-  display: block;
-  padding: 1rem 1.2rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f97316;
-  border-radius: 0.55rem;
-  color: inherit;
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.ti-card:hover {
-  transform: translateY(-2px);
-  border-color: #f97316;
-  box-shadow: 0 12px 24px -14px rgba(249, 115, 22, 0.35);
-}
-.ti-card :is(h3, h4) { margin: 0 0 0.3rem 0; color: #fdba74; font-size: 0.93rem; }
-.ti-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.86rem; }
-
-.ioc-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .ioc-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .ioc-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.ioc-card {
-  padding: 1.15rem 1.3rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #f97316;
-  border-radius: 0.6rem;
-}
-.ioc-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #fdba74; font-size: 0.95rem; }
-.ioc-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.87rem; }
-
-.ti-process {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-.ti-process__step {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 1.3rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-left: 3px solid #f97316;
-  border-radius: 0.55rem;
-  align-items: flex-start;
-}
-.ti-process__num {
-  flex-shrink: 0;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #f97316, #c2410c);
-  color: white;
-  font-weight: 800;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ti-process__step h4 { margin: 0 0 0.25rem 0; color: var(--assured-text); font-size: 0.95rem; }
-.ti-process__step p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-.attribution-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 900px) { .attribution-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.attribution-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 3px solid var(--accent);
-  border-radius: 0.7rem;
-}
-.attribution-card--tech  { --accent: #38bdf8; }
-.attribution-card--behav { --accent: #c084fc; }
-.attribution-card--strat { --accent: #fbbf24; }
-.attribution-card :is(h3, h4) {
-  margin: 0 0 0.4rem 0;
-  color: var(--accent);
-  font-size: 1rem;
-}
-.attribution-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.confidence-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.7rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 900px) { .confidence-grid { grid-template-columns: repeat(3, 1fr); } }
-
-.confidence-card {
-  padding: 1.15rem 1.35rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-left: 3px solid var(--conf-color);
-  border-radius: 0.6rem;
-}
-.confidence-card--low  { --conf-color: #f59e0b; }
-.confidence-card--med  { --conf-color: #c084fc; }
-.confidence-card--high { --conf-color: #22c55e; }
-.confidence-card__tag {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.7);
-  color: var(--conf-color);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.5rem;
-}
-.confidence-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.hunt-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .hunt-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .hunt-grid { grid-template-columns: repeat(5, 1fr); } }
-
-.hunt-card {
-  position: relative;
-  padding: 1.15rem 1.3rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(249, 115, 22, 0.25);
-  border-radius: 0.6rem;
-}
-.hunt-card__num {
-  position: absolute;
-  top: 0.9rem;
-  right: 1.1rem;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: rgba(253, 186, 116, 0.7); /* >= 4.5:1 over the card at both gradient ends */
-}
-.hunt-card :is(h3, h4) { margin: 0 0 0.35rem 0; color: #fdba74; font-size: 0.93rem; }
-.hunt-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.85rem; }
-
-.enrich-cols {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 900px) { .enrich-cols { grid-template-columns: repeat(3, 1fr); } }
-
-.enrich-col {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-top: 3px solid var(--assured-accent-soft);
-  border-radius: 0.7rem;
-}
-.enrich-col :is(h3, h4) { margin: 0 0 0.55rem 0; color: var(--assured-accent-soft); font-size: 0.97rem; }
-.enrich-col ul {
-  margin: 0;
-  padding-left: 1.15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.87rem;
-}
-.enrich-col strong { color: var(--assured-text); }
-
-.darkweb-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 900px) { .darkweb-grid { grid-template-columns: 1fr 1fr; } }
-
-.darkweb-card {
-  padding: 1.25rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #a855f7;
-  border-radius: 0.7rem;
-}
-.darkweb-card :is(h3, h4) { margin: 0 0 0.55rem 0; color: #d8b4fe; font-size: 0.97rem; }
-.darkweb-card ul {
-  margin: 0;
-  padding-left: 1.15rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.87rem;
-}
-.darkweb-card strong { color: var(--assured-text); }
-
-.tier-table {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin: 1.5rem 0;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-  overflow: hidden;
-}
-.tier-table__row {
-  display: grid;
-  grid-template-columns: 1fr;
-  border-top: 1px solid rgba(148, 163, 184, 0.15);
-}
-.tier-table__row:first-child { border-top: 0; }
-@media (min-width: 900px) {
-  .tier-table__row {
-    grid-template-columns: 0.9fr 1fr 1fr 1fr;
-  }
-}
-.tier-table__row > div {
-  padding: 0.85rem 1.1rem;
-  color: var(--assured-text-muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-.tier-table__head > div {
-  background: rgba(249, 115, 22, 0.12);
-  color: #fdba74;
-  font-weight: 700;
-  font-size: 0.85rem;
-}
-.tier-table__label {
-  background: rgba(15, 23, 42, 0.6);
-  color: var(--assured-text) !important;
-  font-weight: 700;
-  font-size: 0.85rem !important;
-}
-
-.validate-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
-}
-@media (min-width: 768px)  { .validate-grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1100px) { .validate-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.validate-card {
-  padding: 1.15rem 1.3rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid #38bdf8;
-  border-radius: 0.6rem;
-}
-.validate-card :is(h3, h4) { margin: 0 0 0.4rem 0; color: #7dd3fc; font-size: 0.95rem; }
-.validate-card p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.ti-card h3, .ioc-card h3, .attribution-card h3, .hunt-card h3, .enrich-col h3, .darkweb-card h3, .validate-card h3 { font-weight: 600; line-height: inherit; }
-`}
-</style>

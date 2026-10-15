@@ -1,6 +1,7 @@
 ---
 title: "Documentation pitfalls"
 description: "The common ways documentation breaks down, and how to avoid them."
+techVerified: "2026-10-13"
 ---
 
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
@@ -10,34 +11,29 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/documentation.css";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarIndex="03" pillarTotal="03" chapterHref="/docs/documentation/" chapterLabel="Documentation" lede="Documentation does not usually fail at the moment of writing. It fails at the moments around it: when an analyst skips a step, fills the record after the fact, or treats the form as the work."/>
+<SubPageHero phase="documentation" lede="Documentation does not usually fail at the moment of writing. It fails at the moments around it: when an analyst skips a step, fills the record after the fact, or treats the form as the work."/>
 
-<PillNav chapter="documentation" label="Documentation chapter" items={[
-  { label: "Standards", href: "/docs/documentation/standards/", phase: "documentation" },
-  { label: "Templates", href: "/docs/documentation/templates/", phase: "documentation" },
-  { label: "Pitfalls", href: "/docs/documentation/pitfalls/", phase: "documentation" },
-]}/>
+<PillNav chapter="documentation" />
 
 ## Common failure modes
 
 <div class="pit-grid">
-  <div class="pit"><h3>🪄 Post-hoc rationalization</h3><p>Writing the record after the verdict and, without meaning to, writing the story that justifies it: uncertainty disappears, dead ends vanish, and the reasoning reads cleaner than it ran. The record becomes a defense brief instead of an investigation log. Fix: capture reasoning at decision time (the timeliness standard exists for this), and keep the dead ends in the record; they are evidence of rigor, not noise.</p></div>
-  <div class="pit"><h3>🔤 Inconsistent terminology</h3><p>Different analysts using varied terms for the same concepts. Creates confusion and complicates trend analysis. Fix: standardized security lexicon aligned with MITRE ATT&CK and consistent enforcement via templates and review.</p></div>
-  <div class="pit"><h3>🕰️ Delayed documentation</h3><p>Postponing until after the event is resolved. Leads to information loss, inaccurate timelines, and incomplete context. Fix: real-time documentation practices with regular checkpoints throughout the investigation.</p></div>
-  <div class="pit"><h3>📚 Excessive jargon</h3><p>Overuse of technical terminology without explanation limits the value to non-technical stakeholders. Fix: precision plus clear explanations for specialized terms, especially in executive summaries and business impact sections.</p></div>
-  <div class="pit"><h3>🧭 Missing context</h3><p>Focusing on technical details without business context or impact significance. Reduces strategic value. Fix: always connect technical findings to business risk, operational impact, and organizational priorities.</p></div>
-  <div class="pit"><h3>📭 Incomplete records</h3><p>Fields left blank, sections skipped, references not linked. The record exists but does not support future review. Often caused by writing after the case is closed.</p></div>
-  <div class="pit"><h3>🔗 Missing evidence chains</h3><p>The record states a conclusion but does not say which evidence supports it. The next reader cannot verify the reasoning without redoing the work.</p></div>
-  <div class="pit"><h3>🤐 Sanitization mistakes</h3><p>Records containing PII, regulated data, or sensitive operational detail that should not be in the documentation system. The record is complete and unusable for compliance reasons.</p></div>
-  <div class="pit"><h3>📜 Form over substance</h3><p>Long documentation that meets the standard but says nothing useful. Fields filled; value absent. The template was treated as the goal.</p></div>
+  <div class="pit"><h3>Post-hoc rationalization</h3><p>Writing the record after the verdict and, without meaning to, writing the story that justifies it: uncertainty disappears, dead ends vanish, and the reasoning reads cleaner than it ran. The record becomes a defense brief instead of an investigation log. Delayed documentation is the usual cause, and it also costs detail: timelines blur and context goes missing. Fix: capture reasoning at decision time (the timeliness standard exists for this), and keep the dead ends in the record; they are evidence of rigor, not noise.</p></div>
+  <div class="pit"><h3>Inconsistent terminology</h3><p>Different analysts using varied terms for the same concepts. Creates confusion and complicates trend analysis. Fix: the team's controlled vocabulary (the <a href="/docs/glossaries/clear/">C.L.E.A.R. glossary</a> is a starting point), MITRE ATT&CK for adversary behavior, VERIS for incident categorization, and the fixed two-axis verdict vocabulary, enforced through templates and review.</p></div>
+  <div class="pit"><h3>Missing negative findings</h3><p>Checks that found nothing go unrecorded. Negative results rule out attack vectors, establish the case's boundaries, and stop the next analyst from re-running the same queries. Fix: record each hypothesis tested and disproven, with what was examined, not just "nothing found."</p></div>
+  <div class="pit"><h3>Excessive jargon</h3><p>Overuse of technical terminology without explanation limits the value to non-technical stakeholders. Fix: precision plus clear explanations for specialized terms, especially in the decision header's bottom line and the business impact section.</p></div>
+  <div class="pit"><h3>Missing context</h3><p>Focusing on technical details without business context or impact significance. Reduces strategic value. Fix: always connect technical findings to business risk, operational impact, and organizational priorities.</p></div>
+  <div class="pit"><h3>Incomplete records</h3><p>Fields left blank, sections skipped, references not linked. The record exists but does not support future review. Often caused by writing after the case is closed. Fix: required fields validated before close.</p></div>
+  <div class="pit"><h3>Missing evidence chains</h3><p>The record states a conclusion but does not say which evidence supports it. The next reader cannot verify the reasoning without redoing the work. Fix: every claim cites its query, log ID, or artifact hash.</p></div>
+  <div class="pit"><h3>Sanitization mistakes</h3><p>Records that copy PII, regulated data, or sensitive operational detail into places that do not need it: the narrative, the ticket title, the shared or training version. The record is complete and is now a data exposure. Blame language about the people involved is the same mistake in another form. Fix: keep raw evidence in the access-controlled evidence store, reference it from the narrative, share only sanitized derivatives, and write about people as the <a href="/docs/documentation/standards/#people">standard on writing about people</a> describes.</p></div>
+  <div class="pit"><h3>Form over substance</h3><p>Long documentation that meets the standard but says nothing useful. Fields filled; value absent. The template was treated as the goal. Fix: closure review checks rationale, not field count.</p></div>
 </div>
 
 <Reveal summary="Other pitfalls to recognize" variant="warn">
 
 **Ambiguous ownership.** Documentation quality suffers when responsibility is unclear. When it's not clear who should document what aspects of an investigation, critical information may be assumed to be someone else's responsibility and consequently omitted. The fix is clear documentation roles, whether via a dedicated scribe for major incidents (the established IR role whose only job is the record) or explicit assignment during routine event handling.
-
-**Failure to document negative findings.** Actions taken that revealed no evidence of compromise or attack progression. These negative results rule out potential attack vectors, establish incident boundaries, and prevent redundant investigation paths later. Documentation should explicitly state when key hypotheses were tested and disproven, not just when malicious activity was confirmed.
 
 **Wrong level of detail.** Overly verbose records consume excessive time to create and review. Overly brief records omit critical context. Documentation standards should provide clear guidance on expected depth for different event types and severity levels.
 
@@ -49,7 +45,7 @@ import DefineTerm from "@/components/assured/DefineTerm.astro";
 
 ## Incomplete records: the recurring failure
 
-The most common failure mode deserves its own treatment. Effective documentation during <DefineTerm term="Event Triage" display="event triage" /> is essential to maintain the integrity and continuity of the security investigation. Due to the urgency inherent in triage, key contextual information is often inadequately captured or delayed.
+The most common failure mode deserves its own treatment. <DefineTerm term="Event Triage" display="Triage" /> urgency is exactly when context goes uncaptured: the key contextual information is the first thing to be skipped or deferred.
 
 <div class="omission-grid">
   <div class="omission-col">
@@ -79,27 +75,9 @@ The most common failure mode deserves its own treatment. Effective documentation
 </div>
 
 <Callout variant="warn" title="The structural fix">
-Documentation must be explicitly integrated as a fundamental part of triage. Analysts should document key findings, justification for risk ratings, and decisions at defined milestones, post-initial review, pre-escalation, closure, using standardized templates or case-management fields. Five minutes of "this is what I just observed" notes at each milestone produces a better record than two hours of reconstruction at the end. The timeliness policy and automation that enforce this are covered under [Standards](/docs/documentation/standards/#timeliness).
+Documentation must be explicitly integrated as a fundamental part of triage. Analysts should document key findings, justification for risk ratings, and decisions at defined milestones (at minimum, after initial review, before escalation, and at closure; ideally at every phase transition, as Standards describes), using standardized templates or case-management fields. Five minutes of "this is what I just observed" notes at each milestone produces a better record than two hours of reconstruction at the end. The timeliness policy and automation that enforce this are covered under [Standards](/docs/documentation/standards/#timeliness).
 </Callout>
 
 <KeyTakeaway>The pitfalls are predictable. Catching them is mostly a matter of writing during the investigation, keeping evidence chains tight, and treating the form as scaffolding rather than the goal. The methodology's defense against documentation failures is structural: enforced templates, defined milestones, and quality-assurance review on a regular cadence. See **[the five downstream uses of documentation](/docs/documentation/#downstream-uses)** for what well-written records get used for after the case is closed.</KeyTakeaway>
 
 <ContinueCard current="documentation" nextHref="/docs/documentation/example/" nextLabel="Documentation working example" ctaLabel="See the example" />
-
-<style>{`
-.pit-grid { display: grid; grid-template-columns: 1fr; gap: 0.7rem; margin: 1.25rem 0; }
-@media (min-width: 768px) { .pit-grid { grid-template-columns: 1fr 1fr; } }
-.pit { padding: 1rem 1.25rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(6, 182, 212, 0.25); border-left: 3px solid #06b6d4; border-radius: 0.55rem; }
-.pit :is(h3, h4) { margin: 0 0 0.3rem 0; color: #67e8f9; font-size: 0.95rem; }
-.pit p { margin: 0; color: var(--assured-text-muted); line-height: 1.5; font-size: 0.9rem; }
-
-.omission-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.5rem 0; }
-@media (min-width: 768px) { .omission-grid { grid-template-columns: 1fr 1fr; } }
-.omission-col { padding: 1.25rem 1.4rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-top: 3px solid #f59e0b; border-radius: 0.7rem; }
-.omission-col :is(h3, h4) { margin: 0 0 0.55rem 0; color: #fbbf24; font-size: 0.97rem; }
-.omission-col ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: 0.4rem; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.88rem; }
-
-/* Converted card titles keep the h4-era weight and inherited line-height
-   (base h3 is 700 with line-height 1.3, which these cards never used). */
-.pit h3, .omission-col h3 { font-weight: 600; line-height: inherit; }
-`}</style>

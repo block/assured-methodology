@@ -5,13 +5,13 @@
  * (quizzes, flip cards, steppers, evasion demos, the phase diagram) print
  * their full linearized content rather than their screen-only resting
  * state. The /docs/reference page is designed around these rules to print
- * as a one-page card.
+ * as a card of at most two pages (Letter and A4, enforced by
+ * scripts/check-print-pages.mjs).
  *
- * Known limit: closed <details> (Reveal) content does not print when
- * JavaScript is unavailable; browsers do not render it. EvasionPattern
- * opens its own panels on beforeprint and ships a ::details-content
- * override for no-JS printing where supported. Open a Reveal before
- * printing if you want it on paper.
+ * Closed <details> panels (Reveal, EvasionPattern) are opened on
+ * beforeprint and restored afterwards (BaseLayout and EvasionPattern
+ * scripts). Without JavaScript, the ::details-content rule below prints
+ * them in browsers that support it; older browsers print the summary only.
  */
 
 @media print {
@@ -19,15 +19,25 @@
     margin: 1.5cm;
   }
 
+  /* No-JS fallback for closed disclosures (see the header comment). */
+  details::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+  }
+
   /* Chrome off */
   .header,
   .site-footer,
   .skip-link,
   .content-page__toc,
+  .content-page__toc-mobile,
+  .content-page__edit,
+  .content-page__meta,
   .content-page__breadcrumbs,
   .content-page__pager,
   .content-page__eggs,
   .pillnav,
+  .puzzle,
   .continue-card,
   .end-cta {
     display: none !important;
@@ -84,9 +94,35 @@
   [class*="step"],
   blockquote,
   pre,
-  table {
+  table,
+  /* Desk-card blocks on /docs/reference (src/styles/pages/root.css sizes
+     them for paper) and the shared rule and clock components it embeds. */
+  .ref-sign,
+  .ref-conf,
+  .ref-reg,
+  .ref-review,
+  .er-rule,
+  .er-criteria,
+  .er-clocks {
     break-inside: avoid;
   }
+
+  /* Letter chips: the reset above strips the deep phase fill and inks the
+     letter, which prints as a dark letter in an empty ring. Restore the
+     chip (white on the -deep token, the same pair used on screen). */
+  .assured-letter {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .assured-letter.assured-letter--alert { background: var(--assured-phase-alert-deep) !important; }
+  .assured-letter.assured-letter--subject { background: var(--assured-phase-subject-deep) !important; }
+  .assured-letter.assured-letter--scope { background: var(--assured-phase-scope-deep) !important; }
+  .assured-letter.assured-letter--uncover { background: var(--assured-phase-uncover-deep) !important; }
+  .assured-letter.assured-letter--risk { background: var(--assured-phase-risk-deep) !important; }
+  .assured-letter.assured-letter--escalation { background: var(--assured-phase-escalation-deep) !important; }
+  .assured-letter.assured-letter--documentation { background: var(--assured-phase-documentation-deep) !important; }
 
   h2,
   h3,
@@ -95,12 +131,26 @@
   }
 
   /* Worked-example steppers: on screen only the selected step is visible;
-     on paper show every step and drop the tab/arrow chrome. */
+     on paper show every step and drop the tab bar, "Show all steps" toggle,
+     arrows and prediction prompt. Inactive panels carry
+     hidden="until-found" (content-visibility: hidden, which display alone
+     does not undo) or plain [hidden] where until-found is unsupported
+     (the reset's layered !important display: none in global.css; see the
+     @layer note in the quiz section). */
   .stepper__panels [data-step] {
     display: block !important;
+    content-visibility: visible !important;
   }
+  @layer base {
+    .stepper__panels [data-step][hidden] {
+      display: block !important;
+      content-visibility: visible !important;
+    }
+  }
+  .stepper__bar,
   .stepper__tabs,
-  .stepper__controls {
+  .stepper__controls,
+  .stepper__predict {
     display: none !important;
   }
 
@@ -115,12 +165,17 @@
   .quiz-item {
     break-inside: avoid;
   }
-  /* @layer base: Tailwind's preflight hides [hidden] with an !important rule
-     inside @layer base; layered !important beats unlayered !important, so
-     this override must sit in the same layer (where its higher specificity
+  /* @layer base: global.css hides [hidden] with an !important rule inside
+     @layer base; layered !important beats unlayered !important, so this
+     override must sit in the same layer (where its higher specificity
      wins). */
   @layer base {
     .quiz-item__feedback[hidden] {
+      display: block !important;
+    }
+    /* Per-option rationale: on screen only the chosen option's note shows;
+       on paper print them all. */
+    .quiz-item__why[hidden] {
       display: block !important;
     }
   }
@@ -147,7 +202,8 @@
     transform: none !important;
     margin-top: 0.85rem;
   }
-  .flip-card__hint {
+  .flip-card__hint,
+  .flip-card__back-title {
     display: none !important;
   }
 
@@ -161,9 +217,9 @@
     opacity: 1 !important;
     transform: none !important;
   }
-  .anim-diagram .anim-feedback-path {
-    stroke-dashoffset: 0 !important;
-  }
+  /* The feedback loop's draw-in lives on its mask path
+     (.anim-feedback-reveal), which the component's own print rule
+     finishes; nothing to undo here. */
 
   /* Evasion-pattern demos: with animations off, elements authored at
      opacity 0 / alpha-0 fills / off-canvas positions would print blank.
@@ -174,8 +230,24 @@
   .demo--lolbins .lol-arrow-anim,
   .demo--lolbins .payload,
   .demo--timing .attacker,
-  .demo--fatigue .dot {
+  .demo--fatigue .dot,
+  .demo--identity .id-first,
+  .demo--identity .id-second,
+  .demo--identity .id-flag,
+  .demo--rmm .rmm-flag,
+  .demo--blind .blind-bar,
+  .demo--blind .blind-cut,
+  .demo--edr .edr-off {
     opacity: 1 !important;
+  }
+  /* Identity abuse prints the flagged second session; EDR tampering prints
+     the agent already silent (heartbeats and "running" labels hidden). */
+  .demo--identity .id-second__box {
+    stroke: #ef4444 !important;
+  }
+  .demo--edr .edr-beat,
+  .demo--edr .edr-on {
+    opacity: 0 !important;
   }
   .demo--fatigue .dot {
     transform: translateY(78px) !important;

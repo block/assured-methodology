@@ -10,6 +10,31 @@
  */
 import { onPageReady } from "@/lib/dom";
 
+/** True for targets where a keypress is typing, not a shortcut. */
+function isEditable(t) {
+  return (
+    !!t &&
+    (t.tagName === "INPUT" ||
+      t.tagName === "TEXTAREA" ||
+      t.tagName === "SELECT" ||
+      t.isContentEditable)
+  );
+}
+
+// The egg styles (toasts, flashes, confetti, the BREAKGLASS overlay) are
+// fetched only once a reader has turned eggs on, so the default-off site
+// never downloads them. The dynamic import resolves to one cached
+// stylesheet, so later calls cost nothing.
+let eggStyles = null;
+function loadEggStyles() {
+  if (!eggStyles) {
+    eggStyles = import("@/styles/chapter-eggs.css").catch(() => {
+      eggStyles = null;
+    });
+  }
+  return eggStyles;
+}
+
 function initChapterEggs() {
   if (typeof window === "undefined") return;
   // Tear down listeners registered by the previous page's invocation.
@@ -33,25 +58,30 @@ function initChapterEggs() {
     }
   };
 
-  // ---------- SC 2.1.4: persisted kill switch for keyboard eggs ----------
+  // ---------- SC 2.1.4: persisted opt-in switch for keyboard eggs ----------
   // Every egg keydown handler (here and in the glossary pages' own inline
-  // scripts) checks this flag, so the one toggle disables them site-wide.
+  // scripts) checks this flag, so the one toggle controls them site-wide.
+  // Eggs are off unless a reader stored "on": an unset value, any other
+  // value, or blocked storage all mean off.
   function eggsEnabled() {
     try {
-      return localStorage.getItem("assured-eggs") !== "off";
+      return localStorage.getItem("assured-eggs") === "on";
     } catch {
-      return true;
+      return false;
     }
   }
   const eggToggle = document.querySelector("[data-egg-toggle]");
   function renderEggToggle() {
     if (!eggToggle) return;
     const on = eggsEnabled();
+    // aria-pressed alone carries the state; the label stays constant (set
+    // once in ContentPageLayout) and CSS shows on/off from the attribute.
     eggToggle.setAttribute("aria-pressed", String(on));
-    eggToggle.textContent = on
-      ? "Keyboard easter eggs: on"
-      : "Keyboard easter eggs: off";
   }
+  // Glossaries bring their own egg styles, so the chapter stylesheet is
+  // only needed elsewhere.
+  const path = window.location.pathname;
+  const onGlossary = path.includes("/docs/glossaries");
   if (eggToggle) {
     renderEggToggle();
     _reg(eggToggle, "click", () => {
@@ -59,13 +89,14 @@ function initChapterEggs() {
         localStorage.setItem("assured-eggs", eggsEnabled() ? "off" : "on");
       } catch {}
       renderEggToggle();
+      if (eggsEnabled() && !onGlossary) loadEggStyles();
     });
   }
 
   // The toggle must work on glossary pages too (they bind their own egg
   // keys), so it is wired above this early return.
-  const path = window.location.pathname;
-  if (path.includes("/docs/glossaries")) return;
+  if (onGlossary) return;
+  if (eggsEnabled()) loadEggStyles();
 
   // Vestibular safety: when reduced motion is on, effects that fling
   // particles across the viewport are skipped at spawn time (the CSS
@@ -74,6 +105,25 @@ function initChapterEggs() {
 
   const chapterMatch = path.match(/\/docs\/([a-z]+)/i);
   const chapter = chapterMatch ? chapterMatch[1].toLowerCase() : null;
+
+  // A leading emoji is decoration: wrap it in an aria-hidden span so a
+  // screen reader hears the message, not "police car light".
+  const LEADING_EMOJI =
+    /^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s+/u;
+  function withHiddenEmoji(text) {
+    const f = document.createDocumentFragment();
+    const m = text.match(LEADING_EMOJI);
+    if (m) {
+      const icon = document.createElement("span");
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = `${m[1]} `;
+      f.appendChild(icon);
+      f.appendChild(document.createTextNode(text.slice(m[0].length)));
+    } else {
+      f.appendChild(document.createTextNode(text));
+    }
+    return f;
+  }
 
   // ---------- Toast helper ----------
   // msg: string (treated as text) or Node (appended as-is). Never accepts an
@@ -90,7 +140,7 @@ function initChapterEggs() {
     document.body.appendChild(el);
     requestAnimationFrame(() => {
       if (typeof msg === "string") {
-        el.textContent = msg;
+        el.appendChild(withHiddenEmoji(msg));
       } else if (msg instanceof Node) {
         el.appendChild(msg);
       }
@@ -111,6 +161,8 @@ function initChapterEggs() {
         const e = document.createElement("em");
         e.textContent = p.em;
         f.appendChild(e);
+      } else if (f.childNodes.length === 0) {
+        f.appendChild(withHiddenEmoji(String(p)));
       } else {
         f.appendChild(document.createTextNode(String(p)));
       }
@@ -133,7 +185,7 @@ function initChapterEggs() {
   function alertRedAlert() {
     flash("alert", 2000);
     toast(
-      "🚨 RED ALERT, Tier-1 escalation simulated. Page back to bed.",
+      "🚨 RED ALERT: Tier-1 escalation simulated. Page back to bed.",
       "alert",
     );
   }
@@ -226,17 +278,20 @@ function initChapterEggs() {
     setTimeout(() => dice.remove(), 2300);
     let label;
     if (n === 20)
-      label = "🎲 NAT 20, auto-contain, write the post-mortem yourself.";
+      label = "🎲 NAT 20: auto-contain. Write the post-mortem yourself.";
     else if (n === 1)
-      label = "💀 NAT 1, the SIEM is on fire, the analyst is on PTO.";
-    else if (n >= 15) label = `🎲 ${n}, clean detection, clean response.`;
-    else if (n >= 8) label = `🎲 ${n}, workable. Document it and move on.`;
-    else label = `🎲 ${n}, gaps exist. Tune the rule.`;
+      label = "💀 NAT 1: the SIEM is on fire, the analyst is on PTO.";
+    else if (n >= 15) label = `🎲 ${n}: clean detection, clean response.`;
+    else if (n >= 8) label = `🎲 ${n}: workable. Document it and move on.`;
+    else label = `🎲 ${n}: gaps exist. Tune the rule.`;
     setTimeout(() => toast(label, "risk"), 1800);
   }
   function riskCrit() {
     flash("risk", 900);
-    toast("💥 CRITICAL, escalate now, document later, sleep never.", "risk");
+    toast(
+      "💥 CRITICAL: escalate now, document as you go, sleep never.",
+      "risk",
+    );
   }
 
   function escalateSiren() {
@@ -321,9 +376,12 @@ function initChapterEggs() {
     overlay.appendChild(svg);
     document.body.appendChild(overlay);
 
-    // Screen shake
-    document.body.classList.add("egg-shake");
-    setTimeout(() => document.body.classList.remove("egg-shake"), 550);
+    // Screen shake. On #main, not <body>: a transform on <body> makes it the
+    // containing block for position: fixed descendants, so the sticky
+    // header and the search dialog would detach and shake with the page.
+    const shakeTarget = document.getElementById("main") ?? document.body;
+    shakeTarget.classList.add("egg-shake");
+    setTimeout(() => shakeTarget.classList.remove("egg-shake"), 550);
 
     // Toast comes in after the cracks finish drawing
     setTimeout(
@@ -418,13 +476,9 @@ function initChapterEggs() {
 
   _reg(window, "keydown", (e) => {
     if (!eggsEnabled()) return;
-    // Ignore typing inside form fields so we don't hijack the search bar.
-    const t = e.target;
-    if (
-      t &&
-      (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)
-    )
-      return;
+    // Ignore typing inside form fields (so we don't hijack the search bar)
+    // and chorded shortcuts (Ctrl/Cmd/Alt + key belong to the browser).
+    if (isEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key.length !== 1) return;
     buffer = (buffer + e.key.toUpperCase()).slice(-maxLen);
     for (const k of keys) {
@@ -452,6 +506,7 @@ function initChapterEggs() {
   let kIdx = 0;
   _reg(window, "keydown", (e) => {
     if (!eggsEnabled()) return;
+    if (isEditable(e.target) || e.metaKey || e.ctrlKey || e.altKey) return;
     const expected = konami[kIdx];
     const got = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (got === expected) {

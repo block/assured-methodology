@@ -1,5 +1,6 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 export const collections = {
   docs: defineCollection({
@@ -23,6 +24,17 @@ export const collections = {
       // page has h2/h3 headings. Use for overview pages where the TOC adds an
       // asymmetric right-side gutter without providing navigational value.
       showToc: z.boolean().optional(),
+      // Compact label for pills, pager links and breadcrumbs. Navigation
+      // labels live in src/data/navigation.ts; this is for pages the
+      // navigation does not list, and documents the intended short form.
+      shortTitle: z.string().optional(),
+      // ISO date (YYYY-MM-DD) the page's product and vendor facts were last
+      // checked against current documentation. Rendered by the layout as
+      // "Technical details verified <date>".
+      techVerified: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "techVerified must be YYYY-MM-DD")
+        .optional(),
     }),
   }),
 };

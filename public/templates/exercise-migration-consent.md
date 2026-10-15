@@ -1,13 +1,23 @@
 # Exercise 2: The consent grant in the migration window
 
-<!-- ASSURED hands-on exercise, learner packet
-     (https://assured-methodology.vercel.app/docs/exercises).
-     Full arc, less guidance, 45-60 minutes. Write every answer before
-     opening the key; the key lives on the exercises page. -->
+<!-- ASSURED Methodology by Timothy Zilber, © Block, Inc., CC BY 4.0
+     (https://creativecommons.org/licenses/by/4.0/). Reuse and adapt freely
+     with attribution; note any changes you make.
+     ASSURED hands-on exercise, learner packet
+     (https://assured-methodology.vercel.app/docs/exercises). -->
+
+**Full arc · less guidance · 45-60 minutes.** Work every task in writing
+before you open the answer key. The key, with the traps planted in this
+packet and a scoring grid, is on the exercises page:
+https://assured-methodology.vercel.app/docs/exercises
+
+All names, addresses and organizations in this packet are fictional.
 
 ## Briefing
 
-Tuesday, 10:05 UTC. The queue hands you an identity alert.
+Tuesday, 10:05 UTC. The queue hands you an identity alert. Per the migration
+runbook, IT revokes the vendor app's grant at the end of each wave, so every
+wave starts with a fresh consent.
 
 ```
 IdP alert, 10:05:33 UTC
@@ -37,24 +47,24 @@ Change-management system, search result
 
 ## Tasks
 
-Fewer hints than Exercise 1, on purpose. The discipline being trained is
-verification.
+Same seven phases, fewer hints than Exercise 1, on purpose. The discipline
+being trained is verification.
 
-1. **Alert.** The rule fired on exactly what its logic describes. What kind
-   of verdict is still open, and what vocabulary names it?
+1. **Alert.** Did the rule do its job? What verdict type is still open, and
+   which C.L.E.A.R. glossary term names it?
 
 2. **Subject → Uncover.** The change ticket looks like it explains
    everything. List every claim in the ticket you can independently verify
    against the two log artifacts, and verify each one. Then list the checks
    the artifacts CANNOT satisfy, and where you would go for each.
 
-3. **Risk.** Write the verdict paragraph, including what stops this from
-   being a close-on-sight.
+3. **Risk.** Write the Risk assessment paragraph: impact, likelihood with its
+   confidence, the matrix cell and priority, and the recommended move.
+   Include what stops this from being a close-on-sight.
 
-4. **Escalation → Documentation.** There are two more migration waves
-   scheduled. What artifact should this close produce so waves 4 and 5 cost
-   five minutes instead of an hour, and which two fields in it must be
-   re-verified every wave rather than assumed?
-
-<!-- The answer key, with the traps planted in this packet, is on
-     https://assured-methodology.vercel.app/docs/exercises -->
+4. **Escalation decision → Documentation.** There are two more migration
+   waves scheduled. What artifact should this close produce so waves 4 and 5
+   start from a written verification checklist instead of from scratch, and
+   which two fields in it must be re-verified every wave rather than
+   assumed? (Check first: what is the lowest rung of the depth ladder this
+   subject can ever be worked at, and why?)

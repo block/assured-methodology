@@ -1,29 +1,35 @@
 ---
 import ChapterCard from "@/components/assured/ChapterCard.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
 import HeroPuzzle from "@/components/assured/HeroPuzzle.astro";
+import { phaseInfo } from "@/data/navigation";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
-const chapterStatus = {
-  alert: "live",
-  subject: "live",
-  scope: "live",
-  uncover: "live",
-  risk: "live",
-  escalation: "live",
-  documentation: "live",
-} as const;
+const arrowIcon = '<path d="M5 12h14"></path><path d="M13 5l7 7-7 7"></path>';
+
+// Lucide-style 24px stroke icons for the static feature cards (the same
+// shapes FlipCard uses, so the icon vocabulary stays one set).
+const featureIcons: Record<string, string> = {
+  clock:
+    '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  ladder:
+    '<path d="M8 3v18"/><path d="M16 3v18"/><path d="M8 8h8"/><path d="M8 13h8"/><path d="M8 18h8"/>',
+  repeat:
+    '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+};
 ---
 
 <BaseLayout
-  title="ASSURED: Triage with confidence"
-  description="ASSURED is a structured, repeatable methodology for security event triage. Turn raw alerts into clear decisions, fast."
+  title="ASSURED: a methodology for security event triage"
+  description="ASSURED is an open, versioned methodology for security event triage: a structured way to take an alert from firing to a documented close-or-escalate decision."
 >
   <main id="main">
   <!-- HERO -->
   <section class="home-hero">
     <div class="home-hero__inner">
-      <span class="home-hero__overline">A · S · S · U · R · E · D</span>
+      <span class="home-hero__overline">
+        <span aria-hidden="true">A · S · S · U · R · E · D</span>
+        <span class="home-visually-hidden">Alert, Subject, Scope, Uncover, Risk, Escalation decision, Documentation</span>
+      </span>
 
       <h1 class="home-hero__headline">
         Triage with confidence.
@@ -31,23 +37,25 @@ const chapterStatus = {
       </h1>
 
       <p class="home-hero__lede">
-        ASSURED is a structured, repeatable methodology for security event
-        triage. Each alert is its own puzzle, and the analyst's job is to
-        assemble just enough of the picture to know what they are looking at
-        and what to do next. Seven phases, three stages, one consistent
-        way to work.
+        ASSURED is a structured methodology designed for repeatable security
+        event triage. Each case, whether one alert or a group of related ones,
+        is its own puzzle, and the analyst's job is to assemble just enough of
+        the picture to know what they are looking at and what to do next.
+        Seven phases in three stages (Orient, Investigate, Resolve), one
+        consistent way to work, and a fast path for routine alerts.
       </p>
 
       <div class="home-hero__cta-row">
         <a href="/docs/intro/" class="assured-cta">
           Read the introduction
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 12h14"></path>
-            <path d="M13 5l7 7-7 7"></path>
-          </svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={arrowIcon} />
         </a>
         <a href="/docs/alert/" class="assured-cta assured-cta--ghost">
-          Jump to the Alert chapter
+          Start with Alert
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={arrowIcon} />
+        </a>
+        <a href="/docs/reference/" class="assured-cta assured-cta--ghost">
+          On shift? Open the quick reference
         </a>
       </div>
 
@@ -63,178 +71,348 @@ const chapterStatus = {
       <header class="home-section__head">
         <span class="home-section__overline">Why this exists</span>
         <h2 class="home-section__title">
-          Most frameworks tell you what to do <em>after</em> you already know
-          what you are looking at.
+          Incident-response frameworks map the whole lifecycle. ASSURED works
+          the first step, one case at a time.
         </h2>
         <p class="home-section__lede">
-          ASSURED is about the step before that. Event triage is a distinct
-          skill, separate from the broader incident response work it feeds
-          into, yet it is almost always learned informally on the job.
-          ASSURED makes that craft explicit: a method analysts can learn,
-          teach, and refine. It was written by Timothy Zilber, a security
-          engineer, out of years of mentoring analysts across exactly that
-          gap.
+          Event triage is a distinct skill, separate from the broader incident
+          response work it feeds into, yet it is often learned informally on
+          the job. Triage itself is long established: CERT/SEI's
+          incident-management process model names it as a process, and
+          FIRST's CSIRT Services Framework lists it as a function. ASSURED
+          makes the craft explicit as an open, versioned procedure analysts
+          can learn, teach, and refine. It was written by security engineer
+          Timothy Zilber, who learned triage through a supervised lateral-work
+          arrangement and now teaches ASSURED in a workplace lateral-work
+          program.
         </p>
-        <p class="home-section__hint">Tap any card to see the full picture.</p>
+        <p class="home-section__lede home-section__lede--follow">
+          See how ASSURED relates to DAIR, Investigation Theory, SEC450, NIST
+          SP 800-61r3 and others in <a href="/docs/positioning/">How ASSURED compares</a>.
+        </p>
       </header>
 
-      <div class="flip-grid">
-        <FlipCard icon="clock" title="A method for the alert-to-decision window" accent="teal">
-          NIST 800-61 and SANS PICERL describe a complete response once you
-          already have the picture, and MITRE ATT&CK catalogs what
-          adversaries do. ASSURED gives you a repeatable way to
-          <em>build</em> that picture, alert by alert, in the critical
-          window before an incident is declared.
-        </FlipCard>
+      <div class="feature-grid">
+        <article class="feature-card feature-card--teal">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={featureIcons.clock} />
+          </div>
+          <h3 class="feature-card__title">A method for the alert-to-decision window</h3>
+          <p>
+            NIST SP 800-61r3, SANS PICERL (preparation, identification,
+            containment, eradication, recovery, lessons learned), and the
+            Dynamic Approach to Incident Response (DAIR) taught in SANS SEC504
+            define the incident-response lifecycle and treat triage as one step
+            inside it, described at program level. MITRE ATT&CK catalogs
+            adversary behavior. ASSURED expands that triage step into a
+            repeatable per-case procedure: build the picture, case by case,
+            before an incident is declared.
+          </p>
+        </article>
 
-        <FlipCard icon="ladder" title="Built for mentees and seasoned analysts" accent="blue">
-          Every chapter pairs a concept with the questions a triage analyst
-          should ask and the artifacts they should leave behind. Junior
-          analysts get scaffolding to lean on while their instincts develop.
-          Senior analysts get a checklist that travels with the handoff.
-        </FlipCard>
+        <article class="feature-card feature-card--blue">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={featureIcons.ladder} />
+          </div>
+          <h3 class="feature-card__title">Built for mentees and seasoned analysts</h3>
+          <p>
+            Every chapter pairs a concept with the questions a triage analyst
+            should ask and the artifacts they should leave behind. Junior
+            analysts get scaffolding to lean on while their instincts develop.
+            Senior analysts get a checklist that travels with the handoff.
+          </p>
+        </article>
 
-        <FlipCard icon="repeat" title="Triage is not strictly linear" accent="green">
-          ASSURED's seven phases have a default order, but feedback loops
-          back to earlier phases are explicit. Risk findings send you back
-          to Uncover. Uncover surfaces new Subjects. The methodology
-          embraces that flow rather than pretending triage is an assembly
-          line.
-        </FlipCard>
+        <article class="feature-card feature-card--green">
+          <div class="feature-card__icon" aria-hidden="true">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" set:html={featureIcons.repeat} />
+          </div>
+          <h3 class="feature-card__title">Triage is not strictly linear</h3>
+          <p>
+            ASSURED's seven phases have a default order, but feedback loops
+            back to earlier phases are explicit. Risk findings send you back
+            to Uncover. Uncover surfaces new Subjects. A confirmed escalation
+            criterion exits from any phase (the escalation tripwire). The
+            methodology embraces that flow rather than pretending triage is an
+            assembly line.
+          </p>
+        </article>
       </div>
+
+      <p class="home-evidence">
+        <strong>Evidence status:</strong> practice-derived, taught in a
+        supervised workplace program and used daily on the author's own case
+        queue; not yet evaluated in a controlled or comparative study. See
+        <a href="/docs/development/">Development and evidence</a> for what
+        would count against it.
+      </p>
+    </div>
+  </section>
+
+  <!-- WORKED-EXAMPLE TEASER -->
+  <section class="home-section">
+    <div class="home-section__inner">
+      <header class="home-section__head">
+        <span class="home-section__overline">One case, seven phases</span>
+        <h2 class="home-section__title">A Cursor IDE alert that closes as a benign true positive</h2>
+        <p class="home-section__lede">
+          One of the three threaded cases the chapters work in full, compressed
+          to one line per phase.
+        </p>
+      </header>
+
+      <ol class="case-teaser">
+        <li class="case-teaser__row case-teaser__row--alert">
+          <span class="case-teaser__letter" aria-hidden="true">A</span>
+          <p><strong>Alert:</strong> at 14:03:11 UTC an endpoint detection and response (EDR) behavioral rule fires on a managed developer Mac: a helper process running without its sandbox spawns a child that opens an encrypted outbound socket.</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--subject">
+          <span class="case-teaser__letter" aria-hidden="true">S</span>
+          <p><strong>Subject:</strong> the frontend engineer, a standard user; the mobile device management (MDM) record shows Cursor's installed version and hash match the vendor release. The user's SSH keys reach the build environment, so the impact read is High.</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--scope">
+          <span class="case-teaser__letter" aria-hidden="true">S</span>
+          <p><strong>Scope:</strong> a primary window of 13:03 to 14:48, a forward watch to 18:03, one extension-layer check, and no regulatory clock triggered.</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--uncover">
+          <span class="case-teaser__letter" aria-hidden="true">U</span>
+          <p><strong>Uncover:</strong> the child ran a bundled indexing script from inside the signed app, every destination is on Cursor's published allowlist, the installed extensions and the one Model Context Protocol (MCP) server are approved and unchanged, the agent's commands trace to the user's prompt, and eleven other managed developer Macs show the same behavior.</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--risk">
+          <span class="case-teaser__letter" aria-hidden="true">R</span>
+          <p><strong>Risk:</strong> High impact, Low likelihood, High confidence: the High/Low cell, priority P3. Recommended move: keep working to the forward watch, then a documented close if it stays clean.</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--escalation">
+          <span class="case-teaser__letter" aria-hidden="true">E</span>
+          <p><strong>Escalation decision:</strong> the forward watch comes back clean, and the analyst records a documented close at 18:08. Verdict: true positive; activity authorized (benign true positive).</p>
+        </li>
+        <li class="case-teaser__row case-teaser__row--documentation">
+          <span class="case-teaser__letter" aria-hidden="true">D</span>
+          <p><strong>Documentation:</strong> the event report opens with the decision header, and detection engineering receives an enrichment request and a draft pattern entry. The rule itself stays unchanged: it fired on exactly what it describes.</p>
+        </li>
+      </ol>
+
+      <p class="case-teaser__more">
+        <a href="/docs/alert/example/">Follow the case from the Alert chapter</a>
+      </p>
     </div>
   </section>
 
   <!-- CHAPTERS GRID -->
-  <section class="home-section">
+  <section class="home-section home-section--alt">
     <div class="home-section__inner">
       <header class="home-section__head">
         <span class="home-section__overline">Explore the methodology</span>
-        <h2 class="home-section__title">Seven letters. Many questions. One method.</h2>
+        <h2 class="home-section__title">Seven letters. Three stages. One method.</h2>
         <p class="home-section__lede">
-          Each phase has an anchor question that frames the work, and a
-          structured set of supporting questions underneath. Read in order, or
-          jump to the phase you need.
+          Each phase has an anchor question that frames the work, shown under its
+          title, and a structured set of supporting questions
+          underneath. Read in order, or jump to the phase you need.
         </p>
       </header>
 
-      <div class="assured-phase-grid">
-        <ChapterCard
-          letter="A"
-          phase="alert"
-          title="Alert"
-          description="Understand detection logic, validate the signal, parse alert metadata into something an analyst can act on."
-          href="/docs/alert/"
-          status={chapterStatus.alert}
-          topics={[
-            "Detection mechanisms: signature, anomaly, rule, behavioral",
-            "Validation across technical, environmental, intelligence, and business dimensions",
-            "Parsing command lines, process trees, network activity, file system, schema",
-          ]}
-        />
+      <div class="stage-group" role="group" aria-labelledby="stage-orient">
+        <p class="stage-group__label" id="stage-orient">
+          <strong>Orient</strong> · A, S, S
+          <span class="stage-group__desc">Validate the signal, identify who is involved, and set the boundaries.</span>
+        </p>
+        <div class="assured-phase-grid">
+          <ChapterCard
+            letter="A"
+            phase="alert"
+            title="Alert"
+            question={phaseInfo("alert").question}
+            description="Understand the detection logic, validate the signal, and parse the alert into something an analyst can act on."
+            href="/docs/alert/"
+            topics={[
+              "Detection mechanisms: signature, anomaly, rule, behavioral",
+              "Validation: four checks (technical, environmental, intelligence, business)",
+              "Parsing: formats and normalization, command lines, process trees, network, file system, cloud and identity logs",
+            ]}
+          />
 
-        <ChapterCard
-          letter="S"
-          phase="subject"
-          title="Subject"
-          description="Identify the who. Any entity that authenticated or acted: user, robot account, cloud instance, cloud role, service."
-          href="/docs/subject/"
-          status={chapterStatus.subject}
-          topics={[
-            "The four dimensions: authentication, authorization, behavior, relationships",
-            "Entity types: users, endpoints, services, identifiers",
-            "Insider analysis and the Insider Threat Matrix",
-          ]}
-        />
+          <ChapterCard
+            letter="S"
+            phase="subject"
+            title="Subject"
+            question={phaseInfo("subject").question}
+            description="Identify every entity that authenticated or acted: human users, service accounts and other non-human identities (cloud roles, workloads, API keys, AI agents), endpoints, and network identifiers."
+            href="/docs/subject/"
+            topics={[
+              "The four dimensions: authentication, authorization, behavior, relationships",
+              "Entity types: user, service account, host or device, application or OAuth grant, session or token, resource, artifact, network identifier, threat",
+              "Insider analysis and the Insider Threat Matrix",
+            ]}
+          />
 
-        <ChapterCard
-          letter="S"
-          phase="scope"
-          title="Scope"
-          description="Decide where the lines are. Time windows, entities in play, regulatory boundaries. Without scope, investigations sprawl."
-          href="/docs/scope/"
-          status={chapterStatus.scope}
-          topics={[
-            "Regulatory requirements: GDPR, CCPA, HIPAA, PCI DSS, SOX",
-            "Time-based parameters and historical windows",
-            "Entity-based scope and dependency tracing",
-          ]}
-        />
+          <ChapterCard
+            letter="S"
+            phase="scope"
+            title="Scope"
+            question={phaseInfo("scope").question}
+            description="Set the time window, the entities in play, and the regulatory clocks that may start. Without scope, investigations sprawl."
+            href="/docs/scope/"
+            topics={[
+              "Regulatory clocks: GDPR, HIPAA, PCI DSS, SEC 8-K Item 1.05, state breach laws, CCPA/CPRA, SOX",
+              "Time-based parameters and historical windows",
+              "Entity-based scope and dependency tracing",
+            ]}
+          />
+        </div>
+      </div>
 
-        <ChapterCard
-          letter="U"
-          phase="uncover"
-          title="Uncover"
-          description="Pull the evidence. Correlate endpoint, network, identity, and cloud telemetry to find root cause."
-          href="/docs/uncover/"
-          status={chapterStatus.uncover}
-          topics={[
-            "Data sources for evidence gathering",
-            "Threat intelligence: tiers, validation, scoring",
-            "MITRE ATT&CK: tactics, techniques, procedures",
-          ]}
-        />
+      <div class="stage-group stage-group--pair" role="group" aria-labelledby="stage-investigate">
+        <p class="stage-group__label" id="stage-investigate">
+          <strong>Investigate</strong> · U, R
+          <span class="stage-group__desc">Gather the evidence, then judge how bad it is and how sure you are.</span>
+        </p>
+        <div class="assured-phase-grid">
+          <ChapterCard
+            letter="U"
+            phase="uncover"
+            title="Uncover"
+            question={phaseInfo("uncover").question}
+            description="Pull the evidence. Correlate endpoint, network, identity and cloud telemetry into a confidence-labeled timeline, just enough to support a verdict."
+            href="/docs/uncover/"
+            topics={[
+              "Data sources for evidence gathering",
+              "Threat intelligence: tiers, validation, scoring",
+              "MITRE ATT&CK: tactics, techniques, procedures",
+            ]}
+          />
 
-        <ChapterCard
-          letter="R"
-          phase="risk"
-          title="Risk"
-          description="Decide how bad. Asset criticality, attacker sophistication, business impact, likelihood. Risk turns evidence into priority."
-          href="/docs/risk/"
-          status={chapterStatus.risk}
-          topics={[
-            "Risk-based alert triage matrix",
-            "Impact, likelihood, and actor sophistication",
-            "The value of investigating a false positive",
-          ]}
-        />
+          <ChapterCard
+            letter="R"
+            phase="risk"
+            title="Risk"
+            question={phaseInfo("risk").question}
+            description="Rate impact and likelihood, record your confidence beside them, and read the priority (P1 to P4) off the matrix. Risk recommends the move; the Escalation decision makes it."
+            href="/docs/risk/"
+            topics={[
+              "Risk-based alert triage matrix",
+              "Impact, likelihood, confidence, and actor sophistication",
+              "What a benign close teaches",
+            ]}
+          />
+        </div>
+      </div>
 
-        <ChapterCard
-          letter="E"
-          phase="escalation"
-          title="Escalation"
-          description="Hand it off cleanly. The triage analyst's deliverable is the handoff packet: context, evidence, and a recommendation."
-          href="/docs/escalation/"
-          status={chapterStatus.escalation}
-          topics={[
-            "Criteria for escalation",
-            "Internal and external protocols",
-            "Event triage vs. incident response",
-          ]}
-        />
+      <div class="stage-group stage-group--pair" role="group" aria-labelledby="stage-resolve">
+        <p class="stage-group__label" id="stage-resolve">
+          <strong>Resolve</strong> · E, D
+          <span class="stage-group__desc">Make the close-or-escalate call, and leave a record someone else can replay.</span>
+        </p>
+        <div class="assured-phase-grid">
+          <ChapterCard
+            letter="E"
+            phase="escalation"
+            title="Escalation decision"
+            question={phaseInfo("escalation").question}
+            description="Make the call and record it. A documented close is a first-class verdict; a confirmed criterion or a P1 or P2 case escalates with a handoff packet the next tier can act on cold."
+            href="/docs/escalation/"
+            topics={[
+              "The documented close and the escalation criteria",
+              "Internal and external protocols",
+              "The handoff packet and the line between triage and incident response",
+            ]}
+          />
 
-        <ChapterCard
-          letter="D"
-          phase="documentation"
-          title="Documentation"
-          description="Close the loop. Decisions, evidence, and reasoning so the next analyst and the auditor can replay your thinking."
-          href="/docs/documentation/"
-          status={chapterStatus.documentation}
-          topics={[
-            "Standards for consistency",
-            "Templates for efficient recording",
-            "Documentation pitfalls and how to avoid them",
-          ]}
-        />
+          <ChapterCard
+            letter="D"
+            phase="documentation"
+            title="Documentation"
+            question={phaseInfo("documentation").question}
+            description="Produce the record the whole arc exists for: decisions, evidence, and reasoning an auditor or the next analyst can replay months later."
+            href="/docs/documentation/"
+            topics={[
+              "Standards and templates for consistent records",
+              "Documentation pitfalls and how to avoid them",
+              "Closure criteria and downstream uses",
+            ]}
+          />
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- CLOSING CTA -->
+  <!-- DEPTH LADDER -->
+  <section class="home-section">
+    <div class="home-section__inner">
+      <header class="home-section__head">
+        <span class="home-section__overline">The depth ladder</span>
+        <h2 class="home-section__title">Built for real queue volume</h2>
+        <p class="home-section__lede">
+          Not every case gets the full seven-phase arc. Depth is a decision
+          the analyst makes per case, revised only upward. Related alerts are
+          grouped into one case, and the case takes the level of its riskiest
+          member. The typical times below are the author's practitioner
+          estimates, not measured benchmarks.
+        </p>
+      </header>
+
+      <div class="ladder-strip">
+        <div class="ladder-strip__level">
+          <p class="ladder-strip__head"><strong>Level 0</strong> · Pattern close <span class="ladder-strip__time">5 minutes or less</span></p>
+          <p>A documented known-benign pattern, every discriminator checked and the eligibility gate passed, closed with a five-field record.</p>
+        </div>
+        <div class="ladder-strip__level">
+          <p class="ladder-strip__head"><strong>Level 1</strong> · Standard triage <span class="ladder-strip__time">about 15 to 45 minutes</span></p>
+          <p>No matching pattern but a bounded blast radius. Every phase still happens; several collapse into single moves.</p>
+        </div>
+        <div class="ladder-strip__level">
+          <p class="ladder-strip__head"><strong>Level 2</strong> · Full arc <span class="ladder-strip__time">about 25 to 80 minutes for a senior analyst</span></p>
+          <p>A crown-jewel subject, a privileged identity, regulated data plausibly accessed by the activity under review, or anything Level 1 could not resolve. The <a href="/docs/fast-path/#time-per-phase-by-experience-level">fast path</a> prices each phase by experience level.</p>
+        </div>
+      </div>
+
+      <p class="home-section__lede ladder-strip__note">
+        A confirmed escalation criterion escalates from any level (the
+        escalation tripwire). Depth and urgency are separate decisions.
+        <a href="/docs/fast-path/">Read the fast path</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- WHERE TO START -->
   <section class="home-section home-section--alt">
     <div class="home-section__inner home-closing">
-      <h2>Ready to begin?</h2>
+      <h2>Where to start</h2>
       <p>
         Read the introduction for the full picture, or jump straight into
-        Alert. The first piece of the puzzle.
+        Alert, the first piece of the puzzle. Or start from your role, or
+        <a href="/docs/start/">choose your path</a> through the whole site.
       </p>
-      <div class="home-closing__cta-row">
-        <a href="/docs/intro/" class="assured-cta">
-          Read the introduction
-        </a>
-        <a href="/docs/alert/" class="assured-cta assured-cta--ghost">
-          Start with Alert →
-        </a>
+
+      <div class="audience-grid">
+        <div class="audience-tile">
+          <h3>I'm an analyst</h3>
+          <ul>
+            <li><a href="/docs/intro/">Introduction to the ASSURED methodology</a></li>
+            <li><a href="/docs/fast-path/">The fast path: triage at volume</a></li>
+            <li><a href="/docs/reference/">The one-page reference</a></li>
+            <li><a href="/docs/glossaries/assured/">The glossaries</a></li>
+            <li><a href="/docs/start/#on-shift-now">On shift now: where to start</a></li>
+            <li><a href="/docs/field-reference/">The field reference</a></li>
+          </ul>
+        </div>
+        <div class="audience-tile">
+          <h3>I lead a security operations center</h3>
+          <ul>
+            <li><a href="/docs/adoption/">Adopting ASSURED in your SOC</a></li>
+            <li><a href="/docs/documentation/templates/">Documentation templates</a></li>
+            <li><a href="/docs/ai-triage/">AI-assisted triage</a></li>
+            <li><a href="/docs/positioning/">How ASSURED compares</a></li>
+            <li><a href="/docs/operate/">Everything for operating ASSURED</a></li>
+          </ul>
+        </div>
+        <div class="audience-tile">
+          <h3>I teach</h3>
+          <ul>
+            <li><a href="/docs/teaching/">Teaching ASSURED</a></li>
+            <li><a href="/docs/exercises/">Hands-on exercises</a></li>
+            <li><a href="/docs/teach/">Labs, the facilitator kit and more</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
@@ -272,6 +450,20 @@ const chapterStatus = {
     text-transform: uppercase;
     margin-bottom: 1.5rem;
     box-shadow: 0 6px 18px -10px rgba(20, 184, 166, 0.5);
+  }
+
+  /* Screen-reader-only text (the overline reads the phase names, not
+     letters and "dot" separators). */
+  .home-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .home-hero__headline {
@@ -365,26 +557,196 @@ const chapterStatus = {
     line-height: 1.65;
   }
 
-  .home-section__hint {
-    margin: 0.85rem auto 0;
-    font-size: 0.82rem;
-    color: var(--assured-accent-soft);
-    font-weight: 600;
-    letter-spacing: 0.04em;
+  .home-section__lede--follow {
+    margin-top: 0.85rem;
   }
 
-  /* Flip grid (for FlipCard rows) */
-  .flip-grid {
+  .home-section a:not(.assured-cta) {
+    color: var(--assured-accent-soft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* Static feature cards: the pitch is visible without interaction. */
+  .feature-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.25rem;
   }
 
   @media (min-width: 768px) {
-    .flip-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .feature-grid { grid-template-columns: 1fr 1fr 1fr; }
   }
 
-  /* Closing */
+  .feature-card {
+    --feature-accent: var(--assured-accent-soft);
+    padding: 1.5rem;
+    border-radius: 0.85rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-top: 3px solid var(--feature-accent);
+  }
+
+  .feature-card--blue { --feature-accent: var(--assured-phase-alert-soft); }
+  .feature-card--green { --feature-accent: var(--assured-phase-subject-soft); }
+
+  .feature-card__icon {
+    color: var(--feature-accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .feature-card__title {
+    font-size: 1.15rem;
+    color: var(--assured-text);
+    margin: 0 0 0.6rem 0;
+    line-height: 1.3;
+  }
+
+  .feature-card p {
+    color: var(--assured-text-muted);
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  .home-evidence {
+    max-width: 60ch;
+    margin: 2rem auto 0;
+    text-align: center;
+    color: var(--assured-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .home-evidence strong {
+    color: var(--assured-text);
+  }
+
+  /* Worked-example teaser */
+  .case-teaser {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 56rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .case-teaser__row {
+    --row-accent: var(--assured-accent-soft);
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0.75rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: 3px solid var(--row-accent);
+  }
+
+  .case-teaser__row--alert { --row-accent: var(--assured-phase-alert-soft); }
+  .case-teaser__row--subject { --row-accent: var(--assured-phase-subject-soft); }
+  .case-teaser__row--scope { --row-accent: var(--assured-phase-scope-soft); }
+  .case-teaser__row--uncover { --row-accent: var(--assured-phase-uncover-soft); }
+  .case-teaser__row--risk { --row-accent: var(--assured-phase-risk-soft); }
+  .case-teaser__row--escalation { --row-accent: var(--assured-phase-escalation-soft); }
+  .case-teaser__row--documentation { --row-accent: var(--assured-phase-documentation-soft); }
+
+  .case-teaser__letter {
+    flex: 0 0 auto;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--row-accent);
+    min-width: 1.25rem;
+  }
+
+  .case-teaser__row p {
+    margin: 0;
+    color: var(--assured-text-muted);
+    line-height: 1.6;
+  }
+
+  .case-teaser__row strong {
+    color: var(--assured-text);
+  }
+
+  .case-teaser__more {
+    text-align: center;
+    margin: 1.5rem 0 0;
+  }
+
+  /* Chapter grid grouped by stage (3 / 2 / 2) */
+  .stage-group + .stage-group {
+    margin-top: 2.25rem;
+  }
+
+  .stage-group__label {
+    margin: 0 0 1rem 0;
+    color: var(--assured-text-muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+  }
+
+  .stage-group__label strong {
+    color: var(--assured-text);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .stage-group__desc {
+    display: block;
+    margin-top: 0.25rem;
+    letter-spacing: normal;
+  }
+
+  @media (min-width: 1024px) {
+    .stage-group--pair .assured-phase-grid {
+      grid-template-columns: 1fr 1fr;
+      max-width: calc((100% - 2.5rem) * 2 / 3 + 1.25rem);
+    }
+  }
+
+  /* Depth ladder strip */
+  .ladder-strip {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .ladder-strip { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  .ladder-strip__level {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.85rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .ladder-strip__level p {
+    margin: 0;
+    color: var(--assured-text-muted);
+    line-height: 1.6;
+  }
+
+  .ladder-strip__level .ladder-strip__head {
+    color: var(--assured-text);
+    margin-bottom: 0.6rem;
+  }
+
+  .ladder-strip__time {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    color: var(--assured-accent-soft);
+  }
+
+  .ladder-strip__note {
+    margin-top: 1.75rem;
+    text-align: center;
+  }
+
+  /* Closing: where to start */
   .home-closing {
     text-align: center;
   }
@@ -395,16 +757,40 @@ const chapterStatus = {
     margin: 0 0 0.75rem 0;
   }
 
-  .home-closing p {
+  .home-closing > p {
     color: var(--assured-text-muted);
     max-width: 50ch;
     margin: 0 auto 1.75rem auto;
   }
 
-  .home-closing__cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    justify-content: center;
+  .audience-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    text-align: left;
+  }
+
+  @media (min-width: 768px) {
+    .audience-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  .audience-tile {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.85rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+  }
+
+  .audience-tile h3 {
+    font-size: 1.1rem;
+    color: var(--assured-text);
+    margin: 0 0 0.6rem 0;
+  }
+
+  .audience-tile ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--assured-text-muted);
+    line-height: 1.8;
   }
 </style>

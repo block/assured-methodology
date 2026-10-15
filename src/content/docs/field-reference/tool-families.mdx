@@ -1,0 +1,516 @@
+---
+title: "Tool families"
+description: "What SIEM, EDR, XDR, ITDR, network analysis, threat intelligence, deception, forensics, sandboxes, vulnerability scanners, SOAR, CSPM, CDR, data lakes and AI assistants can and cannot see in triage."
+techVerified: "2026-10-13"
+---
+
+import "@/styles/pages/field-reference.css";
+import Callout from "@/components/assured/Callout.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="uncover"
+  pillarIndex="Field reference"
+  chapterHref="/docs/uncover/tooling/"
+  chapterLabel="Uncover: Choosing tools"
+  lede="One entry per tool family: the question it answers, what it sees, and where it goes blind. Start from the question on the Choosing tools pillar; come here for the family detail."
+/>
+
+<PillNav section="/docs/field-reference/" phase="uncover" />
+
+## The fifteen families
+
+The Uncover phase touches fifteen major tool families. Each section opens with the question that family answers, which is the same question the <a href="/docs/uncover/tooling/#choosing">question-to-tool table</a> on the Choosing tools pillar routes to it. The <a href="/docs/glossaries/cat/">C.A.T. glossary</a> carries the vendor detail.
+
+<div class="tool-grid">
+  <a href="#siem" class="tool-card"><h3>SIEM</h3><p>Centralized log search and correlation. The investigation's primary query window.</p></a>
+  <a href="#edr" class="tool-card"><h3>EDR</h3><p>Process trees, command lines, on-host containment.</p></a>
+  <a href="#xdr" class="tool-card"><h3>XDR</h3><p>Vendor-stitched correlation across endpoint, identity, email, cloud.</p></a>
+  <a href="#itdr" class="tool-card"><h3>ITDR</h3><p>Attacks on the identity plane: directories, IdPs, tokens, sessions.</p></a>
+  <a href="#network" class="tool-card"><h3>Network analysis</h3><p>Wire-level observation. Catches what endpoint cannot.</p></a>
+  <a href="#ti" class="tool-card"><h3>Threat intelligence</h3><p>Enrichment and hypothesis generation.</p></a>
+  <a href="#deception" class="tool-card"><h3>Deception</h3><p>Anything that touches deception is suspicious by definition.</p></a>
+  <a href="#forensics" class="tool-card"><h3>Digital forensics</h3><p>Deep host analysis once a case has escalated.</p></a>
+  <a href="#sandbox" class="tool-card"><h3>Sandbox / detonation</h3><p>Run the suspicious thing safely and watch what it does.</p></a>
+  <a href="#vuln" class="tool-card"><h3>Vulnerability scanners</h3><p>What is exposed and what is patched.</p></a>
+  <a href="#soar" class="tool-card"><h3>SOAR</h3><p>Playbook execution and triage automation.</p></a>
+  <a href="#cspm" class="tool-card"><h3>CSPM</h3><p>Cloud misconfiguration and exposure visibility.</p></a>
+  <a href="#cdr" class="tool-card"><h3>CDR</h3><p>Runtime cloud detection: control-plane and workload activity, live.</p></a>
+  <a href="#lake" class="tool-card"><h3>Data lake</h3><p>Scalable retention and ML-friendly analytics.</p></a>
+  <a href="#ai" class="tool-card"><h3>AI assistants and agents</h3><p>Drafting, enrichment, and query generation, under the admission gate.</p></a>
+</div>
+
+---
+
+## SIEM
+
+The SIEM (Security Information and Event Management) answers "did this happen anywhere else?" It holds normalized events from across the <DefineTerm term="Infrastructure" display="infrastructure" /> and is where cross-source joins run, for real-time detection and retrospective investigation alike. For <DefineTerm term="Security Operations" display="security operations" />, it is the default query window.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#siem">SIEM, log pipelines and security data lakes</a>. Query languages and schemas (KQL with ASIM, SPL with CIM, ES|QL and EQL with ECS, YARA-L with UDM, SQL over OCSF): <a href="/docs/glossaries/cat/#query">query languages, rule formats and log schemas</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> SIEM: key capabilities</h3>
+    <ul>
+      <li><strong>Log collection and storage</strong> across firewalls, IDS/IPS, OS, auth services, cloud, applications.</li>
+      <li><strong>Data analysis and alerting</strong> via rule-based and behavioral analytics.</li>
+      <li><strong>Cross-source correlation</strong> exposes multi-stage attacks and coordinated activity.</li>
+      <li><strong>Reporting and dashboards</strong> for compliance, threat hunting, and operational monitoring.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> SIEM: common limitations</h3>
+    <ul>
+      <li><strong>Retention constraints</strong> bounded by licensing and infrastructure capacity.</li>
+      <li><strong>Coverage gaps</strong> when log sources are unsupported or misconfigured.</li>
+      <li><strong>Silent parser failures:</strong> a field the parser never filled returns zero rows that look exactly like a clean result; run a control query first.</li>
+      <li><strong>Ingest lag:</strong> forwarders batch and fall behind, so the newest events may not be searchable yet, and index time is not event time.</li>
+    </ul>
+  </div>
+</div>
+
+The SIEM is the first stop when the question crosses sources: "did this happen anywhere else?" or "what other systems did this <DefineTerm term="User" display="user" /> touch?". It is less useful for deep single-source <DefineTerm term="Forensics" display="forensics" />, which is where EDR and <DefineTerm term="Digital Forensics" display="digital forensics" /> earn their keep. For hands-on practice, Lab 5 of the <a href="/docs/labs/#lab-5">telemetry labs</a> runs Splunk searches over the BOTS v3 dataset, and the capstone pairs a SIEM with packet captures.
+
+---
+
+## EDR
+
+<DefineTerm term="Endpoint" /> Detection and Response answers "what ran on this machine, and what did it touch?" It records high-fidelity <DefineTerm term="Telemetry" display="telemetry" /> on user devices and servers (process <DefineTerm term="Execution" display="execution" />, file system activity, memory use, and network connections) and can act on the host.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#edr">Endpoint detection and response / XDR</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> EDR: key capabilities</h3>
+    <ul>
+      <li><strong>Process monitoring:</strong> creation events, command-line parameters, parent-child lineage, runtime patterns.</li>
+      <li><strong>Network monitoring:</strong> outbound connections, DNS, protocol behavior, detecting C2 and exfiltration.</li>
+      <li><strong>File activity tracking:</strong> unauthorized modifications to system files and critical directories.</li>
+      <li><strong>Response actions:</strong> endpoint isolation, live response and memory acquisition, process termination, automated remediation.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> EDR: common limitations</h3>
+    <ul>
+      <li><strong>Visibility gaps</strong> on non-standard endpoints (IoT, ICS, specialized hardware).</li>
+      <li><strong>Noise on legitimate admin work:</strong> benign true positives when a behavioral detection correctly flags authorized admin activity, and false positives when it misreads the activity.</li>
+      <li><strong>Retention windows:</strong> console telemetry often spans days to weeks; older questions need the SIEM or lake archive.</li>
+      <li><strong>Sensor tampering:</strong> an EDR killed, blinded, or cut off from its console by the attacker goes silent, and a silenced sensor looks exactly like a clean host. Check the sensor heartbeat before reading silence as clean (ATT&CK Defense Impairment, TA0112, including T1685 Disable or Modify Tools).</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## XDR
+
+Extended Detection and Response platforms grow the EDR model outward: endpoint, identity, email, network, and cloud telemetry land in one console, and the vendor's correlation logic stitches related events into a single incident before an analyst opens it. Where a SIEM joins whatever you feed it using rules you wrote, XDR ships pre-built joins across the telemetry the vendor controls.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#edr">Endpoint detection and response / XDR</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> XDR: key capabilities</h3>
+    <ul>
+      <li><strong>Cross-domain incident stitching:</strong> the phishing email, the process it spawned, and the sign-in it enabled arrive as one incident, not three alerts.</li>
+      <li><strong>Unified query surface</strong> across endpoint, identity, and email telemetry without per-source query languages.</li>
+      <li><strong>Coordinated response actions:</strong> isolate the host, revoke the session, and purge the email from one place.</li>
+      <li><strong>Less swivel-chair triage</strong> because the joins the analyst would run by hand are pre-computed.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> XDR: common limitations</h3>
+    <ul>
+      <li><strong>Correlation quality tracks ecosystem coverage:</strong> strongest on the vendor's own sensors, weakest on third-party sources.</li>
+      <li><strong>Opaque stitching logic:</strong> the platform asserts that events belong together; the analyst still verifies the join keys before trusting the story.</li>
+      <li><strong>Vendor lock-in</strong> deepens with every telemetry type routed through one platform.</li>
+      <li><strong>SIEM overlap</strong> creates ambiguity about which system is authoritative for a given question.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="XDR automates the join, not the judgment">
+An XDR incident is a machine-built version of the <a href="/docs/uncover/correlation/">correlation</a> this chapter teaches by hand: the same join keys, applied automatically. That makes it a head start, not a verdict. When the stitched incident matters to the outcome, check the joins the way you would check your own.
+</Callout>
+
+---
+
+## ITDR
+
+Identity Threat Detection and Response answers "is someone abusing an identity, not a machine?" These tools watch the identity plane itself: directories, identity providers, and the credentials, tokens, and sessions they issue. As attacks shift from breaking endpoints to logging in, ITDR covers the tier where <DefineTerm term="Token Theft" display="token theft" /> and <DefineTerm term="Session Hijack" display="session hijack" /> live. EDR can see a process read a browser's cookie store on the host; only the identity plane sees the stolen session replayed from somewhere else.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#iam">Identity, ITDR and privileged access</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> ITDR: key capabilities</h3>
+    <ul>
+      <li><strong>Directory attack detection:</strong> <DefineTerm term="Kerberos" /> ticket abuse, DCSync-style replication requests, suspicious privilege grants.</li>
+      <li><strong>Token and session anomalies:</strong> replayed tokens, impossible-travel sessions, MFA-bypass patterns at the IdP.</li>
+      <li><strong>Attack-path mapping</strong> showing which identities and delegations lead from a foothold to the crown jewels.</li>
+      <li><strong>Identity-native response:</strong> revoke sessions, force reauthentication, disable accounts at the provider.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> ITDR: common limitations</h3>
+    <ul>
+      <li><strong>Coverage bound to integrations:</strong> an IdP or directory the tool does not ingest is an identity blind spot.</li>
+      <li><strong>Service-account noise</strong> in automation-heavy environments demands careful baselining.</li>
+      <li><strong>Posture findings blur with live attacks:</strong> a risky delegation and an active abuse of it arrive in the same queue.</li>
+      <li><strong>Revocation gaps:</strong> long-lived tokens already issued to third-party SaaS can outlive the response action.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="network">Network analysis</h2>
+
+Network analysis answers "where did this traffic go, and what did it carry?" Packet-level and flow-level tools observe communication patterns, which makes them the main source for detecting <DefineTerm term="Lateral Movement" display="lateral movement" />, <DefineTerm term="Exfiltration" display="exfiltration" />, C2 <DefineTerm term="Network Traffic" display="traffic" />, and <DefineTerm term="Protocol" display="protocol" /> misuse, especially in environments with unmanaged devices or systems that cannot support EDR. Lab 3 of the <a href="/docs/labs/#lab-3">telemetry labs</a> reads a packet capture in Security Onion, if you want to practice on real traffic.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#nids">Network, NDR and web security</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Network analysis: key capabilities</h3>
+    <ul>
+      <li><strong>Traffic inspection</strong> for anomalies in behavior, volume, and flow direction.</li>
+      <li><strong>Protocol decoding</strong> across DNS, HTTP, SMB, and others to uncover misuse.</li>
+      <li><strong>Deep packet inspection</strong> for embedded threats, file transfers, encrypted tunneling.</li>
+      <li><strong>Visualization tools</strong> for traffic patterns and threat propagation.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Network analysis: common limitations</h3>
+    <ul>
+      <li><strong>Scalability challenges</strong> in high-volume environments that overwhelm capture infrastructure.</li>
+      <li><strong>Protocol limitations</strong> with proprietary or encrypted communications.</li>
+      <li><strong>Vantage point:</strong> a sensor sees only traffic that crosses it; east-west traffic and hosts off the corporate network without VPN never reach a perimeter sensor.</li>
+      <li><strong>Short capture retention:</strong> full packets age out in hours or days; flow records last longer but carry no content.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="ti">Threat intelligence platforms</h2>
+
+A threat intelligence platform (TIP) answers "has anyone seen this before, and what did it mean there?" TIPs consolidate external <DefineTerm term="Threat" display="threat" /> data and give context for IOCs, attacker infrastructure, and adversary tactics, so triage can correlate internal events with known external <DefineTerm term="Intelligence" display="intelligence" />. This is the platform view; the methodology for using what it serves is the <a href="/docs/uncover/threat-intelligence/">threat-intelligence pillar</a>, and the feed-as-evidence view is in <a href="/docs/field-reference/telemetry-sources/#ti">telemetry sources</a>.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#tip">Threat-intel platforms, research and knowledge bases</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Threat intelligence: key capabilities</h3>
+    <ul>
+      <li><strong>Feed aggregation</strong> across commercial, OSINT, ISAC, and government sources.</li>
+      <li><strong>IOC enrichment</strong> linking observed indicators to actors, campaigns, malware families.</li>
+      <li><strong>TTP analysis</strong> mapped to MITRE ATT&CK for shared vocabulary.</li>
+      <li><strong>Reporting and dashboards</strong> for strategic and tactical intelligence.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Threat intelligence: common limitations</h3>
+    <ul>
+      <li><strong>Feed quality</strong> varies dramatically across vendors and OSINT sources.</li>
+      <li><strong>Integration challenges</strong> with SIEM, EDR, and orchestration platforms.</li>
+      <li><strong>Analyst workload</strong> from redundant data and insufficient context.</li>
+      <li><strong>Stale indicators:</strong> infrastructure rotates, so an old IOC match can point at a shared host or a recycled IP; check the indicator's age before weighting it.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="deception">Deception technologies</h2>
+
+Deception answers "is someone exploring where nobody legitimate should be?" Deception platforms (Canary, Proofpoint Identity Threat Defense (formerly Illusive), Commvault ThreatWise (formerly TrapX)) flip the asymmetry. Decoy assets, fake credentials, deceptive files, and simulated services have no legitimate business use; interaction with them is high-confidence evidence of malicious activity.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#malware-tools">Sandboxes, deception and adversary emulation</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Deception: key capabilities</h3>
+    <ul>
+      <li><strong>Decoy deployment</strong> tailored to mirror the organization's unique assets.</li>
+      <li><strong>Attack engagement</strong> capturing command execution, lateral movement, attacker tools.</li>
+      <li><strong>Alert fidelity</strong> very high, because legitimate users have no reason to touch decoys. Expect benign hits from vulnerability scanners, EDR and antivirus sweeps, and backup and inventory tools, and exclude those sources at deployment.</li>
+      <li><strong>Threat-actor profiling</strong> via collected behaviors and metadata.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Deception: common limitations</h3>
+    <ul>
+      <li><strong>Deployment scope</strong> matters; sparse coverage lets sophisticated attackers route around the decoys.</li>
+      <li><strong>Operational complexity</strong> to avoid disrupting legitimate operations.</li>
+      <li><strong>Alert dependency:</strong> deception only fires when attackers engage decoys.</li>
+      <li><strong>Maintenance overhead</strong> to keep decoys believable as production evolves.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="forensics">Digital forensics</h2>
+
+Digital forensics answers "what exactly happened on this system, in a form that will hold up?" The tools cover recovery, artifact extraction, timeline reconstruction, and chain-of-custody preservation. At triage depth the common move is targeted collection (for example Velociraptor or KAPE) rather than a full image, and super-timeline tools (Plaso, Timesketch) turn those artifacts into the timeline the <a href="/docs/uncover/correlation/">correlation page</a> describes. In the tier model this is specialist work, typically owned by Tier 3 or a dedicated forensics function once a case has escalated; the triage analyst's forensics decision is usually narrower and earlier, preserving the evidence (image before reimage, capture memory before reboot) so that deep analysis stays possible. <a href="/docs/escalation/preserve/">Preserve before you contain</a> sets the order.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#forensics">Forensics, triage collection and mobile forensics</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Digital forensics: key capabilities</h3>
+    <ul>
+      <li><strong>Disk and memory analysis</strong> recovering deleted content, extracting artifacts, identifying injected DLLs and shellcode.</li>
+      <li><strong>Timeline reconstruction</strong> via correlation across system logs, registry, file metadata, user activity.</li>
+      <li><strong>Artifact extraction</strong> isolating browser history, auth events, persistence mechanisms.</li>
+      <li><strong>Chain of custody</strong> via cryptographic verification and documentation rigorous enough for legal proceedings. Counsel and the forensics team set that bar when a case may go to court; it is not a default the triage queue carries.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Digital forensics: common limitations</h3>
+    <ul>
+      <li><strong>Resource intensity</strong> requires significant computing resources and skilled personnel.</li>
+      <li><strong>Retrospective by nature:</strong> built for reconstruction, not real-time detection.</li>
+      <li><strong>Environmental constraints</strong> optimized for specific OSes and file systems.</li>
+      <li><strong>Collection can destroy evidence:</strong> rebooting, reimaging, or running heavy tools on a live host overwrites memory and timestamps, so preservation comes first.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="sandbox">Sandbox and detonation</h2>
+
+A sandbox answers "what does this file or link do when it runs?" Detonation services run a suspicious file or URL inside an instrumented, disposable environment and record everything it does: the process tree it builds, the domains it calls, the files and registry keys it writes. <DefineTerm term="Sandboxing" display="Sandboxing" /> turns "is this attachment malicious?" from a signature lookup into an observed-behavior question, and its report feeds the timeline directly.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#malware-tools">Sandboxes, deception and adversary emulation</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Sandbox: key capabilities</h3>
+    <ul>
+      <li><strong>Behavioral verdicts on unknowns:</strong> samples with no signature history still reveal themselves by what they do.</li>
+      <li><strong>IOC extraction:</strong> C2 domains, dropped-file hashes, and mutex names from the run become pivots back into the environment's own telemetry.</li>
+      <li><strong>Safe URL analysis</strong> for phishing triage without touching the link from a production machine.</li>
+      <li><strong>Report artifacts</strong> (process trees, network captures, screenshots) that drop into the investigation record.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Sandbox: common limitations</h3>
+    <ul>
+      <li><strong>Evasion is a built-in adversary feature:</strong> time delays, environment checks, and required user interaction exist precisely to beat detonation.</li>
+      <li><strong>A clean run is weak evidence of benign.</strong> It means the sample did nothing in that environment during that window, nothing more.</li>
+      <li><strong>Targeted samples</strong> keyed to the victim's domain, language, or geography may refuse to run anywhere else.</li>
+      <li><strong>Submission constraints:</strong> file-type and size limits, and data-handling policies for sensitive documents.</li>
+      <li><strong>OPSEC:</strong> search by hash before uploading, and send sensitive or targeted samples only to a private sandbox. A public upload can tip off the adversary and disclose your data.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="vuln">Vulnerability scanners</h2>
+
+<DefineTerm term="Vulnerability" /> scanners answer "was this system exposed to what the attacker used?" They assess systems, applications, and configurations for known weaknesses, so the analyst can check exploitability and correlate vulnerabilities with observed threat activity.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#vuln">Asset inventory, exposure and vulnerability management</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Vulnerability scanner: key capabilities</h3>
+    <ul>
+      <li><strong>Asset discovery and fingerprinting</strong> for comprehensive inventory.</li>
+      <li><strong>Vulnerability identification</strong> against CVE databases and misconfiguration checks.</li>
+      <li><strong>Risk scoring and prioritization</strong> using CVSS (v4.0 where available) plus exploitation signals (CISA KEV, EPSS) and asset criticality.</li>
+      <li><strong>Remediation tracking</strong> via dashboards and verification of applied patches.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Vulnerability scanner: common limitations</h3>
+    <ul>
+      <li><strong>False positives:</strong> common in complex or customized environments.</li>
+      <li><strong>Disruption risk</strong> from active scans against sensitive systems.</li>
+      <li><strong>Limited detection of unknowns</strong> (zero-days, novel misconfigurations).</li>
+      <li><strong>Uneven freshness:</strong> agentless network scans are point-in-time; agent-based assessment is continuous, but only where agents run.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## SOAR
+
+SOAR (Security Orchestration, Automation, and Response) answers "what can run the same way every time, so the analyst does not have to?" These platforms wire tools, data sources, and response actions into playbooks, which makes handling faster and repeatable. SOAR platforms increasingly embed LLM agents alongside deterministic playbooks; those agents fall under the <a href="/docs/ai-triage/#before-the-first-prompt-the-admission-gate">admission gate</a> on the AI-assisted triage page.
+
+**Market note (2026):** Gartner's 2024 Hype Cycle for Security Operations rated standalone SOAR "obsolete before plateau". Its playbook and case-management functions increasingly ship inside SIEM and XDR platforms and no-code workflow tools, and AI SOC agents now run many enrichment steps (see <a href="/docs/ai-triage/">AI-assisted triage</a>). The capability matters more than the product category: whatever runs the playbook, its actions belong in the case record.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#soar">SOAR, case management and automation</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> SOAR: key capabilities</h3>
+    <ul>
+      <li><strong>Playbook automation</strong> for triage, enrichment and pre-authorized containment, and for auto-closing known-benign patterns under the <a href="/docs/ai-triage/#governed-automation">governed automation</a> conditions (logged, and still counted toward entity risk).</li>
+      <li><strong>Tool integration</strong> aggregating SIEM, EDR, threat intel, ticketing, and network tools.</li>
+      <li><strong>Case management</strong> with collaboration, task assignment, and evidence tracking.</li>
+      <li><strong>Real-time response</strong> for host isolation, firewall changes, account suspension.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> SOAR: common limitations</h3>
+    <ul>
+      <li><strong>Playbook maintenance</strong> burden as tools and processes evolve.</li>
+      <li><strong>Machine closes need governance:</strong> a playbook may close a case only when all six conditions hold: a pattern entry flagged for machine close, discriminators evaluated by code, the eligibility gate enforced, human QA sampling, tracked reversal and miss rates, and a tested kill switch with a named owner.</li>
+      <li><strong>Alert fidelity dependency</strong> on incoming alert quality.</li>
+      <li><strong>Analyst overreliance</strong> risking erosion of situational awareness.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## CSPM
+
+Cloud Security Posture Management answers "what could go wrong here?" from configuration. CSPM tools continuously assess AWS, Azure, and GCP environments for misconfigurations, policy violations, and compliance risks across dynamic, multi-account cloud infrastructure.
+
+**Market note (2026):** CSPM is now commonly sold as one module of a CNAPP (cloud-native application protection platform), which bundles posture (CSPM), workload protection (CWPP), entitlement management (CIEM), and often CDR in one console. The distinction on this page is about the question each capability answers, not the product you bought.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#cloud">Cloud detection, audit and posture</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> CSPM: key capabilities</h3>
+    <ul>
+      <li><strong>Misconfiguration detection</strong> across IaC, runtime configs, and account settings.</li>
+      <li><strong>Compliance mapping</strong> against CIS Benchmarks and control frameworks such as NIST SP 800-53 and ISO/IEC 27001, with dashboards.</li>
+      <li><strong>IAM analysis</strong> highlighting privilege escalation paths and public exposure.</li>
+      <li><strong>Drift detection</strong> alerting on unauthorized configuration changes.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> CSPM: common limitations</h3>
+    <ul>
+      <li><strong>Blind spots</strong> in proprietary services and ephemeral assets (containers, lambdas).</li>
+      <li><strong>Overwhelm from low-severity issues</strong> requiring triage to avoid fatigue.</li>
+      <li><strong>Configuration is not activity:</strong> a finding says an exposure existed, not that anyone used it; pair it with CDR or the audit log before it enters the timeline.</li>
+      <li><strong>Cloud-specific tuning</strong> as APIs and services differ across providers.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## CDR
+
+Cloud Detection and Response answers "what is going wrong right now?" from activity, which CSPM cannot see. Where CSPM reads static configuration, CDR watches the control plane (<DefineTerm term="AWS CloudTrail" display="CloudTrail" />, Azure Activity Log and Entra audit logs, Google Cloud Audit Logs) and workload runtimes for attacks in progress: unusual API sequences, role chaining, containers spawning shells they never spawn.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#cloud">Cloud detection, audit and posture</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> CDR: key capabilities</h3>
+    <ul>
+      <li><strong>Control-plane anomaly detection:</strong> API-call sequences, role assumptions, and key usage that break the account's baseline.</li>
+      <li><strong>Workload runtime sensors</strong> for container and serverless behavior that agentless posture tools never see.</li>
+      <li><strong>Identity-to-workload correlation</strong> tying a suspicious role session to the resources it actually touched.</li>
+      <li><strong>Cloud-native response:</strong> revoke keys and sessions, quarantine workloads, snapshot disks for forensics before the evidence recycles.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> CDR: common limitations</h3>
+    <ul>
+      <li><strong>Ephemeral evidence:</strong> the container that ran the payload may be gone in minutes; capture has to be part of the detection path.</li>
+      <li><strong>Provider API coverage gaps</strong> in newer or niche services limit what can be observed at all.</li>
+      <li><strong>Multi-cloud inconsistency:</strong> detection depth varies by provider, so identical attacks surface differently.</li>
+      <li><strong>Noisy baselines</strong> in environments where infrastructure legitimately changes constantly.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="CSPM vs CDR in one line">
+CSPM answers "what could go wrong here?" from configuration. CDR answers "what is going wrong right now?" from activity. An Uncover investigation of a cloud alert usually needs the second and consults the first for context.
+</Callout>
+
+---
+
+<h2 id="lake">Security data lakes</h2>
+
+A security data lake answers "what happened months ago, at a volume the SIEM cannot afford to keep?" These are centralized repositories for large volumes of structured and unstructured security data. By consolidating logs, alerts, network flows, endpoint telemetry, and <DefineTerm term="Threat Intelligence" display="threat intelligence" />, data lakes enable cross-source correlation and long-term retention for investigations that reach back months.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#siem">SIEM, log pipelines and security data lakes</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> Data lake: key capabilities</h3>
+    <ul>
+      <li><strong>Scalable ingestion and storage</strong> for diverse formats (JSON, CSV, XML, binary).</li>
+      <li><strong>Schema-on-read flexibility</strong> without upfront schema definition. Normalization schemas (OCSF, ECS, ASIM, UDM) give the same entity the same field name across sources, which is what makes the join keys on the <a href="/docs/uncover/correlation/">correlation page</a> work at scale.</li>
+      <li><strong>ML and analytics integration</strong> for anomaly detection and behavior modeling.</li>
+      <li><strong>Cross-source correlation</strong> across endpoint, network, cloud, and external feeds.</li>
+      <li><strong>Historical retention</strong> for retrospective analysis and compliance reporting.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> Data lake: common limitations</h3>
+    <ul>
+      <li><strong>Data normalization</strong> challenges requiring engineering resources.</li>
+      <li><strong>Query performance</strong> variability without proper indexing.</li>
+      <li><strong>Management complexity</strong> for governance, security, access control, cost.</li>
+      <li><strong>Kept is not parsed:</strong> raw data that was retained but never normalized cannot join; check that the fields you need were extracted for the period you are querying.</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+<h2 id="ai">AI assistants and agents</h2>
+
+AI assistants and agents answer "what does this mean, and what should I query next?" faster than a person can type it. Most SOC platforms now embed them: they draft summaries, enrich indicators, turn a question into a query, and in agentic form run multi-step enrichment on their own. The methodology treats them as tools under the <a href="/docs/ai-triage/#before-the-first-prompt-the-admission-gate">admission gate</a> on the <a href="/docs/ai-triage/">AI-assisted triage</a> page. Accountability is never delegated. Execution may be, at Level 0 parity. Above that line an assistant is advisory: it drafts and recommends, and an analyst decides. <a href="/docs/ai-governance/">Governing automated triage</a> covers the gate owner's side.
+
+<p class="tool-vendors">Products in the C.A.T. glossary: <a href="/docs/glossaries/cat/#ai">AI assistants and triage agents</a>.</p>
+
+<div class="tool-detail">
+  <div class="tool-detail__col tool-detail__col--brings">
+    <h3><span aria-hidden="true">✓</span> AI assistants: key capabilities</h3>
+    <ul>
+      <li><strong>Drafting:</strong> case summaries, handoff text, and timeline narratives from evidence already gathered.</li>
+      <li><strong>Enrichment at speed:</strong> indicator lookups, prevalence checks, and context pulls run in parallel.</li>
+      <li><strong>Query generation:</strong> a plain-language question turned into SPL, KQL, or SQL, with the query shown for review.</li>
+      <li><strong>Agentic triage steps:</strong> multi-step enrichment that adapts to what the previous step returned.</li>
+    </ul>
+  </div>
+  <div class="tool-detail__col tool-detail__col--limits">
+    <h3><span aria-hidden="true">✗</span> AI assistants: common limitations</h3>
+    <ul>
+      <li><strong>Confabulation:</strong> a fluent, confident answer can cite a field, event, or join that does not exist; verify every claim against the raw evidence.</li>
+      <li><strong>Prompt-injection exposure:</strong> attacker-controlled text (email bodies, filenames, web pages) can steer an assistant that reads it.</li>
+      <li><strong>Silent model changes:</strong> a vendor update can change behavior with no version you can pin; re-run your checks after changes.</li>
+      <li><strong>Verification cost:</strong> checking an agent's joins can take as long as running them, so count that time before counting the time saved.</li>
+    </ul>
+  </div>
+</div>
+
+<Callout variant="info" title="Check an agent's join the way you check XDR's">
+An agent that reports "these events are related" has made the same claim an XDR stitch makes. Name the join key, check the window, and re-run the decisive query yourself before the claim enters the timeline.
+</Callout>
+
+---
+
+## Also in the toolkit
+
+Four more families appear in the worked examples and earn a place in the analyst's map, even where the methodology covers them as data sources rather than tools:
+
+- **Email security and message trace:** gateway verdicts, URL click records, and the trace that says who received what. Two of the four Uncover worked examples pivot through it.
+- **Identity provider consoles and sign-in logs:** the authoritative record of who authenticated, from where, with what factor, and which session or token resulted.
+- **Data loss prevention (DLP):** content-aware controls at egress and on the endpoint that answer whether sensitive data left and by which path.
+- **SSPM and CASB:** SaaS posture management and cloud access security brokers, where consented third-party apps, their scopes, and risky SaaS sessions show up.
+
+---
+
+<div class="end-cta">
+  <a href="/docs/uncover/tooling/" class="assured-cta assured-cta--ghost">← Choosing tools</a>
+  <a href="/docs/field-reference/" class="assured-cta">Field reference →</a>
+</div>

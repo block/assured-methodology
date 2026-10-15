@@ -1,306 +1,92 @@
 ---
 title: "Transition to Subject"
-description: "What Alert leaves behind, and what Subject picks up. The handoff that keeps the methodology coherent."
+description: "What Alert leaves behind, and what Subject picks up. The handoff contract that keeps the methodology coherent."
+techVerified: "2026-10-13"
 ---
 
-import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/alert.css";
 
 <SubPageHero
   phase="alert"
-  parentLetter="A"
   pillarIndex="Transition"
-  pillarTotal="Alert to Subject"
-  chapterHref="/docs/alert/"
-  chapterLabel="Alert"
-  lede="The Alert phase produces three deliverables. The Subject phase needs all of them. This page is the bridge: what to carry forward, what to leave behind, and how to set up the next analyst (or your next hour of work) for success."
+  lede="Alert ends with three deliverables and one decision: hand the case to Subject, close it at intake, or escalate it now. This page is the handoff contract: what to carry forward, what to leave behind, and how to know you are ready."
 />
 
-<PillNav
-  chapter="alert"
-  label="Alert chapter"
-  items={[
-    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
-    { label: "Validation",           href: "/docs/alert/validation/",            phase: "alert" },
-    { label: "Parsing",              href: "/docs/alert/parsing/",               phase: "alert" },
-  ]}
-/>
+<PillNav chapter="alert" />
 
-<Callout variant="info" title="One phase complete. The next begins.">
-Alert told the analyst what fired and gave the signal structured shape. Subject is the next step: who acted, with what credentials, and in what context. Done well, the transition is invisible. The work flows from one phase to the next without the analyst having to re-derive what they already knew.
-</Callout>
+## The handoff contract
 
-## What the transition is for
+One deliverable is finished work; the other two are honest lead lists. Alert does not classify assets, reconstruct the chain, or score impact, but no later phase should start from a cold read. The [alert report template](/templates/alert-report.md) has a field for each item.
 
-The handoff between phases is where investigations either gather momentum or stall. A clean Alert-to-Subject transition does three things:
-
-<div class="transition-roles">
-  <div class="transition-role">
-    <span class="transition-role__num">01</span>
-    <div>
-      <h3>Hands forward structured alert data</h3>
-      <p>Parsed metadata, validated signal, detection mechanism context.</p>
-    </div>
-  </div>
-  <div class="transition-role">
-    <span class="transition-role__num">02</span>
-    <div>
-      <h3>Identifies the entities</h3>
-      <p>Primary, secondary, and high-value targets that need Subject-phase analysis.</p>
-    </div>
-  </div>
-  <div class="transition-role">
-    <span class="transition-role__num">03</span>
-    <div>
-      <h3>Frames investigative parameters</h3>
-      <p>Analysis depth, time window, escalation thresholds.</p>
-    </div>
-  </div>
-</div>
-
----
-
-## What Alert hands off, and what it only flags
-
-One of Alert's three deliverables is finished work; the other two are honest lead lists. Alert does not classify assets, reconstruct attack chains, or score business impact; those verdicts belong to Subject, Scope, Uncover, and Risk. What Alert owes them is the validated alert plus every flag worth carrying forward, so no later phase starts from a cold read.
-
-<div class="deliverables-grid">
+<div class="deliverables-grid deliverables-grid--alert">
   <div class="deliverable-card">
-    <h3>🔧 Finished: the validated alert</h3>
+    <h3>Finished: the validated alert</h3>
     <ul>
-      <li><strong>Detection mechanism analysis</strong>, what fired, by what logic, with what confidence per the <a href="/docs/alert/detection-mechanisms/#trust-calibration">trust-calibration table</a>.</li>
-      <li><strong>Structured alert data</strong>, normalized fields: processes, commands, hashes, identifiers.</li>
-      <li><strong>Validation results</strong>, the four-dimensional check on signal fidelity.</li>
-      <li><strong>Telemetry correlation</strong>, cross-platform context tying the alert to its environment.</li>
+      <li><strong>Detection read:</strong> what fired, by what logic, with its <a href="/docs/alert/detection-mechanisms/#trust-calibration">trust prior</a>.</li>
+      <li><strong>Parsed fields:</strong> each one traceable to its raw record.</li>
+      <li><strong>All four validation checks:</strong> every result, including the ones that disagree.</li>
+      <li><strong>Known gaps:</strong> named rather than skipped.</li>
+      <li><strong>Receipt, for a case no rule raised:</strong> channel, reporter or notifier, and the UTC time it reached the organization and the SOC (see <a href="/docs/alert/intake/">Other intake</a>).</li>
     </ul>
   </div>
 
   <div class="deliverable-card">
-    <h3>🧭 Leads for Subject and Uncover</h3>
+    <h3>Leads for Subject and Uncover</h3>
     <ul>
-      <li><strong>Baseline anomalies noticed</strong>, anything that looked off against casual knowledge of the entity. Subject owns the real behavioral analysis.</li>
-      <li><strong>Correlations spotted in validation</strong>, related events worth chasing. Uncover owns the attack-chain reconstruction.</li>
-      <li><strong>Intel hits captured</strong>, IOC or TTP matches recorded as leads, not conclusions. Uncover owns the fusion and attribution.</li>
-      <li><strong>Temporal anchors</strong>, the timestamps that fix the chronology later phases build on.</li>
+      <li><strong>Working hypothesis:</strong> the favored explanation, at least one competitor, and what would separate them.</li>
+      <li><strong>Named entities:</strong> primary, secondary or downstream, with privilege flagged.</li>
+      <li><strong>Temporal anchors</strong> and the leads worth chasing.</li>
     </ul>
   </div>
 
   <div class="deliverable-card">
-    <h3>🚩 Flags for Scope, Risk, and Escalation</h3>
+    <h3>Flags for Scope, Risk, and the Escalation decision</h3>
     <ul>
-      <li><strong>Possibly critical assets named</strong>, systems that look important. Scope classifies criticality; Alert just raises the flag.</li>
-      <li><strong>Regulated-data proximity noted</strong>, signs the case may touch PCI, PHI, or PII scope. Scope's regulatory pillar does the mapping.</li>
-      <li><strong>Early severity signals</strong>, observations Risk will weigh. No impact score is assigned here.</li>
-      <li><strong>Escalation criteria in sight</strong>, if any pre-defined criterion already looks close to confirmed, say so now: a criterion confirmed at <em>any</em> phase escalates immediately under the <a href="/docs/escalation/criteria/">break-glass rule</a>.</li>
+      <li><strong>Regulated data in reach:</strong> a Scope flag, not an escalation.</li>
+      <li><strong>Control gaps</strong> and early severity signals. No impact score here.</li>
+      <li><strong>Escalation criteria:</strong> a criterion confirmed at High confidence fires the <a href="/docs/escalation/criteria/#tripwire">escalation tripwire</a> now; one that only looks close is named, with what would confirm it.</li>
     </ul>
   </div>
 </div>
 
----
+**Close path.** Alert closes only at intake, and each close is an early Escalation decision recorded in the E fields: a Level 0 pattern close, a false positive (logic or data) with detection feedback, or a benign true positive with a pattern-entry proposal (the rule stays as written). Everything else goes to Subject.
 
-## Preparing for Subject analysis
+**What Subject asks.** *Who is involved?* It needs the role behind each user, each system's classification, and the trust relationships between them, over a stated window.
 
-Alert told you *what fired*. Subject asks *who acted*. To make that question answerable, organize three things before you start.
+**Depth.** Record the level on the [depth ladder](/docs/fast-path/) and why. Any surprise moves it up; it never slides back down.
 
-### Entity identification
+**Leave behind** unsupported tool or actor names, raw noise already summarized, and unlabeled speculation. An inference travels forward only labeled as one, with confidence per claim on the [shared rubric](/docs/documentation/standards/#confidence).
 
-From the parsed Alert data, list every <DefineTerm term="Entity" display="entity" /> that touched the activity:
+## You are ready if
 
-- **Primary entities**: users, systems, services directly named in the detection.
-- **Secondary entities**: related accounts, connected systems, dependent services that may have been affected.
-- **High-value targets**: critical assets or privileged accounts that could become targets for <DefineTerm term="Lateral Movement" display="lateral movement" />.
+1. A peer could pick up the case tomorrow from your record alone.
+2. The escalation tripwire is checked: no criterion is confirmed, or the case has already escalated.
 
-### Context requirements
+The full exit checklist closes the [Alert working example](/docs/alert/example/#side-by-side).
 
-The Subject phase needs organizational context the Alert phase didn't have to assemble:
+<Reveal summary="Case C handoff, filled in" variant="example">
+**Validated alert (finished).** SIEM correlation at 09:15 UTC: an IdP risk event (session S2 presented at 09:03:12 from 198.51.100.77, AS64502, new fingerprint, no authentication ceremony) joined on account and session to a new inbox rule at 09:06:55. All four validation checks agree. Parsed records: the 08:53:37 sign-in that minted S2 through 203.0.113.41 a minute after a gateway-recorded click on <code>docs-share-portal[.]example</code>, the inbox rule named <code>.</code>, and the 09:09:30 consent to "Mail Backup Sync" (Mail.Read, offline_access), all from S2. Known gaps: the gateway's URL verdict is still pending; mail-access records for the consented app had not reached the SIEM at handoff.
 
-- **<DefineTerm term="User" /> role information**: job functions, department, business responsibilities.
-- **System classifications**: criticality ratings, data sensitivity, operational importance.
-- **Relationship mappings**: network connectivity, access dependencies, trust relationships.
+**Leads for Subject and Uncover.** Working hypothesis: an adversary-in-the-middle proxy captured rvega's 08:53 session, the attacker replayed it from a VPS, hid payment-themed mail, and granted consent to an OAuth app for persistent mailbox access. Alternatives ruled out by a 09:19 phone call (no VPN, no rule, no app approval). Open questions: who else received the link and reached the credential step, what the app has already read, and whether the attacker registered MFA methods or devices.
 
-### Investigation parameters
+**Flags for Scope, Risk, and the Escalation decision.** Criterion 1, confirmed malicious activity not fully contained by a control: met at High confidence (IdP sign-in log and tenant audit, two independent sources). The escalation tripwire fired at 09:22: P1 by criterion, recorded as an early escalation decision, with the IR lead paged by pager and phone bridge rather than tenant email or chat. Regulated data: customer personal data in the mailbox, with delegate rights on the shared billing mailbox. Control gaps: push MFA rather than a phishing-resistant method, the IdP risk policy in report-only mode, and user consent allowed for unverified publishers. Depth: Level 2, because an attacker reading a mailbox of customer personal data makes access to regulated data plausible, not merely reachable.
 
-Set the shape of the Subject-phase work before you start:
-
-- **Analysis depth**: how much behavioral, authorization, authentication, and relationship analysis is the alert worth?
-- **Time boundaries**: historical window for baseline comparison and pattern detection.
-- **Escalation thresholds**: what would the Subject phase need to find to confirm an escalation criterion? Name it now, because confirmation at any phase fires the [break-glass rule](/docs/escalation/criteria/) immediately, without waiting for Risk.
-
-<Callout variant="info" title="The handoff is the artifact">
-If a peer picked up this alert tomorrow, would the Alert-phase work give them a clean starting point? That's the test. The transition isn't ceremony, it's quality assurance for everything downstream.
-</Callout>
+**Confidence.** High on the replayed session; medium on the AiTM delivery mechanism, pending the gateway verdict.
+</Reveal>
 
 <KeyTakeaway>
-A clean Alert phase ends with its three deliverables: the validated alert (finished work), the leads for Subject and Uncover, and the flags for Scope, Risk, and Escalation. The Subject phase doesn't re-derive that work. It builds on it.
+Alert ends with the validated alert and its gaps, leads led by the working hypothesis, and flags for Scope, Risk, and the Escalation decision. Subject builds on that work instead of re-deriving it.
 </KeyTakeaway>
 
----
-
-<Callout variant="info" title="Worked examples live on the Example page">
-The full three-case walkthrough, Case A (the finance-team phishing intrusion), Case B (the Cursor IDE Empire-pattern benign true positive), and Case C (the SaaS-tenant token theft), is on the **[Alert working example](/docs/alert/example/)** page. All three cases continue on every later chapter's example page, so you can follow the same investigations all the way through Documentation.
-</Callout>
-
----
-
-<div class="quiz-cta">
-  <span class="quiz-cta__icon" aria-hidden="true">🧠</span>
-  <div class="quiz-cta__body">
-    <h3>Haven't taken the chapter quiz yet?</h3>
-    <p>Nine questions test how you would apply what you have learned to fresh scenarios. Worth doing before you move on to Subject.</p>
-  </div>
-  <a href="/docs/alert/quiz/" class="assured-cta">Take the chapter quiz</a>
-</div>
-
----
-
-## Where you are in the methodology
-
-<PuzzleProgress
-  current="alert"
-/>
-
-<Callout variant="info" title="Continue to Subject">
-You've finished Alert. The principles above describe what Alert hands forward; the next chapter, **Subject**, picks up the work of identifying every entity in play.
-</Callout>
+<SevenQuestions current="alert" />
 
 <div class="end-cta">
-  <a href="/docs/alert/" class="assured-cta assured-cta--ghost">
-    ← Back to the Alert overview
-  </a>
-  <a href="/docs/subject/" class="assured-cta">
-    Continue to Subject →
-  </a>
+  <a href="/docs/alert/" class="assured-cta assured-cta--ghost">← Back to the Alert overview</a>
+  <a href="/docs/alert/quiz/" class="assured-cta">Take the Alert quiz →</a>
 </div>
-
-<style>
-{`
-@media (min-width: 1024px) {
-  .deliverables-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-.deliverable-card {
-  padding: 1.5rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 0.85rem;
-  backdrop-filter: blur(8px);
-}
-
-/* level changed for the heading outline; size stays as designed */
-.deliverable-card :is(h3, h4) {
-  margin: 0 0 0.75rem 0;
-  color: var(--assured-text);
-  font-size: 1.05rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.deliverable-card ul {
-  margin: 0;
-  padding-left: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.deliverable-card li {
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-.end-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-  margin: 2rem 0 1rem;
-}
-
-.transition-roles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin: 1.25rem 0;
-}
-
-.transition-role {
-  display: flex;
-  gap: 1rem;
-  padding: 1.15rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 0.7rem;
-  align-items: flex-start;
-}
-
-.transition-role__num {
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* level changed for the heading outline; size stays as designed */
-.transition-role :is(h3, h4) {
-  margin: 0 0 0.25rem 0;
-  color: var(--assured-text);
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.transition-role p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.92rem;
-}
-
-.quiz-cta {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin: 2rem 0;
-  padding: 1.5rem 1.75rem;
-  background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(15, 23, 42, 0.6));
-  border: 1px solid rgba(20, 184, 166, 0.35);
-  border-radius: 1rem;
-  flex-wrap: wrap;
-}
-
-.quiz-cta__icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.quiz-cta__body {
-  flex: 1;
-  min-width: 16rem;
-}
-
-.quiz-cta__body h3 {
-  margin: 0 0 0.35rem 0;
-  color: var(--assured-text);
-  font-size: 1.1rem;
-}
-
-.quiz-cta__body p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-`}
-</style>

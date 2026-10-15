@@ -1,15 +1,50 @@
 ---
 title: "The fast path: triage at volume"
-description: "The depth ladder reconciles thousands of alerts per day with the full seven-phase arc. Level 0 pattern close, Level 1 standard triage, Level 2 full investigation."
+description: "The depth ladder decides how much of the seven-phase arc each case that reaches an analyst gets: Level 0 pattern close, Level 1 standard triage, Level 2 full arc."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import LetterChip from "@/components/assured/LetterChip.astro";
+import { timeBudgets, timeBudgetTotals } from "@/data/time-budgets";
+import "@/styles/pages/root.css";
 
-The intro makes two claims that look incompatible. SOCs see thousands of alerts per day, and the full seven-phase arc takes an expert 25–80 minutes per alert. Run the math on those two numbers and no team on earth can operate this methodology. The reconciliation is that **the full arc is not the unit of triage work; the depth ladder is.** Depth is a decision the analyst makes per alert, and most of a real queue closes on the ladder's lowest rung.
+Two facts look incompatible. SOCs see thousands of alerts per day, and the full seven-phase arc takes a senior analyst 25–80 minutes per alert (the <a href="#time-per-phase-by-experience-level">time table</a> below). Run the math on those two numbers and no team on earth can operate this methodology. Part of the reconciliation is that **the full arc is not the unit of triage work; the depth ladder is.** Depth is a decision the analyst makes per case, and in a healthy queue most cases close on the ladder's lowest rung.
 
 The seven chapters teach the full arc because that is the skill that has to exist before it can be compressed: an analyst who cannot run Subject cannot safely skip it. This page is the operating model that the trained skill plugs into.
+
+<Callout variant="info" title="Read this page twice">
+You will meet the eligibility gate, discriminators, the escalation tripwire and the P1 to P4 priorities properly in the chapters; the <a href="/docs/glossaries/assured/#depth">ASSURED terms glossary</a> defines each one in a line. Read this page now for the shape of the operating model, and again after the Escalation decision chapter, when every term on it has been taught.
+</Callout>
+
+<a id="five-field"></a>
+## The five-field record
+
+Most cases close on the ladder's lowest rung, Level 0 (the <a href="#the-depth-ladder">depth ladder</a> below), and these five fields are its entire documentation burden. Anything that cannot be honestly captured in these five fields does not belong at Level 0.
+
+<div class="ff-record">
+  <div class="ff-row"><span class="ff-field">1 · Alert</span><span class="ff-desc">Alert ID (or the case ID and every member alert ID), detection source, timestamp.</span></div>
+  <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID, name and version, with its owner and current review date.</span></div>
+  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The eligibility gate first, each item from its source system (asset criticality, privilege and sensitive capability, regulated-data reach); then the discriminators verified, with what was actually observed: not "matches pattern" but "extension ID on the entry, destinations within the entry's set, no credential-path reads, no persistence writes." Signer and install path are table stakes, not discriminators: they do not cover code a signed host runs. An unknown gate check ends the Level 0 close right here.</span></div>
+  <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc">Both axes, one line of justification. Detection: true positive · false positive (logic) · false positive (data). Activity: malicious · policy violation · authorized (benign true positive) · benign-confirmed · undetermined. Only authorized and benign-confirmed can close at Level 0: malicious trips the escalation tripwire, and policy violation or undetermined moves the case to Level 1. A correct detection of authorized behavior is a <DefineTerm term="Benign True Positive" display="benign true positive" />, not a <DefineTerm term="False Positive" display="false positive" />.</span></div>
+  <div class="ff-row"><span class="ff-field">5 · Closure</span><span class="ff-desc">Closed at Level 0 (an early Escalation decision); the analyst, or the automation and pattern version for a machine close; time; material AI use (assistant and version, or none); tuning ticket reference if the rule keeps firing.</span></div>
+</div>
+
+In a case system, fields 1 and 2 and the gate facts should auto-populate from the alert, the pattern entry and enrichment; the analyst attests to what was observed and does not retype it. A copy-ready version lives on the [templates page](/docs/documentation/templates/#copy-ready), alongside the nine-section event report that Level 2 cases get. Try it: the <a href="/docs/exercises/#exercise-3--the-level-0-drill">Level 0 drill</a> is one alert, one pattern entry, and a five-minute timer.
+
+## Run the math on the ladder too
+
+The ladder alone does not close the gap. At 3,000 alerts a day, even a five-minute Level 0 close on every alert is 250 analyst-hours. A 90/10 split between Level 0 and a 30-minute Level 1 is about 375 hours, roughly 47 eight-hour shifts. The capacity check is simple enough to run on your own queue: volume × level mix × minutes per level ÷ productive minutes per analyst shift. The full worked capacity math is on <a href="/docs/measuring-triage/#capacity-math">Measuring triage</a>, and how the work splits across shifts, providers and a one-person SOC is on <a href="/docs/operating-variants/">operating variants</a>.
+
+The volume becomes workable **before** the ladder, in three places:
+
+- **Grouping.** Alerts that are one activity seen by several sensors, or one entity inside one window, become one case (see <a href="#correlated-cases">Correlated cases</a> below and <a href="/docs/alert/validation/attack-chains/">attack chains</a>).
+- **Tuning.** Known noise is tuned, suppressed, or allowlisted at the detection, with an owner, an expiry and a review date (see <a href="/docs/risk/false-positive/">what a benign close teaches</a> and the <a href="/docs/detection-feedback/">detection feedback loop</a>).
+- **Governed machine closes.** A narrow set of patterns can close by machine at Level 0 parity, under the rule below.
+
+The ladder governs the cases that survive that and reach a person.
 
 ## The depth ladder
 
@@ -20,21 +55,33 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <h3 class="ladder__name">Pattern close</h3>
       <span class="ladder__time">≤ 5 minutes</span>
     </div>
-    <p class="ladder__what">For alerts that match a <strong>documented known-benign pattern</strong> in the team's pattern library. The analyst validates the match, records a five-field close, and moves on. This is where the bulk of a healthy queue dies: the "majority of alerts are routine or false-positives" the <a href="/docs/alert/validation/">Validation page</a> describes.</p>
+    <p class="ladder__what">For cases that match a <strong>documented known-benign pattern</strong> in the team's pattern library. The analyst validates the match, records a five-field close, and moves on. This is where the bulk of a healthy queue closes: the routine, known-benign majority the <a href="/docs/alert/validation/">Validation page</a> describes.</p>
     <div class="ladder__cols">
       <div>
         <h4>What runs</h4>
         <ul>
           <li>Alert, compressed: confirm the alert's discriminators match the documented pattern, not just its shape</li>
-          <li>Documentation, compressed: the <a href="#five-field">five-field record</a>, referencing the pattern by ID</li>
+          <li>Subject and Scope, compressed: the three-item eligibility gate (asset criticality, privilege and sensitive capability, regulated-data reach), each item proven from its source system</li>
+          <li>Documentation, compressed: the <a href="#five-field">five-field record</a>, referencing the pattern by ID and version</li>
         </ul>
+        <p class="ladder__note">The close itself is an early Escalation decision, recorded in the five-field record. The rest of the Escalation decision does not run at Level 0 unless an escalation criterion is confirmed (see Ladder rules).</p>
       </div>
       <div>
         <h4>Entry criteria (all required)</h4>
         <ul>
-          <li>A written pattern entry exists, with named discriminators, an owner, and a current review date</li>
+          <li>A written pattern entry exists, approved by a second person, with named discriminators, an owner, a version, and a current review date</li>
           <li>Every discriminator checks out; nothing about the alert is novel</li>
-          <li>The subject passes the eligibility gate, proven from source systems, never assumed: not a crown-jewel system, not a privileged identity, not automation holding sensitive capability (deploy, signing, secrets, repository write; a CI runner can outrank its owner), and no regulated data in reach. <strong>Unknown fails the gate.</strong></li>
+          <li>The pattern's close volume and host spread today are within its normal range</li>
+          <li>Every other alert grouped into the same case passes too (see <a href="#correlated-cases">Correlated cases</a>)</li>
+          <li>
+            <span>The subject passes the eligibility gate, each item proven from a source system:</span>
+            <ul>
+              <li>(a) not a crown-jewel asset;</li>
+              <li>(b) not a privileged identity, and not <a href="/docs/subject/non-human-identities/#answering-who-is-behind-this">automation with deploy, signing, secrets or repository-write capability</a> (a CI runner can outrank its owner);</li>
+              <li>(c) no regulated data in reach (standing access to a store the data inventory classifies as regulated).</li>
+            </ul>
+            <strong>Unknown fails the gate.</strong>
+          </li>
         </ul>
       </div>
     </div>
@@ -46,49 +93,52 @@ The seven chapters teach the full arc because that is the skill that has to exis
       <h3 class="ladder__name">Standard triage</h3>
       <span class="ladder__time">~15–45 minutes</span>
     </div>
-    <p class="ladder__what">The compressed pass for alerts with <strong>no matching pattern but a bounded blast radius</strong>. Every phase still happens; several collapse into single moves.</p>
+    <p class="ladder__what">The compressed pass for cases with <strong>no matching pattern but a bounded blast radius</strong>. Every phase still happens; several collapse into single moves.</p>
     <div class="ladder__cols">
       <div>
         <h4>What runs</h4>
         <ul>
-          <li><strong>Validate</strong>: Alert, as taught</li>
-          <li><strong>Context</strong>: Subject and Scope as one sweep, asking who is this and what can they reach</li>
-          <li><strong>Investigate</strong>: Uncover narrowed to the one question the verdict turns on</li>
-          <li><strong>Decide</strong>: Risk verdict, then close or escalate</li>
-          <li><strong>Document</strong>: as-you-go, using the <a href="/docs/documentation/templates/">alert report template</a></li>
+          <li><strong>Validate:</strong> Alert, as taught</li>
+          <li><strong>Context:</strong> Subject and Scope as one sweep, asking <em>who is this, and what can they reach?</em></li>
+          <li><strong>Investigate:</strong> Uncover narrowed to the one question the verdict turns on</li>
+          <li><strong>Decide:</strong> Risk rates the case and recommends; the Escalation decision closes or escalates</li>
+          <li><strong>Document:</strong> as-you-go, using the <a href="/docs/documentation/templates/">alert report template</a></li>
         </ul>
       </div>
       <div>
         <h4>Entry criteria</h4>
         <ul>
           <li>No documented pattern match, or a match with one discriminator failing</li>
-          <li>Single subject, ordinary privilege, no regulated-data exposure on its face</li>
+          <li>Single subject, ordinary privilege, and nothing on its face suggesting the activity touched regulated data (data merely in reach is a Scope flag, not a reason to climb)</li>
           <li>The verdict question is answerable from telemetry you already have</li>
         </ul>
       </div>
     </div>
+    <p class="ladder__note"><strong>Single subject</strong> means one primary entity named by the alert (a user, a host, or a non-human identity such as a service account, role or process), together with the sessions, devices and processes it directly used. A second independent actor, or any additional account or host the activity moved into, is a second subject; if confirmed, it is also the lateral-movement criterion. If privilege or data access stays unknown after the context sweep, record it as a visibility gap; if the unknown is material to the verdict, move to Level 2.</p>
   </div>
 
   <div class="ladder__level" data-level="2">
     <div class="ladder__head">
       <span class="ladder__num">Level 2</span>
       <h3 class="ladder__name">Full arc</h3>
-      <span class="ladder__time">the intro's time table</span>
+      <span class="ladder__time">~25–80 min (senior)</span>
     </div>
-    <p class="ladder__what">The seven phases as the chapters teach them, with the Scope → Uncover → Risk loop running until the residual risk is understood. This is what the <a href="/docs/intro/">intro's time table</a> prices, and it is reserved for the alerts that earn it.</p>
+    <p class="ladder__what">The seven phases as the chapters teach them, with the Scope → Uncover → Risk loop running until the residual risk is understood. This is what the <a href="#time-per-phase-by-experience-level">time table</a> below prices, and it is reserved for the cases that earn it.</p>
     <div class="ladder__cols">
       <div>
         <h4>What runs</h4>
         <ul>
-          <li>Alert → Subject → Scope → Uncover → Risk → Escalation → Documentation, in full</li>
+          <li>Alert → Subject → Scope → Uncover → Risk → Escalation decision → Documentation, in full</li>
         </ul>
       </div>
       <div>
         <h4>Entry criteria (any one suffices)</h4>
         <ul>
-          <li>Anything suspicious survived Level 1 without a defensible verdict</li>
-          <li>Crown-jewel subject, privileged identity, or regulated data in reach</li>
+          <li>Anything suspicious survived Level 1 without a defensible verdict. An undetermined verdict at P3 or P4 is defensible when it closes with its gaps named, the exposure it implies removed and a reopen trigger written (<a href="/docs/cases/case-d/#escalation-decision-a-documented-close-undetermined">Case D</a> closes this way); climb when a source exists that more depth could reach</li>
+          <li>Crown-jewel subject, privileged identity (including automation holding sensitive capability), or regulated data plausibly accessed by the activity under review</li>
+          <li>A second subject</li>
           <li>A novel detection, or multiple alerts correlating into a chain</li>
+          <li>A spike in closes against one pattern entry</li>
         </ul>
       </div>
     </div>
@@ -99,86 +149,98 @@ The seven chapters teach the full arc because that is the skill that has to exis
 
 <div class="ladder-rules">
   <div class="ladder-rule">
-    <h3>⬆️ The ladder is a ratchet</h3>
-    <p>Any surprise moves the case <strong>up</strong> a level, and it never slides back down mid-case. A failed discriminator at Level 0 makes the alert a Level 1 case. A Level 1 context sweep that finds a second subject, a privileged account, or regulated data makes it Level 2. Down-scoping happens only between cases, never within one.</p>
+    <h3>The ladder is a ratchet</h3>
+    <p>Any surprise moves the case <strong>up</strong> a level, and it never slides back down mid-case. A failed discriminator at Level 0 makes it a Level 1 case; a failed gate item sends a crown-jewel subject or a privileged identity straight to Level 2. A privileged identity never earns a pattern entry, however routine its work: a recurring privileged change gets an expected-change record linked to its change ticket, which speeds the Level 2 pass without ever closing it at Level 0 (<a href="/docs/exercises/#exercise-2--the-consent-grant-in-the-migration-window">Exercise 2</a> works this way). A Level 1 context sweep that finds a second subject, a privileged account, or regulated data the activity plausibly touched makes it Level 2. A spike in closes against one pattern entry (new hosts, a new time window, many at once) is itself a Level 2 trigger: alert on close-rate anomalies per pattern, not just per alert. Down-scoping happens only between cases, never within one.</p>
   </div>
   <div class="ladder-rule">
-    <h3>🚨 Break-glass overrides everything</h3>
-    <p>The ladder governs how much process an alert gets, not when to escalate. A <a href="/docs/escalation/criteria/">canonical escalation criterion</a> confirmed at any level escalates immediately under the break-glass rule, even from inside a five-minute Level 0 check. Depth and urgency are separate decisions.</p>
+    <h3>The escalation tripwire overrides everything</h3>
+    <p>The ladder governs how much process a case gets, not when to escalate. An <a href="/docs/escalation/criteria/">escalation criterion</a> confirmed (supported at High confidence) at any level escalates immediately under the escalation tripwire and makes the case P1 whatever its cell, even from inside a five-minute Level 0 check. Suspicion refines Scope instead. Activity a control blocked or quarantined, with no execution or follow-on evidence, is contained by control: it is recorded at P3 or P4 and becomes a pattern-entry candidate, not a page. Depth and urgency are separate decisions.</p>
   </div>
   <div class="ladder-rule">
-    <h3>📚 Level 0 runs on a pattern library, not on memory</h3>
-    <p>"I've seen this before" is not a pattern. A pattern entry is written down, has named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, and a review date; a reusable schema ships as <a href="/templates/pattern-entry.md" download>pattern-entry.md</a>. Every Level 0 close references the entry it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. If the same unmatched alert closes at Level 1 three times, that is the signal to write the pattern entry and file the <a href="/docs/risk/false-positive/">tuning feedback</a>.</p>
+    <h3>Level 0 runs on a governed pattern library, not on memory</h3>
+    <p>"I've seen this before" is not a pattern. A pattern entry is written down and governed like code: named discriminators (the checks that distinguish the benign behavior from the threat it mimics), an owner, a second person's approval before it goes live, a version history, a review date (by default every 90 days), invalidation triggers that force an immediate re-review (a rule change, a re-tagged asset group, an observed abuse), a machine-close flag, and a reversal threshold that suspends the entry automatically. A reusable schema ships as <a href="/templates/pattern-entry.md" download>pattern-entry.md</a>. Every Level 0 close references the entry and version it matched, which is what makes five-minute closes defensible instead of sloppy, and what makes a wrong pattern correctable in one place. Prefer discriminators an attacker cannot cheaply forge: exact destination match, parent process, extension or plugin ID, directory group membership. Names, paths and ports are cheap to fake, and a signer or install path does not vouch for code a signed host runs (extensions, plugins, <DefineTerm term="Model Context Protocol (MCP)" display="MCP" /> servers, package-manager scripts), so none of them is a discriminator on its own. If the same rule closes benign at Level 1 three times for the same cause within a month, write the pattern entry and file the <a href="/docs/risk/false-positive/">tuning feedback</a>.</p>
   </div>
   <div class="ladder-rule">
-    <h3>🤖 Automation moves the starting line, not the bar</h3>
-    <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment (identity lookups, asset criticality, sandbox verdicts), it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. What automation does not change is the evidentiary bar: the analyst still confirms the discriminators. Enrichment is input to the ladder, never a verdict.</p>
+    <h3>Level 0 is audited, not trusted</h3>
+    <p>Every week a second analyst re-verifies a random sample of Level 0 closes against raw telemetry: start at 2 to 5 percent per pattern, and at least one close per pattern. A confirmed false close suspends the pattern until its owner re-reviews it, and the result goes into the entry's false-close history; the entry's reversal threshold (by default, a single reversed close) suspends it automatically. Track closes per pattern, their host spread and the false-close rate (<a href="/docs/measuring-triage/#fast-path-health-is-level-0-earning-its-speed">fast-path health</a>); a volume spike is a reason to sample, and a sensor that goes silent is a possible tampering finding. Three Level 0 closes on the same entity in seven days force a Level 1 review. A pattern that is never sampled is not a pattern.</p>
+  </div>
+  <div class="ladder-rule">
+    <h3>Assume the pattern will be imitated</h3>
+    <p>The methodology is public, so assume an adversary knows what a pattern entry looks like and will shape activity to match one: a malicious extension running inside a signed IDE, a payload named after the backup agent, a scheduled task started in the maintenance window. The fields an imitation copies first are the cheap ones: signer, install path, process name, time of day. The discriminator that defeats it is a field the attacker cannot reproduce without giving itself away. <a href="/docs/documentation/example/#case-b">Case B's</a> draft entry PTN-031 shows the shape: the extension ID loaded from inside the signed bundle, destinations within the entry's set, no credential-path reads, no persistence writes. A malicious extension fails the first check, and almost anything worth doing with one fails another of the four. Each entry therefore records a validation test (how to generate an imitation of its benign pattern that the discriminators must still catch) and re-runs it whenever the entry changes.</p>
+  </div>
+  <div class="ladder-rule">
+    <h3>Automation moves the starting line; machines execute only at Level 0 parity</h3>
+    <p>When a <DefineTerm term="SOAR (concept)" display="SOAR" /> playbook pre-runs enrichment (identity lookups, asset criticality, sandbox verdicts), it is pre-answering Subject and Scope questions, so Level 1's context sweep starts from the enrichment output instead of from scratch. Enrichment is input to the ladder, never a verdict. Accountability is never delegated; execution may be, at Level 0 parity. A machine may close a case only when all of these hold: the pattern entry carries the machine-close flag; every discriminator is evaluated by code against an authoritative source; the eligibility gate is enforced by code, not assumed; human QA samples the machine's closes under the audit rule; reversal and miss rates are tracked; and a kill switch and a named owner exist. How to run those controls (QA rates, pause triggers, the kill switch test) is on <a href="/docs/ai-governance/#level-0-parity">Governing automated triage</a>. The record names the automation and the pattern version. Everything above Level 0 parity stays with the analyst; <a href="/docs/ai-triage/#governed-automation">AI-assisted triage</a> applies the same tier to assistants and vendor agents.</p>
+  </div>
+  <div class="ladder-rule">
+    <h3>Make the gate cheap before you make it fast</h3>
+    <p>Unknown fails the gate, so a gate the analyst must research by hand leaves Level 0 nearly empty. Define each item operationally: crown-jewel means tagged so in the asset inventory; privileged means a member of a privileged role or group in the identity provider, or automation holding deploy, signing, secrets or repository-write rights; regulated data in reach means standing access to a store the data inventory classifies as regulated. Have enrichment fetch the three facts onto the alert, and let a pattern entry pre-certify the gate for a tagged population ("applies only to hosts tagged ephemeral-runner and nonprivileged"). The analyst verifies the facts; they do not research them. The <a href="/docs/exercises/#exercise-3--the-level-0-drill">Level 0 drill</a> works this way.</p>
   </div>
 </div>
 
-<a id="five-field"></a>
-## The five-field record
+<a id="correlated-cases"></a>
+## Correlated cases: the case is the unit of work
 
-Level 0's entire documentation burden. Anything that cannot be honestly captured in these five fields does not belong at Level 0.
+The queue item is a case, not an alert. Most XDR and SIEM consoles already group alerts into incidents, and a single intrusion can fire dozens of alerts that each look routine on their own. The ladder applies to the group, not to each member separately.
 
-<div class="ff-record">
-  <div class="ff-row"><span class="ff-field">1 · Alert</span><span class="ff-desc">Alert ID, detection source, timestamp.</span></div>
-  <div class="ff-row"><span class="ff-field">2 · Pattern</span><span class="ff-desc">The pattern-library entry this matched, by ID and name, with its owner and current review date.</span></div>
-  <div class="ff-row"><span class="ff-field">3 · Checks</span><span class="ff-desc">The eligibility gate first, each item from its source system (asset criticality, privilege and sensitive capability, regulated-data reach); then the discriminators verified, with what was actually observed: not "matches pattern" but "signed vendor binary, expected install path, no persistence." An unknown gate check ends the Level 0 close right here.</span></div>
-  <div class="ff-row"><span class="ff-field">4 · Verdict</span><span class="ff-desc">Both axes: detection correctness (did the rule detect what it looks for?) and activity disposition (benign-confirmed / authorized / malicious / undetermined, one line of justification; only the first two can close at Level 0). A correct detection of benign behavior is a <DefineTerm term="Benign True Positive" display="benign true positive" />, not a <DefineTerm term="False Positive" display="false-positive" />.</span></div>
-  <div class="ff-row"><span class="ff-field">5 · Disposition</span><span class="ff-desc">Closed at Level 0; analyst and time; tuning ticket reference if the rule keeps firing.</span></div>
-</div>
+- **Grouping rules.** Alerts that share an entity inside one time window (the same user, host or non-human identity), share a campaign indicator, or carry the same vendor incident ID form one case.
+- **The riskiest member sets the level.** A grouped case never closes at Level 0 if any member fails eligibility or any member's discriminators fail; every member must match a pattern entry. One privileged identity in the group makes the whole case Level 2.
+- **Splitting.** A vendor-grouped incident that mixed unrelated activity gets split, with the reason recorded. Each part becomes its own case and is laddered on its own.
+- **Which verdict goes where.** Alert runs once per distinct detection. Subject and Scope run once per case. The activity verdict, the priority and the Escalation decision are recorded once per case. Each member alert keeps its own detection-axis verdict (true positive, false positive (logic), or false positive (data)) so detection engineering gets per-rule feedback. "Merged into case" is a status on the member alert, not a disposition.
+- **Scored aggregates.** When the queue item is a risk-scored aggregate (risk-based alerting, a correlation rule), treat the risk object as the primary subject, and record which contributors were judged benign so the score or the correlation rule can be tuned.
 
-A copy-ready version lives on the [templates page](/docs/documentation/templates/#copy-ready), alongside the full nine-section packet.
+The <a href="/docs/uncover/correlation/">correlation page</a> covers how the members' evidence joins into one timeline.
 
 <Callout variant="warn" title="What the ladder is not">
-The ladder is not permission to skip thinking. Level 0 without a real pattern library degrades into bulk-closing by vibes, the exact failure mode Validation exists to prevent. The discipline is the trade: five-minute closes are earned by the written pattern entry, the ratchet, and the break-glass rule, not granted by the timer.
+The ladder is not permission to skip thinking. Level 0 without a real pattern library degrades into bulk-closing on gut feel: the exact failure mode Validation exists to prevent. The discipline is the trade: five-minute closes are earned by the written, governed pattern entry, the audit sample, the ratchet, and the escalation tripwire, not granted by the timer.
 </Callout>
 
+## Time per phase, by experience level
+
+These are operational shift times for a full investigation, not reading times. Both ends of each range are normal. The same phase takes very different time depending on who's working it. A senior analyst who knows the detection logic, the business, and the environment may close Alert in under a minute. A new analyst in their second week may spend 15 minutes on the same alert, partly understanding the detection, partly understanding what the systems involved even *do*. The ranges below cover all three experience levels so you can recognize where you are.
+
+{/* Rows render from src/data/time-budgets.ts, the same source that feeds
+    each chapter hero's "Full-arc time (Level 2)" chip (the experienced column). */}
+<table class="time-budget">
+  <caption>Time per phase by experience level, for a full-arc (Level 2) investigation</caption>
+  <thead>
+    <tr><th scope="col">Phase</th><th scope="col">New (0–12 mo)</th><th scope="col">Experienced (1–3 yr)</th><th scope="col">Senior (3+ yr)</th></tr>
+  </thead>
+  <tbody>
+    {timeBudgets.map((t) => (
+      <tr data-phase={t.phase}><th scope="row"><span class="time-budget__phase"><LetterChip letter={t.letter} phase={t.phase} size="sm" /> {t.label}</span></th><td class="time-budget__time" data-label="New">{t.newAnalyst}</td><td class="time-budget__time" data-label="Experienced">{t.experienced}</td><td class="time-budget__time" data-label="Senior">{t.expert}</td></tr>
+    ))}
+  </tbody>
+  <tfoot>
+    <tr class="time-budget__total"><th scope="row">End-to-end</th><td class="time-budget__time" data-label="New">{timeBudgetTotals.newAnalyst}</td><td class="time-budget__time" data-label="Experienced">{timeBudgetTotals.experienced}</td><td class="time-budget__time" data-label="Senior">{timeBudgetTotals.expert}</td></tr>
+  </tfoot>
+</table>
+
+These ranges are the author's practitioner estimates from one SOC's queue, not measured benchmarks. Treat them as orientation, calibrate them against your own time-in-phase data (see <a href="/docs/measuring-triage/">Measuring triage</a>), and do not use them as quotas or in performance conversations.
+
+**This table prices the full arc; most alerts never get it.** A SOC handling thousands of alerts per day cannot spend a complete seven-phase investigation on every alert, and the methodology doesn't ask it to: most of a healthy queue closes in minutes against documented known-benign patterns, and only the alerts that earn it get the full arc. The <a href="#the-depth-ladder">depth ladder</a> above decides how much of it each case gets, and the <a href="#five-field">five-field record</a> shows what a defensible five-minute close looks like.
+
+### What makes the difference between new and senior
+
+The gap between a new analyst and a senior one is rarely raw speed. It's three things.
+
+**1. Context familiarity.** A senior analyst recognizes the detection that fired before they finish reading the alert. They know which mailbox rule on which finance laptop usually triggers it, what a normal Tuesday looks like for dlin (the finance analyst whose case threads through the worked examples), and which on-call to page if the answer isn't quick. A new analyst has to assemble all of that fresh. **The fastest path to closing this gap is shift time.** Six months on the same alert queue teaches more about your environment than any course can.
+
+**2. Pattern recognition for benign alerts.** Senior analysts close benign alerts faster because they have seen the same known-benign pattern 200 times. The methodology is what lets the new analyst close the *first* one defensibly, with a record the team can learn from. Read <a href="/docs/risk/false-positive/">the Risk chapter's page on benign closes</a> early (including its false-positive versus benign-true-positive fork); it is the highest-leverage page on the site for closing the speed gap.
+
+**3. Knowing when to stop.** New analysts go down rabbit holes. (Every analyst has a story like it: two hours on a single PowerShell command that turns out to be a sysadmin's harmless inventory script.) The good news: every rabbit hole you walk out of teaches you what entering one feels like. Six months in you'll catch yourself reaching for the next log query and recognize the pattern. By year two you'll stop yourself before you start. The methodology helps by giving you explicit phase boundaries. When Uncover starts to feel open-ended, step back to Scope and ask whether the boundaries are still right.
+
+These three skills compound. They are also why the time ranges in the table above span an order of magnitude. If you're at the high end of the New column, that's where you are; don't measure yourself against the Senior column on day one.
+
+### When you blow past the upper bound
+
+Even a senior analyst hits the upper bound sometimes. Past the top of your Alert range (20 minutes for a new analyst, 8 for an experienced one) and still unclear what the detection logic saw? That is usually a sign the alert came from a system you do not yet understand; pull in a peer or a senior analyst. Past the top of your Uncover range (two hours for a new analyst, 45 minutes for an experienced one) with no convergence? Stop and write down what you know and what you do not. Then either pull in a peer or senior analyst (or hand the case up a tier if it exceeds your mandate), or keep it open as unresolved and let Risk's priority set the clock: at P3, keep working to a named re-score trigger within 24 hours; if a high-impact subject is unresolved because evidence is missing, the case floors at P2 and escalates within 4 hours. Escalation to IR runs on the criteria and the matrix, not on elapsed time. The ranges exist so you notice these moments, not so you race against them.
+
 <KeyTakeaway>
-Depth is a per-alert decision, made once at intake and revised only upward. Level 0 pattern-closes the routine majority in five minutes against a written pattern library. Level 1 runs the compressed pass when there is no pattern but the blast radius is bounded. Level 2 is the full arc the chapters teach, reserved for cases that earn it. Break-glass escalation cuts across all three: confirmation escalates now, from any level.
+Depth is a per-case decision, made once at intake and revised only upward, and grouped alerts take the level of their riskiest member. Level 0 pattern-closes the routine majority in five minutes against a written, governed and audited pattern library. Level 1 runs the compressed pass when there is no pattern but the blast radius is bounded. Level 2 is the full arc the chapters teach, reserved for cases that earn it. The escalation tripwire cuts across all three: confirmation escalates now, from any level. And the ladder works only on the volume that survives grouping and tuning.
 </KeyTakeaway>
 
 <div class="end-cta">
-  <a href="/docs/intro/" class="assured-cta assured-cta--ghost">← The methodology</a>
-  <a href="/docs/documentation/templates/#copy-ready" class="assured-cta">Copy-ready templates →</a>
+  <a href="/docs/cognitive-traps/" class="assured-cta assured-cta--ghost">← Cognitive traps in triage</a>
+  <a href="/docs/ai-triage/" class="assured-cta">AI-assisted triage →</a>
 </div>
-
-<style>{`
-.ladder { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0 2rem; }
-.ladder__level { padding: 1.35rem 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.85rem; border-left-width: 3px; }
-.ladder__level[data-level="0"] { border-left-color: #22c55e; }
-.ladder__level[data-level="1"] { border-left-color: #f59e0b; }
-.ladder__level[data-level="2"] { border-left-color: #ef4444; }
-.ladder__head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.65rem; }
-.ladder__num { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--assured-text-dim); }
-.ladder__level[data-level="0"] .ladder__num { color: #86efac; }
-.ladder__level[data-level="1"] .ladder__num { color: #fcd34d; }
-.ladder__level[data-level="2"] .ladder__num { color: #fca5a5; }
-.ladder__name { margin: 0; font-size: 1.25rem; color: var(--assured-text); }
-.ladder__time { margin-left: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; color: var(--assured-accent-soft); background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.3); padding: 0.15rem 0.6rem; border-radius: 9999px; white-space: nowrap; }
-.ladder__what { margin: 0 0 1rem; color: var(--assured-text-muted); line-height: 1.6; }
-.ladder__cols { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
-@media (min-width: 768px) { .ladder__cols { grid-template-columns: 1fr 1fr; } }
-.ladder__cols h4 { margin: 0 0 0.4rem; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--assured-text-dim); }
-.ladder__cols ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-.ladder__cols a { color: var(--assured-accent-soft); }
-.ladder__what a { color: var(--assured-accent-soft); }
-
-.ladder-rules { display: grid; grid-template-columns: 1fr; gap: 0.85rem; margin: 1.5rem 0 2rem; }
-@media (min-width: 900px) { .ladder-rules { grid-template-columns: 1fr 1fr; } }
-.ladder-rule { padding: 1.15rem 1.35rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
-/* level changed for the heading outline; size stays as designed */
-.ladder-rule :is(h3, h4) { margin: 0 0 0.45rem; color: var(--assured-text); font-size: 0.97rem; font-weight: 600; line-height: inherit; }
-.ladder-rule p { margin: 0; color: var(--assured-text-muted); line-height: 1.6; font-size: 0.9rem; }
-.ladder-rule a { color: var(--assured-accent-soft); }
-
-.ff-record { display: flex; flex-direction: column; margin: 1.25rem 0; border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; overflow: hidden; }
-.ff-row { display: grid; grid-template-columns: 1fr; gap: 0.25rem; padding: 0.85rem 1.25rem; border-top: 1px solid rgba(148, 163, 184, 0.15); }
-.ff-row:first-child { border-top: 0; }
-@media (min-width: 768px) { .ff-row { grid-template-columns: 10rem 1fr; gap: 1rem; align-items: baseline; } }
-.ff-field { color: #86efac; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
-.ff-desc { color: var(--assured-text-muted); line-height: 1.55; font-size: 0.9rem; }
-
-.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2.5rem 0 1rem; }
-`}</style>

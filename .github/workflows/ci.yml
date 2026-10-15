@@ -16,14 +16,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Version comes from the packageManager field in package.json so CI and
-      # local builds can never drift.
+      # local builds can never drift. v6.1.0 is the first release that can
+      # install pnpm 12.
       - name: Set up pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
+      # Node major comes from .nvmrc, the same file local version managers
+      # read, and matches package.json engines ("24.x"), which Vercel uses to
+      # pick the production runtime. CI, local, and production share one major.
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
@@ -41,10 +45,144 @@ jobs:
       - name: Every DefineTerm tooltip resolves
         run: pnpm run check:terms
 
+      - name: Gate scripts pass their unit tests
+        run: pnpm run test:gates
+
+      - name: Quiz keys are balanced and well formed
+        run: pnpm run check:quiz
+
+      - name: Case material uses reserved example names
+        run: pnpm run check:reserved-names
+
       # pnpm build re-runs both checks above by design; the labeled steps
       # exist so a failure names the broken contract instead of "build".
+      # The build also runs check-links.mjs on dist/, so internal links and
+      # anchors need no separate step.
       - name: Build site and search index
         run: pnpm build
 
-      - name: Internal links and anchors resolve
-        run: pnpm run check:links
+      # The browser job below tests this exact dist/ instead of rebuilding.
+      - name: Keep the built site for the browser tests
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+          if-no-files-found: error
+
+  # Validates every ATT&CK technique and tactic ID, and the name written next
+  # to it, against the pinned Enterprise ATT&CK release. The bundle URL is
+  # pinned to a commit of mitre-attack/attack-stix-data, so its content cannot
+  # change under the job. To move to a new release, see docs/DEVELOPMENT.md.
+  attack-ids:
+    runs-on: ubuntu-latest
+    env:
+      ATTACK_VERSION: "19.2"
+      ATTACK_STIX_URL: https://raw.githubusercontent.com/mitre-attack/attack-stix-data/6cda5ad8462c79e14fbb872f4e09059b18e0cfc4/enterprise-attack/enterprise-attack-19.2.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Fetch the pinned ATT&CK STIX bundle
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            --output "$RUNNER_TEMP/enterprise-attack.json" "$ATTACK_STIX_URL"
+          sha256sum "$RUNNER_TEMP/enterprise-attack.json"
+
+      - name: ATT&CK IDs and names match the pinned release
+        env:
+          ATTACK_STIX_PATH: ${{ runner.temp }}/enterprise-attack.json
+        run: node scripts/check-attack-ids.mjs
+
+  # Smoke and accessibility tests in a real browser (Playwright + axe) on one
+  # page per template type, against the dist/ the verify job built.
+  browser:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download the built site
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist
+
+      - name: Install Chromium for Playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Gates merges: /docs/reference/ must print on at most two pages at
+      # both Letter and A4.
+      - name: Desk card prints within its page budget
+        run: pnpm run check:print
+
+      # Advisory until a clean baseline is recorded against .htmlvalidate.json;
+      # then remove continue-on-error. The version is pinned so the rule set
+      # cannot change under the job.
+      - name: Built HTML validates
+        continue-on-error: true
+        run: pnpm dlx html-validate@11.16.2 --config .htmlvalidate.json "dist/**/*.html"
+
+      - name: Smoke and axe tests
+        run: pnpm run test:e2e
+
+      - name: Keep traces of failed tests
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-traces
+          path: test-results
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Two cold builds of the same tree must be byte-identical, so a deployed
+  # artifact can be diffed against a fresh build. It doubles build time, so
+  # it runs on pushes to main only.
+  determinism:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Two builds are byte-identical
+        run: pnpm run check:determinism
+
+  # Flags newly added dependencies with known vulnerabilities before they
+  # merge. Reads the pull request's dependency diff; needs no checkout.
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0

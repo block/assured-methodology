@@ -1,0 +1,221 @@
+---
+title: "Regulatory clock card"
+description: "A recognition table for the notification clocks a triage analyst can start: GDPR, UK GDPR, NIS2, DORA, the Cyber Resilience Act, SEC 8-K and Regulation S-P, the FTC Safeguards Rule, the US banking 36-hour rule, NYDFS 500.17, HIPAA, DFARS, US state laws, card brands, contracts, CERT-In and CIRCIA's status. What starts each clock, the first deadline, who decides, and the primary source, with a law-as-of date."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import ContinueCard from "@/components/assured/ContinueCard.astro";
+import SubPageHero from "@/components/assured/SubPageHero.astro";
+import PillNav from "@/components/assured/PillNav.astro";
+
+<SubPageHero
+  phase="scope"
+  pillarIndex="Clock card"
+  lede="The triage analyst does not decide notification. The analyst does decide whether counsel hears about a running clock in minutes or in days. This page is the recognition aid: what you can see, which clock it may start, how short that clock is, and who owns it."
+/>
+
+<PillNav chapter="scope" />
+
+*Law as of October 13, 2026. Every row below was checked against the primary source listed in [Sources](#sources) on that date. Statutes and rules change; your compliance team's list is authoritative, and anything marked "verify with counsel" was not confirmed from a public primary source.*
+
+<Callout variant="warn" title="Recognition aid, not legal advice">
+Whether a regime applies depends on jurisdiction, contracts and your organization's role (controller or processor, covered entity or business associate, merchant or acquirer, manufacturer or user). The table tells you when to raise your hand and how fast. Privacy, legal and compliance decide whether a clock started and what gets filed.
+</Callout>
+
+## How to use this page
+
+[Regulatory boundaries](/docs/scope/regulatory/) teaches the four moves: recognize, commit the timestamps, preserve, get the owner in. This page is the lookup table behind the first two. Use it in three steps.
+
+1. **Recognize.** Match what you can see in the case (the "What you see" column) against the rows. A plausible match is enough. You are flagging a candidate, not deciding applicability.
+2. **Flag.** Record the regime, the data class or trigger, the candidate start timestamp in UTC, and the owner you engaged and when, in the [regulatory flags block](#flags-block). Your timestamp is a candidate; the owner decides which moment counts.
+3. **Route.** Engage the owner in the "Decision owner" column. For any clock measured in hours, that means the same hour, through the paging path in the [escalation protocols](/docs/escalation/protocols/), not a ticket for the morning.
+
+Four things stay outside the analyst's job: deciding that a regime applies, deciding that notification is required, contacting a regulator or law enforcement, and calling anything a "breach" in the record. The last one is a legal conclusion; write what you observed (see [writing for discovery](/docs/documentation/standards/#discovery)).
+
+### What "the clock starts at" means
+
+Regimes start their clocks at different moments, and few of them wait for confirmation.
+
+- **Awareness or discovery.** <DefineTerm term="General Data Protection Regulation (GDPR)" display="GDPR" />, <DefineTerm term="UK GDPR" />, NIS2, the <DefineTerm term="Cyber Resilience Act (CRA)" display="CRA" />, HIPAA, <DefineTerm term="Regulation S-P (SEC)" display="Regulation S-P" /> and most state laws. Often reached during triage. Under GDPR, <DefineTerm term="Awareness (GDPR)" display="awareness" /> is a reasonable degree of certainty that a security incident has compromised personal data. Under HIPAA, <DefineTerm term="Discovery (HIPAA)" display="discovery" /> is the first day anyone in the workforce other than the wrongdoer knew, or would have known with reasonable diligence.
+- **Suspicion.** Card-brand rules run from a reasonable suspicion of account-data compromise.
+- **A determination or classification.** The US banking rule, <DefineTerm term="NYDFS Part 500 (23 NYCRR 500)" display="NYDFS 500.17" />, Texas and Colorado run from the organization's determination that an incident occurred; DORA's four hours run from classifying the incident as major. Those decisions must be made promptly, and your timestamps are the evidence that they were.
+- **Materiality.** <DefineTerm term="SEC Cybersecurity Disclosure Rule" display="SEC Form 8-K Item 1.05" /> runs from the <DefineTerm term="Materiality (SEC)" display="materiality determination" />, which itself must come without unreasonable delay after discovery.
+- **Receipt of someone else's notice.** A processor's notice to its controller, a vendor's notice to you, or a law-enforcement call can be the start (see [external notifications](/docs/alert/intake/#external-notifications)).
+- **A payment.** Ransom and <DefineTerm term="Extortion Payment Notice" display="extortion payment reports" /> run from the payment.
+
+---
+
+## Recognition table
+
+Each table gives the regime and its primary source, who it binds, the trigger an analyst can see, what starts the clock, the first deadline and its recipient, and the owner who decides. Later reports (intermediate, final, individual notices) are noted where they shape what the record must hold.
+
+### EU and UK
+
+*Law as of October 13, 2026.*
+
+| Regime and source | Who it binds | What you see | Clock starts at | First deadline, to whom | Decision owner |
+|---|---|---|---|---|---|
+| **GDPR** ([Art. 33 and 34](https://eur-lex.europa.eu/eli/reg/2016/679/oj)) | Controllers with an Article 3 nexus to the EU/EEA; processors, toward their controller | Personal data plausibly read, copied, altered, deleted, or made unavailable (ransomware encryption can be a loss of availability) | Awareness. For a processor's incident, generally the processor's notice to the controller | Supervisory authority without undue delay and, where feasible, within 72 hours, unless unlikely to result in risk. Data subjects without undue delay if high risk | <DefineTerm term="Data Protection Officer (DPO)" display="DPO" /> |
+| **UK GDPR** ([Art. 33](https://www.legislation.gov.uk/eur/2016/679/article/33); [ICO](https://ico.org.uk/for-organisations/report-a-breach/personal-data-breach/)) | Controllers processing in a UK context | As for GDPR, for UK data subjects | Awareness | The ICO within 72 hours where feasible, unless unlikely to result in risk | DPO or UK privacy lead |
+| **UK NIS Regulations 2018** ([reg. 11](https://www.legislation.gov.uk/uksi/2018/506/regulation/11)) | Operators of essential services and certain digital service providers in the UK | An incident with a significant impact on the continuity of an essential service | Awareness that a NIS incident occurred | Designated competent authority within 72 hours | Sector compliance owner and legal |
+| <DefineTerm term="Network and Information Security Directive (NIS2)" display="NIS2" /> ([Art. 23](https://eur-lex.europa.eu/eli/dir/2022/2555/art_23/oj)) | Essential and important entities in the directive's sectors, through each member state's national law | A significant incident: one that causes, or could cause, severe operational disruption or financial loss to the entity, or considerable damage to others | Awareness of the significant incident | Early warning to the <DefineTerm term="Computer Security Incident Response Team (CSIRT)" display="CSIRT" /> or competent authority within 24 hours; incident notification within 72 hours; final report within one month of the notification | NIS2 compliance owner and legal |
+| <DefineTerm term="Digital Operational Resilience Act (DORA)" display="DORA" /> ([Art. 19](https://eur-lex.europa.eu/eli/reg/2022/2554/oj); [RTS 2025/301, Art. 5](https://eur-lex.europa.eu/eli/reg_del/2025/301/oj)) | EU financial entities (banks, insurers, investment firms, payment institutions and others) | An ICT incident touching critical services, clients, data, or availability at a financial entity | Classification of the incident as major, capped by awareness | Initial notification to the competent authority within 4 hours of classification and no later than 24 hours after awareness; intermediate report within 72 hours of the initial notification; final report within one month of the last intermediate report | The entity's incident-classification owner (ICT risk) |
+| **Cyber Resilience Act** ([Art. 14](https://eur-lex.europa.eu/eli/reg/2024/2847/oj); [ENISA](https://www.enisa.europa.eu/topics/product-security/single-reporting-platform-srp/frequently-asked-questions)) | Manufacturers of products with digital elements sold in the EU, since September 11, 2026 | Active exploitation of a vulnerability in a product your company makes, or a severe incident affecting a product's security (a compromised build, signing or update pipeline) | Awareness | Early warning within 24 hours and notification within 72 hours, through ENISA's Single Reporting Platform to the coordinating CSIRT and ENISA. Final report 14 days after a fix is available (vulnerability) or one month after notification (incident) | Product security (PSIRT) and legal |
+
+**Status to watch.** The EU Digital Omnibus proposal (November 2025) would move GDPR Article 33 to 96 hours and notify only high-risk breaches. As of October 2026 it is still a proposal, so 72 hours applies. The UK Cyber Security and Resilience Bill would add a 24-hour initial notification to the NIS regime; it is still before the House of Lords and is not law. NIS2 runs through national law, so the recipient and the entity thresholds vary by member state.
+
+### US federal and sector
+
+*Law as of October 13, 2026.*
+
+| Regime and source | Who it binds | What you see | Clock starts at | First deadline, to whom | Decision owner |
+|---|---|---|---|---|---|
+| **SEC Form 8-K Item 1.05** ([SEC release](https://www.sec.gov/newsroom/press-releases/2023-139)) | US public companies | An incident affecting operations, data, or financial-reporting systems at a listed company | The materiality determination, made without unreasonable delay after discovery | Form 8-K within four business days. The US Attorney General can delay it on national-security or public-safety grounds | Disclosure committee and counsel |
+| **SEC Regulation S-P** ([compliance guide](https://www.sec.gov/files/rules/final/2024/regulation-s-p-small-entity-compliance-guide.pdf)) | SEC-regulated firms such as broker-dealers, investment advisers, investment companies and transfer agents; all must comply since June 3, 2026 | Unauthorized access to sensitive customer information | Becoming aware that unauthorized access has occurred or is reasonably likely to have occurred | Affected individuals as soon as practicable, no later than 30 days. A service provider must notify the firm within 72 hours | Compliance and legal |
+| **<DefineTerm term="FTC Safeguards Rule" />** ([16 CFR 314.4(j)](https://www.law.cornell.edu/cfr/text/16/314.4)) | Non-bank financial institutions under FTC jurisdiction (the GLBA Safeguards Rule) | Unauthorized acquisition of unencrypted customer information of at least 500 consumers. Unauthorized access is presumed to be acquisition without reliable evidence otherwise | Discovery | The FTC as soon as possible, no later than 30 days, on the FTC's online form | Compliance and legal |
+| **US banking 36-hour rule** ([12 CFR 53.3](https://www.law.cornell.edu/cfr/text/12/53.3), with Federal Reserve and FDIC counterparts) | Banking organizations supervised by the OCC, Federal Reserve or FDIC; bank service providers | An incident that has materially disrupted or degraded, or is reasonably likely to, the bank's operations or services | Determination that a <DefineTerm term="Notification Incident (US Banking Rule)" display="notification incident" /> occurred | Primary federal regulator as soon as possible, no later than 36 hours. A bank service provider notifies each affected bank as soon as possible when covered services are disrupted for four or more hours | Bank incident or compliance lead |
+| **GLBA interagency guidance** ([Federal Reserve](https://www.federalreserve.gov/frrs/guidance/interagency-guidance-on-response-programs-for-unauthorized-access-to-customer-information-and-customer-notice.htm)) | Banks | Unauthorized access to sensitive customer information | Becoming aware of the incident | Primary federal regulator as soon as possible; customers as soon as possible once misuse has occurred or is reasonably possible | Compliance and legal |
+| **NYDFS 500.17** ([23 NYCRR 500.17](https://www.law.cornell.edu/regulations/new-york/23-NYCRR-500.17); [DFS](https://www.dfs.ny.gov/cybersecurity/submissions)) | Entities licensed by the New York Department of Financial Services | A cybersecurity incident at the entity, an affiliate, or a third-party service provider | Determination that a cybersecurity incident occurred | The Superintendent as promptly as possible, no later than 72 hours. An extortion payment: notice within 24 hours of paying, and a written explanation within 30 days | Compliance and legal |
+| <DefineTerm term="Health Insurance Portability and Accountability Act (HIPAA)" display="HIPAA" /> ([45 CFR 164.404 to 164.410](https://www.law.cornell.edu/cfr/text/45/164.410)) | Covered entities and their business associates | <DefineTerm term="Protected Health Information (PHI)" display="PHI" /> plausibly accessed; impermissible access is presumed a breach unless a documented risk assessment shows otherwise | Discovery | Individuals without unreasonable delay, no later than 60 days. Media too when more than 500 residents of a state are affected. HHS at the same time for 500 or more, otherwise within 60 days of year end. A business associate notifies the covered entity within 60 days of discovery, and its agreement probably says sooner | Privacy officer |
+| **<DefineTerm term="DFARS 252.204-7012" />** ([clause](https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting.)) | US defense contractors and subcontractors handling covered defense information | A cyber incident affecting a covered contractor information system or the defense information on it | Discovery | DoD through the DIBNet portal within 72 hours (a DoD-approved medium-assurance certificate is required); preserve affected images and packet captures for at least 90 days after the report | Contracts, security and legal |
+| <DefineTerm term="Cyber Incident Reporting for Critical Infrastructure Act (CIRCIA)" display="CIRCIA" /> ([CISA](https://www.cisa.gov/topics/cyber-threats-and-advisories/information-sharing/cyber-incident-reporting-critical-infrastructure-act-2022-circia)) | Covered critical-infrastructure entities, once the final rule takes effect | Not yet in force | Not yet in force | When effective: covered incidents to CISA within 72 hours, ransom payments within 24 hours. Today reporting is voluntary | Legal |
+
+**Status to watch.** CIRCIA's final rule went to the White House for review on October 1, 2026, after missing its October 2025 statutory deadline; check whether it has been published before relying on its clocks. SEC Item 1.05 is in force, but the SEC opened Regulation S-K to comment in January 2026 and industry groups have asked it to rescind Item 1.05; no proposal had been made as of October 2026.
+
+### US states
+
+*Law as of October 13, 2026.* Every US state has a breach-notification law, and the residence of the affected people decides which ones apply, not where your company sits. The Privacy Rights Clearinghouse's 2026 survey counts 20 states with a numeric consumer deadline, from 30 to 60 days; the rest say "without unreasonable delay". These six show the pattern.
+
+| State and source | Clock starts at | Individuals | State regulator |
+|---|---|---|---|
+| **California** ([Civ. Code §1798.82](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1798.82)) | Discovery or notification of the breach | Within 30 calendar days (since January 1, 2026). Delay only for law enforcement, or as needed to determine scope and restore integrity | Sample notice to the Attorney General within 15 calendar days of notifying, when more than 500 residents are notified |
+| **Colorado** ([C.R.S. 6-1-716](https://law.justia.com/codes/colorado/title-6/fair-trade-and-restraint-of-trade/article-1/part-7/section-6-1-716/)) | Determination that a breach occurred | Within 30 days | Attorney General within 30 days when 500 or more residents are affected |
+| **Florida** ([Fla. Stat. 501.171](https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0500-0599/0501/Sections/0501.171.html)) | Determination of a breach, or reason to believe one occurred | Within 30 days | Department of Legal Affairs within 30 days when 500 or more residents are affected |
+| **New York** ([GBL 899-aa](https://www.nysenate.gov/legislation/laws/GBS/899-AA)) | Discovery | Within 30 days; delay only when law enforcement determines notice would impede a criminal investigation | Verify with counsel |
+| **Texas** ([Attorney General](https://www.texasattorneygeneral.gov/consumer-protection/data-breach-reporting)) | Determination that the breach occurred | Within 60 days | Attorney General within 30 days when at least 250 residents are affected, on the AG's online form |
+| **Washington** ([RCW 19.255.010](https://app.leg.wa.gov/RCW/default.aspx?cite=19.255.010)) | Discovery | Within 30 calendar days | Attorney General within 30 days when more than 500 residents are notified |
+
+For every other state, use a maintained tracker through counsel: the [Privacy Rights Clearinghouse 50-state survey](https://privacyrights.org/resources-tools/reports/data-breach-notification-laws-50-state-survey-2026-edition) (statutes as of January 1, 2026) or [NCSL's statute list](https://www.ncsl.org/technology-and-communication/security-breach-notification-laws). Data you hold for someone else usually puts you on a separate, faster duty to tell the data's owner (California: immediately after discovery).
+
+### Contractual, card-brand and insurance clocks
+
+These are not statutes, and they are often the shortest clock in the case.
+
+| Clock | What you see | Clock starts at | First deadline | Decision owner |
+|---|---|---|---|---|
+| **Visa** ([What To Do If Compromised](https://usa.visa.com/dam/VCOM/download/merchants/cisp-what-to-do-if-compromised.pdf)) | Account data, or a system that stores, processes or transmits it, plausibly accessed | Reasonable suspicion of compromise | Acquirer immediately; Visa within three calendar days | Acquirer-relationship owner |
+| **American Express** ([Data Security Operating Policy](https://www.americanexpress.com/content/dam/amex/us/merchant/new-data-security/DSOP_United_States_EN.pdf)) | Amex card data plausibly accessed | Discovery of a data incident | Immediately, and no later than 72 hours | Acquirer-relationship owner |
+| **Mastercard** | Mastercard account data plausibly accessed | Verify with counsel and your acquirer | Verify with counsel and your acquirer; merchants usually notify the acquirer, which reports onward | Acquirer-relationship owner |
+| **Customer contracts** (DPAs, MSAs) | Customer data or a customer-facing service touched | Usually your awareness or discovery, as the contract defines it | Often 24 to 72 hours; read the contract | Legal and the account owner |
+| **Cyber insurance** | Any incident the policy covers | As the policy defines it | Prompt notice is often a coverage condition, sometimes before you engage outside IR or counsel | Legal or risk management |
+
+### Outside the EU, UK and US
+
+*Law as of October 13, 2026.* Two short clocks catch multinationals most often.
+
+| Regime and source | Who it binds | Trigger | First deadline, to whom |
+|---|---|---|---|
+| **India: CERT-In Directions of April 28, 2022** ([directions](https://www.cert-in.org.in/PDF/CERT-In_Directions_70B_28.04.2022.pdf)) | Service providers, intermediaries, data centres, body corporates and government organizations | A cyber incident of a listed type (including intrusions, ransomware, data breaches and leaks) | CERT-In within **6 hours** of noticing it or being told about it; more detail may follow |
+| **Australia: Cyber Security Act 2024, Part 3** ([Home Affairs factsheet](https://www.homeaffairs.gov.au/cyber-security-subsite/files/factsheet-ransomware-payment-reporting.pdf)) | Businesses with annual turnover above AUD 3 million, and responsible entities for critical-infrastructure assets | A ransomware or cyber-extortion payment, made by the entity or on its behalf | The Australian Signals Directorate within 72 hours of the payment, or of learning it was made |
+
+---
+
+## Parallel clocks
+
+One event can start several clocks, each with its own start, deadline and owner. They run at the same time, not in sequence, and none of them waits for the investigation to finish. The SOC does not track the clocks; it keeps the timestamp record every clock owner will draw on.
+
+[Case A, the finance-team intrusion](/docs/scope/example/#case-a), shows the pattern. At 09:42 UTC the analyst recognizes that the compromised user can reach a cloud finance reporting platform holding personal data of vendor contacts in the EU and possibly card data. At 09:45, compliance and the DPO are in the case.
+
+| Candidate clock | What the analyst recorded | Who decides and tracks it |
+|---|---|---|
+| GDPR Art. 33 (72 hours from awareness) | 09:42: personal data of vendor contacts in the EU in reach; no platform activity seen yet | DPO. Reach alone is not awareness; a later finding of attacker activity on the platform may be |
+| Card-brand rules (from suspicion) | 09:42: card data in reach *if* the platform touches it; compliance owns that question | Acquirer-relationship owner |
+| SEC 8-K Item 1.05 (if the company is listed) | Business functions affected and when each fact was established | Disclosure committee, through counsel |
+| Customer and vendor contracts | Which customers' or vendors' data the platform holds | Legal and the account owners |
+
+Three rules keep parallel clocks from colliding.
+
+- **The shortest clock sets the pace.** If any candidate clock is measured in hours (CERT-In, DORA, NIS2, NYDFS's ransom notice, a 24-hour contract), every owner is engaged in that window, not only the one whose clock it is.
+- **One timestamp record, many readers.** Record each candidate start once, in UTC, with what you knew at that moment. Each owner reads the same record and decides which moment counts for their regime.
+- **Each clock has one named owner.** The [handoff packet](/docs/escalation/handoff/) carries the flags and the owners engaged, so incident response inherits the clocks with the case and nobody assumes someone else filed.
+
+---
+
+## Special cases
+
+### Law-enforcement delay requests
+
+Several regimes let law enforcement delay notice to individuals: California, New York and Washington state law, HIPAA (§164.412), and the US banking agencies' guidance (a written request). SEC Item 1.05 has its own route through the US Attorney General. Do not assume a delay exists elsewhere, and never act on one yourself: a delay request goes to counsel, who confirms it, records it and tells each clock owner. If a caller asks you to hold off on visible containment, that is a decision for counsel and the IR lead (see [special routes](/docs/escalation/communication/#special-routes)).
+
+### Ransom and extortion payments
+
+A payment starts its own clocks: NYDFS 500.17 (24 hours, then a 30-day written explanation), Australia's Part 3 report (72 hours), and CIRCIA once its rule takes effect (24 hours). Payment decisions belong to legal, executives and the insurer, with sanctions screening against Treasury's OFAC lists (see [external parties](/docs/escalation/protocols/#external-parties)). The analyst's part is to record when the demand arrived, when IR and legal were told, and to [preserve](/docs/escalation/preserve/) the demand and its channel as evidence. The SOC never talks to the threat actor.
+
+### Child sexual abuse material
+
+Stop. Do not view it further, copy, download or forward it, even to a colleague or into the case. Record only the metadata the tooling already shows (location, hash, time), and route it to counsel and the organization's legal reporting channel. In the US, providers of electronic communication or remote computing services must report apparent child sexual abuse material to NCMEC's CyberTipline ([18 U.S.C. §2258A](https://www.law.cornell.edu/uscode/text/18/2258A)), and the report is treated as a request to preserve for one year. Counsel decides whether that duty applies to you. The analyst is rotated off the case and offered support (see [cognitive traps](/docs/cognitive-traps/)).
+
+---
+
+<h2 id="flags-block">The regulatory flags block</h2>
+
+This page feeds one field, the <DefineTerm term="Regulatory Flags Block" display="regulatory flags block" />. The [event report](/templates/event-report.md) and the [handoff packet](/templates/handoff-packet.md) carry the same block, so the flags travel with the case. Under the table, three lines carry what the owner needs before deciding on notice: the estimated affected individuals and their jurisdictions; the preservation or legal-hold status and its scope; and counsel's handling instructions for the record (labeling, channel, distribution). Write "unknown" or "none yet" rather than leaving a line blank.
+
+```text
+### Regulatory flags (optional, when regulated data is plausibly involved)
+
+<!-- Each regulatory or contractual clock that may apply. Triage records the
+     candidate start; the regime's owner decides whether the clock started. -->
+
+| Regime | Data class and trigger observed | Candidate awareness or trigger timestamp (UTC) | Owner engaged (who), at (UTC) | Owner's decision |
+| --- | --- | --- | --- | --- |
+|  |  |  |  |  |
+
+- Estimated affected individuals and their jurisdictions (if known):
+- Preservation or legal-hold status and scope (who authorized it, and when, UTC):
+- Counsel handling instructions (labeling, channel, distribution), if any:
+```
+
+<Reveal summary="The block, filled in for Case A at the end of Scope" variant="example">
+
+| Regime | Data class and trigger observed | Candidate awareness or trigger timestamp (UTC) | Owner engaged (who), at (UTC) | Owner's decision |
+|---|---|---|---|---|
+| GDPR Art. 33 | Personal data of vendor contacts in the EU on the cloud finance reporting platform. Reach only: no platform activity seen | 09:42 (regulated data recognized in reach) | DPO, 09:45 | Pending; DPO to reassess on any platform finding |
+| Card-brand rules (PCI DSS) | Card data, *if* the platform touches it (unconfirmed) | 09:42 | Compliance (acquirer-relationship owner), 09:45 | Pending: compliance confirming whether the platform is in PCI scope |
+
+- Estimated affected individuals and their jurisdictions: unknown; no platform record has been seen accessed. EU vendor contacts are in reach.
+- Preservation or legal-hold status and scope: technical preservation only (the script and its hash, the RunMRU export, proxy-log cleanup paused, platform audit logs held past rotation). No legal hold yet; whether one is needed is counsel's call.
+- Counsel handling instructions: none yet.
+
+A documented "none" belongs in the record too. [Case B](/docs/scope/example/#case-b) records "no regulated data in reach; source code is sensitive but not regulated", which is a regulatory boundary as real as Case A's.
+
+</Reveal>
+
+---
+
+## Sources
+
+All checked October 13, 2026.
+
+- **EU:** GDPR, [Regulation (EU) 2016/679](https://eur-lex.europa.eu/eli/reg/2016/679/oj), Art. 33 and 34, with [EDPB Guidelines 9/2022](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-92022-personal-data-breach-notification-under_en) on awareness. NIS2, [Directive (EU) 2022/2555](https://eur-lex.europa.eu/eli/dir/2022/2555/art_23/oj), Art. 23. DORA, [Regulation (EU) 2022/2554](https://eur-lex.europa.eu/eli/reg/2022/2554/oj), Art. 19, and [Delegated Regulation (EU) 2025/301](https://eur-lex.europa.eu/eli/reg_del/2025/301/oj), Art. 5. Cyber Resilience Act, [Regulation (EU) 2024/2847](https://eur-lex.europa.eu/eli/reg/2024/2847/oj), Art. 14, and [ENISA's Single Reporting Platform FAQ](https://www.enisa.europa.eu/topics/product-security/single-reporting-platform-srp/frequently-asked-questions) (operational September 11, 2026).
+- **UK:** [UK GDPR Art. 33](https://www.legislation.gov.uk/eur/2016/679/article/33) and the [ICO's breach-reporting guidance](https://ico.org.uk/for-organisations/report-a-breach/personal-data-breach/). [NIS Regulations 2018, reg. 11](https://www.legislation.gov.uk/uksi/2018/506/regulation/11).
+- **US federal:** SEC [Item 1.05 adopting release](https://www.sec.gov/newsroom/press-releases/2023-139) (July 2023) and [Regulation S-P compliance guide](https://www.sec.gov/files/rules/final/2024/regulation-s-p-small-entity-compliance-guide.pdf). FTC Safeguards Rule, [16 CFR 314.2](https://www.law.cornell.edu/cfr/text/16/314.2) and [314.4(j)](https://www.law.cornell.edu/cfr/text/16/314.4). Banking, [12 CFR 53.3](https://www.law.cornell.edu/cfr/text/12/53.3) and [53.4](https://www.law.cornell.edu/cfr/text/12/53.4), and the [interagency response-program guidance](https://www.federalreserve.gov/frrs/guidance/interagency-guidance-on-response-programs-for-unauthorized-access-to-customer-information-and-customer-notice.htm). [23 NYCRR 500.17](https://www.law.cornell.edu/regulations/new-york/23-NYCRR-500.17). HIPAA, [45 CFR 164.406](https://www.law.cornell.edu/cfr/text/45/164.406), [164.408](https://www.law.cornell.edu/cfr/text/45/164.408) and [164.410](https://www.law.cornell.edu/cfr/text/45/164.410). [DFARS 252.204-7012](https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting.). [CISA's CIRCIA page](https://www.cisa.gov/topics/cyber-threats-and-advisories/information-sharing/cyber-incident-reporting-critical-infrastructure-act-2022-circia). [18 U.S.C. §2258A](https://www.law.cornell.edu/uscode/text/18/2258A).
+- **US states:** the statutes linked in the [state table](#us-states), and the Texas Attorney General's [data breach reporting page](https://www.texasattorneygeneral.gov/consumer-protection/data-breach-reporting).
+- **Card brands:** Visa, [What To Do If Compromised](https://usa.visa.com/dam/VCOM/download/merchants/cisp-what-to-do-if-compromised.pdf) (Version 10.0). American Express, [Data Security Operating Policy](https://www.americanexpress.com/content/dam/amex/us/merchant/new-data-security/DSOP_United_States_EN.pdf), Section 3. Mastercard's current Security Rules and Procedures could not be retrieved, so its row says "verify".
+- **Elsewhere:** [CERT-In Directions No. 20(3)/2022](https://www.cert-in.org.in/PDF/CERT-In_Directions_70B_28.04.2022.pdf). Australia, Department of Home Affairs [ransomware payment reporting factsheet](https://www.homeaffairs.gov.au/cyber-security-subsite/files/factsheet-ransomware-payment-reporting.pdf).
+
+<KeyTakeaway>
+Recognize, flag, route. Match what the case shows against the table, record each candidate start in UTC with what you knew at the time, and get every owner in within the window of the shortest clock. Clocks start at awareness, discovery, suspicion, a determination, or a payment, and several of them run in hours. Notification is decided by privacy, legal and compliance; the speed at which they hear about it is decided in triage.
+</KeyTakeaway>
+
+<ContinueCard
+  current="scope"
+  nextHref="/docs/scope/time/"
+  nextLabel="Time boundaries"
+  nextDescription="Historical review windows, real-time investigation, retention limits. When the investigation starts and stops."
+  ctaLabel="Read time boundaries"
+/>

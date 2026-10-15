@@ -1,6 +1,7 @@
 ---
 title: "Documentation working example"
-description: "Closing the finance-team intrusion with a record the team can actually use."
+description: "Closing three cases durably: the finance-team intrusion, the Cursor benign true positive, and the SaaS token theft."
+techVerified: "2026-10-13"
 ---
 
 import SubPageHero from "@/components/assured/SubPageHero.astro";
@@ -9,46 +10,73 @@ import ChapterExample from "@/components/assured/ChapterExample.astro";
 import ExampleStepper from "@/components/assured/ExampleStepper.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import Callout from "@/components/assured/Callout.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import CaseFile from "@/components/assured/CaseFile.astro";
+import "@/styles/pages/documentation.css";
 
-<SubPageHero phase="documentation" parentLetter="D" pillarIndex="Example" pillarTotal="Documentation chapter" chapterHref="/docs/documentation/" chapterLabel="Documentation" lede="The Documentation phase applied to the finance-team intrusion. The case is closed; the record makes the work durable."/>
+<SubPageHero phase="documentation" pillarIndex="Example" lede="The Documentation phase applied to the three threaded cases. Where IR owns the incident, triage closes its side of the record and links IR's outputs; where the case closed, the record is the outcome. Either way, the record makes the work durable."/>
 
-<PillNav chapter="documentation" label="Documentation chapter" items={[
-  { label: "Standards", href: "/docs/documentation/standards/", phase: "documentation" },
-  { label: "Templates", href: "/docs/documentation/templates/", phase: "documentation" },
-  { label: "Pitfalls", href: "/docs/documentation/pitfalls/", phase: "documentation" },
-]}/>
+<PillNav chapter="documentation" />
 
-## The first scenario: closing the finance-team record
+<h2 id="case-a">Case A · Closing the finance-team record</h2>
 
-<ChapterExample title="Closing the case durably" scenario="Escalation handed the case to IR, and from that moment IR owns the case: IR contains the intrusion, and IR writes the post-incident report. The triage analyst's Documentation phase finalizes the triage-side event report and links it to IR's outputs, not the other way around.">
+Previously: the Escalation decision escalated the finance-team intrusion to IR at 14:00 as a P1, with the handoff packet and a warm handoff (<a href="/docs/escalation/example/#case-a">Escalation example, Case A</a>).
+
+<CaseFile caseKey="A" heading={false} />
+
+<ChapterExample title="Closing the case durably" scenario="The Escalation decision handed the case to IR, and from that moment IR owns the case: IR contains the intrusion, and IR writes the post-incident report. The triage analyst's Documentation phase finalizes the triage-side event report and links it to IR's outputs, not the other way around.">
 
 <ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report template (see Standards) is filled, ideally in real time as the investigation ran. The handoff packet maps into it per the crosswalk in Standards: the summary, timeline, entities, evidence chain, verdict, and containment feed sections 01-04 (event overview, timeline, origin &amp; scope, actions taken); the open questions are carried explicitly into recommendations rather than dropped; the communication record lands verbatim in the appendices. The report covers triage's work up to the handoff. The IR responder's findings belong to IR's post-incident report, which this record links to rather than absorbs. Sections 05-09 (business impact, IOCs, lessons learned, post-event recommendations, appendices) are added during the Documentation phase as the triage-side picture completes.</p>
-    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the temptation to smooth the timeline in hindsight. This case's P1 was declared hours later than the criteria justified, and the honest record keeps that gap visible. Rewriting the narrative so the escalation looks prompt would read better in review, and it would destroy the record's two real uses: the audit trail stops matching the system-of-record timestamps, and the team loses the exact lesson (criteria as tripwires, not end-of-phase checklists) this case exists to teach.</p>
+    <p>The nine-section event report (see <a href="/docs/documentation/standards/#format">Standards</a>) is assembled from the case record written throughout the investigation. The investigative entries were locked at handoff, so Documentation adds the closure sections as timestamped, attributed addenda, under the <a href="/docs/documentation/standards/#amending">amendment rule</a>. The handoff packet maps in per the <a href="/docs/documentation/standards/#format">crosswalk</a>: summary, timeline, entities, evidence chain, verdict, and containment fill the decision header and sections 01-04; artifacts split between indicators (06) and appendices (09); the regulatory notification informs business impact (05); open questions carry into recommendations (08) rather than being dropped; the communication record lands verbatim in 09. The report covers triage's work up to the handoff and links IR's post-incident report rather than absorbing it. What only becomes clear at the end, chiefly lessons learned (07) and the detection-engineering recommendations (08), Documentation writes now.</p>
+
+    <Reveal summary="The finance-team event report, filled in" variant="example">
+
+    **Decision header.** Bottom line: a phishing link that talked two finance users into pasting a command let an attacker steal browser sessions, and one was replayed against the cloud finance reporting platform, which holds EU vendor-contact records; IR owns the incident, and what the replayed session did on the platform is still open. Detection: true positive. Activity: malicious (paste-and-run loader, browser session theft, session replay). Escalation decision: escalate to IR, recorded 14:00 UTC. Status: escalated (INC-2026-0303-001). Priority at close: P1, High/High cell; escalation tripwire met 09:24 UTC, P1 set and IR engaged 14:00. Confidence: high on the execution chain and the replay, low on attribution. Open uncertainty: what the replayed session did on the platform; whether Finance user 2's stolen cookie was used. Key times: detected 09:11, acknowledged 09:14, tripwire met 09:24, escalated 14:00, contained 14:20 to 14:24. Prepared by: Tier 1 analyst (day shift), 2026-03-03 17:30 UTC. Material AI use: none.
+
+    **01 Event overview.** ALERT-2026-0303-0191, 2026-03-03 09:11 UTC, SIEM correlation rule. Affected: laptop-finance-09, laptop-finance-12, dlin's federated identity, the cloud finance reporting platform. A phishing link led to a pasted command that ran a PowerShell stage, which stole browser session cookies; one was replayed against the platform. Status: escalated (INC-2026-0303-001).
+
+    **02 Timeline.** Adversary and analyst rows together, each with source and outcome: delivery 09:02:11; execution 09:11:40 to 09:11:44; alert 09:11; pickup 09:14; tripwire met and flagged, not acted on, 09:24; cookie theft 09:19; compliance engaged 09:45; replay 10:41:07, found 11:05; second host 10:52, found 12:05; decision 14:00; page 14:01; preservation 14:10 to 14:19; containment 14:20 to 14:24.
+
+    **03 Origin and scope.** As observed at triage: spearphishing link to a fake verification page, a command pasted into the Run dialog, PowerShell cradle, session cookie theft, replay from a hosting address. Two hosts executed, one blocked by a control, one recipient never opened. Root cause and full scope: see IR's report for INC-2026-0303-001.
+
+    **04 Actions taken.** Each query and action with tool, owner, and outcome, ending with the preservation and pre-authorized containment steps from the handoff packet.
+
+    **05 Business impact.** Two users locked out and two laptops isolated. Regulatory: PCI possible (only if the platform touches card data) and GDPR candidate, determinations with compliance and the DPO. Financial: accounts payable verifying vendor bank-detail changes out of band.
+
+    **06 Indicators and observables.** All with disposition malicious, marked TLP:AMBER for sharing: invoice-records[.]example and 203.0.113.77 (high confidence); accounts@invoice-records[.]example (high); 198.51.100.23 (medium: a hosting address can be shared); the hash of upd.ps1 (high). ATT&CK chain listed as behavior, not as indicators, with the ATT&CK version it was mapped against.
+
+    **07 Lessons learned.** The escalation tripwire was met at 09:24 and acted on at 14:00; the replay and the second compromise both happened in that gap. The rule's network leg depends on the proxy, so an off-network host executed silently.
+
+    **08 Post-event recommendations.** Detection engineering: the three tickets in step 4, with owners and dates. SOC lead: an escalation-tripwire drill for the day shift. Endpoint team: extend the EDR's script-control prevention policy from the pilot group to the finance fleet (it is what stopped Finance user 3), and remove the Run dialog by Group Policy for roles that do not need it. Awareness team: tell staff that no real verification page asks them to paste a command. Network team: enforce the web proxy off-network. Carried forward from the packet: the platform's in-app activity, pending the vendor.
+
+    **09 Appendices.** Sanitized log excerpts, the communication record verbatim, chain-of-custody records for the memory images and the original message.
+
+    </Reveal>
+
+    <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the temptation to smooth the timeline in hindsight. This case's escalation tripwire was met at 09:24 and the P1 was set and IR engaged at 14:00, and the honest record keeps that gap visible. Rewriting the narrative so the escalation looks prompt would read better in review, and it would destroy the record's two real uses: the audit trail stops matching the system-of-record timestamps, and the team loses the exact lesson (criteria as tripwires, not end-of-phase checklists) this case exists to teach.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Sanitize for sharing</h3>
-    <p>The record needs to be usable by the broader team without exposing sensitive data. PII is masked, regulated content is referenced rather than reproduced, sensitive infrastructure detail is generalized where possible. The version stored in the case-management system stays detailed; the version shared in training stays useful but safe.</p>
+    <p>The record needs to be usable by the broader team without exposing sensitive data. PII is masked, regulated content is referenced rather than reproduced, sensitive infrastructure detail is generalized where possible. The version stored in the case-management system stays detailed; the version shared in training stays useful but safe. Here that means dlin and the other finance users are pseudonymized in the shared version, the vendor-contact data on the platform is referenced by system and record class only, and the internal IP addresses and proxy port are generalized. The record describes the click neutrally ("followed the link at 09:10 UTC") with no judgment of care: dlin is the first victim, not the root cause. The indicator list shared outside the team carries its TLP label.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Link related artifacts</h3>
-    <p>The record links to: the original alert in the SIEM, the IR ticket in the response system, the compliance notification record, the vendor request thread, the post-mortem document, and the detection-engineering ticket for the rules that need tuning. Every relevant artifact is one click away.</p>
+    <p>The record links to: the original alert in the SIEM (ALERT-2026-0303-0191), the IR incident (INC-2026-0303-001) and IR's post-incident report, the compliance and DPO thread opened at 09:45, the vendor request (opened 09:48, escalated 14:35), the platform owner's confirmation that the session was ended, and the detection-engineering tickets below. Every relevant artifact is one click away.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Feed detection engineering</h3>
-    <p>The case surfaced two detection gaps and one rule-precision opportunity. The triage analyst writes a short detection-engineering brief: which rules fired (and how usefully), which patterns were missed, and what changes would prevent or sharpen detection next time. The brief becomes a ticket in the detection-engineering queue.</p>
+    <p>The case surfaced two detection gaps and one rule-precision opportunity, and the triage analyst's brief names each. Gap one: the rule's network leg reads only the web proxy, so the identical chain on laptop-finance-12, off the corporate network without the VPN, raised nothing; the leg should also read EDR network events. Gap two: nothing alerted when a non-browser process opened the browser and read its cookie store at 09:19, or when an existing session was used from a hosting-provider address at 10:41; either would have surfaced the theft hours earlier. Precision: the alert should carry the RunMRU value and the browser's last visit to the destination domain as fields, because together they separate a pasted lure from an administrator opening PowerShell by hand at a glance. Each becomes a tuning request in the detection-engineering queue, routed per the <a href="/docs/detection-feedback/#the-routing-table">detection-feedback routing table</a>.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Submit for review</h3>
-    <p>The record is submitted to the SOC manager for closure review. The review is not theater; it is the quality check that ensures the record meets the standard. The reviewer either accepts the record, requests clarification, or flags it as a training case for the team.</p>
+    <p>The record is submitted to the SOC manager for closure review. The review is not theater; it is the quality check that ensures the record meets the standard, run against the <a href="/docs/documentation/standards/#closure-review">closure review checklist</a>. The reviewer either accepts the record, requests clarification, or flags it as a training case for the team. This one is flagged as a training case, for the 09:24 tripwire.</p>
   </div>
 
 </ExampleStepper>
@@ -59,33 +87,53 @@ import Callout from "@/components/assured/Callout.astro";
 
 ---
 
-## A second scenario: closing the Cursor benign true positive durably
+<h2 id="case-b">Case B · Closing the Cursor benign true positive durably</h2>
 
-The Cursor IDE Empire-pattern case ended in Escalation as a documented close at triage. Documentation now finalizes that record, same nine-section event report, same standards, same review. The lesson is that *benign closes deserve documentation too*. The event report for a "no incident" verdict carries forward into detection-engineering tickets, training, and the audit trail that proves the SOC closed for the right reasons.
+Previously: the Cursor IDE Empire-pattern case ended at the Escalation decision as a documented close, at 18:08 after a clean P3 re-score (<a href="/docs/escalation/example/#case-b">Escalation example, Case B</a>). Documentation now finalizes that record with the same nine-section event report, the same standards, and the same review. The lesson is that *benign closes deserve documentation too*. The event report for a "no incident" verdict carries forward into detection-engineering tickets, training, and the audit trail that proves the SOC closed for the right reasons.
 
-<ChapterExample title="Finalizing the Cursor benign-true-positive record" scenario="Escalation produced the close-at-triage record. Documentation finalizes the event report so the close survives a year of detection-rule changes and a quarterly auditor read.">
+<CaseFile caseKey="B" heading={false} />
+
+<ChapterExample title="Finalizing the Cursor benign-true-positive record" scenario="The Escalation decision produced the closure record. Documentation finalizes the event report so the close survives a year of detection-rule changes and a quarterly auditor read.">
 
 <ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine-section event report is filled. Sections 01–04 (event overview, timeline, origin &amp; scope, actions taken) carry forward directly from the Escalation closure record: the alert, the methodology phases, the verdict, and the explicit "no containment" justification. Sections 05–09 are filled with the benign-close-specific content: <strong>business impact</strong> is "none, legitimate activity on a developer workstation"; <strong>IOCs</strong> is the binary hash and vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the over-broad detection rule and what changed about it; <strong>post-event recommendations</strong> is the rule-tuning ticket plus a one-line proposal to surface vendor-signing context in the EDR view; <strong>appendices</strong> hold the signature chain, peer-baseline query, and the Risk-phase reasoning.</p>
+    <p>The nine-section event report is filled under the decision header the Escalation decision wrote (verdict on both axes, priority, confidence, provenance). Sections 01-04 (event overview, timeline, origin &amp; scope, actions taken) carry forward from the closure record: the alert, the phases, the High/Low P3 hold and its clean re-score, and the explicit "no containment" justification. Sections 05-09 are filled with the benign-close-specific content: <strong>business impact</strong> is "none; legitimate activity on a developer workstation"; <strong>IOCs</strong> are the binary hash, the bundled extension ID and the vendor TLS endpoints, recorded as *known-good* rather than malicious; <strong>lessons learned</strong> is the rule's calibration on developer hosts and the proposed pattern entry; <strong>post-event recommendations</strong> are the alert-enrichment request and the pattern-entry proposal; <strong>appendices</strong> hold the signature chain, the extension inventory, the fleet prevalence query, and the Risk-phase reasoning. The decision header's open-uncertainty line names the two accepted gaps and the reopen triggers.</p>
+
+    <Reveal summary="Before and after: rewriting the Case B decision header" variant="example">
+
+    **Before.** A hurried close often reads: "Benign. False positive on the Cursor helper, the EDR rule is noisy. Closed, no action." It uses the wrong verdict (the rule detected exactly what it describes), cites no evidence, names no gaps, and gives the next analyst nothing to reopen on.
+
+    **After.** The same header, written to the standards:
+
+    - **Bottom line:** An EDR rule flagged the Cursor IDE's indexing helper on a developer laptop. The activity was the IDE's own bundled extension talking to Cursor's servers; nothing was compromised, and the rule worked as written.
+    - **Verdict:** Detection: true positive · Activity: authorized (benign true positive) · Status: closed (CASE-20260311-017).
+    - **Escalation decision:** documented close by the triage analyst, 2026-03-11 18:08 UTC; close approved by the SOC manager at 18:10.
+    - **Priority at close:** P3, High/Low cell, held to the 18:03 forward watch; re-score clean at 18:05.
+    - **Confidence in the verdict:** high (direct EDR evidence, corroborated by the proxy and the MDM inventory, alternatives tested and ruled out).
+    - **Open uncertainty:** the egress proxy records TLS metadata only to the vendor endpoints; no USB device control on this host class. Both are peripheral to the verdict question.
+    - **Reopen if:** a helper child runs code from outside the app bundle or an extension not on the approved list; a destination falls outside the vendor allowlist; credential paths are read; a LaunchAgent, LaunchDaemon or login item is written; a new MCP server config appears; an agent command has no matching user prompt or reaches outside the workspace; the same behavior fires on a non-developer host; a Cursor binary carries a non-Anysphere signature.
+    - **Key times (UTC):** detected 14:03:11, acknowledged 14:05, verdict 15:02, closed 18:08.
+
+    </Reveal>
+
     <p class="example-step__what-not"><strong>What a less experienced analyst could miss:</strong> the known-good marking on the IOC section. A binary hash filed in an incident record without that label tends to migrate: into the intel platform, into a blocklist, into a hunt query someone writes next quarter. Then every developer running the same signed IDE lights up as "matching a known incident artifact." Recording the hash as known-good, in the field where future correlation will find it, is what keeps this benign fire from breeding a family of new ones.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Sanitize for sharing</h3>
-    <p>The Cursor case has less sensitive content than the finance-team intrusion, but the same discipline applies. The named developer's identity is pseudonymized in the version stored for team-wide review. The binary hash and vendor endpoints stay in the detailed version. The internal source-control repository names are generalized.</p>
+    <p>The Cursor case has less sensitive content than the finance-team intrusion, but the same discipline applies. The named developer's identity is pseudonymized in the version stored for team-wide review. The binary hash and vendor endpoints stay in the detailed version. Internal source-control identifiers (repository, module, and branch names) are generalized, and the prompt the user gave the coding agent is paraphrased rather than quoted, because it names them.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Link related artifacts</h3>
-    <p>The record links to: the original alert in the SIEM, the case in the case-management system, the detection-engineering ticket for rule tuning, the peer-baseline query saved in the analytics library, and (this one matters) the *training-archive entry*, the Cursor case is a textbook example of "looks like Empire, isn't Empire," and lives in the SOC's onboarding curriculum.</p>
+    <p>The record links to: the original alert in the SIEM, the case in the case-management system, the detection-engineering requests (alert enrichment and the pattern-entry proposal), the rule's existing calibration record, the fleet prevalence query saved in the analytics library, and (this one matters) the training-archive entry: the Cursor case is a textbook example of "looks like Empire, isn't Empire," and of checking what the signed IDE ran, not only who signed it. It lives in the SOC's onboarding curriculum.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Feed detection engineering</h3>
-    <p>The case surfaced one over-broad detection rule and one improvement opportunity. The triage analyst writes a brief: the rule that fired, why it matches on macOS Electron IDEs, what a tuned variant would incorporate (binary signature, install path, runtime context), and what the benign-fire rate trajectory should look like after tuning. The brief becomes a ticket in the detection-engineering queue, traceable back to this case and to any future cases that fire on a similarly tuned rule.</p>
+    <p>The case surfaced no rule defect: the rule fired on exactly what it describes, and its calibration record already notes the developer-host benign-fire rate. The triage analyst writes a brief with two asks, routed per the <a href="/docs/detection-feedback/#the-routing-table">detection-feedback routing table</a>. First, enrich the alert with the extension ID, the child's command line and the destination set. Second, pattern entry PTN-031 (draft), keyed to a tuple: the Cursor build the MDM reports, the bundled extension ID loaded from inside the signed bundle, and the vendor destination set. The entry names its discriminators (child script inside the bundle, destinations within the set, no credential-path reads, no persistence writes), an owner in detection engineering, a 30-day expiry, and re-fire triggers: a Cursor version change (the owner re-validates), a new extension ID, a destination outside the set, a rule change, or observed abuse. It needs a second person's approval before it goes live, carries the machine-close flag off, and suspends itself if a close against it is ever reversed. What it would take to turn the flag on is worked through on <a href="/docs/ai-governance/#level-0-parity">Governing automated triage</a>. While it is live, an exact-tuple fire on a host that passes the eligibility gate can close at Level 0, by an analyst, against the five-field record. Signer and install path alone never key a suppression.</p>
   </div>
 
   <div data-step class="example-step">
@@ -99,51 +147,45 @@ The Cursor IDE Empire-pattern case ended in Escalation as a documented close at 
 
 ---
 
-## A third scenario: closing the token-theft record
+<h2 id="case-c">Case C · Closing the token-theft record</h2>
 
-The SaaS token-theft case escalated to IR mid-Uncover, so like the finance case, Documentation finalizes the triage-side record and links IR's outputs. What is different is the evidence itself: identity artifacts are ephemeral in ways disk images are not, and the record has to capture them before the platforms age them out.
+Previously: the SaaS token-theft case escalated to IR at the end of Alert under the escalation tripwire (<a href="/docs/escalation/example/#case-c">Escalation example, Case C</a>). Like the finance case, Documentation finalizes the triage-side record and links IR's outputs. What is different is the evidence itself: identity artifacts are ephemeral in ways disk images are not, and the record has to capture them before the platforms age them out.
 
-<ChapterExample title="Finalizing the token-theft event report" scenario="IR owns the active case: the attacker is contained, the vendor detail on app reads is arriving, and compliance is running the GDPR determination. The triage analyst's Documentation phase closes the triage-side record while the identity evidence is still retrievable.">
+<CaseFile caseKey="C" heading={false} />
+
+<ChapterExample title="Finalizing the token-theft event report" scenario="IR owns the active case: the attacker is contained, both exposed passwords are reset, and compliance has the item-level message list and is running the GDPR determination. The triage analyst's Documentation phase closes the triage-side record while the identity evidence is still retrievable.">
 
 <ExampleStepper steps={["Capture the record", "Sanitize for sharing", "Link related artifacts", "Feed detection engineering", "Submit for review"]}>
 
   <div data-step class="example-step">
     <h3>Step 1. Capture the record</h3>
-    <p>The nine sections fill from the handoff packet, with one identity-specific discipline: the raw artifacts are exported into the case now, not merely referenced. The IdP's sign-in records, the two session presentations, the inbox-rule definition, and the consent-grant event are all subject to platform retention windows and license tiers that the SOC does not control. A record that points at a log the tenant will age out in 90 days is a record that stops being evidence in 91. The exports, with their retrieval timestamps, go into the appendices.</p>
+    <p>The nine sections fill from the handoff packet, with one identity-specific discipline: the raw artifacts are exported into the case now, not merely referenced. The IdP's sign-in records (the 08:53 proxied sign-in and both presentations of the session it produced), the inbox-rule definition, the consent-grant event, and the item-level mail-access records are all subject to platform retention windows and license tiers that the SOC does not control. A record that points at a log the platform will age out stops being evidence the day it does, and for identity sign-in logs that can be 7 to 30 days by default (Microsoft Entra ID, depending on license tier), not the 90 days some other providers keep. The exports, with their retrieval timestamps, go into the appendices. Most were taken at 09:22-09:24, before containment changed anything (the order is laid out on <a href="/docs/escalation/preserve/#case-c">Preserve before you contain</a>); Documentation checks that each one is in the case and adds the access records Uncover pulled later.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 2. Sanitize for sharing</h3>
-    <p>This case carries the most sensitive sharing surface of the three: the mailbox contents the attacker synced are customer data, and the record must describe the collection without reproducing it. The report records counts, categories, and thread types ("~1,800 items including billing correspondence"), never message bodies. rvega is pseudonymized in the training version, and the record states plainly that she is a victim, not a suspect, so the training artifact never reads as blame.</p>
+    <p>This case carries the most sensitive sharing surface of the three: the mailbox contents the attacker synced are customer data, and the record must describe the collection without reproducing it. The report records counts, categories, and thread types ("~1,800 items including billing correspondence"), never message bodies. rvega is pseudonymized in the training version, and the record states plainly that she is a victim, not a suspect, so the training artifact never reads as blame. The second click-through user appears only by role.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 3. Link related artifacts</h3>
-    <p>The record links to: the SIEM alert, the IR ticket, the compliance determination thread (still open at closure; linked as pending), the vendor request and its eventual response, the finance team's out-of-band verification confirmation, and the tenant sweep queries saved as reusable hunts. The pending links are themselves part of the record: an auditor reading it later sees what was still in motion when triage closed its side.</p>
+    <p>The record links to: the SIEM alert, the IR ticket, the compliance determination thread (still open at closure; linked as pending), the item-level message list sent to compliance at 10:22, the finance team's out-of-band verification confirmation, and the tenant sweep queries saved as reusable hunts. The pending links are themselves part of the record: an auditor reading it later sees what was still in motion when triage closed its side.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 4. Feed detection engineering</h3>
-    <p>The brief credits what worked and names what was missing: the two-signal correlation rule caught the case and its design should be reused; a consent-grant alert for unverified publishers would have fired at 09:09 independent of the session signal; a session-fingerprint-mismatch detection at the IdP would have fired at 09:03, twelve minutes earlier. Each becomes a ticket. The lure domain and kit fingerprint feed the intel platform for retro-hunting across the estate.</p>
+    <p>The brief credits what worked and names what was missing: the two-signal correlation rule caught the case and its design should be reused; a consent-grant alert for unverified publishers would have fired at 09:09 independent of the session signal; the IdP recorded the 09:03 risk event, but nothing paged on it alone, and a standalone alert on its high-fidelity form (a session ID re-presented from a new ASN with no authentication ceremony, rather than the noisy new-ASN signal) would have paged at 09:03, twelve minutes before the 09:15 correlation. Earliest of all, an interactive, MFA-satisfied sign-in from a hosting ASN within two minutes of a gateway-recorded link click would have fired at 08:53, ten minutes before the replay. Each becomes a ticket. The control gaps (push MFA that is not phishing-resistant, no token protection or compliant-device requirement, user consent open to unverified publishers) go to IR's recommendations, not the detection backlog, as the <a href="/docs/detection-feedback/#the-routing-table">detection-feedback routing table</a> routes control gaps. The lure domain, the two attacker IPs, and the kit fingerprint feed the intel platform for retro-hunting across the estate.</p>
   </div>
 
   <div data-step class="example-step">
     <h3>Step 5. Submit for review</h3>
-    <p>The SOC manager's review flags this record for the training archive alongside the Cursor case: it is the SOC's reference example of an intrusion with no endpoint evidence, and of containment whose ordering mattered more than its speed. The record closes with the compliance and vendor threads explicitly marked as continuing under their own owners.</p>
+    <p>The SOC manager's review flags this record for the training archive alongside the Cursor case: it is the SOC's reference example of an intrusion with no endpoint evidence, and of an escalation tripwire that fired at the end of Alert, with containment that was preserved first, ordered, and verified. The record closes with the compliance thread and IR's open questions explicitly marked as continuing under their own owners.</p>
   </div>
 
 </ExampleStepper>
 
 </ChapterExample>
 
-<Callout variant="info" title="Three cases, one durable record">
-The three scenarios show the same methodology applied to three verdicts. The finance-team intrusion produced an audit-quality record of a real endpoint compromise. The Cursor benign true positive produced an audit-quality record of why correctly detected behavior wasn't malicious. The token theft produced an audit-quality record of an identity compromise, with the ephemeral evidence exported before it could expire. All three survive months later. All three train future analysts. The methodology's value isn't that it always reaches the same verdict; it's that it always produces a defensible one.
-</Callout>
-
-<KeyTakeaway>Documentation closes the loop on all three cases the methodology threaded through. Future analysts will reach for the finance-team record on the next Empire-style chain, the Cursor record on the next Electron IDE pattern match, and the token-theft record on the next impossible sign-in. All three records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>
+<KeyTakeaway>Three verdicts, one standard of record: a real endpoint compromise, a correctly detected behavior that was authorized, and an identity compromise whose ephemeral evidence was exported before it expired. The methodology does not always reach the same verdict; it reliably produces a defensible one. Future analysts will reach for the finance-team record on the next paste-and-run chain, the Cursor record on the next Electron IDE pattern match, and the token-theft record on the next replayed session. All three records are part of how the SOC stops re-investigating the same questions.</KeyTakeaway>
 
 <ContinueCard current="documentation" nextHref="/docs/documentation/quiz/" nextLabel="Documentation quiz" ctaLabel="Take the quiz" />
-
-<style>{`
-.example-step h3 { margin: 0 0 0.85rem 0; color: var(--assured-accent-soft); font-size: 1.2rem; }
-`}</style>

@@ -1,9 +1,8 @@
 ---
 /**
  * ExampleStepper. A tabbed step-through used inside a ChapterExample.
- * The reader clicks numbered tabs (or arrow buttons) to advance through
- * stages of the example. The component is plain vanilla JS so it works
- * without any framework dependency.
+ * The reader selects numbered tabs (or Previous / Next) to move through the
+ * stages of the example. Plain vanilla JS, no framework dependency.
  *
  * Usage:
  *   <ExampleStepper steps={["Alert fires", "Detection mechanism", ...]}>
@@ -11,54 +10,98 @@
  *     <div data-step>...content for step 2...</div>
  *     ...
  *   </ExampleStepper>
+ *
+ * "Show all steps" lays every step out in one column (the reader's choice
+ * is remembered and applies to every stepper on the page). Printing and
+ * no-JS rendering always show all steps. `?step=N` deep links still open
+ * the page's first stepper at step N.
+ *
+ * `predict` controls the predict-before-reveal prompt above the controls
+ * for self-study. It is on by default (`true`): a generic prompt on every
+ * step but the last. An array gives one prompt per step (shown on that
+ * step, about the step that follows); `predict={false}` turns it off.
  */
 
 import { stableId } from "@/lib/stable-id";
 
 interface Props {
   steps: string[];
+  predict?: boolean | string[];
 }
 
-const { steps } = Astro.props;
+const { steps, predict = true } = Astro.props;
 const idBase = stableId("stepper", Astro.url.pathname);
+
+const GENERIC_PREDICT =
+  "Before you select Next: what would you check next, and what result would change your call?";
+const predictPrompts: string[] | null = Array.isArray(predict)
+  ? predict
+  : predict
+    ? steps.map((_, i) => (i < steps.length - 1 ? GENERIC_PREDICT : ""))
+    : null;
 ---
 
-<div class="stepper" data-stepper>
-  {/* No-JS fallback: the bind script drives .is-active, and without it every
-      panel would stay display:none. Show all steps, drop the dead chrome. */}
+<div
+  class="stepper"
+  data-stepper
+  data-predict={predictPrompts ? JSON.stringify(predictPrompts) : undefined}
+>
+  {/* No-JS fallback: without the bind script only the first panel would
+      show. Show all steps, drop the dead chrome. */}
   <noscript>
     <style is:inline>
       .stepper__panels [data-step] { display: block !important; }
-      .stepper__tabs, .stepper__controls { display: none !important; }
+      .stepper__bar, .stepper__controls, .stepper__predict { display: none !important; }
     </style>
   </noscript>
-  {/* Tabs pattern completed across markup + script: each tab gets an id and
-      aria-controls here; the [data-step] panels are authored in MDX, so the
-      bind script assigns their role="tabpanel"/id/aria-labelledby at runtime.
-      aria-label keeps the tab's accessible name when the small-screen CSS
-      hides .stepper__tab-label. */}
-  <nav class="stepper__tabs" role="tablist" aria-label="Walkthrough steps">
-    {steps.map((label, i) => (
-      <button
-        type="button"
-        role="tab"
-        class="stepper__tab"
-        data-step-index={i}
-        id={`${idBase}-tab-${i}`}
-        aria-controls={`${idBase}-panel-${i}`}
-        aria-selected={i === 0 ? "true" : "false"}
-        aria-label={label}
-        tabindex={i === 0 ? 0 : -1}
-      >
-        <span class="stepper__tab-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-        <span class="stepper__tab-label" aria-hidden="true">{label}</span>
-      </button>
-    ))}
-  </nav>
+  <div class="stepper__bar">
+    {/* The fade edges (data-overflow-start/-end, set by the script) tell the
+        reader the tab row scrolls; the active tab is kept in view. */}
+    <div class="stepper__tabs-wrap" data-stepper-tabs-wrap>
+      {/* Tabs pattern completed across markup + script: each tab gets an id
+          and aria-controls here; the [data-step] panels are authored in MDX,
+          so the bind script assigns their role="tabpanel"/id/aria-labelledby
+          at runtime. aria-label keeps the tab's accessible name when the
+          small-screen CSS hides .stepper__tab-label. */}
+      <nav class="stepper__tabs" role="tablist" aria-label="Walkthrough steps">
+        {steps.map((label, i) => (
+          <button
+            type="button"
+            role="tab"
+            class="stepper__tab"
+            data-step-index={i}
+            id={`${idBase}-tab-${i}`}
+            aria-controls={`${idBase}-panel-${i}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            aria-label={label}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            <span class="stepper__tab-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+            <span class="stepper__tab-label" aria-hidden="true">{label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+    {/* A constant label with aria-pressed: the state is the pressed-ness,
+        so the name does not flip between two meanings. */}
+    <button type="button" class="stepper__showall" data-stepper-showall aria-pressed="false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 5h18"></path><path d="M3 12h18"></path><path d="M3 19h18"></path>
+      </svg>
+      Show all steps
+    </button>
+  </div>
 
   <div class="stepper__panels" data-stepper-panels>
     <slot />
   </div>
+
+  {predictPrompts && (
+    <p class="stepper__predict" data-stepper-predict hidden>
+      <span class="stepper__predict-label">Predict first.</span>
+      <span data-stepper-predict-text></span>
+    </p>
+  )}
 
   {/* aria-disabled (not disabled) at the range ends: disabling the button
       that currently holds focus drops keyboard users to <body>. The script
@@ -83,20 +126,78 @@ const idBase = stableId("stepper", Astro.url.pathname);
 </div>
 
 <style>
+  /* Example frame color: --assured-example (pink), a hue outside the seven
+     phase colors, so a worked example never reads as the Scope phase. */
   .stepper {
-    background: rgba(15, 23, 42, 0.55);
+    background: var(--assured-panel);
     border: 1px solid rgba(148, 163, 184, 0.25);
     border-radius: 1rem;
     overflow: hidden;
   }
 
+  .stepper__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(15, 23, 42, 0.6);
+    padding-right: 0.5rem;
+  }
+
+  .stepper__tabs-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Scroll affordance: a fade plus chevron on whichever edge has more tabs
+     beyond it. pointer-events: none keeps the tabs under it clickable. */
+  .stepper__tabs-wrap::before,
+  .stepper__tabs-wrap::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2.75rem;
+    display: flex;
+    align-items: center;
+    color: var(--assured-text-soft);
+    font-size: 1.25rem;
+    font-weight: 700;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+  }
+
+  .stepper__tabs-wrap::before {
+    content: "‹";
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.35rem;
+    background: linear-gradient(to right, rgb(15, 23, 42) 35%, rgba(15, 23, 42, 0));
+  }
+
+  .stepper__tabs-wrap::after {
+    content: "›";
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.35rem;
+    background: linear-gradient(to left, rgb(15, 23, 42) 35%, rgba(15, 23, 42, 0));
+  }
+
+  .stepper__tabs-wrap[data-overflow-start]::before,
+  .stepper__tabs-wrap[data-overflow-end]::after {
+    opacity: 1;
+  }
+
   .stepper__tabs {
+    /* positioned so each tab's offsetLeft is measured inside the scroller */
+    position: relative;
     display: flex;
     overflow-x: auto;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
     padding: 0.5rem;
     gap: 0.35rem;
-    background: rgba(15, 23, 42, 0.6);
+    scrollbar-width: thin;
   }
 
   .stepper__tab {
@@ -123,9 +224,9 @@ const idBase = stableId("stepper", Astro.url.pathname);
   }
 
   .stepper__tab[aria-selected="true"] {
-    color: #d8b4fe;
-    background: rgba(168, 85, 247, 0.14);
-    border-color: rgba(168, 85, 247, 0.35);
+    color: var(--assured-example-soft);
+    background: rgba(var(--assured-example-rgb), 0.14);
+    border-color: rgba(var(--assured-example-rgb), 0.35);
   }
 
   .stepper__tab-num {
@@ -133,6 +234,33 @@ const idBase = stableId("stepper", Astro.url.pathname);
     font-size: 0.72rem;
     letter-spacing: 0.05em;
     opacity: 0.8;
+  }
+
+  .stepper__showall {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 0.45rem;
+    color: var(--assured-text-soft);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .stepper__showall:hover {
+    background: rgba(248, 250, 252, 0.05);
+  }
+
+  .stepper__showall[aria-pressed="true"] {
+    color: var(--assured-example-soft);
+    background: rgba(var(--assured-example-rgb), 0.14);
+    border-color: rgba(var(--assured-example-rgb), 0.45);
   }
 
   .stepper__panels {
@@ -144,14 +272,42 @@ const idBase = stableId("stepper", Astro.url.pathname);
    * file), so Astro's automatic style scoping does NOT add this component's hash to them.
    * The visibility rules must be :global() so they match unscoped attribute selectors.
    * Don't "fix" this back to scoped CSS without also moving the panels into slot rendering.
+   *
+   * Before the script binds, every panel after the first is hidden (no flash of all
+   * steps). Once bound, inactive panels carry hidden="until-found" (plain hidden where
+   * the browser lacks it), so find-in-page still reaches their text and the script
+   * switches to the matching step.
    */
-  .stepper__panels :global([data-step]) {
+  .stepper:not([data-stepper-bound]) .stepper__panels :global([data-step] ~ [data-step]) {
     display: none;
   }
 
+  .stepper__panels :global([data-step][hidden]) {
+    margin: 0;
+    padding: 0;
+  }
+
   .stepper__panels :global([data-step].is-active) {
-    display: block;
     animation: panel-fade-in 0.25s ease;
+  }
+
+  /* Show all steps: one column, each step separated by a rule. The step
+     headings authored in each panel carry the labels. */
+  .stepper.is-show-all .stepper__tabs-wrap,
+  .stepper.is-show-all .stepper__controls,
+  .stepper.is-show-all .stepper__predict {
+    display: none;
+  }
+
+  .stepper.is-show-all .stepper__bar {
+    justify-content: flex-end;
+    padding: 0.5rem;
+  }
+
+  .stepper.is-show-all .stepper__panels :global([data-step] + [data-step]) {
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
   }
 
   @keyframes panel-fade-in {
@@ -163,6 +319,25 @@ const idBase = stableId("stepper", Astro.url.pathname);
     .stepper__panels :global([data-step].is-active) {
       animation: none;
     }
+    .stepper__tabs-wrap::before,
+    .stepper__tabs-wrap::after {
+      transition: none;
+    }
+  }
+
+  .stepper__predict {
+    margin: 0;
+    padding: 0.85rem 1.25rem;
+    border-top: 1px dashed rgba(var(--assured-example-rgb), 0.35);
+    background: rgba(var(--assured-example-rgb), 0.06);
+    color: var(--assured-text-soft);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .stepper__predict-label {
+    font-weight: 700;
+    color: var(--assured-example-soft);
   }
 
   .stepper__controls {
@@ -180,10 +355,10 @@ const idBase = stableId("stepper", Astro.url.pathname);
     align-items: center;
     gap: 0.4rem;
     padding: 0.5rem 0.9rem;
-    background: rgba(168, 85, 247, 0.14);
-    border: 1px solid rgba(168, 85, 247, 0.4);
+    background: rgba(var(--assured-example-rgb), 0.14);
+    border: 1px solid rgba(var(--assured-example-rgb), 0.4);
     border-radius: 0.45rem;
-    color: #d8b4fe;
+    color: var(--assured-example-soft);
     cursor: pointer;
     font-family: inherit;
     font-size: 0.85rem;
@@ -218,43 +393,136 @@ const idBase = stableId("stepper", Astro.url.pathname);
       justify-content: center;
     }
     .stepper__tab-label { display: none; }
+    .stepper__showall { min-height: 2.75rem; }
     .stepper__panels { padding: 1.25rem 1rem; }
     .stepper__btn { min-height: 2.75rem; }
+  }
+
+  /* Paper always gets every step (print.css repeats this for the
+     unscoped panels and lifts hidden="until-found"). */
+  @media print {
+    .stepper__bar,
+    .stepper__controls,
+    .stepper__predict {
+      display: none !important;
+    }
   }
 </style>
 
 <script>
-  import { onPageReady } from "@/lib/dom";
+  import { anchorScrollOffset, onPageReady } from "@/lib/dom";
+
+  const SHOW_ALL_KEY = "assured-stepper-show-all";
+
+  function readShowAll(): boolean {
+    try {
+      return localStorage.getItem(SHOW_ALL_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function writeShowAll(on: boolean) {
+    try {
+      if (on) localStorage.setItem(SHOW_ALL_KEY, "1");
+      else localStorage.removeItem(SHOW_ALL_KEY);
+    } catch {
+      // Storage blocked: the choice simply lasts for this page view.
+    }
+  }
+
+  type StepperRoot = HTMLElement & { __stepperShowAll?: (on: boolean) => void };
+
+  // hidden="until-found" keeps a collapsed step's text findable with
+  // Ctrl+F; browsers without it get plain hidden.
+  const SUPPORTS_UNTIL_FOUND = "onbeforematch" in document.body;
 
   // ClientRouter idempotency: onPageReady re-runs this bind after each view
   // transition. Each [data-stepper] is marked once-bound so re-runs are safe
   // on pages we already visited; new pages get fresh DOM and fresh bindings.
   function bindSteppers() {
-    const steppers = document.querySelectorAll<HTMLElement>("[data-stepper]:not([data-stepper-bound])");
+    const steppers = document.querySelectorAll<StepperRoot>("[data-stepper]:not([data-stepper-bound])");
     steppers.forEach((root) => {
-      root.setAttribute("data-stepper-bound", "true");
       // Deep-linking: ?step=N (1-based) restores a step on load and follows
       // the reader as they move. One query param can't address two steppers,
       // so only the page's first stepper participates.
       const deepLink = root === document.querySelector("[data-stepper]");
+      const tabList = root.querySelector<HTMLElement>(".stepper__tabs");
+      const tabsWrap = root.querySelector<HTMLElement>("[data-stepper-tabs-wrap]");
       const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".stepper__tab"));
-      const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+      const panelHost = root.querySelector<HTMLElement>("[data-stepper-panels]");
+      const panels = panelHost
+        ? Array.from(panelHost.querySelectorAll<HTMLElement>("[data-step]"))
+        : [];
       const prev = root.querySelector<HTMLButtonElement>("[data-stepper-prev]");
       const next = root.querySelector<HTMLButtonElement>("[data-stepper-next]");
       const progress = root.querySelector<HTMLElement>("[data-stepper-progress]");
+      const showAllBtn = root.querySelector<HTMLButtonElement>("[data-stepper-showall]");
+      const predict = root.querySelector<HTMLElement>("[data-stepper-predict]");
+      const predictText = root.querySelector<HTMLElement>("[data-stepper-predict-text]");
+      let prompts: string[] = [];
+      try {
+        prompts = root.dataset.predict ? (JSON.parse(root.dataset.predict) as string[]) : [];
+      } catch {
+        prompts = [];
+      }
       const total = panels.length;
       let current = 0;
+      let showAll = false;
+
+      function hidePanel(panel: HTMLElement) {
+        if (SUPPORTS_UNTIL_FOUND) panel.setAttribute("hidden", "until-found");
+        else panel.hidden = true;
+      }
 
       // The [data-step] panels come from MDX, so the server can't stamp tabpanel
       // attributes on them. Derive each panel's id from its tab's aria-controls
       // so the tablist linkage resolves.
-      panels.forEach((panel, i) => {
-        const tab = tabs[i];
-        if (!tab) return;
-        panel.setAttribute("role", "tabpanel");
-        panel.id = tab.getAttribute("aria-controls") ?? "";
-        panel.setAttribute("aria-labelledby", tab.id);
-      });
+      function applyTabpanelRoles(on: boolean) {
+        panels.forEach((panel, i) => {
+          const tab = tabs[i];
+          if (!tab) return;
+          panel.id = tab.getAttribute("aria-controls") ?? "";
+          if (on) {
+            panel.setAttribute("role", "tabpanel");
+            panel.setAttribute("aria-labelledby", tab.id);
+          } else {
+            panel.removeAttribute("role");
+            panel.removeAttribute("aria-labelledby");
+          }
+        });
+      }
+
+      function updateOverflow() {
+        if (!tabList || !tabsWrap) return;
+        const max = tabList.scrollWidth - tabList.clientWidth;
+        tabsWrap.toggleAttribute("data-overflow-start", tabList.scrollLeft > 2);
+        tabsWrap.toggleAttribute("data-overflow-end", max - tabList.scrollLeft > 2);
+      }
+
+      // Keep the selected tab inside the scrolled tab row, clear of the
+      // fade edges. Scrolls the row only, never the page.
+      function revealTab(tab: HTMLElement | undefined) {
+        if (!tab || !tabList) return;
+        const pad = 44;
+        const left = tab.offsetLeft;
+        const right = left + tab.offsetWidth;
+        if (left - pad < tabList.scrollLeft) {
+          tabList.scrollLeft = Math.max(0, left - pad);
+        } else if (right + pad > tabList.scrollLeft + tabList.clientWidth) {
+          tabList.scrollLeft = right + pad - tabList.clientWidth;
+        }
+        updateOverflow();
+      }
+
+      function renderPanels() {
+        panels.forEach((p, i) => {
+          const active = showAll || i === current;
+          p.classList.toggle("is-active", !showAll && i === current);
+          if (active) p.removeAttribute("hidden");
+          else hidePanel(p);
+        });
+      }
 
       function go(to: number, focusTab = false) {
         current = Math.max(0, Math.min(total - 1, to));
@@ -262,14 +530,18 @@ const idBase = stableId("stepper", Astro.url.pathname);
           t.setAttribute("aria-selected", i === current ? "true" : "false");
           t.tabIndex = i === current ? 0 : -1;
         });
-        panels.forEach((p, i) => {
-          p.classList.toggle("is-active", i === current);
-        });
+        renderPanels();
         if (prev) prev.setAttribute("aria-disabled", current === 0 ? "true" : "false");
         if (next) next.setAttribute("aria-disabled", current === total - 1 ? "true" : "false");
         if (progress) progress.textContent = `Step ${current + 1} of ${total}`;
+        if (predict && predictText) {
+          const text = prompts[current] ?? "";
+          predictText.textContent = text;
+          predict.hidden = !text;
+        }
         if (focusTab) tabs[current]?.focus();
-        if (deepLink) {
+        revealTab(tabs[current]);
+        if (deepLink && !showAll) {
           const url = new URL(window.location.href);
           if (current === 0) url.searchParams.delete("step");
           else url.searchParams.set("step", String(current + 1));
@@ -277,6 +549,24 @@ const idBase = stableId("stepper", Astro.url.pathname);
           // the router's popstate handler skip this entry, which kills Back.
           history.replaceState(history.state, "", url);
         }
+      }
+
+      function setShowAll(on: boolean) {
+        showAll = on;
+        root.classList.toggle("is-show-all", on);
+        showAllBtn?.setAttribute("aria-pressed", on ? "true" : "false");
+        applyTabpanelRoles(!on);
+        renderPanels();
+        if (!on) revealTab(tabs[current]);
+      }
+      root.__stepperShowAll = setShowAll;
+
+      // Previous / Next sit below a long panel; when the new step's top is
+      // above the sticky chrome, bring the stepper's top back into view.
+      function scrollStepIntoView() {
+        const top = root.getBoundingClientRect().top;
+        const offset = anchorScrollOffset();
+        if (top < offset) window.scrollBy({ top: top - offset });
       }
 
       tabs.forEach((tab, i) => {
@@ -296,17 +586,54 @@ const idBase = stableId("stepper", Astro.url.pathname);
       prev?.addEventListener("click", () => {
         if (prev.getAttribute("aria-disabled") === "true") return;
         go(current - 1);
+        scrollStepIntoView();
       });
       next?.addEventListener("click", () => {
         if (next.getAttribute("aria-disabled") === "true") return;
         go(current + 1);
+        scrollStepIntoView();
       });
 
-      // Initial state, honoring a ?step=N deep link when present.
+      // Find-in-page matched text inside a collapsed step: switch to it.
+      panels.forEach((panel, i) => {
+        panel.addEventListener("beforematch", () => {
+          if (!showAll) go(i);
+        });
+      });
+
+      // The toggle applies to every stepper on the page and is remembered.
+      // Steppers above this one grow or shrink, so pin the button to the
+      // same viewport position across the change.
+      showAllBtn?.addEventListener("click", () => {
+        const on = !showAll;
+        const before = showAllBtn.getBoundingClientRect().top;
+        writeShowAll(on);
+        document
+          .querySelectorAll<StepperRoot>("[data-stepper-bound]")
+          .forEach((other) => other.__stepperShowAll?.(on));
+        const after = showAllBtn.getBoundingClientRect().top;
+        if (after !== before) window.scrollBy({ top: after - before, behavior: "instant" });
+      });
+
+      tabList?.addEventListener("scroll", updateOverflow, { passive: true });
+      if (tabList && "ResizeObserver" in window) {
+        new ResizeObserver(updateOverflow).observe(tabList);
+      }
+
+      root.setAttribute("data-stepper-bound", "true");
+
+      // Initial state. A ?step=N deep link opens that step in stepped mode;
+      // otherwise the reader's saved "show all" choice applies.
       const requested = deepLink
         ? Number.parseInt(new URLSearchParams(window.location.search).get("step") ?? "", 10)
         : Number.NaN;
+      const startShowAll = Number.isNaN(requested) && readShowAll();
+      showAll = startShowAll;
+      root.classList.toggle("is-show-all", startShowAll);
+      showAllBtn?.setAttribute("aria-pressed", startShowAll ? "true" : "false");
+      applyTabpanelRoles(!startShowAll);
       go(Number.isNaN(requested) ? 0 : requested - 1);
+      updateOverflow();
     });
   }
 

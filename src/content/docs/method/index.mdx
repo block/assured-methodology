@@ -1,0 +1,46 @@
+---
+title: "The method: seven questions in three stages"
+shortTitle: "Method"
+description: "The seven ASSURED phases, each one a question, grouped into Orient, Investigate and Resolve, plus the case files and the cognitive traps that bend triage judgment."
+slug: "method"
+---
+
+import "@/styles/pages/hubs.css";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
+import { primaryNavigation } from "@/data/navigation";
+
+export const group = primaryNavigation.find((g) => g.href === "/docs/method/");
+export const chapters = group.children.filter((c) => c.phase);
+export const extras = group.children.filter((c) => !c.phase);
+
+ASSURED is seven questions asked in order. Alert, Subject and Scope orient the analyst: what fired, who is involved, and where the lines are. Uncover and Risk investigate: what the evidence says, and how bad it is. The Escalation decision and Documentation resolve the case: close or escalate, and write down what was decided and learned.
+
+<SevenQuestions label="The seven ASSURED questions by stage" />
+
+New to the method? Read the [introduction](/docs/intro/) first, then the chapters in order. Each chapter teaches its phase in pillars, works the same cases through it, and ends with a quiz.
+
+## The chapters
+
+<ul class="hub-grid">
+  {chapters.map((item) => (
+    <li>
+      <a class="hub-card" href={item.href}>
+        <span class="hub-card__title">{item.letter}: {item.title}</span>
+        {item.description && <span class="hub-card__desc">{item.description}</span>}
+      </a>
+    </li>
+  ))}
+</ul>
+
+## Across the chapters
+
+<ul class="hub-grid">
+  {extras.map((item) => (
+    <li>
+      <a class="hub-card" href={item.href}>
+        <span class="hub-card__title">{item.title}</span>
+        {item.description && <span class="hub-card__desc">{item.description}</span>}
+      </a>
+    </li>
+  ))}
+</ul>

@@ -6,7 +6,13 @@
  *
  * Answering every question on a chapter quiz page records completion in
  * localStorage ("assured-quiz-progress"), which PuzzleProgress renders as
- * a tick on that phase's tile. The quiz UI itself starts fresh each visit.
+ * a tick on that phase's tile, plus each item's first-try result. The
+ * quiz UI itself starts fresh each visit.
+ *
+ * When every item is answered, a "Worth revisiting" list names the items
+ * missed on the first try (with each item's `source` link, if it has one),
+ * and, if the reader rated their confidence, a calibration line such as
+ * "High: 5 of 6 correct".
  *
  * Usage in MDX:
  *   <Quiz title="Check what you've learned">
@@ -31,7 +37,7 @@ interface Props {
 
 const {
   title = "Quiz: check what you've learned",
-  subtitle = "No grades. The point is to push your thinking. Tap an option to see if it lands.",
+  subtitle = "No grades. The point is to push your thinking. Select an option to see if it lands.",
 } = Astro.props;
 ---
 
@@ -40,7 +46,7 @@ const {
     <span class="quiz__badge">Quiz</span>
     <h2 class="quiz__title">{title}</h2>
     <p class="quiz__subtitle">{subtitle}</p>
-    <div class="quiz__progress" data-quiz-progress aria-live="polite" hidden>
+    <div class="quiz__progress" data-quiz-progress aria-live="polite" aria-atomic="true" hidden>
       <span class="quiz__progress-count" data-quiz-progress-count>0</span>
       <span class="quiz__progress-sep">of</span>
       <span class="quiz__progress-total" data-quiz-progress-total>0</span>
@@ -61,6 +67,14 @@ const {
     <span class="quiz__done-text" data-quiz-done-text>Quiz reviewed.</span>
     <button type="button" class="quiz__done-reset" data-quiz-reset>Start over</button>
   </div>
+  <div class="quiz__review" data-quiz-review hidden>
+    <p class="quiz__review-note" data-quiz-review-note hidden></p>
+    <div data-quiz-review-missed hidden>
+      <p class="quiz__review-title">Worth revisiting</p>
+      <ul class="quiz__review-list" data-quiz-review-list></ul>
+    </div>
+    <p class="quiz__review-calibration" data-quiz-review-calibration hidden></p>
+  </div>
 </section>
 
 <style>
@@ -70,7 +84,6 @@ const {
     border-radius: 1.25rem;
     background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(15, 23, 42, 0.6));
     border: 1px solid rgba(20, 184, 166, 0.3);
-    backdrop-filter: blur(8px);
   }
 
   /* The page shell, .quiz, .quiz-item, and .quiz-item__option paddings nest;
@@ -133,7 +146,7 @@ const {
     gap: 0.35rem;
     margin: 1rem auto 0;
     padding: 0.4rem 0.85rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: 0.8rem;
     letter-spacing: 0.04em;
     color: var(--assured-accent-soft);
@@ -219,6 +232,51 @@ const {
     transition: background 0.15s ease, border-color 0.15s ease;
   }
 
+  .quiz__review {
+    margin-top: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--assured-panel);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: var(--assured-text-soft);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .quiz__review[hidden],
+  .quiz__review [hidden] { display: none; }
+
+  .quiz__review-note {
+    margin: 0 0 0.75rem;
+  }
+
+  .quiz__review-title {
+    margin: 0 0 0.4rem;
+    font-weight: 700;
+    color: var(--assured-text);
+  }
+
+  .quiz__review-list {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .quiz__review-list :global(li) {
+    margin: 0.3rem 0;
+  }
+
+  .quiz__review-list :global(a) {
+    color: var(--assured-accent-soft);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .quiz__review-calibration {
+    margin: 0.75rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+
   .quiz__done-reset:hover {
     background: rgba(20, 184, 166, 0.18);
     border-color: var(--assured-accent-soft);
@@ -243,6 +301,25 @@ const {
     "escalation",
     "documentation",
   ]);
+
+  // Below this first-try share, the summary suggests a second pass. A
+  // suggestion, not a grade.
+  const REVIEW_THRESHOLD = 0.7;
+  const PROMPT_PREVIEW = 110;
+  const CONFIDENCE_LEVELS: [string, string][] = [
+    ["high", "High"],
+    ["medium", "Medium"],
+    ["low", "Low"],
+  ];
+
+  type ItemResult = { correct: boolean; confidence: string | null };
+
+  function truncate(text: string, max: number): string {
+    const t = text.replace(/\s+/g, " ").trim();
+    if (t.length <= max) return t;
+    const cut = t.slice(0, max);
+    return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 20)).trimEnd()}…`;
+  }
 
   function quizChapter(): string | null {
     const m = window.location.pathname.match(/^\/docs\/([a-z]+)\/quiz\/?$/);
@@ -269,11 +346,16 @@ const {
     const doneTextEl = quiz.querySelector<HTMLElement>("[data-quiz-done-text]");
     const announceEl = quiz.querySelector<HTMLElement>("[data-quiz-done-announce]");
     const resetBtn = quiz.querySelector<HTMLButtonElement>("[data-quiz-reset]");
+    const reviewEl = quiz.querySelector<HTMLElement>("[data-quiz-review]");
+    const reviewNoteEl = quiz.querySelector<HTMLElement>("[data-quiz-review-note]");
+    const missedWrap = quiz.querySelector<HTMLElement>("[data-quiz-review-missed]");
+    const missedList = quiz.querySelector<HTMLElement>("[data-quiz-review-list]");
+    const calibrationEl = quiz.querySelector<HTMLElement>("[data-quiz-review-calibration]");
 
     if (totalEl) totalEl.textContent = String(total);
     if (progressEl) progressEl.hidden = false;
 
-    const answered = new Set<HTMLElement>();
+    const answered = new Map<HTMLElement, ItemResult>();
     let correctCount = 0;
     const chapter = quizChapter();
 
@@ -289,10 +371,62 @@ const {
         doneEl.hidden = !done;
       }
       if (announceEl) announceEl.textContent = done ? doneMessage : "";
+      renderReview(done);
       if (done && chapter) {
         const progress = readQuizProgress();
-        progress[chapter] = { correct: correctCount, total };
+        progress[chapter] = {
+          correct: correctCount,
+          total,
+          items: items.map((item) => answered.get(item)?.correct ?? false),
+        };
         writeQuizProgress(progress);
+      }
+    }
+
+    function renderReview(done: boolean) {
+      if (!reviewEl) return;
+      reviewEl.hidden = !done;
+      if (!done) return;
+
+      if (reviewNoteEl) {
+        const low = correctCount / total < REVIEW_THRESHOLD;
+        reviewNoteEl.hidden = !low;
+        reviewNoteEl.textContent = low
+          ? "Review suggested: a second pass through the chapter, starting with the items below, will pay off before the next one."
+          : "";
+      }
+
+      const missed = items.filter((item) => answered.get(item)?.correct === false);
+      if (missedWrap && missedList) {
+        missedList.replaceChildren(
+          ...missed.map((item) => {
+            const li = document.createElement("li");
+            const prompt =
+              item.querySelector(".quiz-item__prompt")?.textContent ?? "";
+            li.append(truncate(prompt, PROMPT_PREVIEW));
+            const href = item.dataset.sourceHref;
+            if (href) {
+              const a = document.createElement("a");
+              a.href = href;
+              a.textContent = item.dataset.sourceLabel || "Review the section";
+              li.append(" Review: ", a);
+            }
+            return li;
+          }),
+        );
+        missedWrap.hidden = missed.length === 0;
+      }
+
+      if (calibrationEl) {
+        const parts = CONFIDENCE_LEVELS.flatMap(([key, label]) => {
+          const rated = [...answered.values()].filter((r) => r.confidence === key);
+          if (rated.length === 0) return [];
+          const right = rated.filter((r) => r.correct).length;
+          return [`${label}: ${right} of ${rated.length} correct`];
+        });
+        calibrationEl.hidden = parts.length === 0;
+        calibrationEl.textContent =
+          parts.length > 0 ? `How sure you were: ${parts.join(" · ")}` : "";
       }
     }
 
@@ -301,8 +435,11 @@ const {
     quiz.addEventListener("quiz-item:answered", (e) => {
       const item = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-quiz-item]");
       if (!item || answered.has(item)) return;
-      answered.add(item);
-      if ((e as CustomEvent<{ correct: boolean }>).detail?.correct) correctCount++;
+      const detail = (e as CustomEvent<{ correct: boolean; confidence?: string | null }>)
+        .detail;
+      const correct = Boolean(detail?.correct);
+      answered.set(item, { correct, confidence: detail?.confidence ?? null });
+      if (correct) correctCount++;
       recompute();
     });
 
@@ -318,6 +455,10 @@ const {
         }
       }
       recompute();
+      // The reset button sits in the done banner, which recompute() just
+      // hid, so focus would fall back to <body>. Start the reader again at
+      // the first option.
+      quiz.querySelector<HTMLButtonElement>(".quiz-item__option")?.focus();
     });
   });
   }

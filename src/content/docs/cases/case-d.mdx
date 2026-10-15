@@ -1,0 +1,283 @@
+---
+title: "Case D: the burst that never happened"
+description: "A fourth end-to-end case through all seven phases, built for the outcomes the threaded cases never reach: a genuine false positive caused by bad data, an activity question that stays open at P3 on named re-score triggers, a Tier 2 handback, and a documented close with the activity verdict still undetermined."
+techVerified: "2026-10-13"
+---
+
+import Callout from "@/components/assured/Callout.astro";
+import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
+import DefineTerm from "@/components/assured/DefineTerm.astro";
+import Reveal from "@/components/assured/Reveal.astro";
+import "@/styles/pages/cases.css";
+
+Cases A, B and C each end decisively. [Case A](/docs/alert/example/#case-a) and [Case C](/docs/alert/example/#case-c) escalate on confirmed compromise; [Case B](/docs/alert/example/#case-b) closes as a benign true positive once its <DefineTerm term="Forward Watch" display="forward watch" /> comes back clean. Most of a real queue looks different. The detection misfired, the activity underneath it is real but ambiguous, the one person who could answer is unreachable, and the first escalation comes back with a note. Case D runs one such case through all seven phases at Level 1, with the clocks and the record a real shift would produce.
+
+It teaches four things the other cases cannot:
+
+- **A false positive answers the detection question, not the activity one.** The rule can be wrong about the data and the case can still have a question left in it.
+- **Missing evidence sets likelihood's floor, not its ceiling.** Unknown is not Low, and it is not High either.
+- **A <DefineTerm term="Handback" display="handback" /> is a quality signal with a named reason.** It is not a reprimand, and it is not Tier 2 taking the case.
+- **<DefineTerm term="Undetermined" /> is a verdict a case can close on:** once the gaps are named, the exposure they imply is removed, and the <DefineTerm term="Reopen Trigger" display="reopen trigger" /> is written.
+
+<Callout variant="info" title="Before you read: work it cold">
+This page gives the answers. To practice first, download the learner packet, <a href="/templates/exercise-case-d.md" download><span aria-hidden="true">⬇ </span>exercise-case-d.md</a>: the same artifacts released in the order the analyst received them, with tasks for each phase and no key. The page assumes the <a href="/docs/fast-path/">depth ladder</a>, the <a href="/docs/escalation/criteria/#e-rule">E rule</a>, the <a href="/docs/risk/framework/#clocks">default clocks for each band</a> and the <a href="/docs/escalation/handoff/#receipt">packet's receipt</a>.
+</Callout>
+
+All names, addresses and identifiers are fictional. External addresses come from the documentation ranges, and the subject's handle is pseudonymized.
+
+## The case at a glance
+
+<div class="table-scroll">
+
+| Field | Case D |
+|---|---|
+| Case | CASE-2026-0923-004, opened 08:06 UTC on Wednesday 2026-09-23 (all times UTC) |
+| Alert | ALERT-2026-0923-0117, rule `rule-idp-burst-success` v2, severity High |
+| Subject | akowalski, a facilities planner on the Workplace team: no admin roles, no standing access to a store the data inventory classifies as regulated |
+| Depth | <DefineTerm term="Level 1" /> throughout |
+| Verdict | Detection: false positive (data), at 08:19. Activity: undetermined, at close |
+| Priority path | P2 on the first scoring (09:40), handed back by Tier 2 (10:27), P3 on named triggers (10:41), P4 on re-score (18:06) |
+| Decision | <DefineTerm term="Documented Close" display="Documented close" />, 18:20, with gaps named and reopen triggers written |
+| Material AI use | None |
+
+</div>
+
+## Alert: an arrival, not a burst
+
+The alert landed at 08:02:31 and the day-shift Tier 1 analyst acknowledged it at 08:06.
+
+```text
+SIEM alert ALERT-2026-0923-0117, created 08:02:31 UTC
+  rule:      Burst of failed sign-ins followed by success
+             (rule-idp-burst-success, v2)
+  logic:     20 or more failed sign-ins for one account within 10 minutes,
+             then a successful sign-in for that account within 10 minutes
+  severity:  High
+  account:   akowalski@corp.example
+  events:    32 failed, 1 successful; @timestamp 08:01:04 to 08:01:58 (54 s)
+  sources:   203.0.113.163 (3), 198.51.100.0/26 (29), 192.0.2.24 (1)
+```
+
+Thirty-three sign-ins in 54 seconds from three networks, one of them the corporate VPN, is an odd shape for a human and an odd one for a script. Before reading it as an attack, [validation](/docs/alert/validation/) asks whether the alert's facts are what the rule thinks they are, and the first fact a correlation rule depends on is time (<DefineTerm term="Event Time vs Ingest Time" display="event time against ingest time" />). The analyst put the SIEM's normalized timestamp beside the identity provider's own event time from the raw payload:
+
+```text
+Three of the 33 events, raw against normalized
+  published (IdP event time)  @timestamp (SIEM)      event.ingested         outcome
+  2026-09-23T00:44:12Z        2026-09-23T08:01:04Z   2026-09-23T08:01:06Z   failure: blocked by device policy
+  2026-09-23T05:48:44Z        2026-09-23T08:01:41Z   2026-09-23T08:01:43Z   failure: password accepted, MFA not completed
+  2026-09-23T07:58:12Z        2026-09-23T08:01:57Z   2026-09-23T08:01:58Z   success
+```
+
+In the Elastic Common Schema the SIEM uses, `@timestamp` is when the event originally occurred and `event.ingested` is when it reached the central data store (<a href="https://www.elastic.co/docs/reference/ecs/ecs-event" target="_blank" rel="noopener noreferrer">ECS event field reference</a>, checked 2026-10-13). Here the two sit two seconds apart on every row while the identity provider's own times span seven hours. That is the pattern the correlation page warns about: [if event time equals ingest time on every row, the parser failed](/docs/uncover/correlation/#clock-skew-order-is-evidence-and-clocks-lie) and you are looking at arrival order. Two more records explained why:
+
+```text
+IdP log connector, health log
+  00:41:07  poll failed: 401 Unauthorized (client secret expired); repeats every 60 s
+  07:59:30  client secret renewed (platform engineer, morning health check)
+  08:01:04  backlog fetched: 7 h 19 min of tenant sign-in events, delivered in 54 s
+
+Parser change record
+  idp-signin parser v2.3, deployed 2026-09-17: moved to the normalized schema;
+  @timestamp now taken from the batch receipt time, not the event's "published" field
+```
+
+In real time the receipt lags the event by seconds, so the regression had been invisible for six days. A seven-hour backlog arriving in one batch made it visible. The rule's logic was right: 32 failures inside ten minutes followed by a success deserves a High alert. Its input was wrong. At 08:19 the analyst recorded the detection verdict: **<DefineTerm term="False Positive" display="false positive" /> (data)**. Confidence is High on the <a href="/docs/documentation/standards/#confidence">shared rubric</a>: the identity provider's own console, an independent source, shows the same events at their `published` times, and the connector and parser records explain the gap and the mapping.
+
+Before accepting an expired secret as the cause, the analyst ruled out the adversary version of the same silence: the secret's expiry date had been set when it was created a year earlier, and the identity provider's audit log showed no change to the connector's app registration or the log-export settings in 30 days.
+
+Two moves followed, on two different clocks:
+
+- **Now, by phone (08:22):** the platform on-call heard that every identity rule had been blind from 00:41 to 08:01 and then fed mistimed events, and was asked for a parser fix and a re-run of the identity detections over that window on event time. That cannot wait for the case to close.
+- **Later, in writing:** the formal [tuning request](/docs/detection-feedback/#the-tuning-request) waits for the verdict on both axes. A request never holds up a close or an escalation.
+
+The detection verdict was in; the activity verdict was not. The rule was wrong about *when*, and that says nothing about *what*. Thirty-two failed sign-ins over seven hours on one account still needed an explanation, so the case stayed open. Closing it at 08:19 would have treated the <DefineTerm term="False-Positive-as-Finding" display="false positive as a finding" /> about the pipeline and forgotten the account it fired on.
+
+**Depth:** Level 1. No pattern entry covers this rule; one subject; ordinary privilege; no regulated data in reach. **Preserve (08:24):** the analyst exported akowalski's raw sign-in events from 2026-09-22 16:00 onward through the identity provider's API, with a hash in the custody record, because the SIEM copy was about to be re-ingested and the mistimed copy is itself evidence for the pipeline request (see [preserve before you contain](/docs/escalation/preserve/#identity-and-saas)).
+
+## Subject and Scope: one sweep
+
+Level 1 runs Subject and Scope as one sweep: who is this, and what can they reach? Sorted by the identity provider's own time, the events stopped being one burst and became three strands.
+
+<div class="table-scroll">
+
+| Time (UTC) | Source | Device | Outcome |
+|---|---|---|---|
+| 2026-09-22 21:40 | MDM record | Her registered personal iPhone | Missed check-in past the grace period; marked non-compliant |
+| 21:52 to 07:47, about every 15 minutes | 198.51.100.0/26, her mobile carrier | Same iPhone, mail app | Background token refresh blocked by the device-compliance policy; no password involved. The 29 in the outage window arrived late; the earlier ones arrived on time and fired nothing |
+| 05:46:58 and 05:47:31 | 203.0.113.163, a hosting provider (AS64510), first seen for the tenant | Unregistered, Windows, Chrome | Invalid password |
+| 05:48:44 | 203.0.113.163 | Same | Password accepted; MFA push with <DefineTerm term="Number Matching" display="number matching" /> sent to her phone; not completed; expired 05:49:44; no token issued |
+| 07:58:12 | 192.0.2.24, corporate VPN egress | laptop-workplace-12, managed and compliant | Success, with a device-bound, phishing-resistant credential |
+
+</div>
+
+- **The phone:** her own registered device, blocked by policy after a compliance lapse. The MDM record and the identity provider's device ID agree, two independent sources: benign-confirmed, High.
+- **The 07:58 success:** her managed laptop through the VPN, inside her 30-day baseline. Cleared.
+- **05:46 to 05:49:** three attempts from an address the tenant has never seen, on a device nobody registered, and the third one carried her **current** password. This is the case now.
+
+**Scope.** Primary: akowalski's identity, and the unknown party at 203.0.113.163 as an indicator. Secondary: the iPhone and laptop-workplace-12. Window: 14 days back for her sign-ins, MFA method and device changes, consent grants and mailbox rules; a 24-hour forward watch. One boundary is about evidence quality, not entities: every identity rule was blind and then mistimed from 00:41 to 08:01, so until the re-run, "no other identity alerts overnight" means nothing. The boundary says so in writing.
+
+## Uncover: the one question
+
+Level 1 narrows Uncover to the one question the verdict turns on: who typed her password at 05:48? The analyst opened the <DefineTerm term="Hypothesis Ledger" display="hypothesis ledger" /> with the most plausible benign explanation as one of its lines.
+
+<div class="table-scroll">
+
+| Hypothesis | For | Against | Status |
+|---|---|---|---|
+| H1: akowalski, on a personal laptop over the hotel's network, the morning she flew home | She was traveling; 06:46 local is a likely time to check a flight; two wrong passwords and then the right one fits a person typing from memory; an unanswered push fits someone who gave up | The address and the device are new to the tenant | Open |
+| H2: someone else holding her current password, stopped by MFA | Hosting-provider address; unregistered device; first factor accepted | No other address, no other account, no follow-on of any kind; no credential-theft signal on her laptop or in her mail | Open |
+| H3: a password spray that reached her account | A hosting-provider address | 203.0.113.163 appears for no other account in 30 days, and three attempts on one account is not a spray | Rejected |
+
+</div>
+
+The pivots, each with what it settled:
+
+- **203.0.113.163 across the identity provider, VPN, mail gateway and web proxy:** these three events and nothing else.
+- **Threat intelligence:** a hosting provider's range, no hits in the threat-intelligence platform, no passive DNS names. A hosting range fits a commercial VPN exit or a hotel's managed Wi-Fi as well as an attacker's server. It decides nothing.
+- **Her account, 14 days:** no MFA method or device changes, no consent grants, no mailbox rule changes, no successful sign-in from outside her baseline.
+- **Ways a fresh password gets stolen:** the mail gateway delivered her no message with a credential-phishing verdict and logged no click on a link later convicted; the EDR on laptop-workplace-12 shows no infostealer detection and no read of the browser's credential store by a non-browser process.
+- **The discriminator that could have settled it:** if her phone had joined the hotel Wi-Fi, its blocked refreshes would carry the hotel's address, and a match with 203.0.113.163 would put her phone and the 05:46 device on one network. Every refresh came over the mobile carrier. The pivot was the right one; it just did not decide.
+- **The user:** at 09:12 the analyst called the number in the identity directory and reached voicemail, leaving a name and a callback number and nothing else. Nobody wrote to her mailbox or chat: if someone else holds her password, her own channels are the [wrong place to ask](/docs/escalation/communication/#out-of-band). At 09:21 her manager, asked by phone as a [business-context source](/docs/escalation/communication/#owners-approvers-and-managers), said she was traveling home from an off-site conference in a city one hour ahead of UTC and would land at about 17:00, and agreed to ask her to call the SOC and nothing more. At 05:46 UTC it had been 06:46 where she slept.
+
+**The loop back to Scope.** An accepted password raises a Scope question Uncover cannot skip: what else accepts this password on its own? Scope re-opened. Legacy authentication is blocked tenant-wide with no exclusion for her account, the VPN needs a device certificate as well as an identity-provider sign-in, and no application takes her password outside the identity provider. The boundary did not change, and the record shows the door was checked. Re-scoping that changes nothing is still [re-scoping](/docs/scope/entity/#re-scoping-both-ways).
+
+## Risk, first pass: unknown read as High
+
+At 09:40 the Tier 1 analyst scored the case:
+
+- **Impact:** Medium. A standard user's mailbox and files; no privilege, no regulated store.
+- **Likelihood:** High, on the reasoning "an outsider may hold her current password."
+- **Confidence:** Medium.
+- **Cell:** Medium/High, P2. **Recommended move:** escalate within 4 hours.
+
+The impact rating holds. The likelihood rating does not, and the next section is where that gets caught.
+
+## Escalation decision, and the handback
+
+At 09:46 the Escalation decision applied the E rule to the recommended cell: P2 escalates, through the tier the protocol names. In this SOC, P2 identity cases go to the Tier 2 on-call, who decides whether to engage IR. The packet went out with its header, and the shift lead was notified. Tier 2 acknowledged at 09:58, inside the 15-minute window, and returned the receipt at 10:27:
+
+```text
+Receipt, CASE-2026-0923-004
+  Accepted by and at:    Tier 2 on-call, 09:58 UTC, for review
+  Escalation warranted:  No. Handed back to Tier 1 at 10:27 UTC.
+  Reason:                Cell not supported by the evidence. Likelihood is High
+                         on the absence of her answer, and the evidence examined
+                         points both ways. Missing evidence sets a floor
+                         (Medium, confidence Low); it is not a reason for High.
+                         Medium/Medium is P3, inside the Tier 1 mandate.
+  Rework requested:      5 (Risk verdict): re-score.
+                         8 (Open questions): name the re-score triggers and the
+                         forward watch; a P3 without a trigger is a parked case.
+                         6 (Containment): say that nothing was contained, and why.
+  Priority:              P2 to P3 for the reason above; shift lead told at 10:29.
+```
+
+Three rules from the <a href="/docs/escalation/protocols/#de-escalation-the-path-back-down">de-escalation path</a> are at work here. Tier 2 handed the case back rather than keeping it, because the case belongs at the tier whose mandate covers it. The downgrade carried a named reason and reached the same person the escalation had reached. And the reason went into the record, where the monthly report counts [handbacks by reason](/docs/measuring-triage/#quality-were-the-decisions-right), not into anyone's personal file. The instinct behind the P2 was sound: a password that may be in someone else's hands deserves attention. The scoring was not. Under the <a href="/docs/risk/framework/#undetermined">undetermined rule</a>, a gap reads Medium with confidence Low, and High needs evidence that points at an outsider.
+
+## Risk, second pass: P3 on named triggers
+
+At 10:41 the analyst re-scored and rewrote sections 5, 6 and 8:
+
+- **Impact** Medium. **Likelihood** Medium. **Confidence** Low: the evidence that would decide it (her answer, the hotel's network) is missing, not examined and found wanting.
+- **Cell:** Medium/Medium, **P3:** re-score within 24 hours on a named <DefineTerm term="Re-score Trigger" display="re-score trigger" />.
+- **Named triggers:** (1) the re-run of the identity detections over 00:41 to 08:01; (2) her answer, expected after about 17:00; (3) a fixed re-score at 2026-09-24 10:41 if neither decides it.
+- **Immediate re-score, from the forward watch:** any first-factor success for her account from an address outside her baseline, any MFA prompt she reports she did not start, any MFA method or device change. Any of these taking H2 to High confidence fires the [escalation tripwire](/docs/escalation/criteria/#tripwire).
+- **Containment:** none. No token was issued to 203.0.113.163, so there is no session to revoke, and MFA held.
+- **Awaiting owner approval:** a password change and an MFA method review, with her agreement once she is reachable. A credential reset cannot be undone, so it is not on the [pre-authorized list](/docs/escalation/triage-vs-ir/#pre-authorized).
+- **Recommended move:** keep working to the triggers.
+
+At 10:44 the Escalation decision recorded the cell and the hold: P3, keep working to the named triggers. The forward watch went in as a SIEM watchlist entry on her account, with the day-shift analyst as owner and an expiry of 2026-09-24 10:44.
+
+## The triggers come in
+
+**12:34 and 13:08.** Parser v2.3.1 went live and the outage window was re-ingested on event time. The re-run of the identity detections over 00:41 to 08:01 finished at 13:08: `rule-idp-burst-success` no longer fires, because the failures sit 15 minutes apart, and no other identity detection fires in the window. Re-score at 13:12: unchanged. One trigger was in; the deciding one was still in the air.
+
+**16:00.** The day shift handed the case to the evening analyst on the written record, which a P3 may do ([shift handover](/docs/operating-variants/#shift-handover)):
+
+> CASE-2026-0923-004 · P3 (Medium impact / Medium likelihood, confidence Low) · Level 1 · owner after handover: evening analyst. Leading: none; H1 (her, personal laptop at the hotel) and H2 (someone else with her password, stopped by MFA) both open. Next action: when she calls, call back on the directory number before discussing anything; ask about devices and the morning window; with her agreement, change the password and review MFA methods. Changes the verdict: her answer. Any watch hit re-scores at once. Re-score due 2026-09-24T10:41Z.
+
+**17:42.** akowalski called the SOC from the arrival hall. The evening analyst called her back on the directory number (<DefineTerm term="Call-Back Verification" display="call-back verification" />) before discussing the case, then [asked open questions about the window](/docs/escalation/communication/#how-to-ask): "Which devices did you use yesterday evening and this morning?" and "Walk me through this morning before the airport." Not "Was that you at 06:46?" In her words: she had tried to check her flight and calendar on her own laptop at the hotel early that morning; she did not remember whether it worked or seeing an approval request; the laptop is a Windows machine and she uses Chrome. Nobody could say quickly how the hotel's Wi-Fi reached the internet.
+
+**17:51.** With her agreement, which is the owner approval a non-reversible step needs, she changed her password on laptop-workplace-12 and her sessions were revoked so that every client re-authenticated. She and the analyst reviewed her MFA methods: one registered authenticator, unchanged since 2025. At 17:58 her phone checked in to MDM and became compliant, and the blocked refreshes stopped.
+
+**18:06, re-score.** Impact Medium. Likelihood **Low**: the evidence, now examined, leans benign. Her account of the morning matches the time, the device type and the browser; there is no other address, no follow-on and no theft signal; and the password the 05:48 party typed no longer works. Confidence **Medium**: the reading rests on an uncertain recollection and on inference, and the hotel's address cannot be checked. Cell Medium/Low, **P4**. The priority moved down with that reason recorded, and the shift lead and the Tier 2 on-call, who had been told of the P2, were told of the P4.
+
+The activity verdict stayed **undetermined**. Benign-confirmed is a confirmation, and confirmation means High on the confidence rubric. A Medium-confidence reading that leans benign is still a lean.
+
+## Escalation decision: a documented close, undetermined
+
+At 18:20 the Escalation decision applied the E rule at P4: a documented close, through the <a href="/docs/escalation/criteria/#closing">closure check</a>, with the finding behind each item.
+
+1. **No escalation criterion confirmed or open as a suspicion.** Under H2, the attempt was stopped by a control (MFA held, no token issued, no follow-on) and the password it used has been changed. Under H1 there is nothing to stop.
+2. **The cell allows it:** P4, after a re-score with a named reason.
+3. **No persistence or credential access observed in the evidence examined:** no method or device changes, consents or rules, and no theft signal on her laptop or in her mail. Whether her password was taken is the open question, and it is recorded as a gap, not answered.
+4. **The case's own alternatives checked clean:** the spray, other addresses, other accounts, the legacy-protocol door, and the re-run of the blind window.
+5. **Gaps bounded.** Named: who was at 203.0.113.163; how the hotel's network reached the internet; her personal laptop, outside the SOC's reach and not examined. Reopen triggers: within 30 days, any sign-in attempt on her account from 203.0.113.163, or from an unregistered device on a hosting-provider address; any MFA prompt she reports she did not start; any MFA method or device change she did not make. The watchlist entry now carries these, with the day-shift lead as owner and an expiry of 2026-10-23.
+
+**Verdict:** detection, false positive (data); activity, undetermined; status, closed.
+
+**Why not Level 2?** "Anything suspicious survived Level 1 without a defensible verdict" is a [Level 2 trigger](/docs/fast-path/#the-depth-ladder), so the question at 18:20 was whether this verdict is defensible. The record says what is known and at what confidence, what is not known and why no source the SOC holds can answer it, what was done so that the open question no longer carries exposure, and what reopens it. A Level 2 pass would query the same sources again. Had a source existed that could answer the question (the hotel network's logs, a device the SOC could examine), the case would have climbed instead of closing.
+
+<Callout variant="warn" title="Undetermined is a verdict, not a parking spot">
+An undetermined case closes only with its gaps named and a reopen trigger written, or it moves up a level. Case D did one more thing before closing: it removed the exposure the open question implied. The password the unknown party typed no longer works, so the question "who was it?" can stay open without leaving the account open.
+</Callout>
+
+## Documentation: what one false positive found
+
+The analyst finalized the [alert report](/docs/documentation/templates/) at 18:40, with the ledger, both priority changes and their reasons, the handback receipt, the shift handover line and the communication record. Then the findings went where the [routing table](/docs/detection-feedback/#the-routing-table) sends them:
+
+<div class="table-scroll">
+
+| Finding | Route | Artifact |
+|---|---|---|
+| The parser stamped event time from the batch receipt | Pipeline owner | Tuning request DE-0418, data or pipeline fix: v2.3.1 (live at 12:34) plus a regression test that replays a delayed batch and fails if `@timestamp` differs from `published` |
+| The connector was silent for 7 h 19 min and nothing paged | Pipeline owner | DE-0418, second part: alert when connector lag passes 15 minutes, and track secret expiry dates. This secret expired a year to the minute after it was created |
+| Every identity rule was blind, then mistimed, for the window | Detection engineering | The 13:08 re-run and its result, attached to the case. In the [per-rule numbers](/docs/detection-feedback/#per-rule-numbers-both-teams-share) this fire counts as a false positive (data), work for the pipeline rather than a mark against the rule's logic |
+| Tier 1 scored missing evidence as High | SOC lead | The handback, logged by reason, counted in the <a href="/templates/monthly-triage-report.md" download>monthly triage report</a> |
+| The 05:48 attempt | No rule change | The close record and the entity watch. No rule change rides on an undetermined verdict. A detection for "password accepted from an address new to the tenant, MFA not completed" is worth having, and [Case C](/docs/documentation/example/#case-c) is its evidence: there, the same log shape came from an AiTM proxy |
+| MFA held because a push went unanswered | Control owner, by reference | The record points to Case C's control-gap recommendation (phishing-resistant MFA) rather than filing a duplicate |
+
+</div>
+
+The ATT&CK line is written as conditional: under H2 only, the attempt maps to T1078.004 Valid Accounts: Cloud Accounts (ATT&CK Enterprise v19), attempted and not achieved; under H1, no technique applies. A mapping on an undetermined case says which branch it belongs to.
+
+## What would have changed the verdict
+
+- **The phone's refreshes coming from 203.0.113.163:** H1 at High. The activity would be benign-confirmed and the case closed by mid-morning, without the P3.
+- **203.0.113.163 trying other accounts:** a spray. The case becomes one member of a tenant-level case, the riskiest member sets its level, and the question changes from "who was it?" to "did any of them get in?" (see [correlated cases](/docs/fast-path/#correlated-cases)).
+- **"No, I didn't try to sign in anywhere":** likelihood High, now on evidence. Her current password is in someone else's hands, so item 3 of the closure check fails. Medium/High, P2: escalate within 4 hours, with the password change done first on her approval. The P2 from 09:40 would have been right at 17:42, on evidence rather than on its absence.
+- **The push approved, a second password success, or an MFA method added from a new address:** an unknown party holding a session or a foothold that no control stopped. At High confidence that is criterion 1, and the escalation tripwire makes the case P1 whatever the cell. [Exercise 4](/docs/exercises/#exercise-4--the-push-that-finally-said-yes) works the approved-push branch.
+
+<Reveal summary="What a less experienced analyst could miss" variant="example">
+
+- **Closing at 08:19.** The false positive (data) is a complete detection verdict and no activity verdict at all.
+- **Reading the 54 seconds as fact.** The first check on any correlation rule is whether its timestamps are event time.
+- **Treating the connector outage as plumbing.** An attacker who wants the SOC blind produces the same silence; the expiry date and the audit log are what rule it out.
+- **Trusting a quiet night.** With the rules blind for seven hours, "nothing else fired" meant nothing until the re-run.
+- **Asking in the wrong place or the wrong way.** A message to her mailbox asks whoever holds the password; "Was that you at 06:46?" invites a yes.
+- **Holding a P3 with no trigger, or closing an undetermined case without removing its exposure.**
+- **Writing benign-confirmed on a recollection.** "She thinks so" is Medium confidence at best.
+
+</Reveal>
+
+## Case D beside the threaded cases
+
+<div class="table-scroll">
+
+| | [Case A](/docs/alert/example/#case-a) | [Case B](/docs/alert/example/#case-b) | [Case C](/docs/alert/example/#case-c) | Case D |
+|---|---|---|---|---|
+| Depth | Level 1, then Level 2 in Uncover | Level 2 | Level 2 | Level 1 |
+| Detection | true positive | true positive | true positive | false positive (data) |
+| Activity | malicious | authorized (benign true positive) | malicious | undetermined |
+| Priority | P1 by the escalation tripwire | High/Low, P3 on the high-impact clock | P1 by the escalation tripwire | P2 handed back, then P3, then P4 |
+| Decision | Escalate | Documented close after a clean forward watch | Escalate | Documented close with gaps and reopen triggers |
+| Teaches | The late P1 | The benign true positive and the context-side fix | Ordered identity containment | The data false positive, the open P3, the handback |
+
+</div>
+
+<KeyTakeaway>A false positive closes the detection question and opens a pipeline ticket; it does not close the case. Score what the evidence shows, not what is missing; a handback is a correction, not a defeat. When a question cannot be answered, take away what makes it dangerous, write down what would reopen it, and close it as undetermined.</KeyTakeaway>
+
+<div class="end-cta">
+  <a href="/docs/cases/" class="assured-cta assured-cta--ghost">← All case files</a>
+  <a href="/docs/detection-feedback/" class="assured-cta">Detection feedback →</a>
+</div>

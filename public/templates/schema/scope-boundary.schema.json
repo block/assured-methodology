@@ -1,0 +1,568 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/scope-boundary.schema.json",
+  "title": "Scope boundary statement",
+  "description": "The Scope boundary statement for Level 2: threat type, windows with anchor events and retention checks, entities with a category and justification, sweeps, data sources and named gaps, requests in flight, regulatory tags with candidate timestamps, open questions for Uncover, escalation posture, preservation, the time box and an append-only change log.",
+  "x-assured-template": "scope-boundary.md",
+  "type": "object",
+  "properties": {
+    "header": {
+      "x-assured-section": "",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID"
+        },
+        "preparedBy": {
+          "x-assured-prompt": "Prepared by",
+          "type": "object",
+          "properties": {
+            "by": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["by", "at"],
+          "description": "Prepared by (analyst), at (UTC)"
+        },
+        "subjectHandoff": {
+          "x-assured-prompt": "Subject handoff it starts from",
+          "type": "string",
+          "description": "Link to the Subject handoff."
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which sections began as AI drafts; \"none\" if unassisted)"
+        }
+      },
+      "required": ["caseId", "preparedBy", "subjectHandoff", "materialAiUse"]
+    },
+    "threatType": {
+      "x-assured-section": "1. Threat type",
+      "type": "object",
+      "properties": {
+        "threatType": {
+          "x-assured-prompt": "Threat type",
+          "type": "string",
+          "description": "Threat type (e.g. phishing-driven intrusion, credential misuse, cloud key exposure, insider data movement)"
+        },
+        "playbook": {
+          "x-assured-prompt": "Playbook, and the data sources Uncover queries first",
+          "type": "string",
+          "description": "Playbook, and the data sources Uncover queries first"
+        }
+      },
+      "required": ["threatType", "playbook"]
+    },
+    "windows": {
+      "x-assured-section": "2. Windows",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Window",
+            "From (UTC)",
+            "To (UTC)",
+            "Anchor event",
+            "Entities it applies to",
+            "Retention check (source, retention, covers yes / no)"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "window": {
+                "x-assured-column": "Window",
+                "enum": ["Primary", "Extended", "Forward (watch)"]
+              },
+              "from": {
+                "x-assured-column": "From (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "to": {
+                "x-assured-column": "To (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "anchorEvent": {
+                "x-assured-column": "Anchor event",
+                "type": "string"
+              },
+              "entities": {
+                "x-assured-column": "Entities it applies to",
+                "type": "string"
+              },
+              "retentionCheck": {
+                "x-assured-column": "Retention check (source, retention, covers yes / no)",
+                "type": "string"
+              }
+            },
+            "required": ["window", "from", "anchorEvent"]
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["rows"]
+    },
+    "entitiesAndSweeps": {
+      "x-assured-section": "3. Entities and sweeps",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Entity",
+            "Type",
+            "Category (primary / secondary / downstream / originating threat / out of scope)",
+            "Depth",
+            "Justification",
+            "What would change its category"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "x-assured-column": "Entity",
+                "type": "string"
+              },
+              "type": {
+                "x-assured-column": "Type",
+                "enum": [
+                  "user",
+                  "service account",
+                  "host or device",
+                  "application or OAuth grant",
+                  "session or token",
+                  "resource",
+                  "artifact",
+                  "network identifier",
+                  "threat"
+                ]
+              },
+              "category": {
+                "x-assured-column": "Category (primary / secondary / downstream / originating threat / out of scope)",
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "downstream",
+                  "originating threat",
+                  "out of scope"
+                ]
+              },
+              "depth": {
+                "x-assured-column": "Depth",
+                "type": "string"
+              },
+              "justification": {
+                "x-assured-column": "Justification",
+                "type": "string"
+              },
+              "whatWouldChangeIt": {
+                "x-assured-column": "What would change its category",
+                "type": "string"
+              }
+            },
+            "required": ["entity", "category", "justification"]
+          }
+        },
+        "sweeps": {
+          "x-assured-section": "Sweeps",
+          "type": "object",
+          "properties": {
+            "rows": {
+              "x-assured-columns": [
+                "Sweep (indicator or behavior)",
+                "Population",
+                "Window",
+                "Stop condition",
+                "Run at (UTC)",
+                "Result",
+                "Re-run at (UTC)"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sweep": {
+                    "x-assured-column": "Sweep (indicator or behavior)",
+                    "type": "string"
+                  },
+                  "population": {
+                    "x-assured-column": "Population",
+                    "type": "string"
+                  },
+                  "window": {
+                    "x-assured-column": "Window",
+                    "enum": ["Primary", "Extended", "Forward (watch)"]
+                  },
+                  "stopCondition": {
+                    "x-assured-column": "Stop condition",
+                    "type": "string"
+                  },
+                  "runAt": {
+                    "x-assured-column": "Run at (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "result": {
+                    "x-assured-column": "Result",
+                    "type": "string"
+                  },
+                  "reRunAt": {
+                    "x-assured-column": "Re-run at (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  }
+                },
+                "required": ["sweep", "window", "stopCondition"]
+              }
+            }
+          }
+        }
+      },
+      "required": ["rows", "sweeps"]
+    },
+    "constraints": {
+      "x-assured-section": "4. Constraints",
+      "type": "object",
+      "properties": {
+        "dataSourcesAndNamed": {
+          "x-assured-section": "Data sources and named gaps",
+          "type": "object",
+          "properties": {
+            "sourcesInUse": {
+              "x-assured-prompt": "Sources in use",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "covers": {
+                    "type": "string"
+                  }
+                },
+                "required": ["source"]
+              },
+              "description": "Sources in use (source, and the window it covers)"
+            },
+            "gaps": {
+              "x-assured-prompt": "Gaps",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "gap": {
+                    "type": "string"
+                  },
+                  "hides": {
+                    "type": "string"
+                  },
+                  "requestOrWorkaround": {
+                    "type": "string"
+                  }
+                },
+                "required": ["gap"]
+              },
+              "description": "Gaps (source or population not visible, what it hides, and the request or workaround)"
+            }
+          },
+          "required": ["sourcesInUse", "gaps"]
+        },
+        "requestsInFlight": {
+          "x-assured-section": "Requests in flight",
+          "type": "object",
+          "properties": {
+            "rows": {
+              "x-assured-columns": [
+                "Request (logs, vendor data, owner question, legal hold)",
+                "Sent to",
+                "Sent at (UTC)",
+                "Expected by (UTC)",
+                "Status"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "request": {
+                    "x-assured-column": "Request (logs, vendor data, owner question, legal hold)",
+                    "type": "string"
+                  },
+                  "sentTo": {
+                    "x-assured-column": "Sent to",
+                    "type": "string"
+                  },
+                  "sentAt": {
+                    "x-assured-column": "Sent at (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "expectedBy": {
+                    "x-assured-column": "Expected by (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "status": {
+                    "x-assured-column": "Status",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "regulatoryTags": {
+          "x-assured-section": "Regulatory tags",
+          "type": "object",
+          "properties": {
+            "rows": {
+              "x-assured-columns": [
+                "Regime (candidate)",
+                "Data class in reach or touched",
+                "Candidate discovery timestamp (UTC)",
+                "Candidate awareness timestamp (UTC)",
+                "Owner engaged (who)",
+                "Owner engaged at (UTC)"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "regime": {
+                    "x-assured-column": "Regime (candidate)",
+                    "type": "string"
+                  },
+                  "dataClass": {
+                    "x-assured-column": "Data class in reach or touched",
+                    "type": "string"
+                  },
+                  "candidateDiscovery": {
+                    "x-assured-column": "Candidate discovery timestamp (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "candidateAwareness": {
+                    "x-assured-column": "Candidate awareness timestamp (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "ownerEngaged": {
+                    "x-assured-column": "Owner engaged (who)",
+                    "type": "string"
+                  },
+                  "ownerEngagedAt": {
+                    "x-assured-column": "Owner engaged at (UTC)",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["dataSourcesAndNamed", "requestsInFlight", "regulatoryTags"]
+    },
+    "openQuestions": {
+      "x-assured-section": "5. Open questions for Uncover",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Open question",
+            "Query or source that answers it",
+            "Priority"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "openQuestion": {
+                "x-assured-column": "Open question",
+                "type": "string"
+              },
+              "queryOrSource": {
+                "x-assured-column": "Query or source that answers it",
+                "type": "string"
+              },
+              "priority": {
+                "x-assured-column": "Priority",
+                "type": "string"
+              }
+            },
+            "required": ["openQuestion"]
+          }
+        }
+      },
+      "required": ["rows"]
+    },
+    "escalationPosture": {
+      "x-assured-section": "6. Escalation posture",
+      "type": "object",
+      "properties": {
+        "escalationTripwire": {
+          "x-assured-prompt": "Escalation tripwire",
+          "type": "object",
+          "properties": {
+            "status": {
+              "enum": ["not fired", "fired"]
+            },
+            "criterion": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "irOwner": {
+              "type": "string"
+            }
+          },
+          "required": ["status"],
+          "description": "Escalation tripwire (not fired / fired: criterion, at UTC, IR owner)"
+        },
+        "containmentStatus": {
+          "x-assured-prompt": "Containment status",
+          "type": "string",
+          "description": "Containment status (what is contained, by whom, verified how)"
+        },
+        "tripwireFindings": {
+          "x-assured-prompt": "Findings that would fire the tripwire",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Findings that would fire the tripwire (each criterion still open as a suspicion, and the evidence that would confirm it)"
+        }
+      },
+      "required": [
+        "escalationTripwire",
+        "containmentStatus",
+        "tripwireFindings"
+      ]
+    },
+    "preservation": {
+      "x-assured-section": "7. Preservation",
+      "type": "object",
+      "properties": {
+        "heldOrExported": {
+          "x-assured-prompt": "Held or exported",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string"
+              },
+              "hashOrReference": {
+                "type": "string"
+              },
+              "at": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              }
+            },
+            "required": ["item"]
+          },
+          "description": "Held or exported (artifact or source, hash or reference, at UTC)"
+        },
+        "rotationOrCleanupPaused": {
+          "x-assured-prompt": "Rotation or cleanup paused",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "until": {
+                "type": "string"
+              }
+            },
+            "required": ["source"]
+          },
+          "description": "Rotation or cleanup paused (source, until when)"
+        }
+      },
+      "required": ["heldOrExported", "rotationOrCleanupPaused"]
+    },
+    "timeBox": {
+      "x-assured-section": "8. Time box",
+      "type": "object",
+      "properties": {
+        "firstConvergenceCheckpoint": {
+          "x-assured-prompt": "First convergence checkpoint",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "First convergence checkpoint (UTC)"
+        },
+        "decisionDeadline": {
+          "x-assured-prompt": "Converge, re-scope, or pull in a peer or tier up deadline",
+          "$ref": "assured-vocabulary.schema.json#/$defs/utc",
+          "description": "Converge, re-scope, or pull in a peer or tier up deadline (UTC)"
+        }
+      },
+      "required": ["firstConvergenceCheckpoint", "decisionDeadline"]
+    },
+    "boundaryChanges": {
+      "x-assured-section": "Boundary changes",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Changed at (UTC)",
+            "Entity or window",
+            "In or out",
+            "Evidence",
+            "Risk",
+            "Required actions",
+            "By"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "changedAt": {
+                "x-assured-column": "Changed at (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "entityOrWindow": {
+                "x-assured-column": "Entity or window",
+                "type": "string"
+              },
+              "inOrOut": {
+                "x-assured-column": "In or out",
+                "enum": ["in", "out"]
+              },
+              "evidence": {
+                "x-assured-column": "Evidence",
+                "type": "string"
+              },
+              "risk": {
+                "x-assured-column": "Risk",
+                "type": "string"
+              },
+              "requiredActions": {
+                "x-assured-column": "Required actions",
+                "type": "string"
+              },
+              "by": {
+                "x-assured-column": "By",
+                "type": "string"
+              }
+            },
+            "required": ["changedAt", "evidence"]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "header",
+    "threatType",
+    "windows",
+    "entitiesAndSweeps",
+    "constraints",
+    "openQuestions",
+    "escalationPosture",
+    "preservation",
+    "timeBox",
+    "boundaryChanges"
+  ]
+}

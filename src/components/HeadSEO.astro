@@ -1,9 +1,13 @@
 ---
+import { CONTENT_LAST_REVIEWED } from "@/data/version";
+
 interface Props {
   title?: string | undefined;
   description?: string | undefined;
   ogImage?: URL | undefined;
   noindex?: boolean | undefined;
+  /** ISO date (YYYY-MM-DD) the page was last checked; article pages only. */
+  modifiedTime?: string | undefined;
 }
 
 // Canonical URLs use a trailing slash to match Vercel's serving behavior
@@ -19,6 +23,11 @@ const canonicalURL = new URL(canonicalPathname, Astro.site);
 const ogImage = Astro.props.ogImage ?? new URL("og-image.png", Astro.site);
 
 const { title, description, noindex } = Astro.props;
+// Docs pages are articles; the home page and error pages are the website.
+const isArticle = canonicalPathname.startsWith("/docs/");
+const modifiedTime = isArticle
+  ? (Astro.props.modifiedTime ?? CONTENT_LAST_REVIEWED)
+  : undefined;
 const siteName = "ASSURED Methodology";
 const fullTitle = title
   ? title.includes("ASSURED")
@@ -66,7 +75,10 @@ const websiteSchema = JSON.stringify({
 {noindex && <meta name="robots" content="noindex" />}
 <script is:inline type="application/ld+json" set:html={websiteSchema} />
 
-<meta property="og:type" content="website" />
+<meta property="og:type" content={isArticle ? "article" : "website"} />
+{modifiedTime && (
+  <meta property="article:modified_time" content={modifiedTime} />
+)}
 <meta property="og:locale" content="en_US" />
 <meta property="og:site_name" content={siteName} />
 <meta property="og:url" content={canonicalURL} />

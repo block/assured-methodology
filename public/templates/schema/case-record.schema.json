@@ -1,0 +1,597 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/case-record.schema.json",
+  "title": "Case record",
+  "description": "The living case record, one section per phase. The case, not the alert, is the unit of work. Risk records the cell, band, confidence and a recommended move; the Escalation decision section records the decision, who made it and when.",
+  "x-assured-template": "case-record.md",
+  "type": "object",
+  "properties": {
+    "caseMetadata": {
+      "x-assured-section": "Case metadata",
+      "type": "object",
+      "properties": {
+        "caseId": {
+          "x-assured-prompt": "Case ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/caseId",
+          "description": "Case ID: CASE-YYYYMMDD-NNN"
+        },
+        "memberAlertIds": {
+          "x-assured-prompt": "Member alert IDs",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "Member alert IDs (every alert grouped into this case; the riskiest member sets the level)"
+        },
+        "relatedIncidentId": {
+          "x-assured-prompt": "Related incident ID",
+          "$ref": "assured-vocabulary.schema.json#/$defs/incidentId",
+          "description": "Related incident ID (only if declared): INC-YYYYMMDD-NNN"
+        },
+        "caseOwner": {
+          "x-assured-prompt": "Case owner",
+          "type": "object",
+          "properties": {
+            "analyst": {
+              "type": "string"
+            },
+            "irOwner": {
+              "type": "string"
+            }
+          },
+          "required": ["analyst"],
+          "description": "Case owner (analyst), and IR owner once the escalation tripwire fires"
+        },
+        "depthLevel": {
+          "x-assured-prompt": "Depth level",
+          "$ref": "assured-vocabulary.schema.json#/$defs/depth",
+          "description": "Depth level (0 / 1 / 2), and any upward moves with their reason (a case moves up the ladder, never down)"
+        },
+        "distribution": {
+          "x-assured-prompt": "Distribution",
+          "$ref": "assured-vocabulary.schema.json#/$defs/distribution",
+          "description": "Distribution (optional: TLP, the Traffic Light Protocol, and any need-to-know limits)"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which sections began as AI drafts; \"none\" if unassisted)"
+        }
+      },
+      "required": [
+        "caseId",
+        "memberAlertIds",
+        "caseOwner",
+        "depthLevel",
+        "materialAiUse"
+      ]
+    },
+    "alert": {
+      "x-assured-section": "A: Alert",
+      "type": "object",
+      "properties": {
+        "detected": {
+          "x-assured-prompt": "Detected",
+          "type": "object",
+          "properties": {
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "source": {
+              "type": "string"
+            },
+            "rule": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/ruleRef"
+            }
+          },
+          "required": ["at", "source", "rule"],
+          "description": "Detected (UTC), detection source, and rule (name, ID, and version)"
+        },
+        "intakeChannel": {
+          "x-assured-prompt": "Intake channel",
+          "enum": [
+            "detection",
+            "user report",
+            "external notification",
+            "bug-bounty report",
+            "hunt finding",
+            "provider escalation",
+            "internal referral"
+          ],
+          "description": "Intake channel (detection / user report / external notification / bug-bounty report / hunt finding / provider escalation / internal referral)"
+        },
+        "claim": {
+          "x-assured-prompt": "Claim",
+          "type": "object",
+          "properties": {
+            "claim": {
+              "type": "string"
+            },
+            "happened": {
+              "type": "string"
+            }
+          },
+          "required": ["claim"],
+          "description": "Claim (what the rule or report says), and whether it happened"
+        },
+        "detectionAxis": {
+          "x-assured-prompt": "Detection axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Detection axis, provisional at this phase."
+        },
+        "alternativesToTest": {
+          "x-assured-prompt": "Alternatives to test",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Alternatives to test (each benign or malicious explanation, named)"
+        },
+        "regulatoryFlagAsWritten": {
+          "x-assured-prompt": "Regulatory flag as written",
+          "type": "string",
+          "description": "Regulatory flag as written (data reached, or only reachable)"
+        }
+      },
+      "required": [
+        "detected",
+        "intakeChannel",
+        "claim",
+        "detectionAxis",
+        "alternativesToTest",
+        "regulatoryFlagAsWritten"
+      ]
+    },
+    "subject": {
+      "x-assured-section": "S: Subject",
+      "type": "object",
+      "properties": {
+        "entitiesOnTheMap": {
+          "x-assured-prompt": "Entities on the map",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "user",
+                  "service account",
+                  "host or device",
+                  "application or OAuth grant",
+                  "session or token",
+                  "resource",
+                  "artifact",
+                  "network identifier",
+                  "threat"
+                ]
+              },
+              "classification": {
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "downstream",
+                  "originating threat"
+                ]
+              },
+              "verdict": {
+                "type": "string"
+              }
+            },
+            "required": ["entity", "type"]
+          },
+          "description": "Entities on the map (each with type, classification and per-dimension verdict, cleared ones included; type: user / service account / host or device / application or OAuth grant / session or token / resource / artifact / network identifier / threat; classification: primary / secondary / downstream / originating threat)"
+        },
+        "insiderPosture": {
+          "x-assured-prompt": "Insider posture",
+          "type": "string",
+          "description": "Insider posture (activity mapped to the Insider Threat Matrix, or \"none observed\")"
+        }
+      },
+      "required": ["entitiesOnTheMap", "insiderPosture"]
+    },
+    "scope": {
+      "x-assured-section": "S: Scope",
+      "type": "object",
+      "properties": {
+        "window": {
+          "x-assured-prompt": "Window and its anchor event",
+          "type": "object",
+          "properties": {
+            "from": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "to": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "anchorEvent": {
+              "type": "string"
+            },
+            "retentionCheck": {
+              "type": "string"
+            }
+          },
+          "required": ["from", "anchorEvent"],
+          "description": "Window and its anchor event (UTC), with the retention check"
+        },
+        "subjectAndExclusions": {
+          "x-assured-prompt": "Subject, and what is excluded",
+          "type": "string",
+          "description": "Subject, and what is excluded (with the reason)"
+        },
+        "regulatoryTags": {
+          "x-assured-prompt": "Regulatory tags",
+          "type": "string",
+          "description": "Regulatory tags (candidate awareness timestamp UTC, owner engaged at UTC) and named gaps"
+        }
+      },
+      "required": ["window", "subjectAndExclusions", "regulatoryTags"]
+    },
+    "uncover": {
+      "x-assured-section": "U: Uncover",
+      "type": "object",
+      "properties": {
+        "hypothesisLedger": {
+          "x-assured-section": "Hypothesis ledger",
+          "type": "object",
+          "properties": {
+            "attackTechniques": {
+              "x-assured-prompt": "ATT&CK techniques, if mapped",
+              "$ref": "assured-vocabulary.schema.json#/$defs/attackMapping",
+              "description": "ATT&CK techniques, if mapped (with the ATT&CK version, e.g. Enterprise v19)"
+            },
+            "preserved": {
+              "x-assured-prompt": "Preserved",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "type": "string"
+                  },
+                  "hashOrReference": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  }
+                },
+                "required": ["item"]
+              },
+              "description": "Preserved (what, hash or reference, at UTC)"
+            },
+            "rows": {
+              "x-assured-columns": [
+                "Hypothesis",
+                "Status (leading / rejected / open)",
+                "Deciding evidence",
+                "Source and query (provenance)",
+                "Confidence"
+              ],
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "hypothesis": {
+                    "x-assured-column": "Hypothesis",
+                    "type": "string"
+                  },
+                  "status": {
+                    "x-assured-column": "Status (leading / rejected / open)",
+                    "enum": ["leading", "rejected", "open"]
+                  },
+                  "decidingEvidence": {
+                    "x-assured-column": "Deciding evidence",
+                    "type": "string"
+                  },
+                  "provenance": {
+                    "x-assured-column": "Source and query (provenance)",
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "x-assured-column": "Confidence",
+                    "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+                  }
+                }
+              }
+            }
+          },
+          "required": ["attackTechniques", "preserved"]
+        }
+      },
+      "required": ["hypothesisLedger"]
+    },
+    "risk": {
+      "x-assured-section": "R: Risk",
+      "x-assured-phase": "risk",
+      "type": "object",
+      "properties": {
+        "impact": {
+          "x-assured-prompt": "Impact",
+          "$ref": "assured-vocabulary.schema.json#/$defs/rating",
+          "description": "Impact (H/M/L), the higher of asset criticality and business impact"
+        },
+        "likelihood": {
+          "x-assured-prompt": "Likelihood that the activity is malicious or unauthorized",
+          "$ref": "assured-vocabulary.schema.json#/$defs/rating",
+          "description": "Likelihood that the activity is malicious or unauthorized (H/M/L)"
+        },
+        "confidence": {
+          "x-assured-prompt": "Confidence in that judgment",
+          "$ref": "assured-vocabulary.schema.json#/$defs/confidence",
+          "description": "Confidence in that judgment (high / medium / low, shared rubric)"
+        },
+        "matrixCell": {
+          "x-assured-prompt": "Matrix cell",
+          "type": "object",
+          "properties": {
+            "cell": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+            },
+            "band": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+            },
+            "confirmedCriterion": {
+              "type": "string",
+              "description": "The confirmed criterion that set P1, when one did."
+            }
+          },
+          "required": ["band"],
+          "description": "Matrix cell (impact / likelihood) and priority (P1-P4), or the confirmed criterion that set P1"
+        },
+        "recommendedMove": {
+          "x-assured-prompt": "Recommended move",
+          "type": "object",
+          "properties": {
+            "move": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/recommendedMove"
+            },
+            "reScoreTrigger": {
+              "type": "string"
+            }
+          },
+          "required": ["move"],
+          "description": "Recommended move"
+        }
+      },
+      "required": [
+        "impact",
+        "likelihood",
+        "confidence",
+        "matrixCell",
+        "recommendedMove"
+      ]
+    },
+    "escalationDecision": {
+      "x-assured-section": "E: Escalation decision",
+      "x-assured-phase": "escalation",
+      "x-assured-e-rule": true,
+      "type": "object",
+      "properties": {
+        "decision": {
+          "x-assured-prompt": "Decision",
+          "type": "object",
+          "properties": {
+            "decision": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/escalationDecision"
+            },
+            "decidedBy": {
+              "type": "string"
+            },
+            "decidedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["decision", "decidedBy", "decidedAt"],
+          "description": "Decision (close / escalate), decided by, at (UTC)"
+        },
+        "basis": {
+          "x-assured-prompt": "Basis",
+          "type": "object",
+          "properties": {
+            "basis": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/escalationBasis"
+            },
+            "rationale": {
+              "type": "string"
+            }
+          },
+          "required": ["basis", "rationale"],
+          "description": "Basis (confirmed criterion under the escalation tripwire / matrix cell / operational route such as capacity), with one line of rationale"
+        },
+        "handedTo": {
+          "x-assured-prompt": "Handed to",
+          "type": "object",
+          "properties": {
+            "receivingOwner": {
+              "type": "string"
+            },
+            "acceptedBy": {
+              "type": "string"
+            },
+            "acceptedAt": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": ["receivingOwner"],
+          "description": "Handed to (receiving owner), accepted by, at (UTC), if escalated"
+        },
+        "closureCheck": {
+          "x-assured-prompt": "Closure check, if closed",
+          "type": "string",
+          "description": "Closure check, if closed (no criterion confirmed or suspected; the cell allows it; no persistence or credential access seen; the case's own alternatives checked clean; gaps bounded)"
+        }
+      },
+      "required": ["decision"]
+    },
+    "documentation": {
+      "x-assured-section": "D: Documentation",
+      "type": "object",
+      "properties": {
+        "finalDetection": {
+          "x-assured-prompt": "Final verdict, detection axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/detectionVerdict",
+          "description": "Final verdict, detection axis (true positive / false positive (logic) / false positive (data))"
+        },
+        "finalActivity": {
+          "x-assured-prompt": "Final verdict, activity axis",
+          "$ref": "assured-vocabulary.schema.json#/$defs/activityVerdict",
+          "description": "Final verdict, activity axis (malicious / policy violation / authorized (benign true positive) / benign-confirmed / undetermined)"
+        },
+        "status": {
+          "x-assured-prompt": "Status",
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/caseStatus"
+            },
+            "relatedIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["status"],
+          "description": "Status (closed / escalated / merged into case), with related case or incident IDs"
+        },
+        "reopenConditions": {
+          "x-assured-prompt": "Reopen conditions",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Reopen conditions (required for benign and authorized closes)"
+        },
+        "keyTimes": {
+          "x-assured-prompt": "Key times",
+          "type": "object",
+          "properties": {
+            "detected": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "acknowledged": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "verdict": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "escalatedOrClosed": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "contained": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "reopened": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            }
+          },
+          "required": [
+            "detected",
+            "acknowledged",
+            "verdict",
+            "escalatedOrClosed"
+          ],
+          "description": "Key times (UTC): detected / acknowledged / verdict / escalated or closed / contained / reopened"
+        },
+        "eventReportAndReview": {
+          "x-assured-prompt": "Event report",
+          "type": "object",
+          "properties": {
+            "eventReport": {
+              "type": "string"
+            },
+            "closureReview": {
+              "type": "object",
+              "properties": {
+                "reviewer": {
+                  "type": "string"
+                },
+                "outcome": {
+                  "type": "string"
+                },
+                "at": {
+                  "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                }
+              }
+            }
+          },
+          "description": "Event report (link), closure review (reviewer, outcome, at UTC)"
+        },
+        "nextAction": {
+          "x-assured-prompt": "Next action",
+          "type": "string",
+          "description": "Next action (tuning request, pattern-entry proposal, or \"nothing further\", with the reason)"
+        }
+      },
+      "required": [
+        "finalDetection",
+        "finalActivity",
+        "status",
+        "keyTimes",
+        "eventReportAndReview",
+        "nextAction"
+      ]
+    },
+    "actionsLog": {
+      "x-assured-section": "Actions log",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Timestamp (UTC)",
+            "Phase",
+            "Actor",
+            "Action taken",
+            "Rationale",
+            "Outcome / result"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {
+                "x-assured-column": "Timestamp (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "phase": {
+                "x-assured-column": "Phase",
+                "type": "string"
+              },
+              "actor": {
+                "x-assured-column": "Actor",
+                "type": "string"
+              },
+              "actionTaken": {
+                "x-assured-column": "Action taken",
+                "type": "string"
+              },
+              "rationale": {
+                "x-assured-column": "Rationale",
+                "type": "string"
+              },
+              "outcomeResult": {
+                "x-assured-column": "Outcome / result",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "caseMetadata",
+    "alert",
+    "subject",
+    "scope",
+    "uncover",
+    "risk",
+    "escalationDecision",
+    "documentation",
+    "actionsLog"
+  ]
+}

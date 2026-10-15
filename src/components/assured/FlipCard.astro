@@ -1,13 +1,15 @@
 ---
 /**
- * FlipCard. Front face shows a hook (title + icon). Click or tap to flip
- * to the back, which reveals the detail.
+ * FlipCard. Front face shows a prompt (title + icon). Selecting it flips
+ * the card to the back, which reveals the answer.
  *
- * Built with a CSS 3D transform. Front and back share the same height
- * (controlled by the front side) so the layout does not jump on flip.
+ * A recall device: use it where hiding the answer is the point (self-test),
+ * not to carry an argument the reader must see. Built with a CSS 3D
+ * transform; both faces share one grid cell, so the card is as tall as the
+ * taller face and the layout does not jump on flip.
  *
  * Usage in MDX:
- *   <FlipCard icon="clock" title="A method for the first 30 minutes" hint="Tap to learn more">
+ *   <FlipCard icon="clock" title="A method for the first 30 minutes">
  *     NIST, SANS PICERL, and ATT&CK describe...
  *   </FlipCard>
  */
@@ -21,24 +23,55 @@ interface Props {
   accent?: "teal" | "blue" | "green" | "purple" | "orange" | "red" | "indigo";
 }
 
-const { icon, title, hint = "Tap to reveal", accent = "teal" } = Astro.props;
+// "Select", not "Tap": the card is operated by mouse, keyboard and touch.
+const { icon, title, hint = "Select to reveal", accent = "teal" } = Astro.props;
 
 // Lucide-style 24px stroke icons (inner markup only; the <svg> wrapper is in
-// the template). Add a key here rather than passing new emoji.
+// the template). Add a key here rather than passing new emoji. One meaning
+// per icon across the site.
 const icons: Record<string, string> = {
+  "battery-low":
+    '<rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/>',
+  "bell-off":
+    '<path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m2 2 20 20"/>',
+  brain:
+    '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>',
+  clipboard:
+    '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
   clock:
     '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  compass:
+    '<path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><circle cx="12" cy="12" r="10"/>',
+  door: '<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/>',
+  globe:
+    '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  history:
+    '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+  hourglass:
+    '<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+  "id-card":
+    '<path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/>',
   ladder:
     '<path d="M8 3v18"/><path d="M16 3v18"/><path d="M8 8h8"/><path d="M8 13h8"/><path d="M8 18h8"/>',
+  layers:
+    '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  network:
+    '<rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/>',
+  package:
+    '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
   repeat:
     '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
+  siren:
+    '<path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2z"/><path d="M21 12h1"/><path d="M18.5 4.5 18 5"/><path d="M2 12h1"/><path d="M12 2v1"/><path d="m4.929 4.929.707.707"/><path d="M12 12v6"/>',
+  target:
+    '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
 };
 const iconSvg = icon ? icons[icon] : undefined;
 ---
 
 {/*
   IMPORTANT: the flip controls are leaf-level <button>s (the title on the front,
-  "Tap to flip back" on the back), NOT a wrapper button around the faces.
+  "Show question" on the back), NOT a wrapper button around the faces.
   The back-face slot can render arbitrary MDX content including other components
   that emit their own <button> (e.g. DefineTerm). A <button> inside a <button>
   is invalid HTML, and a role="button" wrapper is just as broken for assistive
@@ -46,6 +79,12 @@ const iconSvg = icon ? icons[icon] : undefined;
   readers flatten the whole back face into the button's accessible name.
   The face that is rotated away also gets inert + aria-hidden (managed by the
   script) so its content leaves the tab order and the accessibility tree.
+
+  The back face repeats the title as its own h3 (tabindex=-1). After a flip,
+  focus lands on that heading, so screen-reader and keyboard users start at
+  the top of the revealed content instead of after it, and the card keeps a
+  heading in the accessibility tree whichever face is showing (the hidden
+  face is aria-hidden). Without JS, and in print, the repeat is hidden.
 
   Progressive enhancement: the server HTML ships the back face fully
   reachable (no inert/aria-hidden); the bind script applies the hidden state
@@ -63,6 +102,7 @@ const iconSvg = icon ? icons[icon] : undefined;
       .flip-card__face { min-height: 0 !important; }
       .flip-card__face--back { transform: none !important; margin-top: 0.85rem; }
       .flip-card__hint { display: none !important; }
+      .flip-card__back-title { display: none !important; }
       .flip-card__title-btn { cursor: default !important; }
       .flip-card__back-body { margin-bottom: 0 !important; }
     </style>
@@ -103,6 +143,7 @@ const iconSvg = icon ? icons[icon] : undefined;
         undone by CSS, so baking it into server HTML would make the back face
         permanently unreachable without JS). */}
     <div class="flip-card__face flip-card__face--back">
+      <h3 class="flip-card__back-title" tabindex="-1" data-flip-back-title data-pagefind-ignore>{title}</h3>
       <div class="flip-card__back-body">
         <slot />
       </div>
@@ -111,7 +152,7 @@ const iconSvg = icon ? icons[icon] : undefined;
           <path d="M3 2v6h6"></path>
           <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
         </svg>
-        Tap to flip back
+        Show question
       </button>
     </div>
   </div>
@@ -162,9 +203,11 @@ const iconSvg = icon ? icons[icon] : undefined;
     -webkit-backface-visibility: hidden;
     padding: 1.5rem;
     border-radius: 1rem;
-    background: rgba(15, 23, 42, 0.55);
+    /* Solid translucent surface, no backdrop-filter: blur combined with
+       preserve-3d is a known Safari compositing problem and bought nothing
+       visible on this dark background. */
+    background: rgba(15, 23, 42, 0.78);
     border: 1px solid rgba(148, 163, 184, 0.22);
-    backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
     min-height: 14rem;
@@ -225,7 +268,22 @@ const iconSvg = icon ? icons[icon] : undefined;
     cursor: pointer;
   }
 
+  /* The back title is the post-flip focus target, a heading rather than a
+     control, so it shows a ring only for keyboard focus. */
+  .flip-card__back-title {
+    margin: 0 0 0.6rem 0;
+    color: var(--accent);
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .flip-card__back-title:focus {
+    outline: none;
+  }
+
   .flip-card__title-btn:focus-visible,
+  .flip-card__back-title:focus-visible,
   .flip-card__hint--back:focus-visible {
     outline: 2px solid var(--accent, var(--assured-accent-soft));
     outline-offset: 4px;
@@ -288,6 +346,7 @@ const iconSvg = icon ? icons[icon] : undefined;
       const back = card.querySelector<HTMLElement>(".flip-card__face--back");
       const titleBtn = card.querySelector<HTMLButtonElement>("[data-flip-toggle]");
       const backBtn = card.querySelector<HTMLButtonElement>("[data-flip-back]");
+      const backTitle = card.querySelector<HTMLElement>("[data-flip-back-title]");
       if (!inner || !front || !back || !titleBtn || !backBtn) return;
 
       // The server ships the back face reachable so no-JS readers get the
@@ -303,9 +362,11 @@ const iconSvg = icon ? icons[icon] : undefined;
         front!.setAttribute("aria-hidden", flipped ? "true" : "false");
         back!.toggleAttribute("inert", !flipped);
         back!.setAttribute("aria-hidden", flipped ? "false" : "true");
-        // The activated control is now on the inert face; focus its
-        // counterpart so keyboard users aren't dropped to <body>.
-        if (moveFocus) (flipped ? backBtn! : titleBtn!).focus();
+        // The activated control is now on the inert face; move focus so
+        // keyboard users aren't dropped to <body>. Flipping to the back lands
+        // on its heading, at the start of the revealed text; flipping back
+        // returns to the title button.
+        if (moveFocus) (flipped ? (backTitle ?? backBtn!) : titleBtn!).focus();
       }
 
       titleBtn.addEventListener("click", () => setFlipped(true, true));

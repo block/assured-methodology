@@ -1,6 +1,7 @@
 ---
-title: "Detection mechanisms"
-description: "The four families of detection logic that produce alerts: signature-based, anomaly-based, rule-based, and behavioral analytics."
+title: "How detections work"
+description: "The four families of detection logic (signature, anomaly, rule and behavioral) organized by how each one fails: what it misses, what its false positive looks like, and the first question to ask when it fires. Plus black-box vendor alerts and trust calibration."
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
@@ -9,211 +10,241 @@ import ContinueCard from "@/components/assured/ContinueCard.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/alert.css";
 
 <SubPageHero
   phase="alert"
-  parentLetter="A"
-  pillarIndex="01"
-  pillarTotal="03"
-  chapterHref="/docs/alert/"
-  chapterLabel="Alert"
   lede="Every alert has a provenance: the detection logic that produced it. Two alerts with the same name from different engines are not the same alert. The mechanism tells the analyst how much to trust the signal, what the engine is likely to have missed, and what evidence to gather next."
 />
 
-<PillNav
-  chapter="alert"
-  label="Alert chapter"
-  items={[
-    { label: "Detection mechanisms", href: "/docs/alert/detection-mechanisms/", phase: "alert" },
-    { label: "Validation",           href: "/docs/alert/validation/",            phase: "alert" },
-    { label: "Parsing",              href: "/docs/alert/parsing/",               phase: "alert" },
-  ]}
-/>
+<PillNav chapter="alert" />
 
-Modern security platforms layer many kinds of <DefineTerm term="Detection Logic" display="detection logic" /> on top of each other. ASSURED groups them into four families. The grouping is this methodology's teaching taxonomy, not an industry standard (NIST SP 800-94, for example, cuts the space differently), but it maps cleanly onto how alerts arrive in practice. Each family is good at something specific and blind to something else. Used together they cover far more ground than any one of them could on its own. When an alert arrives, the first question an analyst asks is which mechanisms produced it — plural on purpose. Real detections are often hybrids: a deterministic Sigma rule that encodes a behavioral parent-child sequence is both rule-based and behavioral, and a "signature" hit may be one condition inside a larger correlation. The families are lenses for reading a detection, not boxes it must fit into, and naming the family is the start of reading the rule that actually fired, never a substitute for it.
+Modern security platforms layer many kinds of <DefineTerm term="Detection Logic" display="detection logic" /> on top of each other. ASSURED groups them into four families; this is a teaching taxonomy, not a standard (NIST SP 800-94, from 2007, uses signature-based, anomaly-based, and stateful protocol analysis), but it maps cleanly onto how alerts arrive in practice. In 2026 almost every product blends the families, so the label matters less than two questions: what can this logic see, and how does it fail?
+
+When an alert arrives, ask which mechanisms produced it (plural on purpose): real detections are often hybrids. A deterministic Sigma rule that encodes a behavioral parent-child sequence is both rule-based and behavioral, and a "signature" hit may be one condition inside a larger correlation. The families are lenses for reading a detection, not boxes it must fit into, and naming the family is the start of reading the rule that actually fired, never a substitute for it.
 
 <Callout variant="info" title="Why provenance matters">
-A high-confidence signature hit on a known <DefineTerm term="Command and Control (C2)" display="C2" /> binary is one alert. A behavioral anomaly suggesting unusual <DefineTerm term="PowerShell" /> child processes is a different alert, even when the underlying activity is the same. The first deserves an immediate response. The second deserves correlation and context first. Detection provenance is what tells the analyst which kind of alert they have in front of them.
+A high-confidence signature hit on a known <DefineTerm term="Command and Control (C2)" display="C2" /> binary is one alert. An anomaly alert flagging unusual <DefineTerm term="PowerShell" /> child processes is a different alert, even when the underlying activity is the same. The first deserves immediate attention. The second deserves correlation and context first.
 </Callout>
 
 ## The four families at a glance
 
-<div class="mechs-grid">
-  <a href="/docs/alert/detection-mechanisms/signature/" class="mech-card mech-card--signature">
-    <div class="mech-card__num">01</div>
-    <h3>🔍 Signature-based</h3>
-    <p>Pattern matching against known indicators. Fast, precise, useless against anything novel.</p>
-    <span class="mech-card__cta">Read →</span>
-  </a>
-  <a href="/docs/alert/detection-mechanisms/anomaly/" class="mech-card mech-card--anomaly">
-    <div class="mech-card__num">02</div>
-    <h3>📊 Anomaly-based</h3>
-    <p>Statistical deviation from a behavioral baseline. Catches the unknown. Noisy during change.</p>
-    <span class="mech-card__cta">Read →</span>
-  </a>
-  <a href="/docs/alert/detection-mechanisms/rule/" class="mech-card mech-card--rule">
-    <div class="mech-card__num">03</div>
-    <h3>⚖️ Rule-based</h3>
-    <p>Expert-defined conditional logic combining multiple indicators. Tunable, auditable, demanding to maintain.</p>
-    <span class="mech-card__cta">Read →</span>
-  </a>
-  <a href="/docs/alert/detection-mechanisms/behavioral/" class="mech-card mech-card--behavioral">
-    <div class="mech-card__num">04</div>
-    <h3>🧠 Behavioral analytics</h3>
-    <p>Multi-event sequence analysis across users, hosts, and time. Built for stealth attacks.</p>
-    <span class="mech-card__cta">Read →</span>
-  </a>
+<div class="mech-table">
+
+| Family | Models | Evaluates | Starting prior | Blind spot | Tell-tale alert field | First question |
+|---|---|---|---|---|---|---|
+| Signature | Known-bad artifacts | One event or artifact | High on fresh, well-sourced indicators | Anything genuinely new; variants beyond what its similarity hashes and byte patterns cover | "Signature match", a hash or indicator name | How fresh and well-sourced is the indicator? |
+| Anomaly | This environment's normal | One observation or one aggregate over a window | Low | Patient activity inside normal ranges | A baseline line (median, percentile) | What explains the deviation? |
+| Rule | Known-bad scenarios, authored by people | Several conditions, often within a short window | Depends on the rule's local record | Any variant the author did not anticipate | A rule name or ID | What did each condition require? |
+| Behavioral | A progression of related events | An ordered sequence across hours or days | Medium to high when the sequence is clear | Isolated single actions | A timeline of correlated events | Is every step in the narrative what it claims to be? |
+| ML classifier | Known-bad, learned from labeled examples | One event or artifact | The model's stated confidence, corroborated | Whatever its training data never saw | A vendor model verdict and score | What does the raw evidence behind the verdict show? |
+
 </div>
 
-<Callout variant="info" title="The grid behind the four families">
-The families are the corners of a 2×2. One axis is how the logic is produced: signature and rule conditions are written by humans; anomaly and behavioral models are learned from data. The other axis is what the logic evaluates: signature and anomaly judge a single event; rule and behavioral evaluate combinations and sequences. That grid is why Snort content matching sits under signature while a Sigma correlation rule sits under rule, even though both are "rules" in everyday speech. And real detections regularly occupy more than one corner: a hand-written rule whose conditions describe a behavior sequence (a LOLBin parent-child chain, say) is rule-based *and* behavioral. When a detection fits two corners, name both — the point of the label is to tell the next reader what kind of logic to inspect, not to win a classification argument.
+Every family here is detection logic. User reports, external notifications, hunt findings and MDR escalations reach the SOC without a detection engine behind them; [Other intake](/docs/alert/intake/) covers how to read those.
+
+<Callout variant="info" title="Three questions behind the four families">
+The families are overlapping labels, not exclusive boxes. Three questions place any detection. **Who wrote the logic?** A human (signature, rule) or a model (anomaly, ML classifier). **What does it model?** Known-bad (signature, rule, supervised ML) or this environment's normal (anomaly, UEBA). **What does it evaluate?** One event, an aggregate over a window, or an ordered sequence (rule, behavioral; a sequence may be hand-written as a Sigma correlation or an EQL sequence, or learned). That is why Snort content matching sits under signature while a Sigma correlation rule sits under rule, even though both are "rules" in everyday speech. Real detections often answer these in more than one way: a hand-written rule whose conditions describe a behavior sequence (a LOLBin parent-child chain, say) is rule-based *and* behavioral. Name every answer that applies. The point of the label is to tell the next reader what kind of logic to inspect, not to win a classification argument.
 </Callout>
+
+## The four families, by how they fail
+
+Each family is good at something specific and blind to something else. For triage the useful facts are the failure modes: what slips past the family (its false negatives), what its false positive looks like when it fires on nothing, and the first check that tells the two apart.
+
+<h3 id="signature">Signature-based detection</h3>
+
+<dl class="family family--signature">
+  <dt>What it models</dt>
+  <dd><DefineTerm term="Signature-Based Detection" display="Known-bad artifacts" />: file hashes, import and similarity hashes, YARA byte patterns, domains, IP addresses, certificates, and network patterns such as Snort or Suricata content matches. The match is deterministic: the input matches the library or it does not.</dd>
+  <dt>What it misses</dt>
+  <dd>Anything genuinely new. Exact hashes and indicator lists miss altered variants too: a recompiled payload has a new hash, a fresh domain walks past a domain list, and living-off-the-land activity uses binaries no library flags. Similarity hashes and YARA byte patterns catch close variants of known families, not new code. It sits at the bottom of the Pyramid of Pain (below), so it is precise and fragile at once.</dd>
+  <dt>What its false positive looks like</dt>
+  <dd>A correct match on the wrong meaning: a stale indicator on an address that has since been reassigned, shared infrastructure (a CDN, a cloud provider, a sinkhole), a dual-use tool's hash, or a generic heuristic AV name. A deterministic match is not a deterministic verdict.</dd>
+  <dt>First checks</dt>
+  <dd>The indicator's first-seen date and feed (IP addresses and domains age fastest), its prevalence in your fleet (a hash on hundreds of hosts for months is more likely a tool or a bad signature than a fresh intrusion), and what a recompiled sibling would look like in process and network telemetry.</dd>
+</dl>
+
+<h3 id="anomaly">Anomaly-based detection</h3>
+
+<dl class="family family--anomaly">
+  <dt>What it models</dt>
+  <dd><DefineTerm term="Anomaly-Based Detection" display="This environment's normal" />: one observation, or one metric aggregated over a window, compared with a baseline for the entity, its peer group, or the fleet.</dd>
+  <dt>What it misses</dt>
+  <dd>Patience. Activity kept inside normal ranges (low and slow) never deviates, and activity present while the model was learning becomes part of the baseline. A baseline is only as clean as its learning window; the <a href="/docs/subject/behavioral-framework/">Subject chapter's behavioral framework</a> covers cold starts, peer groups and poisoned baselines.</dd>
+  <dt>What its false positive looks like</dt>
+  <dd>A real deviation with a benign cause: travel, a new tool rollout, a migration or merger, a role change, or a timezone error that makes ordinary work look off-hours. Most anomaly alerts are true deviations; the question is what explains them.</dd>
+  <dt>First checks</dt>
+  <dd>The baseline's age and window (a brand-new entity has no history; treat that as unknown, not normal), the time converted to UTC and to the entity's business timezone, and a join to identity, process or network telemetry before the deviation becomes a lead or a close.</dd>
+</dl>
+
+<h3 id="rule">Rule-based detection</h3>
+
+<dl class="family family--rule">
+  <dt>What it models</dt>
+  <dd><DefineTerm term="Rule-Based Detection" display="Known-bad scenarios written by people" />: several conditions, often within a short window, expressed as Sigma, KQL, SPL, YARA-L or EQL. It is the team's institutional knowledge made executable.</dd>
+  <dt>What it misses</dt>
+  <dd>Every variant the author did not anticipate: an intermediate parent process, a renamed binary, a different log source, or a host where the telemetry the rule needs is missing or late. The rule's "blind spots and assumptions" record says what it is known to miss.</dd>
+  <dt>What its false positive looks like</dt>
+  <dd>Two kinds, and they need different fixes. A logic false positive matches benign activity the author did not exclude (a signed internal add-in calling PowerShell). A stale benign hit fires correctly on activity the business has since made normal: a benign true positive, cleared by context (a pattern entry or a scoped, expiring exception) while the rule stays as written. Only the first is a logic fix; record which one it was in the case.</dd>
+  <dt>First checks</dt>
+  <dd>Open the rule before the evidence: its conditions, its documented false positives, when it was last tested and changed, and whether a suppression or exception is active. Then check each condition against raw telemetry. A rule with no recorded test, or one edited last week, earns less trust than one proven against a known-bad sample last month.</dd>
+</dl>
+
+<h3 id="behavioral">Behavioral analytics</h3>
+
+<dl class="family family--behavioral">
+  <dt>What it models</dt>
+  <dd>A progression of related events: an ordered sequence across users, hosts and hours or days, learned by a <DefineTerm term="User and Entity Behavior Analytics (UEBA)" display="UEBA" /> model or hand-written as a correlation. Anomaly asks whether one observation is unusual; behavioral asks whether several observations together describe an adversary's progression.</dd>
+  <dt>What it misses</dt>
+  <dd>Isolated critical actions that do not fit a multi-event pattern, and every step outside the model's window or data sources. A model that is never revalidated drifts quietly.</dd>
+  <dt>What its false positive looks like</dt>
+  <dd>A manufactured story: one misattributed event (a shared host, a reused process ID, a service account acting for many people) stitched into a sequence, or a legitimate admin workflow that happens to follow an attack's shape.</dd>
+  <dt>First checks</dt>
+  <dd>Open the raw event behind every step, not just the narrative. Pivot on the same entity just before the first step and just after the last, because the model only links what it covers. Carry the timeline into the handoff intact, with source and timestamp for every step.</dd>
+</dl>
+
+<Callout variant="info" title="Outside the four families">
+Deception alerts (a honeytoken used, a canary file opened, a decoy host touched) have almost no legitimate trigger and start with a very high prior. AI-generated detections and AI-written alert summaries are claims about the evidence, not evidence: verify every field they cite against the raw event (see [AI-assisted triage](/docs/ai-triage/)).
+</Callout>
+
+## When you cannot read the rule
+
+Much of a modern queue is vendor-managed cloud, identity, and SaaS detections (AWS GuardDuty, Microsoft Entra ID Protection, Okta ThreatInsight, Microsoft Defender for Cloud Apps) and proprietary EDR or XDR content. These alerts show a title, a severity, and evidence entities, not the logic. "Read the rule" still applies; it just changes shape:
+
+1. **Identify the provider's documented detection name** and look up its published description and known false-positive conditions.
+2. **Treat the provider's risk level as a prior,** the same way you treat a family label, and use this alert title's local history as the precision signal.
+3. **Treat the evidence entities and raw events as the rule.** Validate with the events behind the alert (CloudTrail, Entra sign-in logs, the Okta System Log, the process tree) rather than with the vendor's summary.
+4. **Record "logic not inspectable" as a calibration fact,** and send repeated ambiguity to the vendor, or ask detection engineering for a wrapper rule you can read.
+
+```
+Alert: Unfamiliar sign-in properties
+Source: Microsoft Entra ID Protection (risk detection)
+Risk level: Medium
+User: a.nguyen@corp.example
+Sign-in: 2026-10-06 07:42 UTC, new ASN, new browser, MFA satisfied
+Detection logic: vendor-managed (not inspectable)
+```
+
+Here the family is mostly anomaly (new properties against this user's sign-in history), the logic is opaque, and the validation lives in the sign-in log entries themselves: the device, the session that followed, and what that session touched.
 
 ---
 
 ## Trust calibration
 
-Each family carries a different *prior* — a starting posture, useful for the first thirty seconds and no longer. The mechanism label alone never determines confidence: that comes from the actual rule logic, the telemetry behind it, and the rule's measured performance in your environment. Before translating any label into trust, check the local calibration facts: the rule's version and last review, its precision here (what fraction of its recent fires were real), what it is known to miss, how common the matched artifact is in this environment, and whether suppressions or exceptions are currently active on it.
+Each family carries a different prior: a starting posture, useful for the first thirty seconds and no longer. The mechanism label alone never determines confidence: that comes from the actual rule logic, the telemetry behind it, and the rule's measured performance in your environment. Before translating any label into trust, check the local calibration facts: the rule's version and last review, its precision here (what fraction of recent fires matched the behavior the rule describes) and its actionability (what fraction needed action), what it is known to miss, how common the matched artifact is in this environment, and whether suppressions or exceptions are currently active on it.
+
+Where to find them: the rule's metadata or its detection documentation record, the detection catalog, the tuning ticket history, and the last 30 to 90 days of dispositions for this rule. For expected telemetry and known gaps by technique, ATT&CK's Detection Strategies and Analytics (added in v18) are the public reference. The base rate matters more than the family: a rule that fired 200 times last month with 2 malicious true positives has 1% local precision for malicious activity, so start skeptical, whatever the family. Rare events are mostly false alarms even from good models, because the benign population is so much larger.
+
+Four more sources of alerts need their own priors:
 
 <div class="trust-list">
-  <div class="trust-item trust-item--signature">
-    <div class="trust-item__label">Signature</div>
-    <div class="trust-item__body">High-precision *matching*, narrow scope — but a deterministic match is not a deterministic verdict. A hit on freshly validated C2 infrastructure deserves immediate attention; the same mechanism firing on a stale indicator, a dual-use tool's hash, or a generic heuristic AV name is precise about the artifact and silent about intent. Check the indicator's age, source, and local prevalence before converting the match into confidence. Either way, the family only sees what it has been told to look for.</div>
+  <div class="trust-item trust-item--classifier">
+    <div class="trust-item__label">ML classifier verdict</div>
+    <div class="trust-item__body">A supervised model's "malicious, 87%" is a probabilistic signature: calibrate to the stated score and to this verdict's local history, and corroborate with execution and behavior evidence before acting on it.</div>
   </div>
-  <div class="trust-item trust-item--anomaly">
-    <div class="trust-item__label">Anomaly</div>
-    <div class="trust-item__body">Low default confidence, wide scope. The signal is genuine but the meaning is ambiguous. Anomaly alerts almost always need correlation with another data source before action.</div>
+  <div class="trust-item trust-item--intel">
+    <div class="trust-item__label">Threat-intel indicator match</div>
+    <div class="trust-item__body">Only as good as the indicator: its source, its age, and whether the address or domain is shared infrastructure. A fresh, attributed indicator is strong; a months-old IP is a lead.</div>
   </div>
-  <div class="trust-item trust-item--rule">
-    <div class="trust-item__label">Rule</div>
-    <div class="trust-item__body">Confidence depends on how the rule was written, how recently it was reviewed, and how well it matches current adversary technique. A well-tuned rule is reliable. A stale rule is noise.</div>
+  <div class="trust-item trust-item--vendor">
+    <div class="trust-item__label">Vendor-managed (black box)</div>
+    <div class="trust-item__body">Treat the provider's risk level as a prior and the raw events behind the alert as the evidence. Record that the logic is not inspectable.</div>
   </div>
-  <div class="trust-item trust-item--behavioral">
-    <div class="trust-item__label">Behavioral</div>
-    <div class="trust-item__body">Medium to high confidence when the sequence is clear, but the analyst needs to look at the full timeline that produced the alert, not just the alert itself.</div>
+  <div class="trust-item">
+    <div class="trust-item__label">Risk-based (entity risk) notable</div>
+    <div class="trust-item__body">Many low-fidelity observations crossed a threshold together. Start at medium to high, then open the contributing observations and the score drivers: the notable is only as strong as the events behind it, and one noisy rule can carry the score.</div>
   </div>
 </div>
 
+### The Pyramid of Pain
+
+One more lens cuts across the families: what the detection keys on. David Bianco's <DefineTerm term="Pyramid of Pain" /> ([2013](https://detect-respond.blogspot.com/2013/03/the-pyramid-of-pain.html)) ranks indicators by how much it costs the adversary to change them once defenders detect them: hash values are trivial, IP addresses easy, domain names simple, network and host artifacts annoying, tools challenging, and tactics, techniques and procedures (TTPs) tough. Hash and indicator signatures sit at the bottom, which is why a hit there is precise and also fragile: a recompiled payload or a new domain walks past it. Rules and behavioral sequences that key on artifacts and techniques sit higher and outlast the indicator. For triage, the level tells you what a miss looks like: a bottom-of-pyramid match says this exact artifact is back, and says nothing about the variant the adversary built next.
+
+## Reading a rule the way detection engineers keep it
+
+<h3 id="one-rule-three-ways">One rule, three ways</h3>
+
+Here is one rule, "an Office application spawns PowerShell that then reaches the network", written the way detection engineers actually keep it: first as a <DefineTerm term="Sigma">A vendor-neutral, open standard for describing SIEM detection rules. Sigma rules can be translated into the query languages of multiple SIEMs, which makes them portable across detection platforms.</DefineTerm> rule. (Sigma expresses the 60-second network condition as a separate correlation rule; this is the process half.)
+
+```yaml
+title: Office application spawns PowerShell
+id: 0f2c7f43-6a1e-4f7e-9d0b-3c5a2b8e1d77
+status: stable
+description: Detects Word, Excel or PowerPoint launching PowerShell, a common initial-access chain.
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    ParentImage|endswith: ['\winword.exe', '\excel.exe', '\powerpnt.exe']
+    Image|endswith: ['\powershell.exe', '\pwsh.exe']
+  condition: selection
+falsepositives:
+  - Signed internal add-ins that call PowerShell (document them as exceptions)
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
+```
+
+How to read it during triage:
+
+- **logsource** says which telemetry the rule needs. If that telemetry is missing or late on this host, the rule could not have fired correctly.
+- **detection / condition** are the actual logic: every field named here had to match.
+- **falsepositives** is the author's list of known benign triggers. Check it before you investigate.
+- **level** is the author's severity, a prior rather than a verdict. **status** (experimental, test, stable) tells you how much field testing the rule has had.
+- **tags** map the rule to ATT&CK (here T1059.001, PowerShell), which tells you what the author thought they were catching.
+
+The same full rule, network leg included, as a <DefineTerm term="KQL" /> query for Microsoft Defender XDR advanced hunting:
+
+```kql
+// Office spawns PowerShell, and that PowerShell connects out within 60 seconds
+let OfficeApps = dynamic(["winword.exe", "excel.exe", "powerpnt.exe"]);
+let PowerShell = dynamic(["powershell.exe", "pwsh.exe"]);
+DeviceProcessEvents
+| where Timestamp > ago(1d)
+| where InitiatingProcessFileName in~ (OfficeApps) and FileName in~ (PowerShell)
+| project DeviceId, DeviceName, AccountName, ProcessId,
+          ProcessStarted = Timestamp, ProcessCommandLine
+| join kind=inner (
+    DeviceNetworkEvents
+    | where Timestamp > ago(1d)
+    | where InitiatingProcessFileName in~ (PowerShell) and ActionType == "ConnectionSuccess"
+    | project DeviceId, InitiatingProcessId, ConnectedAt = Timestamp, RemoteUrl, RemoteIP
+  ) on $left.DeviceId == $right.DeviceId, $left.ProcessId == $right.InitiatingProcessId
+| where ConnectedAt between (ProcessStarted .. ProcessStarted + 60s)
+```
+
+Read it the same way. The two tables are the log source: they exist only for hosts where Defender for Endpoint reports. The `where` lines are the conditions, and the `join` is the correlation the Sigma process rule left to a second rule. Process IDs are reused, so production versions also match on the process start time.
+
+Well-run teams document each detection with an Alerting and Detection Strategy (ADS) record. Here is this rule's, in summary:
+
+<div class="ads-table">
+
+| ADS field | This rule |
+|---|---|
+| Goal | Catch a malicious Office document starting PowerShell that then reaches the network. |
+| Categorization | ATT&CK Execution: T1204.002 (User Execution: Malicious File) and T1059.001 (PowerShell). |
+| Strategy abstract | Process creation with an Office application as the direct parent of PowerShell, joined to an outbound connection from that PowerShell process within 60 seconds. |
+| Technical context | Office starting PowerShell is rare in most fleets. Since 2022, Office blocks macros in files that carry the Mark of the Web, so a hit usually means the mark was lost or the block was bypassed. |
+| Blind spots and assumptions | Assumes EDR process and network telemetry on the host. Misses an intermediate parent (winword.exe → cmd.exe → powershell.exe), a renamed PowerShell binary, PowerShell hosted inside another process, and the container, LNK and paste-and-run chains that replaced macros (the [Case A](/docs/alert/example/#case-a) tree is explorer.exe → powershell.exe, with no Office process in it). A variant whose network leg reads only proxy logs goes blind on a laptop off the VPN. |
+| False positives | Signed internal add-ins that call PowerShell, each documented as an exception with an owner and an expiry. |
+| Validation | Run a matching Atomic Red Team test for T1204.002 on a test host and confirm the alert appears with the parent, child, and destination fields populated. |
+| Priority | High. |
+| Response | The Alert phase's five moves, with the escalation tripwire checked before handoff. |
+
+</div>
+
+"Blind spots and assumptions" is where "what it is known to miss" lives, and it is the first field to read when a rule like this stays quiet on a host where you expected it to fire. When a case shows the rule missing something it should have caught, or firing on something it should not, the gap goes back to the rule's owners through [detection feedback](/docs/detection-feedback/).
+
 <KeyTakeaway>
-Mastery of detection mechanisms is not memorizing each family. It is the habit of asking which mechanisms produced the alert — accepting that the honest answer is often two — then reading the rule that fired and its local track record before deciding how much to trust it. The four deep-dive pages below are reference material, not required reading. Skim the family that matches whatever fires most in your environment, then return to the others when an unfamiliar family shows up.
+Mastery of detection mechanisms is not memorizing each family. It is the habit of asking which mechanisms produced the alert (accepting that the honest answer is often two), what that logic cannot see, and what its false positive would look like, then reading the rule that fired and its local track record before deciding how much to trust it.
 </KeyTakeaway>
 
 <ContinueCard
   current="alert"
-  nextHref="/docs/alert/detection-mechanisms/signature/"
-  nextLabel="Signature-based (reference)"
-  nextDescription="The oldest and most precise of the four families: deterministic pattern matching against curated indicators of compromise. Read on-demand when a signature alert fires, or skim now if signatures dominate your alert volume."
-  ctaLabel="Browse signature-based"
+  nextHref="/docs/alert/validation/"
+  nextLabel="Alert validation: four validation checks"
+  nextDescription="With the detection logic understood, the next step is validation: confirming whether the alert is what it claims to be."
+  ctaLabel="Read validation"
 />
-
-<style>
-{`
-.mechs-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-@media (min-width: 768px)  { .mechs-grid { grid-template-columns: 1fr 1fr; } }
-
-.mech-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem 1.75rem;
-  border-radius: 0.85rem;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 4px solid var(--accent, var(--assured-accent));
-  backdrop-filter: blur(8px);
-  color: var(--assured-text);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-left-width 0.15s ease, box-shadow 0.2s ease;
-}
-
-.mech-card:hover {
-  transform: translateY(-3px);
-  border-left-width: 6px;
-  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.5);
-}
-
-.mech-card--signature  { --accent: #3b82f6; }
-.mech-card--anomaly    { --accent: #22c55e; }
-.mech-card--rule       { --accent: #a855f7; }
-.mech-card--behavioral { --accent: #f97316; }
-
-.mech-card__num {
-  position: absolute;
-  top: 1rem;
-  right: 1.3rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--accent);
-  opacity: 0.7;
-  letter-spacing: 0.05em;
-}
-
-.mech-card h3 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 1.15rem;
-}
-
-.mech-card p {
-  margin: 0;
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.95rem;
-}
-
-.mech-card__cta {
-  margin-top: auto;
-  color: var(--accent);
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding-top: 0.4rem;
-}
-
-.trust-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin: 1.25rem 0;
-}
-
-.trust-item {
-  display: grid;
-  grid-template-columns: 9rem 1fr;
-  gap: 1rem;
-  padding: 1rem 1.4rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left: 3px solid var(--accent, var(--assured-accent));
-  border-radius: 0.7rem;
-}
-
-@media (max-width: 640px) {
-  .trust-item { grid-template-columns: 1fr; }
-}
-
-.trust-item--signature  { --accent: #3b82f6; }
-.trust-item--anomaly    { --accent: #22c55e; }
-.trust-item--rule       { --accent: #a855f7; }
-.trust-item--behavioral { --accent: #f97316; }
-
-.trust-item__label {
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-}
-
-.trust-item__body {
-  color: var(--assured-text-muted);
-  line-height: 1.55;
-  font-size: 0.93rem;
-}
-`}
-</style>

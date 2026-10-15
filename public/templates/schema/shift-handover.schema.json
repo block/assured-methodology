@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://assured-methodology.vercel.app/templates/schema/shift-handover.schema.json",
+  "title": "Shift handover",
+  "description": "The shift handover: every open case with its owner, band, cell and clock, the clocks and pages still running, containment in effect and evidence at risk.",
+  "x-assured-template": "shift-handover.md",
+  "type": "object",
+  "properties": {
+    "handoverMetadata": {
+      "x-assured-section": "Handover metadata",
+      "type": "object",
+      "properties": {
+        "team": {
+          "x-assured-prompt": "Team",
+          "type": "string",
+          "description": "Team (and customer, for an MSSP or MDR)"
+        },
+        "outgoingAnalystSShift": {
+          "x-assured-prompt": "Outgoing analyst(s), shift start and end",
+          "type": "string",
+          "description": "Outgoing analyst(s), shift start and end (UTC)"
+        },
+        "incomingAnalystS": {
+          "x-assured-prompt": "Incoming analyst(s)",
+          "type": "string",
+          "description": "Incoming analyst(s)"
+        },
+        "handoverHeldAt": {
+          "x-assured-prompt": "Handover held at",
+          "type": "object",
+          "properties": {
+            "at": {
+              "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+            },
+            "how": {
+              "enum": ["call", "bridge", "in person", "written only"]
+            }
+          },
+          "required": ["at", "how"],
+          "description": "Handover held at (UTC), and how (call, bridge, in person, written only)"
+        },
+        "materialAiUse": {
+          "x-assured-prompt": "Material AI use",
+          "$ref": "assured-vocabulary.schema.json#/$defs/materialAiUse",
+          "description": "Material AI use (assistant and version, and which parts began as AI drafts; \"none\" if unassisted)"
+        },
+        "receipt": {
+          "x-assured-section": "Receipt (filled by the incoming analyst)",
+          "type": "object",
+          "properties": {
+            "acceptedBy": {
+              "x-assured-prompt": "Accepted by",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "at": {
+                  "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                }
+              },
+              "required": ["name", "at"],
+              "description": "Accepted by (name), at (UTC)"
+            },
+            "casesReDerivedBefore": {
+              "x-assured-prompt": "Cases re-derived before the first new query",
+              "type": "array",
+              "items": {
+                "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+              },
+              "description": "Cases re-derived before the first new query (case IDs)"
+            },
+            "questionsAskedBeforeThe": {
+              "x-assured-prompt": "Questions asked before the outgoing analyst left",
+              "type": "string",
+              "description": "Questions asked before the outgoing analyst left (\"none\" if none)"
+            }
+          },
+          "required": [
+            "acceptedBy",
+            "casesReDerivedBefore",
+            "questionsAskedBeforeThe"
+          ]
+        }
+      },
+      "required": [
+        "team",
+        "outgoingAnalystSShift",
+        "incomingAnalystS",
+        "handoverHeldAt",
+        "materialAiUse",
+        "receipt"
+      ]
+    },
+    "openCasesP1P2": {
+      "x-assured-section": "1. Open cases at P1 and P2",
+      "type": "object",
+      "properties": {
+        "cases": {
+          "x-assured-section": "Case:",
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "properties": {
+              "priorityMatrixCell": {
+                "x-assured-prompt": "Priority, matrix cell",
+                "type": "object",
+                "properties": {
+                  "band": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+                  },
+                  "cell": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/matrixCell"
+                  },
+                  "confidence": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/confidence"
+                  },
+                  "confirmedCriterion": {
+                    "type": "string"
+                  }
+                },
+                "required": ["band"],
+                "anyOf": [
+                  {
+                    "required": ["cell", "confidence"]
+                  },
+                  {
+                    "required": ["confirmedCriterion"]
+                  }
+                ],
+                "description": "Priority, matrix cell (impact / likelihood), confidence (shared rubric), or the confirmed criterion that set P1"
+              },
+              "depthLevel": {
+                "x-assured-prompt": "Depth level",
+                "$ref": "assured-vocabulary.schema.json#/$defs/depth",
+                "description": "Depth level (0 / 1 / 2), and any upward move this shift with its reason"
+              },
+              "ownerAfterHandover": {
+                "x-assured-prompt": "Owner after handover",
+                "type": "string",
+                "description": "Owner after handover (name)"
+              },
+              "hypothesisLedger": {
+                "x-assured-prompt": "Hypothesis ledger",
+                "type": "string",
+                "description": "Hypothesis ledger (link): leading hypothesis; live alternatives; refuted this shift, with the deciding evidence"
+              },
+              "doneThisShift": {
+                "x-assured-prompt": "Done this shift",
+                "type": "string",
+                "description": "Done this shift (link the record; one line)"
+              },
+              "nextActionAndThe": {
+                "x-assured-prompt": "Next action, and the result that would change the verdict",
+                "type": "string",
+                "description": "Next action, and the result that would change the verdict"
+              },
+              "decisionClock": {
+                "x-assured-prompt": "Decision clock",
+                "type": "object",
+                "properties": {
+                  "band": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/priorityBand"
+                  },
+                  "deadline": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  },
+                  "ifItLapses": {
+                    "type": "string"
+                  }
+                },
+                "required": ["band", "deadline"],
+                "description": "Decision clock: band, deadline (UTC), and what happens if it lapses"
+              },
+              "pendingPagesOrCallbacks": {
+                "x-assured-prompt": "Pending pages or callbacks for this case",
+                "type": "string",
+                "description": "Pending pages or callbacks for this case (also in section 3)"
+              },
+              "warmHandoverHeldWith": {
+                "x-assured-prompt": "Warm handover held with",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "at": {
+                    "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+                  }
+                },
+                "required": ["name", "at"],
+                "description": "Warm handover held with (name), at (UTC)"
+              }
+            },
+            "required": [
+              "priorityMatrixCell",
+              "depthLevel",
+              "ownerAfterHandover",
+              "hypothesisLedger",
+              "doneThisShift",
+              "nextActionAndThe",
+              "decisionClock",
+              "pendingPagesOrCallbacks",
+              "warmHandoverHeldWith"
+            ]
+          }
+        }
+      },
+      "required": ["cases"]
+    },
+    "openCasesP3P4": {
+      "x-assured-section": "2. Open cases at P3 and P4",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Case ID",
+            "Priority and cell",
+            "Level",
+            "Owner after handover",
+            "Leading hypothesis and live alternative (or ledger link)",
+            "Next action",
+            "Re-score trigger and deadline (UTC)"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caseId": {
+                "x-assured-column": "Case ID",
+                "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+              },
+              "priorityAndCell": {
+                "x-assured-column": "Priority and cell",
+                "type": "string"
+              },
+              "level": {
+                "x-assured-column": "Level",
+                "type": "string"
+              },
+              "ownerAfterHandover": {
+                "x-assured-column": "Owner after handover",
+                "type": "string"
+              },
+              "leadingHypothesisAndLive": {
+                "x-assured-column": "Leading hypothesis and live alternative (or ledger link)",
+                "type": "string"
+              },
+              "nextAction": {
+                "x-assured-column": "Next action",
+                "type": "string"
+              },
+              "reScoreTriggerAnd": {
+                "x-assured-column": "Re-score trigger and deadline (UTC)",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "clocksPagesAndCallbacks": {
+      "x-assured-section": "3. Clocks, pages and callbacks",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Case ID",
+            "What is running (acknowledgment, decision, re-score, page fallback, callback, vendor request, regulatory candidate)",
+            "Waiting on (who, channel)",
+            "Started at (UTC)",
+            "Due or fallback at (UTC)",
+            "Owner after handover"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caseId": {
+                "x-assured-column": "Case ID",
+                "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+              },
+              "whatIsRunning": {
+                "x-assured-column": "What is running (acknowledgment, decision, re-score, page fallback, callback, vendor request, regulatory candidate)",
+                "type": "string"
+              },
+              "waitingOn": {
+                "x-assured-column": "Waiting on (who, channel)",
+                "type": "string"
+              },
+              "startedAt": {
+                "x-assured-column": "Started at (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "dueOrFallbackAt": {
+                "x-assured-column": "Due or fallback at (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "ownerAfterHandover": {
+                "x-assured-column": "Owner after handover",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "containmentInEffect": {
+      "x-assured-section": "4. Containment in effect",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "x-assured-columns": [
+            "Case ID",
+            "Action",
+            "Preserved first",
+            "Taken at (UTC)",
+            "Verified how",
+            "Reverse or review by (UTC)",
+            "Approval pending (who)"
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "caseId": {
+                "x-assured-column": "Case ID",
+                "$ref": "assured-vocabulary.schema.json#/$defs/caseId"
+              },
+              "action": {
+                "x-assured-column": "Action",
+                "type": "string"
+              },
+              "preservedFirst": {
+                "x-assured-column": "Preserved first",
+                "type": "string"
+              },
+              "takenAt": {
+                "x-assured-column": "Taken at (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "verifiedHow": {
+                "x-assured-column": "Verified how",
+                "type": "string"
+              },
+              "reverseOrReviewBy": {
+                "x-assured-column": "Reverse or review by (UTC)",
+                "$ref": "assured-vocabulary.schema.json#/$defs/utc"
+              },
+              "approvalPending": {
+                "x-assured-column": "Approval pending (who)",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "watchesAndEvidenceAtRisk": {
+      "x-assured-section": "5. Watches and evidence at risk",
+      "type": "object",
+      "properties": {
+        "forwardWindowsBeingWatched": {
+          "x-assured-prompt": "Forward windows being watched",
+          "type": "string",
+          "description": "Forward windows being watched (entity, what would trigger action, until when, who watches)"
+        },
+        "sourcesWhoseRetentionOr": {
+          "x-assured-prompt": "Sources whose retention or export window closes before the next handover",
+          "type": "string",
+          "description": "Sources whose retention or export window closes before the next handover (source, closes at UTC, exported yes / no)"
+        }
+      },
+      "required": ["forwardWindowsBeingWatched", "sourcesWhoseRetentionOr"]
+    },
+    "queueAndDetectionState": {
+      "x-assured-section": "6. Queue and detection state",
+      "type": "object",
+      "properties": {
+        "queueDepthAndOldest": {
+          "x-assured-prompt": "Queue depth and oldest-item age, by priority",
+          "type": "string",
+          "description": "Queue depth and oldest-item age, by priority"
+        },
+        "rulesFiringOutsideTheir": {
+          "x-assured-prompt": "Rules firing outside their normal volume",
+          "type": "string",
+          "description": "Rules firing outside their normal volume (rule, volume against normal, tuning ticket)"
+        },
+        "patternEntriesSuspendedPast": {
+          "x-assured-prompt": "Pattern entries suspended, past their review date, or due for review within 7 days",
+          "type": "string",
+          "description": "Pattern entries suspended, past their review date, or due for review within 7 days (entry ID and version, owner)"
+        },
+        "sensorsOrLogSources": {
+          "x-assured-prompt": "Sensors or log sources silent or degraded since",
+          "type": "string",
+          "description": "Sensors or log sources silent or degraded since (UTC)"
+        },
+        "capacity": {
+          "x-assured-prompt": "Capacity",
+          "type": "string",
+          "description": "Capacity: escalations made on capacity this shift, and any still needed (optional)"
+        }
+      },
+      "required": [
+        "queueDepthAndOldest",
+        "rulesFiringOutsideTheir",
+        "patternEntriesSuspendedPast",
+        "sensorsOrLogSources"
+      ]
+    },
+    "notes": {
+      "x-assured-section": "7. Notes for the incoming analyst (optional)",
+      "type": "object",
+      "properties": {
+        "items": {
+          "x-assured-list": "bulleted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "handoverMetadata",
+    "openCasesP1P2",
+    "openCasesP3P4",
+    "clocksPagesAndCallbacks",
+    "containmentInEffect",
+    "watchesAndEvidenceAtRisk",
+    "queueAndDetectionState"
+  ]
+}

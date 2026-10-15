@@ -3,156 +3,106 @@ title: "Uncover: Pulling the evidence"
 description: "Uncover is where the investigation does its work. Pull evidence, correlate it, reconstruct the chain of activity."
 slug: "uncover"
 wide: true
+techVerified: "2026-10-13"
 ---
 
 import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
 import ChapterHero from "@/components/assured/ChapterHero.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import PhaseAtAGlance from "@/components/assured/PhaseAtAGlance.astro";
 import ContinueCard from "@/components/assured/ContinueCard.astro";
-import FlipCard from "@/components/assured/FlipCard.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/uncover.css";
 
 <ChapterHero
   phase="uncover"
-  letter="U"
-  pieceNumber={4}
-  question="What does the evidence say?"
-  pillars={[
-    { num: "01", label: "Data sources",            href: "/docs/uncover/data-sources/" },
-    { num: "02", label: "Correlation & timeline",  href: "/docs/uncover/correlation/" },
-    { num: "03", label: "Threat intelligence",     href: "/docs/uncover/threat-intelligence/" },
-    { num: "04", label: "MITRE ATT&CK",            href: "/docs/uncover/mitre/" },
-    { num: "05", label: "Tool integration",        href: "/docs/uncover/tooling/" },
-  ]}
 >
   Uncover is where the investigation does its work. With Alert, Subject, and Scope established, this phase pulls <DefineTerm term="Telemetry" display="telemetry" />, correlates it, identifies anomalies, and reconstructs the chain of activity from first action to last. The output is a coherent narrative supported by evidence.
 </ChapterHero>
 
 <Callout variant="info" title="What Uncover is for">
-Alert, Subject, and Scope told the analyst what fired, who was involved, and where the lines are. Uncover is where the analyst actually answers the question: what is going on, what did the adversary do, and what did they touch? Uncover ends with a narrative the analyst can defend.
+Alert, Subject, and Scope told the analyst what fired, who was involved, and where the lines are. Uncover is where the analyst actually answers the question: what happened, who or what did it, and what did it touch, including the real possibility that the activity is legitimate. Uncover ends with a narrative the analyst can defend.
 
-The boundary with Subject is worth stating plainly: Subject was a quick contextual read built from what was already on screen; Uncover is the deep, multi-source evidence pull. The moment the analyst is opening new tools and running queries to answer a question, they are in Uncover.
+The boundary with Subject is worth stating plainly. Subject runs bounded, entity-centric lookups (identity, privilege, recent authentication, baseline) to answer who acted and whether it is normal for them. Uncover runs activity-centric, multi-source queries to reconstruct what happened. If the query is about the entity, you are in Subject; if it is about the activity chain, you are in Uncover.
 </Callout>
 
 ---
 
 ## What you will get from this chapter
 
+By the end of Uncover you should be able to:
+
 <div class="alert-outcomes">
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">📥</span>
+    <span class="alert-outcomes__icon uncover-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span>
     <div>
-      <strong>Pull from the right data sources</strong> for the investigation: endpoint, network, identity, cloud, vulnerability, FIM, email, DLP, deception, and more.
+      <strong>Pick a source by the question it answers</strong> and know where its coverage and retention end: <a href="/docs/uncover/data-sources/">Data sources</a>.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🔗</span>
+    <span class="alert-outcomes__icon uncover-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
     <div>
-      <strong>Correlate evidence into one timeline</strong>: join keys, clock skew, confidence labels, the hypothesis ledger, and the rules that say when to stop digging.
+      <strong>Correlate evidence into one timeline</strong> with join keys, clock-skew checks, confidence labels, the hypothesis ledger, and the rules that say when to stop digging: <a href="/docs/uncover/correlation/">Correlation and the timeline</a>.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🌐</span>
+    <span class="alert-outcomes__icon uncover-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
     <div>
-      <strong>Use threat intelligence appropriately</strong>: matching, attribution, TTP-driven hunting, and validating intel before acting on it.
+      <strong>Use threat intelligence without being used by it</strong>: validate a match, enrich without leaking, and label attribution at the confidence the evidence earns: <a href="/docs/uncover/threat-intelligence/">Threat intelligence</a>.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🎯</span>
+    <span class="alert-outcomes__icon uncover-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
     <div>
-      <strong>Map findings to MITRE ATT&CK</strong> so the chain has a shared vocabulary the rest of the team can use.
+      <strong>Map findings to MITRE ATT&CK</strong> at the most specific technique the evidence supports, so the chain has a shared vocabulary the rest of the team can use: <a href="/docs/uncover/mitre/">MITRE ATT&CK</a>.
     </div>
   </div>
   <div class="alert-outcomes__row">
-    <span class="alert-outcomes__icon">🛠️</span>
+    <span class="alert-outcomes__icon uncover-outcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
     <div>
-      <strong>Choose the right tools at the right step</strong>: SIEM, EDR, XDR, ITDR, network analysis, deception, forensics, sandboxes, vulnerability scanners, SOAR, CSPM, CDR, data lakes.
+      <strong>Choose the right tool at the right step</strong>: log search, endpoint, identity, cloud, network, sandbox and automation platforms: <a href="/docs/uncover/tooling/">Choosing tools</a>.
     </div>
   </div>
 </div>
+
+### When Uncover is done
+
+Uncover is finished when the case file holds the six things Risk needs, described on the <a href="/docs/uncover/transition/">Uncover-to-Risk transition</a>:
+
+- **The evidence chain:** what happened, in order, with timestamps, each step tied to the source that showed it and mapped to ATT&CK where it applies.
+- **Entity verdicts:** which of Scope's entities were involved and which were investigated and ruled out, each with its evidence.
+- **Intelligence context:** which intel matched, at what confidence, and whether it stayed a hypothesis or was borne out by your own telemetry.
+- **Coverage gaps:** what could not be examined (missing telemetry, expired retention, blind sensors) and why.
+- **Detection gaps:** techniques observed but not flagged automatically, <a href="/docs/detection-feedback/">written so detection engineering can act on them</a>.
+- **The hypothesis ledger:** every hypothesis with its status, refuted ones included, plus the dry-thread checks for any thread closed on empty results.
 
 ---
 
-## The five pillars
+## Uncover at a glance
 
-<div class="pillars-grid">
-  <a href="/docs/uncover/data-sources/" class="pillar pillar--uncover">
-    <div class="pillar__num">01</div>
-    <div class="pillar__icon">📥</div>
-    <h3>Data sources</h3>
-    <p>The 17 telemetry sources an investigation may pull from. Knowing what each one captures (and does not) is the foundation.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/uncover/correlation/" class="pillar pillar--uncover">
-    <div class="pillar__num">02</div>
-    <div class="pillar__icon">🔗</div>
-    <h3>Correlation and the timeline</h3>
-    <p>Join keys, clock skew, the running timeline, pivot discipline, stopping rules. The verb at the center of the phase.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/uncover/threat-intelligence/" class="pillar pillar--uncover">
-    <div class="pillar__num">03</div>
-    <div class="pillar__icon">🌐</div>
-    <h3>Threat intelligence</h3>
-    <p>Indicator matching, attribution, TTP-driven hunting, tiers and validation. How to use intel without being used by it.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/uncover/mitre/" class="pillar pillar--uncover">
-    <div class="pillar__num">04</div>
-    <div class="pillar__icon">🎯</div>
-    <h3>MITRE ATT&amp;CK</h3>
-    <p>Tactics, techniques, procedures. The shared vocabulary for describing what an adversary did and how the chain progressed.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-  <a href="/docs/uncover/tooling/" class="pillar pillar--uncover">
-    <div class="pillar__num">05</div>
-    <div class="pillar__icon">🛠️</div>
-    <h3>Tool integration</h3>
-    <p>SIEM, EDR, XDR, ITDR, deception, sandboxes, SOAR, CDR. The tools that make Uncover possible at scale.</p>
-    <span class="pillar__cta">Read →</span>
-  </a>
-</div>
+<PhaseAtAGlance phase="uncover">
+  <Fragment slot="deliverable">The six-part case file listed under "When Uncover is done", handed to Risk.</Fragment>
+  <Fragment slot="done">Risk could rate the case from the file alone. Every entity Scope named has a verdict or a recorded coverage gap, and each open thread has met the <a href="/docs/uncover/correlation/#when-to-stop">stopping rules</a>.</Fragment>
+  <Fragment slot="tripwire">A canonical criterion confirmed at High confidence partway through Uncover makes the case P1 and escalates it then, as an early Escalation decision; the remaining evidence work continues under IR's clock. Suspicion refines Scope instead. The <a href="/docs/escalation/criteria/#tripwire">escalation criteria</a> page states the rule.</Fragment>
+  <Fragment slot="level-0">Does not run. The analyst checks the pattern's discriminators and the eligibility gate against their source systems. A case that needs new evidence gathering is no longer a Level 0 case.</Fragment>
+  <Fragment slot="level-1">Narrowed to the one question the verdict turns on, answered from telemetry already at hand. If answering it needs a second subject, a privileged account, or new collection, or something suspicious survives without a defensible verdict, the case moves to Level 2.</Fragment>
+  <Fragment slot="level-2">Runs as this chapter teaches it, with the Scope, Uncover and Risk loop repeating until the residual risk is understood. The full-arc time in the chapter hero is for this level.</Fragment>
+</PhaseAtAGlance>
 
 ---
 
 ## Why Uncover deserves its own phase
 
-<div class="why-subject-grid">
-  <FlipCard icon="📥" title="Evidence is plural" accent="orange">
-    <DefineTerm term="Endpoint" /> telemetry alone is rarely enough. Network logs alone are rarely enough. Uncover is the phase that brings sources together so the analyst can answer a question the way only correlated data can.
-  </FlipCard>
-  <FlipCard icon="🎯" title="ATT&CK is the vocabulary" accent="orange">
-    Mapping findings to <DefineTerm term="MITRE ATT&CK" /> turns "the attacker did this and then this" into "T1566 → T1059.001 → T1071." That precision matters at handoff, in trend analysis, and when describing the incident to a non-technical audience.
-  </FlipCard>
-  <FlipCard icon="🌐" title="Intel is a hypothesis source" accent="orange">
-    <DefineTerm term="Threat Intelligence" display="Threat intelligence" /> is most useful as a hypothesis generator, not as ground truth. Uncover uses intel to guide what to look for, then validates with the evidence in the environment.
-  </FlipCard>
-  <FlipCard icon="🧭" title="Tools serve the question" accent="orange">
-    A common Uncover failure mode is starting with a tool ("let me run a SIEM query") instead of starting with a question. The methodology asks what the analyst needs to know, then chooses the tool that can answer it.
-  </FlipCard>
-</div>
+- **Evidence is plural:** <DefineTerm term="Endpoint" /> telemetry alone is rarely enough, and network logs alone are rarely enough. Uncover is the phase that brings sources together, so the analyst can answer a question the way only correlated data can.
+- **ATT&CK is the vocabulary:** mapping findings to <DefineTerm term="MITRE ATT&CK" /> turns "the attacker did this and then this" into "T1566.001 → T1059.001 → T1071.001". That precision matters at handoff and in trend analysis. For a non-technical audience, translate it back into tactic names (Initial Access → Execution → Command and Control).
+- **Intel is a hypothesis source:** <DefineTerm term="Threat Intelligence" display="threat intelligence" /> is most useful as a hypothesis generator, not as ground truth. Uncover uses intel to decide what to look for, then validates it against the evidence in the environment.
+- **Tools serve the question:** a common Uncover failure is starting with a tool ("let me run a <DefineTerm term="SIEM (concept)" display="SIEM" /> query") instead of a question. The method asks what the analyst needs to know, then chooses the tool that can answer it.
 
 ---
 
 <KeyTakeaway>
-Uncover is the longest phase of most investigations, and the one where preparation pays off most. Strong Alert, Subject, and Scope work means Uncover is structured. Weak earlier phases mean Uncover wanders.
+Uncover is the longest phase of a full-arc investigation, and the one where the earlier phases pay off most. Strong Alert, Subject, and Scope work means Uncover is structured. Weak earlier phases mean Uncover wanders.
 </KeyTakeaway>
 
-<PuzzleProgress current="uncover" />
+<ContinueCard current="uncover" nextHref="/docs/uncover/data-sources/" nextLabel="Data sources" nextDescription="The evidence sources an Uncover investigation pulls from, which question each one answers, and where its visibility ends." ctaLabel="Read data sources" />
 
-<ContinueCard current="uncover" nextHref="/docs/uncover/data-sources/" nextLabel="Data sources" nextDescription="The 17 telemetry sources an Uncover investigation pulls from, and what each one is good for." ctaLabel="Read data sources" />
-
-<style>
-{`
-@media (min-width: 768px) { .pillars-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1200px) { .pillars-grid { grid-template-columns: repeat(3, 1fr); } }
-.pillar--uncover { position: relative; display: flex; flex-direction: column; gap: 0.5rem; padding: 1.5rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(249, 115, 22, 0.25); border-radius: 0.85rem; color: var(--assured-text); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
-.pillar--uncover:hover { transform: translateY(-3px); border-color: #f97316; box-shadow: 0 16px 32px -12px rgba(249, 115, 22, 0.35); }
-.pillar__num { position: absolute; top: 1.25rem; right: 1.5rem; font-size: 0.75rem; font-weight: 800; color: rgba(253, 186, 116, 0.7); }
-.pillar--uncover h3 { margin: 0; color: var(--assured-text); font-size: 1.1rem; }
-.pillar--uncover p { margin: 0; color: var(--assured-text-muted); line-height: 1.55; font-size: 0.95rem; }
-.pillar__cta { margin-top: auto; color: #fb923c; font-weight: 600; font-size: 0.9rem; }
-
-`}
-</style>

@@ -1,38 +1,42 @@
 ---
 title: "The one-page reference"
-description: "The seven phases on one card: anchor question, deliverable, and exit decision for each, plus the escalation checklist and the depth ladder. Built to print."
+description: "The seven phases on one card: anchor question, deliverable, and exit decision for each, plus the priority matrix and clocks, the escalation checklist, the confidence rubric, the regulatory clocks, the depth ladder and the closure review. Built to print."
 showToc: false
+techVerified: "2026-10-13"
 ---
 
 import LetterChip from "@/components/assured/LetterChip.astro";
+import PriorityMatrix from "@/components/assured/PriorityMatrix.astro";
+import EscalationRule from "@/components/assured/EscalationRule.astro";
+import "@/styles/pages/root.css";
 
-<p class="ref-intro">The whole methodology on one card: what each phase asks, what it must produce, and the decision that exits it. Print it with your browser's print dialog (Ctrl+P or Cmd+P); the print stylesheet turns it into a desk card. The <a href="/docs/intro/">introduction</a> teaches it; this page only reminds you of it.</p>
+<p class="ref-intro">The whole methodology on one card: what each phase asks, what it must produce, and the decision that exits it. Print it with your browser's print dialog (Ctrl+P or Cmd+P); the print stylesheet turns it into a desk card. The <a href="/docs/intro/">introduction</a> teaches it; this page only reminds you of it. Every term on it, from the <a href="/docs/glossaries/assured/#depth-ladder">depth ladder</a> to the <a href="/docs/glossaries/assured/#confidence-rubric">confidence rubric</a>, is defined in the <a href="/docs/glossaries/assured/">ASSURED terms glossary</a>.</p>
 
-<div class="ref-flow" aria-label="The seven phases in order">
-  <span class="ref-flow__stage">Prepare</span>
+<div class="ref-flow" role="img" aria-label="The three stages: Orient covers Alert, Subject and Scope; Investigate covers Uncover and Risk, looping with Scope; Resolve covers the Escalation decision and Documentation.">
+  <span class="ref-flow__stage">Orient</span>
   <span class="ref-flow__letters"><LetterChip letter="A" phase="alert" size="sm" /><LetterChip letter="S" phase="subject" size="sm" /><LetterChip letter="S" phase="scope" size="sm" /></span>
   <span class="ref-flow__arrow" aria-hidden="true">→</span>
   <span class="ref-flow__stage">Investigate</span>
-  <span class="ref-flow__letters ref-flow__letters--loop"><LetterChip letter="U" phase="uncover" size="sm" /><LetterChip letter="R" phase="risk" size="sm" /><span class="ref-flow__loop">↺ loops with Scope</span></span>
+  <span class="ref-flow__letters ref-flow__letters--loop"><LetterChip letter="U" phase="uncover" size="sm" /><LetterChip letter="R" phase="risk" size="sm" /><span class="ref-flow__loop"><span aria-hidden="true">↺ </span>loops with Scope</span></span>
   <span class="ref-flow__arrow" aria-hidden="true">→</span>
   <span class="ref-flow__stage">Resolve</span>
   <span class="ref-flow__letters"><LetterChip letter="E" phase="escalation" size="sm" /><LetterChip letter="D" phase="documentation" size="sm" /></span>
 </div>
 
-<p class="ref-hooks">Memory hooks: the two S's are <strong>who before where</strong>. E is <strong>the decision, not the outcome</strong>; most verdicts close. A confirmed escalation criterion exits from <strong>any</strong> phase (the break-glass rule).</p>
+<p class="ref-hooks">Memory hooks: the two S's are <strong>who before where</strong>. Risk recommends; <strong>E decides</strong>, and most verdicts close. A confirmed escalation criterion exits from <strong>any</strong> phase (the escalation tripwire). Early exits, a Level 0 close or a tripwire escalation, are early E decisions, recorded in the E fields of the record.</p>
 
 ## The seven phases
 
 <div class="ref-phases">
   <div class="ref-phase ref-phase--alert">
     <div class="ref-phase__head"><LetterChip letter="A" phase="alert" size="sm" /><a href="/docs/alert/">Alert</a><span class="ref-phase__q">What fired, and why?</span></div>
-    <p class="ref-phase__out"><strong>Produce:</strong> the validated alert (detection mechanism and its trust level, normalized fields, validation results) plus flagged leads and temporal anchors.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> known-benign pattern, discriminators and eligibility gate proven → Level 0 five-field close · no real signal → close as false-positive with detection feedback · validated signal → Subject.</p>
+    <p class="ref-phase__out"><strong>Produce:</strong> the validated alert (detection mechanism and its trust level, normalized fields, validation results), the depth level with its reason, plus flagged leads, the working hypothesis with its alternatives, known gaps, and temporal anchors.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> known-benign pattern, discriminators and eligibility gate proven → Level 0 five-field close · rule misread the activity → close as false positive (logic or data) with detection feedback · rule right, activity authorized → benign true positive, close with a pattern-entry proposal or a scoped, expiring exception; the rule stays as written · validated signal → Subject · no rule raised it (a user report, a notification) → ask what was reported, by whom, and what can be verified independently, then run the same moves (<a href="/docs/alert/intake/">other intake</a>).</p>
   </div>
   <div class="ref-phase ref-phase--subject">
     <div class="ref-phase__head"><LetterChip letter="S" phase="subject" size="sm" /><a href="/docs/subject/">Subject</a><span class="ref-phase__q">Who is involved?</span></div>
-    <p class="ref-phase__out"><strong>Produce:</strong> the entity map (primary, secondary, downstream), per-entity assessment on the four dimensions, baselines with confidence labels, insider indicators (or "none observed").</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> all four dimensions clean and the alert explained → close with evidence · any dimension dirty or unexplained → Scope · insider pattern → engage HR/legal channel, do not tip the subject.</p>
+    <p class="ref-phase__out"><strong>Produce:</strong> the entity map (primary, secondary, downstream), the relationship graph (trust paths, lateral-movement candidates), per-entity assessment on the four dimensions, baselines with confidence labels, insider indicators from observable technical activity (or "none observed").</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> all four dimensions clean and the alert explained → record the clean verdict explicitly and hand Scope a narrow recommendation; the remaining phases collapse into single moves (Level 1) toward a documented close at E · any dimension dirty or unexplained → Scope · insider pattern → route it through the insider-risk process, do not tip the subject.</p>
   </div>
   <div class="ref-phase ref-phase--scope">
     <div class="ref-phase__head"><LetterChip letter="S" phase="scope" size="sm" /><a href="/docs/scope/">Scope</a><span class="ref-phase__q">Where are the lines?</span></div>
@@ -42,108 +46,116 @@ import LetterChip from "@/components/assured/LetterChip.astro";
   <div class="ref-phase ref-phase--uncover">
     <div class="ref-phase__head"><LetterChip letter="U" phase="uncover" size="sm" /><a href="/docs/uncover/">Uncover</a><span class="ref-phase__q">What does the evidence say?</span></div>
     <p class="ref-phase__out"><strong>Produce:</strong> the confidence-labeled timeline, the hypothesis ledger with recorded negatives, and the ATT&CK mapping of the reconstructed chain.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> evidence supports a benign explanation → Risk with a close recommendation · malicious chain reconstructed → Risk · criterion confirmed mid-phase → escalate now, finish the phases under IR's clock.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> evidence supports a benign explanation → Risk with a close recommendation · malicious chain reconstructed → Risk · criterion confirmed mid-phase → escalate now (escalation tripwire), then work only the scoping tasks the IR owner assigns.</p>
   </div>
   <div class="ref-phase ref-phase--risk">
     <div class="ref-phase__head"><LetterChip letter="R" phase="risk" size="sm" /><a href="/docs/risk/">Risk</a><span class="ref-phase__q">How bad is it, and how confident are we?</span></div>
-    <p class="ref-phase__out"><strong>Produce:</strong> the impact × likelihood verdict scored on the RATM rubric, the priority from the triage matrix (P1 to P4), and a named confidence level.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> P1 → escalate immediately, warm handoff · P2 → escalate within the shift · P3 → keep working, re-score within 24 hours on a named trigger (High/Low: the tightened high-impact clock, hours not 24) · P4 → document and close.</p>
+    <p class="ref-phase__out"><strong>Produce:</strong> the impact rating, the likelihood rating (how probable it is that the activity is malicious or unauthorized), and the analytic confidence in that judgment, scored on the RATM rubric (ASSURED's Risk-Based Alert Triage Matrix); the matrix cell; the priority (P1 to P4); and a recommended move.</p>
+    <p class="ref-phase__decide"><strong>Recommend:</strong> P1 → escalate immediately, warm handoff · P2 → escalate within 4 hours · P3 → keep working to the named re-score trigger, re-score within 24 hours (High/Low: within hours; Low/High: confirm and close) · P4 → documented close. E makes and records the decision.</p>
   </div>
   <div class="ref-phase ref-phase--escalation">
-    <div class="ref-phase__head"><LetterChip letter="E" phase="escalation" size="sm" /><a href="/docs/escalation/">Escalation</a><span class="ref-phase__q">Who needs to know, and with what context?</span></div>
-    <p class="ref-phase__out"><strong>Produce:</strong> the close-or-escalate decision against the pre-committed criteria, and (on escalate) the nine-section handoff packet that survives the five-minute cold read.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> criterion met → escalate through the protocol tier the criterion names · no criterion met → documented close, a first-class verdict · either way, the reasoning goes in the record.</p>
+    <div class="ref-phase__head"><LetterChip letter="E" phase="escalation" size="sm" /><a href="/docs/escalation/">Escalation decision</a><span class="ref-phase__q">Close or escalate, and who needs to know?</span></div>
+    <p class="ref-phase__out"><strong>Produce:</strong> the close-or-escalate decision, recorded with the matrix cell, and (on escalate) the nine-section handoff packet (summary, timeline, entities, evidence chain, risk verdict, containment, artifacts, open questions, communication record) that a responder with no context can act on within five minutes.</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> criterion confirmed, or P1/P2 → escalate through the tier the protocol names · P3 → keep working to the named re-score trigger, then decide · P4 → documented close, a first-class verdict · either way, the reasoning goes in the record.</p>
   </div>
   <div class="ref-phase ref-phase--documentation">
     <div class="ref-phase__head"><LetterChip letter="D" phase="documentation" size="sm" /><a href="/docs/documentation/">Documentation</a><span class="ref-phase__q">What did we decide, and what did we learn?</span></div>
-    <p class="ref-phase__out"><strong>Produce:</strong> the event report (nine sections), the sanitized share version, links to every related artifact, and the detection-engineering brief.</p>
-    <p class="ref-phase__decide"><strong>Decide:</strong> record passes closure review → case closed · reviewer requests clarification → fix the record, not the memory of it · exemplary either way → training archive.</p>
+    <p class="ref-phase__out"><strong>Produce:</strong> the record for the rung (the five-field record at Level 0, the alert report at Level 1, the nine-section event report at Level 2), links to every related artifact, and the detection-engineering feedback (a <a href="/docs/detection-feedback/#the-tuning-request">tuning request</a> or a pattern-entry proposal).</p>
+    <p class="ref-phase__decide"><strong>Decide:</strong> record passes review (per-case closure review at Level 2; Level 0 and 1 closes through the weekly QA sample) → case closed · reviewer requests clarification → fix the record, not the memory of it · exemplary either way → training archive.</p>
   </div>
 </div>
 
+## The matrix and the clocks
+
+<PriorityMatrix variant="compact" />
+
+<p class="ref-note"><strong>Overrides, in order:</strong> 1 · Escalation tripwire: any criterion confirmed → P1, whatever the cell. 2 · High-impact clock: High/Low re-scores within hours (4 by default), not 24; a "Low" that is really missing evidence is Unknown: likelihood reads Medium at minimum, confidence reads Low, and the case is High/Medium, P2. 3 · De-escalation is explicit: a named reason and the same notification an upgrade gets. Confidence (High / Medium / Low, on the shared rubric below) is recorded beside the cell; unknown is low confidence, not low likelihood. Full rules: <a href="/docs/risk/framework/#overrides">the override rules</a>.</p>
+
+<EscalationRule show={["clocks"]} variant="compact" />
+
 ## The escalation checklist
 
-Run at every phase. Any criterion <strong>confirmed</strong> escalates immediately (break-glass, P1); suspicion refines Scope instead. The full checklist with sub-checks is a template: <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>.
+Run at every phase. Any criterion <strong>confirmed</strong> (supported at High confidence on the <a href="#the-confidence-rubric">confidence rubric</a>) escalates immediately under the escalation tripwire and makes the case P1; suspicion refines Scope instead. The full checklist with sub-checks is a template: <a href="/templates/escalation-checklist.md" download><span aria-hidden="true">⬇ </span>escalation-checklist.md</a>.
 
 <div class="ref-crit">
-  <div class="ref-crit__item">✅ <strong>Confirmed malicious activity.</strong> Verified IOCs, malware, exploitation, corroborated ATT&CK-mapped techniques.</div>
-  <div class="ref-crit__item">💎 <strong>High impact / business-critical.</strong> Confirmed malicious or unauthorized activity touching production, regulated data, or identity infrastructure; escalate before the evidence picture is complete. Asset profile alone never breaks glass; it tightens the clock (Risk's override rules): missing evidence reads High/Medium (P2, within shift), benign-leaning evidence High/Low (P3, tightened clock).</div>
-  <div class="ref-crit__item">↔️ <strong>Lateral movement or exfiltration.</strong> A second host, account, or trust boundary; staging or outbound transfer. Blast radius is growing.</div>
-  <div class="ref-crit__item">🌐 <strong>Ongoing or widespread campaign.</strong> Multiple hosts or users, shared infrastructure or lures, coordinated timing.</div>
+  <div class="ref-crit__item"><strong>1 · Confirmed malicious activity not fully contained by a control.</strong> Verified IOCs (indicators of compromise), malware, exploitation, corroborated ATT&CK-mapped techniques. Blocked or quarantined by a control with no execution or follow-on evidence is contained by control: P3 or P4 and a pattern-entry candidate, not a page.</div>
+  <div class="ref-crit__item"><strong>2 · High impact / business-critical.</strong> Confirmed malicious or unauthorized activity on production, regulated data, or identity infrastructure: escalate before the picture is complete. Asset profile alone never trips the escalation tripwire; it tightens the Risk clock (missing evidence → High/Medium, P2 within 4 hours; benign-leaning → High/Low, P3, hours not 24).</div>
+  <div class="ref-crit__item"><strong>3 · Lateral movement or exfiltration.</strong> Attacker activity reaching a second host, account, or trust boundary; staging or outbound transfer. Blast radius is growing. Signs: credential dumping (T1003) followed by pass-the-hash or pass-the-ticket; internal discovery (net, nltest, AD cmdlets, BloodHound); remote execution with PsExec or WMI from a non-admin workstation; tunneling; large or unusual outbound transfers or staged archives.</div>
+  <div class="ref-crit__item"><strong>4 · Ongoing or widespread campaign.</strong> Multiple hosts or users, shared infrastructure or lures, coordinated timing.</div>
 </div>
+
+<p class="ref-note">Operational route, no criterion required: a single analyst who cannot both watch the queue and work a confirmed case escalates on capacity. Name the route in the handoff.</p>
+
+<p class="ref-sign"><strong>Before you sign:</strong> can you point to the raw field behind each claim? Can you name the result that would change your mind? Did any of this come from an AI draft, and did you verify it against raw telemetry?</p>
+
+## The confidence rubric
+
+<div class="ref-conf">
+  <div class="ref-conf__item"><strong>HIGH:</strong> direct evidence from a source trusted for exactly this kind of claim, corroborated by at least one independent source, with the plausible alternatives tested and ruled out. A criterion is confirmed only here.</div>
+  <div class="ref-conf__item"><strong>MEDIUM:</strong> single-source evidence or strong inference. Alternatives are plausible but less likely, and nothing found so far contradicts the claim.</div>
+  <div class="ref-conf__item"><strong>LOW:</strong> circumstantial, incomplete, or resting on the absence of contrary evidence. Gaps material to the claim remain open.</div>
+</div>
+
+<p class="ref-note"><strong>Usage:</strong> label the claim, not the case · between two levels, round the label down (never the likelihood) · record what kept a malicious claim from HIGH as an open question and close it first · unknown is not low: evidence that could not be examined means low confidence, never low likelihood. Full rubric: <a href="/docs/documentation/standards/#confidence">Documentation standards</a>.</p>
+
+## The regulatory clocks
+
+The analyst recognizes, timestamps and routes; counsel and the privacy owners decide notification. Commit the recognition timestamp to the record the moment regulated data is plausibly in reach.
+
+<div class="ref-reg" role="table" aria-label="Common regulatory clocks and what starts them">
+  <div class="ref-reg__row" role="row"><span role="columnheader">Regime</span><span role="columnheader">First deadline</span><span role="columnheader">Runs from</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">GDPR / UK GDPR</span><span role="cell">72 hours (authority), where feasible</span><span role="cell">Awareness: a reasonable degree of certainty that personal data was compromised</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">NIS2</span><span role="cell">24-hour early warning, 72-hour notification</span><span role="cell">Awareness of a significant incident</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">EU Cyber Resilience Act</span><span role="cell">24-hour early warning, 72-hour notification (manufacturers, since 11 September 2026)</span><span role="cell">Awareness of an actively exploited vulnerability or a severe incident in a product you make</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">DORA</span><span role="cell">Initial notice 4 hours after classifying as major</span><span role="cell">Classification, and no later than 24 hours from awareness</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">PCI DSS (card brands)</span><span role="cell">Immediate to the acquirer; Visa within 3 calendar days</span><span role="cell">Suspicion of account-data compromise, not confirmation</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">US banking rule</span><span role="cell">36 hours to the primary federal regulator</span><span role="cell">Determining a notification incident occurred</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">NYDFS 500.17</span><span role="cell">72 hours; an extortion payment, 24 hours</span><span role="cell">Determining a cybersecurity incident occurred</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">SEC Form 8-K</span><span role="cell">Four business days</span><span role="cell">The materiality determination</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">SEC Regulation S-P</span><span role="cell">Affected individuals within 30 days</span><span role="cell">Awareness that sensitive customer information was, or is reasonably likely to have been, accessed</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">FTC Safeguards Rule</span><span role="cell">The FTC within 30 days (500 or more consumers)</span><span role="cell">Discovery</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">HIPAA</span><span role="cell">Without unreasonable delay, 60 days at the latest</span><span role="cell">Discovery</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">California</span><span role="cell">30 calendar days</span><span role="cell">Discovery or notification of the breach</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">India: CERT-In</span><span role="cell">6 hours</span><span role="cell">Noticing the incident or being told about it</span></div>
+  <div class="ref-reg__row" role="row"><span role="rowheader">Contracts and cyber insurance</span><span role="cell">Often 24 to 72 hours; insurers often want notice before outside IR is engaged</span><span role="cell">As the contract or policy defines it; read it</span></div>
+</div>
+
+<p class="ref-note">Law as of 13 October 2026. Contracts and insurance policies often carry shorter clocks than any statute. Full recognition table, sources and law-as-of date: <a href="/docs/scope/clocks/">Regulatory clock card</a>. What the analyst does with a clock: <a href="/docs/scope/regulatory/">Regulatory boundaries</a>.</p>
 
 ## The depth ladder
 
 <div class="ref-ladder">
-  <div class="ref-ladder__rung"><strong>Level 0 · Pattern close.</strong> Known-benign pattern, library discriminators pass, eligibility gate proven from source systems (unknown fails it), five-field record. Minutes.</div>
-  <div class="ref-ladder__rung"><strong>Level 1 · Standard triage.</strong> The seven phases at working depth. Most validated alerts live here.</div>
-  <div class="ref-ladder__rung"><strong>Level 2 · Full arc.</strong> The seven phases at full depth with the nine-section report. Multiple subjects, privilege, regulated data, or anything that survived Level 1 unresolved.</div>
+  <div class="ref-ladder__rung"><strong>Level 0 · Pattern close, ≤ 5 minutes.</strong> Known-benign pattern on a governed library entry, discriminators pass, eligibility gate proven from source systems (unknown fails it; privileged identities always fail it), five-field record.</div>
+  <div class="ref-ladder__rung"><strong>Level 1 · Standard triage, about 15 to 45 minutes.</strong> The seven phases at working depth. The default rung for cases with no matching pattern and a bounded blast radius.</div>
+  <div class="ref-ladder__rung"><strong>Level 2 · Full arc, about 25 to 80 minutes for a senior analyst.</strong> The seven phases at full depth with the nine-section event report. Crown-jewel subject, privileged identity, regulated data plausibly accessed by the activity, a second subject, a novel detection or correlated alert chain, or anything that survived Level 1 unresolved.</div>
 </div>
 
-Any surprise moves the case <strong>up</strong> a level, never down mid-case. Depth and urgency are separate decisions: break-glass escalates even from inside a Level 0 check. Full rules: <a href="/docs/fast-path/">the fast path</a>.
+Any surprise moves the case <strong>up</strong> a level, never down mid-case. The case is the unit: grouped alerts take the level of their riskiest member. Depth and urgency are separate decisions: the escalation tripwire fires even from inside a Level 0 check. Full rules: <a href="/docs/fast-path/">the fast path</a>.
+
+## The closure review
+
+Level 2, P1/P2 and escalated-then-closed records each get this review; Level 0 and 1 closes are covered by the weekly QA sample. The reviewer accepts the record, requests clarification, or flags it as a training case.
+
+<ul class="ref-review">
+  <li>Decision header complete: both verdict axes in the fixed vocabulary, the Escalation decision with who and when, the priority with its cell or override.</li>
+  <li>Every factual claim cites its source: a query and time range, a log record ID, or an artifact hash.</li>
+  <li>Confidence labeled per claim on the rubric above, not once for the case.</li>
+  <li>Negative findings name what was examined, not just "nothing found."</li>
+  <li>Timeline in UTC with the date; each entry has an actor, a rationale and an outcome.</li>
+  <li>Open questions from the handoff resolved or carried forward.</li>
+  <li>Material AI use declared, "none" included.</li>
+  <li>Benign and authorized closes state their reopen conditions.</li>
+</ul>
+
+<p class="ref-note">Full checklist: <a href="/docs/documentation/standards/#closure-review">Documentation standards</a>.</p>
 
 ## The templates
 
 <div class="ref-templates">
-  <a href="/templates/pattern-close-record.md" download>⬇ pattern-close-record.md</a>
-  <a href="/templates/pattern-entry.md" download>⬇ pattern-entry.md</a>
-  <a href="/templates/alert-report.md" download>⬇ alert-report.md</a>
-  <a href="/templates/handoff-packet.md" download>⬇ handoff-packet.md</a>
-  <a href="/templates/event-report.md" download>⬇ event-report.md</a>
-  <a href="/templates/escalation-checklist.md" download>⬇ escalation-checklist.md</a>
+  <a href="/templates/pattern-close-record.md" download><span aria-hidden="true">⬇ </span>pattern-close-record.md</a>
+  <a href="/templates/pattern-entry.md" download><span aria-hidden="true">⬇ </span>pattern-entry.md</a>
+  <a href="/templates/alert-report.md" download><span aria-hidden="true">⬇ </span>alert-report.md</a>
+  <a href="/templates/handoff-packet.md" download><span aria-hidden="true">⬇ </span>handoff-packet.md</a>
+  <a href="/templates/event-report.md" download><span aria-hidden="true">⬇ </span>event-report.md</a>
+  <a href="/templates/escalation-checklist.md" download><span aria-hidden="true">⬇ </span>escalation-checklist.md</a>
 </div>
-
-<style>{`
-.ref-intro { font-size: 1.02rem; }
-
-.ref-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.85rem; margin: 1.4rem 0 0.9rem 0; padding: 0.9rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.7rem; }
-.ref-flow__stage { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--assured-text-soft); }
-.ref-flow__letters { display: inline-flex; align-items: center; gap: 0.35rem; }
-.ref-flow__arrow { color: var(--assured-text-dim); }
-.ref-flow__loop { font-size: 0.75rem; color: var(--assured-text-dim); margin-left: 0.25rem; }
-
-.ref-hooks { font-size: 0.92rem; color: var(--assured-text-muted); }
-
-.ref-phases { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.25rem 0; }
-.ref-phase { padding: 0.95rem 1.2rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-left: 3px solid var(--ref-accent, #64748b); border-radius: 0.6rem; }
-.ref-phase--alert { --ref-accent: #3b82f6; }
-.ref-phase--subject { --ref-accent: #22c55e; }
-.ref-phase--scope { --ref-accent: #a855f7; }
-.ref-phase--uncover { --ref-accent: #f97316; }
-.ref-phase--risk { --ref-accent: #ef4444; }
-.ref-phase--escalation { --ref-accent: #6366f1; }
-.ref-phase--documentation { --ref-accent: #14b8a6; }
-.ref-phase__head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-bottom: 0.45rem; }
-.ref-phase__head a { color: var(--assured-text); font-weight: 700; font-size: 1rem; text-decoration: none; }
-.ref-phase__head a:hover { text-decoration: underline; }
-.ref-phase__q { color: var(--assured-text-soft); font-size: 0.9rem; font-style: italic; }
-.ref-phase__out, .ref-phase__decide { margin: 0 0 0.3rem 0; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.55; }
-.ref-phase__decide { margin-bottom: 0; }
-.ref-phase__out strong, .ref-phase__decide strong { color: var(--assured-text); }
-
-.ref-crit { display: grid; grid-template-columns: 1fr; gap: 0.55rem; margin: 1.1rem 0; }
-@media (min-width: 768px) { .ref-crit { grid-template-columns: 1fr 1fr; } }
-.ref-crit__item { padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(99, 102, 241, 0.22); border-radius: 0.55rem; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.5; }
-.ref-crit__item strong { color: var(--assured-text); }
-
-.ref-ladder { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.1rem 0; }
-.ref-ladder__rung { padding: 0.7rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 0.55rem; color: var(--assured-text-muted); font-size: 0.88rem; line-height: 1.5; }
-.ref-ladder__rung strong { color: var(--assured-text); }
-
-.ref-templates { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.1rem 0; }
-.ref-templates a { padding: 0.5rem 0.9rem; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 0.5rem; color: var(--assured-text); font-size: 0.85rem; font-family: var(--font-mono); text-decoration: none; }
-.ref-templates a:hover { border-color: var(--assured-accent); }
-
-@media print {
-  .ref-intro, .ref-hooks { font-size: 8.5pt; }
-  .ref-flow { padding: 0.4rem 0.7rem; margin: 0.5rem 0; }
-  .ref-phases { gap: 0.35rem; }
-  .ref-phase { padding: 0.45rem 0.7rem; }
-  .ref-phase__head { margin-bottom: 0.15rem; }
-  .ref-phase__out, .ref-phase__decide, .ref-crit__item, .ref-ladder__rung { font-size: 8pt; line-height: 1.4; }
-  .ref-crit { grid-template-columns: 1fr 1fr; gap: 0.3rem; }
-  .ref-crit__item, .ref-ladder__rung { padding: 0.35rem 0.6rem; }
-  .ref-ladder { gap: 0.3rem; }
-  h2 { font-size: 11pt !important; margin: 0.6rem 0 0.4rem 0 !important; }
-}
-`}</style>

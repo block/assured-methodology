@@ -1,54 +1,52 @@
 ---
-title: "Transition to Escalation"
-description: "Risk delivered the verdict. Escalation is the operational pivot from triage to response, governed by the dynamic loop and explicit criteria."
+title: "Transition to the Escalation decision"
+description: "Risk delivered the score and a recommended move. The Escalation decision makes the close-or-escalate call; when the answer is escalate, it is where triage hands the case to response."
 ---
 
-import Callout from "@/components/assured/Callout.astro";
 import KeyTakeaway from "@/components/assured/KeyTakeaway.astro";
-import PuzzleProgress from "@/components/assured/PuzzleProgress.astro";
+import SevenQuestions from "@/components/assured/SevenQuestions.astro";
 import SubPageHero from "@/components/assured/SubPageHero.astro";
 import PillNav from "@/components/assured/PillNav.astro";
 import DefineTerm from "@/components/assured/DefineTerm.astro";
+import "@/styles/pages/risk.css";
 
-<SubPageHero phase="risk" parentLetter="R" pillarIndex="Transition" pillarTotal="Risk to Escalation" chapterHref="/docs/risk/" chapterLabel="Risk" lede="Within ASSURED, escalation is the formal transition from triage to response. It is the outcome of a structured risk evaluation, not merely a handoff, but an operational pivot driven by cumulative findings."/>
+<SubPageHero phase="risk" pillarIndex="Transition" lede="Risk delivered a scored case and a recommended move. The Escalation decision now makes the close-or-escalate call and records it; when the answer is escalate, it is also the point where triage hands the case to response."/>
 
-<PillNav chapter="risk" label="Risk chapter" items={[
-  { label: "Impact + likelihood", href: "/docs/risk/impact-likelihood/", phase: "risk" },
-  { label: "Framework", href: "/docs/risk/framework/", phase: "risk" },
-  { label: "The false-positive", href: "/docs/risk/false-positive/", phase: "risk" },
-]}/>
+<PillNav chapter="risk" />
 
-<Callout variant="info" title="Five phases complete. The next begins.">
-Alert, Subject, Scope, Uncover, and Risk together produced the picture and the verdict. Escalation now elevates the event beyond triage when the cumulative findings indicate the activity exceeds predefined thresholds of acceptable risk.
-</Callout>
+## The handoff contract
+
+<dl class="handoff-contract">
+  <dt>Deliverable</dt>
+  <dd>The <a href="/docs/risk/impact-likelihood/#verdict-block">Risk verdict block</a>: impact, likelihood and confidence with their rationale, the cell and priority, any override that fired, open questions and a recommended move. If the case escalates, it becomes section 5 of the <a href="/templates/handoff-packet.md" download>handoff packet</a>.</dd>
+  <dt>Close path</dt>
+  <dd>P4 recommends a documented close. P3 keeps working to its named re-score trigger, then recommends close or escalate. An <a href="/docs/risk/framework/#undetermined">undetermined</a> verdict names its gaps and a re-score trigger; it never closes silently.</dd>
+  <dt>What the next phase asks</dt>
+  <dd>Close or escalate, and who needs to know? The Escalation decision applies one rule: escalate if a criterion is confirmed or the matrix places the case at P1 or P2; at P3, keep working to the trigger, then decide; close at P4. The <a href="/docs/escalation/criteria/">four canonical criteria</a> and the <a href="/docs/escalation/handoff/">handoff packet</a> live there.</dd>
+  <dt>Depth</dt>
+  <dd>A Level 0 close never reaches this handoff: it is an early Escalation decision recorded in the five-field record. Level 1 hands over a few lines; Level 2 hands over the full RATM record.</dd>
+  <dt>You are ready if</dt>
+  <dd>
+    <ul>
+      <li>a reviewer who has not seen the case could read your cell, band and recommended move and reach the same call;</li>
+      <li>nothing that went unexamined is scored Low, and every P3 or undetermined case has a re-score trigger with a time.</li>
+    </ul>
+  </dd>
+</dl>
 
 ## The loop ends here, or it doesn't
 
-The Scope → Uncover → Risk loop introduced on the [Risk overview](/docs/risk/) is the engine that drove the investigation to this point. For an *unresolved* case, crossing into Escalation happens when the loop terminates, when the residual risk is well-enough understood to justify a resolution decision. If the evidence is ambiguous and the loop is still sharpening the picture, refine the scope and run it again rather than escalating a case you cannot yet defend.
+For an *unresolved* case, the [Scope → Uncover → Risk loop](/docs/risk/) ends when the residual risk is understood well enough to justify a resolution. If the evidence is still ambiguous, refine the scope and run it again, but on the clock the matrix set: a High-impact case whose uncertainty comes from missing evidence is already P2 and escalates within 4 hours while the loop continues.
 
-The loop is never a reason to sit on a confirmed criterion, though. A loop that is *confirming* new <DefineTerm term="Lateral Movement" display="lateral movement" /> or <DefineTerm term="Data Staging" display="data staging" /> has already answered the escalation question: the [break-glass rule](/docs/escalation/criteria/) fires, IR takes ownership, and the loop keeps running in parallel as scoping support under IR's clock. The distinction is confirmation versus suspicion. Suspicion iterates; confirmation escalates from wherever the investigation happens to be standing.
-
----
-
-## What the Escalation chapter picks up
-
-The ground this handoff feeds into is covered where it belongs, in the Escalation chapter. The <a href="/docs/escalation/criteria/">four canonical criteria</a> define when escalation is warranted: confirmed malicious activity, high-impact or business-critical systems, lateral movement or exfiltration, and an ongoing or widespread campaign. The <a href="/docs/escalation/handoff/">handoff packet</a> defines what makes an escalation actionable rather than merely justified.
-
-Risk's contribution to both is the verdict itself: impact, likelihood, and the named evidence that produced them, stated precisely enough that the packet can be assembled without re-deriving the investigation.
-
----
+The loop is never a reason to sit on a confirmed criterion. A loop that is *confirming* new <DefineTerm term="Lateral Movement" display="lateral movement" /> or <DefineTerm term="Data Staging" display="data staging" /> has already answered the escalation question: the [escalation tripwire](/docs/escalation/criteria/#tripwire) fires, IR takes ownership, and the loop keeps running as scoping support, as tasks the IR owner assigns, under IR's clock. Suspicion iterates; confirmation escalates from wherever the investigation happens to be standing.
 
 <KeyTakeaway>
-The decision to escalate reflects not just risk severity, but investigative completeness. If the evidence shows material risk that cannot be mitigated within the triage process, escalation becomes the formal point of transition. From this point forward, the event moves from isolated analysis to collaborative action, guided by organizational response frameworks.
+Escalation follows confirmation and the priority band, not investigative completeness. Risk hands over a scored case and a recommendation; the Escalation decision makes the call, closes with a documented record or escalates, and the remaining work continues under IR's clock.
 </KeyTakeaway>
 
-<PuzzleProgress current="risk" />
+<SevenQuestions current="risk" />
 
 <div class="end-cta">
   <a href="/docs/risk/" class="assured-cta assured-cta--ghost">← Back to Risk overview</a>
-  <a href="/docs/escalation/" class="assured-cta">Continue to Escalation →</a>
+  <a href="/docs/risk/quiz/" class="assured-cta">Take the Risk quiz →</a>
 </div>
-
-<style>{`
-.end-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin: 2rem 0 1rem; }
-`}</style>

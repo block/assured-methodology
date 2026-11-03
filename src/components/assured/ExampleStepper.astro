@@ -61,8 +61,10 @@ const predictPrompts: string[] | null = Array.isArray(predict)
       {/* Tabs pattern completed across markup + script: each tab gets an id
           and aria-controls here; the [data-step] panels are authored in MDX,
           so the bind script assigns their role="tabpanel"/id/aria-labelledby
-          at runtime. aria-label keeps the tab's accessible name when the
-          small-screen CSS hides .stepper__tab-label. */}
+          at runtime. The tab's accessible name is its label text (the
+          number is aria-hidden); small screens hide the label visually but
+          keep it in the accessibility tree. An aria-label here would omit
+          the visible number and fail axe label-content-name-mismatch. */}
       <nav class="stepper__tabs" role="tablist" aria-label="Walkthrough steps">
         {steps.map((label, i) => (
           <button
@@ -73,11 +75,10 @@ const predictPrompts: string[] | null = Array.isArray(predict)
             id={`${idBase}-tab-${i}`}
             aria-controls={`${idBase}-panel-${i}`}
             aria-selected={i === 0 ? "true" : "false"}
-            aria-label={label}
             tabindex={i === 0 ? 0 : -1}
           >
             <span class="stepper__tab-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-            <span class="stepper__tab-label" aria-hidden="true">{label}</span>
+            <span class="stepper__tab-label">{label}</span>
           </button>
         ))}
       </nav>
@@ -391,8 +392,19 @@ const predictPrompts: string[] | null = Array.isArray(predict)
       min-width: 2.75rem;
       min-height: 2.75rem;
       justify-content: center;
+      position: relative;
     }
-    .stepper__tab-label { display: none; }
+    .stepper__tab-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     .stepper__showall { min-height: 2.75rem; }
     .stepper__panels { padding: 1.25rem 1rem; }
     .stepper__btn { min-height: 2.75rem; }

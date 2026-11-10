@@ -54,10 +54,15 @@ const phases = navPhases.map((p) => ({
       const isCurrent = current === p.key;
       return (
         <li>
+          {/* The accessible name is the link's own text, not an aria-label:
+              an aria-label that omits the visible letter fails axe
+              label-content-name-mismatch (WCAG 2.5.3). The letter and short
+              label are hidden from AT; the visually hidden span carries the
+              full name, the current-phase marker and, once the chapter quiz
+              is done, the completion suffix. */}
           <a
             href={`/docs/${p.key}/`}
             class={`puzzle__piece puzzle__piece--${p.key} ${isCurrent ? "is-current" : ""}`}
-            aria-label={`${p.name}${isCurrent ? " (current phase)" : ""}`}
             aria-current={
               isCurrent
                 ? pagePath === `/docs/${p.key}/`
@@ -67,8 +72,11 @@ const phases = navPhases.map((p) => ({
             }
             data-puzzle-phase={p.key}
           >
-            <span class="puzzle__letter">{p.letter}</span>
-            <span class="puzzle__label">{p.label}</span>
+            <span class="puzzle__letter" aria-hidden="true">{p.letter}</span>
+            <span class="puzzle__label" aria-hidden="true">{p.label}</span>
+            <span class="puzzle__sr">
+              {`${p.name}${isCurrent ? " (current phase)" : ""}`}<span data-puzzle-done hidden>, quiz completed</span>
+            </span>
             <span class="puzzle__check" data-puzzle-check aria-hidden="true" hidden>✓</span>
           </a>
         </li>
@@ -176,6 +184,19 @@ const phases = navPhases.map((p) => ({
     display: none;
   }
 
+  /* Screen-reader-only accessible name (see the markup comment). */
+  .puzzle__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .puzzle--compact .puzzle__check {
     top: 0.15rem;
     right: 0.15rem;
@@ -273,14 +294,12 @@ const phases = navPhases.map((p) => ({
       const phase = tile.getAttribute("data-puzzle-phase") ?? "";
       const done = Object.prototype.hasOwnProperty.call(progress, phase);
       tile.classList.toggle("is-done", done);
-      const check = tile.querySelector<HTMLElement>("[data-puzzle-check]");
-      if (check) check.hidden = !done;
-      // Keep aria in sync without stacking suffixes across repeat runs.
-      if (!tile.dataset.baseLabel) tile.dataset.baseLabel = tile.getAttribute("aria-label") ?? "";
-      tile.setAttribute(
-        "aria-label",
-        done ? `${tile.dataset.baseLabel}, quiz completed` : tile.dataset.baseLabel,
-      );
+      // The tick and the accessible ", quiz completed" suffix toggle together.
+      tile
+        .querySelectorAll<HTMLElement>("[data-puzzle-check], [data-puzzle-done]")
+        .forEach((el) => {
+          el.hidden = !done;
+        });
     });
   }
   onPageReady(markCompletedPhases);

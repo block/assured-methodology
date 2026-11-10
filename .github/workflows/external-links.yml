@@ -30,8 +30,15 @@ jobs:
 
       # Reserved example names (.example, example.com, .test, .invalid) never
       # resolve by design, and the site's own URL is covered by the internal
-      # link gate. 403 and 429 are accepted: several standards bodies and
-      # vendors refuse automated clients, and a rate limit is not a dead link.
+      # link gate. --base-url resolves root-relative site links (/docs/...)
+      # to that URL so the exclude below skips them; without it lychee
+      # reports every one as an error. Single-label hosts are what lychee
+      # extracts from defanged indicators (https://host[.]example/...).
+      # 403, 429 and 444 (nginx dropping the connection) are accepted:
+      # several standards bodies and vendors refuse automated clients, and a
+      # rate limit is not a dead link. ftc.gov answers automated clients with
+      # 404 and sophos.com with an HTTP/2 protocol error even for live pages,
+      # so neither result is a signal.
       - name: Check external links
         id: lychee
         uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
@@ -46,13 +53,17 @@ jobs:
             --max-concurrency 8
             --max-retries 3
             --timeout 30
-            --accept '200..=299,403,429'
+            --accept '200..=299,403,429,444'
             --scheme https --scheme http
+            --base-url https://assured-methodology.vercel.app/
             --exclude-all-private
             --exclude '\.example([/:?#]|$)'
             --exclude '(^|[/.@])example\.(com|net|org)([/:?#]|$)'
             --exclude '\.(test|invalid|localhost)([/:?#]|$)'
+            --exclude '^https?://[^/.:?#]+([/:?#]|$)'
             --exclude '^https?://assured-methodology\.vercel\.app'
+            --exclude '^https?://(www\.)?ftc\.gov/'
+            --exclude '^https?://(www\.)?sophos\.com/'
             './src/content/**/*.mdx'
             './public/templates/**/*.md'
             './README.md'
